@@ -1,0 +1,19 @@
+"let g:yadr_disable_solarized_enhancements = 1
+
+" Disable indent highlighting
+let g:indent_guides_enable_on_vim_startup=0
+let g:indent_guides_auto_colors = 0
+
+" Use neocomplete.
+let g:neocomplete#enable_at_startup = 0
+
+"" Use smartcase.
+"let g:neocomplete#enable_smart_case = 1
+"" Case sensitive to complete
+"let g:neocomplete#enable_camel_case = 1
+
+" Disable auto-pairs:
+"let b:AutoPairs = {"(": ")"}
+
+" Rainbow plugin : (parenthesis and brackets colored by level)
+let g:rainbow_active = 1

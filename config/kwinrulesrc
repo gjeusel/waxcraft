@@ -1,0 +1,15 @@
+[1]
+Description=Paramètres de fenêtre pour « xfce4-terminal »
+clientmachine=nixos
+clientmachinematch=0
+size=900,567
+sizerule=3
+title=Online Documentation
+titlematch=1
+types=256
+wmclass=xfce4-terminal
+wmclasscomplete=false
+wmclassmatch=1
+
+[General]
+count=1

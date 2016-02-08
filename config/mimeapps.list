@@ -1,0 +1,25 @@
+[Default Applications]
+x-scheme-handler/http=userapp-Nightly-6KOJ8X.desktop
+x-scheme-handler/https=userapp-Nightly-6KOJ8X.desktop
+x-scheme-handler/ftp=userapp-Nightly-6KOJ8X.desktop
+x-scheme-handler/chrome=userapp-Nightly-6KOJ8X.desktop
+text/html=userapp-Nightly-6KOJ8X.desktop
+application/x-extension-htm=userapp-Nightly-6KOJ8X.desktop
+application/x-extension-html=userapp-Nightly-6KOJ8X.desktop
+application/x-extension-shtml=userapp-Nightly-6KOJ8X.desktop
+application/xhtml+xml=userapp-Nightly-6KOJ8X.desktop
+application/x-extension-xhtml=userapp-Nightly-6KOJ8X.desktop
+application/x-extension-xht=userapp-Nightly-6KOJ8X.desktop
+
+[Added Associations]
+x-scheme-handler/http=userapp-Nightly-6KOJ8X.desktop;
+x-scheme-handler/https=userapp-Nightly-6KOJ8X.desktop;
+x-scheme-handler/ftp=userapp-Nightly-6KOJ8X.desktop;
+x-scheme-handler/chrome=userapp-Nightly-6KOJ8X.desktop;
+text/html=userapp-Nightly-6KOJ8X.desktop;
+application/x-extension-htm=userapp-Nightly-6KOJ8X.desktop;
+application/x-extension-html=userapp-Nightly-6KOJ8X.desktop;
+application/x-extension-shtml=userapp-Nightly-6KOJ8X.desktop;
+application/xhtml+xml=userapp-Nightly-6KOJ8X.desktop;
+application/x-extension-xhtml=userapp-Nightly-6KOJ8X.desktop;
+application/x-extension-xht=userapp-Nightly-6KOJ8X.desktop;

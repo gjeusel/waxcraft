@@ -1,0 +1,13 @@
+#$HOME/.alias
+alias ls='ls --color'
+# some more ls aliases
+alias ll='ls -l'
+alias la='ls -A' #show only those who begin with '.' and directories
+
+#alias dir='dir --color=auto'
+#alias vdir='vdir --color=auto'
+
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+
