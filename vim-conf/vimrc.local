@@ -40,25 +40,23 @@ vnoremap <Space> za
 set shiftwidth=2                " Use indents of 2 spaces
 set tabstop=2                   " An indentation every 2 columns
 set softtabstop=2               " Let backspace delete indent
+set expandtab
 
 
 "Filetype defaults :
 if has("autocmd")
   au BufNewFile,BufRead *.nml set filetype=fortran
   au BufNewFile,BufRead *.namelist set filetype=fortran
-  "au BufNewFile,BufRead *.nix set filetype=nix
-  "au BufNewFile,BufRead *.sh set filetype=sh
-  "au BufNewFile,BufRead *.vimrc* set filetype=vim
-  "au BufNewFile,BufRead *.vim set filetype=vim
+  au BufNewFile,BufRead *.nix set filetype=nix
+  au BufNewFile,BufRead *.sh set filetype=sh
+  au BufNewFile,BufRead *.vimrc* set filetype=vim
+  au BufNewFile,BufRead *.vim set filetype=vim
 endif
 
-" Use local vimrc if available {
-    if filereadable(expand("~/.vimrc.before.local"))
-        source ~/.vimrc.before.local
-    endif
-" }
-
-syntax on
+" Use local vimrc if available
+if filereadable(expand("~/.vimrc.before.local"))
+    source ~/.vimrc.before.local
+endif
 
 " Plugins are loaded after .vimrc files, so in case of sourcing .vimrc files
 " while vim is being executed, we need to wrap the plugin into a try - endtry
@@ -70,40 +68,49 @@ if exists('g:rainbow_active')
   endtry
 endif
 
-" About Colors & Themes :
+"" highlight lines in Sy and vimdiff etc.)
+"highlight DiffAdd           cterm=bold ctermbg=none ctermfg=119
+"highlight DiffDelete        cterm=bold ctermbg=none ctermfg=167
+"highlight DiffChange        cterm=bold ctermbg=none ctermfg=227
+
+" For more info type :help highlight
+function! ToggleDarkSolarized()
+  syntax on
+  set background=dark
+  highlight Normal            cterm=none ctermbg=none ctermfg=DarkGrey
+  highlight LineNr            cterm=bold ctermbg=none ctermfg=DarkGrey
+  highlight foldcolumn                   ctermbg=none ctermfg=none
+  highlight CursorLine                   ctermbg=235
+  highlight SignColumn        cterm=none ctermbg=none
+  highlight SignifySignAdd    cterm=bold ctermbg=none ctermfg=64
+  highlight SignifySignDelete cterm=none ctermbg=none ctermfg=136
+  highlight SignifySignChange cterm=none ctermbg=none ctermfg=124
+endfunction
+
+function! ToggleLightSolarized()
+  syntax on
+  set background=light
+  highlight Normal            cterm=none ctermbg=230 ctermfg=DarkGrey
+  highlight LineNr            cterm=bold
+  highlight SignColumn        cterm=none ctermbg=187 ctermfg=240
+  highlight SignifySignAdd    cterm=bold ctermbg=187 ctermfg=64
+  highlight SignifySignDelete cterm=none ctermbg=187 ctermfg=136
+  highlight SignifySignChange cterm=none ctermbg=187 ctermfg=124
+endfunction
+
+" About Colors & Themes defaults :
 set t_Co=256            " use 256 colors in vim
 colorscheme solarized   " an appropriate color scheme
+call ToggleDarkSolarized()
 
-execute ":set background=dark"
-
-"Change Normal colors first
-execute ":highlight Normal cterm=NONE ctermfg=DarkGrey ctermbg=NONE"
-
-"Change the color of line number to DarkGrey and the background to wathever
-execute ":highlight LineNr cterm=bold ctermfg=DarkGrey ctermbg=NONE"
-
-" Change the highlight of the current line : (well choosed by colorscheme)
-"execute ":highlight CursorLine ctermbg=0"
-
-" Change the color of the foldcolumn :
-execute ":highlight foldcolumn ctermbg=NONE ctermfg=NONE"
-
-
-function! BgToggleSol()
+function! SwitchToggleSolarized()
   if &background == "light"
-    execute ":set background=dark"
-    execute ":highlight Normal cterm=NONE ctermfg=DarkGrey ctermbg=NONE"
-    execute ":highlight LineNr cterm=bold ctermfg=DarkGrey ctermbg=NONE"
-    "execute ":highlight CursorLine ctermbg=0"
-    execute ":highlight foldcolumn ctermbg=NONE ctermfg=NONE"
+    call ToggleDarkSolarized()
   else
-    execute ":set background=light"
-    execute ":highlight Normal cterm=NONE ctermfg=DarkGrey ctermbg=230"
-    execute ":highlight LineNr cterm=bold"
-    "execute ":highlight foldcolumn ctermbg=NONE ctermfg=NONE"
+    call ToggleLightSolarized()
   endif
 endfunction
-map <F4> :call BgToggleSol()<cr>
+map <F4> :call SwitchToggleSolarized()<cr>
 
 
 
@@ -279,12 +286,14 @@ endfunction
 "1}}}
 map <F5> :silent! :call Tabularize_fortran_subroutine_args()<cr>
 
-" Execute 'cmd' while redirecting output.
-" Delete all lines that do not match regex 'filter' (if not empty).
-" Delete any blank lines.
-" Delete '<whitespace><number>:<whitespace>' from start of each line.
-" Display result in a scratch buffer.
-"
+
+
+" Function to write in a vim buffer the output of vim commands :
+"   - Execute 'cmd' while redirecting output.
+"   - Delete all lines that do not match regex 'filter' (if not empty).
+"   - Delete any blank lines.
+"   - Delete '<whitespace><number>:<whitespace>' from start of each line.
+"   - Display result in a scratch buffer.
 function! s:Filter_lines(cmd, filter)
   let save_more = &more
   set nomore
@@ -305,3 +314,4 @@ endfunction
 command! -nargs=? Scriptnames call s:Filter_lines('scriptnames', <q-args>)
 command! -nargs=? Syntaxlist call s:Filter_lines('syntax list', <q-args>)
 command! -nargs=? VerboseHighlight call s:Filter_lines('verbose highlight', <q-args>)
+command! -nargs=? CurrentHighlight call s:Filter_lines('highlight', <q-args>)

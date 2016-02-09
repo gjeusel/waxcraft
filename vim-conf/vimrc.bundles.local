@@ -1,1 +1,2 @@
-Bundle 'LnL7/vim-nix'
+Plugin 'LnL7/vim-nix'
+Plugin 'vim-airline/vim-airline-themes'

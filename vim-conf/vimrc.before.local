@@ -1,11 +1,9 @@
-"let g:yadr_disable_solarized_enhancements = 1
-
 " Disable indent highlighting
 let g:indent_guides_enable_on_vim_startup=0
 let g:indent_guides_auto_colors = 0
 
 " Use neocomplete.
-let g:neocomplete#enable_at_startup = 0
+let g:neocomplete#enable_at_startup = 1
 
 "" Use smartcase.
 "let g:neocomplete#enable_smart_case = 1
@@ -17,3 +15,17 @@ let g:neocomplete#enable_at_startup = 0
 
 " Rainbow plugin : (parenthesis and brackets colored by level)
 let g:rainbow_active = 1
+
+
+" Vim-airline plugin
+let g:airline_theme = 'solarized'
+
+" see for patching terminal fonts :
+" https://powerline.readthedocs.org/en/latest/installation/linux.html#font-installation
+let g:airline_powerline_fonts=1
+
+"Automatically displays all buffers when there's only one tab open :
+let g:airline#extensions#tabline#enabled = 1
+
+" To avoid duplicating infos given by status line :
+let g:bufferline_echo = 0
