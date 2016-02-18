@@ -11,3 +11,39 @@ alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
 
+# Modules aliases
+alias maa='module avail 2>&1 |grep -i'
+alias ma='module avail 2>&1'
+alias ml='module list 2>&1'
+alias mll='module load'
+alias ms='module swap'
+alias mss='module show'
+alias mh='module help'
+alias mw='module whatis'
+
+#PrgEnv
+function _load_pgi_env() {
+module swap $(module list 2>&1 |grep --only-matching PrgEnv.*) PrgEnv-pgi
+
+ml
+}
+
+alias pgi='_load_pgi_env'
+
+### WIP
+#function _load_pgi_env() {
+##all_pgi_versions=$(module avail 2>&1 |grep --only-matching [^-]pgi.*|grep --only-matching [0-9.]*)
+#all_pgi_versions=$(module avail 2>&1 |grep --only-matching "[^-]pgi.*" )
+#only_numbers=$( "$($all_pgi_versions)" |grep --only-matching "[0-9.]*" )
+#echo $all_pgi_versions
+#echo $only_numbers
+##echo "${ar[*]}" | sort -nr | head -n1
+##max=0
+##for n in "${all_pgi_versions}" ; do
+##  if  [n -gt max]; then
+##    max=$n
+##  fi
+##done
+##echo $max
+#}
+
