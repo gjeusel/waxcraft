@@ -5,4 +5,10 @@ screenCount=1
 count=0
 
 [Session: saved at previous logout]
-count=0
+clientId1=10e169786f000145522902500000008570003
+count=1
+program1=xfce4-terminal
+restartCommand1=xfce4-terminal,--geometry=174x45,--display,:0.0,--role=xfce4-terminal-1455229025--273402214,--hide-menubar,--show-borders,--hide-toolbar,--working-directory,/root,--sm-client-id,10e169786f000145522902500000008570003
+restartStyleHint1=0
+userId1=root
+wasWm1=false
