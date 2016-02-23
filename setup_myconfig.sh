@@ -23,11 +23,18 @@ do
   ln -sf $vim_conf_dir/$f $HOME/.$f
 done
 
-# Copy bash config files
+# Include a line that source bashrc of myconfig at the end of the native bashrc
 bash_conf_dir="$myconfig_path/bash-conf"
-for f in `ls $bash_conf_dir`
-do
-  echo "Creating symlink for ${HOME}/.$f ---> \"$bash_conf_dir/$f\""
-  cp ${HOME}/.$f $old_conf_dir
-  #ln -sf $bash_conf_dir/$f $try_dir/.$f
-done
+
+# Save old files :
+cp ${HOME}/.bashrc $old_conf_dir
+cp ${HOME}/.inputrc $old_conf_dir
+cp ${HOME}/.bash_aliases $old_conf_dir
+
+printf "\n# Myconfig bashrc file sourcing :\nsource $bash_conf_dir/bashrc" >> ${HOME}/.bashrc
+
+# Creating symlink toward myconfig files :
+echo "Creating symlink for ${HOME}/.inputrc ---> \"$bash_conf_dir/inputrc\""
+ln -sf $bash_conf_dir/inputrc ${HOME}/.inputrc
+echo "Creating symlink for ${HOME}/.bash_aliases ---> \"$bash_conf_dir/bash_aliases\""
+ln -sf $bash_conf_dir/bash_aliases ${HOME}/.bash_aliases

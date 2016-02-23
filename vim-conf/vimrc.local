@@ -16,8 +16,18 @@ map <F1> :bp<cr>
 map <F2> :bn<cr>
 map <F12> :source ${HOME}/.vimrc.local<cr>
 
-" For no auto-indent :
-map <F8> :setl noai nocin nosi inde=<CR>
+" Function to handle auto-indent :
+function! SwitchToggleAutoIndent()
+  if &autoindent == "1"
+    setlocal noautoindent nocindent nosmartindent indentexpr=
+    echo "AutoIndent OFF"
+  else
+    setlocal autoindent cindent smartindent indentexpr=
+    echo "AutoIndent ON"
+  endif
+endfunction
+inoremap <F8> :call SwitchToggleAutoIndent()<cr>
+
 " For switching tabs with Shit-Tab :
 map <S-Tab>  :tabNext<cr>
 
@@ -25,9 +35,15 @@ map <S-Tab>  :tabNext<cr>
 map <F10> :cn<cr>
 
 " Better escape :
-inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
-inoremap <expr> <Esc> pumvisible() ? "\<C-e>" : "\<Esc>"
-iunmap <Esc>
+
+" Better autocompletion menu : 'Here's an alternative setup that feels a little more like the completion menu of other IDEs'
+inoremap <expr> <Esc>      pumvisible() ? "\<C-c>" : "\<Esc>"
+inoremap <expr> <CR>       pumvisible() ? "\<C-y>" : "\<CR>"
+inoremap <expr> <Down>     pumvisible() ? "\<C-n>" : "\<Down>"
+inoremap <expr> <Up>       pumvisible() ? "\<C-p>" : "\<Up>"
+inoremap <expr> <PageDown> pumvisible() ? "\<PageDown>\<C-p>\<C-n>" : "\<PageDown>"
+inoremap <expr> <PageUp>   pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<PageUp>"
+
 
 " Regarding folds
 set foldmethod=marker
@@ -45,6 +61,7 @@ set expandtab
 
 "Filetype defaults :
 if has("autocmd")
+  au BufNewFile,BufRead *.cuf set filetype=fortran
   au BufNewFile,BufRead *.nml set filetype=fortran
   au BufNewFile,BufRead *.namelist set filetype=fortran
   au BufNewFile,BufRead *.nix set filetype=nix
@@ -164,22 +181,6 @@ map <F4> :call SwitchToggleSolarized()<cr>
 "endfunction
 ""}}}
 
-"" Function to automatize Tabularize in ctests : {{{
-"function! Tabularize_autom()
-"  let s:command_tabularize_1 = ":/^set(SPH_.*/ Tabularize /^set(SPH_\\w* \\zs\\w*\\ze"
-"  execute s:command_tabularize_1
-
-"  let s:command_tabularize_1 = ":/^set(SPH_.*/ Tabularize /^set(SPH_\\w* \\zs\\w*\\ze"
-"  execute s:command_tabularize_1
-
-"  let s:command_tabularize_2 = ":/^set(SPH_.*/ Tabularize /^set(SPH_.*\\zs\"\\w.*\\ze"
-"  execute s:command_tabularize_2
-
-"  let s:command_tabularize_3 = ":/^set(SPH_.*/ Tabularize /^set(SPH_.*\\zsFORCE\\ze"
-"  execute s:command_tabularize_3
-"endfunction
-""}}}
-
 "" Function to add a pattern : {{{
 "function! Add_pattern()
 "  "let s:message_patern = s:get_visual_selection()
@@ -284,8 +285,18 @@ function! Tabularize_fortran_subroutine_args()
 
 endfunction
 "1}}}
-map <F5> :silent! :call Tabularize_fortran_subroutine_args()<cr>
+map <F3> :silent! :call Tabularize_fortran_subroutine_args()<cr>
 
+" Function to automatize Tabularize in ctests : {{{
+function! Tabularize_ctest_cache()
+  let s:command_tabularize_1 = ":/^set(.*/ Tabularize /^set(\\w* \\zs\\w*\\ze"
+  execute s:command_tabularize_1
+
+  let s:command_tabularize_2 = ":/^set(.*/ Tabularize /FORCE)"
+  execute s:command_tabularize_2
+endfunction
+"map <F3> :silent! :call Tabularize_ctest_cache()<cr>
+"}}}
 
 
 " Function to write in a vim buffer the output of vim commands :

@@ -1,26 +1,10 @@
-#$HOME/.bashrc
-
-# /etc/bashrc and /etc/bashrc.local are sourced before this.
-
 # If not running interactively, don't do anything
-if [ -z "$PS1" ]; then return; fi
-
-# PATH variable :
-export PATH=/root/projects/tools/:$PATH
-
-# Spack tool : bash script to load that also set PATH
-source $HOME/projects/spack/share/spack/setup-env.sh
-
-#Kwin script :
-export KWINSCRIPTS=$HOME/.kde/local/apps/kwin/scripts/
+if [ -z "$PS1"  ]; then return; fi
 
 # To adds a * to the branch name if the branch has been changed
 export GIT_PS1_SHOWDIRTYSTATE=1
-
 export EDITOR=vim
 export GIT_EDITOR=vim
-
-
 
 # Prompt shell setup : {{{
 ##################################################
