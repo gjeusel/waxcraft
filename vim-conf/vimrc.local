@@ -80,7 +80,7 @@ function! ToggleDarkSolarized()
   highlight Normal            cterm=none ctermbg=none ctermfg=DarkGrey
   highlight LineNr            cterm=bold ctermbg=none ctermfg=DarkGrey
   highlight foldcolumn                   ctermbg=none ctermfg=none
-  highlight CursorLine                   ctermbg=235
+  highlight CursorLine                   ctermbg=none
   highlight SignColumn        cterm=none ctermbg=none
   highlight SignifySignAdd    cterm=bold ctermbg=none ctermfg=64
   highlight SignifySignDelete cterm=none ctermbg=none ctermfg=136
