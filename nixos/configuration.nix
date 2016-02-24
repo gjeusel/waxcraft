@@ -15,6 +15,7 @@
 
   # Use the gummiboot efi boot loader.
   boot.loader.gummiboot.enable = true;
+  #boot.loader.gummiboot.timeout=null; # To boot automatically on the current generation
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.grub.enable = false;
 
