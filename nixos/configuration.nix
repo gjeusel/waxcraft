@@ -8,18 +8,21 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      #./desktop-applications.nix
       ./sysPkgs.nix
-      #./nixpkgs.nix
-      #./hosts.nix
-      #./hardware.nix
     ];
 
-  # Use the GRUB 2 boot loader.
-  boot.loader.grub.enable = true;
-  boot.loader.grub.version = 2;
-  # Define on which hard drive you want to install Grub.
-  boot.loader.grub.device = "/dev/sda";
+  nixpkgs.config.allowUnfree = true;
+
+  # Use the gummiboot efi boot loader.
+  boot.loader.gummiboot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader.grub.enable = false;
+
+  ## Use the GRUB 2 boot loader.
+  #boot.loader.grub.enable = true;
+  #boot.loader.grub.version = 2;
+  ## Define on which hard drive you want to install Grub.
+  #boot.loader.grub.device = "/dev/sda";
 
   networking.hostName = "nixos"; # Define your hostname.
   #networking.wireless.enable = true;  # Enables wireless.
@@ -35,18 +38,12 @@
   # Set your time zone.
   time.timeZone = "Europe/Paris";
 
-  # List packages installed in system profile. To search by name, run:
-  # $ nix-env -qaP | grep wget
-  # environment.systemPackages = with pkgs; [
-  #   wget
-  # ];
-
   # List services that you want to enable:
   services = {
     xserver = {
       enable = true;                # Enable the X11 windowing system.
       layout = "fr";
-      exportConfiguration = true;   #symlink the X serveur configuration under /etc/X11/xorg.conf
+      #exportConfiguration = true;   #symlink the X serveur configuration under /etc/X11/xorg.conf
     };
   };
 

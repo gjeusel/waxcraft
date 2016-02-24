@@ -4,9 +4,24 @@
 
 environment.systemPackages = with pkgs; [
 
-# For internet :
-  chromiumWrapper
-  firefoxWrapper
+  firefox
+  imagemagick
+
+# Extra bash commands :
+  tree
+  htop
+  wget
+  gitAndTools.gitFull
+
+# Programming env
+  gcc5
+  clangStdenv
+  cmakeCurses
+
+# Personnal vim
+  vim
+  powerline-fonts
+
 
 # ssh :
   tigervnc
@@ -14,24 +29,12 @@ environment.systemPackages = with pkgs; [
 # Nix scripting
   nix-prefetch-scripts
 
-# Text editors :
-  #qvim
-
-# Extra bash commands :
-  tree
-  htop
-  wget
 
 # Favorite Terminal :
-  xfce4-terminal
+  xfce.terminal
+  terminator
 
 ];
-
-
-
-
-
-
 
 
 }
