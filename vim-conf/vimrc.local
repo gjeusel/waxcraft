@@ -26,7 +26,7 @@ function! SwitchToggleAutoIndent()
     echo "AutoIndent ON"
   endif
 endfunction
-inoremap <F8> :call SwitchToggleAutoIndent()<cr>
+map <F8> :call SwitchToggleAutoIndent()<cr>
 
 " For switching tabs with Shit-Tab :
 map <S-Tab>  :tabNext<cr>

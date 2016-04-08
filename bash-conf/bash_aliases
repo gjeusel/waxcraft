@@ -11,6 +11,13 @@ alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
 
+# NixOS aliases
+function _nix_which_() {
+ls $(ls -la $(which $1) |grep --only-matching "/nix/store/.*")
+}
+alias nwhich=_nix_which_
+
+
 # Modules aliases
 alias maa='module avail 2>&1 |grep -i'
 alias ma='module avail 2>&1'
