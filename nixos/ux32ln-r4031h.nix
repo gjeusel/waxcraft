@@ -51,19 +51,6 @@ with pkgs.lib;
 	accelFactor = "0.05";
       };
 
-      # Intel Corporation Haswell-ULT Integrated Graphics Controller
-      driSupport = true;
-      resolutions = [{x = 1920; y=1080;}];
-
-      defaultDepth = 24;
-    };
-
-
-    powerManagement = {
-      enable = mkDefault true;
-      powerUpCommands = ''
-        ${pkgs.hdparm}/sbin/hdparm -B 255 /dev/sda
-      '';
     };
   };
 }

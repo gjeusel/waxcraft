@@ -27,6 +27,7 @@
 
   networking.hostName = "nixos"; # Define your hostname.
   #networking.wireless.enable = true;  # Enables wireless.
+  networking.networkmanager.enable = true; # Enable NetworkManager for some desktop
   #networking.networkmanager.enable = true;
 
   # Select internationalisation properties.
@@ -37,7 +38,8 @@
   };
 
   # Set your time zone.
-  time.timeZone = "Europe/Paris";
+  #time.timeZone = "Europe/Paris";
+  time.timeZone = "Brasil/Rio";
 
   # List services that you want to enable:
   services = {
@@ -62,6 +64,8 @@
     uid = 1000;
     #hashedPassword = $6$fsZFrGf9r7h04$F1KbY0B5D41zizjNyxvO8Rn8nFAy0kbxNYcIaX8wUZm57F.4Wg9mPpq1fQUksh1JKLjZ9M7emJydIMT3opmeJ0 ;
   };
+
+  security.sudo.enable = true;
 
   # The NixOS release to be compatible with for stateful data such as databases.
   system.stateVersion = "15.09";

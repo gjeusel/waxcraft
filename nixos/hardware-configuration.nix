@@ -22,6 +22,16 @@
       fsType = "vfat";
     };
 
+  services.xserver.synaptics.enable = true;
+  services.xserver.synaptics.twoFingerScroll = true;
+
+  #services.xserver.videoDrivers = [ "nvidia" ];
+  hardware.bumblebee.enable = true;
+  hardware.opengl.driSupport32Bit = true;
+
+  hardware.pulseaudio.enable = true;
+  hardware.pulseaudio.support32Bit = true;
+
   swapDevices = [ ];
 
   nix.maxJobs = 4;

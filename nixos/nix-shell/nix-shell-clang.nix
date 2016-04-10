@@ -6,7 +6,8 @@ stdenv.mkDerivation {
   src = null;
 
   buildInputs = [
-    defaultStdenv
+    clangStdenv
+    clang
   ];
 
 }

@@ -6,6 +6,9 @@ environment.systemPackages = with pkgs; [
 
   firefox
   imagemagick
+  evince
+  pavucontrol
+  kde5.plasma-nm
 
 # Extra bash commands :
   tree
