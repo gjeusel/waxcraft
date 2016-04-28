@@ -41,18 +41,29 @@ if [ $1 == "vim" ]; then
   _vim_conf $old_conf_dir
 fi
 
+function _bash_conf() {
+  bash_conf_dir="$myconfig_path/bash-conf"
+  _save_config "bash" "$myconfig_path/old_conf/bash_old_conf/" "$(ls $bash_conf_dir/*)"
 
-#try_dir="/root/tempFiles/try_cpy_myconfig"
+  for f in `ls $bash_conf_dir`
+  do
+    if "${HOME}/.$f" != "$HOME/.bashrc"; then
+      echo "Creating symlink for ${HOME}/.$f ---> \"$bash_conf_dir/$f\""
+      ln -sf $bash_conf_dir/$f $HOME/.$f
+    fi
+  done
 
-## Include a line that source bashrc of myconfig at the end of the native bashrc
-#bash_conf_dir="$myconfig_path/bash-conf"
+  # Include a line that source bashrc of myconfig at the end of the native bashrc
+  echo "Adding the following line to the ~/.bashrc file :\nsource $bash_conf_dir/bashrc ..."
+  bash_conf_dir="$myconfig_path/bash-conf"
+  printf "\n# Myconfig bashrc file sourcing :\nsource $bash_conf_dir/bashrc" >> ${HOME}/.bashrc
 
-## Save old files :
-#cp ${HOME}/.bashrc $old_conf_dir
-#cp ${HOME}/.inputrc $old_conf_dir
-#cp ${HOME}/.bash_aliases $old_conf_dir
+}
 
-#printf "\n# Myconfig bashrc file sourcing :\nsource $bash_conf_dir/bashrc" >> ${HOME}/.bashrc
+if [ $1 == "bash" ]; then
+  _bash_conf $old_conf_dir
+fi
+
 
 ## Creating symlink toward myconfig files :
 #echo "Creating symlink for ${HOME}/.inputrc ---> \"$bash_conf_dir/inputrc\""
