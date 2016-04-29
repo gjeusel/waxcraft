@@ -5,9 +5,14 @@ with pkgs;
 stdenv.mkDerivation {
   name = "clang-nix-env";
 
+  shellHook = ''
+        export PS1=$ps1_clang
+        '';
+
   buildInputs = [
     clangStdenv
     clang
+    cmakeCurses
   ];
 
   #shellHook = ''

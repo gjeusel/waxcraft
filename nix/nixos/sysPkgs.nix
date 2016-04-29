@@ -5,6 +5,7 @@
 environment.systemPackages = with pkgs; [
 
   firefox
+  google-chrome
   imagemagick
   evince
   pavucontrol
@@ -24,7 +25,6 @@ environment.systemPackages = with pkgs; [
 # Personnal vim
   vim
   powerline-fonts
-
 
 # ssh :
   tigervnc

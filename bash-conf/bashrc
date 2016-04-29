@@ -8,23 +8,28 @@ export GIT_EDITOR=vim
 
 # Prompt shell setup : {{{
 ##################################################
-ps1_construct="\n"                                     # start with an escape char
-ps1_construct+="\[\e[1;30m\][\j:\!\[\e[1;30m\]]"       # bash history state
-ps1_construct+="\[\e[0;36m\] \t \[\e[1;30m\]"          # time
-#ps1_construct+="\[\e[0;36m\] \d \[\e[1;30m\]"         # date
+ps1_construct_init="\n"                                     # start with an escape char
+ps1_construct_init+="\[\e[1;30m\][\j:\!\[\e[1;30m\]]"       # bash history state
+ps1_construct_init+="\[\e[0;36m\] \t \[\e[1;30m\]"          # time
+#ps1_construct_init+="\[\e[0;36m\] \d \[\e[1;30m\]"         # date
+
 if [ -z ${IN_NIX_SHELL} ]; then
-  ps1_construct+="[\[\e[1;34m\]\u@\H\[\e[1;30m\]:\[\e[0;37m\] \[\e[0;32m\]+${SHLVL}\[\e[1;30m\]]" # [user@hostname: +shell level]
+  ps1_construct_interm_std="[\[\e[1;34m\]\u@\H\[\e[1;30m\]:\[\e[0;37m\] \[\e[0;32m\]+${SHLVL}\[\e[1;30m\]]" # [user@hostname: +shell level]
 else
-  ps1_construct+="[\[\e[1;34m\]nix-shell: \u@\H\[\e[1;30m\]:\[\e[0;37m\] \[\e[0;32m\]+${SHLVL}\[\e[1;30m\]]" # [nix-shell: user@hostname: +shell level]
+  ps1_construct_interm_clang="[\[\e[1;34m\]\u@\H\[\e[1;30m\]:\[\e[0;37m\] \[\e[0;33m\]clang-env\[\e[1;30m\]]" # [user@hostname: clang-env]
 fi
 
-# testing last ommand line error :
-ps1_construct+="\$(if [[ \$? == 0   ]]; then echo \" \[\033[0;32m\]\342\234\223\"; else echo \" \[\033[01;31m\]\342\234\227\"; fi)"
+# testing last command line error :
+ps1_construct_end="\$(if [[ \$? == 0   ]]; then echo \" \[\033[0;32m\]\342\234\223\"; else echo \" \[\033[01;31m\]\342\234\227\"; fi)"
 
-ps1_construct+=" \[\e[1;37m\]\w\[\e[0;37m\]"      # current working directory
-ps1_construct+=" \n\$ "                           # end with escape and next cmd after $
+ps1_construct_end+=" \[\e[1;37m\]\w\[\e[0;37m\]"      # current working directory
+ps1_construct_end+=" \n\$ "                           # end with escape and next cmd after $
 
-export PS1=$ps1_construct
+ps1_std="$ps1_construct_init $ps1_construct_interm_std $ps1_construct_end"
+ps1_clang="$ps1_construct_init $ps1_construct_interm_clang $ps1_construct_end"
+
+
+export PS1=$ps1_std
 ##################################################}}}
 
 # History settings : {{{
