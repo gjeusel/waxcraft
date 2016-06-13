@@ -16,6 +16,8 @@ environment.systemPackages = with pkgs; [
   htop
   wget
   gitAndTools.gitFull #gitk && git gui
+  passwd              # users password management
+  mkpasswd            # to encrypt password
 
 # Programming env
   gcc5
