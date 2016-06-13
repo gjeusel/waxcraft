@@ -1,0 +1,333 @@
+"######################################################################
+"#                                                ___
+"#                                              /'___\ __
+"#  ___ ___   __  __        ___    ___     ___ /\ \__//\_\     __
+"#/' __` __`\/\ \/\ \      /'___\ / __`\ /' _ `\ \ ,__\/\ \  /'_ `\
+"#/\ \/\ \/\ \ \ \_\ \    /\ \__//\ \L\ \/\ \/\ \ \ \_/\ \ \/\ \L\ \
+"#\ \_\ \_\ \_\/`____ \   \ \____\ \____/\ \_\ \_\ \_\  \ \_\ \____ \
+"# \/_/\/_/\/_/`/___/> \   \/____/\/___/  \/_/\/_/\/_/   \/_/\/___L\ \
+"#                /\___/                                       /\____/
+"#                \/__/                                        \_/__/
+"#
+"######################################################################
+
+"Some Mapping :
+map <F1> :bp<cr>
+map <F2> :bn<cr>
+map <F12> :source ${HOME}/.vimrc.local<cr>
+
+" Function to handle auto-indent :
+function! SwitchToggleAutoIndent()
+  if &autoindent == "1"
+    setlocal noautoindent nocindent nosmartindent indentexpr=
+    echo "AutoIndent OFF"
+  else
+    setlocal autoindent cindent smartindent indentexpr=
+    echo "AutoIndent ON"
+  endif
+endfunction
+map <F8> :call SwitchToggleAutoIndent()<cr>
+
+" For switching tabs with Shit-Tab :
+map <S-Tab>  :tabNext<cr>
+
+" to open next occurence of search (git jump grep "something")
+map <F10> :cn<cr>
+
+" Better escape :
+
+" Better autocompletion menu : 'Here's an alternative setup that feels a little more like the completion menu of other IDEs'
+inoremap <expr> <Esc>      pumvisible() ? "\<C-c>" : "\<Esc>"
+inoremap <expr> <CR>       pumvisible() ? "\<C-y>" : "\<CR>"
+inoremap <expr> <Down>     pumvisible() ? "\<C-n>" : "\<Down>"
+inoremap <expr> <Up>       pumvisible() ? "\<C-p>" : "\<Up>"
+inoremap <expr> <PageDown> pumvisible() ? "\<PageDown>\<C-p>\<C-n>" : "\<PageDown>"
+inoremap <expr> <PageUp>   pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<PageUp>"
+
+
+" Regarding folds
+set foldmethod=marker
+set foldcolumn=2
+"setlocal foldnestmax=1
+nnoremap <Space> za
+vnoremap <Space> za
+
+" Indenting
+set shiftwidth=2                " Use indents of 2 spaces
+set tabstop=2                   " An indentation every 2 columns
+set softtabstop=2               " Let backspace delete indent
+set expandtab
+
+
+"Filetype defaults :
+if has("autocmd")
+  au BufNewFile,BufRead *.cuf set filetype=fortran
+  au BufNewFile,BufRead *.nml set filetype=fortran
+  au BufNewFile,BufRead *.namelist set filetype=fortran
+  au BufNewFile,BufRead *.nix set filetype=nix
+  au BufNewFile,BufRead *.sh set filetype=sh
+  au BufNewFile,BufRead *.vimrc* set filetype=vim
+  au BufNewFile,BufRead *.vim set filetype=vim
+  au BufNewFile,BufRead *.cmake set filetype=cmake
+  au BufNewFile,BufRead CMakeLists.txt set filetype=cmake
+endif
+
+" Use local vimrc if available
+if filereadable(expand("~/.vimrc.before.local"))
+  source ~/.vimrc.before.local
+endif
+
+" Plugins are loaded after .vimrc files, so in case of sourcing .vimrc files
+" while vim is being executed, we need to wrap the plugin into a try - endtry
+" to avoid error message at vim start.
+function! ActivateRainbow()
+  if exists('g:rainbow_active')
+    try
+      execute ":RainbowToggleOn"
+    catch
+    endtry
+  endif
+endfunction
+
+"" highlight lines in Sy and vimdiff etc.)
+"highlight DiffAdd           cterm=bold ctermbg=none ctermfg=119
+"highlight DiffDelete        cterm=bold ctermbg=none ctermfg=167
+"highlight DiffChange        cterm=bold ctermbg=none ctermfg=227
+
+" For more info type :help highlight
+function! ToggleDarkSolarized()
+  "call ActivateRainbow()
+  syntax on
+  set background=dark
+  highlight Normal            cterm=none ctermbg=none ctermfg=DarkGrey
+  highlight LineNr            cterm=bold ctermbg=none ctermfg=DarkGrey
+  highlight foldcolumn                   ctermbg=none ctermfg=none
+  highlight CursorLine                   ctermbg=none
+  highlight SignColumn        cterm=none ctermbg=none
+  highlight SignifySignAdd    cterm=bold ctermbg=none ctermfg=64
+  highlight SignifySignDelete cterm=none ctermbg=none ctermfg=136
+  highlight SignifySignChange cterm=none ctermbg=none ctermfg=124
+endfunction
+
+function! ToggleLightSolarized()
+  syntax on
+  set background=light
+  highlight Normal            cterm=none ctermbg=230 ctermfg=DarkGrey
+  highlight LineNr            cterm=bold
+  highlight SignColumn        cterm=none ctermbg=187 ctermfg=240
+  highlight SignifySignAdd    cterm=bold ctermbg=187 ctermfg=64
+  highlight SignifySignDelete cterm=none ctermbg=187 ctermfg=136
+  highlight SignifySignChange cterm=none ctermbg=187 ctermfg=124
+endfunction
+
+" About Colors & Themes defaults :
+set t_Co=256            " use 256 colors in vim
+colorscheme solarized   " an appropriate color scheme
+call ToggleDarkSolarized()
+
+function! SwitchToggleSolarized()
+  if &background == "light"
+    call ToggleDarkSolarized()
+  else
+    call ToggleLightSolarized()
+  endif
+endfunction
+map <F4> :call SwitchToggleSolarized()<cr>
+
+
+
+
+
+
+" --------------- FUNCTIONS HOME MADE  ------------- "
+
+""{{{
+
+"function! s:get_visual_selection()
+"  " Why is this not a built-in Vim script function?!
+"  let [lnum1, col1] = getpos("'<")[1:2]
+"  let [lnum2, col2] = getpos("'>")[1:2]
+"  let lines = getline(lnum1, lnum2)
+"  let lines[-1] = lines[-1][: col2 - (&selection == 'inclusive' ? 1 : 2)]
+"  let lines[0] = lines[0][col1 - 1:]
+"  return join(lines, "\n")
+"endfunction"
+
+"function! s:Echo_highlighted_text()
+"  let s:highlighted_text = s:get_visual_selection()
+"  echo s:highlighted_text
+"endfunction
+
+"" --------------- FUNCTIONS HOME MADE  ------------- "
+"" Syntax examples {{{1
+
+"" Function to automatize replacing in ctests : {{{
+"function! Change_with_macro()
+"  "let s:proj_name = s:get_visual_selection()
+"  let s:paragraph_to_be_replaced_pattern ="call \\(allocate\\|deallocate\\|realloc\\|axpy\\|scal\\|copy\\)FluidParticlesDt(.*\\zs)\\ze"
+"  let s:final_paragraph = ", FLUIDPARTICLESDt_ALL_COMPONENTS)"
+"  echo s:paragraph_to_be_replaced_pattern
+
+"  "echo s:paragraph_to_be_replaced_pattern
+"  "echo s:final_paragraph
+
+"  "let s:command_substitute = ":%s:".s:paragraph_to_be_replaced_pattern.":".s:final_paragraph."\\r\\r:gc"
+"  let s:command_substitute = ":%s:".s:paragraph_to_be_replaced_pattern.":".s:final_paragraph.":gc"
+"  execute s:command_substitute
+"endfunction
+""}}}
+
+"" Function to automatize delete in ctests : {{{
+"function! Delete_quick_mode()
+"  let s:paragraph_to_be_deleted_pattern ="^set(JOB_NMAX_NUM_DT\\(.*\\n\\)\\{-}endif()\\(\\n\\)*"
+"  let s:final_paragraph =""
+"  let s:command_substitute = ":%s:".s:paragraph_to_be_deleted_pattern.":".s:final_paragraph."\\r:gc"
+"  execute s:command_substitute
+"endfunction
+""}}}
+
+"" Function to add a pattern : {{{
+"function! Add_pattern()
+"  "let s:message_patern = s:get_visual_selection()
+
+"  let s:num_curr_line  = line('.')
+"  let s:range_command = s:num_curr_line . "," . s:num_curr_line
+
+"  let s:curr_line = getline(s:num_curr_line)
+
+"  let s:pattern_select_member_particles = "enumerator.*::.*FP_\\zs\\w*\\ze\\n"
+"  let s:selected_member_particlesDt = matchstr(s:curr_line, s:pattern_select_member_particles)
+
+"  let s:pattern_to_be_replaced = ".*enumerator.*"
+"  let s:pattern_to_replace = ", \\'" . s:selected_member_particles . "\\'"
+"  let s:command_test = s:range_command . "s:" . s:pattern_to_be_replaced . ":" . s:pattern_to_replace . ":g"
+"  execute s:command_test
+
+"  "let s:command_test = s:range_command . "s: \\<.*\\(FPDt[^,]*\\): if(activeVariables(\\1)) &:g"
+"  "execute s:command_test
+
+"endfunction
+""}}}
+
+"" Function to comment personalized : {{{
+"function! Personalized_comment()
+"  "let s:message_patern = s:get_visual_selection()
+
+"  let s:num_curr_line  = line('.')
+"  let s:range_command = s:num_curr_line . "," . s:num_curr_line
+
+"  let s:command_test = s:range_command . "s:.*:\\! TO DELETE  &:g"
+"  execute s:command_test
+
+"endfunction
+""}}}
+""1}}}
+
+"UseFull functions {{{1
+
+" Function to automatize Tabularize fortran arguments :
+function! Tabularize_fortran_subroutine_args()
+
+  "Syntax Sanity checks : {{{2
+  "Save position :
+  let s:line_pos = line('.')
+  let s:col_pos = col('.')
+
+  let s:range_replace = ":\.,'\}"
+
+  " paragraph range = '{,'}
+  let s:replace_for_coma_sanity = s:range_replace." s: *,:,:g"
+  execute s:replace_for_coma_sanity
+
+  execute ":normal! ".s:line_pos."G"
+
+  let s:replace_for_parenthesis_sanity = s:range_replace." s: *(:(:g"
+  execute s:replace_for_parenthesis_sanity
+  execute ":normal! ".s:line_pos."G"
+
+"2}}}
+
+  " For Final Indentation : {{{2
+
+  "let s:range_tabularize = ":/\.\*intent\.\*::/"
+  let s:range_tabularize = ":\.,'\}"
+
+  let s:integer_syntax = "\\(integer *(.\\{-})\\|integer\\)"
+  let s:real_syntax = "\\(real *(.\\{-})\\|real\\)"
+  let s:character_syntax = "\\(character *(.\\{-})\\|character\\)"
+  let s:logical_syntax = "\\(logical *(.\\{-})\\|logical\\)"
+  let s:derived_type_syntax = "\\(type *(.\\{-})\\)"
+
+  let s:every_type_syntax = "\\(".s:integer_syntax."\\|".s:real_syntax."\\|".s:character_syntax."\\|".s:logical_syntax."\\|".s:derived_type_syntax."\\)"
+  let s:command_tabularize_types = s:range_tabularize." Tabularize /^ *\\zs".s:every_type_syntax.",\\ze"
+  execute s:command_tabularize_types
+
+  execute ":normal! ".s:line_pos."G"
+
+  "let s:dimension_syntax = "dimension *(.\\{-})"
+  "let s:command_tabularize_dimension = s:range_tabularize." Tabularize /\\zs".s:dimension_syntax.",\\ze"
+  "execute s:command_tabularize_dimension
+
+  "execute ":normal! ".s:line_pos."G"
+
+  "let s:optional_syntax = "optional"
+  "let s:command_tabularize_optional = s:range_tabularize." Tabularize /\\zs".s:optional_syntax.",\\ze"
+  "execute s:command_tabularize_optional
+
+  execute ":normal! ".s:line_pos."G"
+
+  let s:intent_syntax = "intent *(.\\{-})"
+  let s:command_tabularize_intent = s:range_tabularize." Tabularize /.*\\zs".s:intent_syntax."\\ze"
+  execute s:command_tabularize_intent
+
+  execute ":normal! ".s:line_pos."G"
+
+  let s:command_tabularize_double_dot = s:range_tabularize." Tabularize /\\zs::\\ze"
+  execute s:command_tabularize_double_dot
+
+  execute ":normal! ".s:line_pos."G"
+"2}}}
+
+endfunction
+"1}}}
+map <F3> :silent! :call Tabularize_fortran_subroutine_args()<cr>
+
+" Function to automatize Tabularize in ctests : {{{
+function! Tabularize_ctest_cache()
+  let s:command_tabularize_1 = ":/^set(.*/ Tabularize /^set(\\w* \\zs\\w*\\ze"
+  execute s:command_tabularize_1
+
+  let s:command_tabularize_2 = ":/^set(.*/ Tabularize /FORCE)"
+  execute s:command_tabularize_2
+endfunction
+"map <F3> :silent! :call Tabularize_ctest_cache()<cr>
+"}}}
+
+
+" Function to write in a vim buffer the output of vim commands :
+"   - Execute 'cmd' while redirecting output.
+"   - Delete all lines that do not match regex 'filter' (if not empty).
+"   - Delete any blank lines.
+"   - Delete '<whitespace><number>:<whitespace>' from start of each line.
+"   - Display result in a scratch buffer.
+function! s:Filter_lines(cmd, filter)
+  let save_more = &more
+  set nomore
+  redir => lines
+  silent execute a:cmd
+  redir END
+  let &more = save_more
+  new
+  setlocal buftype=nofile bufhidden=hide noswapfile
+  put =lines
+  g/^\s*$/d
+  %s/^\s*\d\+:\s*//e
+  if !empty(a:filter)
+    execute 'v/' . a:filter . '/d'
+  endif
+  0
+endfunction
+command! -nargs=? Scriptnames call s:Filter_lines('scriptnames', <q-args>)
+command! -nargs=? Syntaxlist call s:Filter_lines('syntax list', <q-args>)
+command! -nargs=? VerboseHighlight call s:Filter_lines('verbose highlight', <q-args>)
+command! -nargs=? CurrentHighlight call s:Filter_lines('highlight', <q-args>)
