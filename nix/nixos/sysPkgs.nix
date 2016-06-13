@@ -6,20 +6,21 @@ environment.systemPackages = with pkgs; [
 
   firefox
   google-chrome
-  imagemagick
-  evince
-  pavucontrol
-  kde5.plasma-nm
+  imagemagick    # display cmd for pictures
+  evince         # pdf reader
+  pavucontrol    # pulseaudio cmd for sound configuration
+  kde5.plasma-nm # managing network connexions
 
 # Extra bash commands :
   tree
   htop
   wget
-  gitAndTools.gitFull
+  gitAndTools.gitFull #gitk && git gui
 
 # Programming env
   gcc5
   clangStdenv
+  clang
   cmakeCurses
 
 # Personnal vim

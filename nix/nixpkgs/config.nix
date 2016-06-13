@@ -1,5 +1,11 @@
 {
 
+# Allow broken content (when using nixpkgs as git)
+allowBroken = true;
+# Allow unfree license
+allowUnfree = true;
+
+
 # Regarding configs
 firefox = {
   enableAdobeFlash = true;
@@ -14,9 +20,10 @@ chromium = {
 
 packageOverrides = super: let self = super.pkgs; in with self; rec {
 
-  pathToMyPackages = "/root/projects/pumped-nix/" ;
+  pathToMyPackages = builtins.getEnv "waxCraft_PATH"+"/nix/nixpkgs/" ;
   vim74-spf13 = self.callPackage "${pathToMyPackages}vim-7.4-spf13/default.nix" {  };
   blank_env   = self.callPackage "${pathToMyPackages}blank_env/default.nix" {  };
+  cute20      = self.callPackage "${pathToMyPackages}cute-2.0/default.nix" {  };
 
   /*lmod        = self.callPackage "${pathToMyPackages}lmod/default.nix" {*/
   /*    inherit (self.luaPackages) luafilesystem;*/
@@ -43,10 +50,5 @@ packageOverrides = super: let self = super.pkgs; in with self; rec {
 /*  };*/
 
 /*};*/
-
-# Allow broken content (when using nixpkgs as git)
-allowBroken = true;
-# Allow unfree license
-allowUnfree = true;
 
 }
