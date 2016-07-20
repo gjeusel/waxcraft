@@ -4,7 +4,8 @@ Enabled=false
 OpenGLIsUnsafe=false
 
 [Desktops]
-Number=2
+Number=6
+Rows=2
 
 [Effect-CoverSwitch]
 TabBox=false

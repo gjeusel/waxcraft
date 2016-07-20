@@ -12,8 +12,10 @@
 "######################################################################
 
 "Some Mapping :
-map <F1> :bp<cr>
-map <F2> :bn<cr>
+" ALT + F1 :
+map O1;3P :bp<cr>
+" ALT + F2 :
+map O1;3Q :bn<cr>
 map <F12> :source ${HOME}/.vimrc.local<cr>
 
 " Function to handle auto-indent :
@@ -96,7 +98,7 @@ endfunction
 
 " For more info type :help highlight
 function! ToggleDarkSolarized()
-  "call ActivateRainbow()
+  call ActivateRainbow()
   syntax on
   set background=dark
   highlight Normal            cterm=none ctermbg=none ctermfg=DarkGrey
@@ -132,7 +134,8 @@ function! SwitchToggleSolarized()
     call ToggleLightSolarized()
   endif
 endfunction
-map <F4> :call SwitchToggleSolarized()<cr>
+" ALT + F3 :
+map O1;3R :call SwitchToggleSolarized()<cr>
 
 
 

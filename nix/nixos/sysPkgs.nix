@@ -18,12 +18,15 @@ environment.systemPackages = with pkgs; [
   gitAndTools.gitFull #gitk && git gui
   passwd              # users password management
   mkpasswd            # to encrypt password
+  unzip
 
 # Programming env
   gcc5
   clangStdenv
   clang
   cmakeCurses
+  paraview
+  gnuplot
 
 # Personnal vim
   vim

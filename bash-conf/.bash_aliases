@@ -22,6 +22,7 @@ ls $(ls -la $(which $1) |grep --only-matching "/nix/store/.*")
 alias nwhich=_nix_which_
 
 alias load_env_clang="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-clang.nix"
+alias load_env_GNU="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-GNU.nix"
 
 # Modules aliases
 alias maa='module avail 2>&1 |grep -i'
