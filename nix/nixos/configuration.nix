@@ -68,6 +68,14 @@
     #password = "" ;
   };
 
+  # To allow sudo cmd to gjeusel, and give him all privileges
+  security.sudo.enable = true ;
+  security.sudo.extraConfig =
+  ''
+  Defaults:gjeusel      !authenticate
+  gjeusel ALL=(ALL) ALL
+  '';
+
   # The NixOS release to be compatible with for stateful data such as databases.
   system.stateVersion = "16.03";
 

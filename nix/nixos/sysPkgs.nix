@@ -5,7 +5,6 @@
 environment.systemPackages = with pkgs; [
 
   firefox
-  google-chrome
   imagemagick    # display cmd for pictures
   evince         # pdf reader
   pavucontrol    # pulseaudio cmd for sound configuration
@@ -16,7 +15,6 @@ environment.systemPackages = with pkgs; [
   htop
   wget
   gitAndTools.gitFull #gitk && git gui
-  passwd              # users password management
   mkpasswd            # to encrypt password
   unzip
 
