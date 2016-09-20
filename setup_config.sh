@@ -2,7 +2,7 @@
 
 if [ $# -lt 1 ] ; then
   echo "USAGE : arg1=label"
-  stop
+  exit
 fi
 
 waxCraft_path=$( cd "$( dirname "$0" )" && pwd )

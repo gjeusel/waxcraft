@@ -11,12 +11,24 @@
 "#
 "######################################################################
 
-"Some Mapping :
+" --> Some Mapping :
+" -----> About buffers switch :
 " ALT + F1 :
 map O1;3P :bp<cr>
 " ALT + F2 :
 map O1;3Q :bn<cr>
+" -----> Sourcing the vimrc.local :
 map <F12> :source ${HOME}/.vimrc.local<cr>
+" -----> About moving splits :
+" ALT + up
+map <Esc>[1;3A <C-W>k
+" ALT + down
+map <Esc>[1;3B <C-W>j
+" ALT + right
+map <Esc>[1;3C <C-W>l
+" ALT + left
+map <Esc>[1;3D <C-W>h
+
 
 " Function to handle auto-indent :
 function! SwitchToggleAutoIndent()
@@ -29,6 +41,16 @@ function! SwitchToggleAutoIndent()
   endif
 endfunction
 map <F8> :call SwitchToggleAutoIndent()<cr>
+
+" Exec building and exec command :
+function! ExecAndBuild()
+  echo "Executing &nd building ..."
+  execute ":!cd ~/projects/heatFlux/build_3D/ && make && ./bin/heatFlux ../test_case/flat_plate_3D.nml"
+endfunction
+" alt + ²
+map <Esc>² :call ExecAndBuild() <cr>
+
+
 
 " For switching tabs with Shit-Tab :
 map <S-Tab>  :tabNext<cr>
