@@ -96,7 +96,7 @@ ColorScheme=Obsidian Coast
 Name=Oxygen
 XftHintStyle=
 XftSubPixel=none
-dbfile=/root/.mozilla/firefox/xkb6u8tf.default/places.sqlite
+dbfile=/home/gjeusel/.mozilla/firefox/fknppgzi.default/places.sqlite
 fixed=Oxygen Mono,13,-1,5,50,0,0,0,0,0
 font=Oxygen-Sans,14,-1,5,50,0,0,0,0,0
 menuFont=Oxygen-Sans,14,-1,5,50,0,0,0,0,0
@@ -183,7 +183,7 @@ SubstringCompletion=Ctrl+T; Ctrl+T; Ctrl+T; Ctrl+T; Ctrl+T; Ctrl+T; Ctrl+T; Ctrl
 TextCompletion=Ctrl+E; Ctrl+E; Ctrl+E; Ctrl+E; Ctrl+E; Ctrl+E; Ctrl+E; Ctrl+E; Ctrl+E; Ctrl+E; Ctrl+E; Ctrl+E
 Undo=Ctrl+Z; Ctrl+Z; Ctrl+Z; Ctrl+Z; Ctrl+Z; Ctrl+Z; Ctrl+Z; Ctrl+Z; Ctrl+Z; Ctrl+Z; Ctrl+Z; Ctrl+Z
 Up=Alt+Up; Alt+Up; Alt+Up; Alt+Up; Alt+Up; Alt+Up; Alt+Up; Alt+Up; Alt+Up; Alt+Up; Alt+Up; Alt+Up
-WhatsThis=; Shift+F1; Shift+F1; Shift+F1; Shift+F1; Shift+F1
+WhatsThis=
 ZoomIn=Ctrl++; Ctrl+=; Ctrl++; Ctrl+=; Ctrl++; Ctrl+=; Ctrl++; Ctrl+=; Ctrl++; Ctrl+=; Ctrl++; Ctrl+=; Ctrl++; Ctrl+=; Ctrl++; Ctrl+=; Ctrl++; Ctrl+=; Ctrl++; Ctrl+=; Ctrl++; Ctrl+=; Ctrl++; Ctrl+=
 ZoomOut=Ctrl+-; Ctrl+-; Ctrl+-; Ctrl+-; Ctrl+-; Ctrl+-; Ctrl+-; Ctrl+-; Ctrl+-; Ctrl+-; Ctrl+-; Ctrl+-
 

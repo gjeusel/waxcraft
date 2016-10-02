@@ -20,14 +20,23 @@ InitialZoom=1
 
 [Plugins]
 coverswitchEnabled=true
+cubeslideEnabled=false
+desktopchangeosdEnabled=false
 enforcedecoEnabled=true
 flipswitchEnabled=true
 highlightwindowEnabled=true
 kwin-script-tilingEnabled=false
+kwin4_effect_fadedesktopEnabled=false
 minimizeallEnabled=true
 onlyOneActiveWindowEnabled=false
+slideEnabled=true
 synchronizeskipswitcherEnabled=false
 videowallEnabled=false
+windowgeometryEnabled=false
+
+[Script-desktopchangeosd]
+PopupHideDelay=1000
+TextOnly=false
 
 [TabBox]
 ActivitiesMode=1
@@ -54,6 +63,34 @@ MultiScreenMode=0
 ShowDesktopMode=0
 ShowTabBox=true
 SwitchingMode=0
+
+[Windows]
+ActiveMouseScreen=true
+AutoRaise=false
+AutoRaiseInterval=750
+AutogroupInForeground=true
+AutogroupSimilarWindows=false
+BorderSnapZone=10
+CenterSnapZone=0
+ClickRaise=true
+DelayFocusInterval=300
+FocusPolicy=ClickToFocus
+FocusStealingPreventionLevel=1
+GeometryTip=false
+HideUtilityWindowsForInactive=true
+InactiveTabsSkipTaskbar=false
+MaximizeButtonLeftClickCommand=Maximize
+MaximizeButtonMiddleClickCommand=Maximize (vertical only)
+MaximizeButtonRightClickCommand=Maximize (horizontal only)
+NextFocusPrefersMouse=false
+Placement=Smart
+RollOverDesktops=true
+SeparateScreenFocus=false
+ShadeHover=false
+ShadeHoverInterval=250
+SnapOnlyWhenOverlapping=false
+TitlebarDoubleClickCommand=Maximize
+WindowSnapZone=10
 
 [org.kde.kdecoration2]
 BorderSize=Tiny

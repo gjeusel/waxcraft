@@ -63,12 +63,18 @@ DialogWidth=880
 [Containments][8][Applets][31][Configuration][General]
 sources=partitions%2F%2Ffilllevel,partitions%2Fnix%2Fstore%2Ffilllevel
 
+[Containments][8][Applets][35][Configuration][General]
+applicationName=Firefox
+genericName=Web Browser
+iconName=firefox
+url=file:///home/gjeusel/.nix-profile/share/applications/firefox.desktop
+
 [Containments][8][ConfigDialog]
-DialogHeight=997
-DialogWidth=1920
+DialogHeight=476
+DialogWidth=957
 
 [Containments][8][General]
-ItemsGeometries=Applet-28:1583,0,336,192,0;Applet-29:1487,384,432,288,0;Applet-30:1583,192,336,192,0;Applet-31:1535,672,384,240,0;
+ItemsGeometries=Applet-28:1487,288,432,240,0;Applet-29:1487,0,432,288,0;Applet-30:1488,528,336,192,0;Applet-31:1104,0,384,240,0;
 
 [Containments][8][Wallpaper][org.kde.image][General]
 Image=file:///nix/store/i3i2cik5hql05qqz68s33zqsnw1v5v5g-plasma-workspace-wallpapers-5.5.5/share/wallpapers/BytheWater/contents/images/1600x1200.jpg

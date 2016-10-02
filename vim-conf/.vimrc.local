@@ -29,6 +29,20 @@ map <Esc>[1;3C <C-W>l
 " ALT + left
 map <Esc>[1;3D <C-W>h
 
+" Reading a binary : :!%xxd
+
+" Cleapboard access :
+set clipboard+=unnamedplus
+
+" Nvim
+if has('nvim')
+  Plugin 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+  set runtimepath+=/home/gjeusel/.config/nvim/deoplete.nvim
+  let g:deoplete#enable_at_startup = 1
+  "call remote#host#RegisterPlugin('python3', '/home/gjeusel/.vim/bundle/deoplete.nvim/rplugin/python3/deoplete/deoplete.py', [
+  "   \ {'sync': 1, 'name': 'DeopleteInitializePython', 'type': 'command', 'opts': {}},
+  "   \ ])
+endif
 
 " Function to handle auto-indent :
 function! SwitchToggleAutoIndent()
@@ -44,8 +58,14 @@ map <F8> :call SwitchToggleAutoIndent()<cr>
 
 " Exec building and exec command :
 function! ExecAndBuild()
-  echo "Executing &nd building ..."
-  execute ":!cd ~/projects/heatFlux/build_3D/ && make && ./bin/heatFlux ../test_case/flat_plate_3D.nml"
+  execute ":silent !echo "
+  execute ":silent !echo -----------------------------------------------------------------------------------"
+  "execute ":!cd ~/projects/heatFlux/build_3D/ && make && ./bin/heatFlux ../test_case/flat_plate_3D.nml"
+  "execute ":!cd ~/projects/topMatAppl/trabalho-1/ && clang++ table_parser.cpp && ./a.out"
+  "execute ":!cd ~/projects/topMatAppl/trabalho-1/ && make && ./btree.out"
+  "execute ":!cd ~/projects/topMatAppl/trabalho-1/ && make && ./generate_rx_QDBM.out"
+  execute ":!cd ~/projects/intelComp/ && python -W ignore spawCount.py data/pokemon-spawns.csv"
+  "execute ":!cd ~/projects/intelComp/ && python tutorial_numpy.py"
 endfunction
 " alt + ²
 map <Esc>² :call ExecAndBuild() <cr>
@@ -81,6 +101,14 @@ set shiftwidth=2                " Use indents of 2 spaces
 set tabstop=2                   " An indentation every 2 columns
 set softtabstop=2               " Let backspace delete indent
 set expandtab
+
+" Special indenting for python - PEP8 norm
+au BufNewFile,BufRead *.py
+    \set shiftwidth=4
+    \set tabstop=4
+    \set softtabstop=4
+    \set textwidth=79
+    \set expandtab
 
 
 "Filetype defaults :
@@ -315,7 +343,6 @@ function! Tabularize_fortran_subroutine_args()
 
 endfunction
 "1}}}
-map <F3> :silent! :call Tabularize_fortran_subroutine_args()<cr>
 
 " Function to automatize Tabularize in ctests : {{{
 function! Tabularize_ctest_cache()
@@ -327,7 +354,6 @@ function! Tabularize_ctest_cache()
 endfunction
 "map <F3> :silent! :call Tabularize_ctest_cache()<cr>
 "}}}
-
 
 " Function to write in a vim buffer the output of vim commands :
 "   - Execute 'cmd' while redirecting output.

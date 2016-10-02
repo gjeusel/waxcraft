@@ -1,1 +1,2 @@
 Plugin 'LnL7/vim-nix'
+Plugin 'octol/vim-cpp-enhanced-highlight'

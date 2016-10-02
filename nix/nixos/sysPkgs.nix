@@ -17,6 +17,7 @@ environment.systemPackages = with pkgs; [
   gitAndTools.gitFull #gitk && git gui
   mkpasswd            # to encrypt password
   unzip
+  nox                 # make easier to find nix packages
 
 # Programming env
   gcc5
@@ -29,6 +30,7 @@ environment.systemPackages = with pkgs; [
 # Personnal vim
   vim
   powerline-fonts
+  xclip # to enable "*y to copy to the clipboard
 
 # ssh :
   tigervnc
