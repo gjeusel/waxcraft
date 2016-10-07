@@ -18,6 +18,7 @@ environment.systemPackages = with pkgs; [
   mkpasswd            # to encrypt password
   unzip
   nox                 # make easier to find nix packages
+  shutter             # screen capture
 
 # Programming env
   gcc5

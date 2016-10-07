@@ -14,5 +14,7 @@ stdenv.mkDerivation {
     python27Packages.pyqt4
     python27Packages.pandas
     python27Packages.seaborn
+    python27Packages.pyramid_jinja2
+    texLive
   ];
 }

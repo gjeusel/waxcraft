@@ -6,7 +6,7 @@ nix-env -f '<nixpkgs>' -qaPs --description ".*vim.*" --show-trace --verbose
 # For an install
 nix-env '<nixpkgs>' -i -A ctags
 
-# List all generations of nix present (a new generation is created when installing a package):
+# List all generations of nixpkgs present (a new generation is created when installing a package):
 nix-env --list-generations
 
 # Delete all generations except the last
@@ -15,12 +15,16 @@ nix-env --delete-generations old
 # Delete generation #9
 nix-env --delete-generations 9
 
+# Same for nixos generations :
+nix-env -p /nix/var/nix/profiles/system --list-generations
+
 # Delete all unused packages
 nix-collect-garbage
 
 # For lauching a nix-shell of my own package called blank_env
 # Don't forget to had the package derivations in ~/.nixpkgs/config.nix
 nix-shell '<nixpkgs>' -A blank_env
+typeset -f genericBuild | grep 'phases='
 eval 'unpackPhase'
 eval 'patchPhase'
 eval 'configurePhase'

@@ -24,6 +24,7 @@ packageOverrides = super: let self = super.pkgs; in with self; rec {
   vim74-spf13 = self.callPackage "${pathToMyPackages}vim-7.4-spf13/default.nix" {  };
   blank_env   = self.callPackage "${pathToMyPackages}blank_env/default.nix" {  };
   cute20      = self.callPackage "${pathToMyPackages}cute-2.0/default.nix" {  };
+  cartopy     = self.callPackage "${pathToMyPackages}cartopy/default.nix" {  };
 
   /*lmod        = self.callPackage "${pathToMyPackages}lmod/default.nix" {*/
   /*    inherit (self.luaPackages) luafilesystem;*/
