@@ -24,6 +24,7 @@ environment.systemPackages = with pkgs; [
   unzip
   nox                 # make easier to find nix packages
   pciutils # tools to check pci (ex : lspci)
+  shutter             # screen capture
 
 # Programming env
   gcc5

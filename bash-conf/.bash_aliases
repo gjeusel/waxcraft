@@ -21,6 +21,9 @@ ls $(ls -la $(which $1) |grep --only-matching "/nix/store/.*")
 }
 alias nwhich=_nix_which_
 
+# git-jump
+alias git-jump="$waxCraft_PATH/tools/git-jump"
+
 alias load_env_clang="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-clang.nix"
 alias load_env_GNU="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-GNU.nix"
 alias load_env_scipy="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-scipy.nix"

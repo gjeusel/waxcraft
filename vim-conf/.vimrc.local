@@ -64,8 +64,8 @@ function! ExecAndBuild()
   "execute ":!cd ~/projects/topMatAppl/trabalho-1/ && clang++ table_parser.cpp && ./a.out"
   "execute ":!cd ~/projects/topMatAppl/trabalho-1/ && make && ./btree.out"
   "execute ":!cd ~/projects/topMatAppl/trabalho-1/ && make && ./generate_rx_QDBM.out"
-  execute ":!cd ~/projects/intelComp/ && python -W ignore spawCount.py data/pokemon-spawns.csv"
-  "execute ":!cd ~/projects/intelComp/ && python tutorial_numpy.py"
+  "execute ":!cd ~/projects/intelComp/pokemons/ && python -W ignore reduce_data.py data/pokemon-spawns.csv"
+  execute ":!cd ~/projects/intelComp/energy-efficiency/ && python -W ignore energEff.py data/ENB2012_data.xlsx"
 endfunction
 " alt + ²
 map <Esc>² :call ExecAndBuild() <cr>

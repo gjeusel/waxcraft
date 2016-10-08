@@ -15,7 +15,7 @@ nix-env --delete-generations old
 # Delete generation #9
 nix-env --delete-generations 9
 
-# List all generations of nixOS present :
+# Same for nixos generations :
 nix-env -p /nix/var/nix/profiles/system --list-generations
 
 # Delete all unused packages
@@ -24,6 +24,7 @@ nix-collect-garbage
 # For lauching a nix-shell of my own package called blank_env
 # Don't forget to had the package derivations in ~/.nixpkgs/config.nix
 nix-shell '<nixpkgs>' -A blank_env
+typeset -f genericBuild | grep 'phases='
 eval 'unpackPhase'
 eval 'patchPhase'
 eval 'configurePhase'
