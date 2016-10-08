@@ -6,6 +6,12 @@ _k_friendly_name=KDE Daemon
 Toggle Screen Reader On and Off=Meta+Alt+S,Meta+Alt+S,Toggle Screen Reader On and Off
 _k_friendly_name=kaccess
 
+[kcm_touchpad]
+Disable Touchpad=Touchpad Off,Touchpad Off,Désactiver le pavé tactile
+Enable Touchpad=Touchpad On,Touchpad On,Activer le pavé tactile
+Toggle Touchpad=Touchpad Toggle,Touchpad Toggle,Basculer le pavé tactile
+_k_friendly_name=KDE Daemon
+
 [kded5]
 Decrease Keyboard Brightness=Keyboard Brightness Down,Keyboard Brightness Down,Diminuer la luminosité du clavier
 Decrease Screen Brightness=Monitor Brightness Down,Monitor Brightness Down,Diminuer la luminosité de l'écran
@@ -20,7 +26,7 @@ _k_friendly_name=KDE Daemon
 display=Display,Display,Changer d'affichage
 
 [khotkeys]
-_k_friendly_name=Configuration du système
+_k_friendly_name=KDE Daemon
 {103e1713-d3b4-418a-b1e8-7e3f42f57d8d}=Ctrl+Alt+F,none,firefox
 {2f3aa8c2-96b5-4405-b33c-ec5e418aa843}=none,none,Copie d'écran
 {bd74ca71-4fe7-4565-9aef-d1ce7242252f}=Ctrl+Alt+T,none,xfce4-terminal
@@ -90,10 +96,10 @@ Toggle mute  - Sigmatel ADC 6dB Attenuate, Intel 82801AA-ICH=none,none,Toggle Mu
 Toggle mute  - Sigmatel DAC 6dB Attenuate, Intel 82801AA-ICH=none,none,Toggle Mute
 Toggle mute  - Surround Phase Inversion, Intel 82801AA-ICH=none,none,Toggle Mute
 Toggle mute  - Video, Intel 82801AA-ICH=none,none,Toggle Mute
-_k_friendly_name=kmix
-decrease_volume=Volume Down,Volume Down,Decrease Volume
-increase_volume=Volume Up,Volume Up,Increase Volume
-mute=Volume Mute,Volume Mute,Mute
+_k_friendly_name=Volume audio
+decrease_volume=Volume Down,Volume Down,Diminuer le volume
+increase_volume=Volume Up,Volume Up,Augmenter le volume
+mute=Volume Mute,Volume Mute,Muet
 
 [krunner]
 _k_friendly_name=krunner
@@ -259,7 +265,7 @@ view_zoom_out=Meta+-,Meta+-,Zoom arrière
 
 [plasmashell]
 _k_friendly_name=Plasma
-activate widget 10=,none,Activer le composant graphique Lanceur d'application
+activate widget 10=none,none,Activer le composant graphique Lanceur d'application
 activate widget 4=none,none,Activer le composant graphique Gestionnaire de tâches
 clear-history=none,none,Effacer l'historique du presse-papier
 clipboard_action=Ctrl+Alt+X,Ctrl+Alt+X,Activer les actions du presse-papier

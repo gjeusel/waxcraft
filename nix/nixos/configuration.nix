@@ -8,22 +8,19 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      #./desktop-applications.nix
+      #./hardware-configuration-VM.nix
       ./sysPkgs.nix
-      #./nixpkgs.nix
-      #./hosts.nix
-      #./hardware.nix
     ];
 
-  # Use the GRUB 2 boot loader.
-  boot.loader.grub.enable = true;
-  boot.loader.grub.version = 2;
-  # Define on which hard drive you want to install Grub.
-  boot.loader.grub.device = "/dev/sda";
+  # The NixOS release to be compatible with for stateful data such as databases.
+  system.stateVersion = "16.03";
 
-  networking.hostName = "nixos"; # Define your hostname.
-  #networking.wireless.enable = true;  # Enables wireless.
-  #networking.networkmanager.enable = true;
+  nixpkgs.config.allowUnfree = true;
+
+  networking = {
+    hostName = "myNixHost";
+    networkmanager.enable = true; # obtain an IP address and other configuration for all network interfaces that are not manually configured.
+  };
 
   # Select internationalisation properties.
   i18n = {
@@ -37,12 +34,9 @@
   time.timeZone = "America/Sao_Paulo";
 
   # List services that you want to enable:
-  services = {
-    xserver = {
-      enable = true;                # Enable the X11 windowing system.
-      layout = "fr";
-      exportConfiguration = true;   #symlink the X serveur configuration under /etc/X11/xorg.conf
-    };
+  services.xserver = {
+    enable = true;                # Enable the X11 windowing system.
+    layout = "fr";
   };
 
   # Enable the OpenSSH daemon.
@@ -76,7 +70,7 @@
   gjeusel ALL=(ALL) ALL
   '';
 
-  # The NixOS release to be compatible with for stateful data such as databases.
-  system.stateVersion = "16.03";
+  # Add CUPS to print documents.
+  services.printing.enable = true;
 
 }

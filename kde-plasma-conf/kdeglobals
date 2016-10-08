@@ -91,6 +91,10 @@ ForegroundNormal=224,222,219
 ForegroundPositive=120,183,83
 ForegroundVisited=142,121,165
 
+[DirSelect Dialog]
+DirSelectDialog Size=640,480
+History Items[$e]=file://$HOME/Pictures
+
 [General]
 ColorScheme=Obsidian Coast
 Name=Oxygen

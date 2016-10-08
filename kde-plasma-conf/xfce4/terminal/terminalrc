@@ -22,6 +22,6 @@ ScrollingBar=TERMINAL_SCROLLBAR_NONE
 ScrollingLines=10000
 ColorCursor=#060698989a9a
 BackgroundMode=TERMINAL_BACKGROUND_IMAGE
-BackgroundImageFile=/nix/store/i3i2cik5hql05qqz68s33zqsnw1v5v5g-plasma-workspace-wallpapers-5.5.5/share/wallpapers/Autumn/contents/images/2560x1600.jpg
+BackgroundImageFile=/home/gjeusel/Pictures/e4r5bQR.jpg
 BackgroundImageStyle=TERMINAL_BACKGROUND_STYLE_CENTERED
 

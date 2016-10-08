@@ -8,14 +8,53 @@
     [ <nixpkgs/nixos/modules/installer/scan/not-detected.nix>
     ];
 
-  boot.initrd.availableKernelModules = [ "ehci_pci" "ahci" "usbhid" "usb_storage" ];
-  boot.kernelModules = [ "kvm-intel" ];
-  boot.extraModulePackages = [ ];
+  boot={
+    kernelModules = [
+      "fbcon" # framebuffer console supports high resolutions, varying font types, display rotation, primitive multihead, etc
+      "i915" # linux kernel driver for intel chips
+      "acpi-cpufreq" # CPU frequency scaling infrastructure
+      "cpufreq-ondemand" # Normally loaded automatically with acpi-cpufreq
+      "coretemp" # driver that permits reading tje Digital Temperature Sensor of intel CPUs
+      "battery" # driver for battery informations
+      "xhci-hcd" # USB 3.0 supports
+      "uvcvideo" # driver for Webcam, Video grabber devices
+      "snd-hda-intel power_save=5 index=1,0" # audio driver
+      "snd-pcm"
+      "kvm-intel"
+      "aesni-intel"
+      "crc32c-intel"
+      "intel-powerclamp"
+      "ath9k"
+      "asus-nb-wmi"
+    ];
+    extraModulePackages = [ config.boot.kernelPackages.bbswitch ];
+    initrd = {
+      kernelModules = [
+        "fbcon"
+        "i915"
+        "ehci_pci"
+        "ahci"
+        "usbhid"
+        "sd_mod"
+      ];
+      network.enable = true;
+    };
+  };
+
+  #boot.initrd.availableKernelModules = [ "ehci_pci" "ahci" "usbhid" "usb_storage" ];
+  #boot.kernelModules = [ "kvm-intel" ];
+  #boot.extraModulePackages = [ ];
 
   fileSystems."/" =
     { device = "/dev/disk/by-uuid/c1e4dac6-244c-4128-aaf6-57cb03530d64";
       fsType = "ext4";
     };
+
+  # Use the gummiboot efi boot loader.
+  boot.loader.gummiboot.enable = true;
+  #boot.loader.gummiboot.timeout=null; # To boot automatically on the current generation
+  boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader.grub.enable = false;
 
   fileSystems."/boot" =
     { device = "/dev/sda1";
@@ -24,8 +63,10 @@
 
   services.xserver.synaptics.enable = true;
   services.xserver.synaptics.twoFingerScroll = true;
+  services.xserver.synaptics.minSpeed = "0.7";
+  services.xserver.synaptics.maxSpeed = "3";
+  services.xserver.synaptics.accelFactor = "0.05";
 
-  #services.xserver.videoDrivers = [ "nvidia" ];
   hardware.bumblebee.enable = true;
   hardware.opengl.driSupport32Bit = true;
 
