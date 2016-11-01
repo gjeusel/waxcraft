@@ -11,40 +11,26 @@
 "#
 "######################################################################
 
-" --> Some Mapping :
-" -----> About buffers switch :
-" ALT + F1 :
-map O1;3P :bp<cr>
-" ALT + F2 :
-map O1;3Q :bn<cr>
-" -----> Sourcing the vimrc.local :
-map <F12> :source ${HOME}/.vimrc.local<cr>
-" -----> About moving splits :
-" ALT + up
-map <Esc>[1;3A <C-W>k
-" ALT + down
-map <Esc>[1;3B <C-W>j
-" ALT + right
-map <Esc>[1;3C <C-W>l
-" ALT + left
-map <Esc>[1;3D <C-W>h
+" ---------------->  Usefull Functions Mapped <----------------
+"  {{{
 
-" Reading a binary : :!%xxd
+" --> Exec building and exec command :
+function! ExecAndBuild()
+  execute ":silent !echo "
+  execute ":silent !echo -----------------------------------------------------------------------------------"
 
-" Cleapboard access :
-set clipboard+=unnamedplus
+  "let s:working_directory="/home/gjeusel/projects/intelComp/energy-efficiency/"
+  let s:working_directory="/home/gjeusel/projects/NaiveDB"
+  "let s:command_str="python -W ignore energEff.py --descr data/ENB2012_data.xlsx"
+  "let s:command_str="python -W ignore energEff.py data/ENB2012_data.xlsx"
+  let s:command_str="make && ./main"
 
-" Nvim
-if has('nvim')
-  Plugin 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-  set runtimepath+=/home/gjeusel/.config/nvim/deoplete.nvim
-  let g:deoplete#enable_at_startup = 1
-  "call remote#host#RegisterPlugin('python3', '/home/gjeusel/.vim/bundle/deoplete.nvim/rplugin/python3/deoplete/deoplete.py', [
-  "   \ {'sync': 1, 'name': 'DeopleteInitializePython', 'type': 'command', 'opts': {}},
-  "   \ ])
-endif
-
-" Function to handle auto-indent :
+  let s:exec_from_vim=":! cd ".s:working_directory." && ".s:command_str
+  execute ":silent !echo ".s:command_str
+  execute s:exec_from_vim
+endfunction
+"
+" --> Function to handle auto-indent :
 function! SwitchToggleAutoIndent()
   if &autoindent == "1"
     setlocal noautoindent nocindent nosmartindent indentexpr=
@@ -54,80 +40,6 @@ function! SwitchToggleAutoIndent()
     echo "AutoIndent ON"
   endif
 endfunction
-map <F8> :call SwitchToggleAutoIndent()<cr>
-
-" Exec building and exec command :
-function! ExecAndBuild()
-  execute ":silent !echo "
-  execute ":silent !echo -----------------------------------------------------------------------------------"
-  "execute ":!cd ~/projects/heatFlux/build_3D/ && make && ./bin/heatFlux ../test_case/flat_plate_3D.nml"
-  "execute ":!cd ~/projects/topMatAppl/trabalho-1/ && clang++ table_parser.cpp && ./a.out"
-  "execute ":!cd ~/projects/topMatAppl/trabalho-1/ && make && ./btree.out"
-  "execute ":!cd ~/projects/topMatAppl/trabalho-1/ && make && ./generate_rx_QDBM.out"
-  "execute ":!cd ~/projects/intelComp/pokemons/ && python -W ignore reduce_data.py data/pokemon-spawns.csv"
-  execute ":!cd ~/projects/intelComp/energy-efficiency/ && python -W ignore energEff.py data/ENB2012_data.xlsx"
-endfunction
-" alt + ²
-map <Esc>² :call ExecAndBuild() <cr>
-
-
-
-" For switching tabs with Shit-Tab :
-map <S-Tab>  :tabNext<cr>
-
-" to open next occurence of search (git jump grep "something")
-map <F10> :cn<cr>
-
-" Better escape :
-
-" Better autocompletion menu : 'Here's an alternative setup that feels a little more like the completion menu of other IDEs'
-inoremap <expr> <Esc>      pumvisible() ? "\<C-c>" : "\<Esc>"
-inoremap <expr> <CR>       pumvisible() ? "\<C-y>" : "\<CR>"
-inoremap <expr> <Down>     pumvisible() ? "\<C-n>" : "\<Down>"
-inoremap <expr> <Up>       pumvisible() ? "\<C-p>" : "\<Up>"
-inoremap <expr> <PageDown> pumvisible() ? "\<PageDown>\<C-p>\<C-n>" : "\<PageDown>"
-inoremap <expr> <PageUp>   pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<PageUp>"
-
-
-" Regarding folds
-set foldmethod=marker
-set foldcolumn=2
-"setlocal foldnestmax=1
-nnoremap <Space> za
-vnoremap <Space> za
-
-" Indenting
-set shiftwidth=2                " Use indents of 2 spaces
-set tabstop=2                   " An indentation every 2 columns
-set softtabstop=2               " Let backspace delete indent
-set expandtab
-
-" Special indenting for python - PEP8 norm
-au BufNewFile,BufRead *.py
-    \set shiftwidth=4
-    \set tabstop=4
-    \set softtabstop=4
-    \set textwidth=79
-    \set expandtab
-
-
-"Filetype defaults :
-if has("autocmd")
-  au BufNewFile,BufRead *.cuf set filetype=fortran
-  au BufNewFile,BufRead *.nml set filetype=fortran
-  au BufNewFile,BufRead *.namelist set filetype=fortran
-  au BufNewFile,BufRead *.nix set filetype=nix
-  au BufNewFile,BufRead *.sh set filetype=sh
-  au BufNewFile,BufRead *.vimrc* set filetype=vim
-  au BufNewFile,BufRead *.vim set filetype=vim
-  au BufNewFile,BufRead *.cmake set filetype=cmake
-  au BufNewFile,BufRead CMakeLists.txt set filetype=cmake
-endif
-
-" Use local vimrc if available
-if filereadable(expand("~/.vimrc.before.local"))
-  source ~/.vimrc.before.local
-endif
 
 " Plugins are loaded after .vimrc files, so in case of sourcing .vimrc files
 " while vim is being executed, we need to wrap the plugin into a try - endtry
@@ -148,8 +60,8 @@ endfunction
 
 " For more info type :help highlight
 function! ToggleDarkSolarized()
-  call ActivateRainbow()
   syntax on
+  call ActivateRainbow()
   set background=dark
   highlight Normal            cterm=none ctermbg=none ctermfg=DarkGrey
   highlight LineNr            cterm=bold ctermbg=none ctermfg=DarkGrey
@@ -163,6 +75,7 @@ endfunction
 
 function! ToggleLightSolarized()
   syntax on
+  call ActivateRainbow()
   set background=light
   highlight Normal            cterm=none ctermbg=230 ctermfg=DarkGrey
   highlight LineNr            cterm=bold
@@ -172,11 +85,6 @@ function! ToggleLightSolarized()
   highlight SignifySignChange cterm=none ctermbg=187 ctermfg=124
 endfunction
 
-" About Colors & Themes defaults :
-set t_Co=256            " use 256 colors in vim
-colorscheme solarized   " an appropriate color scheme
-call ToggleDarkSolarized()
-
 function! SwitchToggleSolarized()
   if &background == "light"
     call ToggleDarkSolarized()
@@ -184,18 +92,154 @@ function! SwitchToggleSolarized()
     call ToggleLightSolarized()
   endif
 endfunction
+
+" }}}
+
+" ----------------> Some Mapping <----------------
+"  {{{
+
+" --> About buffers switch :
+" ALT + F1 :
+map O1;3P :bp<cr>
+" ALT + F2 :
+map O1;3Q :bn<cr>
+
+" -> Switching tabs with Shit-Tab :
+map <S-Tab>  :tabNext<cr>
+
+" --> Open next occurence of search (git jump grep "something")
+map <F10> :cn<cr>
+
+" --> Sourcing the vimrc.local :
+map <F12> :source ${HOME}/.vimrc.local<cr>
+
+" --> About moving splits :
+" ALT + up
+map <Esc>[1;3A <C-W>k
+" ALT + down
+map <Esc>[1;3B <C-W>j
+" ALT + right
+map <Esc>[1;3C <C-W>l
+" ALT + left
+map <Esc>[1;3D <C-W>h
+
+" --> About folding open and close :
+nnoremap <Space> za
+vnoremap <Space> za
+
+" --> Changing theme :
 " ALT + F3 :
 map O1;3R :call SwitchToggleSolarized()<cr>
 
+" --> Mapping function call:
+map <F8> :call SwitchToggleAutoIndent()<cr>
+
+"  alt + ²
+map <Esc>² :call ExecAndBuild() <cr>
+
+"}}}
+
+" ----------------> Some Global config <----------------
+"  {{{
+
+" --> About Colors & Themes defaults :
+set t_Co=256            " use 256 colors in vim
+colorscheme solarized   " an appropriate color scheme
+call ToggleDarkSolarized()
+
+" --> Better autocompletion menu : alternative setup that feels a little more like the completion menu of other IDEs
+inoremap <expr> <Esc>      pumvisible() ? "\<C-c>" : "\<Esc>"
+inoremap <expr> <CR>       pumvisible() ? "\<C-y>" : "\<CR>"
+inoremap <expr> <Down>     pumvisible() ? "\<C-n>" : "\<Down>"
+inoremap <expr> <Up>       pumvisible() ? "\<C-p>" : "\<Up>"
+inoremap <expr> <PageDown> pumvisible() ? "\<PageDown>\<C-p>\<C-n>" : "\<PageDown>"
+inoremap <expr> <PageUp>   pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<PageUp>"
+
+" --> Cleapboard access :
+set clipboard+=unnamedplus
+
+" --> Regarding folds :
+set foldmethod=marker
+set foldcolumn=2
+"setlocal foldnestmax=1
+
+" --> Indenting
+" Use indentation scripts located in the indent folder of your vim installation :
+"filetype plugin indent on
+set shiftwidth=2    " Use indents of 2 spaces
+set tabstop=2       " An indentation every 2 columns
+set softtabstop=2   " Let backspace delete indent
+set expandtab
+
+" --> Special indenting for python - PEP8 norm
+autocmd BufRead,BufNewFile *.py setlocal
+  \ shiftwidth=4
+  \ tabstop=4
+  \ softtabstop=4
+  \ textwidth=79
+
+" --> Filetype defaults :
+if has("autocmd")
+  au BufNewFile,BufRead *.cuf set filetype=fortran
+  au BufNewFile,BufRead *.nml set filetype=fortran
+  au BufNewFile,BufRead *.namelist set filetype=fortran
+  au BufNewFile,BufRead *.nix set filetype=nix
+  au BufNewFile,BufRead *.sh set filetype=sh
+  au BufNewFile,BufRead *.vimrc* set filetype=vim
+  au BufNewFile,BufRead *.vim set filetype=vim
+  au BufNewFile,BufRead *.cmake set filetype=cmake
+  au BufNewFile,BufRead CMakeLists.txt set filetype=cmake
+endif
 
 
 
 
+" --> Regarding Nvim :
+if has('nvim')
+  Plugin 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+  set runtimepath+=/home/gjeusel/.config/nvim/deoplete.nvim
+  let g:deoplete#enable_at_startup = 1
+  "call remote#host#RegisterPlugin('python3', '/home/gjeusel/.vim/bundle/deoplete.nvim/rplugin/python3/deoplete/deoplete.py', [
+  "   \ {'sync': 1, 'name': 'DeopleteInitializePython', 'type': 'command', 'opts': {}},
+  "   \ ])
+endif
 
-" --------------- FUNCTIONS HOME MADE  ------------- "
+"}}}
 
-""{{{
+" Function to write in a vim buffer the output of vim commands :
+"   - Execute 'cmd' while redirecting output.
+"   - Delete all lines that do not match regex 'filter' (if not empty).
+"   - Delete any blank lines.
+"   - Delete '<whitespace><number>:<whitespace>' from start of each line.
+"   - Display result in a scratch buffer.
+function! s:Filter_lines(cmd, filter)
+  let save_more = &more
+  set nomore
+  redir => lines
+  silent execute a:cmd
+  redir END
+  let &more = save_more
+  new
+  setlocal buftype=nofile bufhidden=hide noswapfile
+  put =lines
+  g/^\s*$/d
+  %s/^\s*\d\+:\s*//e
+  if !empty(a:filter)
+    execute 'v/' . a:filter . '/d'
+  endif
+  0
+endfunction
+command! -nargs=? Scriptnames call s:Filter_lines('scriptnames', <q-args>)
+command! -nargs=? Syntaxlist call s:Filter_lines('syntax list', <q-args>)
+command! -nargs=? VerboseHighlight call s:Filter_lines('verbose highlight', <q-args>)
+command! -nargs=? CurrentHighlight call s:Filter_lines('highlight', <q-args>)
 
+
+
+" --------------- FUNCTIONS WORKS  ------------- "
+" {{{
+
+" Visual selecting works {{{
 "function! s:get_visual_selection()
 "  " Why is this not a built-in Vim script function?!
 "  let [lnum1, col1] = getpos("'<")[1:2]
@@ -210,11 +254,9 @@ map O1;3R :call SwitchToggleSolarized()<cr>
 "  let s:highlighted_text = s:get_visual_selection()
 "  echo s:highlighted_text
 "endfunction
+"}}}
 
-"" --------------- FUNCTIONS HOME MADE  ------------- "
-"" Syntax examples {{{1
-
-"" Function to automatize replacing in ctests : {{{
+" Function to automatize replacing in ctests : {{{
 "function! Change_with_macro()
 "  "let s:proj_name = s:get_visual_selection()
 "  let s:paragraph_to_be_replaced_pattern ="call \\(allocate\\|deallocate\\|realloc\\|axpy\\|scal\\|copy\\)FluidParticlesDt(.*\\zs)\\ze"
@@ -230,7 +272,7 @@ map O1;3R :call SwitchToggleSolarized()<cr>
 "endfunction
 ""}}}
 
-"" Function to automatize delete in ctests : {{{
+" Function to automatize delete in ctests : {{{
 "function! Delete_quick_mode()
 "  let s:paragraph_to_be_deleted_pattern ="^set(JOB_NMAX_NUM_DT\\(.*\\n\\)\\{-}endif()\\(\\n\\)*"
 "  let s:final_paragraph =""
@@ -239,7 +281,7 @@ map O1;3R :call SwitchToggleSolarized()<cr>
 "endfunction
 ""}}}
 
-"" Function to add a pattern : {{{
+" Function to add a pattern : {{{
 "function! Add_pattern()
 "  "let s:message_patern = s:get_visual_selection()
 
@@ -262,7 +304,7 @@ map O1;3R :call SwitchToggleSolarized()<cr>
 "endfunction
 ""}}}
 
-"" Function to comment personalized : {{{
+" Function to comment personalized : {{{
 "function! Personalized_comment()
 "  "let s:message_patern = s:get_visual_selection()
 
@@ -274,14 +316,13 @@ map O1;3R :call SwitchToggleSolarized()<cr>
 
 "endfunction
 ""}}}
-""1}}}
 
-"UseFull functions {{{1
+" Fortran auto re-indenting functions works {{{
 
 " Function to automatize Tabularize fortran arguments :
 function! Tabularize_fortran_subroutine_args()
 
-  "Syntax Sanity checks : {{{2
+  "Syntax Sanity checks :
   "Save position :
   let s:line_pos = line('.')
   let s:col_pos = col('.')
@@ -297,10 +338,6 @@ function! Tabularize_fortran_subroutine_args()
   let s:replace_for_parenthesis_sanity = s:range_replace." s: *(:(:g"
   execute s:replace_for_parenthesis_sanity
   execute ":normal! ".s:line_pos."G"
-
-"2}}}
-
-  " For Final Indentation : {{{2
 
   "let s:range_tabularize = ":/\.\*intent\.\*::/"
   let s:range_tabularize = ":\.,'\}"
@@ -339,10 +376,8 @@ function! Tabularize_fortran_subroutine_args()
   execute s:command_tabularize_double_dot
 
   execute ":normal! ".s:line_pos."G"
-"2}}}
-
 endfunction
-"1}}}
+"}}}
 
 " Function to automatize Tabularize in ctests : {{{
 function! Tabularize_ctest_cache()
@@ -355,30 +390,4 @@ endfunction
 "map <F3> :silent! :call Tabularize_ctest_cache()<cr>
 "}}}
 
-" Function to write in a vim buffer the output of vim commands :
-"   - Execute 'cmd' while redirecting output.
-"   - Delete all lines that do not match regex 'filter' (if not empty).
-"   - Delete any blank lines.
-"   - Delete '<whitespace><number>:<whitespace>' from start of each line.
-"   - Display result in a scratch buffer.
-function! s:Filter_lines(cmd, filter)
-  let save_more = &more
-  set nomore
-  redir => lines
-  silent execute a:cmd
-  redir END
-  let &more = save_more
-  new
-  setlocal buftype=nofile bufhidden=hide noswapfile
-  put =lines
-  g/^\s*$/d
-  %s/^\s*\d\+:\s*//e
-  if !empty(a:filter)
-    execute 'v/' . a:filter . '/d'
-  endif
-  0
-endfunction
-command! -nargs=? Scriptnames call s:Filter_lines('scriptnames', <q-args>)
-command! -nargs=? Syntaxlist call s:Filter_lines('syntax list', <q-args>)
-command! -nargs=? VerboseHighlight call s:Filter_lines('verbose highlight', <q-args>)
-command! -nargs=? CurrentHighlight call s:Filter_lines('highlight', <q-args>)
+"}}}

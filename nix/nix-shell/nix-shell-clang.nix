@@ -14,7 +14,7 @@ stdenv.mkDerivation {
     clangStdenv
     clang
     cmakeCurses
-    cute20
+    #cute20
   ];
 
   #shellHook = ''

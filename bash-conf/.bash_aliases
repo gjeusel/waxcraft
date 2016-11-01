@@ -15,11 +15,19 @@ alias egrep='egrep --color=auto'
 # disk usage du alias
 alias du='du --max-depth=1 -h -a'
 
+# Wine :
+alias hearthstone="wine /home/gjeusel/.wine/drive_c/Program\ Files/Battle.net/Battle.net.exe "
+alias IHT="wine /home/gjeusel/.wine/drive_c/Program\ Files/Interactive\ Heat\ Transfer/IHT32.exe"
+
 # NixOS aliases
 function _nix_which_() {
 ls $(ls -la $(which $1) |grep --only-matching "/nix/store/.*")
 }
 alias nwhich=_nix_which_
+
+# Nixpkgs
+nix?(){ nix-env -qaPs --description ".*$1.*";  }
+nixgrep(){ grep --color=always --recursive "$1" "$(nix-instantiate --find-file --eval --expr '<nixpkgs>')";}
 
 # git-jump
 alias git-jump="$waxCraft_PATH/tools/git-jump"
