@@ -10,6 +10,7 @@ Rows=2
 [Effect-CoverSwitch]
 TabBox=false
 TabBoxAlternative=false
+zPosition=1652
 
 [Effect-FlipSwitch]
 TabBox=false
@@ -45,7 +46,7 @@ DesktopLayout=org.kde.breeze.desktop
 DesktopListLayout=org.kde.breeze.desktop
 DesktopMode=1
 HighlightWindows=true
-LayoutName=thumbnails
+LayoutName=informative
 MinimizedMode=0
 MultiScreenMode=0
 ShowDesktopMode=0

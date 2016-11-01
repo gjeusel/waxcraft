@@ -14,10 +14,10 @@ _k_friendly_name=KDE Daemon
 
 [kded5]
 Decrease Keyboard Brightness=Keyboard Brightness Down,Keyboard Brightness Down,Diminuer la luminosité du clavier
-Decrease Screen Brightness=Monitor Brightness Down,Monitor Brightness Down,Diminuer la luminosité de l'écran
+Decrease Screen Brightness=Monitor Brightness Down\tShift+Down,Monitor Brightness Down,Diminuer la luminosité de l'écran
 Hibernate=Hibernate,Hibernate,Hiberner
 Increase Keyboard Brightness=Keyboard Brightness Up,Keyboard Brightness Up,Augmenter la luminosité du clavier
-Increase Screen Brightness=Monitor Brightness Up,Monitor Brightness Up,Augmenter la luminosité de l'écran
+Increase Screen Brightness=Monitor Brightness Up\tShift+Up,Monitor Brightness Up,Augmenter la luminosité de l'écran
 PowerOff=Power Off,Power Off,Éteindre
 Show System Activity=Ctrl+Esc,Ctrl+Esc,Afficher l'activité du système
 Sleep=Sleep,Sleep,Suspendre
@@ -29,8 +29,11 @@ display=Display,Display,Changer d'affichage
 _k_friendly_name=KDE Daemon
 {103e1713-d3b4-418a-b1e8-7e3f42f57d8d}=Ctrl+Alt+F,none,firefox
 {2f3aa8c2-96b5-4405-b33c-ec5e418aa843}=none,none,Copie d'écran
+{b7a4a88f-98ca-44fe-8a06-6b017409e18f}=Ctrl+Alt+C,none,Kde config manager
 {bd74ca71-4fe7-4565-9aef-d1ce7242252f}=Ctrl+Alt+T,none,xfce4-terminal
 {d03619b6-9b3c-48cc-9d9c-a2aadb485550}=none,none,Rechercher
+{d4486566-c8f6-4740-9f61-ab395a104782}=Ctrl+Alt+S,none,Spotify
+{d5bf66fc-4120-4250-b191-b9d117e27218}=Ctrl+Alt+D,none,Dolphin
 
 [kmix]
 Decrease volume  - 3D Control - Switch, Intel 82801AA-ICH=none,none,Decrease Volume
@@ -120,10 +123,12 @@ Decrease Opacity=none,none,Réduire l'opacité de la fenêtre active de 5 %
 Expose=Ctrl+F9,Ctrl+F9,Activer / désactiver la présentation des fenêtres (bureau courant)
 ExposeAll=Ctrl+F10\tLaunch (C),Ctrl+F10\tLaunch (C),Activer / désactiver la présentation des fenêtres (tous les bureaux)
 ExposeClass=Ctrl+F7,Ctrl+F7,Activer / désactiver la présentation des fenêtres (Classe de fenêtre)
+FlipSwitchAll=none,none,Activer / désactiver la rotation au changement de bureaux (tous les bureaux)
+FlipSwitchCurrent=none,none,Activer / désactiver la rotation au changement de bureaux (bureau actuel)
 Increase Opacity=none,none,Augmenter l'opacité de la fenêtre active de 5 %
 Invert Screen Colors=none,none,Inverser les couleurs de l'écran
 Kill Window=Ctrl+Alt+Esc,Ctrl+Alt+Esc,Détruire une fenêtre
-MinimizeAll=,none,MinimizeAll
+MinimizeAll=Meta+D,none,MinimizeAll
 MoveMouseToCenter=Meta+F6,Meta+F6,Déplacer la souris au centre
 MoveMouseToFocus=Meta+F5,Meta+F5,Déplacer la souris pour donner le focus
 MoveZoomDown=,Meta+Down,Déplacer la zone de zoom vers le bas
@@ -250,8 +255,8 @@ Window to Next Desktop=none,none,Envoyer une fenêtre sur le bureau suivant
 Window to Next Screen=none,none,Envoyer une fenêtre sur l'écran suivant
 Window to Previous Desktop=none,none,Envoyer une fenêtre sur le bureau précédent
 Window to Previous Screen=none,none,Envoyer une fenêtre sur l'écran précédent
-Window to Screen 0=none,none,Envoyer la fenêtre sur l'écran 0
-Window to Screen 1=none,none,Envoyer la fenêtre sur l'écran 1
+Window to Screen 0=Shift+Left,none,Envoyer la fenêtre sur l'écran 0
+Window to Screen 1=Shift+Right,none,Envoyer la fenêtre sur l'écran 1
 Window to Screen 2=none,none,Envoyer la fenêtre sur l'écran 2
 Window to Screen 3=none,none,Envoyer la fenêtre sur l'écran 3
 Window to Screen 4=none,none,Envoyer la fenêtre sur l'écran 4
@@ -263,9 +268,17 @@ view_actual_size=Meta+0,Meta+0,Taille réelle
 view_zoom_in=Meta+=,Meta+=,Zoom avant
 view_zoom_out=Meta+-,Meta+-,Zoom arrière
 
+[mediacontrol]
+_k_friendly_name=mediacontrol
+nextmedia=Media Next\tAlt+Right,Media Next,Média suivant
+playpausemedia=Media Play\tAlt+Up,Media Play,Lancer / Mettre en pause la lecture
+previousmedia=Media Previous\tAlt+Left,Media Previous,Média précédent
+stopmedia=Media Stop,Media Stop,Arrêter la lecture
+
 [plasmashell]
 _k_friendly_name=Plasma
-activate widget 10=none,none,Activer le composant graphique Lanceur d'application
+activate widget 10=Meta+Space,none,Activer le composant graphique Lanceur d'application
+activate widget 33=none,none,Activer le composant graphique Pavé tactile
 activate widget 4=none,none,Activer le composant graphique Gestionnaire de tâches
 clear-history=none,none,Effacer l'historique du presse-papier
 clipboard_action=Ctrl+Alt+X,Ctrl+Alt+X,Activer les actions du presse-papier
@@ -276,6 +289,6 @@ manage activities=Meta+Q,Meta+Q,Activités…
 next activity=Meta+Tab,none,Walk through activities
 previous activity=Meta+Shift+Tab,none,Walk through activities (Reverse)
 repeat_action=Ctrl+Alt+R,Ctrl+Alt+R,Démarrer manuellement une action concernant le presse-papier actuel
-show dashboard=Meta+D,Ctrl+F12,Afficher le bureau
+show dashboard=,Ctrl+F12,Afficher le bureau
 show-on-mouse-pos=none,none,Afficher Klipper à la position de la souris
 stop current activity=Meta+S,Meta+S,Arrêter l'activité actuelle

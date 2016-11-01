@@ -19,50 +19,55 @@ location=0
 plugin=org.kde.desktopcontainment
 wallpaperplugin=org.kde.slideshow
 
-[Containments][35][Applets][38]
-immutability=1
-plugin=org.kde.plasma.systemmonitor.memory
-
-[Containments][35][Applets][38][Configuration][ConfigDialog]
-DialogHeight=660
-DialogWidth=880
-
 [Containments][35][Applets][38][Configuration][General]
 sources=mem%2Fphysical%2Fapplication
-
-[Containments][35][Applets][39]
-immutability=1
-plugin=org.kde.plasma.systemmonitor.diskactivity
-
-[Containments][35][Applets][39][Configuration][ConfigDialog]
-DialogHeight=660
-DialogWidth=880
 
 [Containments][35][Applets][39][Configuration][General]
 sources=disk%2Fsda_(8%3A0)%2FRate%2Fwblk
 
-[Containments][35][Applets][40]
+[Containments][35][Applets][41][Configuration][General]
+sources=network%2Finterfaces%2Fwlp2s0%2Ftransmitter%2Fdata,network%2Finterfaces%2Fenp0s29u1u3%2Ftransmitter%2Fdata
+
+[Containments][35][Applets][80]
+immutability=1
+plugin=org.kde.plasma.trash
+
+[Containments][35][Applets][82][Configuration][General]
+sources=mem%2Fphysical%2Fapplication
+
+[Containments][35][Applets][85]
 immutability=1
 plugin=org.kde.plasma.systemmonitor.cpu
 
-[Containments][35][Applets][41]
-immutability=1
-plugin=org.kde.plasma.systemmonitor.net
-
-[Containments][35][Applets][41][Configuration][ConfigDialog]
+[Containments][35][Applets][85][Configuration][ConfigDialog]
 DialogHeight=660
 DialogWidth=880
 
-[Containments][35][Applets][42]
+[Containments][35][Applets][85][Configuration][General]
+sources=cpu%2Fcpu0%2FTotalLoad,cpu%2Fcpu1%2FTotalLoad,cpu%2Fcpu2%2FTotalLoad,cpu%2Fcpu3%2FTotalLoad
+
+[Containments][35][Applets][86]
 immutability=1
-plugin=org.kde.plasma.battery
+plugin=org.kde.plasma.systemmonitor.diskactivity
+
+[Containments][35][Applets][86][Configuration][ConfigDialog]
+DialogHeight=660
+DialogWidth=880
+
+[Containments][35][Applets][86][Configuration][General]
+sources=disk%2Fsda_(8%3A0)%2FRate%2Fwblk,disk%2Floop0_(7%3A0)%2FRate%2Fwblk
+
+[Containments][35][Applets][87]
+immutability=1
+plugin=org.kde.plasma.systemmonitor.net
 
 [Containments][35][ConfigDialog]
 DialogHeight=660
 DialogWidth=880
 
 [Containments][35][General]
-ItemsGeometries=Applet-38:1474,179,432,192,0;Applet-39:1488,-11,432,192,0;Applet-40:1505,379,432,288,0;Applet-41:1510,686,432,240,0;Applet-42:0,33,384,384,0;
+ItemsGeometries=Applet-80:1727,864,192,144,0;Applet-85:1583,576,336,288,0;Applet-86:1583,0,336,288,0;Applet-87:1583,288,336,288,0;
+pressToMoveHelp=false
 
 [Containments][35][Wallpaper][General]
 SlideInterval=600
@@ -73,8 +78,21 @@ height=1080
 width=1920
 
 [Containments][35][Wallpaper][org.kde.slideshow][General]
-SlideInterval=600
+SlideInterval=601
 SlidePaths=/home/gjeusel/Pictures
+height=1080
+width=1920
+
+[Containments][57]
+activityId=6ff48d67-fdaa-4cc7-a576-0570bf765616
+formfactor=0
+immutability=1
+lastScreen=1
+location=0
+plugin=org.kde.desktopcontainment
+wallpaperplugin=org.kde.image
+
+[Containments][57][Wallpaper][org.kde.image][General]
 height=1080
 width=1920
 
@@ -152,17 +170,29 @@ plugin=org.kde.plasma.battery
 immutability=1
 plugin=touchpad
 
+[Containments][9][Applets][13][Configuration][Containments][15][Applets][33][Configuration][ConfigDialog]
+DialogHeight=660
+DialogWidth=880
+
 [Containments][9][Applets][13][Configuration][Containments][15][Applets][36]
 immutability=1
 plugin=org.kde.plasma.volume
 
-[Containments][9][Applets][13][Configuration][Containments][15][Applets][37]
+[Containments][9][Applets][13][Configuration][Containments][15][Applets][36][Configuration][ConfigDialog]
+DialogHeight=660
+DialogWidth=880
+
+[Containments][9][Applets][13][Configuration][Containments][15][Applets][43]
+immutability=1
+plugin=org.kde.plasma.bluetooth
+
+[Containments][9][Applets][13][Configuration][Containments][15][Applets][56]
 immutability=1
 plugin=org.kde.plasma.networkmanagement
 
 [Containments][9][Applets][13][Configuration][General]
-extraItems=org.kde.plasma.mediacontroller,org.kde.plasma.clipboard,org.kde.plasma.battery,org.kde.plasma.devicenotifier,org.kde.plasma.notifications,org.kde.plasma.printmanager,org.kde.plasma.networkmanagement,touchpad,org.kde.plasma.volume
-knownItems=org.kde.plasma.mediacontroller,org.kde.plasma.clipboard,org.kde.plasma.battery,org.kde.plasma.devicenotifier,org.kde.plasma.notifications,org.kde.plasma.printmanager,org.kde.plasma.networkmanagement,org.kde.plasma.volume
+extraItems=org.kde.plasma.mediacontroller,org.kde.plasma.clipboard,org.kde.plasma.battery,org.kde.plasma.devicenotifier,org.kde.plasma.notifications,org.kde.plasma.printmanager,org.kde.plasma.networkmanagement,touchpad,org.kde.plasma.volume,org.kde.plasma.bluetooth
+knownItems=org.kde.plasma.mediacontroller,org.kde.plasma.clipboard,org.kde.plasma.battery,org.kde.plasma.devicenotifier,org.kde.plasma.notifications,org.kde.plasma.printmanager,org.kde.plasma.networkmanagement,org.kde.plasma.volume,org.kde.plasma.bluetooth
 shownItems=touchpad,org.kde.plasma.clipboard,org.kde.plasma.battery
 
 [Containments][9][Applets][14]
@@ -200,9 +230,16 @@ genericName=Web Browser
 iconName=firefox
 url=file:///run/current-system/sw/share/applications/firefox.desktop
 
+[Containments][9][Applets][55][Configuration][General]
+color=green
+noteId=37ddd78d-5987-4827-86f5-69ba209673
+
 [Containments][9][ConfigDialog]
 DialogHeight=87
 DialogWidth=1920
 
 [Containments][9][General]
 AppletOrder=10;11;24;34;12;13;14;27;32
+
+[General]
+immutability=2
