@@ -16,9 +16,13 @@ stdenv.mkDerivation {
     python27Packages.pandas # dataframe handle
     python27Packages.seaborn # cool color map
     python27Packages.pyramid_jinja2
+
     python27Packages.scikitlearn # algo for data mining
+
     /*myTexLive*/
-    texLiveFull
+    /*texlive.scheme-full*/
+    /*texLiveFull*/
+    texlive.combined.scheme-full
     lmodern # fonts used by tex
     ghostscript # necessary for pdf to png with "convert" cmd
   ];

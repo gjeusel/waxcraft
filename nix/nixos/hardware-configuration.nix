@@ -73,6 +73,17 @@
   hardware.pulseaudio.enable = true;
   hardware.pulseaudio.support32Bit = true;
 
+  # compatibility bluetooth & pulseaudio :
+  hardware.pulseaudio.package = pkgs.pulseaudioFull; # to get pulseaudio bluetooth
+  nixpkgs.config = {
+    packageOverrides = pkgs: {
+    bluez = pkgs.bluez5;
+    };
+  };
+  hardware.bluetooth.enable = true;
+
+  powerManagement.scsiLinkPolicy = null; # SCSI : Small Computer System Interface (sd card lecteur / DVD / ...)
+
   swapDevices = [ ];
 
   nix.maxJobs = 4;

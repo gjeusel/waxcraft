@@ -19,11 +19,15 @@ function! ExecAndBuild()
   execute ":silent !echo "
   execute ":silent !echo -----------------------------------------------------------------------------------"
 
+  " LateX :
+  let s:working_directory="/home/gjeusel/projects/intelComp/energy-efficiency/report/"
+  let s:command_str="pdflatex relatorio.tex && bibtex relatorio.aux"
+  "let s:command_str="pdflatex assignment_3.tex && bibtex assignment_3.aux && pdflatex assignment_3.tex && bibtex assignment_3.aux"
+
+  "" Python :
   "let s:working_directory="/home/gjeusel/projects/intelComp/energy-efficiency/"
-  let s:working_directory="/home/gjeusel/projects/NaiveDB"
-  "let s:command_str="python -W ignore energEff.py --descr data/ENB2012_data.xlsx"
-  "let s:command_str="python -W ignore energEff.py data/ENB2012_data.xlsx"
-  let s:command_str="make && ./main"
+  ""let s:command_str="python -W ignore energEff.py --descr data/ENB2012_data.xlsx"
+  "let s:command_str="python -W ignore energEff.py --reg --save_fig data/ENB2012_data.xlsx"
 
   let s:exec_from_vim=":! cd ".s:working_directory." && ".s:command_str
   execute ":silent !echo ".s:command_str
@@ -165,10 +169,10 @@ set foldcolumn=2
 
 " --> Indenting
 " Use indentation scripts located in the indent folder of your vim installation :
-"filetype plugin indent on
-set shiftwidth=2    " Use indents of 2 spaces
-set tabstop=2       " An indentation every 2 columns
-set softtabstop=2   " Let backspace delete indent
+filetype plugin indent on
+set shiftwidth=4    " Use indents of 2 spaces
+set tabstop=4       " An indentation every 2 columns
+set softtabstop=4   " Let backspace delete indent
 set expandtab
 
 " --> Special indenting for python - PEP8 norm

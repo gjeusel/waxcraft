@@ -57,7 +57,7 @@
   users.extraUsers.gjeusel = {
     isNormalUser = true;
     home = "/home/gjeusel";
-    extraGroups = ["users"];
+    extraGroups = ["users" "networkmanager"]; # give networkmanager permission
     uid = 1000;
     #password = "" ;
   };
