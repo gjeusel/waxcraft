@@ -8,12 +8,11 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      #./hardware-configuration-VM.nix
       ./sysPkgs.nix
     ];
 
   # The NixOS release to be compatible with for stateful data such as databases.
-  system.stateVersion = "16.03";
+  system.stateVersion = "17.03";
 
   nixpkgs.config.allowUnfree = true;
 
@@ -33,17 +32,17 @@
   #time.timeZone = "Europe/Paris";
   time.timeZone = "America/Sao_Paulo";
 
-  # List services that you want to enable:
-  services.xserver = {
-    enable = true;                # Enable the X11 windowing system.
-    layout = "fr";
-  };
+  # Enable the X11 windowing system.
+  services.xserver.enable = true;
+  services.xserver.layout = "fr";
+  services.xserver.xkbOptions = "eurosign:e";
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
 
   # Enable the kde5 Desktop Environment.
-  services.xserver.desktopManager.kde5.enable = true;
+  /*services.xserver.desktopManager.kde5.enable = true;*/
+  services.xserver.desktopManager.plasma5 = true;
 
   # users.mutableUsers to false, then the contents of /etc/passwd and /etc/group will be congruent to your NixOS configuration
   #users.mutableUsers = false;
@@ -71,6 +70,28 @@
   '';
 
   # Add CUPS to print documents.
-  services.printing.enable = true;
+  services.printing = {
+      enable = true;
+      drivers = [ pkgs.hplipWithPlugin  ];
+  };
+
+  /*# Allowing Samba : network sharing soft*/
+  /*services.samba = {*/
+  /*  enable = true;*/
+  /*  shares = {*/
+  /*    data =*/
+  /*      { comment = "Guigz samba share.";*/
+  /*        path = "/home/gjeusel/Downloads";*/
+  /*        browseable = "yes";*/
+  /*        "guest ok" = "no";*/
+  /*        "valid users" = "gjeusel";*/
+  /*        "read only" = "true";*/
+  /*       };*/
+  /*  };*/
+  /*  extraConfig = ''*/
+  /*  guest account = nobody*/
+  /*  map to guest = bad user*/
+  /*  '';*/
+  /*};*/
 
 }

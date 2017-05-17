@@ -8,7 +8,10 @@
     [ <nixpkgs/nixos/modules/installer/scan/not-detected.nix>
     ];
 
+# Boot conf
   boot={
+
+    # Kernel modules choices :
     kernelModules = [
       "fbcon" # framebuffer console supports high resolutions, varying font types, display rotation, primitive multihead, etc
       "i915" # linux kernel driver for intel chips
@@ -41,17 +44,12 @@
     };
   };
 
-  #boot.initrd.availableKernelModules = [ "ehci_pci" "ahci" "usbhid" "usb_storage" ];
-  #boot.kernelModules = [ "kvm-intel" ];
-  #boot.extraModulePackages = [ ];
-
-  fileSystems."/" =
-    { device = "/dev/disk/by-uuid/c1e4dac6-244c-4128-aaf6-57cb03530d64";
-      fsType = "ext4";
-    };
+  ## Change linux kernel default :
+  #boot.kernelPackages = pkgs.linuxPackages_4_9;
+  boot.kernelPackages = pkgs.linuxPackages_latest;
 
   # Use the gummiboot efi boot loader.
-  boot.loader.gummiboot.enable = true;
+  boot.loader.systemd-boot.enable = true;
   #boot.loader.gummiboot.timeout=null; # To boot automatically on the current generation
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.grub.enable = false;
@@ -60,6 +58,18 @@
     { device = "/dev/sda1";
       fsType = "vfat";
     };
+  fileSystems."/" =
+    { device = "/dev/disk/by-uuid/c1e4dac6-244c-4128-aaf6-57cb03530d64";
+      fsType = "ext4";
+    };
+  fileSystems."/run/media/D" =
+    { device = "/dev/disk/by-uuid/19990B7D65A3ADFC";
+      fsType = "ntfs";
+    };
+
+
+  # Authorize virtualization
+  virtualisation.virtualbox.host.enable = true;
 
   services.xserver.synaptics.enable = true;
   services.xserver.synaptics.twoFingerScroll = true;

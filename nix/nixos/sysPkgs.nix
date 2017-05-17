@@ -4,43 +4,43 @@
 
 environment.systemPackages = with pkgs; [
 
-# Basic usefull prog
   firefox
-  imagemagick        # display cmd for pictures
-  evince             # pdf reader
-  pavucontrol        # pulseaudio gtk for sound configuration
-  kde5.plasma-nm     # managing network connexions
-  transmission-gtk   # A fast, easy and free BitTorrent client
-  google-drive-ocamlfuse # Equivalent google drive
-  shutter             # screen capture
-  spofity
-
-# Jeux
-  wineStaging         # Allow installing windows programes
-  winetricks          # Help download windows ddl
+  imagemagick    # display cmd for pictures
+  evince         # pdf reader
+  pavucontrol    # pulseaudio cmd for sound configuration
+  kde5.plasma-nm # managing network connexions
+  kde5.kio # enable extract file from dolphin
+  cups           # print to pdf (= pdfcreator)
 
 # Extra bash commands :
   tree
   htop
   wget
-  which
-  unzip
-
-# Wireless tool for kde hidden wifi connect :
-  wirelesstools
-
-# Commands that help to configure :
+  gitAndTools.gitFull #gitk && git gui
   mkpasswd            # to encrypt password
-  pciutils            # tools to check pci (ex : lspci)
+  unzip
+  nox                 # make easier to find nix packages
+  shutter             # screen capture
 
-# Programming env
+# Standard Programming env
   gcc5
   clangStdenv
   clang
   cmakeCurses
   paraview
   gnuplot
-  gitAndTools.gitFull #gitk && git gui
+
+# Scipy Probramming env
+  python27Packages.scipy_0_17
+  python27Packages.pyqt4 # enable display of figures
+  python27Packages.pandas # dataframe handle
+  python27Packages.seaborn # cool color map
+  python27Packages.pyramid_jinja2
+  python27Packages.scikitlearn # algo for data mining
+  texlive.combined.scheme-full
+  lmodern # fonts used by tex
+  ghostscript # necessary for pdf to png with "convert" cmd
+
 
 # Personnal vim
   vim
