@@ -140,17 +140,13 @@ function _kde_plasma_conf() { #{{{
 function _nixpkgs_conf() { #{{{
 
   # Absolute path for files of interest in $nixpkgs_conf_dir :
-  _waxCraft_nixpkgs_files_abs="$waxCraft_path/nix/nixpkgs/config.nix"
-  # Relative path for files of interest :
-  _files_of_interests=$(realpath --relative-to=$nixpkgs_conf_dir $_waxCraft_nixpkgs_files_abs)
+  _waxCraft_nixpkgs_files_abs="$waxCraft_path/nix/nixpkgs/custom-packages.nix"
 
-  _prefix_dir="${HOME}/.nixpkgs"
-
-  _path_to_save="$waxCraft_path/old_conf/nix/nixpkgs"
-
-  _save_config "nixpkgs" "$_files_of_interests" "$_prefix_dir" "$_path_to_save"
-
-  _create_symlink "$_files_of_interests" "$_prefix_dir" "$nixpkgs_conf_dir"
+  _symlink_to_create="$HOME/.nixpkgs/config.nix"
+  if [ ! -L $_symlink_to_create  ]; then
+    echo "Creating symlink for $_symlink_to_create ---> $_waxCraft_nixpkgs_files_abs"
+    ln -s $_waxCraft_nixpkgs_files_abs $_symlink_to_create
+  fi
 
 }
 #}}}

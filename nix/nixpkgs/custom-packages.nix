@@ -1,10 +1,10 @@
 {
 
+#{{{
 # Allow broken content (when using nixpkgs as git)
 allowBroken = true;
 # Allow unfree license
 allowUnfree = true;
-
 
 # Regarding configs
 firefox = {
@@ -17,39 +17,37 @@ chromium = {
   enablePepperFlash = true; # Chromium's non-NSAPI alternative to Adobe Flash
   enablePepperPDF = true;
 };
+#}}}
 
 packageOverrides = super: let self = super.pkgs; in with self; rec {
 
   pathToMyPackages = builtins.getEnv "waxCraft_PATH"+"/nix/nixpkgs/" ;
+
   vim74-spf13 = self.callPackage "${pathToMyPackages}vim-7.4-spf13/default.nix" {  };
   blank_env   = self.callPackage "${pathToMyPackages}blank_env/default.nix" {  };
   cute20      = self.callPackage "${pathToMyPackages}cute-2.0/default.nix" {  };
   /*cartopy     = self.callPackage "${pathToMyPackages}cartopy/default.nix" {  };*/
 
-  /*lmod        = self.callPackage "${pathToMyPackages}lmod/default.nix" {*/
-  /*    inherit (self.luaPackages) luafilesystem;*/
-  /*    inherit luaposix;*/
-  /*};*/
+  # Pythons modules :
+  #enzyme = self.callPackage "${pathToMyPackages}pythonModules/enzyme-0.4.2/default.nix" {
+  #  python = self.python27;
+  #  self = python27Packages;
+  #};
+
+  /*enzyme = self.callPackage "${pathToMyPackages}pythonModules/enzyme-0.4.2/default.nix" {};*/
+  /*guessit = self.callPackage "${pathToMyPackages}pythonModules/guessit-2.1.2/default.nix" {};*/
+  /*rebulk = self.callPackage "${pathToMyPackages}pythonModules/rebulk/default.nix" {};*/
+  /*subliminal = self.callPackage "${pathToMyPackages}pythonModules/subliminal-2.0.5/default.nix" {};*/
+
+  #python27Packages = super.callPackage "${pathToMyPackages}python-packages-custom.nix" {
+  #  python = self.python27;
+  #  self = self.python27Packages;
+  #};
+
+
+#  myTexLive = with pkgs; {
+#       paths = [texLiveFull lmodern];
+#  };
 
 };
-
-/*packageOverrides = super: rec {*/
-
-/*# super = paquet des dépot de départ*/
-/*# on peut renommer super en nixpkgs*/
-
-/*# Pour faire une référence au package vim dans les paquets officiels de nix :*/
-/*  vim = super*/
-
-/*  pathToMyPackages = "/root/projects/pumped-nix/" ;*/
-/*  vim74-spf13 = super.pkgs.callPackage "${pathToMyPackages}vim-7.4-spf13/default.nix" {  };*/
-/*  blank_env   = super.pkgs.callPackage "${pathToMyPackages}blank_env/default.nix" {  };*/
-
-/*  lmod        = self.callPackage "${pathToMyPackages}lmod/default.nix" {*/
-/*      inherit (self.luaPackages) luafilesystem;*/
-/*      inherit luaposix;*/
-/*  };*/
-
-/*};*/
-
 }

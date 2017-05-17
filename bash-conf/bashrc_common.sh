@@ -24,8 +24,8 @@ if [ -z ${IN_NIX_SHELL} ]; then
   ps1_construct_interm_std="[\[\e[1;34m\]\u@\H\[\e[1;30m\]:\[\e[0;37m\] \[\e[0;32m\]+${SHLVL}\[\e[1;30m\]]" # [user@hostname: +shell level]
 else
   ps1_construct_interm_clang="[\[\e[1;34m\]\u@\H\[\e[1;30m\]:\[\e[0;37m\] \[\e[0;33m\]clang-env\[\e[1;30m\]]" # [user@hostname: clang-env]
-  ps1_construct_interm_GNU="[\[\e[1;34m\]\u@\H\[\e[1;30m\]:\[\e[0;37m\] \[\e[0;33m\]GNU-env\[\e[1;30m\]]" # [user@hostname: clang-env]
-  ps1_construct_interm_scipy="[\[\e[1;34m\]\u@\H\[\e[1;30m\]:\[\e[0;37m\] \[\e[0;33m\]scipy-2.7-env\[\e[1;30m\]]" # [user@hostname: clang-env]
+  ps1_construct_interm_GNU="[\[\e[1;34m\]\u@\H\[\e[1;30m\]:\[\e[0;37m\] \[\e[0;33m\]GNU-env\[\e[1;30m\]]" # [user@hostname: GNU-env]
+  ps1_construct_interm_scipy="[\[\e[1;34m\]\u@\H\[\e[1;30m\]:\[\e[0;37m\] \[\e[0;33m\]scipy-2.7-env\[\e[1;30m\]]" # [user@hostname: scipy-env]
 fi
 
 # testing last command line error :

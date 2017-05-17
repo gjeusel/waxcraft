@@ -18,16 +18,18 @@ alias du='du --max-depth=1 -h -a'
 # Wine :
 alias hearthstone="wine /home/gjeusel/.wine/drive_c/Program\ Files/Battle.net/Battle.net.exe "
 alias IHT="wine /home/gjeusel/.wine/drive_c/Program\ Files/Interactive\ Heat\ Transfer/IHT32.exe"
+alias ageofmythology="WINEARCH=win32 WINEPREFIX=$HOME/.wine-AgeOf/ wine ~/.wine-AgeOf/drive_c/Program\ Files/Microsoft\ Games/Age\ of\ Mythology/aomx.exe"
 
 # NixOS aliases
-function _nix_which_() {
-ls $(ls -la $(which $1) |grep --only-matching "/nix/store/.*")
-}
-alias nwhich=_nix_which_
+#function _nix_which_() {
+#ls $(ls -la $(which $1) |grep --only-matching "/nix/store/.*")
+#}
+#alias nwhich=_nix_which_
+nwhich(){ readlink $(which $1);}
 
 # Nixpkgs
-nix?(){ nix-env -qaPs --description ".*$1.*";  }
-nixgrep(){ grep --color=always --recursive "$1" "$(nix-instantiate --find-file --eval --expr '<nixpkgs>')";}
+nix?(){ nix-env --query --available --attr-path --status --description ".*$1.*";  }
+nixgrep(){ grep --color=always --recursive "$1" "$(nix-instantiate --find-file --eval --expr nixpkgs)";}
 
 # git-jump
 alias git-jump="$waxCraft_PATH/tools/git-jump"

@@ -11,6 +11,12 @@ stdenv.mkDerivation {
    '';
 
   buildInputs = [
+    /*python27Packages.requests # for download on web purpose*/
+    /*python27Packages.appdirs*/
+    /*python27Packages.chardet*/
+    /*python27Packages.babelfish*/
+    /*python27Packages.click*/
+
     python27Packages.scipy_0_17
     python27Packages.pyqt4 # enable display of figures
     python27Packages.pandas # dataframe handle
@@ -18,6 +24,14 @@ stdenv.mkDerivation {
     python27Packages.pyramid_jinja2
 
     python27Packages.scikitlearn # algo for data mining
+
+    python27Packages.networkx # graph algo
+    python27Packages.graph-tool
+    graphviz
+    python27Packages.pygraphviz # graph algo
+    python27Packages.pydot
+
+    spark
 
     /*myTexLive*/
     /*texlive.scheme-full*/
