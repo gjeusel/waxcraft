@@ -33,9 +33,10 @@ function! ExecAndBuild()
 
   "let s:working_directory="/home/gjeusel/projects/bigData_ELL890/"
   "let s:command_str="spark-submit spark_rdd_examples.py"
+  
+  let s:working_directory="/home/gjeusel/projects/bigData_ELL890/"
+  let s:command_str="python download-subs.py"
 
-  let s:working_directory="$waxCraft_PATH/nix/nix-shell/"
-  let s:command_str="nix-shell --show-trace nix-shell-sublime.nix"
 
   let s:exec_from_vim=":! cd ".s:working_directory." && ".s:command_str
   execute ":silent !echo ".s:command_str

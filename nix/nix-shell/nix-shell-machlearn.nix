@@ -1,24 +1,18 @@
 { pkgs ? import <nixpkgs> {}  }:
-/*{ my_pkgs ? import <nixpkgs> {}  }:*/
 
 with pkgs;
 
 stdenv.mkDerivation {
-  name = "scipy-nix-env";
+  name = "scipy-nix-machlearn";
 
   shellHook = ''
-    export PS1=$ps1_scipy
+    export PS1=$ps1_machlearn
    '';
 
   buildInputs = [
-    /*python27Packages.requests # for download on web purpose*/
-    /*python27Packages.appdirs*/
-    /*python27Packages.chardet*/
-    /*python27Packages.babelfish*/
-    /*python27Packages.click*/
+    python27Packages.tensorflow
 
-    python27Packages.matplotlib
-    python27Packages.scipy_0_17
+    python27Packages.scipy_0_18
     python27Packages.pyqt4 # enable display of figures
     python27Packages.pandas # dataframe handle
     python27Packages.seaborn # cool color map
@@ -26,10 +20,8 @@ stdenv.mkDerivation {
 
     python27Packages.scikitlearn # algo for data mining
 
-    python27Packages.six # for smoothing over the differences between the Python versions
-
     python27Packages.networkx # graph algo
-    /*python27Packages.graph-tool*/
+    python27Packages.graph-tool
     graphviz
     #python27Packages.pygraphviz # graph algo
     python27Packages.pydot
@@ -56,3 +48,4 @@ stdenv.mkDerivation {
 #  buildInputs = [ pkgs.clang  ];
 #  };
 #}
+

@@ -26,6 +26,7 @@ else
   ps1_construct_interm_clang="[\[\e[1;34m\]\u@\H\[\e[1;30m\]:\[\e[0;37m\] \[\e[0;33m\]clang-env\[\e[1;30m\]]" # [user@hostname: clang-env]
   ps1_construct_interm_GNU="[\[\e[1;34m\]\u@\H\[\e[1;30m\]:\[\e[0;37m\] \[\e[0;33m\]GNU-env\[\e[1;30m\]]" # [user@hostname: GNU-env]
   ps1_construct_interm_scipy="[\[\e[1;34m\]\u@\H\[\e[1;30m\]:\[\e[0;37m\] \[\e[0;33m\]scipy-2.7-env\[\e[1;30m\]]" # [user@hostname: scipy-env]
+  ps1_construct_interm_machlearn="[\[\e[1;34m\]\u@\H\[\e[1;30m\]:\[\e[0;37m\] \[\e[0;33m\]machlearn-env\[\e[1;30m\]]" # [user@hostname: machlearn-env]
 fi
 
 # testing last command line error :
@@ -38,6 +39,7 @@ ps1_std="$ps1_construct_init $ps1_construct_interm_std $ps1_construct_end"
 ps1_clang="$ps1_construct_init $ps1_construct_interm_clang $ps1_construct_end"
 ps1_GNU="$ps1_construct_init $ps1_construct_interm_GNU $ps1_construct_end"
 ps1_scipy="$ps1_construct_init $ps1_construct_interm_scipy $ps1_construct_end"
+ps1_machlearn="$ps1_construct_init $ps1_construct_interm_machlearn $ps1_construct_end"
 
 
 export PS1=$ps1_std
