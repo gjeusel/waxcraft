@@ -46,13 +46,16 @@
 
   ## Change linux kernel default :
   #boot.kernelPackages = pkgs.linuxPackages_4_9;
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  /*boot.kernelPackages = pkgs.linuxPackages_latest;*/
 
   # Use the gummiboot efi boot loader.
   boot.loader.systemd-boot.enable = true;
   #boot.loader.gummiboot.timeout=null; # To boot automatically on the current generation
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.grub.enable = false;
+
+  # Clean tmp dir at boot
+  boot.cleanTmpDir = true;
 
   fileSystems."/boot" =
     { device = "/dev/sda1";
@@ -71,28 +74,54 @@
   # Authorize virtualization
   virtualisation.virtualbox.host.enable = true;
 
+  # Pad config
   services.xserver.synaptics.enable = true;
   services.xserver.synaptics.twoFingerScroll = true;
   services.xserver.synaptics.minSpeed = "0.7";
   services.xserver.synaptics.maxSpeed = "3";
   services.xserver.synaptics.accelFactor = "0.05";
 
+  # Drivers :
+  services.xserver.videoDrivers = ["intel" "i965"];
+
+  # Graphic drivers
   hardware.bumblebee.enable = true;
+  hardware.opengl.driSupport = true; # Whether to enable accelerated OpenGL rendering through the Direct Rendering Interface (DRI)
   hardware.opengl.driSupport32Bit = true;
 
+# Enable pulseaudio for audio
   hardware.pulseaudio.enable = true;
   hardware.pulseaudio.support32Bit = true;
+  hardware.opengl.extraPackages = [ pkgs.vaapiIntel  ];
 
-  # compatibility bluetooth & pulseaudio :
-  hardware.pulseaudio.package = pkgs.pulseaudioFull; # to get pulseaudio bluetooth
-  nixpkgs.config = {
-    packageOverrides = pkgs: {
-    bluez = pkgs.bluez5;
-    };
+  ## compatibility bluetooth & pulseaudio :
+  #hardware.pulseaudio.package = pkgs.pulseaudioFull; # to get pulseaudio bluetooth
+  #nixpkgs.config = {
+  #  packageOverrides = pkgs: {
+  #  bluez = pkgs.bluez5;
+  #  };
+  #};
+  #hardware.bluetooth.enable = true;
+
+  #powerManagement.scsiLinkPolicy = null; # SCSI : Small Computer System Interface (sd card lecteur / DVD / ...)
+
+  fonts = {
+        # Store all the fonts in one place
+        enableFontDir = true;
+        # Enable default fonts
+        enableDefaultFonts = true;
+        # Enable Microsoft Core Fonts
+        enableCoreFonts = true;
+
+        # Add more fonts
+        fonts = with pkgs; [
+            hack-font
+            noto-fonts
+            noto-fonts-emoji
+            ubuntu_font_family
+        ];
+
   };
-  hardware.bluetooth.enable = true;
-
-  powerManagement.scsiLinkPolicy = null; # SCSI : Small Computer System Interface (sd card lecteur / DVD / ...)
 
   swapDevices = [ ];
 

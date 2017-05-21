@@ -1,16 +1,24 @@
 { config, pkgs, ... }:
 
+#let
+#  plasmaAddPack = {v ? pkgs.system.stateVersion}:
+#  if (v=="16.09") then pkgs.kde5 else pkgs.plasma5;
+#in
 {
-
+# Set of packages that will appear in /run/current-system/sw :
 environment.systemPackages = with pkgs; [
 
+# Some softwares usefulls :
   firefox
   imagemagick    # display cmd for pictures
   evince         # pdf reader
   pavucontrol    # pulseaudio cmd for sound configuration
+  cups           # print to pdf (= pdfcreator)
+
   kde5.plasma-nm # managing network connexions
   kde5.kio # enable extract file from dolphin
-  cups           # print to pdf (= pdfcreator)
+  #plasma5.plasma-nm # managing network connexions
+
 
 # Extra bash commands :
   tree
@@ -51,11 +59,21 @@ environment.systemPackages = with pkgs; [
   tigervnc
 
 # Nix scripting
-  nix-prefetch-scripts
+  nix-prefetch-scripts # to get SHA or MD5 for nixpkgs files
 
 # Favorite Terminal :
   xfce.terminal
-  terminator
-
+  #terminator
 ];
+
+## some pkgs that need additional config :
+#environment = {
+#    # To set Oxygen-GTK as the gtk theme
+#    systemPackages = [ pkgs.oxygen_gtk  ];
+#    shellInit = ''
+#      export GTK_PATH=$GTK_PATH:${pkgs.oxygen_gtk}/lib/gtk-2.0
+#      export GTK2_RC_FILES=$GTK2_RC_FILES:${pkgs.oxygen_gtk}/share/themes/oxygen-gtk/gtk-2.0/gtkrc
+#    '';
+#};
+
 }

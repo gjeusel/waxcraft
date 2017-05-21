@@ -12,7 +12,7 @@
     ];
 
   # The NixOS release to be compatible with for stateful data such as databases.
-  system.stateVersion = "17.03";
+  system.stateVersion = "16.09";
 
   nixpkgs.config.allowUnfree = true;
 
@@ -40,9 +40,28 @@
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
 
+  # DisplayManager :
+  services.xserver.displayManager = {
+    job.logsXsession = true; # Whether the display manager redirects the output of the session script to ~/.xsession-errors.
+    sddm.enable = true;
+    #sddm.extraConfig=  ''
+    #                    [Autologin]
+    #                    User=gjeusel
+    #                    Session=plasma.desktop
+    #                    '';
+  };
+
   # Enable the kde5 Desktop Environment.
-  /*services.xserver.desktopManager.kde5.enable = true;*/
-  services.xserver.desktopManager.plasma5 = true;
+  # services.xserver.desktopManager.kde5.enable = true; # backward 16.09 compatibility
+  services.xserver.desktopManager = {
+    #if system.stateVersion ? "17.03" then plasma5.enable=true else kde5.enable=true;
+    enlightenment.enable = true;
+    kde5.enable = true;
+    /*kde5.enableQt4Support = false;*/
+    default = "kde5";
+    #plasma5.enable = true;
+    #default = "plasma5" ;
+  };
 
   # users.mutableUsers to false, then the contents of /etc/passwd and /etc/group will be congruent to your NixOS configuration
   #users.mutableUsers = false;
@@ -58,6 +77,13 @@
     home = "/home/gjeusel";
     extraGroups = ["users" "networkmanager"]; # give networkmanager permission
     uid = 1000;
+    #password = "" ;
+  };
+  users.extraUsers.public = {
+    isNormalUser = true;
+    home = "/home/public";
+    extraGroups = ["users" "networkmanager"]; # give networkmanager permission
+    uid = 1001;
     #password = "" ;
   };
 
