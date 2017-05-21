@@ -86,6 +86,9 @@
 
   # Graphic drivers
   hardware.bumblebee.enable = true;
+  hardware.bumblebee.driver = "nvidia";
+  hardware.bumblebee.group = "users";
+  hardware.bumblebee.connectDisplay = true;
   hardware.opengl.driSupport = true; # Whether to enable accelerated OpenGL rendering through the Direct Rendering Interface (DRI)
   hardware.opengl.driSupport32Bit = true;
 

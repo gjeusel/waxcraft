@@ -1,9 +1,5 @@
 { config, pkgs, ... }:
 
-#let
-#  plasmaAddPack = {v ? pkgs.system.stateVersion}:
-#  if (v=="16.09") then pkgs.kde5 else pkgs.plasma5;
-#in
 {
 # Set of packages that will appear in /run/current-system/sw :
 environment.systemPackages = with pkgs; [
@@ -15,10 +11,7 @@ environment.systemPackages = with pkgs; [
   pavucontrol    # pulseaudio cmd for sound configuration
   cups           # print to pdf (= pdfcreator)
 
-  kde5.plasma-nm # managing network connexions
-  kde5.kio # enable extract file from dolphin
-  #plasma5.plasma-nm # managing network connexions
-
+  plasma5.plasma-nm # managing network connexions
 
 # Extra bash commands :
   tree
@@ -40,7 +33,7 @@ environment.systemPackages = with pkgs; [
 
 # Scipy Probramming env
   python27Packages.scipy_0_17
-  python27Packages.pyqt4 # enable display of figures
+  python27Packages.pyqtgraph # enable display of figures
   python27Packages.pandas # dataframe handle
   python27Packages.seaborn # cool color map
   python27Packages.pyramid_jinja2

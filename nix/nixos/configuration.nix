@@ -51,16 +51,12 @@
     #                    '';
   };
 
-  # Enable the kde5 Desktop Environment.
-  # services.xserver.desktopManager.kde5.enable = true; # backward 16.09 compatibility
+  # Enable the plasma5 Desktop Environment.
   services.xserver.desktopManager = {
-    #if system.stateVersion ? "17.03" then plasma5.enable=true else kde5.enable=true;
-    enlightenment.enable = true;
-    kde5.enable = true;
-    /*kde5.enableQt4Support = false;*/
-    default = "kde5";
-    #plasma5.enable = true;
-    #default = "plasma5" ;
+    /*enlightenment.enable = true;*/
+    plasma5.enable = true;
+    plasma5.enableQt4Support = false;
+    default = "plasma5" ;
   };
 
   # users.mutableUsers to false, then the contents of /etc/passwd and /etc/group will be congruent to your NixOS configuration
