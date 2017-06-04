@@ -37,3 +37,31 @@ if has('nvim')
   let g:deoplete#enable_at_startup = 1
   "let g:deoplete#enable_refresh_always = 1 "Deoplete refreshes the candidates automatically
 endif
+
+" Python pymode plugin :
+"let g:pymode = 0
+"let g:pymode_breakpoint = 0
+
+let g:pymode_options_max_line_length = 79
+let g:pymode_indent = 1 " pep8 indent
+let g:pymode_lint_checkers = 'pep8' " pep8 code checker
+let g:pymode_folding = 1
+let g:pymode_motion = 1
+let g:pymode_doc = 1
+let g:pymode_doc_bind = 'K'
+let g:pymode_syntax = 1
+let g:pymode_syntax_all = 1
+
+" Disable leader+r to run script
+let g:pymode_run = 0
+"let g:pymode_syntax_builtin_objs = 0
+"let g:pymode_syntax_builtin_funcs = 0
+
+" Python code checking :
+let g:pymode_lint = 1
+let g:pymode_lint_on_write = 1
+" ignore error #E501 and all warnings :
+let g:pymode_lint_ignore = "E501,W"
+let g:pymode_lint_signs = 1
+let g:pymode_lint_cwindow = 0
+let g:pymode_lint_message = 1

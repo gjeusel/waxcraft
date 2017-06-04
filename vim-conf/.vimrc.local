@@ -19,6 +19,9 @@ function! ExecAndBuild()
   execute ":silent !echo "
   execute ":silent !echo -----------------------------------------------------------------------------------"
 
+  let file_name = expand('%:t:r')
+  let extension = expand('%:e')
+
   " LateX :
   "let s:working_directory="/home/gjeusel/projects/intelComp/energy-efficiency/report/"
   "let s:command_str="pdflatex assignment_3.tex && bibtex assignment_3.aux && pdflatex assignment_3.tex && bibtex assignment_3.aux"
@@ -32,11 +35,10 @@ function! ExecAndBuild()
   "let s:command_str="python -W ignore opt_graph.py"
 
   "let s:working_directory="/home/gjeusel/projects/bigData_ELL890/"
-  "let s:command_str="spark-submit spark_rdd_examples.py"
-  
-  let s:working_directory="/home/gjeusel/projects/bigData_ELL890/"
-  let s:command_str="python download-subs.py"
+  "let s:command_str="spark-submit % --limit_movies 100"
 
+  let s:working_directory="/home/gjeusel/projects/redes_neurais_sem_peso/"
+  let s:command_str="python % --limit_train_set 300 --limit_test_set 100"
 
   let s:exec_from_vim=":! cd ".s:working_directory." && ".s:command_str
   execute ":silent !echo ".s:command_str
@@ -84,6 +86,12 @@ function! ToggleDarkSolarized()
   highlight SignifySignAdd    cterm=bold ctermbg=none ctermfg=64
   highlight SignifySignDelete cterm=none ctermbg=none ctermfg=136
   highlight SignifySignChange cterm=none ctermbg=none ctermfg=124
+  highlight Folded                       ctermbg=none
+
+"airline_c_bold xxx term=bold cterm=bold ctermfg=240 ctermbg=235 gui=bold
+  "{{{
+
+  "}}}
 endfunction
 
 function! ToggleLightSolarized()
@@ -123,7 +131,6 @@ map <S-Tab>  :tabNext<cr>
 " --> Open next occurence of search (git jump grep "something")
 map <F10> :cn<cr>
 
-" --> Sourcing the vimrc.local :
 map <F12> :source ${HOME}/.vimrc.local<cr>
 
 " --> About moving splits :
@@ -139,6 +146,39 @@ map <Esc>[1;3D <C-W>h
 " --> About folding open and close :
 nnoremap <Space> za
 vnoremap <Space> za
+
+set timeoutlen=1000 ttimeoutlen=0
+
+" --> Folding : closing all opened foldings :
+nnoremap wm zm
+vnoremap wm zm
+"
+" --> Folding : movements (next / prec) :
+nnoremap wj zj
+vnoremap wj zj
+nnoremap wk zk
+vnoremap wk zk
+
+" qwerty --> azerty beginning of the next word eased by this bind :
+" the <nowait> prevent a delay when typing z (for za for example)
+noremap <nowait> z w
+"   z             w
+"        Last set from ~/.vimrc.local
+"noxzh            zH
+"        Last set from ~/.vimrc
+"noxzl            zL
+"        Last set from ~/.vimrc
+
+
+" Settings for python-mode
+map <Leader>b oimport ipdb; ipdb.set_trace() # BREAKPOINT<C-c>
+map <Leader>n ofrom IPython import embed; embed() # Enter Ipython<C-c>
+
+" Settings for ctrlp
+let g:ctrlp_max_height = 30
+set wildignore+=*.pyc
+set wildignore+=*_build/*
+set wildignore+=*/coverage/*
 
 " --> Changing theme :
 " ALT + F3 :
@@ -164,9 +204,16 @@ call ToggleDarkSolarized()
 inoremap <expr> <Esc>      pumvisible() ? "\<C-c>" : "\<Esc>"
 inoremap <expr> <CR>       pumvisible() ? "\<C-y>" : "\<CR>"
 inoremap <expr> <Down>     pumvisible() ? "\<C-n>" : "\<Down>"
+inoremap <expr> <TAB>      pumvisible() ? "\<C-n>" : "\<TAB>"
 inoremap <expr> <Up>       pumvisible() ? "\<C-p>" : "\<Up>"
 inoremap <expr> <PageDown> pumvisible() ? "\<PageDown>\<C-p>\<C-n>" : "\<PageDown>"
 inoremap <expr> <PageUp>   pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<PageUp>"
+
+" -->  Bind nohl : Removes highlight of your last search
+" ``<C>`` stands for ``CTRL`` and therefore ``<C-n>`` stands for ``CTRL+n``
+noremap <C-h> :nohl<CR>
+vnoremap <C-h> :nohl<CR>
+inoremap <C-h> :nohl<CR>
 
 " --> Cleapboard access :
 set clipboard+=unnamedplus
@@ -179,9 +226,9 @@ set foldcolumn=2
 " --> Indenting
 " Use indentation scripts located in the indent folder of your vim installation :
 filetype plugin indent on
-set shiftwidth=2    " Use indents of 2 spaces
-set tabstop=2       " An indentation every 2 columns
-set softtabstop=2   " Let backspace delete indent
+set shiftwidth=4    " Use indents of 4 spaces
+set tabstop=4       " An indentation every 4 columns
+set softtabstop=4   " Let backspace delete indent
 set expandtab
 
 " --> Special indenting for python - PEP8 norm
@@ -246,6 +293,7 @@ command! -nargs=? Scriptnames call s:Filter_lines('scriptnames', <q-args>)
 command! -nargs=? Syntaxlist call s:Filter_lines('syntax list', <q-args>)
 command! -nargs=? VerboseHighlight call s:Filter_lines('verbose highlight', <q-args>)
 command! -nargs=? CurrentHighlight call s:Filter_lines('highlight', <q-args>)
+command! -nargs=? GetPluginsList call s:Filter_lines('PluginList', <q-args>)
 
 
 

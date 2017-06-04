@@ -29,7 +29,12 @@ nwhich(){ readlink $(which $1);}
 
 # Nixpkgs
 nix?(){ nix-env --query --available --attr-path --status --description ".*$1.*";  }
+fnix?(){ nix-env --file "/etc/nixpkgs/" --query --available --attr-path --status --description ".*$1.*";  }
 nixgrep(){ grep --color=always --recursive "$1" "$(nix-instantiate --find-file --eval --expr nixpkgs)";}
+
+# KDE plasma 5:
+kde?(){ kcmshell5 --list |grep "$1";}
+kde!(){ kcmshell5 "$1";}
 
 # git-jump
 alias git-jump="$waxCraft_PATH/tools/git-jump"
@@ -38,6 +43,11 @@ alias load_env_clang="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-clang.nix
 alias load_env_GNU="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-GNU.nix"
 alias load_env_scipy="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-scipy.nix"
 alias load_env_machlearn="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-machlearn.nix"
+
+# Spark aliases :
+if hash ipython 2>/dev/null; then
+  alias pyspark="PYSPARK_DRIVER_PYTHON=$(which ipython) pyspark"
+fi
 
 # Modules aliases
 alias maa='module avail 2>&1 |grep -i'
