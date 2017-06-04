@@ -1,4 +1,4 @@
-{ pkgs ? import <nixpkgs> {}  }:
+{ pkgs ? import "/etc/nixpkgs/" {}  }:
 /*{ my_pkgs ? import <nixpkgs> {}  }:*/
 
 with pkgs;
@@ -17,8 +17,12 @@ stdenv.mkDerivation {
     /*python27Packages.babelfish*/
     /*python27Packages.click*/
 
+    python27Packages.ipdb # Debugger library
+    /*python27Packages.readline # get tab autocompletion for ipbd*/
+    /*python27Packages.setuptools # to get readline to work*/
+
     python27Packages.matplotlib
-    python27Packages.scipy_0_17
+    python27Packages.scipy
     python27Packages.pyqt4 # enable display of figures
     python27Packages.pandas # dataframe handle
     python27Packages.seaborn # cool color map
@@ -34,12 +38,14 @@ stdenv.mkDerivation {
     #python27Packages.pygraphviz # graph algo
     python27Packages.pydot
 
+    scala
     spark
+    python27Packages.nltk
 
     /*myTexLive*/
     /*texlive.scheme-full*/
     /*texLiveFull*/
-    texlive.combined.scheme-full
+    /*texlive.combined.scheme-full*/
     lmodern # fonts used by tex
     ghostscript # necessary for pdf to png with "convert" cmd
   ];

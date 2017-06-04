@@ -1,0 +1,128 @@
+FLORENCE: A simple virtual keyboard for Gnome
+*********************************************
+
+http://florence.sourceforge.net
+Florence is an extensible scalable virtual keyboard for GNOME. You need it if you can't
+use a real keyboard either because of a handicap, disease, broken keyboard or tablet PC
+but you can use a pointing device. If you can't use a pointing device, there is gok:
+http://www.gok.ca/
+Florence stays out of your way when you don't need it.
+It appears on the screen only when you need it.
+There is an auto-click functionality To help people having difficulties to use the 
+click button.
+
+DEPENDANCIES
+************
+
+      * gtk >= 2.10
+      * (optional) cspi >= 1.0
+      * libgconf >= 2.0
+      * libglade >= 2.0
+      * libxml >= 2.0
+      * cairo
+      * librsvg
+      * gettext
+      * intltool >= 0.23
+      * (optional) gnome-doc-utils
+      * (optional) libnotify
+      * (optional) libxtst
+
+QUICK INSTALL
+*************
+
+      * Make sure you have all the dependancies installed.
+
+        Mandriva:
+
+            $ su
+	    # urpmi gcc make libxml2-dev libgconf2-dev libglade2-devel at-spi-devel \
+	      libcairo-devel gnome-doc-utils librsvg2-devel gettext libnotify libxtst6-devel \
+              intltool
+
+        Debian/Ubuntu:
+
+            $ sudo apt-get install build-essential libxml2-dev libgconf2-dev libglade2-dev \
+              libatspi-dev librsvg2-dev gnome-doc-utils libcairo2-dev gettext libnotify-dev \
+              libxtst-dev intltool libgstreamer0.10-dev
+            
+      * Open a terminal and type (don't type the $ or #):
+
+            $ ./configure --prefix=/usr
+            $ make
+            $ su
+            # make install
+            (for ubuntu, replace the last two commands with "sudo make install")
+
+UNINSTALL
+*********
+
+      $ su
+      # make uninstall
+      (for ubuntu, "sudo make uninstall")
+
+
+QUICK USAGE
+***********
+
+Florence can be launched by the applications menu (under Accessibility).
+The icon in the systray indicates Florence is running. Click on the icon to make the
+keyboard appear/disappear.
+If Florence is not in "always on screen" mode, it will appear when you click on an editable
+widget (like the address bar in epiphany or the text area in a text editor). When you click
+on an uneditable widget, Florence will disappear.
+If you don't like this behaviour, you can switch to normal virtual keyboard always on 
+screen: right click on the Florence notification icon, choose the preferences menu and
+check the 'Always on screen' button.
+Auto-click timeout is configurable on the preferences window. It is set in milliseconds.
+When the mouse is over for more than the auto-click timeout, the key is automatically
+pressed.
+Set auto-click to 0 to deactivate it.
+
+GET HELP
+********
+
+Please read Florence manual with yelp:
+	$ yelp "ghelp:florence"
+If you still need help, use the sourceforge forum at
+https://sourceforge.net/forum/forum.php?forum_id=784280, or email me at f.agrech@gmail.com
+
+CONTRIBUTE
+**********
+
+Email me at f.agrech@gmail.com
+
+RUNNING FLORENCE WITHOUT GNOME 
+******************************
+
+This works on any desktop. Tested on XFCE and WindowMaker.
+You need to start the at-spi redistry daemon at session startup:
+Start at-spi registry daemon before Florence (at session startup):
+     Gentoo:
+     $ /usr/libexec/at-spi-registryd &
+     Mandriva:
+     $ /usr/lib/at-spi-registryd &
+Some distro may put the at-spi-registryd command elsewhere. Use the find command to find
+out where your distro put at-spi-registryd:
+     find /usr -name at-spi-registryd
+Adapt according to the result.
+GNOME does start the daemon automatically if it is configured with the gnome-at-property
+dialog.
+If your DE is XDG compliant (like XFCE), Florence should be accessible via the menu.
+Anyway, starting florence from the command line will always work.
+If you don't have a systray, you can install pksystray.
+You can also access the preferences dialog with:
+     $ florence --config
+
+RUNNING FLORENCE ON KDE
+***********************
+
+Florence can work on KDE, provided you install all the dependancies (including GTK and
+the at-spi registry daemon).
+You must start the at-spi registry daemon at session startup (at-spi-registryd).
+QT3 applications don't support at-spi yet. You can still use Florence on screen, but the
+keyboard won't detect QT editable widgets. This makes Florence unusable in hidden mode on
+KDE3, unless you don't use QT applications, but that is highly unlikely on KDE.
+Always uncheck the "auto-hide" box (in preferences dialog) on KDE3.
+If you are not going to use auto-hide mode, you can as well compile florence without
+at-spi and save some disk space: use the --without-at-spi configure option.
+

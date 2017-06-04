@@ -1,0 +1,1018 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd" [
+<!ENTITY gfdl SYSTEM "gfdl.dbk">
+<!ENTITY date "November, the 2nd of 2014">
+<!ENTITY version "0.6.3">
+]>
+<article id="index" lang="fr">
+<articleinfo>
+	<title>Documentation du clavier virtuel Florence</title>
+	<abstract role="description"><para>Ce document décrit l'installation, la configuration et l'utilisation du clavier virtuel Florence.</para></abstract>
+	<authorgroup>
+		<author role="maintainer">
+			<firstname>François</firstname>
+			<surname>Agrech</surname>
+			<email>f.agrech@gmail.com</email>
+		</author>
+	</authorgroup>
+	<revhistory>
+    		<revision> 
+			<revnumber>0.6.3</revnumber> 
+			<date>November, the 2nd of 2014</date> 
+    		</revision> 
+	</revhistory>
+	<copyright><year>2014</year><holder>François Agrech</holder></copyright>
+	<legalnotice>
+		<para>Cette documentation est mise à disposition sous la license GNU FDL. Seule la version en anglais de cette license existe et a une valeur légale. Une copie de la license est disponible à la fin de ce document en anglais. Vous avez la permission de copier, de distribuer et/ou de modifier ce document sous les termes de la licanse libre de documentation GNU, version 1.2 ou n'importe quelle version postérieure publié par la Free Software Foundation.</para>
+	</legalnotice>
+</articleinfo>
+<indexterm><primary>florence</primary></indexterm>
+<indexterm><primary>clavier virtuel</primary></indexterm>
+<sect1 id="intro">
+	<title>Introduction</title>
+	<para>Florence est un clavier virtuel pour <ulink url="http://http://fr.wikipedia.org/wiki/X_Window_System">X</ulink> extensible et redimensionnable. Vous avez besoin de Florence si vous ne pouvez pas utiliser un vrai clavier matériel, par exemple à cause d'un handicap, parce que votre clavier est cassé ou parce que vous utilisez un PC tablette. Cependant, vous devez être en mesure d'utiliser un périphérique de pointage (comme une souris, un trackball, un écran tactile ou <ulink url="http://www.inference.phy.cam.ac.uk/opengazer">opengazer</ulink>) pour utiliser Florence ; si vous ne pouvez pas utiliser un périphérique de pointage, il y a <ulink url="http://www.gok.ca/gok">gok</ulink>, qui peut être utilisé avec de simples connecteurs.</para>
+	<para>Florence reste hors de votre vue lorsque vous n'en avez pas besoin: le clavier apparaît à l'écran uniquement lorsque vous en avez besoin. Une méthode de saisie basée sur un click automatique déclenché par un minuteur est disponible pour aider les personnes handicapées qui ont des difficultés à cliquer. le mode balade est une autre méthode de saisie efficace qui peux aider.</para>
+	<para>Florenec peut être utilisés dans n'importe quel environnement de bureau.</para>
+</sect1>
+<sect1 id="install">
+	<title>Installation</title>
+	<para>Make sure you have the latest version of Florence (0.6.3 as of November, the 2nd of 2014). You can get it at <ulink url="http://sourceforge.net/project/platformdownload.php?group_id=217749">Sourceforge</ulink></para>
+	<sect2 id="dependencies">
+		<title>Préparation des dépendances</title>
+		<para>Afin de compiler Florence, vous avez besoin d'un environnement de compilation et des commandes suivantes: make, scrollkeeper et un compilateur C, ainsi que les paquetages dépendants suivants:</para>
+		<orderedlist>
+			<listitem><para><ulink url="http://www.gtk.org/download-linux.html">gtk+</ulink> (version &gt;= 3.0)</para></listitem>
+			<listitem><para>(Optionnel: option --with-at-spi de configure) <ulink url="http://ftp.gnome.org/pub/gnome/sources/at-spi/">cspi</ulink> (version &gt;= 2.0)</para></listitem>
+			<listitem><para><ulink url="http://ftp.gnome.org/pub/gnome/sources/libxml2/">libxml</ulink> (version &gt;= 2.0)</para></listitem>
+			<listitem><para><ulink url="http://ftp.gnome.org/pub/GNOME/sources/librsvg/">librsvg</ulink></para></listitem>
+			<listitem><para><ulink url="http://www.gnu.org/software/gettext/">gettext</ulink></para></listitem>
+			<listitem><para><ulink url="http://ftp.gnome.org/pub/GNOME/sources/intltool">intltool</ulink> (version &gt;= 0.23)</para></listitem>
+			<listitem><para><ulink url="http://gstreamer.freedesktop.org">gstreamer</ulink> (version &gt; 1.0)</para></listitem>
+			<listitem><para>(Optionnel : option --with-docs de configure) <ulink url="http://ftp.gnome.org/pub/GNOME/sources/gnome-doc-utils">gnome-doc-utils</ulink></para></listitem>
+			<listitem><para>(Optionnel: option --with-libnotify de configure) <ulink url="http://www.galago-project.org/files/releases/source/libnotify">libnotify</ulink></para></listitem>
+			<listitem><para>(Optionnel : option --with-xtst de configure) <ulink url="http://xorg.freedesktop.org/releases/individual/lib/">libxtst</ulink></para></listitem>
+		</orderedlist>
+		<para>Comment installer ces dépendances dépend de votre distribution. Si vous ne savez pas comment les installer, veuillez consulter le support de votre distribution, SVP.</para>
+	</sect2>
+	<sect2 id="from-source">
+		<title>Depuis les sources</title>
+		<para>L'installation de Florence se déroule comme l'installation de n'importe quel programme qui utilise les GNU autotools. Ouvrez un terminal et lancez les commandes suivantes:</para>
+		<screen>
+<prompt>$</prompt> <userinput>tar -xjvf florence-&version;.tar.bz2</userinput>
+<prompt>$</prompt> <userinput>cd florence-&version;</userinput>
+<prompt>$</prompt> <userinput>./configure --prefix=/usr</userinput>
+<prompt>$</prompt> <userinput>make</userinput>
+<prompt>$</prompt> <userinput>su -c "make install"</userinput>
+		</screen>
+		<para>Pour Ubuntu, remplacez la dernière commande par:</para><screen><prompt>$</prompt> <userinput>sudo make install</userinput></screen>
+		<para>Vous trouverez la liste complète des options de configure avec la commande:</para>
+		<screen>
+<prompt>$</prompt> <userinput>./configure --help</userinput>
+		</screen>
+	</sect2>
+	<sect2 id="binary-install">
+		<title>Depuis les paquets de la distribution</title>
+		<para>Votre distribution pourrait déjà avoir un paquet binaire récent de Florence. Dans ce cas, vous n'avez pas besoin de la compiler depuis les sources.</para>
+		<orderedlist>
+			<listitem>
+				<para><ulink url="http://www.redhat.com">Red Hat</ulink>/<ulink url="http://www.centos.org">CentOS</ulink>/<ulink url="http://fedoraproject.org/">Fedora</ulink><screen>
+<prompt>$</prompt> <userinput>su - root</userinput>
+<prompt>#</prompt> <userinput>yum install florence</userinput>
+				</screen></para>
+			</listitem>
+			<listitem>
+				<para><ulink url="http://openmandriva.org/">OpenMandriva</ulink>/<ulink url="https://www.mageia.org/">Mageia</ulink><screen>
+<prompt>$</prompt> <userinput>su - root</userinput>
+<prompt>#</prompt> <userinput>urpmi florence</userinput>
+				</screen></para>
+			</listitem>
+			<listitem>
+				<para><ulink url="http://www.debian.org/">Debian</ulink>
+				<screen>
+<prompt>$</prompt> <userinput>su - root</userinput>
+<prompt>#</prompt> <userinput>apt-get install florence</userinput>
+				</screen></para>
+			</listitem>
+			<listitem>
+				<para><ulink url="http://www.ubuntu.com/">Ubuntu</ulink>
+				<screen>
+<prompt>$</prompt> <userinput>sudo apt-get install florence</userinput>
+				</screen></para>
+			</listitem>
+			<listitem>
+				<para>Autre distributions: veuillez vérifier avec le support de votre distribution.</para>
+			</listitem>
+		</orderedlist>
+	</sect2>
+	<sect2>
+		<title>Désinstaller (depuis les sources)</title>
+		<para>Désinstaller est aussi facile qu'unstaller. Si vous avez installé depuis les sources, vous pouvez désinstaller avec les commandes suivantes:</para>
+		<screen>
+<prompt>$</prompt> <userinput>cd florence-&version;</userinput>
+<prompt>$</prompt> <userinput>su -c "make uninstall"</userinput>
+		</screen>
+		<para>Pour Ubuntu:</para><screen><prompt>$</prompt> <userinput>sudo make uninstall</userinput></screen>
+	</sect2>
+</sect1>
+<sect1 id="usage">
+	<title>Utilisation</title>
+	<para>Le but de Florence est d'être facile. Pour lancer Florence depuis la ligne de commande, tapez:</para>
+		<screen>
+<prompt>$</prompt> <userinput>florence</userinput>
+		</screen>
+		<para>Depuis le bureau <ulink url="http://mate-desktop.org/">MATE desktop</ulink>, vous pouvez lancer Florence à partir du menu <guimenu>Applications</guimenu>-&gt;<guisubmenu>Accessibilité</guisubmenu>-&gt;<guimenuitem>Clavier virtuel Florence</guimenuitem>. Si vous préférez que Florence soit lancé au démarrage de MATE, choisissez le menu <guimenu>Système</guimenu>-&gt;<guisubmenu>Préférences</guisubmenu>-&gt;<guimenuitem>Sessions</guimenuitem>, cliquez sur l'onglet <guibutton>Programmes au démarrage</guibutton>, puis cliquez <guibutton>Ajouter</guibutton> et entrez <command>/usr/bin/florence</command> pour que Florence soit lancé avec MATE au prochain démarrage.</para>
+	<para>Lorsque florence est en cours de fonctionnement, une icône devrait être visible dans la zone de notification du bureau, habituellement dans l'angle en haut à droite de l'écran. Cliquez sur l'icône pour cacher et montrer le clavier Florence. Un clic droit fait apparaître un menu. Dans ce menu, vous pouvez utiliser le choix <guimenuitem>quitter</guimenuitem> pour arrêter Florence.</para>
+	<sect2 id="input_methods">
+		<title>Métodes de saisie</title>
+		<para>Florence peut être utilisé avec 4 différentes méthodes de saisie. Chaque méthode a ses avantages et ses inconvénients. Il est de votre ressort de sélectionner la bonne méthode pout votre usage.</para>
+		<orderedlist>
+			<listitem>
+				<para>La méthode de saisie par défaut est la méthode "souris". Elle est adaptée à la souris ou au trackpad. Elle est assez simple. Cliquez une touche avec le bouton de la souris pour l'activer. Relachez le bouton de la souris pour désaciver la touche. L'avantage de cette méthode est sa simplicité. Elle ne nécessita pas de formation. L'inconvénient est qu'elle nécessite un périphérique de pointage avec un bouton et que l'utilisateur soit en mesure de l'utiliser.</para>
+			</listitem>
+			<listitem>
+				<para>La deuxième méthode de saisie est la méthode "Ecran tactile". Cette méthode est adaptée pour les écrans tactiles. La différence avec la méthode souris est qu'il est impossible de toucher le clavier sans cliquer. Dans ce mode, les touches sont pressées à la fin du touché.</para>
+			</listitem>
+			<listitem>
+				<para>La méthode suivante est la méthode "minuteur". Utilisez cette méthode si vous ne pouvez pas utiliser de bouton. Visez une touche avec le pointeur et un minuteur se déclenche. Lorsque le minuteur expire, la touche est immédiatement pressée et relachée. Le minuteur est arrêté si le pointeur quitte la touche. Notez que vous pouvez toujours utiliser le bouton pour activer la touche si vous en avez un de disponible. L'avantage de cette méthode est qu'elle ne nécessite pas de bouton. L'inconvénient est qu'elle est plus lente que la méthode bouton et que l'on ne peut pas garder une touche appuyée.</para>	
+			</listitem>
+			<listitem>
+				<para>La dernière méthode est la méthode "balade". Comme la méthode minuteur, la méthode balade ne nécessite pas de bouton. Cette méthode peut être plus rapide que la méthode minuteur mais nécessite de la dextérité et de l'entrainement pour être utilisée efficacement. La méthode balade peut être passive: pas de bouton nécessaire, ou active: sourde tant que le bouton n'est pas pressé. Il y a deux sous-méthodes pour la méthode balade.</para>
+				<orderedlist>
+					<listitem>
+						<para>La méthode balade basée sur le temps nécessite un bon sens du rythme. Lorsque vous déplacez le pointeur, Florence va détecter les touches qui doivent être activées en fonction du temps que la pointeur passe au dessus d'elles. Avec cette méthode, il est possible de presser une même touche plusieurs fois en déplaçant le pointer vers l'extérieur de la touche puis de nouveau vers le centre. Cette méthode est assez rapide avec un bon entrainement.</para>
+					</listitem>
+					<listitem>
+						<para>La méthode balade basée sur la distance nécessite une bonne dextérité pour être utilisée efficacement. La distance parcourrue par le pointeur sur une touche est mesurée et la touche est activée lorsqu'elle atteint un seuil. La touche peut être pressée plusieurs fois en bougeant le pointeur au dessus de manière répétitive. Un second seuil est paramétré pour détecter les pressions multiples. Pour utiliser cette méthode efficacement, appliquez des mouvements rapides au dessus des touches que vous voulez activer.</para>
+					</listitem>
+				</orderedlist>
+			</listitem>
+		</orderedlist>
+	</sect2>
+	<sect2 id="modes">
+		<title>Les modes de Florence</title>
+		<para>Florence a différents états qui affectent sa façon d'interagir avec l'utilisateur.</para>
+		<para>Dans le mode "cacher automatiquement", Florence se cache lorsqu'il détecte que vous n'en avez pas besoin. Il y a quelques règles pour détecter quand vous avez besoin de Florence et ces règles utilisent les évènements de <ulink url="http://en.wikipedia.org/wiki/AT-SPI">at-spi</ulink>. Par exemple, Florence se montrera si un objet de texte éditable est sélectionné, car il est probable que vous avez besoin d'un clavier pour l'éditer. Florence se cachera ensuite si l'objet texte éditable est désélectionné. Cela ne marche pas si l'objet n'est pas accessible avec la technologie <ulink url="http://en.wikipedia.org/wiki/AT-SPI">at-spi</ulink>. En particulier, les objets QT3 pourraient ne pas fonctionner correctement avec Florence. Vous devriez vous assurer que vos applications fonctionnent avec at-spi si vous avez l'intention d'utiliser Florence en mode caché. Quand ce mode est désactivé, Florence reste toujours visible à l'écran.</para>
+		<para>Le mode cacher automatiquement nécessite que l'accessibilité soit activée, ce qui veut dire que le daemon d'enregistrement at-spi est démarré et que les applications l'utilisent.</para>
+		<figure id="extensions">
+			<title>Extensions de Florence</title>
+			<screenshot>
+				<mediaobject>
+					<imageobject><imagedata fileref="figures/florence.png" format="PNG"/></imageobject>
+					<textobject><phrase>Montre les extensions disponibles.</phrase></textobject>
+				</mediaobject>
+			</screenshot>
+		</figure>
+		<para>La figure ci-dessus montre le découpage par défaut de l'agencement des touches du clavier. Plusieurs agencements différents peuvent être sélectionnés dans le dialogue des préférences (onglet agencement).</para>
+		<para>L'arrangement par défaut du clavier peut être étendu avec 4 extensions au clavier principal. Le pavé des touches de Florence est une extension à gauche du clavier principal qui contient des touches pour accéder aux fonctions spéciales de Florence: voir ci-dessous pour une liste complète des fonctions de Florence. Le pavé des touches de navigations est une extension à droite du clavier principal qui contient les flèches et les autres touches de navigation. Le pavé numérique contient les touches numériques et l'extension des touches de fonction contient les touches de fonction. Chaque extension est activable et désactivable indépendamment. Les extensions sont relatives à l'agencement sélectionné.</para>
+	</sect2>
+	<sect2 id="florencekeys">
+		<title>Touches de Florence</title>
+		<para>Les touches suivantes donnent accès à des fonctions spéciales de Florence. Elles sont situées sur l'extension "Touches de Florence".</para>
+		<para><figure id="minimize">
+			<title>Touches de minimization</title>
+			<mediaobject>
+				<imageobject><imagedata fileref="figures/minimize.png" format="PNG"/></imageobject>
+				<textobject><phrase>Touches de minimization.</phrase></textobject>
+			</mediaobject>
+		</figure>La touche minimiser cache le clavier. Le programme tourne toujours et le clavier peut être affiché de nouveau en cliquant sur l'icône ou en sélectionnant un objet de saisie de texte lorsque le mode "cacher automatiquement est activé.</para>
+		<para><figure id="configuration">
+			<title>Touche de configuration</title>
+			<mediaobject>
+				<imageobject><imagedata fileref="figures/configuration.png" format="PNG"/></imageobject>
+				<textobject><phrase>Touche de configuration.</phrase></textobject>
+			</mediaobject>
+		</figure>La touche de configuration ouvre le dialogue de configuration. Voir le chapitre configuration pour plus d'informations sur le dialogue de configuration.</para>
+		<para><figure id="move">
+			<title>Touches de déplacement</title>
+			<mediaobject>
+				<imageobject><imagedata fileref="figures/move.png" format="PNG"/></imageobject>
+				<textobject><phrase>Touches de déplacement.</phrase></textobject>
+			</mediaobject>
+		</figure>Vous pouvez déplacer le clavier dans l'écran avec la touche de déplacement. Pressez la touche de déplacement, déplacez le pointer et relacher la touche lorsque le clavier est positionné à l'endroit où vous le voulez.</para>
+		<para><figure id="bigger">
+			<title>Plus grand</title>
+			<mediaobject>
+				<imageobject><imagedata fileref="figures/bigger.png" format="PNG"/></imageobject>
+				<textobject><phrase>Plus grand.</phrase></textobject>
+			</mediaobject>
+		</figure>Appuyez sur la touche plus grand pour aggrandir le clavier.</para>
+		<para><figure id="smaller">
+			<title>Plus petit</title>
+			<mediaobject>
+				<imageobject><imagedata fileref="figures/smaller.png" format="PNG"/></imageobject>
+				<textobject><phrase>Plus petit.</phrase></textobject>
+			</mediaobject>
+		</figure>Appuyez sur la touche plus petit pour rétrécir le clavier.</para>
+		<para><figure id="close">
+			<title>Touche de fermeture</title>
+			<mediaobject>
+				<imageobject><imagedata fileref="figures/close.png" format="PNG"/></imageobject>
+				<textobject><phrase>Touche de fermeture.</phrase></textobject>
+			</mediaobject>
+		</figure>Appuyez sur la touche de fermeture pour terminer le programme. La touche de fermeture est accessible lorsque la touche alt est pressée, à l'endroit de la touche de minimization.</para>
+		<para><figure id="switch">
+			<title>Touche de changement de langue</title>
+			<mediaobject>
+				<imageobject><imagedata fileref="figures/switch.png" format="PNG"/></imageobject>
+				<textobject><phrase>Touche de changement de langue.</phrase></textobject>
+			</mediaobject>
+	</figure>La touche de changement de langue est accessible lorsque la touche alt est pressée, à l'endroit de la touche de configuration. L'intitullé de la touche montre le language courrant. Appuyer sur la touche change la langue du clavier. Appuyer plusieurs fois pour faire défiler les arrengements de langue disponibles. Sur GNOME/MATE, Les arrengements de langue disponibles peuvent être configurés avec le programme <command>gnome-keyboard-properties</command> (dans l'onglet arrengement). Si une seule langue est configurée, appuyer sur la touche de changement de langue n'a pas d'effet, elle montre juste la langue configurée en ce moment.</para>
+	</sect2>
+	<sect2 id="modifiers">
+		<title>Touches de modification</title>
+		<para>Certaines touches ont un attribut de modificateur, exactement comme sur un vrai clavier physique. Lorsqu'elles sont pressées, l'effet des autres touches est modifié. La touche Shift et la touche Caps_lock sont des instances de telles touches. Il y a deux types de touches de modification: les touches bloquantes et les touches non bloquantes. Les touches bloquantes sont activées lorsqu'elles sont pressées et désactivées à la pression suivante. Les touches de modification non bloquantes doivent être pressées au même moment que les touches normales pour modifier leur effet.</para>
+		<para>Lorsqu'elles sont activées, les touches de bloquage deviennent rouge (la couleur peut être changée dans le dialogue des paramètres) et les symboles affichés sur toutes les touches non modificatrices est adapté en conséquence. Si une touche non modificatrice est pressée pendant qu'une touche bloquante est activée, son effet sera modifié en conséquence.</para>
+		<para>Il est impossible de presser 2 touches simultanément avec une souris. Pour solutionner ce problème, Florence verrouille les touches de modification non bloquantes lorsqu'elles sont pressées. Lorsqu'une touche de modification est verrouillée, elle devient verte (cette couleur peut être changée dans les paramètres). Elle restera verrouillée jusqu'à qu'une autre touche non modificatrice soit pressée. Si une touche verrouillée est pressée de nouveau, elle devient rouge et bloquée. Un modificateur bloqué restera bloqué jusqu'à qu'il soit pressé de nouveau pour être relaché.</para>
+	</sect2>
+	<sect2 id="config">
+		<title>Configuration</title>
+		<para>La fenêtre de configuration est accessible par l'icône de la zone de notification et l'îcône flottante (cliquez droit sur celle-ci et sélectionnez <guimenuitem>Préférences</guimenuitem>) ou depuis la ligne de commande avec l'option -c ou --config: <command>florence --config</command> ou encore avec la touche du clavier si elle est présente. Il est possible de bidouiller la configuration par dconf (voir la section bidouillage)</para>
+		<para>Certaines options sélectionnées ne sont prises en compte que lorsque vous cliquez sur le bouton 'appliquer' dans le dialogue des préférences. D'autres options sont appliquées immédiatement et peuvent être annulées avec le bouton 'Annuler' tant qu'elles n'ont pas été appliquées.</para>
+		<para>Les paramètres de configuration ont été divisé en 4 groupes pour faciliter la recherche et la compréhension.</para>
+		<sect3><title>Configuration du style</title>
+		<figure id="style">
+			<title>Dialogue des préférences du style</title>
+			<screenshot>
+				<mediaobject>
+					<imageobject><imagedata fileref="figures/style.png" format="PNG"/></imageobject>
+					<textobject><phrase>Montre le dialogue des préférences du style.</phrase></textobject>
+				</mediaobject>
+			</screenshot>
+		</figure>
+		<para>Les options de style suivantes peuvent être configurées:</para>
+		<orderedlist>
+			<listitem><para>Liste des styles: sélectionnez votre style en cliquant sur son icône.</para></listitem>
+			<listitem><para>Couleur des touches normales: change la couleur de fond des touches normales.</para></listitem>
+			<listitem><para>Couleur des touches verrouillées: change la couleur de fond des touches verrouillées.</para></listitem>
+			<listitem><para>Couleur des touches actives: change la couleur de fond des touches pressées ou bloquées.</para></listitem>
+			<listitem><para>Couleur de la touche sélectionnée: change la couleur de la touche qui se trouve sous le pointeur.</para></listitem>
+			<listitem><para>Couleur des symboles: change la couleur des symboles affichés sur les touches.</para></listitem>
+			<listitem><para>Couleur des bordures: change la couleur entourant les symboles des touches. Cette couleur est utilisée pour améliorer la visibilité des symboles. Elle doit avoir un bon contraste avec la couleur des symboles.</para></listitem>
+			<listitem><para>Zoom de l'élément pointé: modifie le facteur de taille de la touche visée. Utile pour les personnes ayant des difficultés visuelles.</para></listitem>
+			<listitem><para>Activer les sons: lorsque cette case est cochée, le clavier génère des sons lorsqu'une touche est visée, pressée ou relâchée.</para></listitem>
+			<listitem><para>Utiliser la police du système: lorsque cette case est cochée, le texte des touches utilise la police par défaut du système. Lorsqu'elle est décochée, la police sélectionnée ci-dessous est utilisée à la place.</para></listitem>
+			<listitem><para>Police du clavier: Avec ce paramètre, vous pouvez sélectionner la police de caractère utilisée pour dessiner le texte sur les touches et sa taille.</para></listitem>
+		</orderedlist>
+		</sect3><sect3><title>Configuration de la fenêtre</title>
+		<figure id="window">
+			<title>Dialogue des préférences de la fenêtre</title>
+			<screenshot>
+				<mediaobject>
+					<imageobject><imagedata fileref="figures/window.png" format="PNG"/></imageobject>
+					<textobject><phrase>Montre le dialogue des préférences de la fenêtre.</phrase></textobject>
+				</mediaobject>
+			</screenshot>
+		</figure>
+		<orderedlist>
+			<listitem><para>Décorée: décore la fenêtre avec une barre de titre. Permet de positionner la fenêtre.</para></listitem>
+			<listitem><para>Transparente: permet de voir les fenêtres derrière le clavier entre les touches et de cliquer sur celles-ci.</para></listitem>
+			<listitem><para>Redimensionnable: permet de changer la dimension visuelle du clavier par le gestionnaire de fenêtre. Sur certains gestionnaires de fenêtre, il est nécessaire que l'option décorée soit activée pour redimensionner une fenêtre.</para></listitem>
+			<listitem><para>Barre des tâches: fait apparaître Florence dans la barre des taches du bureau.</para></listitem>
+			<listitem><para>Toujours au dessus: demande au gestionnaire de fenêtre de toujours garder le clavier au dessus des autres fenêtres.</para></listitem>
+			<listitem><para>Icône de la barre d'état du système: Affiche une icône dans la barre d'état du système pour controller le clavier: vouz pouvez cliquer droit sur celle-ci pour afficher le menu de Florence et cliquer gauche dessus pour afficher ou cacher le clavier.</para></listitem>
+			<listitem><para>Icône flottante: Comme l'icône de la barre d'état du système mais pas attachée à la barre d'état. Vous pouvez la faire glisser sur l'écran pour la déplacer là où vous la voulez.</para></listitem>
+			<listitem><para>Opacité: règle l'opacité de la fenêtre pour voir les autres fenêtres à travers les touches du clavier. Pour que cela fonctionne, il faut que le gestionnaire de fenêtre supporte l'effet 'composite' et qu'il soit activé.</para></listitem>
+		</orderedlist>
+		</sect3><sect3><title>Configuration du comportement</title>
+		<figure id="behaviour">
+			<title>Dialogue des préférences du comportement</title>
+			<screenshot>
+				<mediaobject>
+					<imageobject><imagedata fileref="figures/behaviour.png" format="PNG"/></imageobject>
+					<textobject><phrase>Montre le dialogue des préférences du comportement.</phrase></textobject>
+				</mediaobject>
+			</screenshot>
+		</figure>
+		<orderedlist>
+			<listitem><para>Méthode de saisie: sélectionne la méthode de saisie. Certaines métodes de saisie peuvent avoir des options de configuration supplémentaires.</para></listitem>
+			<listitem><para>Disparition automatique: bascule entre les modes 'disparition automatique' et toujours visible.</para></listitem>
+			<listitem><para>Déplacer vers l'objet sélectionné: cette option n'est disponible que lorsque le mode 'disparition automatique' est activé. Lorsqu'elle est activée, le clavier sera repositionné à chaque fois qu'un autre objet éditable est sélectionné pour minimiser les aller-retours de la souris.</para></listitem>
+			<listitem><para>icône intermédiaire: En mode disparition automatique, ne pas faire apparaître le clavier directement sur les objets éditable mais afficher une icône intermédiaire à la place. Cliquez sur l'icône intermédiaire pour faire apparaître le clavier. Cette option rend Florence moins intrusive: si par exemple vous désirer lire un document sans l'éditer, l'îcone prend moins de place à l'écran que le clavier.</para></listitem>
+		</orderedlist>
+		</sect3><sect3><title>Configuration de l'agencement</title>
+		<figure id="layout">
+			<title>Dialogue des préférences de l'agencement</title>
+			<screenshot>
+				<mediaobject>
+					<imageobject><imagedata fileref="figures/layout.png" format="PNG"/></imageobject>
+					<textobject><phrase>Montre le dialogue des préférences de l'agencement.</phrase></textobject>
+				</mediaobject>
+			</screenshot>
+		</figure>
+		<para>La combo box permet de sélectionner l'agencement du clavier à utiliser. Les extensions sont relatives à l'agencement et peuvent être activées/désactivées. L'agencement "Clavier Standard" propose 4 extensions:</para>
+		<orderedlist>
+			<listitem><para>Touches de navigation: active/désactive le pavé des flèches.</para></listitem>
+			<listitem><para>Touches numériques: active/désactive le pavé numérique.</para></listitem>
+			<listitem><para>Touches de fonction: active/désactive les touches de fonction.</para></listitem>
+			<listitem><para>Touches d'action: active/désactive les touches d'action.</para></listitem>
+		</orderedlist>
+		</sect3>
+	</sect2>
+	<sect2>
+		<title>Options de la ligne de commande</title>
+		<synopsis>florence [OPTION] ... [COMMAND] [ARG]</synopsis>
+		<para>La commande <command>florence</command> accepte les options suivantes:</para>
+		<orderedlist>
+			<listitem><para>-h (--help): affiche un message d'aide et quitte.</para></listitem>
+			<listitem><para>-V (--version): affiche la version de Florence et quitte.</para></listitem>
+			<listitem><para>-c (--config): ouvre la fenêtre de dialogue de configuration.</para></listitem>
+			<listitem><para>-d (--debug): lance Florence en mode bavard.</para></listitem>
+			<listitem><para>-f (--focus) [fenêtre]: avec cette option, les évènements clavier de florence seront dirigés vers la fenêtre sélectionnée. L'argument fenêtre est le nom de la fenêtre (celui que la plupart des gestionnaires de fenêtres mettent en barre de titre). Si vous ne spécifiez pas de fenêtre, florence sélectionnera la dernière fenêtre sélectionnée. Cette option est utile pour les gestionnaires de fenêtre qui ne supportent pas l'option 'non sélectionnable' et sélectionnent la fenêtre du clavier à la place de la fenêtre de saisie. Cela peut être utile si vous voulez saisir du texte dans une fenêtre qui n'est pas sélectionnée. Cette option doit être utilisée pour que le clavier marche dans GDM.</para></listitem>
+			<listitem><para>-u (--use-config) fichier: utilise le fichier de configuration donné à la place de dconf. Le fichier de configuration est un fichier de clé/valeur avec des sections. Un exemple de fichier de configuration est disponible à l'emplacement /usr/share/florence/florence.conf (le chemin peut être changé avec l'option --prefix de configure).</para></listitem>
+		</orderedlist>
+		<para>Les commandes suivantes sont disponibles pour controller le clavier depuis un script:</para>
+		<orderedlist>
+			<listitem><para>show : affiche le clavier.</para></listitem>
+			<listitem><para>hide : cache le clavier.</para></listitem>
+			<listitem><para>move x,y : déplace le clavier à la position x,y à l'écran.</para></listitem>
+		</orderedlist>
+	</sect2>
+</sect1>
+<sect1 id="how-to">
+	<title>Comment faire</title>
+	<para>Cette section contient des guides pour accomplir des tâches communes.</para>
+	<sect2 id="auto-hide">
+		<title>Activer le mode cacher automatiquement</title>
+		<para>Pour que le mode 'cacher automatiquement' fonctionne, il faut démarrer le daemon d'enregistrement de at-spi au démarrage de la session. D'habiture, le fichier exécutable du daemon se trouve à l'emplacement <filename class="directory">/usr/libexec</filename>. Pour démarrer le daemon d'enregistrement at-spi (au démarrage de la session):</para>
+		<screen>
+<prompt>$</prompt> <userinput>/usr/libexec/at-spi-registryd &amp;</userinput>
+		</screen>
+		<para>Certaines distributions pourraient mettre la commande at-spi-registryd ailleurs. Utilisez la commande find pour trouver où votre distribution a mis at-spi-registryd:</para>
+		<screen>
+<prompt>$</prompt> <userinput>find /usr -name at-spi-registryd</userinput>
+		</screen>
+		<para>Lorsque le daemon d'enregistrement at-spi est démarré, vous devez dire qux applications de l'utiliser.</para>
+		<para>Pour les applications gtk3, vous pouvez activer la propriété dconf org.gnome.desktop.interface.toolkit-accessibility avec <command>dconf-editor</command> ou vous pouvez affecter les variables d'environnement GTK_MODULES avec la valeur gail:atk-bridge dans /etc/environment, /etc/profile.d ou là où votre distribution l'interprètera au démarrage.</para>
+		<screen>
+<prompt>$</prompt> <userinput>export GTK_MODULES=gail:atk-bridge</userinput>
+		</screen>
+		<para>Pour les applications java, vous devez installer le pont d'accès java. Sur Debian, vous pouvez le faire avec cette commande:</para>
+		<screen>
+<prompt>$</prompt> <userinput>sudo apt-get install libaccess-bridge-java</userinput>
+		</screen>
+		<para>Les autres distributions devraient avoir un paquet similaire disponible. Veuillez vérifier avec le sopport de votre distribution, SVP.</para>
+		<para>Pour les applications QT4, vous devez installer le paquet <ulink url="https://projects.kde.org/projects/playground/accessibility/qtatspi">qt-at-spi</ulink>. Sur Debian, utilisez cette commande:</para>
+		<screen>
+<prompt>$</prompt> <userinput>sudo apt-get install qt-at-spi</userinput>
+		</screen>
+		<para>Les applications QT5 devraient marcher sans manipulation particulière car le pond at-spi a été intégré dans QtBase.</para>
+		<para>Pour les autres boites à outils, veuillez verifier la documentation et le support disponibles.</para>
+		<para><ulink url="http://mate-desktop.org/">MATE</ulink> démarre le daemon automatiquement si il est configuré avec le dialogue <command>mate-at-property</command></para>
+		<para>Les autres environnements de bureau pourraient configurer at-spi automatiquement pour vous. Vérifiez la documentation de votre bureau pour plus d'informations.</para>
+		<para>Lorsque at-spi est configuré correctement dans votre environnement de bureau, vous pouvez utiliser le mode cacher automatiquement de Florence.</para>
+		<screen>
+<prompt>$</prompt> <userinput>florence --config</userinput>
+		</screen>
+		<para>Veuillez noter que les applications QT3 ne supportent pas at-spi. En conséquence, vous ne devriez pas activer le mode cacher automatiquement sur KDE3.</para>
+	</sect2>
+	<sect2 id="login-gdm2">
+		<title>Utilisation de Florence à la connexion avec GDM2</title>
+		<para>Il est possible d'utiliser florence à l'écran de GDM 2 avec gdmlogin. gdmgreeter a quelques problèmes avec l'accessibilité en ce moment.</para>
+		<para>Il y a 2 fichiers à éditer pour configurer GDM pour lancer florence au moment de l'authentification dans /etc/X11/gdm (nécessite les droits root): custom.conf et modules/AccessKeyMouseEvents.</para>
+		<para>Dans /etc/X11/gdm/custom.conf, ajoutez les lignes suivantes dans la section [daemon] (si elles no sont pas déjà présentes):</para>
+		<programlisting>
+Greeter=/usr/lib/gdmlogin
+GtkModulesList=gail:atk-bridge:/usr/lib/gtk-2.0/modules/libkeymouselistener:/usr/lib/gtk-2.0/modules/libdwellmouselistener
+		</programlisting>
+		<para>dans /etc/X11/gdm/modules/AccessKeyMouseEvents, ajoutez les lignes suivantes:</para>
+		<programlisting>
+# Lance le clavier virtuel Florence en pressant n'importe quel bouton de la souris pendant 2 secondes
+&lt;Mouse1&gt; 1 2000 10000 /usr/bin/florence --focus --no-gnome --use-config /usr/share/florence/florence.conf
+&lt;Mouse2&gt; 1 2000 10000 /usr/bin/florence --focus --no-gnome --use-config /usr/share/florence/florence.conf
+&lt;Mouse3&gt; 1 2000 10000 /usr/bin/florence --focus --no-gnome --use-config /usr/share/florence/florence.conf
+		</programlisting>
+		<para>Vous devriez effacer toutes les autres lignes commençant par &lt;mouse1&gt;, &lt;mouse2&gt; ou &lt;mouse3&gt; de manière à empêcher un autre clavier d'être lancé à la place de florence (comme gok)</para>
+		<para>Lorsque vous avez édité ces deux fichiers, vous devriez être en mesure de lancer florence au prochain démarrage à l'authentification de GDM. Pressez n'importe quel bouton de la souris pendant plus de 2 secondes sur la fenêtre d'authentification pour le faire.</para>
+		<para>Vous pouvez modifier les paramètres du clavier pour GDM en mode administrateur avec cette commande:</para>
+		<screen>
+<prompt>#</prompt> <userinput>florence -c --use-config /usr/share/florence/florence.conf</userinput>
+		</screen>
+	</sect2>
+	<sect2 id="login-gdm3">
+		<title>Utilisation de Florence avec GDM3</title>
+		<para>Avec GDM3, Il est très simple d'utiliser Florence à l'écran de connexion. Sur Debian, vous pouvez utiliser cette commande:</para>
+		<screen>
+<prompt>#</prompt> <userinput>cp /usr/share/applications/florence.desktop /usr/share/gdm/autostart/LoginWindow/</userinput>
+		</screen>
+		<para>Cela devrais aussi marcher sur les autres distributions, bien que les chemins peuvent varier légèrement.</para>
+	</sect2>
+</sect1>
+<sect1 id="faq">
+	<title>FAQ (Questions Fréquemment Posées)</title>
+	<qandaset defaultlabel="qanda">
+		<qandaentry>
+			<question>
+				<para>Est-ce que Florence supporte les claviers internationaux avec des caractères non-européens (arabes, chinois, etc)?</para>
+			</question>
+			<answer>
+				<para>Oui. Florence supporte tous les claviers et caractères supportés pas X. Pour utiliser un clavier différent, vous pouvez utiliser la commande setxkbmap. Par exemple, pour utiliser un clavier arabe, utilisez la commande suivante:</para>
+		<screen>
+<prompt>$</prompt> <userinput>setxkbmap ar</userinput>
+		</screen>
+				<para>Cela fonctionne pour n'importe quel langage supporté par votre serveur X.</para>
+				<para>Certains environnements de bureau proposent aussi un dialogue pour changer l'agencement du clavier, comme <command>mate-keyboard-properties</command> sur <ulink url="http://mate-desktop.org/">MATE</ulink>.</para>
+				<para>Vous pouvez configurer plusieurs langages avec <command>mate-keyboard-properties</command>. Il y a plusieurs applets qui permettent de changer d'agencement facilement. Vous pouvez aussi changer d'agencement avec Florence: pressez la touche alt avec la touche config dans l'extension "touches d'actions". Cela basculera vers le prochain langage configuré dans gnome-keyboard-properties.</para>	
+			</answer>
+		</qandaentry>
+		<qandaentry>
+			<question>
+				<para>L'agencement des touches est bizarre. Y a-t-il un moyen de le changer?</para>
+			</question>
+			<answer>
+				<para>Oui. Vous pouvez changer l'agencement des touches depuis le dialogue des préférences (onglet agencement). Vous pouvez même créer votre propre agencement (voir la section <link linkend="hacking">bidouille</link> de cette documentation).</para>
+			</answer>
+		</qandaentry>
+	</qandaset>
+</sect1>
+<sect1 id="hacking">
+	<title>Bidouillage</title>
+	<para>Certaines options de configuration supplémentaires sont disponibles dans dconf (sous apps/florence). Vous pouvez modifier la configuration depuis <command>dconf-editor</command>. Chaque élément de configuration possède une description détaillée.</para>
+	<sect2>
+		<title>Créer son propre agencement</title>
+		<para>Il est possible de créer son propre agencement du clavier si ceux proposés par défaut ne conviennent pas.</para>
+		<para>Un éditeur est disponible dans le dépôt git de Florence, même si il n'est pas encore prêt pour être livré. Il n'est pas très stable et pas encore documenté mais vous pouvez quand-même l'essayer. Récupérez-le avec cette commande:</para>
+		<screen>
+<prompt>$</prompt> <userinput>git clone git://git.code.sf.net/p/florence/code/editor florence-editor</userinput>
+		</screen>
+		<para>Vous pouvez alors lancer l'éditeur avec cette commande:</para>
+		<screen>
+<prompt>$</prompt> <userinput>python florence-editor/editor.py</userinput>
+		</screen>
+	</sect2>
+</sect1>
+<sect1 id="alternatives">
+	<title>Alternatives</title>
+	<para>Il y a d'autres claviers virtuels alternatifs pour X qui pourraient correspondre mieux à vos besoins que Florence. Voici une liste des principales alternatives.</para>
+	<orderedlist>
+		<listitem><para><ulink url="http://www.gok.ca/gok">GOK</ulink> est le clavier à l'écran de GNOME par défaut. Il fournit plus de fonctionnalités que Florence pour les personnes handicapées. Il peut être utilisé avec des périphériques spéciaux comme des connecteurs ou des joysticks. GOK fournit un accès complet au bureau. Il peut être utilisé pour déplacer ou dimensionner les fenêtres et utiliser tous les objets de l'interface. GOK connaît les applications et fournit un dictionnaire prédictif, ce qui en fait un clavier efficace. Il est plus orienté vers l'accessibilité que l'esthétique. Le nombre important de fonctionnalités le rend plus complexe. Florence est subjectivement plus joli et plus facile à utiliser pour les personnes pouvant utiliser un périphérique de pointage. GOK est la seule option pour les personnes handicapées qui ne peuvent pas utiliser un périphérique de pointage.</para></listitem>
+		<listitem><para><ulink url="http://homepage3.nifty.com/tsato/xvkbd">XVKBD</ulink>  est un clavier virtuel simple et très mature. Il ne dépend pas de GNOME. Comme GOK, il complète les mots automatiquement. Comme Florence, il a une fonctionnalité de clic automatique mais il lui manque un mode cacher automatiquement et ne s'intègre pas dans GNOME aussi bien que Florence. Ce clavier est parfait pour des gestionnaires de fenêtres simples. Florence est subjectivement plus beau et mieux intégré dans GNOME.</para></listitem>
+		<listitem><para><ulink url="https://launchpad.net/onboard">Onboard</ulink> est le clavier par défaut d'Ubuntu. Il marche avec python, ce qui est commun dans les distributions modernes de linux. Il est plus orienté vers la simplicité que les fonctionnalités. Il est beau et facile à utiliser. Il est moins adaptable que Florence et ne fournit pas de mode cacher automatiquement. Parfait pour les usages occasionnels sur Ubuntu.</para></listitem>
+	</orderedlist>
+	<table>
+		<title>Fonctionnalités des claviers</title>
+		<tgroup cols="6">
+			<colspec colname="keyboard"/>
+			<colspec colname="transparency"/>
+			<colspec colname="auto hide"/>
+			<colspec colname="auto click"/>
+			<colspec colname="scanning"/>
+			<colspec colname="word completion"/>
+			<thead>
+				<row>
+					<entry>clavier</entry>
+					<entry>transparence</entry>
+					<entry>cacher automatiquement</entry>
+					<entry>clic automatique</entry>
+					<entry>parcours des touches</entry>
+					<entry>dictionnaire prédictif</entry>
+				</row>
+			</thead>
+			<tbody>
+				<row>
+					<entry>Florence</entry>
+					<entry>Oui</entry>
+					<entry>Oui</entry>
+					<entry>Oui</entry>
+					<entry>Non</entry>
+					<entry>Non</entry>
+				</row>
+				<row>
+					<entry>GOK</entry>
+					<entry>Non</entry>
+					<entry>Oui</entry>
+					<entry>Oui</entry>
+					<entry>Oui</entry>
+					<entry>Oui</entry>
+				</row>
+				<row>
+					<entry>XVKBD</entry>
+					<entry>Non</entry>
+					<entry>Non</entry>
+					<entry>Oui</entry>
+					<entry>Non</entry>
+					<entry>Oui</entry>
+				</row>
+				<row>
+					<entry>Onboard</entry>
+					<entry>Non</entry>
+					<entry>Non</entry>
+					<entry>Oui</entry>
+					<entry>Non</entry>
+					<entry>Non</entry>
+				</row>
+			</tbody>
+		</tgroup>
+	</table>
+	<para>Il existe d'autres alternatives pour saisir du texte qui ne sont pas des claviers.</para>
+	<orderedlist>
+		<listitem>
+			<para><ulink url="http://www.inference.phy.cam.ac.uk/dasher/francais">Dasher</ulink> fournit une méthode de saisie basée sur les mouvements et la prédiction des mots. C'est une méthode de saisie très efficace et naturelle. Combiné avec <ulink url="http://www.inference.phy.cam.ac.uk/opengazer">opengazer</ulink>, cela peut être utilisé pour saisir du texte uniquement avec des mouvements d'oeil.</para>
+		</listitem>
+		<listitem>
+			<para><ulink url="http://risujin.org/cellwriter/">CellWriter</ulink> est un outil de reconnaissance d'écriture à la main. C'est une bonne méthode de saisie pour les tablettes. CellWriter fournit aussi un clavier virtuel.</para>
+		</listitem>
+	</orderedlist>
+</sect1>
+<sect1 id="gethelp">
+        <title>Se faire aider</title>
+        <para>Vous pouvez obtenir de l'aide sur le <ulink url="https://sourceforge.net/forum/forum.php?forum_id=784280">forum</ulink> ou demander de l'aide par email à f.agrech@gmail.com</para>
+</sect1>
+<sect1 id="help">
+	<title>Contribuer</title>
+	<para>Si vous désirez aider le projet Florence, s'il vous plaît, veuillez envoyer un email à f.agrech@gmail.com</para>
+</sect1>
+<appendix id="gfdl">
+  <title>GNU Free Documentation License</title>
+  <para>
+    Copyright (C) 2000, 2001, 2002 Free Software Foundation,
+    <abbrev>Inc.</abbrev> 51 Franklin <abbrev>St</abbrev>, Fifth Floor,
+    Boston, <abbrev>MA</abbrev> 02110-1301 <abbrev role="initialism">USA</abbrev>.  Everyone is permitted to copy and
+    distribute verbatim copies of this license document, but changing it is
+    not allowed.
+  </para>
+  <bridgehead id="Preamble" renderas="sect1">
+    0. PREAMBLE
+  </bridgehead>
+  <para>
+    The purpose of this License is to make a manual, textbook, or other
+    functional and useful document "free" in the sense of freedom: to assure
+    everyone the effective freedom to copy and redistribute it, with or
+    without modifying it, either commercially or noncommercially.
+    Secondarily, this License preserves for the author and publisher a way to
+    get credit for their work, while not being considered responsible for
+    modifications made by others.
+  </para>
+  <para>
+    This License is a kind of "copyleft", which means that derivative works of
+    the document must themselves be free in the same sense.  It complements
+    the GNU General Public License, which is a copyleft license designed for
+    free software.
+  </para>
+  <para>
+    We have designed this License in order to use it for manuals for free
+    software, because free software needs free documentation: a free program
+    should come with manuals providing the same freedoms that the software
+    does.  But this License is not limited to software manuals; it can be used
+    for any textual work, regardless of subject matter or whether it is
+    published as a printed book.  We recommend this License principally for
+    works whose purpose is instruction or reference.</para>
+  <bridgehead id="Definitions" renderas="sect1">
+    1. APPLICABILITY AND DEFINITIONS
+  </bridgehead>
+  <para>
+    This License applies to any manual or other work, in any medium, that
+    contains a notice placed by the copyright holder saying it can be
+    distributed under the terms of this License.  Such a notice grants a
+    world-wide, royalty-free license, unlimited in duration, to use that work
+    under the conditions stated herein.  The "Document", below, refers to any
+    such manual or work.  Any member of the public is a licensee, and is
+    addressed as "you".  You accept the license if you copy, modify or
+    distribute the work in a way requiring permission under copyright
+    law.
+  </para>
+  <para>
+    A "Modified Version" of the Document means any work containing the
+    Document or a portion of it, either copied verbatim, or with modifications
+    and/or translated into another language.
+  </para>
+  <para>
+    A "Secondary Section" is a named appendix or a front-matter section of the
+    Document that deals exclusively with the relationship of the publishers or
+    authors of the Document to the Document's overall subject (or to related
+    matters) and contains nothing that could fall directly within that overall
+    subject.  (Thus, if the Document is in part a textbook of mathematics, a
+    Secondary Section may not explain any mathematics.)  The relationship
+    could be a matter of historical connection with the subject or with
+    related matters, or of legal, commercial, philosophical, ethical or
+    political position regarding them.
+  </para>
+  <para>
+    The "Invariant Sections" are certain Secondary Sections whose titles are
+    designated, as being those of Invariant Sections, in the notice that says
+    that the Document is released under this License.  If a section does not
+    fit the above definition of Secondary then it is not allowed to be
+    designated as Invariant.  The Document may contain zero Invariant
+    Sections.  If the Document does not identify any Invariant Sections then
+    there are none.
+  </para>
+  <para>
+    The "Cover Texts" are certain short passages of text that are listed, as
+    Front-Cover Texts or Back-Cover Texts, in the notice that says that the
+    Document is released under this License.  A Front-Cover Text may be at
+    most 5 words, and a Back-Cover Text may be at most 25 words.
+  </para>
+  <para>
+    A "Transparent" copy of the Document means a machine-readable copy,
+    represented in a format whose specification is available to the general
+    public, that is suitable for revising the document straightforwardly with
+    generic text editors or (for images composed of pixels) generic paint
+    programs or (for drawings) some widely available drawing editor, and that
+    is suitable for input to text formatters or for automatic translation to a
+    variety of formats suitable for input to text formatters.  A copy made in
+    an otherwise Transparent file format whose markup, or absence of markup,
+    has been arranged to thwart or discourage subsequent modification by
+    readers is not Transparent.  An image format is not Transparent if used
+    for any substantial amount of text.  A copy that is not "Transparent" is
+    called "Opaque".
+  </para>
+  <para>
+    Examples of suitable formats for Transparent copies include plain ASCII
+    without markup, Texinfo input format, LaTeX input format, SGML or XML
+    using a publicly available DTD, and standard-conforming simple HTML,
+    PostScript or PDF designed for human modification.  Examples of
+    transparent image formats include PNG, XCF and JPG.  Opaque formats
+    include proprietary formats that can be read and edited only by
+    proprietary word processors, SGML or XML for which the DTD and/or
+    processing tools are not generally available, and the machine-generated
+    HTML, PostScript or PDF produced by some word processors for output
+    purposes only.
+  </para>
+  <para>
+    The "Title Page" means, for a printed book, the title page itself, plus
+    such following pages as are needed to hold, legibly, the material this
+    License requires to appear in the title page.  For works in formats which
+    do not have any title page as such, "Title Page" means the text near the
+    most prominent appearance of the work's title, preceding the beginning of
+    the body of the text.
+  </para>
+  <para>
+    A section "Entitled XYZ" means a named subunit of the Document whose title
+    either is precisely XYZ or contains XYZ in parentheses following text that
+    translates XYZ in another language.  (Here XYZ stands for a specific
+    section name mentioned below, such as "Acknowledgements", "Dedications",
+    "Endorsements", or "History".)  To "Preserve the Title" of such a section
+    when you modify the Document means that it remains a section "Entitled
+    XYZ" according to this definition.
+  </para>
+  <para>
+    The Document may include Warranty Disclaimers next to the notice which
+    states that this License applies to the Document.  These Warranty
+    Disclaimers are considered to be included by reference in this License,
+    but only as regards disclaiming warranties: any other implication that
+    these Warranty Disclaimers may have is void and has no effect on the
+    meaning of this License.
+  </para>
+  <bridgehead id="VerbatimCopying" renderas="sect1">
+    2. VERBATIM COPYING
+  </bridgehead>
+  <para>
+    You may copy and distribute the Document in any medium, either
+    commercially or noncommercially, provided that this License, the copyright
+    notices, and the license notice saying this License applies to the
+    Document are reproduced in all copies, and that you add no other
+    conditions whatsoever to those of this License.  You may not use technical
+    measures to obstruct or control the reading or further copying of the
+    copies you make or distribute.  However, you may accept compensation in
+    exchange for copies.  If you distribute a large enough number of copies
+    you must also follow the conditions in section 3.
+  </para>
+  <para>
+    You may also lend copies, under the same conditions stated above, and you
+    may publicly display copies.
+  </para>
+  <bridgehead id="QuantityCopying" renderas="sect1">
+    3. COPYING IN QUANTITY
+  </bridgehead>
+  <para>
+    If you publish printed copies (or copies in media that commonly have
+    printed covers) of the Document, numbering more than 100, and the
+    Document's license notice requires Cover Texts, you must enclose the
+    copies in covers that carry, clearly and legibly, all these Cover Texts:
+    Front-Cover Texts on the front cover, and Back-Cover Texts on the back
+    cover.  Both covers must also clearly and legibly identify you as the
+    publisher of these copies.  The front cover must present the full title
+    with all words of the title equally prominent and visible.  You may add
+    other material on the covers in addition.  Copying with changes limited to
+    the covers, as long as they preserve the title of the Document and satisfy
+    these conditions, can be treated as verbatim copying in other
+    respects.
+  </para>
+  <para>
+    If the required texts for either cover are too voluminous to fit legibly,
+    you should put the first ones listed (as many as fit reasonably) on the
+    actual cover, and continue the rest onto adjacent pages.
+  </para>
+  <para>
+    If you publish or distribute Opaque copies of the Document numbering more
+    than 100, you must either include a machine-readable Transparent copy
+    along with each Opaque copy, or state in or with each Opaque copy a
+    computer-network location from which the general network-using public has
+    access to download using public-standard network protocols a complete
+    Transparent copy of the Document, free of added material.  If you use the
+    latter option, you must take reasonably prudent steps, when you begin
+    distribution of Opaque copies in quantity, to ensure that this Transparent
+    copy will remain thus accessible at the stated location until at least one
+    year after the last time you distribute an Opaque copy (directly or
+    through your agents or retailers) of that edition to the public.
+  </para>
+  <para>
+    It is requested, but not required, that you contact the authors of the
+    Document well before redistributing any large number of copies, to give
+    them a chance to provide you with an updated version of the
+    Document.
+  </para>
+  <bridgehead id="Modifications" renderas="sect1">
+    4. MODIFICATIONS
+  </bridgehead>
+  <para>
+    You may copy and distribute a Modified Version of the Document under the
+    conditions of sections 2 and 3 above, provided that you release the
+    Modified Version under precisely this License, with the Modified Version
+    filling the role of the Document, thus licensing distribution and
+    modification of the Modified Version to whoever possesses a copy of it.
+    In addition, you must do these things in the Modified Version:
+  </para>
+  <orderedlist numeration="upperalpha">
+    <listitem>
+      <simpara>
+        Use in the Title Page (and on the covers, if any) a title distinct
+        from that of the Document, and from those of previous versions (which
+        should, if there were any, be listed in the History section of the
+        Document).  You may use the same title as a previous version if the
+        original publisher of that version gives permission.
+        </simpara>
+    </listitem>
+    <listitem>
+      <simpara>
+        List on the Title Page, as authors, one or more persons or entities
+        responsible for authorship of the modifications in the Modified
+        Version, together with at least five of the principal authors of the
+        Document (all of its principal authors, if it has fewer than five),
+        unless they release you from this requirement.
+      </simpara>
+    </listitem>
+    <listitem>
+      <simpara>
+        State on the Title page the name of the publisher of the Modified
+        Version, as the publisher.
+      </simpara>
+    </listitem>
+    <listitem>
+      <simpara>
+        Preserve all the copyright notices of the Document.
+      </simpara>
+    </listitem>
+    <listitem>
+      <simpara>
+        Add an appropriate copyright notice for your modifications adjacent to
+        the other copyright notices.
+      </simpara>
+    </listitem>
+    <listitem>
+      <simpara>
+        Include, immediately after the copyright notices, a license notice
+        giving the public permission to use the Modified Version under the
+        terms of this License, in the form shown in the Addendum below.
+      </simpara>
+    </listitem>
+    <listitem>
+      <simpara>
+        Preserve in that license notice the full lists of Invariant Sections
+        and required Cover Texts given in the Document's license notice.
+      </simpara>
+    </listitem>
+    <listitem>
+      <simpara>
+        Include an unaltered copy of this License.
+      </simpara>
+    </listitem>
+    <listitem>
+      <simpara>
+        Preserve the section Entitled "History", Preserve its Title, and add
+        to it an item stating at least the title, year, new authors, and
+        publisher of the Modified Version as given on the Title Page.  If
+        there is no section Entitled "History" in the Document, create one
+        stating the title, year, authors, and publisher of the Document as
+        given on its Title Page, then add an item describing the Modified
+        Version as stated in the previous sentence.
+      </simpara>
+    </listitem>
+    <listitem>
+      <simpara>
+        Preserve the network location, if any, given in the Document for
+        public access to a Transparent copy of the Document, and likewise the
+        network locations given in the Document for previous versions it was
+        based on.  These may be placed in the "History" section.  You may omit
+        a network location for a work that was published at least four years
+        before the Document itself, or if the original publisher of the
+        version it refers to gives permission.
+      </simpara>
+    </listitem>
+    <listitem>
+      <simpara>
+        For any section Entitled "Acknowledgements" or "Dedications", Preserve
+        the Title of the section, and preserve in the section all the
+        substance and tone of each of the contributor acknowledgements and/or
+        dedications given therein.
+      </simpara>
+    </listitem>
+    <listitem>
+      <simpara>
+        Preserve all the Invariant Sections of the Document, unaltered in
+        their text and in their titles.  Section numbers or the equivalent are
+        not considered part of the section titles.
+      </simpara>
+    </listitem>
+    <listitem>
+      <simpara>
+        Delete any section Entitled "Endorsements".  Such a section may not be
+        included in the Modified Version.
+      </simpara>
+    </listitem>
+    <listitem>
+      <simpara>
+        Do not retitle any existing section to be Entitled "Endorsements" or
+        to conflict in title with any Invariant Section.
+      </simpara>
+    </listitem>
+    <listitem>
+      <simpara>
+        Preserve any Warranty Disclaimers.
+      </simpara>
+    </listitem>
+  </orderedlist>
+  <para>
+    If the Modified Version includes new front-matter sections or appendices
+    that qualify as Secondary Sections and contain no material copied from the
+    Document, you may at your option designate some or all of these sections
+    as invariant.  To do this, add their titles to the list of Invariant
+    Sections in the Modified Version's license notice.  These titles must be
+    distinct from any other section titles.
+  </para>
+  <para>
+    You may add a section Entitled "Endorsements", provided it contains
+    nothing but endorsements of your Modified Version by various parties--for
+    example, statements of peer review or that the text has been approved by
+    an organization as the authoritative definition of a standard.
+  </para>
+  <para>
+    You may add a passage of up to five words as a Front-Cover Text, and a
+    passage of up to 25 words as a Back-Cover Text, to the end of the list of
+    Cover Texts in the Modified Version.  Only one passage of Front-Cover Text
+    and one of Back-Cover Text may be added by (or through arrangements made
+    by) any one entity.  If the Document already includes a cover text for the
+    same cover, previously added by you or by arrangement made by the same
+    entity you are acting on behalf of, you may not add another; but you may
+    replace the old one, on explicit permission from the previous publisher
+    that added the old one.
+  </para>
+  <para>
+    The author(s) and publisher(s) of the Document do not by this License give
+    permission to use their names for publicity for or to assert or imply
+    endorsement of any Modified Version.
+  </para>
+  <bridgehead id="Combining" renderas="sect1">
+    5. COMBINING DOCUMENTS
+  </bridgehead>
+  <para>
+    You may combine the Document with other documents released under this
+    License, under the terms defined in section 4 above for modified versions,
+    provided that you include in the combination all of the Invariant Sections
+    of all of the original documents, unmodified, and list them all as
+    Invariant Sections of your combined work in its license notice, and that
+    you preserve all their Warranty Disclaimers.
+  </para>
+  <para>
+    The combined work need only contain one copy of this License, and multiple
+    identical Invariant Sections may be replaced with a single copy.  If there
+    are multiple Invariant Sections with the same name but different contents,
+    make the title of each such section unique by adding at the end of it, in
+    parentheses, the name of the original author or publisher of that section
+    if known, or else a unique number.  Make the same adjustment to the
+    section titles in the list of Invariant Sections in the license notice of
+    the combined work.
+  </para>
+  <para>
+    In the combination, you must combine any sections Entitled "History" in
+    the various original documents, forming one section Entitled "History";
+    likewise combine any sections Entitled "Acknowledgements", and any
+    sections Entitled "Dedications".  You must delete all sections Entitled
+    "Endorsements".
+  </para>
+  <bridgehead id="Collections" renderas="sect1">
+    6. COLLECTIONS OF DOCUMENTS
+  </bridgehead>
+  <para>
+    You may make a collection consisting of the Document and other documents
+    released under this License, and replace the individual copies of this
+    License in the various documents with a single copy that is included in
+    the collection, provided that you follow the rules of this License for
+    verbatim copying of each of the documents in all other respects.
+  </para>
+  <para>
+    You may extract a single document from such a collection, and distribute
+    it individually under this License, provided you insert a copy of this
+    License into the extracted document, and follow this License in all other
+    respects regarding verbatim copying of that document.
+  </para>
+  <bridgehead id="Aggregation" renderas="sect1">
+    7. AGGREGATION WITH INDEPENDENT WORKS
+  </bridgehead>
+  <para>
+    A compilation of the Document or its derivatives with other separate and
+    independent documents or works, in or on a volume of a storage or
+    distribution medium, is called an "aggregate" if the copyright resulting
+    from the compilation is not used to limit the legal rights of the
+    compilation's users beyond what the individual works permit.  When the
+    Document is included in an aggregate, this License does not apply to the
+    other works in the aggregate which are not themselves derivative works of
+    the Document.
+  </para>
+  <para>
+    If the Cover Text requirement of section 3 is applicable to these copies
+    of the Document, then if the Document is less than one half of the entire
+    aggregate, the Document's Cover Texts may be placed on covers that bracket
+    the Document within the aggregate, or the electronic equivalent of covers
+    if the Document is in electronic form.  Otherwise they must appear on
+    printed covers that bracket the whole aggregate.
+  </para>
+  <bridgehead id="Translation" renderas="sect1">
+    8. TRANSLATION
+  </bridgehead>
+  <para>
+    Translation is considered a kind of modification, so you may distribute
+    translations of the Document under the terms of section 4.  Replacing
+    Invariant Sections with translations requires special permission from
+    their copyright holders, but you may include translations of some or all
+    Invariant Sections in addition to the original versions of these Invariant
+    Sections.  You may include a translation of this License, and all the
+    license notices in the Document, and any Warranty Disclaimers, provided
+    that you also include the original English version of this License and the
+    original versions of those notices and disclaimers.  In case of a
+    disagreement between the translation and the original version of this
+    License or a notice or disclaimer, the original version will prevail.
+  </para>
+  <para>
+    If a section in the Document is Entitled "Acknowledgements",
+    "Dedications", or "History", the requirement (section 4) to Preserve its
+    Title (section 1) will typically require changing the actual title.
+  </para>
+  <bridgehead id="Termination" renderas="sect1">
+    9. TERMINATION
+  </bridgehead>
+  <para>
+    You may not copy, modify, sublicense, or distribute the Document except as
+    expressly provided for under this License.  Any other attempt to copy,
+    modify, sublicense or distribute the Document is void, and will
+    automatically terminate your rights under this License.  However, parties
+    who have received copies, or rights, from you under this License will not
+    have their licenses terminated so long as such parties remain in full
+    compliance.
+  </para>
+  <bridgehead id="FutureRevisions" renderas="sect1">
+    10. FUTURE REVISIONS OF THIS LICENSE
+  </bridgehead>
+  <para>
+    The Free Software Foundation may publish new, revised versions of the GNU
+    Free Documentation License from time to time.  Such new versions will be
+    similar in spirit to the present version, but may differ in detail to
+    address new problems or concerns.  See <ulink url="http://www.gnu.org/copyleft/">http://www.gnu.org/copyleft/</ulink>.
+  </para>
+  <para>
+    Each version of the License is given a distinguishing version number.  If
+    the Document specifies that a particular numbered version of this License
+    "or any later version" applies to it, you have the option of following the
+    terms and conditions either of that specified version or of any later
+    version that has been published (not as a draft) by the Free Software
+    Foundation.  If the Document does not specify a version number of this
+    License, you may choose any version ever published (not as a draft) by the
+    Free Software Foundation.
+  </para>
+  <bridgehead id="HowToUse" renderas="sect1">
+    ADDENDUM: How to use this License for your documents
+  </bridgehead>
+  <para>
+    To use this License in a document you have written, include a copy of the
+    License in the document and put the following copyright and license
+    notices just after the title page:
+  </para>
+  <blockquote>
+    <para>
+      Copyright (C) YEAR YOUR NAME.
+    </para>
+    <para>Cette documentation est mise à disposition sous la license GNU FDL. Seule la version en anglais de cette license existe et a une valeur légale. Une copie de la license est disponible à la fin de ce document en anglais. Vous avez la permission de copier, de distribuer et/ou de modifier ce document sous les termes de la licanse libre de documentation GNU, version 1.2 ou n'importe quelle version postérieure publié par la Free Software Foundation.</para>
+  </blockquote>
+  <para>
+    If you have Invariant Sections, Front-Cover Texts and Back-Cover Texts,
+    replace the "with...Texts." line with this:
+  </para>
+  <blockquote>
+    <para>
+      with the Invariant Sections being LIST THEIR TITLES, with the
+      Front-Cover Texts being LIST, and with the Back-Cover Texts being LIST.
+    </para>
+  </blockquote>
+  <para>
+    If you have Invariant Sections without Cover Texts, or some other
+    combination of the three, merge those two alternatives to suit the
+    situation.
+  </para>
+  <para>
+    If your document contains nontrivial examples of program code, we
+    recommend releasing these examples in parallel under your choice of free
+    software license, such as the GNU General Public License, to permit their
+    use in free software.
+  </para>
+</appendix>
+
+</article>

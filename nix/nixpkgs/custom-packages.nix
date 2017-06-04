@@ -1,3 +1,17 @@
+/*let*/
+/*  pkgs = import <nixpkgs> {};*/
+/*in*/
+/*{*/
+/*  [>pathOverlays = builtins.getEnv "waxCraft_PATH"+"/nix/nixpkgs/overlays/" ;<]*/
+/*  import pkgs.path { overlays = [ (self: super: {*/
+
+/*    vim = super.vim.override {enableLua=true;};*/
+/*    }) ]; }*/
+
+/*}*/
+
+
+
 {
 
 #{{{
@@ -19,6 +33,9 @@ chromium = {
 };
 #}}}
 
+
+#{{{
+
 packageOverrides = super: let self = super.pkgs; in with self; rec {
 
   pathToMyPackages = builtins.getEnv "waxCraft_PATH"+"/nix/nixpkgs/" ;
@@ -26,28 +43,36 @@ packageOverrides = super: let self = super.pkgs; in with self; rec {
   vim74-spf13 = self.callPackage "${pathToMyPackages}vim-7.4-spf13/default.nix" {  };
   blank_env   = self.callPackage "${pathToMyPackages}blank_env/default.nix" {  };
   cute20      = self.callPackage "${pathToMyPackages}cute-2.0/default.nix" {  };
-  /*cartopy     = self.callPackage "${pathToMyPackages}cartopy/default.nix" {  };*/
 
   # Pythons modules :
-  #enzyme = self.callPackage "${pathToMyPackages}pythonModules/enzyme-0.4.2/default.nix" {
-  #  python = self.python27;
-  #  self = python27Packages;
-  #};
+  pathToMyPythonModules = builtins.getEnv "waxCraft_PATH"+"/nix/nixpkgs/pythonModules/";
 
-  /*enzyme = self.callPackage "${pathToMyPackages}pythonModules/enzyme-0.4.2/default.nix" {};*/
-  /*guessit = self.callPackage "${pathToMyPackages}pythonModules/guessit-2.1.2/default.nix" {};*/
-  /*rebulk = self.callPackage "${pathToMyPackages}pythonModules/rebulk/default.nix" {};*/
-  /*subliminal = self.callPackage "${pathToMyPackages}pythonModules/subliminal-2.0.5/default.nix" {};*/
+  pywann = self.callPackage "${pathToMyPythonModules}PyWANN/default.nix"{
+    buildPythonPackage = self.pythonPackages.buildPythonPackage;
+    numpy = self.pythonPackages.numpy;
+    setuptools = self.pythonPackages.setuptools;
+  };
 
-  #python27Packages = super.callPackage "${pathToMyPackages}python-packages-custom.nix" {
-  #  python = self.python27;
-  #  self = self.python27Packages;
-  #};
+  pyyaml = pythonPackages.buildPythonPackage rec {
+    name = "pyyaml-${version}";
+    version = "3.12";
 
+    src = fetchFromGitHub {
+      owner = "yaml";
+      repo = "pyyaml";
+      rev = "${version}";
+      sha256 = "0pg4ni2j35rcy0yingmm8m3b98v281wsxicb44c2bd5v7k7abhpz";
+    };
+    doCheck = false;
 
-#  myTexLive = with pkgs; {
-#       paths = [texLiveFull lmodern];
-#  };
+    meta = {
+      description = "The next generation YAML parser and emitter for Python.";
+      homepage = https://github.com/yaml/pyyaml;
+      license = "MIT";
+      maintainers = [ "yaml" ];
+    };
+  };
 
 };
+
 }

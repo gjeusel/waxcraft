@@ -1,0 +1,257 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Florence - Florence is a simple virtual keyboard for Gnome.
+
+  Copyright (C) 2008, 2009 François Agrech
+
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2, or (at your option)
+  any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+-->
+<symbols xmlns="http://florence.sourceforge.net" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <symbol>
+    <name>Control_[LR]</name>
+    <_label>ctrl</_label>
+  </symbol>
+  <symbol>
+    <name>Super_[LR]</name>
+    <svg xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" version="1.1" width="64" height="64" viewBox="0 -10 64 64">
+      <rect width="64" height="44" x="0" y="0" class="symbol-outline"/>
+      <rect width="9" height="8" x="8" y="6" class="symbol-fill"/>
+      <rect width="9" height="8" x="21" y="6" class="symbol-fill"/>
+      <rect width="9" height="8" x="34" y="6" class="symbol-fill"/>
+      <rect width="9" height="8" x="47" y="6" class="symbol-fill"/>
+      <rect width="9" height="8" x="8" y="18" class="symbol-fill"/>
+      <rect width="9" height="8" x="21" y="18" class="symbol-fill"/>
+      <rect width="9" height="8" x="34" y="18" class="symbol-fill"/>
+      <rect width="9" height="8" x="47" y="18" class="symbol-fill"/>
+      <rect width="48" height="8" x="8" y="30" class="symbol-fill"/>
+    </svg>
+  </symbol>
+  <symbol>
+    <name>(Alt_[LR]|Meta_L)</name>
+    <_label>alt</_label>
+  </symbol>
+  <symbol>
+    <name>ISO_Level3_Shift</name>
+    <_label>altGr</_label>
+  </symbol>
+  <symbol>
+    <name>BackSpace</name>
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100" height="100" viewBox="0 0 100 100">
+      <path class="symbol" d="M20 50 L35 35 L35 45 L75 45 L75 55 L35 55 L35 65 Z"/>
+    </svg>
+  </symbol>
+  <symbol>
+    <name>Tab</name>
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100" height="100" viewBox="0 0 100 100">
+      <path class="symbol" d="M65 35 L75 35 L75 65 L65 65 Z"/>
+      <path class="symbol" d="M62.5 50 L50 35 L50 45 L28.875 45 L28.875 55 L50 55 L50 65 Z"/>
+    </svg>
+  </symbol>
+  <symbol>
+    <name>ISO_Left_Tab</name>
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100" height="100" viewBox="0 0 100 100">
+      <path class="symbol" d="M25 35 L35 35 L35 65 L25 65 Z"/>
+      <path class="symbol" d="M37.5 50 L50 35 L50 45 L73.625 45 L73.625 55 L50 55 L50 65 Z"/>
+    </svg>
+  </symbol>
+  <symbol>
+    <name>Return</name>
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="144" height="192" viewBox="0 0 144 192">
+      <path class="symbol" d="M15 57 L33 40 L33 52 L110 52 C120 52 120 40 110 40 L100 40 L100 30 L110 30 C140 30 140 62 110 62 L33 62 L33 74 Z"/>
+    </svg>
+  </symbol>
+  <symbol>
+    <name>Caps_Lock</name>
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100" height="100" viewBox="0 0 100 100">
+      <path class="symbol" d="m 35,45 0,26 30,0 0,-26 -5,0 0,-9 c 0,-5 -2,-8 -10,-8 -8,0 -10,3 -10,8 l 0,9 -5,0 z m 20,0 -10,0 0,-9 c 0,-2 2,-3 5,-3 3,0 5,1 5,3 l 0,9 z"/>
+    </svg>
+  </symbol>
+  <symbol>
+    <name>(Shift_[LR]|(KP_|)Up)</name>
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100" height="100" viewBox="0 0 100 100">
+      <path class="symbol" d="M 45,45 35,45 50,30 65,45 55,45 55,70 45,70 45,45 z"/>
+    </svg>
+  </symbol>
+  <symbol>
+    <name>(KP_|)Insert</name>
+    <_label>ins</_label>
+  </symbol>
+  <symbol>
+    <name>(KP_|)Home</name>
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100" height="100" viewBox="0 0 100 100">
+      <path class="symbol" d="m 32.196699,38.232233 -7.071068,7.071068 0,-21.213204 21.213204,1e-6 -7.071068,7.071068 17.677669,17.677669 -7.071067,7.071068 -17.67767,-17.67767 z"/>
+    </svg>
+  </symbol>
+  <symbol>
+    <name>(KP_|)Page_Up</name>
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100" height="100" viewBox="0 0 100 100">
+      <path class="symbol" d="m 45,45 -10,0 15,-15 15,15 -10,0 0,4 10,0 0,4 -10,0 0,4 10,0 0,4 -10,0 0,4 10,0 0,4 -10,0 0,1 -10,0 0,-1 -10,0 0,-4 10,0 0,-4 -10,0 0,-4 10,0 0,-4 -10,0 0,-4 10,0 0,-4 z"/>
+    </svg>
+  </symbol>
+  <symbol>
+    <name>(KP_|)Delete</name>
+    <_label>del</_label>
+  </symbol>
+  <symbol>
+    <name>(KP_|)End</name>
+    <_label>end</_label>
+  </symbol>
+  <symbol>
+    <name>(KP_|)Page_Down</name>
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100" height="100" viewBox="0 0 100 100">
+      <path class="symbol" d="m 45,55 -10,0 15,15 15,-15 -10,0 0,-4 10,0 0,-4 -10,0 0,-4 10,0 0,-4 -10,0 0,-4 10,0 0,-4 -10,0 0,-1 -10,0 0,1 -10,0 0,4 10,0 0,4 -10,0 0,4 10,0 0,4 -10,0 0,4 10,0 0,4 z"/>
+    </svg>
+  </symbol>
+  <symbol>
+    <name>(KP_|)Down</name>
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100" height="100" viewBox="0 0 100 100">
+      <path class="symbol" d="m 55,55 10,0 -15,15 -15,-15 10,0 0,-25 10,0 0,25 z"/>
+    </svg>
+  </symbol>
+  <symbol>
+    <name>(KP_|)Left</name>
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100" height="100" viewBox="0 0 100 100">
+      <path class="symbol" d="m 45,55 0,10 -15,-15 15,-15 0,10 25,0 0,10 -25,0 z"/>
+    </svg>
+  </symbol>
+  <symbol>
+    <name>(KP_|)Right</name>
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100" height="100" viewBox="0 0 100 100">
+      <path class="symbol" d="M 55,45 55,35 70,50 55,65 55,55 30,55 30,45 55,45 z"/>
+    </svg>
+  </symbol>
+  <symbol>
+    <name>KP_Enter</name>
+    <_label>ent</_label>
+  </symbol>
+  <symbol>
+    <name>Num_Lock</name>
+    <_label>nlk</_label>
+  </symbol>
+  <symbol>
+    <name>Escape</name>
+    <_label>esc</_label>
+  </symbol>
+  <symbol>
+    <name>F1</name>
+    <_label>F1</_label>
+  </symbol>
+  <symbol>
+    <name>F2</name>
+    <_label>F2</_label>
+  </symbol>
+  <symbol>
+    <name>F3</name>
+    <_label>F3</_label>
+  </symbol>
+  <symbol>
+    <name>F4</name>
+    <_label>F4</_label>
+  </symbol>
+  <symbol>
+    <name>F5</name>
+    <_label>F5</_label>
+  </symbol>
+  <symbol>
+    <name>F6</name>
+    <_label>F6</_label>
+  </symbol>
+  <symbol>
+    <name>F7</name>
+    <_label>F7</_label>
+  </symbol>
+  <symbol>
+    <name>F8</name>
+    <_label>F8</_label>
+  </symbol>
+  <symbol>
+    <name>F9</name>
+    <_label>F9</_label>
+  </symbol>
+  <symbol>
+    <name>F10</name>
+    <_label>F10</_label>
+  </symbol>
+  <symbol>
+    <name>F11</name>
+    <_label>F11</_label>
+  </symbol>
+  <symbol>
+    <name>F12</name>
+    <_label>F12</_label>
+  </symbol>
+  <symbol>
+    <name>Print</name>
+    <_label>psc</_label>
+  </symbol>
+  <symbol>
+    <name>Scroll_Lock</name>
+    <_label>slk</_label>
+  </symbol>
+  <symbol>
+    <name>Pause</name>
+    <_label>brk</_label>
+  </symbol>
+  <symbol>
+    <name>(.*)tilde</name>
+    <_label>~</_label>
+  </symbol>
+  <symbol>
+    <type>close</type>
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100" height="100" viewBox="0 0 100 100">
+      <path class="symbol" d="M 20,30 30,20 50,40 70,20 80,30 60,50 80,70 70,80 50,60 30,80 20,70 40,50 20,30 z"/>
+    </svg>
+  </symbol>
+  <symbol>
+    <type>reduce</type>
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100" height="100" viewBox="0 0 100 100">
+      <path class="symbol" d="M 30,30 20,40 50,70 80,40 70,30 50,50 30,30 z"/>
+    </svg>
+  </symbol>
+  <symbol>
+    <type>config</type>
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100" height="100" viewBox="0 0 100 100">
+      <path class="symbol" d="m 51,41 0,-7 9,-9 6,0 0,2 -8,8 7,8 8,-8 2,0 0,6 -8,9 -7,0 -2,-2 -18,18 c -2,2 -4,3 -6,1 -2,-2 -1,-4 1,-6 L 53,43 51,41 z"/>
+    </svg>
+  </symbol>
+  <symbol>
+    <type>move</type>
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100" height="100" viewBox="0 0 100 100">
+      <path class="symbol" d="m 50,20 -10,10 7,0 0,17 -17,0 0,-7 -10,10 10,10 0,-7 17,0 0,17 -7,0 10,10 10,-10 -7,0 0,-17 17,0 0,7 L 80,50 70,40 70,47 53,47 53,30 60,30 50,20 z"/>
+    </svg>
+  </symbol>
+  <symbol>
+    <type>bigger</type>
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100" height="100" viewBox="0 0 100 100">
+      <path class="symbol" d="m 42.5,35 0,7.5 -7.5,0 0,5 7.5,0 0,7.5 5,0 0,-7.5 7.5,0 0,-5 -7.5,0 0,-7.5 -5,0 z"/>
+      <path class="symbol" d="m 45,22.4375 c -12.42586,0 -22.5625,10.13664 -22.5625,22.5625 0,12.42586 10.13664,22.5625 22.5625,22.5625 5.315839,0 10.230259,-1.841568 14.09375,-4.9375 l 14.125,14.15625 3.5625,-3.5625 L 62.625,59.09375 C 65.720932,55.230259 67.5625,50.315839 67.5625,45 67.5625,32.57414 57.42586,22.4375 45,22.4375 z m 0,5.125 c 9.669626,0 17.4375,7.767874 17.4375,17.4375 0,9.669626 -7.767874,17.4375 -17.4375,17.4375 -9.669626,0 -17.4375,-7.767874 -17.4375,-17.4375 0,-9.669626 7.767874,-17.4375 17.4375,-17.4375 z"/>
+    </svg>
+  </symbol>
+  <symbol>
+    <type>smaller</type>
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100" height="100" viewBox="0 0 100 100">
+      <path class="symbol" d="m 35,42.5 0,5 20,0 0,-5 -20,0 z"/>
+      <path class="symbol" d="m 45,22.4375 c -12.42586,0 -22.5625,10.13664 -22.5625,22.5625 0,12.42586 10.13664,22.5625 22.5625,22.5625 5.315839,0 10.230259,-1.841568 14.09375,-4.9375 l 14.125,14.15625 3.5625,-3.5625 L 62.625,59.09375 C 65.720932,55.230259 67.5625,50.315839 67.5625,45 67.5625,32.57414 57.42586,22.4375 45,22.4375 z m 0,5.125 c 9.669626,0 17.4375,7.767874 17.4375,17.4375 0,9.669626 -7.767874,17.4375 -17.4375,17.4375 -9.669626,0 -17.4375,-7.767874 -17.4375,-17.4375 0,-9.669626 7.767874,-17.4375 17.4375,-17.4375 z"/>
+    </svg>
+  </symbol>
+  <symbol>
+    <type>extend</type>
+    <_label>123</_label>
+  </symbol>
+  <symbol>
+    <type>unextend</type>
+    <_label>ABC</_label>
+  </symbol>
+</symbols>

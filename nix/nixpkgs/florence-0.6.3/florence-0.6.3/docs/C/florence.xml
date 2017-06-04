@@ -1,0 +1,532 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+  "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd" [
+	<!ENTITY gfdl SYSTEM "gfdl.dbk">
+	<!ENTITY date "November, the 2nd of 2014">
+	<!ENTITY version "0.6.3">
+]>
+<article id="index" lang="en">
+<articleinfo>
+	<title>Florence documentation</title>
+	<abstract role="description"><para>This document describes how to install, configure and use Florence virtual keyboard.</para></abstract>
+	<authorgroup>
+		<author role="maintainer">
+			<firstname>François</firstname>
+			<surname>Agrech</surname>
+			<email>f.agrech@gmail.com</email>
+		</author>
+	</authorgroup>
+	<revhistory>
+    		<revision> 
+			<revnumber>&version;</revnumber> 
+			<date>&date;</date> 
+    		</revision> 
+	</revhistory>
+	<copyright><year>2014</year><holder>François Agrech</holder></copyright>
+	<legalnotice>
+		<para>Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.2 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts. A copy of the license is included in the section entitled "GNU Free Documentation License".</para>
+	</legalnotice>
+</articleinfo>
+<indexterm><primary>florence</primary></indexterm>
+<indexterm><primary>virtual keyboard</primary></indexterm>
+<sect1 id="intro">
+	<title>Introduction</title>
+	<para>Florence is an extensible scalable virtual keyboard for <ulink url="http://en.wikipedia.org/wiki/X_Window_System_core_protocol">X</ulink>. You need it if you can't use a real hardware keyboard, for example because of injury, handicap, your keyboard is broken or because you use a tablet PC, but you must be able to use a pointing device (as a mouse, a trackball, a touchscreen or <ulink url="http://www.inference.phy.cam.ac.uk/opengazer">opengazer</ulink>); If you can't use a pointing device, there is <ulink url="http://www.gok.ca/gok">gok</ulink>, which can be used with just simple switches.</para>
+	<para>Florence stays out of your way when you don't need it: it appears on the screen only when you need it.
+A Timer-based auto-click input method is available to help disabled people having difficulties to click. The ramble mode is another efficient input method that can help.</para>
+	<para>Florence can be used on any desktop environment.</para>
+</sect1>
+<sect1 id="install">
+	<title>Install</title>
+	<para>Make sure you have the latest version of Florence (&version; as of &date;). You can get it at <ulink url="http://sourceforge.net/project/platformdownload.php?group_id=217749">Sourceforge</ulink></para>
+	<sect2 id="dependencies">
+		<title>Preparing the dependencies</title>
+		<para>In order to build Florence, you need a build environment with the following commands: make, scrollkeeper and a C compiler (gcc recommended), along with the following package dependencies:</para>
+		<orderedlist>
+			<listitem><para><ulink url="http://www.gtk.org/download-linux.html">gtk+</ulink> (version &gt;= 3.0)</para></listitem>
+			<listitem><para>(Optional: --with-at-spi configure option) <ulink url="http://ftp.gnome.org/pub/gnome/sources/at-spi/">cspi</ulink> (version &gt;= 2.0)</para></listitem>
+			<listitem><para><ulink url="http://ftp.gnome.org/pub/gnome/sources/libxml2/">libxml</ulink> (version &gt;= 2.0)</para></listitem>
+			<listitem><para><ulink url="http://ftp.gnome.org/pub/GNOME/sources/librsvg/">librsvg</ulink></para></listitem>
+			<listitem><para><ulink url="http://www.gnu.org/software/gettext/">gettext</ulink></para></listitem>
+			<listitem><para><ulink url="http://ftp.gnome.org/pub/GNOME/sources/intltool">intltool</ulink> (version &gt;= 0.23)</para></listitem>
+			<listitem><para><ulink url="http://gstreamer.freedesktop.org">gstreamer</ulink> (version &gt; 1.0)</para></listitem>
+			<listitem><para>(Optional: --with-docs configure option) <ulink url="http://ftp.gnome.org/pub/GNOME/sources/gnome-doc-utils">gnome-doc-utils</ulink></para></listitem>
+			<listitem><para>(Optional: --with-libnotify configure option) <ulink url="http://www.galago-project.org/files/releases/source/libnotify">libnotify</ulink></para></listitem>
+			<listitem><para>(Optional: --with-xtst configure option) <ulink url="http://xorg.freedesktop.org/releases/individual/lib/">libxtst</ulink></para></listitem>
+		</orderedlist>
+		<para>How to install those dependencies is dependant on your distribution. If you don't know how to install them, please check with your distribution support.</para>
+	</sect2>
+	<sect2 id="from-source">
+		<title>From source</title>
+		<para>Installing Florence from source is like installing any program that uses the GNU autotools. Open a terminal and type the following commands:</para>
+		<screen>
+<prompt>$</prompt> <userinput>tar -xjvf florence-&version;.tar.bz2</userinput>
+<prompt>$</prompt> <userinput>cd florence-&version;</userinput>
+<prompt>$</prompt> <userinput>./configure --prefix=/usr</userinput>
+<prompt>$</prompt> <userinput>make</userinput>
+<prompt>$</prompt> <userinput>su -c "make install"</userinput>
+		</screen>
+		<para>For Ubuntu, replace the last command with:</para><screen><prompt>$</prompt> <userinput>sudo make install</userinput></screen>
+		<para>Check the list of other configure options available with:</para>
+		<screen>
+<prompt>$</prompt> <userinput>./configure --help</userinput>
+		</screen>
+	</sect2>
+	<sect2 id="binary-install">
+		<title>From distribution package</title>
+		<para>Your distribution may already have a recent binary package of Florence. In this case, you don't have to build it from source.</para>
+		<orderedlist>
+			<listitem>
+				<para><ulink url="http://www.redhat.com">Red Hat</ulink>/<ulink url="http://www.centos.org">CentOS</ulink>/<ulink url="http://fedoraproject.org/">Fedora</ulink>
+				<screen>
+<prompt>$</prompt> <userinput>su - root</userinput>
+<prompt>#</prompt> <userinput>yum install florence</userinput>
+				</screen></para>
+			</listitem>
+			<listitem>
+				<para><ulink url="http://openmandriva.org/">OpenMandriva</ulink>/<ulink url="https://www.mageia.org/">Mageia</ulink>
+				<screen>
+<prompt>$</prompt> <userinput>su - root</userinput>
+<prompt>#</prompt> <userinput>urpmi florence</userinput>
+				</screen></para>
+			</listitem>
+			<listitem>
+				<para><ulink url="http://www.debian.org/">Debian</ulink>
+				<screen>
+<prompt>$</prompt> <userinput>su - root</userinput>
+<prompt>#</prompt> <userinput>apt-get install florence</userinput>
+				</screen></para>
+			</listitem>
+			<listitem>
+				<para><ulink url="http://www.ubuntu.com/">Ubuntu</ulink>
+				<screen>
+<prompt>$</prompt> <userinput>sudo apt-get install florence</userinput>
+				</screen></para>
+			</listitem>
+			<listitem>
+				<para>Other distributions : check with your distribution support.</para>
+			</listitem>
+		</orderedlist>
+	</sect2>
+	<sect2>
+		<title>Uninstall (from source)</title>
+		<para>Uninstalling is as easy as installing. If you installed from source, you can uninstall with the following commands:</para>
+		<screen>
+<prompt>$</prompt> <userinput>cd florence-&version;</userinput>
+<prompt>$</prompt> <userinput>su -c "make uninstall"</userinput>
+		</screen>
+		<para>For Ubuntu:</para><screen><prompt>$</prompt> <userinput>sudo make uninstall</userinput></screen>
+	</sect2>
+</sect1>
+<sect1 id="usage">
+	<title>Usage</title>
+	<para>Florence aims at being easy. To launch Florence from the command line, type:</para>
+		<screen>
+<prompt>$</prompt> <userinput>florence</userinput>
+		</screen>
+		<para>From a <ulink url="http://mate-desktop.org/">MATE desktop</ulink>, you can launch Florence from the menu <guimenu>Applications</guimenu>-&gt;<guisubmenu>Accessibility</guisubmenu>-&gt;<guimenuitem>Florence Virtual keyboard</guimenuitem>.
+		If you prefer that Florence is launched at MATE startup, choose the menu item <guimenu>System</guimenu>-&gt;<guisubmenu>Preferences</guisubmenu>-&gt;<guimenuitem>Sessions</guimenuitem>, click on the <guibutton>Startup programs</guibutton> tab, then click <guibutton>Add</guibutton> and enter <command>/usr/bin/florence</command> so Florence is launched with MATE at next boot.
+	</para>
+	<para>When Florence is running, an icon should appear in your notification area, usually at the top right corner of the screen. Clicking of the icon makes Florence appear or disappear from the screen. Right clicking on it makes a menu appear. On this menu, you can use the <guimenuitem>quit</guimenuitem> item to stop Florence.</para>
+	<sect2 id="input_methods">
+		<title>Input methods</title>
+		<para>Florence can be used with 4 different input methods. Each method has advantages and drawbacks. It is up to you to select the right one for your usage pattern.</para>
+		<orderedlist>
+			<listitem>
+				<para>The default input method is the "mouse" method. This is adapted for mouse/trackpad input. It is pretty straightforward. Just click on the key with a mouse button to press it. Release the mouse button to release the key. The advantage of this method is its simplicity. It does not require learning. The drawback is that is requires a pointing device with a button and that the user is able to use it.</para>
+			</listitem>
+			<listitem>
+				<para>The second input method is the "touch" method. This is adapted for touch screen input. The difference with the mouse input method is that it not possible to touch the keyboard without clicking. In this mode, the keys are pressed on touch end.</para>
+			</listitem>
+			<listitem>
+				<para>The next method is the "timer" method. Use this method if you are unable to use a button. Point a key with the pointer and a timer is triggered. When the timer expires, the key is pressed and immediately released. The timer is cancelled if the pointer leaves the key. Note you can still press a mouse button to activate the key if you have one available. The advantage of this method is that it does not require a button. The drawbacks are that it is slower than the button method and that you can not hold a key pressed.</para>	
+			</listitem>
+			<listitem>
+				<para>The last method is the "ramble" method. Like the timer method, the ramble method does not require a button. This method can be faster than the timer method but requires dexterity and training to be used efficiently. The ramble method can be passive: no button necessary, or active: deaf while the pointer button is not pressed. There are two sub-methods for rambling.</para>
+				<orderedlist>
+					<listitem>
+						<para>The time-based ramble method requires good timing. While you move the pointer, Florence will detect keys that are to be activated based on the time the pointer stays over them. With this method, you can press the same key multiple times by moving the pointer to near the border of the key and back to the center. This method can be pretty fast with good training.</para>
+					</listitem>
+					<listitem>
+						<para>The distance-based ramble method requires some dexterity to be used efficiently. The distance the pointer moves over the key is measured and the key is activated when it reaches a threshold. The key can be pressed multiple times by moving the pointer over the key repeatedly. A second threshold is there to detect multiple occurences. To use this method efficiently, apply quick gestures over the keys you want to activate.</para>
+					</listitem>
+				</orderedlist>
+			</listitem>
+		</orderedlist>
+	</sect2>
+	<sect2 id="modes">
+		<title>Florence modes</title>
+		<para>Florence has several states affecting how it functions and how it interacts with the user.</para>
+		<para>In auto-hide mode, Florence hides itself when it detects you don't need it. There are several rules to detect when Florence is needed and those rules rely on the <ulink url="http://en.wikipedia.org/wiki/AT-SPI">at-spi</ulink> framework. For instance, Florence will be shown if you select an editable widget, as it should probably be edited with a keyboard. Florence will hide itself when the editable widget is unfocused. This does not work if the widget isn't accessible with <ulink url="http://en.wikipedia.org/wiki/AT-SPI">at-spi</ulink>. In particular, QT3 widgets may not work properly with Florence. You should make sure your applications support at-spi if you intend to use Florence in hidden mode. When this mode is off, Florence is always visible on the screen.</para>
+		<para>The auto hide mode requires accessibility to be activated, which means the at-spi registry daemon is running and applications are using it.</para>
+		<figure id="extensions">
+			<title>Florence extensions</title>
+			<screenshot>
+				<mediaobject>
+					<imageobject><imagedata fileref="figures/florence.png" format="PNG"/></imageobject>
+					<textobject><phrase>Shows the extensions available.</phrase></textobject>
+				</mediaobject>
+			</screenshot>
+		</figure>
+		<para>The above figure shows the different parts of the default layout. There are other layouts that can be selected in the settings dialog (layout tab).</para>
+		<para>The default keyboard layout can be extended with 4 extensions to the core keyboard. The Florence key pad is an extension to the left of the main keyboard which contains keys to access special Florence functions: see below for a complete list of Florence functions. The arrows keypad is an extension added to the right of the core keyboard and contains the arrow keys along with navigation keys. The numpad extension contains the numeric keys and the function keys extension contains the function keys. Each extension can be activated and deactivated independantly. The extensions are relative to the selected layout.</para>
+	</sect2>
+	<sect2 id="florencekeys">
+		<title>Florence keys</title>
+		<para>The following keys give access to special Florence functions. They are located on the "Florence keys" extension.</para>
+		<para><figure id="minimize">
+			<title>Minimize key</title>
+			<mediaobject>
+				<imageobject><imagedata fileref="figures/minimize.png" format="PNG"/></imageobject>
+				<textobject><phrase>Minimize key.</phrase></textobject>
+			</mediaobject>
+		</figure>The minimize key hides the keyboard. The program is still running and the keyboard can be shown again by clicking on the icon or by selecting a text entry widget when auto-hide mode is on.</para>
+		<para><figure id="configuration">
+			<title>Configuration key</title>
+			<mediaobject>
+				<imageobject><imagedata fileref="figures/configuration.png" format="PNG"/></imageobject>
+				<textobject><phrase>Configuration key.</phrase></textobject>
+			</mediaobject>
+		</figure>The configuration key opens the configuration dialog. See the configuration chapter for more information about the configuration dialog.</para>
+		<para><figure id="move">
+			<title>Move key</title>
+			<mediaobject>
+				<imageobject><imagedata fileref="figures/move.png" format="PNG"/></imageobject>
+				<textobject><phrase>Move key.</phrase></textobject>
+			</mediaobject>
+		</figure>You can move the keyboard around the screen with the move key. Press the move key, move the pointer and release the button when the keyboard is located where you want it.</para>
+		<para><figure id="bigger">
+			<title>Bigger key</title>
+			<mediaobject>
+				<imageobject><imagedata fileref="figures/bigger.png" format="PNG"/></imageobject>
+				<textobject><phrase>Bigger key.</phrase></textobject>
+			</mediaobject>
+		</figure>Press the bigger key to increase the size of the keyboard.</para>
+		<para><figure id="smaller">
+			<title>Smaller key</title>
+			<mediaobject>
+				<imageobject><imagedata fileref="figures/smaller.png" format="PNG"/></imageobject>
+				<textobject><phrase>Smaller key.</phrase></textobject>
+			</mediaobject>
+		</figure>Press the smaller key to decrease the size of the keyboard.</para>
+		<para><figure id="close">
+			<title>Close key</title>
+			<mediaobject>
+				<imageobject><imagedata fileref="figures/close.png" format="PNG"/></imageobject>
+				<textobject><phrase>Close key.</phrase></textobject>
+			</mediaobject>
+		</figure>Press the close key to terminate the program. The close key is accessible when the alt modifier key is pressed, at the location of the minimize key.</para>
+		<para><figure id="switch">
+			<title>Switch key</title>
+			<mediaobject>
+				<imageobject><imagedata fileref="figures/switch.png" format="PNG"/></imageobject>
+				<textobject><phrase>Switch key.</phrase></textobject>
+			</mediaobject>
+	</figure>The switch key is accessible when the alt modifier key is pressed, at the location of the configuration key. The label of the key shows the current language of the keyboard. Press it to switch to the next laguage. Pressing it several times cycles through the available language layouts. On GNOME/MATE, the available language layouts can be configured with the <command>gnome-keyboard-properties</command> program (in the layout tab). If only one language is configured, pressing this key has no effect, it just shows the language layout currently configured.</para>
+	</sect2>
+	<sect2 id="modifiers">
+		<title>Modifier keys</title>
+		<para>Some keys have a modifier attribute, just like on a real hardware keyboard. When they are pressed, the effect of other non-modifier keys is changed. The Shift and Caps_lock keys are instances of such keys. There are two types of modifier keys: the locker and non-locker modifier keys. The locker keys are activated when pressed and deactivated when pressed again. Non-locker modifier keys must be pressed at the same time as the non-modifier keys in order to change their effect.</para>
+		<para>When activated, the locker keys turn red (the color can be changed in the settings dialog) and the symbol displayed on all non-modifier keys is changed accordingly. If a non-modifier key is pressed while a locker key is active, its effect will be modified according to it.</para>
+		<para>When using a mouse, it is not possible to press 2 keys at the same time. As a solution to this problem, Florence latches non-locker modifiers when pressed. When a modifier is latched, it turns green (that color can be changed in the settings dialog). It will remain latched until another non-modifier key is pressed. If a latched key is pressed again, it turns red and becomes locked. A locked modifier will remain locked until it is pressed again to become released.</para>
+	</sect2>
+	<sect2 id="config">
+		<title>Configuration</title>
+		<para>The configuration dialog is accessible via the system tray and floating icon (right click on it and select <guimenuitem>Preferences</guimenuitem>) or via the command line with the -c or --config switch: <command>florence --config</command> or via the configuration button on the keyboard if present. Hacking configuration is possible via dconf (see the hacking section)</para>
+		<para>Some selected options are not applied until you click the 'Apply' button. Some other options are taken into account immediately but can be cancelled with the 'Cancel' button while they have not been applied.</para>
+		<para>The settings options have been divided into 4 groups in order to ease understanding and searching for them.</para>
+		<sect3><title>Style configuration</title>
+		<figure id="style">
+			<title>Style preferences dialog</title>
+			<screenshot>
+				<mediaobject>
+					<imageobject><imagedata fileref="figures/style.png" format="PNG"/></imageobject>
+					<textobject><phrase>Shows the style preferences dialog.</phrase></textobject>
+				</mediaobject>
+			</screenshot>
+		</figure>
+		<para>The following style options are configurable:</para>
+		<orderedlist>
+			<listitem><para>Style: select your style by clicking on the style icon.</para></listitem>
+			<listitem><para>Default keys colour: set the background colour of normal keys.</para></listitem>
+			<listitem><para>Latched keys colour: set the background colour of latched keys.</para></listitem>
+			<listitem><para>Activated keys colour: set the background colour of the keys that are pressed or locked.</para></listitem>
+			<listitem><para>Focused key colour: set the background colour of the key that is under the pointer.</para></listitem>
+			<listitem><para>Symbol colour: set the colour of the symbol or text printed on keys.</para></listitem>
+			<listitem><para>Outline colour: set the colour surronding the key symbols. This color is used to improve visibility of the symbols. It should contrast with the symbol color.</para></listitem>
+			<listitem><para>Focus zoom: set the scaling factor of the focused key. Useful for visualy impaired people.</para></listitem>
+			<listitem><para>Enable sound: when this box is checked, the keyboard generates sound feedback when a key is hovered, pressed or released.</para></listitem>
+			<listitem><para>Use system font: when this box is checked, the labels on the keys use the default system font. When this box is unchecked, the font selected below is used instead.</para></listitem>
+			<listitem><para>Keyboard font: With this parameter you can select the font used to draw key labels and its size.</para></listitem>
+		</orderedlist>
+		</sect3><sect3><title>Window configuration</title>
+		<figure id="window">
+			<title>Window preferences dialog</title>
+			<screenshot>
+				<mediaobject>
+					<imageobject><imagedata fileref="figures/window.png" format="PNG"/></imageobject>
+					<textobject><phrase>Shows the window preferences dialog.</phrase></textobject>
+				</mediaobject>
+			</screenshot>
+		</figure>
+		<orderedlist>
+			<listitem><para>Decorated: decorates the window with a title bar. Makes it easy to move the window.</para></listitem>
+			<listitem><para>Transparent: allows you to see the windows behind the keyboard between the keys and to click on them.</para></listitem>
+			<listitem><para>Resizable: allow you to set the visual scale of the keyboard with the window manager. Some window managers require the decorated option to be activated in order to resize the window.</para></listitem>
+			<listitem><para>Task bar: make Florence appear on the desktop task bar.</para></listitem>
+			<listitem><para>Always on top: tells to the window manager to always keep the keyboard on top of other windows.</para></listitem>
+			<listitem><para>System tray icon: Display an icon in the system tray to control the keyboard: you can right-click on it to display the Florence menu and left-click on it to show or hide the keybaord.</para></listitem>
+			<listitem><para>Floating icon: Like the system tray icon but not attached to the system tray. You can drag the icon around the screen to move it where you want it.</para></listitem>
+			<listitem><para>Opacity: set the window opacity in order to see the other windows through the keys. The window manager must support compositing and it must be activated for this option to work.</para></listitem>
+		</orderedlist>
+		</sect3><sect3><title>Behaviour configuration</title>
+		<figure id="behaviour">
+			<title>Behaviour preferences dialog</title>
+			<screenshot>
+				<mediaobject>
+					<imageobject><imagedata fileref="figures/behaviour.png" format="PNG"/></imageobject>
+					<textobject><phrase>Shows the behaviour preferences dialog.</phrase></textobject>
+				</mediaobject>
+			</screenshot>
+		</figure>
+		<orderedlist>
+			<listitem><para>Input method: select the input method. Some input methods may have additional configuration options.</para></listitem>
+			<listitem><para>Auto hide: switch auto-hide mode on and off.</para></listitem>
+			<listitem><para>Move to near selected widget: this option is only available when auto-hide mode is activated. When activated, the keyboard will be moved to near the last selected editable widget every time you select a new one in order to minimize pointer distance from the keyboard.</para></listitem>
+			<listitem><para>Intermediate icon: In auto-hide mode, don't show the keyboard directly on editable widgets, but make an intermediate icon appear instead. Click on the intermediate icon to show the actual keyboard. This option makes Florence less intrusive: for instance, if you want to read a document without editing, the intermediate icon takes less screen space than the keyboard.</para></listitem>
+		</orderedlist>
+		</sect3><sect3><title>Layout configuration</title>
+		<figure id="layout">
+			<title>Layout preferences dialog</title>
+			<screenshot>
+				<mediaobject>
+					<imageobject><imagedata fileref="figures/layout.png" format="PNG"/></imageobject>
+					<textobject><phrase>Shows the layout preferences dialog.</phrase></textobject>
+				</mediaobject>
+			</screenshot>
+		</figure>
+		<para>The first combo box allows you to choose your keyboard layout. The extensions are relative to the layout. They can be activated or deactivated independently. For the "Standard layout" layout, there are 4 extensions:</para>
+		<orderedlist>
+			<listitem><para>Navigation keys: activate/deactivate the arrows keypad.</para></listitem>
+			<listitem><para>Numeric keys: activate/deactivate the numpad extension.</para></listitem>
+			<listitem><para>Function keys: activate/deactivate the function keys extensions.</para></listitem>
+			<listitem><para>Action keys: activate/deactivate the action keys extensions.</para></listitem>
+		</orderedlist>
+		</sect3>
+	</sect2>
+	<sect2>
+		<title>Command line options</title>
+		<synopsis>florence [OPTION] ... [COMMAND] [ARG]</synopsis>
+		<para>The <command>florence</command> command accepts the following options:</para>
+		<orderedlist>
+			<listitem><para>-h (--help): print help message and exit.</para></listitem>
+			<listitem><para>-V (--version): print Florence version and exit.</para></listitem>
+			<listitem><para>-c (--config): open configuration dialog.</para></listitem>
+			<listitem><para>-d (--debug): launch Florence in verbose mode.</para></listitem>
+			<listitem><para>-f (--focus) [window]: with this option, any florence input will go to the selected window. The window argument is the name of the window (the one that most window managers put in the title bar). if the window argument is not provided, florence will select the last focused window. This option is useful for window managers that don't support the 'not focusable' hint and focus the keyboard window instead of the output one. It can also be useful if you want to input text to a window that is not focused. This option must be used for the keyboard to work in GDM.</para></listitem>
+			<listitem><para>-u (--use-config) file: use the configuration file provided instead of dconf. The configuration file is a key-value pair file with sections. An example of configuration file is provided at /usr/share/florence/florence.conf (the path may be changed with the --prefix configure option).</para></listitem>
+		</orderedlist>
+		<para>The following commands are available to control the keyboard from a script:</para>
+		<orderedlist>
+			<listitem><para>show : show the keyboard.</para></listitem>
+			<listitem><para>hide : hide the keyboard.</para></listitem>
+			<listitem><para>move x,y : move the keyboard at x,y position on the screen.</para></listitem>
+		</orderedlist>
+	</sect2>
+</sect1>
+<sect1 id="how-to">
+	<title>How to</title>
+	<para>This section provides guides to achieve some common tasks.</para>
+	<sect2 id="auto-hide">
+		<title>Activating auto-hide mode</title>
+		<para>For auto-hide mode to work, you need to start the at-spi registry daemon at session startup. Usually, the daemon executable us located at <filename class='directory'>/usr/libexec</filename>. Start at-spi registry daemon (at session startup):</para>
+		<screen>
+<prompt>$</prompt> <userinput>/usr/libexec/at-spi-registryd &amp;</userinput>
+		</screen>
+		<para>Some distros may put the at-spi-registryd command elsewhere. Use the find command to find out where your distro put at-spi-registryd:</para>
+		<screen>
+<prompt>$</prompt> <userinput>find /usr -name at-spi-registryd</userinput>
+		</screen>
+		<para>When the at-spi registry daemon is started, you need to tell applications to use it.</para>
+		<para>For gtk3 applications, you can set on the dconf property org.gnome.desktop.interface.toolkit-accessibility with <command>dconf-editor</command> or you can set the environment variable GTK_MODULES to gail:atk-bridge in /etc/environment, /etc/profile.d or wherever your distro will interpret it at startup.</para>
+		<screen>
+<prompt>$</prompt> <userinput>export GTK_MODULES=gail:atk-bridge</userinput>
+		</screen>
+		<para>For java applications, you need to install the java access bridge. On Debian, you can do that with this command:</para>
+		<screen>
+<prompt>$</prompt> <userinput>sudo apt-get install libaccess-bridge-java</userinput>
+		</screen>
+		<para>Other distributions should have a similar package available. Please check with your distribution support.</para>
+		<para>For QT4 applications, you need to install the <ulink url="https://projects.kde.org/projects/playground/accessibility/qtatspi">qt-at-spi</ulink> package. On debian, use this command:</para>
+		<screen>
+<prompt>$</prompt> <userinput>sudo apt-get install qt-at-spi</userinput>
+		</screen>
+		<para>QT5 applications should work out of the box as the at-spi bridge has been merged into QtBase.</para>
+		<para>For other toolkits, please check the available documentation and support.</para>
+		<para><ulink url="http://mate-desktop.org/">MATE</ulink> starts the daemon automatically if it is configured with the <command>mate-at-property</command> dialog.</para>
+		<para>Other desktop environments may setup at-spi automatically for you. Check your desktop documentation for more information.</para>
+		<para>When at-spi is properly configured in your desktop environment, you can tell Florence to use the auto-hide mode.</para>
+		<screen>
+<prompt>$</prompt> <userinput>florence --config</userinput>
+		</screen>
+		<para>Note that QT3 applications don't support at-spi. Therefore you should not activate auto-hide mode on KDE3.</para>
+	</sect2>
+	<sect2 id="login-gdm2">
+		<title>Using Florence at login with GDM2</title>
+		<para>Using florence at GDM 2 is possible with gdmlogin. gdmgreeter has some issues with accessibility.</para>
+		<para>Configuring GDM to launch florence at login time involves editing 2 files in /etc/X11/gdm (requires root privileges): custom.conf and modules/AccessKeyMouseEvents.</para>
+		<para>In /etc/X11/gdm/custom.conf, add the following lines in the [daemon] section (if they are not already present):</para>
+		<programlisting>
+Greeter=/usr/lib/gdmlogin 
+GtkModulesList=gail:atk-bridge:/usr/lib/gtk-2.0/modules/libkeymouselistener:/usr/lib/gtk-2.0/modules/libdwellmouselistener
+		</programlisting>
+		<para>In /etc/X11/gdm/modules/AccessKeyMouseEvents, add the following lines:</para>
+		<programlisting>
+# Start florence virtual keyboard by pressing any mouse button for 2 seconds
+&lt;Mouse1&gt; 1 2000 10000 /usr/bin/florence --focus --no-gnome --use-config /usr/share/florence/florence.conf
+&lt;Mouse2&gt; 1 2000 10000 /usr/bin/florence --focus --no-gnome --use-config /usr/share/florence/florence.conf
+&lt;Mouse3&gt; 1 2000 10000 /usr/bin/florence --focus --no-gnome --use-config /usr/share/florence/florence.conf
+		</programlisting>
+		<para>You should delete any other line starting with &lt;mouse1&gt;, &lt;mouse2&gt; or &lt;mouse3&gt; in order to prevent any other keyboard from starting instead of florence (like gok).</para>
+		<para>When you have edited those two files, you should be able to start florence at next boot at gdm login. Press any mouse button for more than 2 seconds at the login window to do so.</para>
+		<para>You can modify the keyboard settings for GDM as root with this command:</para>
+		<screen>
+<prompt>#</prompt> <userinput>florence -c --use-config /usr/share/florence/florence.conf</userinput>
+		</screen>
+	</sect2>
+	<sect2 id="login-gdm3">
+		<title>Using Florence at login with GDM3</title>
+		<para>With GDM3, it is very simple to use Florence at login screen. On Debian, you can use this command:</para>
+		<screen>
+<prompt>#</prompt> <userinput>cp /usr/share/applications/florence.desktop /usr/share/gdm/autostart/LoginWindow/</userinput>
+		</screen>
+		<para>This should work on other distributions as well, although the pathes may be slightly different.</para>
+	</sect2>
+</sect1>
+<sect1 id="faq">
+	<title>FAQ (Frequently Asked Questions)</title>
+	<qandaset defaultlabel='qanda'>
+		<qandaentry>
+			<question>
+				<para>Does Florence support international keyboard layouts with non-European characters (such as Arab, Chinese, Punjab, etc...)</para>
+			</question>
+			<answer>
+				<para>Yes. Florence does support all the keyboard layouts supported by X. In order to use a different keyboard layout, you can use the setxkbmap command. For instance, to use an Arabic keyboard, use the following command:</para>
+		<screen>
+<prompt>$</prompt> <userinput>setxkbmap ar</userinput>
+		</screen>
+				<para>This works for any language supported by your X server.</para>
+				<para>Some desktop environments also provide a dialog to change the keyboard layout, like <ulink url="http://mate-desktop.org/">MATE</ulink>'s <command>mate-keyboard-properties</command>.</para>
+				<para>You can configure several language layouts in <command>mate-keyboard-properties</command>. There are several applets that allow you to easily change layout. You can also change layout in Florence: press Alt and the config key in the "action keys" extension. This will switch to the next language configured in mate-keyboard-properties.</para>	
+			</answer>
+		</qandaentry>
+		<qandaentry>
+			<question>
+				<para>My layout is weird. Is there a way to change it?</para>
+			</question>
+			<answer>
+				<para>Yes. One can change the layout with the settings dialog (layout tab). You can even make your own layout (see the <link linkend="hacking">hacking section</link> of this documentation).</para>
+			</answer>
+		</qandaentry>
+	</qandaset>
+</sect1>
+<sect1 id="hacking">
+	<title>Hacking</title>
+	<para>Some extra configuration options are available in dconf (under apps/florence). You can modify configuration parameters from <command>dconf-editor</command>. Each configuration element has a detailed description available.</para>
+	<sect2>
+		<title>Create your own layout</title>
+		<para>It is possible to create your own keyboard layout if those available by default are not suitable for your needs.</para>
+		<para>An editor is available in the git repository of Florence, although it is not suitable for release yet. It is not very stable and not documented yet but you can still try it. Fetch it with this command:</para>
+		<screen>
+<prompt>$</prompt> <userinput>git clone git://git.code.sf.net/p/florence/code/editor florence-editor</userinput>
+		</screen>
+		<para>Then you can launch the editor with this command:</para>
+		<screen>
+<prompt>$</prompt> <userinput>python florence-editor/editor.py</userinput>
+		</screen>
+	</sect2>
+</sect1>
+<sect1 id="alternatives">
+	<title>Alternatives</title>
+	<para>There are other alternative virtual keyboard for X that may fit your needs better than Florence. Here is a list of the main keyboard alternatives.</para>
+	<orderedlist>
+		<listitem><para><ulink url="http://www.gok.ca/gok">GOK</ulink> is the default GNOME onscreen keyboard. It provides more features than Florence for disabled people. It can be used with special devices like switches and joysticks. GOK provides complete access to the desktop. It can be used to move and resize windows and to use any widget. It is application aware and provides a predictive dictionary that make it an effcient keyboard. It is more focussed on accessibility than on aestetics. The high number of features makes it more complex. Florence is arguably prettier and easier to use for people who can easily use a pointing device. GOK is the only option for disabled people who can't use a pointing device.</para></listitem>
+		<listitem><para><ulink url="http://homepage3.nifty.com/tsato/xvkbd">XVKBD</ulink> is a simple and very mature virtual keyboard. It does not depend on GNOME. Like GOK, it provides word completion. Like Florence, it has an auto-click feature but it lacks an auto-hide mode and does not integrate with GNOME as much as Florence. This is the perfect keyboard for simple window managers. Florence is arguably prettier and better integrated in GNOME.</para></listitem>
+		<listitem><para><ulink url="https://launchpad.net/onboard">Onboard</ulink> is the default Ubuntu keyboard. It runs with python, which is common in modern linux distributions. It focuses on simplicity rather than features. It is pretty and easy to use. It is less customizable than Florence and does not provide an auto-hide feature. Perfect for casual usage on Ubuntu.</para></listitem>
+	</orderedlist>
+	<table>
+		<title>Keyboards features</title>
+		<tgroup cols="6">
+			<colspec colname="keyboard"/>
+			<colspec colname="transparency"/>
+			<colspec colname="auto hide"/>
+			<colspec colname="auto click"/>
+			<colspec colname="scanning"/>
+			<colspec colname="word completion"/>
+			<thead>
+				<row>
+					<entry>keyboard</entry>
+					<entry>transparency</entry>
+					<entry>auto hide</entry>
+					<entry>auto click</entry>
+					<entry>scanning</entry>
+					<entry>word completion</entry>
+				</row>
+			</thead>
+			<tbody>
+				<row>
+					<entry>Florence</entry>
+					<entry>Yes</entry>
+					<entry>Yes</entry>
+					<entry>Yes</entry>
+					<entry>No</entry>
+					<entry>No</entry>
+				</row>
+				<row>
+					<entry>GOK</entry>
+					<entry>No</entry>
+					<entry>Yes</entry>
+					<entry>Yes</entry>
+					<entry>Yes</entry>
+					<entry>Yes</entry>
+				</row>
+				<row>
+					<entry>XVKBD</entry>
+					<entry>No</entry>
+					<entry>No</entry>
+					<entry>Yes</entry>
+					<entry>No</entry>
+					<entry>Yes</entry>
+				</row>
+				<row>
+					<entry>Onboard</entry>
+					<entry>No</entry>
+					<entry>No</entry>
+					<entry>Yes</entry>
+					<entry>No</entry>
+					<entry>No</entry>
+				</row>
+			</tbody>
+		</tgroup>
+	</table>
+	<para>There are other non-keyboard alternatives that can be used to input text.</para>
+	<orderedlist>
+		<listitem>
+			<para><ulink url="http://www.inference.phy.cam.ac.uk/dasher">Dasher</ulink> provides a predictive gesture based method to input text. This is a very efficient and natural input method. It can be used to input text only with eye movements when combined with <ulink url="http://www.inference.phy.cam.ac.uk/opengazer">opengazer</ulink></para>
+		</listitem>
+		<listitem>
+			<para><ulink url="http://risujin.org/cellwriter/">CellWriter</ulink> is a hand writing recognition tool. It is a good text input method for tablets. CellWriter also provides a virtual keyboard.</para>
+		</listitem>
+	</orderedlist>
+</sect1>
+<sect1 id="gethelp">
+        <title>Getting help</title>
+        <para>You can get help on the <ulink url="https://sourceforge.net/forum/forum.php?forum_id=784280">forum</ulink>, or you can ask for help by email at f.agrech@gmail.com</para>
+</sect1>
+<sect1 id="help">
+	<title>Contribute</title>
+	<para>If you want to help the Florence project, please send an email to f.agrech@gmail.com</para>
+</sect1>
+&gfdl;
+</article>
+

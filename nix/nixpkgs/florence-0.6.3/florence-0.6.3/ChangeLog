@@ -1,0 +1,241 @@
+2008-02-02 François Agrech <f.agrech@gmail.com>
+	* ChangeLog start
+	* Version 0.0.1
+
+2008-02-19 François Agrech <f.agrech@gmail.com>
+	* Version 0.0.2
+	* Fix shape when window size is not multiple of 8 (because of odd zoom parameter)
+	* Add font scaling according to window size
+
+2008-02-21 François Agrech <f.agrech@gmail.com>
+	* Version 0.0.3
+	* Add a desktop entry with a nice svg icon
+	* Add a systray icon (Requires GTK 2.10)
+
+2008-02-21 François Agrech <f.agrech@gmail.com>
+	* Version 0.0.4
+	* New configuration GUI (requires libglade)
+	* Move configuration to GConf
+	* Note: configuration doesn't work yet but the infrastructure is in place
+
+2008-02-29 François Agrech <f.agrech@gmail.com>
+	* Version 0.0.5
+	* Configuration works
+	* There is a bug to investigate with resizing (makes Florence crash)
+
+2008-03-03 François Agrech <f.agrech@gmail.com>
+	* Version 0.0.6
+	* fixed issue with resizing.
+
+2008-03-06 François Agrech <f.agrech@gmail.com>
+	* Version 0.1.0
+	* polish
+
+2008-03-13 François Agrech <f.agrech@gmail.com>
+	* Version 0.1.1
+	* Internal change: add a class parameter for keys.
+	* No more layout key file but xml/xsd instead. (Makes florence dependant on libxml).
+	* Add info-bubbles on preferences window.
+
+2008-03-19 François Agrech <f.agrech@gmail.com>
+	* Version 0.1.2
+	* Add extensions infrasctructure
+	* Add arrows keyboard extension
+
+2008-03-25 François Agrech <f.agrech@gmail.com>
+	* Version 0.1.3
+	* Add config command line parameter
+	* Add arrows parameter in configuration GUI
+	* Add non-GNOME informations in README file
+	* Add distro-specific informations in README file
+
+2008-04-16 François Agrech <f.agrech@gmail.com>
+	* Version 0.2.0
+	* New style framework (pseudo-svg keys and symbols)
+	* New Numpad expension
+
+2008-04-30 François Agrech <f.agrech@gmail.com>
+	* Version 0.2.1
+	* New Function keys extension
+	* Default to no auto-click as it seems most users don't use it.
+	* Initalize the keyboard with the state of the real keyboard (lock keys).
+	* Get the modifier keys from XKB instead of hard coding them.
+	* Hack for the Alt key so it doesn't move the window when it is activated.
+	* Code commenting.
+
+2008-05-28 François Agrech <f.agrech@gmail.com>
+	* Version 0.2.2
+	* Change the icon
+	* FLO_DEBUG environment variable replaced with the -d option
+	* Added help menu item and documentation (--with-docs configure option)
+
+2008-07-28 François Agrech <f.agrech@gmail.com>
+	* Version 0.2.3
+	* Change hackish gconf schema installation procedure
+	* Use GTK_STOCK_CANCEL instead of GTK_STOCK_DISCARD when GTK version is < 2.12
+	* Fix compilation warnings
+
+2008-09-10 François Agrech <f.agrech@gmail.com>
+	* Version 0.3.0
+	* layout file now validated with relax-ng instead of xml schema (to work better with svg)
+	* move libgnomecanvas and artlib to cairo and librsvg
+	* complete redesign of the drawing system for startup performance: remove some bloat and use less memory
+
+2008-12-08 François Agrech <f.agrech@gmail.com>
+	* Version 0.3.1
+	* Add an xsl for converting florence layout file to SVG
+	* Add style gconf parameter for theming
+	* Add GUI for configuring style
+	* Preferences GUI now listens to gconf events
+	* Add 2 new styles
+
+2009-01-24 François Agrech <f.agrech@gmail.com>
+	* Version 0.3.2
+	* Bug fix: closing the config dialog several times now works
+	* Make the keyboard resizable from the window manager
+	* New gconf options: task_bar, resizable, always_on_top
+	* Rename some options
+	* Change the settings dialog according to gconf changes
+
+2009-02-16 François Agrech <f.agrech@gmail.com>
+	* Version 0.3.3
+	* I18n
+	* L10n en français
+	* Add icon to main window and preferences dialog
+
+2009-03-16 François Agrech <f.agrech@gmail.com>
+	* Version 0.4.0
+	* Rebrand super key with florence smile
+	* Change xml parsing method from sequential reader to DOM
+	* Get rid of hitmap
+	* Add window opacity configuration parameter
+	* Implement tabs in settings dialog and add relevant parameters
+	* Add move_to_widget settings option
+	* Add intermediate icon option
+	* Many bug fixes (mainly concerning auto-hide)
+
+2009-04-03 François Agrech <f.agrech@gmail.com>
+	* Version 0.4.1
+	* Add a startup notification message
+	* Apply style and window opacity immediately
+	* Fix minor memory leak
+	* Set static gravity for window
+	* Listen to keyboard device events to update the status
+	* i18n and l10n in french of key labels
+
+2009-05-20 François Agrech <f.agrech@gmail.com>
+	* Version 0.4.2
+	* Make xkb optional
+	* Make at-spi optional
+	* Add a new keyboard layout (compact)
+	* Many bug fixes
+
+2009-07-28 François Agrech <f.agrech@gmail.com>
+	* Version 0.4.3
+	* Implement action keys
+	* Bug fixes
+
+2009-09-07 François Agrech <f.agrech@gmail.com>
+	* Version 0.4.4
+	* Remove dependancy on libgnome (obsolete) ; add gnome-doc-utils instead.
+	* Make intermediate icon transparent.
+	* Remove buggy hacks for XRECORD and add warning for the new Xorg.
+	* Add --without-xrecord configure option
+	* Fix high CPU workload problem.
+	* Listen to gdk keys-changed event.
+
+2009-11-03 François Agrech <f.agrech@gmail.com>
+	* Version 0.4.5
+	* Add hard coded default settings
+	* Add the --no-gnome runtime option
+	* add settings-window source file for better readability
+	* add the --use-config option
+	* restart the auto-click timer after timeout trigger
+	* add the window/keep_on_top parameter
+	* add the --focus option
+	* add the focus_zoom parameter
+	* bug fixes
+
+2010-01-26 François Agrech <f.agrech@gmail.com>
+	* Version 0.4.6
+	* fix layouts
+	* redesign status with a FSM table
+	* add a list of known bugs in the documentation
+	* Fix zoom key issue (Florence failed to refresh)
+	* Remove unecessary dependancy on gnome-doc-utils with --without-docs
+	* Change icon
+	* fix crash on fedora 12
+
+2010-04-15 François Agrech <f.agrech@gmail.com>
+	* Version 0.4.7
+	* The window no longer covers widgets when decorated
+	* Some memory leaks fixed
+	* Add symbol outline for better visibility
+	* Close button hides the keyboard
+	* It is not possible to switch xkb group from the keyboard
+	* make without-xrecord the default
+
+2010-11-28 François Agrech <f.agrech@gmail.com>
+	* Version 0.5.0
+	* A lot of bug fixes.
+	* New ramble input method for fast input.
+	* GNOME Panel applet
+	* Under the hood design changes: redesign input handling, add layout triggers,
+		first implementation of the future layout editor, new layout extension
+		placement: over.
+
+2011-09-25 François Agrech <f.agrech@gmail.com>
+	* Version 0.5.1
+	* A lot of bug fixes.
+	* New hide_on_start configuration parameter.
+	* New keep_ratio configuration parameter.
+	* New icon.
+	* AT-SPI2 (over dbus) support.
+	* Remove resize grip on latest Gtk implementations.
+	* Add Russian translation
+
+2012-02-08 François Agrech <f.agrech@gmail.com>
+	* Version 0.5.2
+	* A lot of bug fixes.
+	* Ramble mode improvements.
+	* Add libpanelapplet-4 support.
+	* Add italian partial translation.
+	* Fix xrecord for hardware keyboard feedback.
+	* Enable xrecord by default.
+	* New trace level: hidebug.
+	* Modifier(Alt/Ctrl/Shift...)+click now works.
+	* Added touch input method.
+	* Added man pages
+
+2012-03-29 François Agrech <f.agrech@gmail.com>
+	* Version 0.5.3
+	* A lot of bug fixes.
+	* Add dbus interface to control the keyboard.
+	* Add sound feedback.
+	* Make keyboard police configurable.
+
+2012-10-06 François Agrech <f.agrech@gmail.com>
+	* Version 0.6.0
+	* A lot of bug fixes.
+	* Deprecate panelapplet.
+	* Move to gtk3 - deprecate gtk2.
+	* Migrate from gconf to gsettings.
+	* Editor improvements.
+
+2014-05-12 François Agrech <f.agrech@gmail.com>
+	* Version 0.6.1
+	* A lot of bug fixes.
+	* Add commands to the dbus interface.
+	* Add command line options to control the keyboard.
+	* Move at-spi2 handling to a new process in order to avoid deadlocks.
+	* Implement a floating icon for desktops with no systray.
+
+2014-05-16 François Agrech <f.agrech@gmail.com>
+	* Version 0.6.2
+	* Fix gradients.
+	* remove deprecated GTK3 functions.
+
+2014-11-02 François Agrech <f.agrech@gmail.com>
+	* Version 0.6.3
+	* Many bug fixes (patches provided by Jeremy Bobbio, Jonathan David
+	and Benedikt Spranger)

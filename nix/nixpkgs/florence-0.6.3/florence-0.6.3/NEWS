@@ -1,0 +1,8 @@
+Bug fix release
+
+Changelog:
+
+2014-11-02 François Agrech <f.agrech@gmail.com>
+	* Version 0.6.3
+	* Many bug fixes (patches provided by Jeremy Bobbio, Jonathan David
+	and Benedikt Spranger)
