@@ -12,9 +12,7 @@
     ];
 
   # The NixOS release to be compatible with for stateful data such as databases.
-  system.stateVersion = "16.09";
-
-  nixpkgs.config.allowUnfree = true;
+  system.stateVersion = "17.03";
 
   networking = {
     hostName = "myNixHost";
@@ -32,31 +30,35 @@
   #time.timeZone = "Europe/Paris";
   time.timeZone = "America/Sao_Paulo";
 
-  # Enable the X11 windowing system.
-  services.xserver.enable = true;
-  services.xserver.layout = "fr";
-  services.xserver.xkbOptions = "eurosign:e";
-
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
+
+  # Enabling chromecast port :
+  /*networking.firewall.allowedUDPPortRanges = [{from = 32768; to = 61000;}];*/
+  /*networking.firewall.allowedTCPPorts = [8765];*/
+
+  # Enable the X11 windowing system.
+  services.xserver = {
+    enable = true;
+    layout = "fr";
+    xkbOptions = "eurosign:e";
+  };
 
   # DisplayManager :
   services.xserver.displayManager = {
     job.logsXsession = true; # Whether the display manager redirects the output of the session script to ~/.xsession-errors.
     sddm.enable = true;
-    #sddm.extraConfig=  ''
-    #                    [Autologin]
-    #                    User=gjeusel
-    #                    Session=plasma.desktop
-    #                    '';
+    sddm.extraConfig = ''
+    '';
   };
 
   # Enable the plasma5 Desktop Environment.
   services.xserver.desktopManager = {
-    /*enlightenment.enable = true;*/
+    default = "plasma5" ;
     plasma5.enable = true;
     plasma5.enableQt4Support = false;
-    default = "plasma5" ;
+    xfce.enable = true;
+    /*plasma5.extraPackages = [ pkgs.plasma5.plasma-nm ]; # managing connexions applet*/
   };
 
   # users.mutableUsers to false, then the contents of /etc/passwd and /etc/group will be congruent to your NixOS configuration
