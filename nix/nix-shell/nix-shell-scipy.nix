@@ -11,41 +11,36 @@ stdenv.mkDerivation {
    '';
 
   buildInputs = [
-    /*python27Packages.requests # for download on web purpose*/
-    /*python27Packages.appdirs*/
-    /*python27Packages.chardet*/
-    /*python27Packages.babelfish*/
-    /*python27Packages.click*/
+    # Personnal vim
+    (vim_configurable.override {lua=lua; python=python;})
+    powerline-fonts
+    xclip # to enable "*y to copy to the clipboard
 
+    # Python Common Tools :
     python27Packages.ipdb # Debugger library
-    /*python27Packages.readline # get tab autocompletion for ipbd*/
-    /*python27Packages.setuptools # to get readline to work*/
-
-    python27Packages.matplotlib
-    python27Packages.scipy
+    python27Packages.ipython # Ipython library
     python27Packages.pyqt4 # enable display of figures
-    python27Packages.pandas # dataframe handle
-    python27Packages.seaborn # cool color map
-    python27Packages.pyramid_jinja2
-
-    python27Packages.scikitlearn # algo for data mining
-
     python27Packages.six # for smoothing over the differences between the Python versions
 
+    # Python math common libraries :
+    python27Packages.matplotlib
+    python27Packages.scipy
+
+    # Dataframe handle :
+    python27Packages.pandas # dataframe handle
+    python27Packages.seaborn # cool color map
+    python27Packages.ipywidgets # avoid Warning on seaborn import #874
+    python27Packages.pyramid_jinja2
+
+    # Graph package :
     python27Packages.networkx # graph algo
     /*python27Packages.graph-tool*/
     graphviz
     #python27Packages.pygraphviz # graph algo
     python27Packages.pydot
 
-    scala
-    spark
-    python27Packages.nltk
-
-    /*myTexLive*/
-    /*texlive.scheme-full*/
-    /*texLiveFull*/
-    /*texlive.combined.scheme-full*/
+    # LaTeX :
+    texlive.combined.scheme-full
     lmodern # fonts used by tex
     ghostscript # necessary for pdf to png with "convert" cmd
   ];
