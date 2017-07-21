@@ -24,7 +24,9 @@ stdenv.mkDerivation {
 
     # Python math common libraries :
     python27Packages.matplotlib
+    python27Packages.plotly
     python27Packages.scipy
+    python27Packages.sympy # symbolic mathematic
 
     # Dataframe handle :
     python27Packages.pandas # dataframe handle

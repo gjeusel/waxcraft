@@ -25,6 +25,7 @@ stdenv.mkDerivation {
 
     # Python math common libraries :
     python27Packages.matplotlib
+    python27Packages.plotly
     python27Packages.scipy
     python27Packages.pillowfight # to access : from scipy.misc import imsave
 
