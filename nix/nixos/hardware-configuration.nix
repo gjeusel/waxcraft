@@ -77,9 +77,23 @@
   # Pad config
   services.xserver.synaptics.enable = true;
   services.xserver.synaptics.twoFingerScroll = true;
+  services.xserver.synaptics.horizontalScroll = true;
   services.xserver.synaptics.minSpeed = "0.7";
   services.xserver.synaptics.maxSpeed = "3";
   services.xserver.synaptics.accelFactor = "0.05";
+  /*services.xserver.synaptics.additionalOptions = ''*/
+  /*  Option "ClickFinger1" "1"*/
+  /*  Option "ClickFinger2" "0"*/
+  /*  Option "ClickFinger3" "0"*/
+  /*  Option "TapButton1" "1"*/
+  /*  Option "TapButton2" "0"*/
+  /*  Option "TapButton3" "0"*/
+  /*  Option "VertTwoFingerScroll" "0"*/
+  /*  Option "HorizTwoFingerScroll" "0"*/
+  /*  Option "GrabEventDevice" "0"*/
+  /*'';*/
+
+  /*services.xserver.libinput.enable = true;*/
 
   # Drivers :
   services.xserver.videoDrivers = ["intel" "i965"];
@@ -115,13 +129,18 @@
         enableDefaultFonts = true;
         # Enable Microsoft Core Fonts
         enableCoreFonts = true;
+        # Whether to add the fonts provided by Ghostscript
+        enableGhostscriptFonts = true;
 
         # Add more fonts
         fonts = with pkgs; [
             hack-font
             noto-fonts
             noto-fonts-emoji
+            dejavu_fonts
             ubuntu_font_family
+            corefonts # Microsoft free fonts
+            powerline-fonts
         ];
 
   };

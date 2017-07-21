@@ -13,6 +13,11 @@ environment.systemPackages = with pkgs; [
   pavucontrol    # pulseaudio cmd for sound configuration
   cups           # print to pdf (= pdfcreator)
 
+# iPhone handle :
+  libimobiledevice # iPhone handle
+  libplist
+  ifuse
+
 # Some tools for plasma5
   redshift
   redshift-plasma-applet
@@ -21,12 +26,13 @@ environment.systemPackages = with pkgs; [
   tree
   htop
   wget
-  gitAndTools.gitFull #gitk && git gui
+  gitAndTools.gitFull # gitk && git gui
   mkpasswd            # to encrypt password
   unzip
   nox                 # make easier to find nix packages
   shutter             # screen capture
-  ctags # generates an tags file of names
+  ctags               # generates an tags file of names
+  coreutils-prefixed  # basic file, shell and text manager
 
 # Standard Programming env
   gcc5
@@ -35,6 +41,7 @@ environment.systemPackages = with pkgs; [
   cmakeCurses
   paraview
   gnuplot
+  python27Packages.ipython
 
 # Personnal vim
   (vim_configurable.override {lua=lua; python=python;})
@@ -45,6 +52,10 @@ environment.systemPackages = with pkgs; [
 # ssh :
   tigervnc
 
+# vpn :
+  openvpn
+  networkmanager_openvpn
+
 # Nix :
   nix-prefetch-scripts # to get SHA or MD5 for nixpkgs files
   pypi2nix
@@ -52,6 +63,7 @@ environment.systemPackages = with pkgs; [
 # Favorite Terminal :
   xfce.terminal
   #terminator
+
 ];
 
 }

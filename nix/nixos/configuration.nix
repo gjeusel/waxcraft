@@ -27,15 +27,15 @@
   };
 
   # Set your time zone.
-  #time.timeZone = "Europe/Paris";
-  time.timeZone = "America/Sao_Paulo";
+  time.timeZone = "Europe/Paris";
+  /*time.timeZone = "America/Sao_Paulo";*/
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
 
   # Enabling chromecast port :
-  /*networking.firewall.allowedUDPPortRanges = [{from = 32768; to = 61000;}];*/
-  /*networking.firewall.allowedTCPPorts = [8765];*/
+  networking.firewall.allowedUDPPortRanges = [{from = 32768; to = 61000;}];
+  networking.firewall.allowedTCPPorts = [8765];
 
   # Enable the X11 windowing system.
   services.xserver = {
@@ -73,15 +73,22 @@
   users.extraUsers.gjeusel = {
     isNormalUser = true;
     home = "/home/gjeusel";
-    extraGroups = ["users" "networkmanager"]; # give networkmanager permission
+    extraGroups = ["users" "networkmanager" "input"]; # give networkmanager permission
     uid = 1000;
     #password = "" ;
   };
   users.extraUsers.public = {
     isNormalUser = true;
     home = "/home/public";
-    extraGroups = ["users" "networkmanager"]; # give networkmanager permission
+    extraGroups = ["users" "networkmanager" "input"]; # give networkmanager permission
     uid = 1001;
+    #password = "" ;
+  };
+  users.extraUsers.testwax = {
+    isNormalUser = true;
+    home = "/home/testwax";
+    extraGroups = ["users" "networkmanager" "input"]; # give networkmanager permission
+    uid = 1002;
     #password = "" ;
   };
 
@@ -97,6 +104,7 @@
   services.printing = {
       enable = true;
       drivers = [ pkgs.hplipWithPlugin  ];
+      gutenprint = true;
   };
 
   /*# Allowing Samba : network sharing soft*/
@@ -117,5 +125,35 @@
   /*  map to guest = bad user*/
   /*  '';*/
   /*};*/
+
+# VPN with private internet access (PIA) :
+  services.openvpn = {
+    servers.pia = {
+      autoStart = false;
+      config = ''
+        client
+        dev tun
+        proto udp
+        remote france.privateinternetaccess.com 1198
+        resolv-retry infinite
+        nobind
+        persist-key
+        persist-tun
+        cipher aes-128-cbc
+        auth sha1
+        tls-client
+        remote-cert-tls server
+        auth-user-pass
+        comp-lzo
+        verb 1
+        reneg-sec 0
+        disable-occ
+        crl-verify /home/gjeusel/.pia/crl.pem
+        ca /home/gjeusel/.pia/ca.crt
+        auth-user-pass /home/gjeusel/.pia/auth.txt
+      '';
+    };
+  };
+
 
 }
