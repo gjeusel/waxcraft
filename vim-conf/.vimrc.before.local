@@ -22,7 +22,7 @@ let g:airline_theme = 'solarized'
 
 " see for patching terminal fonts :
 " https://powerline.readthedocs.org/en/latest/installation/linux.html#font-installation
-"let g:airline_powerline_fonts=1
+let g:airline_powerline_fonts=1
 
 "Automatically displays all buffers when there's only one tab open :
 let g:airline#extensions#tabline#enabled = 1
@@ -45,7 +45,7 @@ endif
 let g:pymode_options_max_line_length = 79
 let g:pymode_indent = 1 " pep8 indent
 let g:pymode_lint_checkers = 'pep8' " pep8 code checker
-let g:pymode_folding = 1
+let g:pymode_folding = 0
 let g:pymode_motion = 1
 let g:pymode_doc = 1
 let g:pymode_doc_bind = 'K'
@@ -54,8 +54,11 @@ let g:pymode_syntax_all = 1
 
 " Disable leader+r to run script
 let g:pymode_run = 0
-"let g:pymode_syntax_builtin_objs = 0
-"let g:pymode_syntax_builtin_funcs = 0
+
+" pymode syntax
+let g:pymode_syntax = 1
+"let g:pymode_syntax_builtin_objs = g:pymode_syntax_all
+"let g:pymode_syntax_builtin_funcs = 1
 
 " Python code checking :
 let g:pymode_lint = 1

@@ -31,14 +31,14 @@ function! ExecAndBuild()
   ""let s:command_str="python -W ignore energEff.py --descr data/ENB2012_data.xlsx"
   "let s:command_str="python -W ignore energEff.py --reg --save_fig data/ENB2012_data.xlsx"
 
-  "let s:working_directory="/home/gjeusel/projects/opt_graph/"
-  "let s:command_str="python -W ignore opt_graph.py"
+  let s:working_directory="/home/gjeusel/projects/acustica_ambiental/"
+  let s:command_str="python -W ignore %"
 
   "let s:working_directory="/home/gjeusel/projects/bigData_ELL890/"
-  "let s:command_str="spark-submit % --limit_movies 100"
+  "let s:command_str="spark-submit % --limit_movies 10 --limit_training_set 300"
 
-  let s:working_directory="/home/gjeusel/projects/redes_neurais_sem_peso/"
-  let s:command_str="python % --limit_train_set 300 --limit_test_set 100"
+  "let s:working_directory="/home/gjeusel/projects/redes_neurais_sem_peso/"
+  "let s:command_str="python % --limit_train_set 300 --limit_test_set 100"
 
   let s:exec_from_vim=":! cd ".s:working_directory." && ".s:command_str
   execute ":silent !echo ".s:command_str
@@ -124,6 +124,9 @@ endfunction
 map O1;3P :bp<cr>
 " ALT + F2 :
 map O1;3Q :bn<cr>
+
+" About jump to beginning of word :
+map <S-e> b
 
 " -> Switching tabs with Shit-Tab :
 map <S-Tab>  :tabNext<cr>
@@ -220,6 +223,12 @@ set clipboard+=unnamedplus
 
 " --> Regarding folds :
 set foldmethod=marker
+set foldtext=MyFoldText()
+function! MyFoldText()
+  let line = getline(v:foldstart)
+  let sub = substitute(line, '/\*\|\*/\|{{{\d\=', '', 'g')
+  return v:folddashes . sub
+endfunction
 set foldcolumn=2
 "setlocal foldnestmax=1
 
@@ -229,6 +238,7 @@ filetype plugin indent on
 set shiftwidth=4    " Use indents of 4 spaces
 set tabstop=4       " An indentation every 4 columns
 set softtabstop=4   " Let backspace delete indent
+set textwidth=79
 set expandtab
 
 " --> Special indenting for python - PEP8 norm
@@ -236,6 +246,13 @@ autocmd BufRead,BufNewFile *.py setlocal
   \ shiftwidth=4
   \ tabstop=4
   \ softtabstop=4
+  \ textwidth=79
+
+" --> Special indenting for tex files
+autocmd BufRead,BufNewFile *.tex setlocal
+  \ shiftwidth=2
+  \ tabstop=2
+  \ softtabstop=2
   \ textwidth=79
 
 " --> Filetype defaults :
