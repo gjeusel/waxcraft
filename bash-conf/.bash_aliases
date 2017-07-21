@@ -13,7 +13,27 @@ alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
 
 # disk usage du alias
-alias du='du --max-depth=1 -h -a'
+function _du() {
+  du --max-depth=1 -k $1 | sort -n | awk '
+        function human(x) {
+            s="kMGTEPYZ";
+            while (x>=1000 && length(s)>1)
+                {x=x/1024; s=substr(s,2)}
+                y = sprintf("%.1f", x)
+            return y " " substr(s,1,1) "B"
+        }
+        {gsub(/^[0-9]+/, human($1)); print}'
+}
+alias du=_du
+
+# Latex :
+latex_overview(){ $HOME/tools/latexmk/latexmk.pl -pdf -pvc -interaction=nonstopmode $1; }
+
+# openVPN with Private Internet Access :
+vpn_up(){ sudo openvpn --config /home/gjeusel/.pia/config/France.ovpn \
+--ca /home/gjeusel/.pia/config/ca.rsa.2048.crt \
+--crl-verify /home/gjeusel/.pia/config/crl.rsa.2048.pem \
+--auth-user-pass /home/gjeusel/.pia/auth.txt ;}
 
 # Wine :
 alias hearthstone="wine /home/gjeusel/.wine/drive_c/Program\ Files/Battle.net/Battle.net.exe "

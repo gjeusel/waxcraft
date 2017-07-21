@@ -5,6 +5,8 @@ if [ -z "$PS1"  ]; then return; fi
 #export waxCraft_PATH="$(cd "$(dirname "$(dirname $(readlink "${HOME}/.bash_aliases"))")" && pwd)"
 export waxCraft_PATH="$(cd "$(dirname "$(dirname "$BASH_SOURCE" )")" && pwd)"
 
+export cudaExtra="/nix/store/a2qijx5cgdwhm1nqjz1wj7i0x64ba1fj-cudatoolkit-8.0.61/extras/"
+
 # Deactivate ksshaskpass popup
 unset SSH_ASKPASS
 
