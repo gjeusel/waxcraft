@@ -1,18 +1,15 @@
-"######################################################################
-"#                                                ___
-"#                                              /'___\ __
-"#  ___ ___   __  __        ___    ___     ___ /\ \__//\_\     __
-"#/' __` __`\/\ \/\ \      /'___\ / __`\ /' _ `\ \ ,__\/\ \  /'_ `\
-"#/\ \/\ \/\ \ \ \_\ \    /\ \__//\ \L\ \/\ \/\ \ \ \_/\ \ \/\ \L\ \
-"#\ \_\ \_\ \_\/`____ \   \ \____\ \____/\ \_\ \_\ \_\  \ \_\ \____ \
-"# \/_/\/_/\/_/`/___/> \   \/____/\/___/  \/_/\/_/\/_/   \/_/\/___L\ \
-"#                /\___/                                       /\____/
-"#                \/__/                                        \_/__/
-"#
-"######################################################################
+"                                                   ___
+"                                                 /'___\ __
+"     ___ ___   __  __        ___    ___     ___ /\ \__//\_\     __
+"   /' __` __`\/\ \/\ \      /'___\ / __`\ /' _ `\ \ ,__\/\ \  /'_ `\
+"   /\ \/\ \/\ \ \ \_\ \    /\ \__//\ \L\ \/\ \/\ \ \ \_/\ \ \/\ \L\ \
+"   \ \_\ \_\ \_\/`____ \   \ \____\ \____/\ \_\ \_\ \_\  \ \_\ \____ \
+"    \/_/\/_/\/_/`/___/> \   \/____/\/___/  \/_/\/_/\/_/   \/_/\/___L\ \
+"                   /\___/                                       /\____/
+"                   \/__/                                        \_/__/
+"
 
-" ---------------->  Usefull Functions Mapped <----------------
-"  {{{
+"  {{{ Usefull Functions Mapped
 
 " --> Exec building and exec command :
 function! ExecAndBuild()
@@ -116,8 +113,7 @@ endfunction
 
 " }}}
 
-" ----------------> Some Mapping <----------------
-"  {{{
+"  {{{ Some Mapping
 
 " --> About buffers switch :
 " ALT + F1 :
@@ -137,14 +133,10 @@ map <F10> :cn<cr>
 map <F12> :source ${HOME}/.vimrc.local<cr>
 
 " --> About moving splits :
-" ALT + up
-map <Esc>[1;3A <C-W>k
-" ALT + down
-map <Esc>[1;3B <C-W>j
-" ALT + right
-map <Esc>[1;3C <C-W>l
-" ALT + left
-map <Esc>[1;3D <C-W>h
+map <C-h> <C-W>h
+map <C-j> <C-W>j
+map <C-k> <C-W>k
+map <C-l> <C-W>l
 
 " --> About folding open and close :
 nnoremap <Space> za
@@ -155,7 +147,9 @@ set timeoutlen=1000 ttimeoutlen=0
 " --> Folding : closing all opened foldings :
 nnoremap wm zm
 vnoremap wm zm
-"
+
+map wl zL
+
 " --> Folding : movements (next / prec) :
 nnoremap wj zj
 vnoremap wj zj
@@ -195,8 +189,7 @@ map <Esc>² :call ExecAndBuild() <cr>
 
 "}}}
 
-" ----------------> Some Global config <----------------
-"  {{{
+"  {{{ Some Global config
 
 " --> About Colors & Themes defaults :
 set t_Co=256            " use 256 colors in vim
@@ -214,9 +207,9 @@ inoremap <expr> <PageUp>   pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<PageUp>"
 
 " -->  Bind nohl : Removes highlight of your last search
 " ``<C>`` stands for ``CTRL`` and therefore ``<C-n>`` stands for ``CTRL+n``
-noremap <C-h> :nohl<CR>
-vnoremap <C-h> :nohl<CR>
-inoremap <C-h> :nohl<CR>
+noremap <C-n> :nohl<CR>
+vnoremap <C-n> :nohl<CR>
+inoremap <C-n> :nohl<CR>
 
 " --> Cleapboard access :
 set clipboard+=unnamedplus
