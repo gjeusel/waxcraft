@@ -14,10 +14,10 @@ _k_friendly_name=KDE Daemon
 
 [kded5]
 Decrease Keyboard Brightness=Keyboard Brightness Down,Keyboard Brightness Down,Diminuer la luminosité du clavier
-Decrease Screen Brightness=Monitor Brightness Down\tShift+Down,Monitor Brightness Down,Diminuer la luminosité de l'écran
-Hibernate=Hibernate,Hibernate,Hiberner
+Decrease Screen Brightness=Monitor Brightness Down\tCtrl+Down,Monitor Brightness Down,Diminuer la luminosité de l'écran
+Hibernate=Ctrl+Alt+H,Hibernate,Hiberner
 Increase Keyboard Brightness=Keyboard Brightness Up,Keyboard Brightness Up,Augmenter la luminosité du clavier
-Increase Screen Brightness=Monitor Brightness Up\tShift+Up,Monitor Brightness Up,Augmenter la luminosité de l'écran
+Increase Screen Brightness=Monitor Brightness Up\tCtrl+Up,Monitor Brightness Up,Augmenter la luminosité de l'écran
 PowerOff=Power Off,Power Off,Éteindre
 Show System Activity=Ctrl+Esc,Ctrl+Esc,Afficher l'activité du système
 Sleep=Sleep,Sleep,Suspendre
@@ -27,13 +27,17 @@ display=Display,Display,Changer d'affichage
 
 [khotkeys]
 _k_friendly_name=KDE Daemon
+{080f4739-6a41-4d9a-b1bd-1b43a3f292d3}=Ctrl+Alt+P,none,Pavucontrole
 {103e1713-d3b4-418a-b1e8-7e3f42f57d8d}=Ctrl+Alt+F,none,firefox
 {2f3aa8c2-96b5-4405-b33c-ec5e418aa843}=none,none,Copie d'écran
+{4780a381-65a4-4b38-a346-7d3519a36865}=Ctrl+Alt+I,none,Skype
+{85d57c12-1647-4b86-86de-0a41f9a3500e}=Ctrl+Alt+V,none,VirtualBox
 {b7a4a88f-98ca-44fe-8a06-6b017409e18f}=Ctrl+Alt+C,none,Kde config manager
 {bd74ca71-4fe7-4565-9aef-d1ce7242252f}=Ctrl+Alt+T,none,xfce4-terminal
 {d03619b6-9b3c-48cc-9d9c-a2aadb485550}=none,none,Rechercher
 {d4486566-c8f6-4740-9f61-ab395a104782}=Ctrl+Alt+S,none,Spotify
 {d5bf66fc-4120-4250-b191-b9d117e27218}=Ctrl+Alt+D,none,Dolphin
+{fb2561dc-9949-492d-8378-ff0f2058374d}=Ctrl+Alt+O,none,KSysGuard
 
 [kmix]
 Decrease volume  - 3D Control - Switch, Intel 82801AA-ICH=none,none,Decrease Volume
@@ -142,8 +146,8 @@ ShowDesktopGrid=Ctrl+F8,Ctrl+F8,Afficher la grille de bureaux
 Suspend Compositing=Alt+Shift+F12,Alt+Shift+F12,Désactiver la composition
 Switch One Desktop Down=none,none,Passer au bureau du dessous
 Switch One Desktop Up=none,none,Passer au bureau du dessus
-Switch One Desktop to the Left=none,none,Passer au bureau de gauche
-Switch One Desktop to the Right=none,none,Passer au bureau de droite
+Switch One Desktop to the Left=Ctrl+Alt+Left,none,Passer au bureau de gauche
+Switch One Desktop to the Right=Ctrl+Alt+Right,none,Passer au bureau de droite
 Switch Window Down=Meta+Alt+Down,Meta+Alt+Down,Basculer vers une fenêtre en-dessous
 Switch Window Left=Meta+Alt+Left,Meta+Alt+Left,Basculer vers une fenêtre à gauche
 Switch Window Right=Meta+Alt+Right,Meta+Alt+Right,Basculer vers une fenêtre à droite
