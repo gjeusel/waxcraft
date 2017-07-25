@@ -18,6 +18,8 @@ import argparse
 script_path   = os.path.abspath(sys.argv[0])
 waxCraft_path = os.path.dirname(script_path)
 home          = os.environ['HOME'] + '/'
+config_dir    = home + '.config/'
+# config_dir    = os.environ['XDG_HOME_DIR'] + '/'
 
 old_conf_dir = waxCraft_path + '/.old-conf/'
 
@@ -153,22 +155,49 @@ class kde_plasma_class:
     def __init__(self):
         print "--- Installing KDE's Plasma conf ---"
         self.nml = [
-            'kde-plasma-conf/gtk-3.0/settings.ini',
-            'kde-plasma-conf/kwinrc',
-            'kde-plasma-conf/khotkeysrc',
-            'kde-plasma-conf/QtProject.conf',
-            'kde-plasma-conf/xfce4/terminal/terminalrc',
-            'kde-plasma-conf/kwalletrc',
-            'kde-plasma-conf/plasmashellrc',
-            'kde-plasma-conf/plasma-org.kde.plasma.desktop-appletsrc',
-            'kde-plasma-conf/kdeglobals',
-            'kde-plasma-conf/kglobalshortcutsrc',
-            'kde-plasma-conf/kscreenlockerrc',
-            'kde-plasma-conf/plasmarc',
-            'kde-plasma-conf/gtk-2.0/gtkfilechooser.ini'
+            'kglobalshortcutsrc',
+            'ksmserverrc',
+            'kwinrc',
+            'khotkeysrc',
+            'kwalletrc',
+            'plasma-org.kde.plasma.desktop-appletsrc'
         ]
 
+        now = datetime.datetime.now()
+        old_conf_kde_plasma_dir = old_conf_dir + 'kde-plasma-conf-'
+        old_conf_kde_plasma_dir+= str(now.day)+'.'+str(now.month)+'.'+str(now.year)+'.'
+        old_conf_kde_plasma_dir+= str(now.hour)+'.'+str(now.minute)
+        old_conf_kde_plasma_dir+= '/'
+        print 'Making a backup of your kde plasma config files in ',\
+              old_conf_kde_plasma_dir, ' ...'
+        self.save_old_cfg(old_conf_kde_plasma_dir)
 
+        print 'Copying new config files ...'
+        for e in self.nml:
+            if os.path.exists(config_dir + e):
+                os.remove(config_dir + e)
+            sh.copyfile(plasma_cfg_dir + e, config_dir + e)
+
+        print 'Restarting Xorg and Plasma by disconnecting ...'
+        retcode = subprocess.call("loginctl terminate-user " +
+                                  str(os.environ['USER']),
+                                  shell=True)
+
+#{{{
+    def save_old_cfg(self, old_conf_kde_plasma_dir):
+        try:
+            os.makedirs(old_conf_kde_plasma_dir)
+        except OSError as exc: # Python >2.5
+            if exc.errno != errno.EEXIST:
+                raise
+
+        for e in self.nml :
+            if os.path.exists(config_dir + e):
+                sh.copyfile(config_dir + e, old_conf_kde_plasma_dir + e)
+
+#}}}
+
+#}}}
 
 def setup_argparser():
 #{{{
@@ -176,7 +205,7 @@ def setup_argparser():
     parser = argparse.ArgumentParser(description='''waxCraft config setup.''')
 
     parser.add_argument('cfg_list', nargs='+',
-                        choices=['bash', 'vim', 'nixos'],
+                        choices=['bash', 'vim', 'plasma', 'nixos'],
                         help='''cfg to install''')
 
     parser.add_argument('-v', '--verbose', dest='verbose', required=False,
@@ -203,6 +232,9 @@ def main(argv=None):
         bash_cfg = bash_cfg_class()
 
     if 'vim' in args.cfg_list :
+        vim_cfg = vim_cfg_class()
+
+    if 'plasma' in args.cfg_list :
         vim_cfg = vim_cfg_class()
 
 
