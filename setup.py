@@ -235,7 +235,7 @@ def main(argv=None):
         vim_cfg = vim_cfg_class()
 
     if 'plasma' in args.cfg_list :
-        vim_cfg = vim_cfg_class()
+        plasma_cfg = kde_plasma_class()
 
 
 if __name__ == "__main__":
