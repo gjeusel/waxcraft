@@ -148,6 +148,9 @@ vnoremap $q <esc>`>a'<esc>`<i'<esc>
 vnoremap $e <esc>`>a"<esc>`<i"<esc>
 " }}}
 
+" copy to clipboard :
+vnoremap <Leader>y "+y
+
 " Avoid vim history cmd to pop up with q:
 nnoremap q: <Nop>
 " Avoid qq recording
