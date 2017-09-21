@@ -73,21 +73,21 @@
   users.extraUsers.gjeusel = {
     isNormalUser = true;
     home = "/home/gjeusel";
-    extraGroups = ["users" "networkmanager" "input"]; # give networkmanager permission
+    extraGroups = ["users" "networkmanager" "input" "scanner"]; # give networkmanager permission
     uid = 1000;
     #password = "" ;
   };
   users.extraUsers.public = {
     isNormalUser = true;
     home = "/home/public";
-    extraGroups = ["users" "networkmanager" "input"]; # give networkmanager permission
+    extraGroups = ["users" "networkmanager" "input" "scanner"]; # give networkmanager permission
     uid = 1001;
     #password = "" ;
   };
   users.extraUsers.testwax = {
     isNormalUser = true;
     home = "/home/testwax";
-    extraGroups = ["users" "networkmanager" "input"]; # give networkmanager permission
+    extraGroups = ["users" "networkmanager" "input" "scanner"]; # give networkmanager permission
     uid = 1002;
     #password = "" ;
   };
@@ -98,7 +98,15 @@
   ''
   Defaults:gjeusel      !authenticate
   gjeusel ALL=(ALL) ALL
+  testwax ALL=(ALL) ALL
   '';
+
+  # Security:
+  security.pam.services.testwax.allowNullPassword = true;
+
+  # Enable zsh :
+  programs.zsh.enable = true;
+  programs.zsh.enableCompletion = true;
 
   # Add CUPS to print documents.
   services.printing = {
@@ -106,6 +114,10 @@
       drivers = [ pkgs.hplipWithPlugin  ];
       gutenprint = true;
   };
+
+  # Add scanner support :
+  hardware.sane.enable = true;
+  hardware.sane.extraBackends = [pkgs.hplipWithPlugin ];
 
   /*# Allowing Samba : network sharing soft*/
   /*services.samba = {*/

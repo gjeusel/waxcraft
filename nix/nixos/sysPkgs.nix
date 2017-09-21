@@ -18,6 +18,10 @@ environment.systemPackages = with pkgs; [
   libplist
   ifuse
 
+# Printer Handle :
+  simple-scan # gui for scanning
+  sane-backends # cmd line check if scanner recognized
+
 # Some tools for plasma5
   redshift
   redshift-plasma-applet
