@@ -52,7 +52,7 @@ endif
 let g:pymode_options_max_line_length = 79
 let g:pymode_indent = 1 " pep8 indent
 let g:pymode_lint_checkers = 'pep8' " pep8 code checker
-let g:pymode_folding = 0
+let g:pymode_folding = 1
 let g:pymode_motion = 1
 let g:pymode_doc = 1
 let g:pymode_doc_bind = 'K'

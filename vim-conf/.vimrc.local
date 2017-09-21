@@ -1,3 +1,4 @@
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "                                                   ___
 "                                                 /'___\ __
 "     ___ ___   __  __        ___    ___     ___ /\ \__//\_\     __
@@ -8,6 +9,12 @@
 "                   /\___/                                       /\____/
 "                   \/__/                                        \_/__/
 "
+" Sections:
+"-> Usefull Functions Mapped
+"-> Somme Mapping
+"-> Global config
+"
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 "  {{{ Usefull Functions Mapped
 
@@ -115,11 +122,39 @@ endfunction
 
 "  {{{ Some Mapping
 
-" --> About buffers switch :
+" Buffers {{{
+" --> About buffers switch
 " ALT + F1 :
 map O1;3P :bp<cr>
 " ALT + F2 :
 map O1;3Q :bn<cr>
+
+" buffer delete without closing windows :
+nmap <silent> <leader>d :bp\|bd #<CR>
+"}}}
+
+" Search and Replace {{{
+
+" <leader>r for search and replace the selected text
+vnoremap <silent> <leader>r :call VisualSelection('replace')<CR>
+" }}}
+
+" parenthesis/brackets/etc ...{{{
+vnoremap $& <esc>`>a)<esc>`<i(<esc>
+vnoremap $é <esc>`>a]<esc>`<i[<esc>
+vnoremap $" <esc>`>a}<esc>`<i{<esc>
+vnoremap $$ <esc>`>a"<esc>`<i"<esc>
+vnoremap $q <esc>`>a'<esc>`<i'<esc>
+vnoremap $e <esc>`>a"<esc>`<i"<esc>
+" }}}
+
+" copy to clipboard :
+vnoremap <Leader>y "+y
+
+" Avoid vim history cmd to pop up with q:
+nnoremap q: <Nop>
+" Avoid qq recording
+nnoremap q <Nop>
 
 " About jump to beginning of word :
 map <S-e> b
@@ -159,6 +194,8 @@ vnoremap wk zk
 " qwerty --> azerty beginning of the next word eased by this bind :
 " the <nowait> prevent a delay when typing z (for za for example)
 noremap <nowait> z w
+noremap <nowait> Z W
+
 "   z             w
 "        Last set from ~/.vimrc.local
 "noxzh            zH
@@ -168,8 +205,8 @@ noremap <nowait> z w
 
 
 " Settings for python-mode
-map <Leader>b oimport ipdb; ipdb.set_trace() # BREAKPOINT<C-c>
-map <Leader>n ofrom IPython import embed; embed() # Enter Ipython<C-c>
+"map <Leader>b oimport ipdb; ipdb.set_trace() # BREAKPOINT<C-c>
+map <Leader>i ofrom IPython import embed; embed() # Enter Ipython<C-c>
 
 " Settings for ctrlp
 let g:ctrlp_max_height = 30
@@ -179,7 +216,7 @@ set wildignore+=*/coverage/*
 
 " --> Changing theme :
 " ALT + F3 :
-map O1;3R :call SwitchToggleSolarized()<cr>
+"map O1;3R :call SwitchToggleSolarized()<cr>
 
 " --> Mapping function call:
 map <F8> :call SwitchToggleAutoIndent()<cr>
@@ -196,6 +233,18 @@ set t_Co=256            " use 256 colors in vim
 colorscheme solarized   " an appropriate color scheme
 call ToggleDarkSolarized()
 
+" --> Cursor color
+if &term =~ "xterm\\|rxvt"
+  " use an orange cursor in insert mode
+  let &t_SI = "\<Esc>]12;orange\x7"
+  " use a DarkGrey cursor otherwise
+  let &t_EI = "\<Esc>]12;DarkGrey\x7"
+  silent !echo -ne "\033]12;DarkGrey\007"
+  " reset cursor when vim exits
+  autocmd VimLeave * silent !echo -ne "\033]112\007"
+  " use \003]12;gray\007 for gnome-terminal
+endif
+
 " --> Better autocompletion menu : alternative setup that feels a little more like the completion menu of other IDEs
 inoremap <expr> <Esc>      pumvisible() ? "\<C-c>" : "\<Esc>"
 inoremap <expr> <CR>       pumvisible() ? "\<C-y>" : "\<CR>"
@@ -207,12 +256,15 @@ inoremap <expr> <PageUp>   pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<PageUp>"
 
 " -->  Bind nohl : Removes highlight of your last search
 " ``<C>`` stands for ``CTRL`` and therefore ``<C-n>`` stands for ``CTRL+n``
-noremap <C-n> :nohl<CR>
-vnoremap <C-n> :nohl<CR>
-inoremap <C-n> :nohl<CR>
+noremap  <Leader>n :nohl<CR>
+vnoremap <Leader>n :nohl<CR>
+inoremap <Leader>n :nohl<CR>
 
 " --> Cleapboard access :
 set clipboard+=unnamedplus
+" --> Clipboard using xclip :
+"map <F7> :w !xclip<CR><CR>
+"map "+y
 
 " --> Regarding folds :
 set foldmethod=marker
@@ -261,7 +313,8 @@ if has("autocmd")
   au BufNewFile,BufRead CMakeLists.txt set filetype=cmake
 endif
 
-
+"" --> About Ctags :
+":set tags=~/mytags
 
 
 " --> Regarding Nvim :
