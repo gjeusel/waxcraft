@@ -11,14 +11,16 @@
 "
 " Sections:
 "-> Usefull Functions Mapped
-"-> Somme Mapping
+"-> Some Mapping
 "-> Global config
+"-> Functions Sketch
 "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-"  {{{ Usefull Functions Mapped
+" {{{ Usefull Functions Mapped
 
 " --> Exec building and exec command :
+"  {{{ ExecAndBuild
 function! ExecAndBuild()
   execute ":silent !echo "
   execute ":silent !echo -----------------------------------------------------------------------------------"
@@ -48,8 +50,10 @@ function! ExecAndBuild()
   execute ":silent !echo ".s:command_str
   execute s:exec_from_vim
 endfunction
-"
-" --> Function to handle auto-indent :
+"}}}
+
+" --> Disable & able auto-indent :
+"  {{{ SwitchToggleAutoIndent
 function! SwitchToggleAutoIndent()
   if &autoindent == "1"
     setlocal noautoindent nocindent nosmartindent indentexpr=
@@ -59,7 +63,10 @@ function! SwitchToggleAutoIndent()
     echo "AutoIndent ON"
   endif
 endfunction
+" }}}
 
+" --> Reload rainbow plugin
+" ActivateRainbow {{{
 " Plugins are loaded after .vimrc files, so in case of sourcing .vimrc files
 " while vim is being executed, we need to wrap the plugin into a try - endtry
 " to avoid error message at vim start.
@@ -71,12 +78,10 @@ function! ActivateRainbow()
     endtry
   endif
 endfunction
+" }}}
 
-"" highlight lines in Sy and vimdiff etc.)
-"highlight DiffAdd           cterm=bold ctermbg=none ctermfg=119
-"highlight DiffDelete        cterm=bold ctermbg=none ctermfg=167
-"highlight DiffChange        cterm=bold ctermbg=none ctermfg=227
-
+" --> About Solarized colors schemes switch
+"  SwitchToggleSolarized {{{
 " For more info type :help highlight
 function! ToggleDarkSolarized()
   syntax on
@@ -91,11 +96,6 @@ function! ToggleDarkSolarized()
   highlight SignifySignDelete cterm=none ctermbg=none ctermfg=136
   highlight SignifySignChange cterm=none ctermbg=none ctermfg=124
   highlight Folded                       ctermbg=none
-
-"airline_c_bold xxx term=bold cterm=bold ctermfg=240 ctermbg=235 gui=bold
-  "{{{
-
-  "}}}
 endfunction
 
 function! ToggleLightSolarized()
@@ -117,8 +117,9 @@ function! SwitchToggleSolarized()
     call ToggleLightSolarized()
   endif
 endfunction
-
 " }}}
+
+"}}}
 
 "  {{{ Some Mapping
 
@@ -134,7 +135,6 @@ nmap <silent> <leader>d :bp\|bd #<CR>
 "}}}
 
 " Search and Replace {{{
-
 " <leader>r for search and replace the selected text
 vnoremap <silent> <leader>r :call VisualSelection('replace')<CR>
 " }}}
@@ -148,24 +148,9 @@ vnoremap $q <esc>`>a'<esc>`<i'<esc>
 vnoremap $e <esc>`>a"<esc>`<i"<esc>
 " }}}
 
-" copy to clipboard :
-vnoremap <Leader>y "+y
-
-" Avoid vim history cmd to pop up with q:
-nnoremap q: <Nop>
-" Avoid qq recording
-nnoremap q <Nop>
-
+" Movements binds : {{{
 " About jump to beginning of word :
 map <S-e> b
-
-" -> Switching tabs with Shit-Tab :
-map <S-Tab>  :tabNext<cr>
-
-" --> Open next occurence of search (git jump grep "something")
-map <F10> :cn<cr>
-
-map <F12> :source ${HOME}/.vimrc.local<cr>
 
 " --> About moving splits :
 map <C-h> <C-W>h
@@ -173,11 +158,19 @@ map <C-j> <C-W>j
 map <C-k> <C-W>k
 map <C-l> <C-W>l
 
+" qwerty --> azerty beginning of the next word eased by this bind :
+" the <nowait> prevent a delay when typing z (for za for example)
+noremap <nowait> z w
+noremap <nowait> Z W
+" }}}
+
+" Folding binds : {{{
 " --> About folding open and close :
 nnoremap <Space> za
 vnoremap <Space> za
 
-set timeoutlen=1000 ttimeoutlen=0
+" --> Open next occurence of search (git jump grep "something")
+map <F10> :cn<cr>
 
 " --> Folding : closing all opened foldings :
 nnoremap wm zm
@@ -190,19 +183,26 @@ nnoremap wj zj
 vnoremap wj zj
 nnoremap wk zk
 vnoremap wk zk
+" }}}
 
-" qwerty --> azerty beginning of the next word eased by this bind :
-" the <nowait> prevent a delay when typing z (for za for example)
-noremap <nowait> z w
-noremap <nowait> Z W
+" copy to clipboard :
+vnoremap <Leader>y "+y
 
-"   z             w
-"        Last set from ~/.vimrc.local
-"noxzh            zH
-"        Last set from ~/.vimrc
-"noxzl            zL
-"        Last set from ~/.vimrc
+" -->  Bind nohl : Removes highlight of your last search
+" ``<C>`` stands for ``CTRL`` and therefore ``<C-n>`` stands for ``CTRL+n``
+map  <nowait> <Leader>n :nohl<CR>
 
+" Avoid vim history cmd to pop up with q:
+nnoremap q: <Nop>
+" Avoid qq recording
+nnoremap q <Nop>
+
+" -> Switching tabs with Shit-Tab :
+map <S-Tab>  :tabNext<cr>
+
+map <F12> :source ${HOME}/.vimrc.local<cr>
+
+set timeoutlen=1000 ttimeoutlen=0
 
 " Settings for python-mode
 "map <Leader>b oimport ipdb; ipdb.set_trace() # BREAKPOINT<C-c>
@@ -223,12 +223,11 @@ map <F8> :call SwitchToggleAutoIndent()<cr>
 
 "  alt + ²
 map <Esc>² :call ExecAndBuild() <cr>
-
 "}}}
 
 "  {{{ Some Global config
 
-" --> About Colors & Themes defaults :
+" --> About Colors & Themes defaults : {{{
 set t_Co=256            " use 256 colors in vim
 colorscheme solarized   " an appropriate color scheme
 call ToggleDarkSolarized()
@@ -244,6 +243,7 @@ if &term =~ "xterm\\|rxvt"
   autocmd VimLeave * silent !echo -ne "\033]112\007"
   " use \003]12;gray\007 for gnome-terminal
 endif
+"}}}
 
 " --> Better autocompletion menu : alternative setup that feels a little more like the completion menu of other IDEs
 inoremap <expr> <Esc>      pumvisible() ? "\<C-c>" : "\<Esc>"
@@ -254,17 +254,8 @@ inoremap <expr> <Up>       pumvisible() ? "\<C-p>" : "\<Up>"
 inoremap <expr> <PageDown> pumvisible() ? "\<PageDown>\<C-p>\<C-n>" : "\<PageDown>"
 inoremap <expr> <PageUp>   pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<PageUp>"
 
-" -->  Bind nohl : Removes highlight of your last search
-" ``<C>`` stands for ``CTRL`` and therefore ``<C-n>`` stands for ``CTRL+n``
-noremap  <Leader>n :nohl<CR>
-vnoremap <Leader>n :nohl<CR>
-inoremap <Leader>n :nohl<CR>
-
 " --> Cleapboard access :
 set clipboard+=unnamedplus
-" --> Clipboard using xclip :
-"map <F7> :w !xclip<CR><CR>
-"map "+y
 
 " --> Regarding folds :
 set foldmethod=marker
@@ -272,17 +263,17 @@ set foldtext=MyFoldText()
 function! MyFoldText()
   let line = getline(v:foldstart)
   let sub = substitute(line, '/\*\|\*/\|{{{\d\=', '', 'g')
+  "}}}
   return v:folddashes . sub
 endfunction
 set foldcolumn=2
 "setlocal foldnestmax=1
 
 " --> Indenting
-" Use indentation scripts located in the indent folder of your vim installation :
 filetype plugin indent on
-set shiftwidth=4    " Use indents of 4 spaces
-set tabstop=4       " An indentation every 4 columns
-set softtabstop=4   " Let backspace delete indent
+set shiftwidth=2    " Use indents of 4 spaces
+set tabstop=2       " An indentation every 4 columns
+set softtabstop=2   " Let backspace delete indent
 set textwidth=79
 set expandtab
 
@@ -291,13 +282,6 @@ autocmd BufRead,BufNewFile *.py setlocal
   \ shiftwidth=4
   \ tabstop=4
   \ softtabstop=4
-  \ textwidth=79
-
-" --> Special indenting for tex files
-autocmd BufRead,BufNewFile *.tex setlocal
-  \ shiftwidth=2
-  \ tabstop=2
-  \ softtabstop=2
   \ textwidth=79
 
 " --> Filetype defaults :
@@ -313,11 +297,7 @@ if has("autocmd")
   au BufNewFile,BufRead CMakeLists.txt set filetype=cmake
 endif
 
-"" --> About Ctags :
-":set tags=~/mytags
-
-
-" --> Regarding Nvim :
+" --> Regarding Nvim : {{{
 if has('nvim')
   Plugin 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
   set runtimepath+=/home/gjeusel/.config/nvim/deoplete.nvim
@@ -326,6 +306,7 @@ if has('nvim')
   "   \ {'sync': 1, 'name': 'DeopleteInitializePython', 'type': 'command', 'opts': {}},
   "   \ ])
 endif
+"}}}
 
 "}}}
 
@@ -360,86 +341,8 @@ command! -nargs=? GetPluginsList call s:Filter_lines('PluginList', <q-args>)
 
 
 
-" --------------- FUNCTIONS WORKS  ------------- "
+" --------------- FUNCTIONS SKETCHES  ------------- "
 " {{{
-
-" Visual selecting works {{{
-"function! s:get_visual_selection()
-"  " Why is this not a built-in Vim script function?!
-"  let [lnum1, col1] = getpos("'<")[1:2]
-"  let [lnum2, col2] = getpos("'>")[1:2]
-"  let lines = getline(lnum1, lnum2)
-"  let lines[-1] = lines[-1][: col2 - (&selection == 'inclusive' ? 1 : 2)]
-"  let lines[0] = lines[0][col1 - 1:]
-"  return join(lines, "\n")
-"endfunction"
-
-"function! s:Echo_highlighted_text()
-"  let s:highlighted_text = s:get_visual_selection()
-"  echo s:highlighted_text
-"endfunction
-"}}}
-
-" Function to automatize replacing in ctests : {{{
-"function! Change_with_macro()
-"  "let s:proj_name = s:get_visual_selection()
-"  let s:paragraph_to_be_replaced_pattern ="call \\(allocate\\|deallocate\\|realloc\\|axpy\\|scal\\|copy\\)FluidParticlesDt(.*\\zs)\\ze"
-"  let s:final_paragraph = ", FLUIDPARTICLESDt_ALL_COMPONENTS)"
-"  echo s:paragraph_to_be_replaced_pattern
-
-"  "echo s:paragraph_to_be_replaced_pattern
-"  "echo s:final_paragraph
-
-"  "let s:command_substitute = ":%s:".s:paragraph_to_be_replaced_pattern.":".s:final_paragraph."\\r\\r:gc"
-"  let s:command_substitute = ":%s:".s:paragraph_to_be_replaced_pattern.":".s:final_paragraph.":gc"
-"  execute s:command_substitute
-"endfunction
-""}}}
-
-" Function to automatize delete in ctests : {{{
-"function! Delete_quick_mode()
-"  let s:paragraph_to_be_deleted_pattern ="^set(JOB_NMAX_NUM_DT\\(.*\\n\\)\\{-}endif()\\(\\n\\)*"
-"  let s:final_paragraph =""
-"  let s:command_substitute = ":%s:".s:paragraph_to_be_deleted_pattern.":".s:final_paragraph."\\r:gc"
-"  execute s:command_substitute
-"endfunction
-""}}}
-
-" Function to add a pattern : {{{
-"function! Add_pattern()
-"  "let s:message_patern = s:get_visual_selection()
-
-"  let s:num_curr_line  = line('.')
-"  let s:range_command = s:num_curr_line . "," . s:num_curr_line
-
-"  let s:curr_line = getline(s:num_curr_line)
-
-"  let s:pattern_select_member_particles = "enumerator.*::.*FP_\\zs\\w*\\ze\\n"
-"  let s:selected_member_particlesDt = matchstr(s:curr_line, s:pattern_select_member_particles)
-
-"  let s:pattern_to_be_replaced = ".*enumerator.*"
-"  let s:pattern_to_replace = ", \\'" . s:selected_member_particles . "\\'"
-"  let s:command_test = s:range_command . "s:" . s:pattern_to_be_replaced . ":" . s:pattern_to_replace . ":g"
-"  execute s:command_test
-
-"  "let s:command_test = s:range_command . "s: \\<.*\\(FPDt[^,]*\\): if(activeVariables(\\1)) &:g"
-"  "execute s:command_test
-
-"endfunction
-""}}}
-
-" Function to comment personalized : {{{
-"function! Personalized_comment()
-"  "let s:message_patern = s:get_visual_selection()
-
-"  let s:num_curr_line  = line('.')
-"  let s:range_command = s:num_curr_line . "," . s:num_curr_line
-
-"  let s:command_test = s:range_command . "s:.*:\\! TO DELETE  &:g"
-"  execute s:command_test
-
-"endfunction
-""}}}
 
 " Fortran auto re-indenting functions works {{{
 
