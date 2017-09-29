@@ -258,16 +258,16 @@ inoremap <expr> <PageUp>   pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<PageUp>"
 set clipboard+=unnamedplus
 
 " --> Regarding folds :
-set foldmethod=marker
-set foldtext=MyFoldText()
-function! MyFoldText()
-  let line = getline(v:foldstart)
-  let sub = substitute(line, '/\*\|\*/\|{{{\d\=', '', 'g')
-  "}}}
-  return v:folddashes . sub
-endfunction
-set foldcolumn=2
-"setlocal foldnestmax=1
+"set foldmethod=marker
+"set foldtext=MyFoldText()
+"function! MyFoldText()
+"  let line = getline(v:foldstart)
+"  let sub = substitute(line, '/\*\|\*/\|{{{\d\=', '', 'g')
+"  "}}}
+"  return v:folddashes . sub
+"endfunction
+"set foldcolumn=2
+""setlocal foldnestmax=1
 
 " --> Indenting
 filetype plugin indent on

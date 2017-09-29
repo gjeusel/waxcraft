@@ -59,10 +59,25 @@ kde!(){ kcmshell5 "$1";}
 # git-jump
 alias git-jump="$waxCraft_PATH/tools/git-jump"
 
+# mercurial (hg)
+alias hl='hg pull'
+alias hp='hg push'
+alias hd='hg diff'
+alias hc='hg commit'
+alias hco='hg checkout'
+alias hb='hg branch'
+alias hs='hg status'
+alias ha='hg add .'
+
+# env nix-shell :
 alias load_env_clang="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-clang.nix"
 alias load_env_GNU="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-GNU.nix"
 alias load_env_scipy="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-scipy.nix"
+alias load_env_intraday="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-intraday.nix"
 alias load_env_machlearn="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-machlearn.nix"
+
+#alias vim="/run/current-system/sw/bin/vim"
+#alias vim="/nix/store/rxdrwf7cvvl3ds8xlj6rasdq58fi6wd3-vim_configurable-8.0.0329/bin/vim"
 
 # Spark aliases :
 if hash ipython 2>/dev/null; then

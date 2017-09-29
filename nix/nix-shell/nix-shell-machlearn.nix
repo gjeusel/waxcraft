@@ -41,9 +41,9 @@ stdenv.mkDerivation {
     python27Packages.pyramid_jinja2
 
     python27Packages.scikitlearn # algo for data mining
-    pywann # Python Weightless Neural Network
+    #pywann # Python Weightless Neural Network
 
-    spark
+    #spark
 
     /*myTexLive*/
     /*texlive.scheme-full*/
