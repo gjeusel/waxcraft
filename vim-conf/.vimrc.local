@@ -13,6 +13,7 @@
 "-> Usefull Functions Mapped
 "-> Some Mapping
 "-> Global config
+"-> Workarounds
 "-> Functions Sketch
 "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -126,9 +127,9 @@ endfunction
 " Buffers {{{
 " --> About buffers switch
 " ALT + F1 :
-map O1;3P :bp<cr>
+map <nowait> O1;3P :bp<cr>
 " ALT + F2 :
-map O1;3Q :bn<cr>
+map <nowait> O1;3Q :bn<cr>
 
 " buffer delete without closing windows :
 nmap <silent> <leader>d :bp\|bd #<CR>
@@ -259,15 +260,15 @@ set clipboard+=unnamedplus
 
 " --> Regarding folds :
 "set foldmethod=marker
-"set foldtext=MyFoldText()
-"function! MyFoldText()
-"  let line = getline(v:foldstart)
-"  let sub = substitute(line, '/\*\|\*/\|{{{\d\=', '', 'g')
-"  "}}}
-"  return v:folddashes . sub
-"endfunction
-"set foldcolumn=2
-""setlocal foldnestmax=1
+set foldtext=MyFoldText()
+function! MyFoldText()
+  let line = getline(v:foldstart)
+  let sub = substitute(line, '/\*\|\*/\|{{{\d\=', '', 'g')
+  "}}}
+  return v:folddashes . sub
+endfunction
+set foldcolumn=2
+"setlocal foldnestmax=1
 
 " --> Indenting
 filetype plugin indent on
@@ -309,6 +310,17 @@ endif
 "}}}
 
 "}}}
+
+" Workarounds
+" Error detected while processing function <SNR>207_VimCssInit:
+" Added in s:VimCssInit function of
+" ~/.vim/bundle/vim-coloresque/after/syntax/css/vim-coloresque.vim
+"if !exists("b:color_pattern")
+"    let b:color_pattern = {}
+"    return
+"endif
+"to avoid K pymode doc error
+
 
 " Function to write in a vim buffer the output of vim commands :
 "   - Execute 'cmd' while redirecting output.

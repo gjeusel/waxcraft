@@ -1,2 +1,4 @@
+" Special Plugins choices :
+Plugin 'TFenby/python-mode', { 'branch' : 'develop' }
 Plugin 'LnL7/vim-nix'
 Plugin 'octol/vim-cpp-enhanced-highlight'

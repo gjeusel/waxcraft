@@ -13,11 +13,15 @@ stdenv.mkDerivation {
 
   buildInputs = [
      #Personnal vim
-    (vim_configurable.override {lua=lua; python=python;})
-    powerline-fonts
-    xclip # to enable "*y to copy to the clipboard
+    #(vim_configurable.override {lua=lua; python=python;})
+    #powerline-fonts
+    #xclip # to enable "*y to copy to the clipboard
+
+    # Amazon Cloud Computing :
+    aws
 
     # Versionning :
+    mercurialFull
     tortoisehg
     python27Packages.hglib
 
@@ -45,6 +49,7 @@ stdenv.mkDerivation {
     python27Packages.lxml # Pythonic binding for the libxml2 and libxslt libraries
 
     python27Packages.flask # A microframework based on Werkzeug, Jinja 2, and good intentions
+    python27Packages.flask-restplus # Fast, easy and documented API development with Flask
     python27Packages.pymongo # Python driver for MongoDB
 
     # PACKAGE NIX TO DO :
