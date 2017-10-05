@@ -1,5 +1,8 @@
 " vim: set sw=4 ts=4 sts=4 et tw=78 foldmarker={,} foldlevel=0 foldmethod=marker:
 
+" Trying to get the ALT key functional for binding :
+let g:UltiSnipsExpandTrigger="^[/"
+
 " spf13 disabling some options :
 let g:spf13_bundle_groups=['general', 'writing', 'neocomplete', 'programming', 'javascript', 'html', 'misc',]
 
@@ -72,7 +75,7 @@ let g:pymode_syntax = 1
 let g:pymode_syntax_all = 1
 let g:pymode_syntax_slow_sync = 1 " slower syntax sync
 
-"let g:pymode_rope = 0
+let g:pymode_rope = 0
 "let g:pymode_rope_lookup_project = 0  " disable search_ing in .ropeproject
 
 " Disable leader+r to run script

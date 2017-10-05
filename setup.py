@@ -26,6 +26,7 @@ old_conf_dir = waxCraft_path + '/.old-conf/'
 bash_cfg_dir   = waxCraft_path + '/bash-conf/'
 vim_cfg_dir    = waxCraft_path + '/vim-conf/'
 plasma_cfg_dir = waxCraft_path + '/kde-plasma-conf/'
+nixpkgs_cfg_dir= waxCraft_path + '/nix/nixpkgs/'
 
 
 class bash_cfg_class:
@@ -199,13 +200,26 @@ class kde_plasma_class:
 
 #}}}
 
+
+class nixpkgs_class:
+#{{{
+    def __init__(self):
+        print "--- Installing nixpkgs conf ---"
+        self.nml = ['.nixpkgs/config.nix']
+        print 'Creating symlinks ...'
+        if not os.path.isdir(home+'.nixpkgs'):
+            os.makedirs(home+'.nixpkgs')
+        for e in self.nml:
+            os.symlink(nixpkgs_cfg_dir + 'custom-packages.nix' , home + e)
+#}}}
+
 def setup_argparser():
 #{{{
     """ Define and return the command argument parser. """
     parser = argparse.ArgumentParser(description='''waxCraft config setup.''')
 
     parser.add_argument('cfg_list', nargs='+',
-                        choices=['bash', 'vim', 'plasma', 'nixos'],
+                        choices=['bash', 'vim', 'plasma', 'nixpkgs'],
                         help='''cfg to install''')
 
     parser.add_argument('-v', '--verbose', dest='verbose', required=False,
@@ -236,6 +250,9 @@ def main(argv=None):
 
     if 'plasma' in args.cfg_list :
         plasma_cfg = kde_plasma_class()
+
+    if 'nixpkgs' in args.cfg_list :
+        nixpkgs_cfg = nixpkgs_class()
 
 
 if __name__ == "__main__":

@@ -13,9 +13,9 @@ stdenv.mkDerivation {
 
   buildInputs = [
      #Personnal vim
-    #(vim_configurable.override {lua=lua; python=python;})
-    #powerline-fonts
-    #xclip # to enable "*y to copy to the clipboard
+    (vim_configurable.override {lua=lua; python=python;})
+    powerline-fonts
+    xclip # to enable "*y to copy to the clipboard
 
     # Amazon Cloud Computing :
     aws

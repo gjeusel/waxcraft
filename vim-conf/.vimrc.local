@@ -123,9 +123,18 @@ endfunction
 "}}}
 
 "  {{{ Some Mapping
-
 " Buffers {{{
+" Unmapping F1 calling help in vim :
+nmap <F1> <nop>
 " --> About buffers switch
+" Little snippet to get all alt key mapping functional :
+for i in range(97,122)
+  let c = nr2char(i)
+  exec "map \e".c." <M-".c.">"
+  exec "map! \e".c." <M-".c.">"
+endfor
+map <A-e> :bn<cr>
+map <A-a> :bp<cr>
 " ALT + F1 :
 map <nowait> O1;3P :bp<cr>
 " ALT + F2 :
@@ -259,7 +268,7 @@ inoremap <expr> <PageUp>   pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<PageUp>"
 set clipboard+=unnamedplus
 
 " --> Regarding folds :
-"set foldmethod=marker
+set foldmethod=marker
 set foldtext=MyFoldText()
 function! MyFoldText()
   let line = getline(v:foldstart)

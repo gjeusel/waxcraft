@@ -5,7 +5,7 @@ pandas, requests, xmltodict, buildPythonPackage}:
 buildPythonPackage rec {
   name = "pm-utils";
 
-  src = /home/gjeusel/lib-engie/prove_team-pm-utils-c809de16603b ;
+  src = /media/sf_windows/pythonModule_engie/pm-utils.tar.gz ;
 
   buildInputs = [pathlib six werkzeug apscheduler mock numpy
 pandas requests xmltodict];
