@@ -5,3 +5,4 @@
 "\e[1;5D":backward-word
 
 "\e[!":quoted-insert
+"\e[2~":quoted-insert

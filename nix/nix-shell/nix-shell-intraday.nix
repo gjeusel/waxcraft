@@ -68,6 +68,9 @@ stdenv.mkDerivation {
     python27Packages.scikitlearn
     python27Packages.pytorch
     python27Packages.torchvision
+    python27Packages.xgboost
+    lightgbm
+    python27Packages.graphviz
 
     # Dataframe handle :
     python27Packages.pandas # dataframe handle

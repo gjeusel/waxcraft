@@ -237,6 +237,16 @@ map <Esc>² :call ExecAndBuild() <cr>
 
 "  {{{ Some Global config
 
+" leave insert mode quickly
+if ! has('gui_running')
+  set ttimeoutlen=10
+  augroup FastEscape
+    autocmd!
+    au InsertEnter * set timeoutlen=0
+    au InsertLeave * set timeoutlen=1000
+  augroup END
+endif
+
 " --> About Colors & Themes defaults : {{{
 set t_Co=256            " use 256 colors in vim
 colorscheme solarized   " an appropriate color scheme

@@ -146,6 +146,18 @@ packageOverrides = super: let self = super.pkgs; in with self; rec {
     };
   };
 
+
+  lightgbm = pythonPackages.buildPythonPackage rec {
+    name = "lightgbm-${version}";
+    version  = "2.0.7";
+
+    src = pkgs.fetchurl {
+      url = "https://pypi.python.org/packages/b0/96/1556a33fae20cf7b9c7100621a89c9bc0cad47882d1b103d5bc44c64496f/lightgbm-2.0.7.tar.gz";
+      sha256 = "1q8d6m9746jralzskn5247kwr3jaghn7h639qh2dn239ych5w32c";
+    };
+    buildInputs = [cmake pythonPackages.scipy pythonPackages.scikitlearn];
+  };
+
   pytablewriter = pythonPackages.buildPythonPackage rec {
     name = "pytablewriter-${version}";
     version = "v0.24.0";
