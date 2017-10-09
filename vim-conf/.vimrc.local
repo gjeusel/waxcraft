@@ -125,20 +125,28 @@ endfunction
 "  {{{ Some Mapping
 " Buffers {{{
 " Unmapping F1 calling help in vim :
-nmap <F1> <nop>
+map <F1> <nop>
+map <A-F1> <nop>
+
 " --> About buffers switch
 " Little snippet to get all alt key mapping functional :
+" works for alt-a .. alt-z
 for i in range(97,122)
   let c = nr2char(i)
   exec "map \e".c." <M-".c.">"
   exec "map! \e".c." <M-".c.">"
 endfor
-map <A-e> :bn<cr>
-map <A-a> :bp<cr>
+
+" Mapping with alt-Fx
+" https://stackoverflow.com/questions/7501092/can-i-map-alt-key-in-vim
 " ALT + F1 :
+exec "set <S-F1>=\eO1;3P"
 map <nowait> O1;3P :bp<cr>
+map <nowait> <S-F1> :bp<cr>
 " ALT + F2 :
+exec "set <S-F2>=\eO1;3Q"
 map <nowait> O1;3Q :bn<cr>
+map <nowait> <S-F2> :bn<cr>
 
 " buffer delete without closing windows :
 nmap <silent> <leader>d :bp\|bd #<CR>
@@ -150,12 +158,14 @@ vnoremap <silent> <leader>r :call VisualSelection('replace')<CR>
 " }}}
 
 "" parenthesis/brackets/etc ...{{{
-"vnoremap $& <esc>`>a)<esc>`<i(<esc>
-"vnoremap $é <esc>`>a]<esc>`<i[<esc>
-"vnoremap $" <esc>`>a}<esc>`<i{<esc>
-"vnoremap $$ <esc>`>a"<esc>`<i"<esc>
-"vnoremap $q <esc>`>a'<esc>`<i'<esc>
-"vnoremap $e <esc>`>a"<esc>`<i"<esc>
+vnoremap <Leader>( <esc>`>a)<esc>`<i(<esc>
+vnoremap <Leader>) <esc>`>a)<esc>`<i(<esc>
+vnoremap <Leader>[ <esc>`>a]<esc>`<i[<esc>
+vnoremap <Leader>] <esc>`>a]<esc>`<i[<esc>
+vnoremap <Leader>{ <esc>`>a}<esc>`<i{<esc>
+vnoremap <Leader>} <esc>`>a}<esc>`<i{<esc>
+vnoremap <Leader>" <esc>`>a"<esc>`<i"<esc>
+vnoremap <Leader>' <esc>`>a'<esc>`<i'<esc>
 "" }}}
 
 " Movements binds : {{{
@@ -238,7 +248,7 @@ map <Esc>² :call ExecAndBuild() <cr>
 "  {{{ Some Global config
 
 " leave insert mode quickly
-if ! has('gui_running')
+if !has('gui_running')
   set ttimeoutlen=10
   augroup FastEscape
     autocmd!
@@ -246,6 +256,7 @@ if ! has('gui_running')
     au InsertLeave * set timeoutlen=1000
   augroup END
 endif
+vnoremap <nowait> <ESC> <C-c>
 
 " --> About Colors & Themes defaults : {{{
 set t_Co=256            " use 256 colors in vim
