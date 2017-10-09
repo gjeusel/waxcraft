@@ -75,9 +75,6 @@ let g:pymode_syntax = 1
 let g:pymode_syntax_all = 1
 let g:pymode_syntax_slow_sync = 1 " slower syntax sync
 
-let g:pymode_rope = 0
-let g:pymode_rope_lookup_project = 0  " disable search_ing in .ropeproject
-
 " Disable leader+r to run script
 let g:pymode_run = 0
 
@@ -88,11 +85,19 @@ let g:pymode_syntax = 1
 
 " Python code checking :
 let g:pymode_lint = 1
-let g:pymode_lint_on_write = 1
+let g:pymode_lint_on_write = 0
 " ignore error #E501 and all warnings :
 let g:pymode_lint_ignore = "E501,W"
 let g:pymode_lint_signs = 1
 let g:pymode_lint_cwindow = 0
 let g:pymode_lint_message = 1
 
+let g:pymode_rope = 0 " disable rope which is slow
 "}
+
+" {FastFold :
+let g:python_fold=1
+" To avoid z remapping and loosing nowait :
+let g:fastfold_fold_movement_commands = []
+ let g:fastfold_fold_command_suffixes = []
+" }
