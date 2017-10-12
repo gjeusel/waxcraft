@@ -1,7 +1,7 @@
 #$HOME/.bash_aliases
 
 # ls aliases
-alias ls='ls --color'
+#alias ls='ls --color'
 alias ll='ls -l'
 alias la='ls -A'
 alias lla='ls -Al'
@@ -58,6 +58,8 @@ kde!(){ kcmshell5 "$1";}
 
 # git-jump
 alias git-jump="$waxCraft_PATH/tools/git-jump"
+# hg-jump
+alias hg-jump="$waxCraft_PATH/tools/hg-jump"
 
 # mercurial (hg)
 alias hl='hg pull'
@@ -68,6 +70,17 @@ alias hco='hg checkout'
 alias hb='hg branch'
 alias hs='hg status'
 alias ha='hg add .'
+
+# git
+alias gl='git pull'
+alias gp='git push'
+alias gd='git diff'
+alias gc='git commit'
+alias gco='git checkout'
+alias gb='git branch'
+alias gs='git status'
+alias ga='git add .'
+
 
 # env nix-shell :
 alias load_env_clang="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-clang.nix"

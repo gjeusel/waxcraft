@@ -148,6 +148,12 @@ exec "set <S-F2>=\eO1;3Q"
 map <nowait> O1;3Q :bn<cr>
 map <nowait> <S-F2> :bn<cr>
 
+" --> Open next occurence of search (git jump grep "something")
+" ALT + F3 :
+exec "set <S-F3>=\eO1;3R"
+map <nowait> O1;3Q :cn<cr>
+map <nowait> <S-F3> :cn<cr>
+
 " buffer delete without closing windows :
 nmap <silent> <leader>d :bp\|bd #<CR>
 "}}}
@@ -189,9 +195,6 @@ noremap <nowait> Z W
 nnoremap <Space> za
 vnoremap <Space> za
 
-" --> Open next occurence of search (git jump grep "something")
-map <F10> :cn<cr>
-
 " --> Folding : closing all opened foldings :
 nnoremap wm zm
 vnoremap wm zm
@@ -203,6 +206,10 @@ nnoremap wj zj
 vnoremap wj zj
 nnoremap wk zk
 vnoremap wk zk
+" }}}
+
+" nowait bindinds : {{{
+nmap <nowait> O O
 " }}}
 
 " copy to clipboard :
@@ -256,7 +263,9 @@ if !has('gui_running')
     au InsertLeave * set timeoutlen=1000
   augroup END
 endif
-vnoremap <nowait> <ESC> <C-c>
+map <nowait> <Esc> <C-c>
+" quick escape from command line with esc :
+cmap <nowait> <Esc> <C-c>
 
 " --> About Colors & Themes defaults : {{{
 set t_Co=256            " use 256 colors in vim

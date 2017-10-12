@@ -75,6 +75,7 @@ stdenv.mkDerivation {
     # Dataframe handle :
     python27Packages.pandas # dataframe handle
     python27Packages.seaborn # cool color map
+    grafana
     python27Packages.ipywidgets # avoid Warning on seaborn import #874
 
   ];
