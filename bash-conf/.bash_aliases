@@ -60,6 +60,8 @@ kde!(){ kcmshell5 "$1";}
 alias git-jump="$waxCraft_PATH/tools/git-jump"
 # hg-jump
 alias hg-jump="$waxCraft_PATH/tools/hg-jump"
+# ag-jump (vim with ag cml tool for grep)
+alias ag-jump="$waxCraft_PATH/tools/ag-jump"
 
 # mercurial (hg)
 alias hl='hg pull'

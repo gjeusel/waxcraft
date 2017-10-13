@@ -2,7 +2,7 @@
 
 usage() {
 	cat <<\EOF
-usage: hg-jump <mode> [<args>]
+usage: ag-jump <mode> <pattern>
 
 Jump to interesting elements in an editor.
 The <mode> parameter is one of:
@@ -17,15 +17,11 @@ open_editor() {
 	eval "$editor -q \$1"
 }
 
-# Grep -n generates nice quickfix-looking lines by itself,
-# but let's clean up extra whitespace, so they look better if the
-# editor shows them to us in the status bar.
 mode_grep() {
-	hg grep --line-number --rev .+.^ "$@" |
+	ag --no-color --no-group "$@" |
 	perl -pe '
 	s/[ \t]+/ /g;
 	s/^ *//;
-  s/:\d+:(\d+):/:$1:/g;
 	'
 }
 
@@ -36,7 +32,7 @@ fi
 mode=$1; shift
 
 trap 'rm -f "$tmp"' 0 1 2 3 15
-tmp=`mktemp -t hg-jump.XXXXXX` || exit 1
+tmp=`mktemp -t ag-jump.XXXXXX` || exit 1
 type "mode_$mode" >/dev/null 2>&1 || { usage >&2; exit 1; }
 "mode_$mode" "$@" >"$tmp"
 test -s "$tmp" || exit 0

@@ -85,7 +85,7 @@ let g:pymode_syntax = 1
 
 " Python code checking :
 let g:pymode_lint = 1
-let g:pymode_lint_on_write = 0
+let g:pymode_lint_on_write = 1
 " ignore error #E501 and all warnings :
 let g:pymode_lint_ignore = "E501,W"
 let g:pymode_lint_signs = 1
