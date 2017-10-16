@@ -1,7 +1,7 @@
 #$HOME/.bash_aliases
 
 # ls aliases
-#alias ls='ls --color'
+alias ls="ls -I '*.pyc' --color=auto"
 alias ll='ls -l'
 alias la='ls -A'
 alias lla='ls -Al'

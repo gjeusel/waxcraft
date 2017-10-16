@@ -5,8 +5,6 @@ if [ -z "$PS1"  ]; then return; fi
 #export waxCraft_PATH="$(cd "$(dirname "$(dirname $(readlink "${HOME}/.bash_aliases"))")" && pwd)"
 export waxCraft_PATH="$(cd "$(dirname "$(dirname "$BASH_SOURCE" )")" && pwd)"
 
-export cudaExtra="/nix/store/a2qijx5cgdwhm1nqjz1wj7i0x64ba1fj-cudatoolkit-8.0.61/extras/"
-
 # Deactivate ksshaskpass popup
 unset SSH_ASKPASS
 
@@ -48,6 +46,17 @@ ps1_machlearn="$ps1_construct_init $ps1_construct_interm_machlearn $ps1_construc
 
 export PS1=$ps1_std
 ##################################################}}}
+
+# LS_COLORS settings : {{{
+# enable color support of ls and also add handy aliases
+if [ "$TERM" != "dumb" ]; then
+    eval "`dircolors $waxCraft_PATH/bash-conf/.dircolors`"
+    # DONE in .bash_aliases
+    #alias ls='ls --color=auto'
+    #alias dir='ls --color=auto --format=vertical'
+    #alias vdir='ls --color=auto --format=long'
+fi
+#}}}
 
 # History settings : {{{
 ##################################################
