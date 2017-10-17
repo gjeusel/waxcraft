@@ -13,15 +13,6 @@ environment.systemPackages = with pkgs; [
   pavucontrol    # pulseaudio cmd for sound configuration
   cups           # print to pdf (= pdfcreator)
 
-# iPhone handle :
-  libimobiledevice # iPhone handle
-  libplist
-  ifuse
-
-# Printer Handle :
-  simple-scan # gui for scanning
-  sane-backends # cmd line check if scanner recognized
-
 # Some tools for plasma5
   redshift
   redshift-plasma-applet
@@ -37,20 +28,14 @@ environment.systemPackages = with pkgs; [
   shutter             # screen capture
   ctags               # generates an tags file of names
   coreutils-prefixed  # basic file, shell and text manager
-  ag                  # tool like grep, optimized for programmers
 
 # Standard Programming env
   gcc5
-  clangStdenv
-  clang
-  cmakeCurses
-  paraview
   gnuplot
   python27Packages.ipython
 
 # Personnal vim
   (vim_configurable.override {lua=lua; python=python;})
-  (import ./vim-custom.nix)
   powerline-fonts
   xclip # to enable "*y to copy to the clipboard
 

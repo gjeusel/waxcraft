@@ -89,6 +89,7 @@ alias load_env_clang="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-clang.nix
 alias load_env_GNU="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-GNU.nix"
 alias load_env_scipy="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-scipy.nix"
 alias load_env_intraday="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-intraday.nix"
+alias li="cd ~/intraday/ && load_env_intraday"
 alias load_env_machlearn="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-machlearn.nix"
 
 #alias vim="/run/current-system/sw/bin/vim"

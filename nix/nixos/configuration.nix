@@ -7,16 +7,42 @@
 {
   imports =
     [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
+   ./hardware-configuration-VM.nix
       ./sysPkgs.nix
     ];
 
   # The NixOS release to be compatible with for stateful data such as databases.
-  system.stateVersion = "17.03";
+  system.stateVersion = "17.09";
 
   networking = {
     hostName = "myNixHost";
     networkmanager.enable = true; # obtain an IP address and other configuration for all network interfaces that are not manually configured.
+
+    # Proxy inside VM engie :
+    interfaces.enp0s3.ip4 = [
+      /*{ address = "10.0.0.1"; prefixLength = 16; }*/
+      { address = "192.168.56.2"; prefixLength = 24; }
+    ];
+
+    defaultGateway = "192.168.56.1";
+    nameservers = [ "8.8.8.8" ];
+
+    proxy.default = "http://proxy.eib.electrabel.be:8080";
+  };
+
+  # Postgresql config :
+  services.postgresql = {
+    enable = true;
+    package = pkgs.postgresql96;
+    enableTCPIP = true;
+    authentication = pkgs.lib.mkForce ''
+# Generated file; do not edit!
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+local all all trust
+host    all             all             all                     md5
+host    all             all             127.0.0.1/32            trust
+host    all             all             ::1/128                 trust
+'';
   };
 
   # Select internationalisation properties.
@@ -28,14 +54,10 @@
 
   # Set your time zone.
   time.timeZone = "Europe/Paris";
-  /*time.timeZone = "America/Sao_Paulo";*/
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
-
-  # Enabling chromecast port :
-  networking.firewall.allowedUDPPortRanges = [{from = 32768; to = 61000;}];
-  networking.firewall.allowedTCPPorts = [8765];
+  /*networking.firewall.allowedTCPPorts = [ 22 ]; # enabled by default when openssh enabled*/
 
   # Enable the X11 windowing system.
   services.xserver = {
@@ -61,34 +83,20 @@
     /*plasma5.extraPackages = [ pkgs.plasma5.plasma-nm ]; # managing connexions applet*/
   };
 
-  # users.mutableUsers to false, then the contents of /etc/passwd and /etc/group will be congruent to your NixOS configuration
-  #users.mutableUsers = false;
-  # Then the root user need to set the root password :
-  #users.extraUsers.root = {
-  #  #To generate hashed password install mkpasswd package and run mkpasswd -m sha-512
-  #  hashedPassword = "$6$Pca3Dpr18$3slalzLnqCndilfsgmkgggudIiXySGATwnTlfd3jYNd5o6Ak9c8l2MrpqroP7U2QLNM04gx/T4r.sSxF7CVHM." ;
-  #};
-
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.extraUsers.gjeusel = {
     isNormalUser = true;
     home = "/home/gjeusel";
-    extraGroups = ["users" "networkmanager" "input" "scanner"]; # give networkmanager permission
+    extraGroups = ["users" "networkmanager" "input" "vboxsf"]; # give networkmanager permission
     uid = 1000;
+    /*openssh.authorizedKeys.keys = ["ssh-dss MXPdhRqqmSW/jfpiaJyU4aN6p8FvEQAgTnMZ+cd8eUA gjeusel@myNixHost "];*/
     #password = "" ;
   };
   users.extraUsers.public = {
     isNormalUser = true;
     home = "/home/public";
-    extraGroups = ["users" "networkmanager" "input" "scanner"]; # give networkmanager permission
+    extraGroups = ["users" "networkmanager" "input" "vboxsf"]; # give networkmanager permission
     uid = 1001;
-    #password = "" ;
-  };
-  users.extraUsers.testwax = {
-    isNormalUser = true;
-    home = "/home/testwax";
-    extraGroups = ["users" "networkmanager" "input" "scanner"]; # give networkmanager permission
-    uid = 1002;
     #password = "" ;
   };
 
@@ -98,74 +106,9 @@
   ''
   Defaults:gjeusel      !authenticate
   gjeusel ALL=(ALL) ALL
-  testwax ALL=(ALL) ALL
   '';
 
   # Security:
   security.pam.services.testwax.allowNullPassword = true;
-
-  # Enable zsh :
-  programs.zsh.enable = true;
-  programs.zsh.enableCompletion = true;
-
-  # Add CUPS to print documents.
-  services.printing = {
-      enable = true;
-      drivers = [ pkgs.hplipWithPlugin  ];
-      gutenprint = true;
-  };
-
-  # Add scanner support :
-  hardware.sane.enable = true;
-  hardware.sane.extraBackends = [pkgs.hplipWithPlugin ];
-
-  /*# Allowing Samba : network sharing soft*/
-  /*services.samba = {*/
-  /*  enable = true;*/
-  /*  shares = {*/
-  /*    data =*/
-  /*      { comment = "Guigz samba share.";*/
-  /*        path = "/home/gjeusel/Downloads";*/
-  /*        browseable = "yes";*/
-  /*        "guest ok" = "no";*/
-  /*        "valid users" = "gjeusel";*/
-  /*        "read only" = "true";*/
-  /*       };*/
-  /*  };*/
-  /*  extraConfig = ''*/
-  /*  guest account = nobody*/
-  /*  map to guest = bad user*/
-  /*  '';*/
-  /*};*/
-
-# VPN with private internet access (PIA) :
-  services.openvpn = {
-    servers.pia = {
-      autoStart = false;
-      config = ''
-        client
-        dev tun
-        proto udp
-        remote france.privateinternetaccess.com 1198
-        resolv-retry infinite
-        nobind
-        persist-key
-        persist-tun
-        cipher aes-128-cbc
-        auth sha1
-        tls-client
-        remote-cert-tls server
-        auth-user-pass
-        comp-lzo
-        verb 1
-        reneg-sec 0
-        disable-occ
-        crl-verify /home/gjeusel/.pia/crl.pem
-        ca /home/gjeusel/.pia/ca.crt
-        auth-user-pass /home/gjeusel/.pia/auth.txt
-      '';
-    };
-  };
-
 
 }

@@ -5,25 +5,29 @@
 
 {
   imports = [ ];
-
+  #
   # Use the GRUB 2 boot loader.
   boot.loader.grub.enable = true;
   boot.loader.grub.version = 2;
   # Define on which hard drive you want to install Grub.
   boot.loader.grub.device = "/dev/sda";
 
-
-  boot.initrd.availableKernelModules = [ "ata_piix" "ohci_pci" ];
+  boot.initrd.availableKernelModules = [ "ohci_pci" "ahci" "sd_mod" ];
   boot.kernelModules = [ ];
   boot.extraModulePackages = [ ];
 
   fileSystems."/" =
-    { device = "/dev/disk/by-uuid/6b98d168-41c8-4a97-9b7d-e2a60fccf4e0";
+    { device = "/dev/disk/by-uuid/17380e57-ed43-4b0d-9551-2c8e3f039737";
       fsType = "ext4";
     };
 
+  /*fileSystems."/media/sf_windows" =*/
+  /*  { device = "windows";*/
+  /*    fsType = "vboxsf";*/
+  /*  };*/
+
   swapDevices = [ ];
 
-  nix.maxJobs = 2;
+  nix.maxJobs = lib.mkDefault 2;
   virtualisation.virtualbox.guest.enable = true;
 }
