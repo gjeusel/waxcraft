@@ -1010,7 +1010,7 @@ Type=SIMPLE_ACTION_DATA
 ActionsCount=1
 
 [Data_5Actions0]
-CommandURL=xfce4-terminal --hide-menubar --hide-toolbar --geometry 90x30+0+0 --hide-borders
+CommandURL=xfce4-terminal --hide-borders --hide-menubar --hide-toolbar --geometry 90x30+0+0
 Type=COMMAND_URL
 
 [Data_5Conditions]

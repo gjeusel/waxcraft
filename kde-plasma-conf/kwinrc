@@ -3,4 +3,12 @@ Number=4
 Rows=1
 
 [Plugins]
+cubeslideEnabled=false
+desktopchangeosdEnabled=false
+highlightwindowEnabled=true
+kwin4_effect_fadedesktopEnabled=false
 minimizeallEnabled=true
+slideEnabled=false
+
+[TabBox]
+LayoutName=informative
