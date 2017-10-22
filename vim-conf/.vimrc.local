@@ -175,20 +175,6 @@ vnoremap <Leader>' <esc>`>a'<esc>`<i'<esc>
 "" }}}
 
 " Movements binds : {{{
-" About jump to beginning of word :
-map <S-e> b
-
-" --> About moving splits :
-map <C-h> <C-W>h
-map <C-j> <C-W>j
-map <C-k> <C-W>k
-map <C-l> <C-W>l
-
-" qwerty --> azerty beginning of the next word eased by this bind :
-" the <nowait> prevent a delay when typing z (for za for example)
-noremap <nowait> z w
-noremap <nowait> Z W
-" }}}
 
 " Folding binds : {{{
 " --> About folding open and close :
@@ -199,13 +185,53 @@ vnoremap <Space> za
 nnoremap wm zm
 vnoremap wm zm
 
-map wl zL
-
 " --> Folding : movements (next / prec) :
 nnoremap wj zj
 vnoremap wj zj
 nnoremap wk zk
 vnoremap wk zk
+" }}}
+
+" qwerty --> azerty beginning of the next word eased by this bind :
+" the <nowait> prevent a delay when typing z (for za for example)
+noremap <nowait> z w
+noremap <nowait> Z b
+noremap <nowait> e e
+noremap <nowait> E ge
+
+" EasyMotion :
+" Gif config
+map  <leader>/ <Plug>(easymotion-sn)
+omap <leader>/ <Plug>(easymotion-tn)
+map <nowait><Leader>l <Plug>(easymotion-lineforward)
+map <nowait><Leader>j <Plug>(easymotion-j)
+map <nowait><Leader>k <Plug>(easymotion-k)
+map <nowait><Leader>h <Plug>(easymotion-linebackward)
+
+" <Leader>f{char} to move to {char}
+map  <nowait><Leader>f <Plug>(easymotion-bd-f)
+nmap <nowait><Leader>f <Plug>(easymotion-overwin-f)
+
+" beginning of words :
+map <nowait><leader>z <Plug>(easymotion-w)
+map <nowait><leader>Z <Plug>(easymotion-b)
+
+" end of words :
+map <nowait><leader>e <Plug>(easymotion-e)
+map <nowait><leader>E <Plug>(easymotion-ge)
+
+" jump to anywhere :
+map <nowait><leader><leader> <Plug>(easymotion-jumptoanywhere)
+
+" About jump to beginning of word :
+"map <S-e> b
+
+" --> About moving splits :
+map <C-h> <C-W>h
+map <C-j> <C-W>j
+map <C-k> <C-W>k
+map <C-l> <C-W>l
+
 " }}}
 
 " nowait bindinds : {{{

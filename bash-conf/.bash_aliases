@@ -71,7 +71,7 @@ alias hc='hg commit'
 alias hco='hg checkout'
 alias hb='hg branch'
 alias hs='hg status'
-alias ha='hg add .'
+alias ha='hg add'
 
 # git
 alias gl='git pull'
@@ -81,7 +81,7 @@ alias gc='git commit'
 alias gco='git checkout'
 alias gb='git branch'
 alias gs='git status'
-alias ga='git add .'
+alias ga='git add'
 
 
 # env nix-shell :

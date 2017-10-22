@@ -169,9 +169,8 @@ class waxCraft:
 
 
         def install_spf13():
-            # retcode = subprocess.call("curl http://j.mp/spf13-vim3 -L -o - | sh",
-            #                         shell=True)
-            pass
+            retcode = subprocess.call("curl http://j.mp/spf13-vim3 -L -o - | sh",
+                                    shell=True)
 
         if not os.path.exists(home+'.spf13-vim-3/'):
             install_spf13()
@@ -218,6 +217,7 @@ class waxCraft:
 
 
 class nixpkgs_class:
+    nixpkgs_cfg_dir= waxCraft_path + '/nix/nixpkgs/'
     def __init__(self):
         print "--- Installing nixpkgs conf ---"
         self.nml = ['.nixpkgs/config.nix']
@@ -225,7 +225,7 @@ class nixpkgs_class:
         if not os.path.isdir(home+'.nixpkgs'):
             os.makedirs(home+'.nixpkgs')
         for e in self.nml:
-            os.symlink(nixpkgs_cfg_dir + 'custom-packages.nix' , home + e)
+            os.symlink(self.nixpkgs_cfg_dir + 'custom-packages.nix' , home + e)
 
 
 def setup_argparser():
@@ -256,8 +256,8 @@ def main(argv=None):
     wax = waxCraft(args.cfg_list)
     wax.install()
 
-    # if 'nixpkgs' in args.cfg_list :
-    #     nixpkgs_cfg = nixpkgs_class()
+    if 'nixpkgs' in args.cfg_list :
+        nixpkgs_cfg = nixpkgs_class()
 
 
 if __name__ == "__main__":
