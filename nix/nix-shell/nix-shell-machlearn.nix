@@ -11,12 +11,6 @@ stdenv.mkDerivation {
    '';
 
   buildInputs = [
-
-    # Personnal vim
-    (vim_configurable.override {lua=lua; python=python;})
-    powerline-fonts
-    xclip # to enable "*y to copy to the clipboard
-
     # Python Common Tools :
     python27Packages.ipdb # Debugger library
     python27Packages.ipython # Ipython library

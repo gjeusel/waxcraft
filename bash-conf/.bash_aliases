@@ -91,6 +91,7 @@ alias load_env_scipy="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-scipy.nix
 alias load_env_intraday="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-intraday.nix"
 alias li="cd ~/intraday/ && load_env_intraday"
 alias load_env_machlearn="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-machlearn.nix"
+alias lml=load_env_machlearn
 
 #alias vim="/run/current-system/sw/bin/vim"
 #alias vim="/nix/store/rxdrwf7cvvl3ds8xlj6rasdq58fi6wd3-vim_configurable-8.0.0329/bin/vim"

@@ -1,15 +1,3 @@
-/*let*/
-/*  pkgs = import <nixpkgs> {};*/
-/*in*/
-/*{*/
-/*  [>pathOverlays = builtins.getEnv "waxCraft_PATH"+"/nix/nixpkgs/overlays/" ;<]*/
-/*  import pkgs.path { overlays = [ (self: super: {*/
-
-/*    vim = super.vim.override {enableLua=true;};*/
-/*    }) ]; }*/
-
-/*}*/
-
 {
 #{{{ Global config (firefox & chromium)
 # Allow broken content (when using nixpkgs as git)
@@ -34,23 +22,20 @@ chromium = {
 
 packageOverrides = super: let self = super.pkgs; in with self; rec {
 
-  pathToMyPackages = builtins.getEnv "waxCraft_PATH"+"/nix/nixpkgs/" ;
+  wax_nixpkgs = builtins.getEnv "waxCraft_PATH"+"/nix/nixpkgs/" ;
 
-  #vim = self.callPackage "/etc/nixpkgs/pkgs/"
-
-  vim74-spf13 = self.callPackage "${pathToMyPackages}vim-7.4-spf13/default.nix" {  };
-  blank_env   = self.callPackage "${pathToMyPackages}blank_env/default.nix" {  };
-  cute20      = self.callPackage "${pathToMyPackages}cute-2.0/default.nix" {  };
+  blank_env   = self.callPackage "${wax_nixpkgs}blank_env/default.nix" {  };
+  cute20      = self.callPackage "${wax_nixpkgs}cute-2.0/default.nix" {  };
 
   # Pythons modules :
-  pathToMyPythonModules = builtins.getEnv "waxCraft_PATH"+"/nix/nixpkgs/pythonModules/";
+  wax_python = "${wax_nixpkgs}pythonModules/";
 
-  pml     = self.callPackage "${pathToMyPythonModules}pml/default.nix"{
+  pml     = self.callPackage "${wax_python}pml/default.nix"{
     buildPythonPackage = self.pythonPackages.buildPythonPackage;
     fetchFromBitbucket = self.fetchFromBitbucket;
   };
 
-  pm-utils = self.callPackage "${pathToMyPythonModules}pm-utils/default.nix"{
+  pm-utils = self.callPackage "${wax_python}pm-utils/default.nix"{
     pathlib = self.pythonPackages.pathlib;
     six = self.pythonPackages.six;
     werkzeug = werkzeug;
@@ -64,7 +49,7 @@ packageOverrides = super: let self = super.pkgs; in with self; rec {
     buildPythonPackage = self.pythonPackages.buildPythonPackage;
   };
 
-  pymercure-dev     = self.callPackage "${pathToMyPythonModules}pymercure-dev/default.nix"{
+  pymercure-dev     = self.callPackage "${wax_python}pymercure-dev/default.nix"{
     click = self.pythonPackages.click;
     pm-utils = pm-utils;
     suds-jurko = self.pythonPackages.suds-jurko;
@@ -110,7 +95,7 @@ packageOverrides = super: let self = super.pkgs; in with self; rec {
     pythonPackages.click pythonPackages.mock click-plugins];
   };
 
-  pywann = self.callPackage "${pathToMyPythonModules}PyWANN/default.nix"{
+  pywann = self.callPackage "${wax_python}PyWANN/default.nix"{
     buildPythonPackage = self.pythonPackages.buildPythonPackage;
     numpy = self.pythonPackages.numpy;
     setuptools = self.pythonPackages.setuptools;
