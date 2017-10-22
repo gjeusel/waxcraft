@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sys, os, re
-reload(sys)
-sys.setdefaultencoding('utf8') # problem with encoding
+import sys
+import os
 import subprocess
 from datetime import datetime
 
@@ -55,6 +54,22 @@ def query_yes_no(question, default="yes"):
                              "(or 'y' or 'n').\n")
 
 
+class bcolors:
+    HEADER = '\033[95m'
+    WARNING = '\033[93m'
+
+    FAIL = '\033[91m'
+
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+    GREEN = '\033[38;5;002m'
+    YELLOW = '\033[38;5;003m'
+    BLUE = '\033[38;5;004m'
+
+    ENDC = '\033[0m'
+
+
 class waxCraft:
     old_conf_dir   = waxCraft_path + '/.old-conf/'
 
@@ -72,7 +87,10 @@ class waxCraft:
         dict_cfg = {
             'vim': dict(config_dir = self.vim_cfg_dir,
                         old_conf_dir = self.old_conf_dir+'vim-'+now_str,
-                        nml = ['.vimrc.local',
+                        nml = ['.vimrc',
+                               '.vimrc.before',
+                               '.vimrc.bundles',
+                               '.vimrc.local',
                                '.vimrc.before.local',
                                '.vimrc.bundles.local'],
                        ),
@@ -95,12 +113,6 @@ class waxCraft:
                            ),
         }
 
-        for k in dict_cfg.keys():
-            dict_cfg[k]['nml_file_to_backup'] = dict_cfg[k]['nml']
-
-        dict_cfg['vim']['nml_file_to_backup'] += ['.vimrc', '.vimrc.before',
-                                                  '.vimrc.bundles']
-
         self.dict_cfg = dict_cfg
 
     def save_old_cfg(self, cfg):
@@ -111,7 +123,7 @@ class waxCraft:
             if exc.errno != errno.EEXIST:
                 raise
 
-        for e in self.dict_cfg[cfg]['nml_file_to_backup']:
+        for e in self.dict_cfg[cfg]['nml']:
             if os.path.exists(home + e):
                 sh.copyfile(home + e, self.dict_cfg[cfg]['old_conf_dir'] + e)
 
@@ -150,10 +162,11 @@ class waxCraft:
             # copy file :
             sh.copy(src, dest)
 
-
     def install_vim(self):
         print('--- Installing Vim conf ---')
         self.save_old_cfg('vim')
+
+        self.create_symlinks('vim')
 
         def install_vundle():
             try:
@@ -165,17 +178,20 @@ class waxCraft:
 
             recode = subprocess.call("git clone " +
                 "https://github.com/VundleVim/Vundle.vim.git " +
-                ".vim/bundle/Vundle.vim", shell=True)
+                ".vim/bundle/vundle", shell=True)
 
+        if not os.path.exists(home+'.vim/bundle/vundle'):
+            install_vundle()
 
-        def install_spf13():
-            retcode = subprocess.call("curl http://j.mp/spf13-vim3 -L -o - | sh",
-                                    shell=True)
-
-        if not os.path.exists(home+'.spf13-vim-3/'):
-            install_spf13()
-
-        self.create_symlinks('vim')
+        quest = '\nDo you want to install all' + bcolors.BOLD + bcolors.YELLOW\
+        + ' Vim Plugin ' + bcolors.ENDC + 'now ?'
+        if query_yes_no(quest):
+            cmd = "vim -u "+self.vim_cfg_dir+".vimrc.bundles.default "\
+                  + "+set nomore "\
+                  + "+BundleInstall! "\
+                  + "+BundleClean "\
+                  + "+qall"
+            retcode = subprocess.call(cmd, shell=True)
 
     def install_bash(self):
         print('--- Installing Bash conf ---')
@@ -198,12 +214,10 @@ class waxCraft:
         self.copy_files('plasma')
 
         quest = 'Session need to restart, are your sure you want to quite'
-        choice = query_yes_no(quest)
-        if choice == 'yes':
+        if query_yes_no(query_yes_no):
             retcode = subprocess.call("loginctl terminate-user " +
                                     str(os.environ['USER']),
                                     shell=True)
-
 
     def install(self):
         if 'vim' in self.cfg_list:
