@@ -1,3 +1,6 @@
+[<img src="coq.png" width="150" alt="logo"/>](https://github.com/gjeusel/waxcraft)
+
+----
 # waxCraft
 
 This repository is about my Unix config.
@@ -15,24 +18,12 @@ and [how to include bashrc config in nixos](https://nixos.org/nixos/options.html
 
 ----
 ## Installation :
-python 2.7 script available : **setup.py**
+python 2.7 script available : **wax.py**
 
 - usage see :
-```python setup.py --help```
+```python wax.py --help```
 - example :
 ```python setup.py vim bash```
 
 Note:
 ```python setup.py vim``` Requires Curl 7+, Git 1.7+ and Vim 7.3+
-
-----
-
-This repository contain my config files for :
- - vim
- - bash
- - nixpkgs
- - kde
-
-vim-conf/* ---> vim-conf/.*
-bash-conf/*  ---> bash-conf/.*
-nixpkgs/  ---> .nixpkgs/
