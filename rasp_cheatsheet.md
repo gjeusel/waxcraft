@@ -79,7 +79,14 @@ Access dropdown: `alt + [letter-with-underline]` e.g. `alt + f`
 Back to CLI: `ctrl + alt + backspace`
 
 
-Remote Control
+Remote Controle : X11vnc :
+-----------
+- [Related tutorial](https://www.linux.com/learn/many-ways-use-remote-desktop-x11vnc)
+
+- Start x11vnc server: `x11vnc -rfbauth $HOME/.vnc/passwd`
+- To view it from client: `vncviewer <THE HOST NAME>:<THE PORT>`
+
+Remote Control : VNC
 -----------
 
 Install XRDP: `apt-get install xrdp`
@@ -87,7 +94,7 @@ Install XRDP: `apt-get install xrdp`
 Connect via Remote Desktop app
 
 ---
-<img src="pictures/schema_vnc.png" width="150" alt="logo"/>
+<img src="pictures/schema_vnc.png" width="400"/>
 
 - [Related tutorial](http://gettingstartedwithraspberrypi.tumblr.com/post/24142374137/setting-up-a-vnc-server)
 
