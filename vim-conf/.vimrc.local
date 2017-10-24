@@ -172,6 +172,7 @@ vnoremap <Leader>{ <esc>`>a}<esc>`<i{<esc>
 vnoremap <Leader>} <esc>`>a}<esc>`<i{<esc>
 vnoremap <Leader>" <esc>`>a"<esc>`<i"<esc>
 vnoremap <Leader>' <esc>`>a'<esc>`<i'<esc>
+vnoremap <Leader>` <esc>`>a`<esc>`<i`<esc>
 "" }}}
 
 " Movements binds : {{{
