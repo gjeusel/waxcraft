@@ -30,6 +30,10 @@ packageOverrides = super: let self = super.pkgs; in with self; rec {
   # Pythons modules :
   wax_python = "${wax_nixpkgs}pythonModules/";
 
+  dash = self.callPackage "${wax_python}dash/default.nix"{
+    pkgs = super.pkgs;
+  };
+
   pml     = self.callPackage "${wax_python}pml/default.nix"{
     buildPythonPackage = self.pythonPackages.buildPythonPackage;
     fetchFromBitbucket = self.fetchFromBitbucket;
