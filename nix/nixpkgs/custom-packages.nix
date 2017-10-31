@@ -13,8 +13,8 @@ firefox = {
 
 chromium = {
   enableGoogleTalkPlugin = true;
-  enablePepperFlash = true; # Chromium's non-NSAPI alternative to Adobe Flash
-  enablePepperPDF = true;
+  #enablePepperFlash = true; # Chromium's non-NSAPI alternative to Adobe Flash
+  #enablePepperPDF = true;
 };
 #}}}
 
@@ -69,30 +69,33 @@ packageOverrides = super: let self = super.pkgs; in with self; rec {
     buildInputs = [pythonPackages.psycopg2 pythonPackages.sqlalchemy_migrate];
   };
 
-  click-plugins = pythonPackages.buildPythonPackage rec {
-    name = "click-plugins-v${version}";
-    version = "1.0.2";
-    src = fetchFromGitHub{
-      owner = "click-contrib";
-      repo = "click-plugins";
-      rev = "${version}";
-      sha256 = "1jgs2ga4n1iin7f7yi8z2si4hl5d77444y093yn5l0r6y7rwh51k";
-    };
-    buildInputs = [pythonPackages.click];
-  };
+  #click-plugins = pythonPackages.buildPythonPackage rec {
+  #  name = "click-plugins-v${version}";
+  #  version = "1.0.2";
+  #  src = fetchFromGitHub{
+  #    owner = "click-contrib";
+  #    repo = "click-plugins";
+  #    rev = "${version}";
+  #    sha256 = "1jgs2ga4n1iin7f7yi8z2si4hl5d77444y093yn5l0r6y7rwh51k";
+  #  };
+  #  buildInputs = [pythonPackages.click];
+  #};
 
   tshistory = pythonPackages.buildPythonPackage rec {
     name = "tshistory";
     src = fetchFromBitbucket{
       owner = "pythonian";
       repo = "tshistory";
-      rev = "298aa1c";
-      sha256 = "0jqlm1yb77ijcjgxl666c95q8c74qyckjkhv031md78y21x8vy1q";
+      rev = "9d3157a";
+      sha256 = "0lvqdr4kr8c7ifb6k15b8czpmw461gzsw0rrb37h7mbzkafcsbvd";
     };
-    buildInputs = [pythonPackages.sqlalchemy_migrate pytest_sa_pg
+    buildInputs = [python27Packages.dateutil
+    pythonPackages.sqlalchemy_migrate pytest_sa_pg
     pythonPackages.pathlib pythonPackages.pandas
     pythonPackages.psycopg2
-    pythonPackages.click pythonPackages.mock click-plugins];
+    pythonPackages.click pythonPackages.mock
+    click-plugins
+    ];
   };
 
   pywann = self.callPackage "${wax_python}PyWANN/default.nix"{

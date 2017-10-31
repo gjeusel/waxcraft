@@ -1,0 +1,33 @@
+# example repository config (see 'hg help config' for more info)
+[paths]
+default = https://gjeusel@bitbucket.org/prove_team/intraday
+
+# path aliases to other clones of this repo in URLs or filesystem paths
+# (see 'hg help config.paths' for more info)
+#
+# default:pushurl = ssh://jdoe@example.net/hg/jdoes-fork
+# my-fork         = ssh://jdoe@example.net/hg/jdoes-fork
+# my-clone        = /home/jdoe/jdoes-clone
+
+[extensions]
+shelve =
+rebase =
+evolve =
+
+[ui]
+# name and email (local to this repository, optional), e.g.
+username = Guillaume Jeusel <guillaume.jeusel@engie.com>
+editor=vimdiff
+
+[merge-tools]
+filemerge.executable=vim
+filemerge.args = -d $local $other
+filemerge.checkchanged = true
+filemerge.gui = false
+
+[alias]
+grepcwd = hg grep -r 'reverse(::.)' "$1" .
+
+[trusted]
+groups = vboxsf, root
+users = root, gjeusel, JD5584

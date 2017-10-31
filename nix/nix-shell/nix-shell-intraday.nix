@@ -9,16 +9,17 @@ stdenv.mkDerivation {
   shellHook = ''
     export PS1=$ps1_intraday27
     export PYTHONPATH=$PYTHONPATH:/home/gjeusel/windows/src/
+    export PYTHONPATH=$PYTHONPATH:/home/gjeusel/windows/src/tshistory/
    '';
 
   buildInputs = [
      #Personnal vim
-    (vim_configurable.override {lua=lua; python=python;})
-    powerline-fonts
-    xclip # to enable "*y to copy to the clipboard
+    #(vim_configurable.override {lua=lua; python=python;})
+    #powerline-fonts
+    #xclip # to enable "*y to copy to the clipboard
 
     # Amazon Cloud Computing :
-    aws
+    #aws
 
     # Versionning :
     mercurialFull
@@ -42,14 +43,14 @@ stdenv.mkDerivation {
 
 
     python27Packages.suds-jurko # Lightweight SOAP client (Jurko's fork)
-    python27Packages.click # Create beautiful command line interfaces in Python
+    #python27Packages.click # Create beautiful command line interfaces in Python
     python27Packages.mock # Mock objects for Python
 
 
     python27Packages.lxml # Pythonic binding for the libxml2 and libxslt libraries
 
     python27Packages.flask # A microframework based on Werkzeug, Jinja 2, and good intentions
-    python27Packages.flask-restplus # Fast, easy and documented API development with Flask
+    #python27Packages.flask-restplus # Fast, easy and documented API development with Flask
     python27Packages.pymongo # Python driver for MongoDB
 
     # PACKAGE NIX TO DO :
@@ -59,8 +60,7 @@ stdenv.mkDerivation {
     pymercure-dev
     colorlover
     hg-evolve
-    #python27Packages.pytest_sa_pg # PYTEST SQLALCHEMY/POSTGRES FIXTURE
-    tshistory
+    #tshistory
 
     # Python math common libraries :
     python27Packages.plotly

@@ -4,5 +4,8 @@
 "\e[1;5C":forward-word
 "\e[1;5D":backward-word
 
-"\e[!":quoted-insert
-"\e[2~":quoted-insert
+# allow the use of the Delete/Insert keys
+"\e[2~": quoted-insert
+#"\e[2~": yank                   # Insert
+# "\e[3~": delete-char
+"\e[3~":delete-char             # Suppr

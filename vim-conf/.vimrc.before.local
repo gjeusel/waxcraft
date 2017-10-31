@@ -86,7 +86,7 @@ let g:pymode_syntax = 1
 let g:pymode_lint = 1
 let g:pymode_lint_on_write = 1
 " ignore error #E501 and all warnings :
-let g:pymode_lint_ignore = "E501,W"
+"let g:pymode_lint_ignore = "E501,W"
 let g:pymode_lint_signs = 1
 let g:pymode_lint_cwindow = 0
 let g:pymode_lint_message = 1
@@ -98,5 +98,7 @@ let g:pymode_rope = 0 " disable rope which is slow
 let g:python_fold=1
 " To avoid z remapping and loosing nowait :
 let g:fastfold_fold_movement_commands = []
- let g:fastfold_fold_command_suffixes = []
+let g:fastfold_fold_command_suffixes = []
+" actualize folds when save :
+let g:fastfold_savehook = 1
 " }
