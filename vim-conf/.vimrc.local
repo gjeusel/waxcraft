@@ -158,10 +158,14 @@ map <nowait> <S-F3> :cn<cr>
 nmap <silent> <leader>d :bp\|bd #<CR>
 "}}}
 
-" Search and Replace {{{
-" <leader>r for search and replace the selected text
-vnoremap <silent> <leader>r :call VisualSelection('replace')<CR>
-" }}}
+"" Search and Replace {{{
+"" <leader>r for search and replace the selected text
+"vnoremap <silent> <leader>r :call VisualSelection('replace')<CR>
+"" }}}
+
+" Doc with K fix for second time used :{
+"
+" }
 
 "" parenthesis/brackets/etc ...{{{
 vnoremap <Leader>( <esc>`>a)<esc>`<i(<esc>

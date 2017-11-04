@@ -91,7 +91,7 @@ let g:pymode_lint_signs = 1
 let g:pymode_lint_cwindow = 0
 let g:pymode_lint_message = 1
 
-let g:pymode_rope = 0 " disable rope which is slow
+let g:pymode_rope = 1 " disable rope which is slow
 "}
 
 " {FastFold :
@@ -101,4 +101,8 @@ let g:fastfold_fold_movement_commands = []
 let g:fastfold_fold_command_suffixes = []
 " actualize folds when save :
 let g:fastfold_savehook = 1
+" }
+
+" {Deoplete :
+let g:deoplete#enable_at_startup = 1
 " }
