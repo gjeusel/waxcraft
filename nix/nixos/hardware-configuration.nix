@@ -103,13 +103,13 @@
   hardware.bumblebee.driver = "nvidia";
   hardware.bumblebee.group = "users";
   hardware.bumblebee.connectDisplay = true;
-  hardware.opengl.driSupport = true; # Whether to enable accelerated OpenGL rendering through the Direct Rendering Interface (DRI)
-  hardware.opengl.driSupport32Bit = true;
+  #hardware.opengl.driSupport = true; # Whether to enable accelerated OpenGL rendering through the Direct Rendering Interface (DRI)
+  #hardware.opengl.driSupport32Bit = true;
 
 # Enable pulseaudio for audio
   hardware.pulseaudio.enable = true;
   hardware.pulseaudio.support32Bit = true;
-  hardware.opengl.extraPackages = [ pkgs.vaapiIntel  ];
+  #hardware.opengl.extraPackages = [ pkgs.vaapiIntel  ];
 
   ## compatibility bluetooth & pulseaudio :
   #hardware.pulseaudio.package = pkgs.pulseaudioFull; # to get pulseaudio bluetooth

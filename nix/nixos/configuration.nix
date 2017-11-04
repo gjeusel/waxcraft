@@ -7,7 +7,7 @@
 {
   imports =
     [ # Include the results of the hardware scan.
-   ./hardware-configuration-VM.nix
+      ./hardware-configuration.nix
       ./sysPkgs.nix
     ];
 
@@ -17,33 +17,8 @@
   networking = {
     hostName = "myNixHost";
     networkmanager.enable = true; # obtain an IP address and other configuration for all network interfaces that are not manually configured.
-
-    # Proxy inside VM engie :
-    interfaces.enp0s3.ip4 = [
-      /*{ address = "10.0.0.1"; prefixLength = 16; }*/
-      { address = "192.168.56.2"; prefixLength = 24; }
-    ];
-
-    defaultGateway = "192.168.56.1";
-    nameservers = [ "8.8.8.8" ];
-
-    proxy.default = "http://proxy.eib.electrabel.be:8080";
   };
 
-  # Postgresql config :
-  services.postgresql = {
-    enable = true;
-    package = pkgs.postgresql96;
-    enableTCPIP = true;
-    authentication = pkgs.lib.mkForce ''
-# Generated file; do not edit!
-# TYPE  DATABASE        USER            ADDRESS                 METHOD
-local all all trust
-host    all             all             all                     md5
-host    all             all             127.0.0.1/32            trust
-host    all             all             ::1/128                 trust
-'';
-  };
 
   # Select internationalisation properties.
   i18n = {
@@ -57,7 +32,11 @@ host    all             all             ::1/128                 trust
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
-  /*networking.firewall.allowedTCPPorts = [ 22 ]; # enabled by default when openssh enabled*/
+  services.openssh.extraConfig =
+  ''
+    X11Forwarding yes
+    X11UseLocalhost no
+  '' ;
 
   # Enable the X11 windowing system.
   services.xserver = {
@@ -109,6 +88,6 @@ host    all             all             ::1/128                 trust
   '';
 
   # Security:
-  security.pam.services.testwax.allowNullPassword = true;
+  security.pam.services.public.allowNullPassword = true;
 
 }

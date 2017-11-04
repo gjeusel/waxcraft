@@ -29,6 +29,7 @@ environment.systemPackages = with pkgs; [
   shutter             # screen capture
   ctags               # generates an tags file of names
   coreutils-prefixed  # basic file, shell and text manager
+  ag                  # fast grep tool
 
 # Standard Programming env
   gcc5
