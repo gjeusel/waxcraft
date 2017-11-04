@@ -27,6 +27,8 @@ packageOverrides = super: let self = super.pkgs; in with self; rec {
   blank_env   = self.callPackage "${wax_nixpkgs}blank_env/default.nix" {  };
   cute20      = self.callPackage "${wax_nixpkgs}cute-2.0/default.nix" {  };
 
+  vimFull = self.vim_configurable.override{python = self.python36;};
+
   # Pythons modules :
   wax_python = "${wax_nixpkgs}pythonModules/";
 
