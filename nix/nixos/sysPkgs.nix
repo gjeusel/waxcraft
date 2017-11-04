@@ -22,6 +22,7 @@ environment.systemPackages = with pkgs; [
   htop
   wget
   gitAndTools.gitFull # gitk && git gui
+  gitkraken           # a beautiful gui for git
   mkpasswd            # to encrypt password
   unzip
   nox                 # make easier to find nix packages
