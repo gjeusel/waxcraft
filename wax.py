@@ -8,21 +8,21 @@ from datetime import datetime
 
 import shutil as sh
 
-import errno # cf error raised bu os.makedirs
+import errno  # cf error raised bu os.makedirs
 import argparse
 
 
 ##############################################
 # Global variables :
-script_path   = os.path.abspath(sys.argv[0])
+script_path = os.path.abspath(sys.argv[0])
 waxCraft_path = os.path.dirname(script_path)
-home          = os.environ['HOME'] + '/'
-config_dir    = home + '.config/'
+home = os.environ['HOME'] + '/'
+config_dir = home + '.config/'
 # config_dir    = os.environ['XDG_HOME_DIR'] + '/'
 
 
 def query_yes_no(question, default="yes"):
-    """Ask a yes/no question via raw_input() and return their answer.
+    """Ask a yes/no question via input() and return their answer.
 
     "question" is a string that is presented to the user.
     "default" is the presumed answer if the user just hits <Enter>.
@@ -44,7 +44,7 @@ def query_yes_no(question, default="yes"):
 
     while True:
         sys.stdout.write(question + prompt)
-        choice = raw_input().lower()
+        choice = input().lower()
         if default is not None and choice == '':
             return valid[default]
         elif choice in valid:
@@ -71,12 +71,12 @@ class bcolors:
 
 
 class waxCraft:
-    old_conf_dir   = waxCraft_path + '/.old-conf/'
+    old_conf_dir = waxCraft_path + '/.old-conf/'
 
-    bash_cfg_dir   = waxCraft_path + '/bash-conf/'
-    vim_cfg_dir    = waxCraft_path + '/vim-conf/'
+    bash_cfg_dir = waxCraft_path + '/bash-conf/'
+    vim_cfg_dir = waxCraft_path + '/vim-conf/'
     plasma_cfg_dir = waxCraft_path + '/kde-plasma-conf/'
-    nixpkgs_cfg_dir= waxCraft_path + '/nix/nixpkgs/'
+    nixpkgs_cfg_dir = waxCraft_path + '/nix/nixpkgs/'
 
     def __init__(self, cfg_list):
         self.cfg_list = cfg_list
@@ -85,31 +85,31 @@ class waxCraft:
         now_str = now.strftime('%Y-%m-%d-%H-%M')
 
         dict_cfg = {
-            'vim': dict(config_dir = self.vim_cfg_dir,
-                        old_conf_dir = self.old_conf_dir+'vim-'+now_str,
-                        nml = ['.vimrc',
-                               '.vimrc.before',
-                               '.vimrc.bundles',
-                               '.vimrc.local',
-                               '.vimrc.before.local',
-                               '.vimrc.bundles.local'],
-                       ),
-
-            'bash': dict(config_dir = self.bash_cfg_dir,
-                         old_conf_dir=self.old_conf_dir+'bash-'+now_str,
-                         nml = ['.bash_aliases', '.inputrc'],
+            'vim': dict(config_dir=self.vim_cfg_dir,
+                        old_conf_dir=self.old_conf_dir+'vim-'+now_str,
+                        nml=['.vimrc',
+                             '.vimrc.before',
+                             '.vimrc.bundles',
+                             '.vimrc.local',
+                             '.vimrc.before.local',
+                             '.vimrc.bundles.local'],
                         ),
 
-            'plasma': dict(config_dir = self.plasma_cfg_dir,
-                           old_conf_dir = self.old_conf_dir+'plasma-'+now_str,
-                           nml = ['kglobalshortcutsrc',
-                                  'ksmserverrc',
-                                  'kwinrc',
-                                  'khotkeysrc',
-                                  'kwalletrc',
-                                  'plasma-org.kde.plasma.desktop-appletsrc',
-                                  'xfce4/terminal/terminalrc'
-                                 ]
+            'bash': dict(config_dir=self.bash_cfg_dir,
+                         old_conf_dir=self.old_conf_dir+'bash-'+now_str,
+                         nml=['.bash_aliases', '.inputrc'],
+                         ),
+
+            'plasma': dict(config_dir=self.plasma_cfg_dir,
+                           old_conf_dir=self.old_conf_dir+'plasma-'+now_str,
+                           nml=['kglobalshortcutsrc',
+                                'ksmserverrc',
+                                'kwinrc',
+                                'khotkeysrc',
+                                'kwalletrc',
+                                'plasma-org.kde.plasma.desktop-appletsrc',
+                                'xfce4/terminal/terminalrc'
+                                ]
                            ),
         }
 
@@ -119,7 +119,7 @@ class waxCraft:
         print('Backup in ' + self.dict_cfg[cfg]['old_conf_dir'] + ' ...')
         try:
             os.makedirs(self.dict_cfg[cfg]['old_conf_dir'])
-        except OSError as exc: # Python >2.5
+        except OSError as exc:  # Python >2.5
             if exc.errno != errno.EEXIST:
                 raise
 
@@ -133,7 +133,7 @@ class waxCraft:
             try:
                 os.remove(home + e)
             except OSError as exc:
-                if exc.errno != 2: # means that no such file or directory
+                if exc.errno != 2:  # means that no such file or directory
                     raise
             os.symlink(self.dict_cfg[cfg]['config_dir'] + e, home + e)
 
@@ -147,7 +147,7 @@ class waxCraft:
             try:
                 os.remove(dest)
             except OSError as exc:
-                if exc.errno != 2: # means that no such file or directory
+                if exc.errno != 2:  # means that no such file or directory
                     raise
 
             # Create directories if not already existing
@@ -155,7 +155,7 @@ class waxCraft:
             if (not alr_exist):
                 try:
                     os.makedirs(os.path.dirname(dest))
-                except OSError as exc: # Guard against race condition
+                except OSError as exc:  # Guard against race condition
                     if exc.errno != errno.EEXIST:
                         raise
 
@@ -171,20 +171,22 @@ class waxCraft:
         def install_vundle():
             try:
                 retcode = subprocess.call("git --version &> /dev/null",
-                                        shell=True)
+                                          shell=True)
             except OSError as exc:
-                if exc.errno != 0 : # means that git isn't accessible
+                if exc.errno != 0:  # means that git isn't accessible
                     raise
 
-            recode = subprocess.call("git clone " +
+            recode = subprocess.call(
+                "git clone " +
                 "https://github.com/VundleVim/Vundle.vim.git " +
-                ".vim/bundle/vundle", shell=True)
+                ".vim/bundle/vundle",
+                shell=True)
 
         if not os.path.exists(home+'.vim/bundle/vundle'):
             install_vundle()
 
         quest = '\nDo you want to install all' + bcolors.BOLD + bcolors.YELLOW\
-        + ' Vim Plugin ' + bcolors.ENDC + 'now ?'
+            + ' Vim Plugin ' + bcolors.ENDC + 'now ?'
         if query_yes_no(quest):
             cmd = "vim -u "+self.vim_cfg_dir+".vimrc.bundles.default "\
                   + "+set nomore "\
@@ -205,19 +207,19 @@ class waxCraft:
         if os.path.exists(home+'.bashrc'):
             if str_source not in open(home+'.bashrc').read():
                 open(home+'.bashrc', 'a').write('\n'+str_source)
-        else :
+        else:
             open(home+'.bashrc', 'w').write(str_source)
 
     def install_plasma(self):
-        print '--- Installing Plasma conf ---'
+        print('--- Installing Plasma conf ---')
         self.save_old_cfg('plasma')
         self.copy_files('plasma')
 
         quest = 'Session need to restart, are your sure you want to quite'
         if query_yes_no(query_yes_no):
             retcode = subprocess.call("loginctl terminate-user " +
-                                    str(os.environ['USER']),
-                                    shell=True)
+                                      str(os.environ['USER']),
+                                      shell=True)
 
     def install(self):
         if 'vim' in self.cfg_list:
@@ -231,15 +233,17 @@ class waxCraft:
 
 
 class nixpkgs_class:
-    nixpkgs_cfg_dir= waxCraft_path + '/nix/nixpkgs/'
+    nixpkgs_cfg_dir = waxCraft_path + '/nix/nixpkgs/'
+
     def __init__(self):
-        print "--- Installing nixpkgs conf ---"
+        print("--- Installing nixpkgs conf ---")
         self.nml = ['.nixpkgs/config.nix']
-        print 'Creating symlinks ...'
+        print('Creating symlinks ...')
         if not os.path.isdir(home+'.nixpkgs'):
             os.makedirs(home+'.nixpkgs')
+
         for e in self.nml:
-            os.symlink(self.nixpkgs_cfg_dir + 'custom-packages.nix' , home + e)
+            os.symlink(self.nixpkgs_cfg_dir + 'custom-packages.nix', home + e)
 
 
 def setup_argparser():
@@ -250,9 +254,14 @@ def setup_argparser():
                                                         'plasma', 'nixpkgs'],
                         help='''cfg to install''')
 
-    parser.add_argument('-v', '--verbose', dest='verbose', required=False,
-                        default=0, type=int,
-                        help='Verbose level: 0 for errors, 1 for info or 2 for debug.')
+    parser.add_argument(
+        '-v',
+        '--verbose',
+        dest='verbose',
+        required=False,
+        default=0,
+        type=int,
+        help='Verbose level: 0 for errors, 1 for info or 2 for debug.')
 
     return parser
 
@@ -270,7 +279,7 @@ def main(argv=None):
     wax = waxCraft(args.cfg_list)
     wax.install()
 
-    if 'nixpkgs' in args.cfg_list :
+    if 'nixpkgs' in args.cfg_list:
         nixpkgs_cfg = nixpkgs_class()
 
 

@@ -232,10 +232,10 @@ map <nowait><leader><leader> <Plug>(easymotion-jumptoanywhere)
 "map <S-e> b
 
 " --> About moving splits :
-map <C-h> <C-W>h
-map <C-j> <C-W>j
-map <C-k> <C-W>k
-map <C-l> <C-W>l
+map <a-h> <C-W>h
+map <a-j> <C-W>j
+map <a-k> <C-W>k
+map <a-l> <C-W>l
 
 " }}}
 
@@ -284,6 +284,9 @@ map <Esc>² :call ExecAndBuild() <cr>
 "}}}
 
 "  {{{ Some Global config
+
+" neosnippet config :
+let g:snips_author = 'Guillaume Jeusel <guillaume.jeusel@gmail.com>'
 
 " leave insert mode quickly
 if !has('gui_running')

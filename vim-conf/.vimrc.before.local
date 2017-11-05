@@ -4,7 +4,10 @@
 let g:UltiSnipsExpandTrigger="^[/"
 
 " spf13 disabling some options :
-let g:spf13_bundle_groups=['general', 'writing', 'neocomplete', 'programming', 'javascript', 'html', 'misc',]
+"let g:spf13_bundle_groups=['general', 'writing', 'neocomplete', 'programming', 'javascript', 'html', 'misc',]
+
+" spf13 disable omni-complete :
+let g:spf13_no_omni_complete = 1
 
 " Disable indent highlighting
 let g:indent_guides_enable_on_vim_startup=0
@@ -65,11 +68,14 @@ endif
 
 let g:pymode_options_max_line_length = 79
 let g:pymode_indent = 1 " pep8 indent
-let g:pymode_lint_checkers = ['pep8', 'pyflakes'] " pep8 code checker
 let g:pymode_folding = 1
 let g:pymode_motion = 1
+
+" doc
 let g:pymode_doc = 1
 let g:pymode_doc_bind = 'K'
+
+" syntax
 let g:pymode_syntax = 1
 let g:pymode_syntax_all = 1
 let g:pymode_syntax_slow_sync = 1 " slower syntax sync
@@ -85,13 +91,16 @@ let g:pymode_syntax = 1
 " Python code checking :
 let g:pymode_lint = 1
 let g:pymode_lint_on_write = 1
-" ignore error #E501 and all warnings :
-"let g:pymode_lint_ignore = "E501,W"
+let g:pymode_lint_checkers = ['pep8', 'pyflakes'] " pep8 code checker
+
+
 let g:pymode_lint_signs = 1
 let g:pymode_lint_cwindow = 0
 let g:pymode_lint_message = 1
 
-let g:pymode_rope = 1 " disable rope which is slow
+" Code completion :
+let g:pymode_rope = 1 " enable rope which is slow
+let g:pymode_rope_completion = 1
 "}
 
 " {FastFold :
