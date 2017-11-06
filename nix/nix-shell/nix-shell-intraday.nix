@@ -15,8 +15,7 @@ stdenv.mkDerivation {
 
   buildInputs = [
     # Versionning :
-    mercurialFull
-    tortoisehg
+    mercurial
     python36Packages.hglib
 
     python36Full
