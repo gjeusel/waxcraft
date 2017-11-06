@@ -63,6 +63,7 @@ alias git-jump="$waxCraft_PATH/tools/git-jump"
 # hg-jump
 alias hg-jump="$waxCraft_PATH/tools/hg-jump"
 # ag-jump (vim with ag cml tool for grep)
+alias ag="ag --ignore-dir build/"
 alias ag-jump="$waxCraft_PATH/tools/ag-jump"
 alias jag="ag-jump grep"
 
@@ -98,8 +99,8 @@ alias unproxy="source $waxCraft_PATH/tools/unset_proxy.py"
 alias lml=load_env_machlearn
 alias li="unproxy && cd ~/intraday/ && load_env_intraday"
 
-#alias vim="/run/current-system/sw/bin/vim"
-#alias vim="/nix/store/rxdrwf7cvvl3ds8xlj6rasdq58fi6wd3-vim_configurable-8.0.0329/bin/vim"
+alias vimrc="vim ~/.vimrc*"
+alias nvimrc="nvim ~/.vimrc*"
 
 # Spark aliases :
 if hash ipython 2>/dev/null; then

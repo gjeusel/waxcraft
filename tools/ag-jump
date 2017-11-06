@@ -18,7 +18,7 @@ open_editor() {
 }
 
 mode_grep() {
-	ag --no-color --no-group "$@" |
+	ag --ignore-dir build/ --no-color --no-group "$@" |
 	perl -pe '
 	s/[ \t]+/ /g;
 	s/^ *//;
