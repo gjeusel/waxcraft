@@ -1,8 +1,20 @@
-" Special Plugins choices :
 Plugin 'TFenby/python-mode', { 'branch' : 'develop' }
 Plugin 'LnL7/vim-nix'
 Plugin 'octol/vim-cpp-enhanced-highlight'
 Plugin 'Konfekt/FastFold'
 Plugin 'Konfekt/FoldText'
-Plugin 'davidhalter/jedi-vim'
-Plugin 'maralla/completor.vim'
+
+if has('nvim')
+  Plugin 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+  Plugin 'zchee/deoplete-jedi'
+else
+  Plugin 'python-rope/ropevim'
+  Plugin 'davidhalter/jedi-vim'
+  Plugin 'maralla/completor.vim'
+
+  "Plugin 'Shougo/deoplete.nvim'
+  "Plugin 'roxma/nvim-yarp'
+  "Plugin 'roxma/vim-hug-neovim-rpc'
+  "Plugin 'zchee/deoplete-jedi'
+  "Plugin 'Shougo/deoppet.nvim', { 'do': ':UpdateRemotePlugins' }
+endif

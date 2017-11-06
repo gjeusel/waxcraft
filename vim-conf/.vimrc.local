@@ -137,25 +137,36 @@ for i in range(97,122)
   exec "map! \e".c." <M-".c.">"
 endfor
 
-" Mapping with alt-Fx
-" https://stackoverflow.com/questions/7501092/can-i-map-alt-key-in-vim
-" ALT + F1 :
-exec "set <S-F1>=\eO1;3P"
-map <nowait> O1;3P :bp<cr>
-map <nowait> <S-F1> :bp<cr>
-" ALT + F2 :
-exec "set <S-F2>=\eO1;3Q"
-map <nowait> O1;3Q :bn<cr>
-map <nowait> <S-F2> :bn<cr>
+"" fix meta-keys which generate <Esc>a .. <Esc>z
+"let c='a'
+"while c <= 'z'
+"  exec "set <M-".toupper(c).">=\e".c
+"  exec "imap \e".c." <M-".toupper(c).">"
+"  let c = nr2char(1+char2nr(c))
+"endw
 
-" --> Open next occurence of search (git jump grep "something")
-" ALT + F3 :
-exec "set <S-F3>=\eO1;3R"
-map <nowait> O1;3Q :cn<cr>
-map <nowait> <S-F3> :cn<cr>
+if has('nvim')
+  "set ttimeoutlen=-1
+  "map <nowait> <A-a> :bp<cr>>
+  "map <nowait> <A-z> :bn<cr>
+  "map <nowait> <A-e> :cn<cr>
+else
+  " Mapping with alt-Fx
+  " https://stackoverflow.com/questions/7501092/can-i-map-alt-key-in-vim
+  " ALT + F1 :
+  exec "set <S-F1>=\eO1;3P"
+  " ALT + F2 :
+  exec "set <S-F2>=\eO1;3Q"
+  " ALT + F3 :
+  exec "set <S-F3>=\eO1;3R"
+  map <nowait> <S-F1> :bp<cr>
+  map <nowait> <S-F2> :bn<cr>
+  " Open next occurence of search (git jump grep "something") :
+  map <nowait> <S-F3> :cn<cr>
+endif
 
 " buffer delete without closing windows :
-nmap <silent> <leader>d :bp\|bd #<CR>
+nmap <silent> <leader>bd :bp\|bd #<CR>
 "}}}
 
 "" Search and Replace {{{
@@ -248,7 +259,7 @@ vnoremap <Leader>y "+y
 
 " -->  Bind nohl : Removes highlight of your last search
 " ``<C>`` stands for ``CTRL`` and therefore ``<C-n>`` stands for ``CTRL+n``
-map  <nowait> <Leader>n :nohl<CR>
+map  <nowait> <Leader>; :nohl<CR>
 
 " Avoid vim history cmd to pop up with q:
 nnoremap q: <Nop>
@@ -260,7 +271,7 @@ map <S-Tab>  :tabNext<cr>
 
 map <F12> :source ${HOME}/.vimrc.local<cr>
 
-set timeoutlen=1000 ttimeoutlen=0
+set timeoutlen=1000 ttimeoutlen=10
 
 " Settings for python-mode
 "map <Leader>b oimport ipdb; ipdb.set_trace() # BREAKPOINT<C-c>
@@ -370,17 +381,6 @@ if has("autocmd")
   au BufNewFile,BufRead *.cmake set filetype=cmake
   au BufNewFile,BufRead CMakeLists.txt set filetype=cmake
 endif
-
-" --> Regarding Nvim : {{{
-if has('nvim')
-  Plugin 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-  set runtimepath+=/home/gjeusel/.config/nvim/deoplete.nvim
-  let g:deoplete#enable_at_startup = 1
-  "call remote#host#RegisterPlugin('python3', '/home/gjeusel/.vim/bundle/deoplete.nvim/rplugin/python3/deoplete/deoplete.py', [
-  "   \ {'sync': 1, 'name': 'DeopleteInitializePython', 'type': 'command', 'opts': {}},
-  "   \ ])
-endif
-"}}}
 
 "}}}
 

@@ -3,31 +3,45 @@
 " Trying to get the ALT key functional for binding :
 let g:UltiSnipsExpandTrigger="^[/"
 
-" spf13 disabling some options :
-"let g:spf13_bundle_groups=['general', 'writing', 'neocomplete', 'programming', 'javascript', 'html', 'misc',]
+" spf13 rewrite {
+" enable only those groups :
+"let g:spf13_bundle_groups=[
+    \'general', 'writing', 'programming',
+    \'python',
+    \'php', 'ruby', 'javascript', 'html'
+    \'misc',
+    \]
+"    \'snipmate',
+"    \'youcompleteme',
+"    \'neocomplete', 'neocomplcache',
 
-" spf13 disable omni-complete :
+"" disable omni-complete :
 let g:spf13_no_omni_complete = 1
+
+" Disable fast tab navigation
+let g:spf13_no_fastTabs = 1
+
+" disable easy windows because personalized with alt key in .vimrc.local:
+let g:spf13_no_easyWindows = 1
+
+" see for patching terminal fonts :
+" https://powerline.readthedocs.org/en/latest/installation/linux.html#font-installation
+let g:airline_powerline_fonts=1
+
+"}
 
 " Disable indent highlighting
 let g:indent_guides_enable_on_vim_startup=0
 let g:indent_guides_auto_colors = 0
 
-" Use neocomplete.
-let g:neocomplete#enable_at_startup = 1
-" Use smartcase.
-let g:neocomplete#enable_smart_case = 1
+" Completion Plugin : {
 " Set minimum syntax keyword length.
-let g:neocomplete#sources#syntax#min_keyword_length = 3
+"let g:neocomplete#sources#syntax#min_keyword_length = 3
 "" AutoComplPop like behavior.
-"let g:neocomplete#enable_auto_select = 1
+let g:neocomplete#enable_auto_select = 1
 " Enable omni completion.
-autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
-
-"" Use smartcase.
-"let g:neocomplete#enable_smart_case = 1
-"" Case sensitive to complete
-"let g:neocomplete#enable_camel_case = 1
+"autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
+"}
 
 " Disable auto-pairs:
 "let b:AutoPairs = {"(": ")"}
@@ -40,26 +54,12 @@ let g:rainbow_active = 1
 " Vim-airline plugin
 let g:airline_theme = 'solarized'
 
-" see for patching terminal fonts :
-" https://powerline.readthedocs.org/en/latest/installation/linux.html#font-installation
-let g:airline_powerline_fonts=1
-
 "Automatically displays all buffers when there's only one tab open :
 let g:airline#extensions#tabline#enabled = 1
 
 " To avoid duplicating infos given by status line :
 let g:bufferline_echo = 0
 
-"}
-
-"{ nvim
-" nvim clipboard message
-if has('nvim')
-  let g:yankring_clipboard_monitor = (has("nvim") ? 0 : 1)
-  let g:neocomplete#enable_at_startup = 0
-  let g:deoplete#enable_at_startup = 1
-  "let g:deoplete#enable_refresh_always = 1 "Deoplete refreshes the candidates automatically
-endif
 "}
 
 " {Python pymode plugin :
@@ -100,7 +100,8 @@ let g:pymode_lint_message = 1
 
 " Code completion :
 let g:pymode_rope = 1 " enable rope which is slow
-let g:pymode_rope_completion = 1
+let g:pymode_rope_completion = 1 " enable completion
+"let g:pymode_rope_lookup_project = 0 " do not lookup in parent directories which is slow
 "}
 
 " {FastFold :
@@ -112,6 +113,16 @@ let g:fastfold_fold_command_suffixes = []
 let g:fastfold_savehook = 1
 " }
 
-" {Deoplete :
-let g:deoplete#enable_at_startup = 1
-" }
+"{ nvim
+if has('nvim')
+  let g:deoplete#enable_at_startup = 1
+  let g:deoplete#enable_refresh_always = 1 "Deoplete refreshes the candidates automatically
+else
+  "let g:deoplete#enable_at_startup = 1
+  "let g:deoplete#enable_refresh_always = 1 "Deoplete refreshes the candidates automatically
+  "let g:jedi#completions_enabled = 0
+  "let g:jedi#auto_vim_configuration = 0
+  "let g:jedi#smart_auto_mappings = 0
+  "let g:jedi#show_call_signatures = 0
+endif
+"}
