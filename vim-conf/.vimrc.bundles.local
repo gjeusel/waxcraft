@@ -3,14 +3,24 @@ Plugin 'LnL7/vim-nix'
 Plugin 'octol/vim-cpp-enhanced-highlight'
 Plugin 'Konfekt/FastFold'
 Plugin 'Konfekt/FoldText'
+Plugin 'SirVer/ultisnips'
 
 if has('nvim')
+  Plugin 'Shougo/neco-vim'
+  Plugin 'Shougo/neoinclude.vim'
+  Plugin 'Shougo/neco-syntax'
+  Plugin 'Shougo/vimshell.vim'
+  Plugin 'ujihisa/neco-look'
+  Plugin 'Shougo/context_filetype.vim'
+  Plugin 'Shougo/echodoc.vim'
+
   Plugin 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
   Plugin 'zchee/deoplete-jedi'
+  Plugin 'zchee/deoplete-go'
 else
-  Plugin 'python-rope/ropevim'
   Plugin 'davidhalter/jedi-vim'
   Plugin 'maralla/completor.vim'
+  "Plugin 'roxma/nvim-completion-manager'
 
   "Plugin 'Shougo/deoplete.nvim'
   "Plugin 'roxma/nvim-yarp'

@@ -6,11 +6,11 @@ let g:UltiSnipsExpandTrigger="^[/"
 " spf13 rewrite {
 " enable only those groups :
 "let g:spf13_bundle_groups=[
-    \'general', 'writing', 'programming',
-    \'python',
-    \'php', 'ruby', 'javascript', 'html'
-    \'misc',
-    \]
+"    \'general', 'writing', 'programming',
+"    \'python',
+"    \'php', 'ruby', 'javascript', 'html'
+"    \'misc',
+"    \]
 "    \'snipmate',
 "    \'youcompleteme',
 "    \'neocomplete', 'neocomplcache',
@@ -41,6 +41,13 @@ let g:indent_guides_auto_colors = 0
 let g:neocomplete#enable_auto_select = 1
 " Enable omni completion.
 "autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
+
+" NCM (Neo Complete Manager) :
+let g:UltiSnipsExpandTrigger = "<Plug>(ultisnips_expand)"
+let g:UltiSnipsJumpForwardTrigger = "<c-j>"
+let g:UltiSnipsJumpBackwardTrigger = "<c-k>"
+let g:UltiSnipsRemoveSelectModeMappings = 0
+
 "}
 
 " Disable auto-pairs:
@@ -101,8 +108,19 @@ let g:pymode_lint_message = 1
 " Code completion :
 let g:pymode_rope = 1 " enable rope which is slow
 let g:pymode_rope_completion = 1 " enable completion
-"let g:pymode_rope_lookup_project = 0 " do not lookup in parent directories which is slow
+let g:pymode_rope_lookup_project = 0 " do not lookup in parent directories which is slow
+let g:pymode_rope_autoimport = 0
 "}
+
+" Jedi {
+let g:jedi#completions_command = "<C-Space>"
+"let g:popup_on_dot = 0
+let g:jedi#use_call_signatures_delay = 10
+" disable to jedi completions to use another completion engine
+" because jedi is conflicted with pymode and very slow
+" it will still keep all other functionalities
+let g:jedi#completions_enabled = 0
+" }
 
 " {FastFold :
 let g:python_fold=1
@@ -117,6 +135,10 @@ let g:fastfold_savehook = 1
 if has('nvim')
   let g:deoplete#enable_at_startup = 1
   let g:deoplete#enable_refresh_always = 1 "Deoplete refreshes the candidates automatically
+  let g:jedi#completions_enabled = 0
+  let g:jedi#auto_vim_configuration = 0
+  let g:jedi#smart_auto_mappings = 0
+  let g:jedi#show_call_signatures = 0
 else
   "let g:deoplete#enable_at_startup = 1
   "let g:deoplete#enable_refresh_always = 1 "Deoplete refreshes the candidates automatically
