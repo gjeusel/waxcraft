@@ -32,94 +32,6 @@ packageOverrides = super: let self = super.pkgs; in with self; rec {
   # Pythons modules :
   wax_python = "${wax_nixpkgs}pythonModules/";
 
-  dash = self.callPackage "${wax_python}dash/default.nix"{
-    pkgs = super.pkgs;
-  };
-
-  pml     = self.callPackage "${wax_python}pml/default.nix"{
-    buildPythonPackage = self.pythonPackages.buildPythonPackage;
-    fetchFromBitbucket = self.fetchFromBitbucket;
-  };
-
-  pm-utils = self.callPackage "${wax_python}pm-utils/default.nix"{
-    pathlib = self.pythonPackages.pathlib;
-    six = self.pythonPackages.six;
-    werkzeug = werkzeug;
-    apscheduler = self.pythonPackages.APScheduler;
-    openpyxl = self.pythonPackages.openpyxl;
-    mock = self.pythonPackages.mock;
-    numpy = self.pythonPackages.numpy;
-    pandas = self.pythonPackages.pandas;
-    requests = self.pythonPackages.requests;
-    xmltodict = self.pythonPackages.xmltodict;
-    buildPythonPackage = self.pythonPackages.buildPythonPackage;
-  };
-
-  pymercure-dev     = self.callPackage "${wax_python}pymercure-dev/default.nix"{
-    click = self.pythonPackages.click;
-    pm-utils = pm-utils;
-    suds-jurko = self.pythonPackages.suds-jurko;
-    pandas = self.pythonPackages.pandas;
-    inireader = inireader;
-    buildPythonPackage = self.pythonPackages.buildPythonPackage;
-  };
-
-  pytest_sa_pg = pythonPackages.buildPythonPackage rec {
-    name = "pytest_sa_pg";
-    src = fetchFromBitbucket{
-      owner = "pythonian";
-      repo = "pytest_sa_pg";
-      rev = "44b1a8a";
-      sha256 = "1a6wr3pgqla0x3m909g9bm3ivbrf7vlm7xk4bgl5g7qq2nns0v25";
-    };
-    buildInputs = [pythonPackages.psycopg2 pythonPackages.sqlalchemy_migrate];
-  };
-
-  #click-plugins = pythonPackages.buildPythonPackage rec {
-  #  name = "click-plugins-v${version}";
-  #  version = "1.0.2";
-  #  src = fetchFromGitHub{
-  #    owner = "click-contrib";
-  #    repo = "click-plugins";
-  #    rev = "${version}";
-  #    sha256 = "1jgs2ga4n1iin7f7yi8z2si4hl5d77444y093yn5l0r6y7rwh51k";
-  #  };
-  #  buildInputs = [pythonPackages.click];
-  #};
-
-  tshistory = pythonPackages.buildPythonPackage rec {
-    name = "tshistory";
-    src = fetchFromBitbucket{
-      owner = "pythonian";
-      repo = "tshistory";
-      rev = "9d3157a";
-      sha256 = "0lvqdr4kr8c7ifb6k15b8czpmw461gzsw0rrb37h7mbzkafcsbvd";
-    };
-    buildInputs = [python27Packages.dateutil
-    pythonPackages.sqlalchemy_migrate pytest_sa_pg
-    pythonPackages.pathlib pythonPackages.pandas
-    pythonPackages.psycopg2
-    pythonPackages.click pythonPackages.mock
-    click-plugins
-    ];
-  };
-
-  pywann = self.callPackage "${wax_python}PyWANN/default.nix"{
-    buildPythonPackage = self.pythonPackages.buildPythonPackage;
-    numpy = self.pythonPackages.numpy;
-    setuptools = self.pythonPackages.setuptools;
-  };
-
-  hg-evolve = pythonPackages.buildPythonPackage rec {
-    name = "hg-evolve";
-    src = fetchurl {
-      url = https://pypi.python.org/packages/08/ea/4a455e92e22cc6c4a7ef37203061349e3246e0083b72aa4f9cba38631cb8/hg-evolve-6.5.0.tar.gz;
-      sha256 = "1zq90hw3clxwzf6f5dkkjr35yygxm3kdzyj9jl9y6p3hm809rnld";
-    };
-    doCheck = false;
-  };
-
-
   pyyaml = pythonPackages.buildPythonPackage rec {
     name = "pyyaml-${version}";
     version = "3.12";
@@ -150,32 +62,6 @@ packageOverrides = super: let self = super.pkgs; in with self; rec {
       sha256 = "1q8d6m9746jralzskn5247kwr3jaghn7h639qh2dn239ych5w32c";
     };
     buildInputs = [cmake pythonPackages.scipy pythonPackages.scikitlearn];
-  };
-
-  pytablewriter = pythonPackages.buildPythonPackage rec {
-    name = "pytablewriter-${version}";
-    version = "v0.24.0";
-
-    src = fetchFromGitHub {
-      owner = "thombashi";
-      repo = "pytablewriter";
-      rev = "${version}";
-      sha256 = "1isab0ssnpmlnhmlg8rjs0bqxzyynz93mw5i9q9wfjzclva4nz3d";
-    };
-    doCheck = false;
-  };
-
-  cufflinks = pythonPackages.buildPythonPackage rec {
-    name = "cufflinks";
-
-    src = fetchFromGitHub {
-      owner = "santosjorge";
-      repo = "cufflinks";
-      rev = "cf5eba8ff084ed323d6aad0764a1fb0f7f2900a1";
-      sha256 = "08ijq6mpjvmirlfgiq7r9dbwpqpybvj4dqsbwqg3kgyjf8ig9ydi";
-    };
-    buildInputs = [pythonPackages.plotly colorlover pythonPackages.pandas];
-    doCheck = false;
   };
 
   werkzeug = pythonPackages.buildPythonPackage rec {
