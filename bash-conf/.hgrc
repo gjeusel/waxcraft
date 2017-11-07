@@ -9,15 +9,19 @@ default = https://gjeusel@bitbucket.org/prove_team/intraday
 # my-fork         = ssh://jdoe@example.net/hg/jdoes-fork
 # my-clone        = /home/jdoe/jdoes-clone
 
+[auth]
+bb.username = gjeusel
+
 [extensions]
 shelve =
 rebase =
 evolve =
+histedit =
 
 [ui]
 # name and email (local to this repository, optional), e.g.
 username = Guillaume Jeusel <guillaume.jeusel@engie.com>
-editor=vimdiff
+editor = vim
 
 [merge-tools]
 filemerge.executable=vim
@@ -31,3 +35,7 @@ grepcwd = hg grep -r 'reverse(::.)' "$1" .
 [trusted]
 groups = vboxsf, root
 users = root, gjeusel, JD5584
+
+[phases]
+new-commit = public
+rebase = public
