@@ -81,6 +81,31 @@ function! ActivateRainbow()
 endfunction
 " }}}
 
+" --> profile vim : {
+function! StartProfiling()
+  execute ":profile start profile.log"
+  execute ":profile func *"
+  execute ":profile file *"
+  let b:profiling=1
+endfunction
+
+function! EndProfiling()
+  execute ":profile pause"
+  let b:profiling=0
+endfunction
+
+let b:profiling=0
+function! ToggleProfiling()
+  if b:profiling == 0
+    call StartProfiling()
+  else
+    call EndProfiling()
+  endif
+endfunction
+"}
+
+map <leader>p :call ToggleProfiling()<cr>
+
 " --> About Solarized colors schemes switch
 "  SwitchToggleSolarized {{{
 " For more info type :help highlight

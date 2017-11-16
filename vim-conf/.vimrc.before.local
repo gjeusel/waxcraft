@@ -122,6 +122,13 @@ let g:jedi#use_call_signatures_delay = 10
 let g:jedi#completions_enabled = 0
 " }
 
+" Deoplete-jedi {
+if has('nvim')
+  "let g:python_host_prog = '/nix/store/c0fi9iddqzrwcl83gk99gaigv0ghzd69-python3.6-neovim-0.1.13/lib/python3.6/site-packages/'
+  "let g:python3_host_prog = '/nix/store/6h7k2zv8w7dirj98dx58xkg8w2waqdi1-python2.7-neovim-0.1.13/lib/python2.7/site-packages/'
+endif
+" }
+
 " {FastFold :
 let g:python_fold=1
 " To avoid z remapping and loosing nowait :

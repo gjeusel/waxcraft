@@ -14,6 +14,25 @@ if has('nvim')
   Plugin 'Shougo/context_filetype.vim'
   Plugin 'Shougo/echodoc.vim'
 
+  function! NixosPluginPath()
+    let seen = {}
+    for p in reverse(split($NIX_PROFILES))
+      for d in split(glob(p . '/share/vim-plugins/*'))
+        let pluginname = substitute(d, ".*/", "", "")
+        if !has_key(seen, pluginname)
+          exec 'set runtimepath^='.d
+          let after = d."/after"
+          if isdirectory(after)
+            exec 'set runtimepath^='.after
+          endif
+          let seen[pluginname] = 1
+        endif
+      endfor
+    endfor
+  endfunction
+
+  "execute NixosPluginPath()
+
   Plugin 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
   Plugin 'zchee/deoplete-jedi'
   Plugin 'zchee/deoplete-go'
