@@ -1,4 +1,9 @@
-$ gummiboot status
+Boot cmd
+===============
+
+# gummiboot
+
+`$ gummiboot status
 Boot Loader Binaries:
           ESP: /dev/disk/by-partuuid/e553201f-387b-453f-bfd4-77ebaeee06c3
          File: └─/EFI/gummiboot/gummibootx64.efi (gummiboot 48)
@@ -15,11 +20,11 @@ Boot Loader Entries in EFI Variables:
            ID: 0x0000
        Status: active, boot-order
     Partition: /dev/disk/by-partuuid/e553201f-387b-453f-bfd4-77ebaeee06c3
-         File: └─/EFI/Microsoft/Boot/bootmgfw.efi
+         File: └─/EFI/Microsoft/Boot/bootmgfw.efi`
 
-############################################################################
+# fdisk
 
-$ fdisk --list
+`$ fdisk --list
 Disque /dev/sda : 465,8 GiB, 500107862016 octets, 976773168 secteurs
 Unités : secteur de 1 × 512 = 512 octets
 Taille de secteur (logique / physique) : 512 octets / 4096 octets
@@ -34,20 +39,21 @@ Périphérique    Début       Fin  Secteurs Taille Type
 /dev/sda4      2312192 393017343 390705152 186,3G Données de base Microsoft
 /dev/sda5    393017344 771973119 378955776 180,7G Données de base Microsoft
 /dev/sda6    771973120 974725119 202752000  96,7G Système de fichiers Linux
-/dev/sda7    974725120 976773119   2048000  1000M Partition d'échange Linux
+/dev/sda7    974725120 976773119   2048000  1000M Partition d'échange Linux`
 
-############################################################################
 
-$ efibootmgr
+# efibootmgr
+
+`$ efibootmgr
 BootCurrent: 0003
 Timeout: 2 seconds
 BootOrder: 0003,0000
 Boot0000* Windows Boot Manager
-Boot0003* Linux Boot Manager
+Boot0003* Linux Boot Manager`
 
-############################################################################
+# mount
 
-$ mount
+`$ mount
 proc on /proc type proc (rw,relatime)
 sysfs on /sys type sysfs (rw,relatime)
 devtmpfs on /dev type devtmpfs (rw,relatime,size=403412k,nr_inodes=1007506,mode=755)
@@ -73,4 +79,4 @@ mqueue on /dev/mqueue type mqueue (rw,relatime)
 hugetlbfs on /dev/hugepages type hugetlbfs (rw,relatime)
 debugfs on /sys/kernel/debug type debugfs (rw,relatime)
 /dev/sda1 on /boot type vfat (rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,errors=remount-ro)
-tmpfs on /run/user/0 type tmpfs (rw,nosuid,nodev,relatime,size=806820k,mode=700)
+tmpfs on /run/user/0 type tmpfs (rw,nosuid,nodev,relatime,size=806820k,mode=700)`

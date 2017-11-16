@@ -1,4 +1,4 @@
-[<img src="pictures/coq.png" width="150" alt="logo"/>](https://github.com/gjeusel/waxcraft)
+[<img src="data/coq.png" width="150" alt="logo"/>](https://github.com/gjeusel/waxcraft)
 
 ----
 # waxCraft

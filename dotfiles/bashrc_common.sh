@@ -50,7 +50,7 @@ export PS1=$ps1_std
 # LS_COLORS settings : {{{
 # enable color support of ls and also add handy aliases
 if [ "$TERM" != "dumb" ]; then
-    eval "`dircolors $waxCraft_PATH/bash-conf/.dircolors`"
+    eval "`dircolors $waxCraft_PATH/dotfiles/.dircolors`"
     # DONE in .bash_aliases
     #alias ls='ls --color=auto'
     #alias dir='ls --color=auto --format=vertical'

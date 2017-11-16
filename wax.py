@@ -73,9 +73,12 @@ class bcolors:
 class waxCraft:
     old_conf_dir = waxCraft_path + '/.old-conf/'
 
-    bash_cfg_dir = waxCraft_path + '/bash-conf/'
-    vim_cfg_dir = waxCraft_path + '/vim-conf/'
-    plasma_cfg_dir = waxCraft_path + '/kde-plasma-conf/'
+    dotfile_dir = waxCraft_path + '/dotfiles/'
+
+    bash_cfg_dir = dotfile_dir
+    vim_cfg_dir = dotfile_dir
+    plasma_cfg_dir = dotfile_dir
+
     nixpkgs_cfg_dir = waxCraft_path + '/nix/nixpkgs/'
 
     def __init__(self, cfg_list):
