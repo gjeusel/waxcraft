@@ -99,6 +99,8 @@ alias unproxy="source $waxCraft_PATH/tools/unset_proxy.py"
 alias lml=load_env_machlearn
 alias li="unproxy && cd ~/intraday/ && load_env_intraday"
 
+alias ip="ipython -i "
+
 alias vimrc="vim ~/.vimrc*"
 alias nvimrc="nvim ~/.vimrc*"
 
