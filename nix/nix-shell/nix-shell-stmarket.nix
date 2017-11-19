@@ -6,10 +6,10 @@ stdenv.mkDerivation {
   name = "stmarket-nix-env";
 
   shellHook = ''
-    export PS1=$stmarket
+    export PS1=$ps1_stmarket
 
-    export PYTHONPATH=$PYTHONPATH:/media/sf_windows/src/pymercure/
-    export PYTHONPATH=$PYTHONPATH:/media/sf_windows/src/stmarket
+    #export PYTHONPATH=$PYTHONPATH:/media/sf_windows/src/pymercure/
+    #export PYTHONPATH=$PYTHONPATH:/media/sf_windows/src/stmarket
 
     #export PYTHONPATH=$PYTHONPATH:/home/gjeusel/.local/lib/python2.7/site-packages/
     #export PYTHONPATH=$PYTHONPATH:/home/gjeusel/.local/lib/python3.6/site-packages/
@@ -47,7 +47,7 @@ stdenv.mkDerivation {
 
     # plot:
     python36Packages.plotly
-    colorlover
+    #colorlover
 
   ];
 }

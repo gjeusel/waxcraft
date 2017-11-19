@@ -19,14 +19,14 @@ Bundle 'spf13/vim-colors'
 Bundle 'tpope/vim-surround'
 Bundle 'tpope/vim-repeat'
 Bundle 'rhysd/conflict-marker.vim'
-"Bundle 'jiangmiao/auto-pairs'
+Bundle 'jiangmiao/auto-pairs'
 Bundle 'ctrlpvim/ctrlp.vim'
 Bundle 'tacahiroy/ctrlp-funky'
 Bundle 'terryma/vim-multiple-cursors'
 Bundle 'vim-scripts/sessionman.vim'
 Bundle 'matchit.zip'
-Bundle 'Lokaltog/vim-powerline'
-Bundle 'powerline/fonts'
+Bundle 'vim-airline/vim-airline'
+Bundle 'vim-airline/vim-airline-themes'
 Bundle 'bling/vim-bufferline'
 Bundle 'easymotion/vim-easymotion'
 Bundle 'flazz/vim-colorschemes'
@@ -42,26 +42,25 @@ Bundle 'gcmt/wildfire.vim'
 "}
 
 " General Programming {
-    " Pick one of the checksyntax, jslint, or syntastic
-    Bundle 'scrooloose/syntastic'
-    Bundle 'tpope/vim-fugitive'
-    Bundle 'mattn/webapi-vim'
-    Bundle 'mattn/gist-vim'
-    Bundle 'scrooloose/nerdcommenter'
-    Bundle 'tpope/vim-commentary'
-    Bundle 'godlygeek/tabular'
-    Bundle 'luochen1990/rainbow'
-    if executable('ctags')
-        Bundle 'majutsushi/tagbar'
-    endif
+Bundle 'scrooloose/syntastic'
+Bundle 'tpope/vim-fugitive'
+Bundle 'mattn/webapi-vim'
+Bundle 'mattn/gist-vim'
+Bundle 'scrooloose/nerdcommenter'
+Bundle 'tpope/vim-commentary'
+Bundle 'godlygeek/tabular'
+Bundle 'luochen1990/rainbow'
+if executable('ctags')
+    Bundle 'majutsushi/tagbar'
+endif
 " }
 
-Bundle TFenby/python-mode', { 'branch' : 'develop' }
-Bundle LnL7/vim-nix'
-Bundle octol/vim-cpp-enhanced-highlight'
-Bundle Konfekt/FastFold'
-Bundle Konfekt/FoldText'
-Bundle SirVer/ultisnips'
+Bundle 'TFenby/python-mode', { 'branch' : 'develop' }
+Bundle 'LnL7/vim-nix'
+Bundle 'octol/vim-cpp-enhanced-highlight'
+Bundle 'Konfekt/FastFold'
+Bundle 'Konfekt/FoldText'
+Bundle 'SirVer/ultisnips'
 
 " Snippets & AutoComplete {
 Bundle 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
@@ -117,7 +116,7 @@ if isdirectory(expand("~/.vim/bundle/python-mode"))
 endif
 " }
 
-" vim-airline {
+" vim-powerline or powerline {
 " Set configuration options for the statusline plugin vim-airline.
 " Use the powerline theme and optionally enable powerline symbols.
 " To use the symbols , , , , , , and .in the statusline
@@ -133,10 +132,13 @@ if isdirectory(expand("~/.vim/bundle/vim-airline-themes/"))
         let g:airline_theme = 'solarized'
     endif
     if !exists('g:airline_powerline_fonts')
+        let g:Powerline_symbols = 'fancy'
         " Use the default set of separators with a few customizations
         let g:airline_left_sep='›'  " Slightly fancier than '>'
         let g:airline_right_sep='‹' " Slightly fancier than '<'
     endif
+
+    let g:airline#extensions#tabline#enabled = 1
 endif
 " }
 
@@ -202,9 +204,20 @@ if !has('gui_running')
         au InsertLeave * set timeoutlen=1000
     augroup END
 endif
-map <nowait> <Esc> <C-c>
-" quick escape from command line with esc :
+" quick escape with esc :
+unmap <Esc>
+nmap <nowait> <Esc> <C-c>
+vmap <nowait> <Esc> <C-c>
+imap <nowait> <Esc> <C-c>
 cmap <nowait> <Esc> <C-c>
+nnoremap <nowait> <Esc> <C-c>
+vnoremap <nowait> <Esc> <C-c>
+onoremap <nowait> <Esc> <C-c>
+cnoremap <nowait> <Esc> <C-c>
+inoremap <nowait> <Esc> <C-c>
+map <nowait> <Esc> <C-c>
+au VimEnter * map <Esc> <C-c>
+
 "}
 
 " Setting up the directories {
@@ -239,6 +252,11 @@ set foldenable                  " Auto fold code
 set foldcolumn=2
 set list
 set listchars=tab:›\ ,trail:•,extends:#,nbsp:. " Highlight problematic whitespace
+
+set nocompatible   " Disable vi-compatibility
+set laststatus=2   " Always show the statusline
+set encoding=utf-8 " Necessary to show Unicode glyphs
+set t_Co=256 " Explicitly tell Vim that the terminal supports 256 colors
 "}
 
 " Formatting {
@@ -251,7 +269,7 @@ set softtabstop=4               " Let backspace delete indent
 set nojoinspaces                " Prevents inserting two spaces after punctuation on a join (J)
 set splitright                  " Puts new vsplit windows to the right of the current
 set splitbelow                  " Puts new split windows to the bottom of the current
-set matchpairs+=<:>             " Match, to be used with %
+"set matchpairs+=<:>             " Match, to be used with %
 
 "set comments=sl:/*,mb:*,elx:*/  " auto format comment blocks
 " Remove trailing whitespaces and ^M chars
@@ -330,6 +348,7 @@ vnoremap wk zk
 
 " qwerty --> azerty beginning of the next word eased by this bind :
 " the <nowait> prevent a delay when typing z (for za for example)
+unmap z
 noremap <nowait> z w
 noremap <nowait> Z b
 noremap <nowait> e e
@@ -526,6 +545,4 @@ function! SwitchToggleSolarized()
 endfunction
 " }}}
 
-" }
-
-
+call ToggleDarkSolarized()
