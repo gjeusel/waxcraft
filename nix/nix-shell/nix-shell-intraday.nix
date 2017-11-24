@@ -16,7 +16,7 @@ stdenv.mkDerivation {
     export PYTHONPATH=$PYTHONPATH:/media/sf_windows/src/tshistory/
     export PYTHONPATH=$PYTHONPATH:/media/sf_windows/src/intraday/
 
-    export PYTHONPATH=$PYTHONPATH:/home/gjeusel/.local/lib/python2.7/site-packages/
+    #export PYTHONPATH=$PYTHONPATH:/home/gjeusel/.local/lib/python2.7/site-packages/
 
     #export PYTHONPATH=$PYTHONPATH:/home/gjeusel/.local/lib/python3.6/site-packages/
     #export PYTHONPATH=$PYTHONPATH:/home/gjeusel/windows/src/
@@ -34,6 +34,7 @@ stdenv.mkDerivation {
     python27Packages.pip
 
     # Python 2 specific libraries :
+    python27Packages.configparser
     python27Packages.pathlib
 
     # Python Common Tools :
