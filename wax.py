@@ -4,7 +4,7 @@
 import sys
 import os
 import subprocess
-from datetime import datetime
+from datetime import datetims
 
 import shutil as sh
 

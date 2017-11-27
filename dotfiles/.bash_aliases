@@ -1,6 +1,6 @@
 #$HOME/.bash_aliases
 
-alias sshpi="ssh pi@192.168.1.5"
+alias sshpi="ssh pi@192.168.1.3"
 
 # ls aliases
 alias ls="ls -I '*.pyc' --color=auto"

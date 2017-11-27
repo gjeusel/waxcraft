@@ -113,7 +113,7 @@ let g:pymode_rope_autoimport = 0
 "}
 
 " Jedi {
-let g:jedi#completions_command = "<C-Space>"
+"let g:jedi#completions_command = "<C-Space>"
 "let g:popup_on_dot = 0
 let g:jedi#use_call_signatures_delay = 10
 " disable to jedi completions to use another completion engine
