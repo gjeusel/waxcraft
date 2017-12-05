@@ -8,9 +8,9 @@ stdenv.mkDerivation {
   shellHook = ''
     export PS1=$ps1_stmarket
 
-    export PYTHONPATH=$PYTHONPATH:/media/sf_windows/src/pm-utils/
-    export PYTHONPATH=$PYTHONPATH:/media/sf_windows/src/pyhtml/
-    export PYTHONPATH=$PYTHONPATH:/media/sf_windows/src/inireader/
+    #export PYTHONPATH=$PYTHONPATH:/media/sf_windows/src/pm-utils/
+    #export PYTHONPATH=$PYTHONPATH:/media/sf_windows/src/pyhtml/
+    #export PYTHONPATH=$PYTHONPATH:/media/sf_windows/src/inireader/
     export PYTHONPATH=$PYTHONPATH:/media/sf_windows/src/pymercure/
 
     #export PYTHONPATH=$PYTHONPATH:/media/sf_windows/src/dash-0.19.0/
@@ -45,7 +45,7 @@ stdenv.mkDerivation {
 
     # Documentaion:
     python36Packages.sphinx_1_2
-    python36Packages.alabaster
+    python36Packages.sphinx_rtd_theme
 
     # Database handle:
     python36Packages.marshmallow-sqlalchemy
