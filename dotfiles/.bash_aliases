@@ -27,6 +27,7 @@ function _du() {
         {gsub(/^[0-9]+/, human($1)); print}'
 }
 alias du=_du
+alias libclean="find . | grep -E '(__pycache__|\.pyc|\.pyo$)' | xargs rm -rf"
 
 # Latex :
 latex_overview(){ $HOME/tools/latexmk/latexmk.pl -pdf -pvc -interaction=nonstopmode $1; }
