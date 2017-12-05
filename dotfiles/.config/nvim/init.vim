@@ -3,24 +3,13 @@
 call plug#begin('~/.config/nvim/plugged')
 
 Plug 'AndrewRadev/splitjoin.vim'
-Plug 'danchoi/ri.vim'
-Plug 'danro/rename.vim'
 Plug 'godlygeek/tabular'
-Plug 'isRuslan/vim-es6'
 Plug 'janko-m/vim-test'
-Plug 'jeffkreeftmeijer/vim-numbertoggle'
 Plug 'kana/vim-textobj-user'
 Plug 'kien/ctrlp.vim'
 Plug 'mileszs/ack.vim'
-Plug 'morhetz/gruvbox'
-Plug 'nelstrom/vim-textobj-rubyblock'
-Plug 'neomake/neomake'
-Plug 'rainerborene/vim-reek'
 Plug 'sheerun/vim-polyglot'
-Plug 'tpope/vim-commentary'
-Plug 'tpope/vim-endwise'
 Plug 'tpope/vim-fugitive'
-Plug 'tpope/vim-rails'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-surround'
 Plug 'vim-airline/vim-airline'
@@ -54,13 +43,13 @@ Plug 'octol/vim-cpp-enhanced-highlight'
 Plug 'Konfekt/FastFold'
 Plug 'Konfekt/FoldText'
 Plug 'SirVer/ultisnips'
-Plug 'davidhalter/jedi-vim'
+Plug 'davidhalter/jedi'
 
 call plug#end()
 
 runtime macros/matchit.vim          " Enables % to cycle through `if/else/endif`, recognizing Ruby blocks, etc.
 
-set number
+"set number
 set ruler                              " Show the cursor position all the time
 set colorcolumn=80                     " Show vertical bar at column 80
 set cursorline                         " Highlight the line of the cursor
@@ -81,7 +70,6 @@ set inccommand=nosplit                 " incremental substitute
 set nowrap                        " don't wrap lines
 set tabstop=2                     " a tab is two spaces
 set shiftwidth=2                  " an autoindent (with <<) is two spaces
-set expandtab                     " use spaces, not tabs
 
 " Searching
 set ignorecase                    " searches are case insensitive...
@@ -122,7 +110,7 @@ if has("autocmd")
   au BufRead,BufNewFile *.{inky} setlocal filetype=html
 
   " python
-  au BufRead,BufNewFile *.py setlocal filetype=py
+  au BufRead,BufNewFile *.py setlocal filetype=python
   au BufRead,BufNewFile *.py setlocal shiftwidth=4
   au BufRead,BufNewFile *.py setlocal tabstop=4
   au BufRead,BufNewFile *.py setlocal softtabstop=4
@@ -131,7 +119,7 @@ if has("autocmd")
   " Git
   au Filetype gitcommit setlocal spell textwidth=72
 
-  au BufWritePost * Neomake
+  "au BufWritePost * Neomake
 endif
 
 " clear the search buffer when hitting return
@@ -217,23 +205,80 @@ autocmd TermOpen * setlocal conceallevel=0 colorcolumn=0 relativenumber
 " Prefer Neovim terminal insert mode to normal mode.
 autocmd BufEnter term://* startinsert
 
-" Ruby on Rails
-let g:rubycomplete_rails = 1
-
 " Color scheme
 "let g:gruvbox_contrast_dark="soft"
 set background=dark
-colorscheme gruvbox
-let g:airline_theme="gruvbox"
+set guicursor=
 
-"
-"
+
+" Functions {
+
+" --> Reload rainbow plugin
+" ActivateRainbow {
+" Plugins are loaded after .vimrc files, so in case of sourcing .vimrc files
+" while vim is being executed, we need to wrap the plugin into a try - endtry
+" to avoid error message at vim start.
+function! ActivateRainbow()
+  if exists('g:rainbow_active')
+    try
+      execute ":RainbowToggleOn"
+    catch
+    endtry
+  endif
+endfunction
+" }
+
+" --> About Solarized colors schemes switch
+"  SwitchToggleSolarized {
+" For more info type :help highlight
+function! ToggleDarkSolarized()
+  syntax on
+  call ActivateRainbow()
+  set background=dark
+  colorscheme solarized
+  highlight Normal            cterm=none ctermbg=none ctermfg=DarkGrey
+  highlight LineNr            cterm=none ctermbg=none ctermfg=DarkGrey
+  highlight CursorLineNr      cterm=bold ctermbg=none ctermfg=060
+  highlight CursorLine                   ctermbg=008  ctermfg=none
+  highlight SignColumn        cterm=none ctermbg=none
+  highlight ColorColumn       cterm=none ctermbg=008 ctermfg=none
+  highlight SignifySignAdd    cterm=bold ctermbg=none ctermfg=64
+  highlight SignifySignDelete cterm=none ctermbg=none ctermfg=136
+  highlight SignifySignChange cterm=none ctermbg=none ctermfg=124
+  highlight Folded                       ctermbg=none
+  highlight foldcolumn                   ctermbg=none ctermfg=none
+endfunction
+
+function! ToggleLightSolarized()
+  syntax on
+  call ActivateRainbow()
+  set background=light
+  highlight Normal            cterm=none ctermbg=230 ctermfg=DarkGrey
+  highlight LineNr            cterm=bold
+  highlight SignColumn        cterm=none ctermbg=187 ctermfg=240
+  highlight SignifySignAdd    cterm=bold ctermbg=187 ctermfg=64
+  highlight SignifySignDelete cterm=none ctermbg=187 ctermfg=136
+  highlight SignifySignChange cterm=none ctermbg=187 ctermfg=124
+endfunction
+
+function! SwitchToggleSolarized()
+  if &background == "light"
+    call ToggleDarkSolarized()
+  else
+    call ToggleLightSolarized()
+  endif
+endfunction
+" }
+
+" }
+
+
 "#########################################################
 "                   SPF13
 "
 " General {
 
-    set background=dark         " Assume a dark background
+    "set background=dark         " Assume a dark background
 
     " if !has('gui')
         "set term=$TERM          " Make arrow and other keys work
@@ -365,12 +410,7 @@ set listchars=tab:›\ ,trail:•,extends:#,nbsp:. " Highlight problematic white
     "set matchpairs+=<:>             " Match, to be used with %
     set pastetoggle=<F12>           " pastetoggle (sane indentation on pastes)
     "set comments=sl:/*,mb:*,elx:*/  " auto format comment blocks
-    " Remove trailing whitespaces and ^M chars
-    " To disable the stripping of whitespace, add the following to your
-    " .vimrc.before.local file:
-    "   let g:spf13_keep_trailing_whitespace = 1
-    autocmd FileType c,cpp,java,go,php,javascript,puppet,python,rust,twig,xml,yml,perl,sql autocmd BufWritePre <buffer> if !exists('g:spf13_keep_trailing_whitespace') | call StripTrailingWhitespace() | endif
-    "autocmd FileType go autocmd BufWritePre <buffer> Fmt
+
     autocmd BufNewFile,BufRead *.html.twig set filetype=html.twig
     autocmd FileType haskell,puppet,ruby,yml setlocal expandtab shiftwidth=2 softtabstop=2
     " preceding line best in a plugin but here for now.
@@ -520,26 +560,26 @@ set listchars=tab:›\ ,trail:•,extends:#,nbsp:. " Highlight problematic white
 "        endif
 "    " }
 
-"    " Tabularize {
-"        if isdirectory(expand("~/.config/nvim/plugged/tabular"))
-"            nmap <Leader>a& :Tabularize /&<CR>
-"            vmap <Leader>a& :Tabularize /&<CR>
-"            nmap <Leader>a= :Tabularize /^[^=]*\zs=<CR>
-"            vmap <Leader>a= :Tabularize /^[^=]*\zs=<CR>
-"            nmap <Leader>a=> :Tabularize /=><CR>
-"            vmap <Leader>a=> :Tabularize /=><CR>
-"            nmap <Leader>a: :Tabularize /:<CR>
-"            vmap <Leader>a: :Tabularize /:<CR>
-"            nmap <Leader>a:: :Tabularize /:\zs<CR>
-"            vmap <Leader>a:: :Tabularize /:\zs<CR>
-"            nmap <Leader>a, :Tabularize /,<CR>
-"            vmap <Leader>a, :Tabularize /,<CR>
-"            nmap <Leader>a,, :Tabularize /,\zs<CR>
-"            vmap <Leader>a,, :Tabularize /,\zs<CR>
-"            nmap <Leader>a<Bar> :Tabularize /<Bar><CR>
-"            vmap <Leader>a<Bar> :Tabularize /<Bar><CR>
-"        endif
-"    " }
+    " Tabularize {
+        if isdirectory(expand("~/.config/nvim/plugged/tabular"))
+            nmap <Leader>a& :Tabularize /&<CR>
+            vmap <Leader>a& :Tabularize /&<CR>
+            nmap <Leader>a= :Tabularize /^[^=]*\zs=<CR>
+            vmap <Leader>a= :Tabularize /^[^=]*\zs=<CR>
+            nmap <Leader>a=> :Tabularize /=><CR>
+            vmap <Leader>a=> :Tabularize /=><CR>
+            nmap <Leader>a: :Tabularize /:<CR>
+            vmap <Leader>a: :Tabularize /:<CR>
+            nmap <Leader>a:: :Tabularize /:\zs<CR>
+            vmap <Leader>a:: :Tabularize /:\zs<CR>
+            nmap <Leader>a, :Tabularize /,<CR>
+            vmap <Leader>a, :Tabularize /,<CR>
+            nmap <Leader>a,, :Tabularize /,\zs<CR>
+            vmap <Leader>a,, :Tabularize /,\zs<CR>
+            nmap <Leader>a<Bar> :Tabularize /<Bar><CR>
+            vmap <Leader>a<Bar> :Tabularize /<Bar><CR>
+        endif
+    " }
 
 "    " Session List {
 "        set sessionoptions=blank,buffers,curdir,folds,tabpages,winsize
@@ -996,45 +1036,6 @@ set listchars=tab:›\ ,trail:•,extends:#,nbsp:. " Highlight problematic white
 
 "" }
 
-" --> About Solarized colors schemes switch
-"  SwitchToggleSolarized {
-" For more info type :help highlight
-function! ToggleDarkSolarized()
-  syntax on
-  call ActivateRainbow()
-  set background=dark
-  highlight Normal            cterm=none ctermbg=none ctermfg=DarkGrey
-  highlight LineNr            cterm=bold ctermbg=none ctermfg=DarkGrey
-  highlight foldcolumn                   ctermbg=none ctermfg=none
-  highlight CursorLine                   ctermbg=none
-  highlight SignColumn        cterm=none ctermbg=none
-  highlight SignifySignAdd    cterm=bold ctermbg=none ctermfg=64
-  highlight SignifySignDelete cterm=none ctermbg=none ctermfg=136
-  highlight SignifySignChange cterm=none ctermbg=none ctermfg=124
-  highlight Folded                       ctermbg=none
-endfunction
-
-function! ToggleLightSolarized()
-  syntax on
-  call ActivateRainbow()
-  set background=light
-  highlight Normal            cterm=none ctermbg=230 ctermfg=DarkGrey
-  highlight LineNr            cterm=bold
-  highlight SignColumn        cterm=none ctermbg=187 ctermfg=240
-  highlight SignifySignAdd    cterm=bold ctermbg=187 ctermfg=64
-  highlight SignifySignDelete cterm=none ctermbg=187 ctermfg=136
-  highlight SignifySignChange cterm=none ctermbg=187 ctermfg=124
-endfunction
-
-function! SwitchToggleSolarized()
-  if &background == "light"
-    call ToggleDarkSolarized()
-  else
-    call ToggleLightSolarized()
-  endif
-endfunction
-" }
-
 " { Before
 
 " Rainbow plugin : (parenthesis and brackets colored by level)
@@ -1092,7 +1093,9 @@ let g:fastfold_fold_command_suffixes = []
 let g:fastfold_savehook = 1
 " }
 
-"let g:deoplete#enable_at_startup = 1
+set runtimepath+=~/.config/nvim/plugged/deoplete.nvim/
+set runtimepath+=~/.local/share/nvim/rplugin.vim
+let g:deoplete#enable_at_startup = 1
 "let g:deoplete#enable_refresh_always = 1 "Deoplete refreshes the candidates automatically
 let g:jedi#completions_enabled = 0
 let g:jedi#auto_vim_configuration = 0
@@ -1112,53 +1115,18 @@ map <A-F1> <nop>
 " works for alt-a .. alt-z
 for i in range(97,122)
   let c = nr2char(i)
-  exec "map \e".c." <M-".c.">"
-  exec "map! \e".c." <M-".c.">"
+  exec "map \e".c." <A-".c.">"
+  exec "map! \e".c." <A-".c.">"
 endfor
 
-"" fix meta-keys which generate <Esc>a .. <Esc>z
-"let c='a'
-"while c <= 'z'
-"  exec "set <M-".toupper(c).">=\e".c
-"  exec "imap \e".c." <M-".toupper(c).">"
-"  let c = nr2char(1+char2nr(c))
-"endw
-
-if has('nvim')
-  "set ttimeoutlen=-1
-  "map <nowait> <A-a> :bp<cr>>
-  "map <nowait> <A-z> :bn<cr>
-  "map <nowait> <A-e> :cn<cr>
-else
-  " Mapping with alt-Fx
-  " https://stackoverflow.com/questions/7501092/can-i-map-alt-key-in-vim
-  " ALT + F1 :
-  exec "set <S-F1>=\eO1;3P"
-  " ALT + F2 :
-  exec "set <S-F2>=\eO1;3Q"
-  " ALT + F3 :
-  exec "set <S-F3>=\eO1;3R"
-  map <nowait> <S-F1> :bp<cr>
-  map <nowait> <S-F2> :bn<cr>
-  " Open next occurence of search (git jump grep "something") :
-  map <nowait> <S-F3> :cn<cr>
-endif
+"set ttimeoutlen=-1
+map <nowait> <A-a> :bp<cr>
+map <nowait> <A-z> :bn<cr>
+map <nowait> <A-e> :cn<cr>
 
 " buffer delete without closing windows :
-nmap <silent> <leader>bd :bp\|bd #<CR>
+nmap <silent> <A-r> :bp\|bd #<CR>
 "}
-
-"" parenthesis/brackets/etc ...{
-vnoremap <Leader>( <esc>`>a)<esc>`<i(<esc>
-vnoremap <Leader>) <esc>`>a)<esc>`<i(<esc>
-vnoremap <Leader>[ <esc>`>a]<esc>`<i[<esc>
-vnoremap <Leader>] <esc>`>a]<esc>`<i[<esc>
-vnoremap <Leader>{ <esc>`>a}<esc>`<i{<esc>
-vnoremap <Leader>} <esc>`>a}<esc>`<i{<esc>
-vnoremap <Leader>" <esc>`>a"<esc>`<i"<esc>
-vnoremap <Leader>' <esc>`>a'<esc>`<i'<esc>
-vnoremap <Leader>` <esc>`>a`<esc>`<i`<esc>
-"" }
 
 " Movements binds : {
 
@@ -1281,7 +1249,9 @@ cmap <nowait> <Esc> <C-c>
 
 " --> About Colors & Themes defaults : {
 set t_Co=256            " use 256 colors in vim
-"colorscheme solarized   " an appropriate color scheme
+colorscheme solarized   " an appropriate color scheme
+filetype plugin indent on   " Automatically detect file types.
+call ToggleDarkSolarized()
 
 "" --> Cursor color
 "if &term =~ "xterm\\|rxvt"
