@@ -21,10 +21,18 @@ if dein#load_state('~/.vim/bundle')
   let g:airline_powerline_fonts=1
   let g:airline#extensions#tabline#enabled = 1
   let g:airline#extensions#tabline#show_buffers = 1
+  "function! AirlineInit()
+  "  let g:airline_section_a = airline#section#create(['mode', ' ', 'branch'])
+  "  let g:airline_section_b = airline#section#create_left(['%f'])
+  "  let g:airline_section_c = airline#section#create(['%{getcwd()}'])
+  "  let g:airline_section_y = airline#section#create([''])
+  "endfunction
+  "autocmd VimEnter * call AirlineInit()
 
-  call dein#add('altercation/vim-colors-solarized')
   call dein#add('bling/vim-bufferline')
   let g:bufferline_echo = 0 " buffer line at top
+
+  call dein#add('altercation/vim-colors-solarized')
 
   call dein#add('LnL7/vim-nix')
 
@@ -42,11 +50,15 @@ if dein#load_state('~/.vim/bundle')
   call dein#add('tpope/vim-repeat')
   call dein#add('tpope/vim-surround')
 
+  " Tabular{
+  call dein#add('godlygeek/tabular')
+  "}
+
   call dein#add('majutsushi/tagbar')
   call dein#add('scrooloose/nerdcommenter')
   call dein#add('rhysd/conflict-marker.vim')
-  call dein#add('vim-scripts/sessionman.vim')
   call dein#add('mbbill/undotree')
+  "call dein#add('vim-scripts/sessionman.vim')
 
   call dein#add('vim-scripts/restore_view.vim')
   set viewoptions=cursor,folds,slash,unix
@@ -89,10 +101,10 @@ if dein#load_state('~/.vim/bundle')
 
 
   " Code completion :
-  let g:pymode_rope = 1 " enable rope which is slow
-  let g:pymode_rope_completion = 1 " enable completion
-  let g:pymode_rope_lookup_project = 0 " do not lookup in parent directories which is slow
-  let g:pymode_rope_autoimport = 0
+  let g:pymode_rope = 0 " enable rope which is slow
+  "let g:pymode_rope_completion = 1 " enable completion
+  "let g:pymode_rope_lookup_project = 0 " do not lookup in parent directories which is slow
+  "let g:pymode_rope_autoimport = 0
 
   " use all other features of jedi but completion
   call dein#add('davidhalter/jedi-vim')
@@ -107,8 +119,8 @@ if dein#load_state('~/.vim/bundle')
   call dein#add('tell-k/vim-autopep8')
   let g:autopep8_disable_show_diff=1 " disable show diff windows
   let g:autopep8_ignore="E501" " ignore line too long
-  nnoremap <leader>f :Autopep8<CR>
-  vnoremap <leader>f :Autopep8<CR>
+  nnoremap <leader>p :Autopep8<CR>
+  vnoremap <leader>p :Autopep8<CR>
   "}
 
   call dein#end()
@@ -132,6 +144,8 @@ set scrolloff=3    " Have some context around the current line always on screen
 set virtualedit=onemore             " Allow for cursor beyond last character
 set hidden         " Allow backgrounding buffers without writin them, and remember marks/undo for backgrounded buffers
 set foldenable                  " Auto fold code
+set splitright " split at the right of current buffer (left default behaviour)
+set splitbelow " split at the below of current buffer (top default behaviour)
 
 " columns
 set colorcolumn=80 " Show vertical bar at column 80
@@ -260,7 +274,7 @@ let mapleader=","
 nnoremap <leader>; :nohl<cr>
 
 " select all of current paragraph with enter:
-nnoremap <return> (V)
+nnoremap <return> vip
 
 " easier navigation between split windows
 nnoremap <c-j> <c-w>j
@@ -329,9 +343,18 @@ map <F12> :source ${HOME}/.config/nvim/init.vim<cr>
 "map <Leader>b oimport ipdb; ipdb.set_trace() # BREAKPOINT<C-c>
 map <Leader>i ofrom IPython import embed; embed() # Enter Ipython<C-c>
 
+" Tabular {
+if exists(":Tabularize")
+  nmap <Leader>a= :Tabularize /=<CR>
+  vmap <Leader>a= :Tabularize /=<CR>
+  nmap <Leader>a: :Tabularize /:\zs<CR>
+  vmap <Leader>a: :Tabularize /:\zs<CR>
+endif
+"}
+
 " Easymotion {
 " bd for bidirectional :
-map <nowait><leader>s <Plug>(easymotion-bd-w)
+map <nowait><leader>f <Plug>(easymotion-bd-w)
 
 map <nowait><Leader>l <Plug>(easymotion-lineforward)
 map <nowait><Leader>j <Plug>(easymotion-j)

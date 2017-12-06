@@ -108,7 +108,7 @@ alias li="unproxy && cd ~/intraday/ && load_env_intraday"
 alias ip="ipython -i "
 
 alias vimrc="vim ~/.vimrc*"
-alias nvimrc="nvim ~/.vimrc*"
+alias nvimrc="nvim $waxCraft_PATH/dotfiles/.config/nvim/init.vim"
 
 # Spark aliases :
 if hash ipython 2>/dev/null; then
