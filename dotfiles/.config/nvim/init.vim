@@ -14,21 +14,13 @@ if dein#load_state('~/.vim/bundle')
   call dein#add('~/.vim/bundle/repos/github.com/Shougo/dein.vim/')
 
   " User Interface {
-  call dein#add('vim-airline/vim-airline')
-  call dein#add('vim-airline/vim-airline-themes')
-  " see for patching terminal fonts :
-  " https://powerline.readthedocs.org/en/latest/installation/linux.html#font-installation
-  let g:airline_powerline_fonts=1
-  let g:airline#extensions#tabline#enabled = 1
-  let g:airline#extensions#tabline#show_buffers = 1
-  let g:airline_section_a = airline#section#create(['mode'])
-  let g:airline_section_b = airline#section#create_left(['%f'])
-  let g:airline_section_c = airline#section#create(['%{getcwd()}'])
-  let g:airline_section_x = airline#section#create([])
-  let g:airline_section_y = airline#section#create([])
-
   call dein#add('bling/vim-bufferline')
   let g:bufferline_echo = 0 " buffer line at top
+
+  call dein#add('vim-airline/vim-airline')
+  call dein#add('vim-airline/vim-airline-themes')
+  " config for airline is done after dein#end otherwise runtimepath is changed
+  " and personal config isn't loaded
 
   call dein#add('altercation/vim-colors-solarized')
 
@@ -77,7 +69,7 @@ if dein#load_state('~/.vim/bundle')
               \ pumvisible() ? "\<C-n>" :
               \ deoplete#mappings#manual_complete()
 
-  call dein#add('Shougo/neoinclude.vim') " include completion framework
+  "call dein#add('Shougo/neoinclude.vim') " include completion framework
   call dein#add('Shougo/neco-vim') " vim completion framework
   call dein#add('Shougo/neco-syntax') " syntax source for neocomplete
 
@@ -140,6 +132,23 @@ if dein#load_state('~/.vim/bundle')
   call dein#save_state()
 endif
 "}
+
+  " Airline config {
+  " see for patching terminal fonts :
+  " https://powerline.readthedocs.org/en/latest/installation/linux.html#font-installation
+  let g:airline_powerline_fonts=1
+  let g:airline#extensions#tabline#enabled = 1
+  let g:airline#extensions#tabline#show_buffers = 1
+  function! AirlineInit()
+      let g:airline_section_a = airline#section#create(['mode'])
+      let g:airline_section_b = airline#section#create_left(['%f'])
+      let g:airline_section_c = airline#section#create(['%{getcwd()}'])
+      let g:airline_section_x = airline#section#create([])
+      let g:airline_section_y = airline#section#create([])
+  endfunction
+  autocmd VimEnter * call AirlineInit()
+  autocmd VimEnter * AirlineRefresh
+  "}
 
 " User Interface {
 filetype plugin indent on
@@ -453,3 +462,33 @@ map <nowait><leader>E <Plug>(easymotion-ge)
 " }
 
 "}
+
+
+" Function to write in a vim buffer the output of vim commands :
+"   - Execute 'cmd' while redirecting output.
+"   - Delete all lines that do not match regex 'filter' (if not empty).
+"   - Delete any blank lines.
+"   - Delete '<whitespace><number>:<whitespace>' from start of each line.
+"   - Display result in a scratch buffer.
+function! s:Filter_lines(cmd, filter)
+  let save_more = &more
+  set nomore
+  redir => lines
+  silent execute a:cmd
+  redir END
+  let &more = save_more
+  new
+  setlocal buftype=nofile bufhidden=hide noswapfile
+  put =lines
+  g/^\s*$/d
+  %s/^\s*\d\+:\s*//e
+  if !empty(a:filter)
+    execute 'v/' . a:filter . '/d'
+  endif
+  0
+endfunction
+silent command! -nargs=? Scriptnames call s:Filter_lines('scriptnames', <q-args>)<cr>
+silent command! -nargs=? Syntaxlist call s:Filter_lines('syntax list', <q-args>)<cr>
+silent command! -nargs=? VerboseHighlight call s:Filter_lines('verbose highlight', <q-args>)<cr>
+silent command! -nargs=? CurrentHighlight call s:Filter_lines('highlight', <q-args>)<cr>
+silent command! -nargs=? GetPluginsList call s:Filter_lines('PluginList', <q-args>)<cr>
