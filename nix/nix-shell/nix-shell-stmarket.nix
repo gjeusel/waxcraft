@@ -19,6 +19,8 @@ stdenv.mkDerivation {
     #export PYTHONPATH=$PYTHONPATH:/home/gjeusel/.local/lib/python2.7/site-packages/
     export PYTHONPATH=$PYTHONPATH:/home/gjeusel/.local/lib/python3.6/site-packages/
 
+    export PATH=$PATH:/home/gjeusel/.local/bin/
+
     #export PYTHONPATH=$PYTHONPATH:/home/gjeusel/windows/src/
     #export PYTHONPATH=$PYTHONPATH:/home/gjeusel/windows/src/tshistory/
    '';
