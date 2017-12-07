@@ -21,13 +21,11 @@ if dein#load_state('~/.vim/bundle')
   let g:airline_powerline_fonts=1
   let g:airline#extensions#tabline#enabled = 1
   let g:airline#extensions#tabline#show_buffers = 1
-  "function! AirlineInit()
-  "  let g:airline_section_a = airline#section#create(['mode', ' ', 'branch'])
-  "  let g:airline_section_b = airline#section#create_left(['%f'])
-  "  let g:airline_section_c = airline#section#create(['%{getcwd()}'])
-  "  let g:airline_section_y = airline#section#create([''])
-  "endfunction
-  "autocmd VimEnter * call AirlineInit()
+  let g:airline_section_a = airline#section#create(['mode'])
+  let g:airline_section_b = airline#section#create_left(['%f'])
+  let g:airline_section_c = airline#section#create(['%{getcwd()}'])
+  let g:airline_section_x = airline#section#create([])
+  let g:airline_section_y = airline#section#create([])
 
   call dein#add('bling/vim-bufferline')
   let g:bufferline_echo = 0 " buffer line at top
@@ -49,6 +47,7 @@ if dein#load_state('~/.vim/bundle')
   call dein#add('tpope/vim-fugitive')
   call dein#add('tpope/vim-repeat')
   call dein#add('tpope/vim-surround')
+  call dein#add('jiangmiao/auto-pairs')
 
   " Tabular{
   call dein#add('godlygeek/tabular')
@@ -72,7 +71,14 @@ if dein#load_state('~/.vim/bundle')
 
 
   call dein#add('Shougo/deoplete.nvim')
+  let g:deoplete#enable_at_startup = 1
+  " Let <Tab> also do completion
+  inoremap <silent><expr> <Tab>
+              \ pumvisible() ? "\<C-n>" :
+              \ deoplete#mappings#manual_complete()
+
   call dein#add('Shougo/neoinclude.vim') " include completion framework
+  call dein#add('Shougo/neco-vim') " vim completion framework
   call dein#add('Shougo/neco-syntax') " syntax source for neocomplete
 
   call dein#add('SirVer/ultisnips') " snippets engine handle
@@ -80,8 +86,15 @@ if dein#load_state('~/.vim/bundle')
   " compatibility deoplete & ultisnipts:
   call deoplete#custom#set('ultisnips', 'matchers', ['matcher_fuzzy'])
 
+  " Fix deoplete & ultisnips problem with <tab> completion :
+  let g:UltiSnipsExpandTrigger = "<S-Tab>" " default to <tab> that override tab deoplete completion
+  "let g:UltiSnipsListSnippets = "<c-tab>"
+  "let g:UltiSnipsJumpForwardTrigger = "<c-j>"
+  "let g:UltiSnipsJumpBackwardTrigger = "<c-k>"
+
+
   " Python {
-  call dein#add('zchee/deoplete-jedi')
+  call dein#add('zchee/deoplete-jedi') " python completion framework
   call dein#add('python-mode/python-mode')
   let g:pymode_indent = 1 " pep8 indent
   let g:pymode_folding = 1
@@ -170,18 +183,56 @@ set list " show the following:
 set listchars=tab:›\ ,trail:•,extends:#,nbsp:. " Highlight problematic whitespace
 
 " Backup
+" Initialize directories {
+function! InitializeDirectories()
+    let parent = $HOME
+    let prefix = 'vim'
+    let dir_list = {
+                \ 'backup': 'backupdir',
+                \ 'views': 'viewdir',
+                \ 'swap': 'directory' }
+
+    if has('persistent_undo')
+        let dir_list['undo'] = 'undodir'
+    endif
+
+    " To specify a different directory in which to place the vimbackup,
+    " vimviews, vimundo, and vimswap files/directories, add the following to
+    " your .vimrc.before.local file:
+    "   let g:spf13_consolidated_directory = <full path to desired directory>
+    "   eg: let g:spf13_consolidated_directory = $HOME . '/.vim/'
+    if exists('g:spf13_consolidated_directory')
+        let common_dir = g:spf13_consolidated_directory . prefix
+    else
+        let common_dir = parent . '/.' . prefix
+    endif
+
+    for [dirname, settingname] in items(dir_list)
+        let directory = common_dir . dirname . '/'
+        if exists("*mkdir")
+            if !isdirectory(directory)
+                call mkdir(directory)
+            endif
+        endif
+        if !isdirectory(directory)
+            echo "Warning: Unable to create backup directory: " . directory
+            echo "Try: mkdir -p " . directory
+        else
+            let directory = substitute(directory, " ", "\\\\ ", "g")
+            exec "set " . settingname . "=" . directory
+        endif
+    endfor
+endfunction
+call InitializeDirectories()
+" }
+
+set viewoptions=folds,options,cursor,unix,slash " Better Unix / Windows compatibility
 set backup                  " Backups are nice ...
-silent !mkdir ~/.config/nvim/_backup > /dev/null 2>&1
-set backupdir=~/.config/nvim/_backup   " where to put backup files
 if has('persistent_undo')
   set undofile                " So is persistent undo ...
   set undolevels=1000         " Maximum number of changes that can be undone
   set undoreload=10000        " Maximum number lines to save for undo on a buffer reload
 endif
-
-" Temp
-silent !mkdir ~/.config/nvim/_temp > /dev/null 2>&1
-set directory=~/.config/nvim/_temp     " where to put swap files
 
 " Searching
 set ignorecase                    " searches are case insensitive...
@@ -337,7 +388,38 @@ noremap <nowait> E ge
 vnoremap <Leader>y "+y
 
 " source config
-map <F12> :source ${HOME}/.config/nvim/init.vim<cr>
+if !exists('*ActualizeInit')
+  function! ActualizeInit()
+    call dein#recache_runtimepath()
+    source ${HOME}/.config/nvim/init.vim
+  endfunction
+endif
+map <F12> :call ActualizeInit()<cr>
+
+" --> profile vim : {
+function! StartProfiling()
+  execute ":profile start profile.log"
+  execute ":profile func *"
+  execute ":profile file *"
+  let b:profiling=1
+endfunction
+
+function! EndProfiling()
+  execute ":profile pause"
+  let b:profiling=0
+endfunction
+
+let b:profiling=0
+function! ToggleProfiling()
+  if b:profiling == 0
+    call StartProfiling()
+  else
+    call EndProfiling()
+  endif
+endfunction
+"}
+
+map <F10> :call ToggleProfiling()<cr>
 
 " Settings for python-mode
 "map <Leader>b oimport ipdb; ipdb.set_trace() # BREAKPOINT<C-c>
