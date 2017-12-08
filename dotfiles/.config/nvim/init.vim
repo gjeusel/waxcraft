@@ -106,12 +106,8 @@ endif
               \ pumvisible() ? "\<C-n>" :
               \ deoplete#mappings#manual_complete()
 
-  " Tabular {
-  nmap <Leader>a= :Tabularize /=<CR>
-  vmap <Leader>a= :Tabularize /=<CR>
-  nmap <Leader>a: :Tabularize /:\zs<CR>
-  vmap <Leader>a: :Tabularize /:\zs<CR>
-  "}
+  " Tabular
+  map <leader>a :Tabularize /
 
   " Easymotion {
   let g:EasyMotion_do_mapping = 1
