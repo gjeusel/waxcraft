@@ -5,7 +5,8 @@ if &compatible
 endif
 set runtimepath+=~/.vim/bundle/repos/github.com/Shougo/dein.vim/
 
-" Plugins {
+" Plugins dein declarations {
+
 " path to where to store plugins:
 if dein#load_state('~/.vim/bundle')
   call dein#begin('~/.vim/bundle')
@@ -15,67 +16,124 @@ if dein#load_state('~/.vim/bundle')
 
   " User Interface {
   call dein#add('bling/vim-bufferline')
-  let g:bufferline_echo = 0 " buffer line at top
 
   call dein#add('vim-airline/vim-airline')
   call dein#add('vim-airline/vim-airline-themes')
-  " config for airline is done after dein#end otherwise runtimepath is changed
-  " and personal config isn't loaded
 
   call dein#add('altercation/vim-colors-solarized')
 
   call dein#add('LnL7/vim-nix')
 
   call dein#add('luochen1990/rainbow')
-  let g:rainbow_active = 1 "0 if you want to enable it later via :RainbowToggle
   "}
 
-  " Ack
+  " Generic tools {
   call dein#add('mileszs/ack.vim')
-  let g:ackprg="ack-grep -H --nocolor --nogroup --column"
-  nmap <leader>a :Ack ""<Left>
-  nmap <leader>A :Ack <C-r><C-w>
 
   call dein#add('tpope/vim-fugitive')
   call dein#add('tpope/vim-repeat')
   call dein#add('tpope/vim-surround')
   call dein#add('jiangmiao/auto-pairs')
 
-  " Tabular{
   call dein#add('godlygeek/tabular')
-  "}
 
   call dein#add('majutsushi/tagbar')
   call dein#add('scrooloose/nerdcommenter')
   call dein#add('rhysd/conflict-marker.vim')
   call dein#add('mbbill/undotree')
-  "call dein#add('vim-scripts/sessionman.vim')
 
   call dein#add('vim-scripts/restore_view.vim')
   set viewoptions=cursor,folds,slash,unix
   " let g:skipview_files = ['*\.vim']
 
-  " Easymotion {
   call dein#add('easymotion/vim-easymotion')
-  let g:EasyMotion_do_mapping = 1
-  let g:EasyMotion_smartcase = 1
   "}
 
-
+  " Autocomplete {
   call dein#add('Shougo/deoplete.nvim')
-  let g:deoplete#enable_at_startup = 1
-  " Let <Tab> also do completion
-  inoremap <silent><expr> <Tab>
-              \ pumvisible() ? "\<C-n>" :
-              \ deoplete#mappings#manual_complete()
-
   "call dein#add('Shougo/neoinclude.vim') " include completion framework
   call dein#add('Shougo/neco-vim') " vim completion framework
   call dein#add('Shougo/neco-syntax') " syntax source for neocomplete
 
   call dein#add('SirVer/ultisnips') " snippets engine handle
   call dein#add('honza/vim-snippets') " those are the snippets
-  " compatibility deoplete & ultisnipts:
+
+  call dein#add('zchee/deoplete-jedi') " python completion framework
+  call dein#add('python-mode/python-mode')
+  call dein#add('davidhalter/jedi-vim')
+
+  call dein#add('tell-k/vim-autopep8')
+  "}
+
+  call dein#end()
+  call dein#save_state()
+endif
+"}
+
+" Plugins configuration{
+
+" User Interface {
+  let g:bufferline_echo = 0 " buffer line at top
+
+  " Airline config
+  " see for patching terminal fonts :
+  " https://powerline.readthedocs.org/en/latest/installation/linux.html#font-installation
+  let g:airline_powerline_fonts=1
+  let g:airline#extensions#tabline#enabled = 1
+  let g:airline#extensions#tabline#show_buffers = 1
+  function! AirlineInit()
+      let g:airline_section_a = airline#section#create(['mode'])
+      let g:airline_section_b = airline#section#create_left(['%f'])
+      let g:airline_section_c = airline#section#create(['%{getcwd()}'])
+      let g:airline_section_x = airline#section#create([])
+      let g:airline_section_y = airline#section#create([])
+  endfunction
+  autocmd VimEnter * call AirlineInit()
+  autocmd VimEnter * AirlineRefresh
+
+  let g:rainbow_active = 1 "0 if you want to enable it later via :RainbowToggle
+" }
+
+  " Ack
+  let g:ackprg="ack-grep -H --nocolor --nogroup --column"
+  nmap <leader>a :Ack ""<Left>
+  nmap <leader>A :Ack <C-r><C-w>
+
+  " Deoplete
+  let g:deoplete#enable_at_startup = 1
+  " Let <Tab> also do completion
+  inoremap <silent><expr> <Tab>
+              \ pumvisible() ? "\<C-n>" :
+              \ deoplete#mappings#manual_complete()
+
+  " Tabular {
+  nmap <Leader>a= :Tabularize /=<CR>
+  vmap <Leader>a= :Tabularize /=<CR>
+  nmap <Leader>a: :Tabularize /:\zs<CR>
+  vmap <Leader>a: :Tabularize /:\zs<CR>
+  "}
+
+  " Easymotion {
+  let g:EasyMotion_do_mapping = 1
+  let g:EasyMotion_smartcase = 1
+  " bd for bidirectional :
+  map <nowait><leader>f <Plug>(easymotion-bd-w)
+
+  map <nowait><Leader>l <Plug>(easymotion-lineforward)
+  map <nowait><Leader>j <Plug>(easymotion-j)
+  map <nowait><Leader>k <Plug>(easymotion-k)
+  map <nowait><Leader>h <Plug>(easymotion-linebackward)
+
+  " beginning of words :
+  map <nowait><leader>z <Plug>(easymotion-w)
+  map <nowait><leader>Z <Plug>(easymotion-b)
+
+  " end of words :
+  map <nowait><leader>e <Plug>(easymotion-e)
+  map <nowait><leader>E <Plug>(easymotion-ge)
+  "}
+
+  " Autocomplete
   call deoplete#custom#set('ultisnips', 'matchers', ['matcher_fuzzy'])
 
   " Fix deoplete & ultisnips problem with <tab> completion :
@@ -84,10 +142,7 @@ if dein#load_state('~/.vim/bundle')
   "let g:UltiSnipsJumpForwardTrigger = "<c-j>"
   "let g:UltiSnipsJumpBackwardTrigger = "<c-k>"
 
-
   " Python {
-  call dein#add('zchee/deoplete-jedi') " python completion framework
-  call dein#add('python-mode/python-mode')
   let g:pymode_indent = 1 " pep8 indent
   let g:pymode_folding = 1
   let g:pymode_motion = 1
@@ -104,7 +159,6 @@ if dein#load_state('~/.vim/bundle')
   let g:pymode_lint_checkers = ['pep8', 'pyflakes'] " pep8 code checker
   let g:pymode_lint_ignore = ["E501", "W",] " ignore warning line too long
 
-
   " Code completion :
   let g:pymode_rope = 0 " enable rope which is slow
   "let g:pymode_rope_completion = 1 " enable completion
@@ -112,7 +166,6 @@ if dein#load_state('~/.vim/bundle')
   "let g:pymode_rope_autoimport = 0
 
   " use all other features of jedi but completion
-  call dein#add('davidhalter/jedi-vim')
   let g:jedi#completions_enabled = 0
   let g:jedi#auto_vim_configuration = 0
   let g:jedi#goto_assignments_command = ''  " dynamically done for ft=python.
@@ -121,34 +174,14 @@ if dein#load_state('~/.vim/bundle')
   let g:jedi#smart_auto_mappings = 1
   let g:jedi#auto_close_doc = 1
 
-  call dein#add('tell-k/vim-autopep8')
+  " Autopep8
   let g:autopep8_disable_show_diff=1 " disable show diff windows
   let g:autopep8_ignore="E501" " ignore line too long
   nnoremap <leader>p :Autopep8<CR>
   vnoremap <leader>p :Autopep8<CR>
-  "}
+  " }
 
-  call dein#end()
-  call dein#save_state()
-endif
 "}
-
-  " Airline config {
-  " see for patching terminal fonts :
-  " https://powerline.readthedocs.org/en/latest/installation/linux.html#font-installation
-  let g:airline_powerline_fonts=1
-  let g:airline#extensions#tabline#enabled = 1
-  let g:airline#extensions#tabline#show_buffers = 1
-  function! AirlineInit()
-      let g:airline_section_a = airline#section#create(['mode'])
-      let g:airline_section_b = airline#section#create_left(['%f'])
-      let g:airline_section_c = airline#section#create(['%{getcwd()}'])
-      let g:airline_section_x = airline#section#create([])
-      let g:airline_section_y = airline#section#create([])
-  endfunction
-  autocmd VimEnter * call AirlineInit()
-  autocmd VimEnter * AirlineRefresh
-  "}
 
 " User Interface {
 filetype plugin indent on
@@ -342,11 +375,6 @@ nnoremap <c-k> <c-w>k
 nnoremap <c-h> <c-w>h
 nnoremap <c-l> <c-w>l
 
-" map Ctrl+S to :w
-noremap <silent> <C-S>  :update<CR>
-vnoremap <silent> <C-S>  :update<CR>
-inoremap <silent> <C-S>  :update<CR>
-
 " For when you forget to sudo.. Really Write the file.
 cmap w!! w !sudo tee % >/dev/null
 
@@ -433,34 +461,6 @@ map <F10> :call ToggleProfiling()<cr>
 " Settings for python-mode
 "map <Leader>b oimport ipdb; ipdb.set_trace() # BREAKPOINT<C-c>
 map <Leader>i ofrom IPython import embed; embed() # Enter Ipython<C-c>
-
-" Tabular {
-if exists(":Tabularize")
-  nmap <Leader>a= :Tabularize /=<CR>
-  vmap <Leader>a= :Tabularize /=<CR>
-  nmap <Leader>a: :Tabularize /:\zs<CR>
-  vmap <Leader>a: :Tabularize /:\zs<CR>
-endif
-"}
-
-" Easymotion {
-" bd for bidirectional :
-map <nowait><leader>f <Plug>(easymotion-bd-w)
-
-map <nowait><Leader>l <Plug>(easymotion-lineforward)
-map <nowait><Leader>j <Plug>(easymotion-j)
-map <nowait><Leader>k <Plug>(easymotion-k)
-map <nowait><Leader>h <Plug>(easymotion-linebackward)
-
-" beginning of words :
-map <nowait><leader>z <Plug>(easymotion-w)
-map <nowait><leader>Z <Plug>(easymotion-b)
-
-" end of words :
-map <nowait><leader>e <Plug>(easymotion-e)
-map <nowait><leader>E <Plug>(easymotion-ge)
-" }
-
 "}
 
 
