@@ -38,8 +38,9 @@ if dein#load_state('~/.vim/bundle')
   call dein#add('mbbill/undotree')
   "call dein#add('vim-scripts/sessionman.vim')
 
+  call dein#add('Konfekt/FastFold')
   call dein#add('vim-scripts/restore_view.vim')
-  set viewoptions=cursor,folds,slash,unix
+  set viewoptions=folds,cursor,slash,unix
   " let g:skipview_files = ['*\.vim']
 
   " Easymotion
@@ -71,30 +72,33 @@ endif
 " Plugin configuration{
 
 " Tabular {
-if exists(":Tabularize")
-  nmap <Leader>a :Tabularize /
-  vmap <Leader>a :Tabularize /
-endif
+function! MapTabularInit()
+    noremap <Leader>t :Tabularize /
+    vnoremap <Leader>t :Tabularize /
+endfunction
+autocmd VimEnter * call MapTabularInit()
 "}
 
 " Easymotion {
-let g:EasyMotion_do_mapping = 1
-let g:EasyMotion_smartcase = 1
-" bd for bidirectional :
-map <nowait><leader>f <Plug>(easymotion-bd-w)
+function! MapEasymotionInit()
+    let g:EasyMotion_smartcase = 1
+    " bd for bidirectional :
+    map <nowait><leader>f <Plug>(easymotion-bd-w)
 
-map <nowait><Leader>l <Plug>(easymotion-lineforward)
-map <nowait><Leader>j <Plug>(easymotion-j)
-map <nowait><Leader>k <Plug>(easymotion-k)
-map <nowait><Leader>h <Plug>(easymotion-linebackward)
+    map <nowait><Leader>l <Plug>(easymotion-lineforward)
+    map <nowait><Leader>j <Plug>(easymotion-j)
+    map <nowait><Leader>k <Plug>(easymotion-k)
+    map <nowait><Leader>h <Plug>(easymotion-linebackward)
 
-" beginning of words :
-map <nowait><leader>z <Plug>(easymotion-w)
-map <nowait><leader>Z <Plug>(easymotion-b)
+    " beginning of words :
+    map <nowait><leader>z <Plug>(easymotion-w)
+    map <nowait><leader>Z <Plug>(easymotion-b)
 
-" end of words :
-map <nowait><leader>e <Plug>(easymotion-e)
-map <nowait><leader>E <Plug>(easymotion-ge)
+    " end of words :
+    map <nowait><leader>e <Plug>(easymotion-e)
+    map <nowait><leader>E <Plug>(easymotion-ge)
+endfunction
+autocmd VimEnter * call MapEasymotionInit()
 " }
 
 " Airline config {
@@ -115,18 +119,23 @@ autocmd VimEnter * call AirlineInit()
 autocmd VimEnter * AirlineRefresh
 "}
 
+" Supartab
+let g:SuperTabMappingForward = '<S-Tab>'
+let g:SuperTabMappingBackward = '<Tab>'
+
 let g:rainbow_active = 1 "0 if you want to enable it later via :RainbowToggle
 
 " Ack
-let g:ackprg="ack-grep -H --nocolor --nogroup --column"
-nmap <leader>a :Ack ""<Left>
-nmap <leader>A :Ack <C-r><C-w>
+
+function! MapAckInit()
+    let g:ackprg="ack-grep -H --nocolor --nogroup --column"
+    nmap <leader>a :Ack ""<Left>
+    nmap <leader>A :Ack <C-r><C-w>
+endfunction
+autocmd VimEnter * call MapAckInit()
 
 " deoplete {
 let g:deoplete#enable_at_startup = 1
-"inoremap <silent><expr> <Tab>
-"            \ pumvisible() ? "\<C-n>" :
-"            \ deoplete#mappings#manual_complete()
 
 " compatibility deoplete & ultisnipts:
 call deoplete#custom#set('ultisnips', 'matchers', ['matcher_fuzzy'])
@@ -139,45 +148,54 @@ let g:UltiSnipsExpandTrigger = "<S-Tab>" " default to <tab> that override tab de
 
 "}
 
-" python {
-let g:pymode_indent = 1 " pep8 indent
-let g:pymode_folding = 1
-let g:pymode_motion = 1
-" doc
-let g:pymode_doc = 1
-let g:pymode_doc_bind = 'K'
-" syntax
-let g:pymode_syntax = 1
-let g:pymode_syntax_all = 1
-let g:pymode_syntax_slow_sync = 1 " slower syntax sync
-" Python code checking :
-let g:pymode_lint = 1
-let g:pymode_lint_on_write = 1
-let g:pymode_lint_checkers = ['pep8', 'pyflakes'] " pep8 code checker
-let g:pymode_lint_ignore = ["E501", "W",] " ignore warning line too long
+" Pymode {
+function! MapPymodeInit()
 
+    let g:pymode_indent = 1 " pep8 indent
+    let g:pymode_folding = 1
+    let g:pymode_motion = 1
+    " doc
+    let g:pymode_doc = 1
+    let g:pymode_doc_bind = 'K'
+    " syntax
+    let g:pymode_syntax = 1
+    let g:pymode_syntax_all = 1
+    let g:pymode_syntax_slow_sync = 1 " slower syntax sync
+    " Python code checking :
+    let g:pymode_lint = 1
+    let g:pymode_lint_on_write = 1
+    let g:pymode_lint_checkers = ['pep8', 'pyflakes'] " pep8 code checker
+    let g:pymode_lint_ignore = ["E501"] " ignore warning line too long
 
-" Code completion :
-let g:pymode_rope = 0 " enable rope which is slow
-"let g:pymode_rope_completion = 1 " enable completion
-"let g:pymode_rope_lookup_project = 0 " do not lookup in parent directories which is slow
-"let g:pymode_rope_autoimport = 0
+    " Code completion :
+    let g:pymode_rope = 0 " enable rope which is slow
+    "let g:pymode_rope_completion = 1 " enable completion
+    "let g:pymode_rope_lookup_project = 0 " do not lookup in parent directories which is slow
+    "let g:pymode_rope_autoimport = 0
+endfunction
+autocmd VimEnter * call MapPymodeInit()
 
 " Jedi
-" use all other features of jedi but completion
-let g:jedi#completions_enabled = 0
-let g:jedi#auto_vim_configuration = 0
-let g:jedi#goto_assignments_command = ''  " dynamically done for ft=python.
-let g:jedi#goto_definitions_command = ''  " dynamically done for ft=python.
-let g:jedi#use_tabs_not_buffers = 0  " current default is 1.
-let g:jedi#smart_auto_mappings = 1
-let g:jedi#auto_close_doc = 1
+function! MapJediInit()
+    " use all other features of jedi but completion
+    let g:jedi#completions_enabled = 0
+    let g:jedi#auto_vim_configuration = 0
+    let g:jedi#goto_assignments_command = ''  " dynamically done for ft=python.
+    let g:jedi#goto_definitions_command = ''  " dynamically done for ft=python.
+    let g:jedi#use_tabs_not_buffers = 0  " current default is 1.
+    let g:jedi#smart_auto_mappings = 1
+    let g:jedi#auto_close_doc = 1
+endfunction
+autocmd VimEnter * call MapJediInit()
 
 " Autopep8
-let g:autopep8_disable_show_diff=1 " disable show diff windows
-let g:autopep8_ignore="E501" " ignore line too long
-nnoremap <leader>p :Autopep8<CR>
-vnoremap <leader>p :Autopep8<CR>
+function! MapAutopep8Init()
+    let g:autopep8_disable_show_diff=1 " disable show diff windows
+    "let g:autopep8_ignore="E501" " ignore line too long
+    nnoremap <leader>p :Autopep8<CR>
+    vnoremap <leader>p :Autopep8<CR>
+endfunction
+autocmd VimEnter * call MapAutopep8Init()
 "}
 
 
@@ -339,7 +357,7 @@ endif
 
 " Times choices:
 set ttimeoutlen=10
-set timeoutlen=150
+set timeoutlen=300
 
 map <nowait> <Esc> <C-c>
 " quick escape from command line with esc :
@@ -393,7 +411,6 @@ for i in range(97,122)
   exec "map! \e".c." <A-".c.">"
 endfor
 
-"set ttimeoutlen=-1
 map <nowait> <A-a> :bp<cr>
 map <nowait> <A-z> :bn<cr>
 map <nowait> <A-e> :cn<cr>
