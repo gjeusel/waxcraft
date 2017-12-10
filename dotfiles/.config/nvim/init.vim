@@ -40,7 +40,7 @@ if dein#load_state('~/.vim/bundle')
 
   call dein#add('Konfekt/FastFold')
   call dein#add('vim-scripts/restore_view.vim')
-  set viewoptions=folds,cursor,slash,unix
+  set viewoptions=cursor,slash,unix
   " let g:skipview_files = ['*\.vim']
 
   " Easymotion
@@ -165,7 +165,7 @@ function! MapPymodeInit()
     let g:pymode_lint = 1
     let g:pymode_lint_on_write = 1
     let g:pymode_lint_checkers = ['pep8', 'pyflakes'] " pep8 code checker
-    let g:pymode_lint_ignore = ["E501"] " ignore warning line too long
+    let g:pymode_lint_ignore = ["E501", "W0611"] " ignore warning line too long
 
     " Code completion :
     let g:pymode_rope = 0 " enable rope which is slow
