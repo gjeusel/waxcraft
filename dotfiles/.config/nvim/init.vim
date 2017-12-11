@@ -16,41 +16,37 @@ if dein#load_state('~/.vim/bundle')
 
   " User Interface {
   call dein#add('bling/vim-bufferline')
-
   call dein#add('vim-airline/vim-airline')
   call dein#add('vim-airline/vim-airline-themes')
-
   call dein#add('altercation/vim-colors-solarized')
-
   call dein#add('LnL7/vim-nix')
-
   call dein#add('luochen1990/rainbow')
+  call dein#add('airblade/vim-gitgutter') " column sign for git changes
+  call dein#add('rhysd/conflict-marker.vim') " conflict markers for vimdiff
   "}
 
   " Generic tools {
-  call dein#add('mileszs/ack.vim')
-
-  call dein#add('tpope/vim-fugitive')
-  call dein#add('tpope/vim-repeat')
-  call dein#add('tpope/vim-surround')
-  call dein#add('jiangmiao/auto-pairs')
-
-  call dein#add('godlygeek/tabular')
-
+  call dein#add('mileszs/ack.vim') " get ack cmd in vim
+  call dein#add('tpope/vim-fugitive') " Git wrapper for vim
+  call dein#add('tpope/vim-repeat') " allows better action repeat with .
+  call dein#add('tpope/vim-surround') " change surrounding easily cs([
+  call dein#add('jiangmiao/auto-pairs') " auto pair
+  call dein#add('kien/ctrlp.vim') " Fuzzy file finder
+  call dein#add('godlygeek/tabular') " tabularize
   call dein#add('majutsushi/tagbar')
   call dein#add('scrooloose/nerdcommenter')
-  call dein#add('rhysd/conflict-marker.vim')
   call dein#add('mbbill/undotree')
-
+  call dein#add('Konfekt/FastFold')
   call dein#add('vim-scripts/restore_view.vim')
-  set viewoptions=cursor,folds,slash,unix
+  set viewoptions=cursor,slash,unix
   " let g:skipview_files = ['*\.vim']
-
   call dein#add('easymotion/vim-easymotion')
   "}
 
   " Autocomplete {
   call dein#add('Shougo/deoplete.nvim')
+  call dein#add('ervandew/supertab') " tab handler for better autocompletion
+
   "call dein#add('Shougo/neoinclude.vim') " include completion framework
   call dein#add('Shougo/neco-vim') " vim completion framework
   call dein#add('Shougo/neco-syntax') " syntax source for neocomplete
@@ -101,10 +97,10 @@ endif
 
   " Deoplete
   let g:deoplete#enable_at_startup = 1
-  " Let <Tab> also do completion
-  inoremap <silent><expr> <Tab>
-              \ pumvisible() ? "\<C-n>" :
-              \ deoplete#mappings#manual_complete()
+
+  " Supartab
+  let g:SuperTabMappingForward = '<S-Tab>'
+  let g:SuperTabMappingBackward = '<Tab>'
 
   " Tabular
   map <leader>a :Tabularize /
@@ -153,7 +149,7 @@ endif
   let g:pymode_lint = 1
   let g:pymode_lint_on_write = 1
   let g:pymode_lint_checkers = ['pep8', 'pyflakes'] " pep8 code checker
-  let g:pymode_lint_ignore = ["E501", "W",] " ignore warning line too long
+  let g:pymode_lint_ignore = ["E501", "W0611",] " ignore warning line too long
 
   " Code completion :
   let g:pymode_rope = 0 " enable rope which is slow
@@ -176,7 +172,6 @@ endif
   nnoremap <leader>p :Autopep8<CR>
   vnoremap <leader>p :Autopep8<CR>
   " }
-
 "}
 
 " User Interface {
@@ -335,7 +330,7 @@ endif
 
 " Times choices:
 set ttimeoutlen=10
-set timeoutlen=150
+set timeoutlen=300
 
 map <nowait> <Esc> <C-c>
 " quick escape from command line with esc :
@@ -384,7 +379,6 @@ for i in range(97,122)
   exec "map! \e".c." <A-".c.">"
 endfor
 
-"set ttimeoutlen=-1
 map <nowait> <A-a> :bp<cr>
 map <nowait> <A-z> :bn<cr>
 map <nowait> <A-e> :cn<cr>
@@ -429,7 +423,7 @@ if !exists('*ActualizeInit')
 endif
 map <F12> :call ActualizeInit()<cr>
 
-" --> profile vim : {
+" Profile vim {
 function! StartProfiling()
   execute ":profile start profile.log"
   execute ":profile func *"
@@ -451,7 +445,6 @@ function! ToggleProfiling()
   endif
 endfunction
 "}
-
 map <F10> :call ToggleProfiling()<cr>
 
 " Settings for python-mode
@@ -488,3 +481,38 @@ silent command! -nargs=? Syntaxlist call s:Filter_lines('syntax list', <q-args>)
 silent command! -nargs=? VerboseHighlight call s:Filter_lines('verbose highlight', <q-args>)<cr>
 silent command! -nargs=? CurrentHighlight call s:Filter_lines('highlight', <q-args>)<cr>
 silent command! -nargs=? GetPluginsList call s:Filter_lines('PluginList', <q-args>)<cr>
+
+set foldtext=MyFoldText()
+function! MyFoldText()
+  let line = getline(v:foldstart)
+  if match( line, '^[ \t]*\(\/\*\|\/\/\)[*/\\]*[ \t]*$' ) == 0
+    let initial = substitute( line, '^\([ \t]\)*\(\/\*\|\/\/\)\(.*\)', '\1\2', '' )
+    let linenum = v:foldstart + 1
+    while linenum < v:foldend
+      let line = getline( linenum )
+      let comment_content = substitute( line, '^\([ \t\/\*]*\)\(.*\)$', '\2', 'g' )
+      if comment_content != ''
+        break
+      endif
+      let linenum = linenum + 1
+    endwhile
+    let sub = initial . ' ' . comment_content
+  else
+    let sub = line
+    let startbrace = substitute( line, '^.*{[ \t]*$', '{', 'g')
+    if startbrace == '{'
+      let line = getline(v:foldend)
+      let endbrace = substitute( line, '^[ \t]*}\(.*\)$', '}', 'g')
+      if endbrace == '}'
+        let sub = sub.substitute( line, '^[ \t]*}\(.*\)$', '...}\1', 'g')
+      endif
+    endif
+  endif
+  let n = v:foldend - v:foldstart + 1
+  let info = " " . n . " lines"
+  let sub = sub . "                                                                                                                  "
+  let num_w = getwinvar( 0, '&number' ) * getwinvar( 0, '&numberwidth' )
+  let fold_w = getwinvar( 0, '&foldcolumn' )
+  let sub = strpart( sub, 0, winwidth(0) - strlen( info ) - num_w - fold_w - 1 )
+  return sub . info
+endfunction
