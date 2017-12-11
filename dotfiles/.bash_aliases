@@ -98,11 +98,13 @@ alias load_env_GNU="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-GNU.nix"
 alias load_env_scipy="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-scipy.nix"
 alias load_env_intraday="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-intraday.nix"
 alias load_env_machlearn="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-machlearn.nix"
+alias load_env_deeproof="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-deepRoof.nix"
+alias lml=load_env_machlearn
+alias lmp=load_env_deeproof
 
 alias le_stmarket="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-stmarket.nix"
 
 alias unproxy="source $waxCraft_PATH/tools/unset_proxy.py"
-alias lml=load_env_machlearn
 alias li="unproxy && cd ~/intraday/ && load_env_intraday"
 
 alias ip="ipython -i "

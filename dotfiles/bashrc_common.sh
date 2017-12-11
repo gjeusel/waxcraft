@@ -29,6 +29,7 @@ else
   ps1_construct_interm_intraday27="[\[\e[1;34m\]\u@\H\[\e[1;30m\]:\[\e[0;37m\]\[\e[0;33m\]intraday-2.7-env\[\e[1;30m\]]" # [user@hostname: intraday36-env]
   ps1_construct_interm_stmarket="[\[\e[1;34m\]\u@\H\[\e[1;30m\]:\[\e[0;37m\]\[\e[0;33m\]stmarket-3.6-env\[\e[1;30m\]]"  # [user@hostname: stmarket36-env]
   ps1_construct_interm_machlearn="[\[\e[1;34m\]\u@\H\[\e[1;30m\]:\[\e[0;37m\] \[\e[0;33m\]machlearn-env\[\e[1;30m\]]" # [user@hostname: machlearn-env]
+  ps1_construct_interm_deeproof="[\[\e[1;34m\]\u@\H\[\e[1;30m\]:\[\e[0;37m\] \[\e[0;33m\]deeproof-env\[\e[1;30m\]]" # [user@hostname: deeproof-env]
 fi
 
 # testing last command line error :
@@ -44,6 +45,7 @@ ps1_scipy="$ps1_construct_init $ps1_construct_interm_scipy $ps1_construct_end"
 ps1_intraday27="$ps1_construct_init $ps1_construct_interm_intraday27 $ps1_construct_end"
 ps1_stmarket="$ps1_construct_init $ps1_construct_interm_stmarket $ps1_construct_end"
 ps1_machlearn="$ps1_construct_init $ps1_construct_interm_machlearn $ps1_construct_end"
+ps1_deeproof="$ps1_construct_init $ps1_construct_interm_deeproof $ps1_construct_end"
 
 
 export PS1=$ps1_std
