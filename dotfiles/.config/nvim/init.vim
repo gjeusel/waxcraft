@@ -6,6 +6,7 @@ endif
 set runtimepath+=~/.vim/bundle/repos/github.com/Shougo/dein.vim/
 
 " Plugins dein declarations {
+
 " path to where to store plugins:
 if dein#load_state('~/.vim/bundle')
   call dein#begin('~/.vim/bundle')
@@ -21,6 +22,7 @@ if dein#load_state('~/.vim/bundle')
   call dein#add('LnL7/vim-nix')
   call dein#add('luochen1990/rainbow')
   call dein#add('airblade/vim-gitgutter') " column sign for git changes
+  call dein#add('rhysd/conflict-marker.vim') " conflict markers for vimdiff
   "}
 
   " Generic tools {
@@ -31,19 +33,14 @@ if dein#load_state('~/.vim/bundle')
   call dein#add('jiangmiao/auto-pairs') " auto pair
   call dein#add('kien/ctrlp.vim') " Fuzzy file finder
   call dein#add('godlygeek/tabular') " tabularize
-
   call dein#add('majutsushi/tagbar')
   call dein#add('scrooloose/nerdcommenter')
-  call dein#add('rhysd/conflict-marker.vim')
   call dein#add('mbbill/undotree')
-  "call dein#add('vim-scripts/sessionman.vim')
-
   call dein#add('Konfekt/FastFold')
   call dein#add('tmhedberg/SimpylFold')
   call dein#add('vim-scripts/restore_view.vim')
   set viewoptions=cursor,slash,unix
   " let g:skipview_files = ['*\.vim']
-
   call dein#add('easymotion/vim-easymotion')
   "}
 
@@ -488,7 +485,7 @@ if !exists('*ActualizeInit')
 endif
 map <F12> :call ActualizeInit()<cr>
 
-" --> profile vim : {
+" Profile vim {
 function! StartProfiling()
   execute ":profile start profile.log"
   execute ":profile func *"
@@ -510,7 +507,6 @@ function! ToggleProfiling()
   endif
 endfunction
 "}
-
 map <F10> :call ToggleProfiling()<cr>
 
 " Settings for python-mode
