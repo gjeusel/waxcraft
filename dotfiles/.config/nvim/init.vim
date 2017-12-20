@@ -39,6 +39,7 @@ if dein#load_state('~/.vim/bundle')
   "call dein#add('vim-scripts/sessionman.vim')
 
   call dein#add('Konfekt/FastFold')
+  call dein#add('tmhedberg/SimpylFold')
   call dein#add('vim-scripts/restore_view.vim')
   set viewoptions=cursor,slash,unix
   " let g:skipview_files = ['*\.vim']
@@ -135,8 +136,18 @@ function! MapAckInit()
 endfunction
 autocmd VimEnter * call MapAckInit()
 
+" SimpylFold
+function! MapSimpylFoldInit()
+    let g:SimpylFold_docstring_preview = 1
+    let g:SimpylFold_fold_docstring = 1
+    let g:SimpylFold_fold_import = 0
+endfunction
+autocmd VimEnter * call MapSimpylFoldInit()
+
+
 " deoplete {
 let g:deoplete#enable_at_startup = 1
+let g:deoplete#sources#jedi#server_timeout = 20 " extend time for large pkg
 
 " compatibility deoplete & ultisnipts:
 call deoplete#custom#set('ultisnips', 'matchers', ['matcher_fuzzy'])
@@ -153,8 +164,11 @@ let g:UltiSnipsExpandTrigger = "<S-Tab>" " default to <tab> that override tab de
 function! MapPymodeInit()
 
     let g:pymode_indent = 1 " pep8 indent
-    let g:pymode_folding = 1
+    let g:pymode_folding = 0 " disable folding to use SimpyFold
     let g:pymode_motion = 1
+    " breakpoin
+    let g:pymode_breakpoint_bind = '<leader>b'
+    let g:pymode_breakpoint = 1
     " doc
     let g:pymode_doc = 1
     let g:pymode_doc_bind = 'K'
@@ -167,6 +181,10 @@ function! MapPymodeInit()
     let g:pymode_lint_on_write = 1
     let g:pymode_lint_checkers = ['pep8', 'pyflakes'] " pep8 code checker
     let g:pymode_lint_ignore = ["E501", "W0611"] " ignore warning line too long
+    " Lint shortcut:
+    map <nowait> <A-q> :lnext<CR>
+    map <nowait> <A-s> :lprevious<CR>
+    "map <nowait> <silent> <A-d> :lclose<CR>:bdelete<CR>
 
     " Code completion :
     let g:pymode_rope = 0 " enable rope which is slow
@@ -358,8 +376,15 @@ endif
 
 " Times choices:
 set ttimeoutlen=10
-set timeoutlen=300
+set timeoutlen=500
+" improve quick escape from insertion mode:
+augroup FastEscape
+  autocmd!
+  au InsertEnter * set timeoutlen=0
+  au InsertLeave * set timeoutlen=500
+augroup END
 
+map <nowait> ² <C-c>
 map <nowait> <Esc> <C-c>
 " quick escape from command line with esc :
 cmap <nowait> <Esc> <C-c>
@@ -438,6 +463,13 @@ vnoremap wk zk
 
 " qwerty --> azerty beginning of the next word eased by this bind :
 " the <nowait> prevent a delay when typing z (for za for example)
+function! InitMovementMap()
+    if mapcheck("z", "N") != ""
+        unmap z
+    endif
+    noremap <nowait> z w
+endfunction
+autocmd VimEnter * call InitMovementMap()
 noremap <nowait> z w
 noremap <nowait> Z b
 noremap <nowait> e e
@@ -482,7 +514,7 @@ endfunction
 map <F10> :call ToggleProfiling()<cr>
 
 " Settings for python-mode
-"map <Leader>b oimport ipdb; ipdb.set_trace() # BREAKPOINT<C-c>
+map <Leader>o oimport pdb; pdb.set_trace() # BREAKPOINT<C-c>
 map <Leader>i ofrom IPython import embed; embed() # Enter Ipython<C-c>
 
 "}
