@@ -14,6 +14,6 @@ except ImportError:
 
 try:
     from model import *
-    # m = wrapper_model(n_limit=1000)
+    m = wrapper_model(n_limit=1000)
 except ImportError:
     pass

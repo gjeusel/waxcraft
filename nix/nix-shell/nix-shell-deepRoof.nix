@@ -14,6 +14,7 @@ stdenv.mkDerivation {
 
     python36
     python36Packages.setuptools
+    python36Packages.wheel
     python36Packages.pip
 
     # Python Common Tools:
@@ -46,9 +47,10 @@ stdenv.mkDerivation {
 
     python36Packages.pypillowfight
     bazel
-    #python36Packages.tensorflow
-    python36Packages.pytorch
-    python36Packages.torchvision
+    #python36Packages.tensorflowCuda
+    #python36Packages.tensorflowWithoutCuda
+    #python36Packages.pytorch
+    #python36Packages.torchvision
 
     # web:
     python36Packages.flask # A microframework based on Werkzeug, Jinja 2, and good intentions

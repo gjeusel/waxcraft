@@ -1,5 +1,9 @@
 " vim: set sw=4 ts=4 sts=4 et tw=78 foldmarker={,} foldlevel=0 foldmethod=marker spell:
 
+" Install dein :
+" curl https://raw.githubusercontent.com/Shougo/dein.vim/master/bin/installer.sh > installer.sh
+" sh installer.sh ~/.vim/bundle/
+
 if &compatible
   set nocompatible
 endif
