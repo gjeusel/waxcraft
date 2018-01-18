@@ -42,13 +42,13 @@ stdenv.mkDerivation {
     # Datascience:
     python36Packages.pandas # dataframe handle
     python36Packages.scikitlearn
-    python36Packages.xgboost
+    #python36Packages.xgboost
 
-    python36Packages.pypillowfight
-    bazel
-    #python36Packages.tensorflow
-    python36Packages.pytorch
-    python36Packages.torchvision
+    #python36Packages.pypillowfight
+    #bazel
+    python36Packages.tensorflow
+    #python36Packages.pytorch
+    #python36Packages.torchvision
 
     # web:
     python36Packages.flask # A microframework based on Werkzeug, Jinja 2, and good intentions
