@@ -36,7 +36,7 @@ if dein#load_state('~/.vim/bundle')
   call dein#add('majutsushi/tagbar')
   call dein#add('scrooloose/nerdcommenter')
   call dein#add('mbbill/undotree')
-  call dein#add('Konfekt/FastFold')
+  "call dein#add('Konfekt/FastFold')
   call dein#add('tmhedberg/SimpylFold')
   call dein#add('vim-scripts/restore_view.vim')
   set viewoptions=cursor,slash,unix
@@ -134,12 +134,9 @@ endfunction
 autocmd VimEnter * call MapAckInit()
 
 " SimpylFold
-function! MapSimpylFoldInit()
-    let g:SimpylFold_docstring_preview = 1
-    let g:SimpylFold_fold_docstring = 1
-    let g:SimpylFold_fold_import = 0
-endfunction
-autocmd VimEnter * call MapSimpylFoldInit()
+let g:SimpylFold_docstring_preview = 1
+let g:SimpylFold_fold_docstring = 1
+let g:SimpylFold_fold_import = 0
 
 
 " deoplete {
@@ -228,6 +225,7 @@ set mousehide               " Hide the mouse cursor while typing
 set number " display line number column
 set ruler          " Show the cursor position all the time
 set cursorline     " Highlight the line of the cursor
+set guicursor=
 set scrolljump=5                " Lines to scroll when cursor leaves screen
 set scrolloff=3    " Have some context around the current line always on screen
 set virtualedit=onemore             " Allow for cursor beyond last character
