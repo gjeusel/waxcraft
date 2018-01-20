@@ -179,6 +179,7 @@ function! MapPymodeInit()
     let g:pymode_lint_on_write = 1
     let g:pymode_lint_checkers = ['pep8', 'pyflakes'] " pep8 code checker
     let g:pymode_lint_ignore = ["E501", "W0611"] " ignore warning line too long
+    let g:pymode_lint_cwindow = 0  " do not open quickfix cwindows if errors
     " Lint shortcut:
     map <nowait> <A-q> :lnext<CR>
     map <nowait> <A-s> :lprevious<CR>

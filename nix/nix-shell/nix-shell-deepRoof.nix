@@ -7,7 +7,7 @@ stdenv.mkDerivation {
 
   shellHook = ''
     export PS1=$ps1_deeproof
-    #export PYTHONPATH=$PYTHONPATH:/home/gjeusel/.local/lib/python3.6/site-packages/
+    export PYTHONPATH=$PYTHONPATH:/home/gjeusel/.local/lib/python3.6/site-packages/
    '';
 
   buildInputs = [
@@ -25,6 +25,7 @@ stdenv.mkDerivation {
     python36Packages.click # Create beautiful command line interfaces in Python
     python36Packages.six # for smoothing over the differences between the Python versions
     python36Packages.xmltodict
+    python36Packages.arrow # datetime handle
 
     # Test:
     python36Packages.pytest
@@ -48,8 +49,13 @@ stdenv.mkDerivation {
     python36Packages.pypillowfight
     bazel
     #python36Packages.tensorflow
+    #python36Packages.tensorflowCuda
+    #python36Packages.tensorflowWithoutCuda
+
     python36Packages.pytorch
     python36Packages.torchvision
+
+    python36Packages.h5py # used by keras
 
     # web:
     python36Packages.flask # A microframework based on Werkzeug, Jinja 2, and good intentions
