@@ -47,10 +47,9 @@ stdenv.mkDerivation {
 
     python36Packages.pypillowfight
     bazel
-    #python36Packages.tensorflowCuda
-    #python36Packages.tensorflowWithoutCuda
-    #python36Packages.pytorch
-    #python36Packages.torchvision
+    #python36Packages.tensorflow
+    python36Packages.pytorch
+    python36Packages.torchvision
 
     # web:
     python36Packages.flask # A microframework based on Werkzeug, Jinja 2, and good intentions

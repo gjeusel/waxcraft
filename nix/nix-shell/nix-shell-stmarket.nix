@@ -15,6 +15,7 @@ stdenv.mkDerivation {
 
     #export PYTHONPATH=$PYTHONPATH:/media/sf_windows/src/dash-0.19.0/
     export PYTHONPATH=$PYTHONPATH:/media/sf_windows/src/stmarket/
+    export PYTHONPATH=$PYTHONPATH:/media/sf_windows/src/gemservices-python/
 
     #export PYTHONPATH=$PYTHONPATH:/home/gjeusel/.local/lib/python2.7/site-packages/
     export PYTHONPATH=$PYTHONPATH:/home/gjeusel/.local/lib/python3.6/site-packages/
@@ -37,13 +38,16 @@ stdenv.mkDerivation {
     python36Packages.click # Create beautiful command line interfaces in Python
     python36Packages.six # for smoothing over the differences between the Python versions
     python36Packages.xmltodict
+    python36Packages.arrow # better handle for datetime
 
     # Test:
     python36Packages.pytest
     python36Packages.betamax
+    python36Packages.betamax-serializers
     python36Packages.responses
     python36Packages.pytestpep8
     python36Packages.pytestflakes
+    python36Packages.flake8
 
     # Documentaion:
     python36Packages.sphinx_1_2
@@ -57,6 +61,9 @@ stdenv.mkDerivation {
     python36Packages.scikitlearn
     python36Packages.xgboost
 
+    # Stats:
+    python36Packages.statsmodels
+
     # web:
     python36Packages.flask # A microframework based on Werkzeug, Jinja 2, and good intentions
     #python36Packages.dash_plotly
@@ -64,6 +71,7 @@ stdenv.mkDerivation {
     # plot:
     python36Packages.colorlover
     python36Packages.plotly
+    python36Packages.pyside # pyqt4 for ipython matplotlib interactive
 
   ];
 }
