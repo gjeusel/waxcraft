@@ -40,7 +40,7 @@ if dein#load_state('~/.vim/bundle')
   call dein#add('majutsushi/tagbar')
   call dein#add('scrooloose/nerdcommenter')
   call dein#add('mbbill/undotree')
-  "call dein#add('Konfekt/FastFold')
+  call dein#add('Konfekt/FastFold')
   call dein#add('tmhedberg/SimpylFold')
   call dein#add('vim-scripts/restore_view.vim')
   set viewoptions=cursor,slash,unix

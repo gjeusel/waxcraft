@@ -65,6 +65,7 @@ stdenv.mkDerivation {
     python36Packages.colorlover
     python36Packages.plotly
     python36Packages.matplotlib
+    python36Packages.pyside # pyqt4 for ipython matplotlib interactive
 
   ];
 }
