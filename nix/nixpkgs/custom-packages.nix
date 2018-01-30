@@ -32,26 +32,16 @@ packageOverrides = super: let self = super.pkgs; in with self; rec {
   # Pythons modules :
   wax_python = "${wax_nixpkgs}pythonModules/";
 
-  pyyaml = pythonPackages.buildPythonPackage rec {
-    name = "pyyaml-${version}";
-    version = "3.12";
+  pyaml = pythonPackages.buildPythonPackage rec {
+    pname = "pyaml";
+    name = "${pname}-${version}";
+    version = "17.12.1";
 
-    src = fetchFromGitHub {
-      owner = "yaml";
-      repo = "pyyaml";
-      rev = "${version}";
-      sha256 = "0pg4ni2j35rcy0yingmm8m3b98v281wsxicb44c2bd5v7k7abhpz";
-    };
-    doCheck = false;
-
-    meta = {
-      description = "The next generation YAML parser and emitter for Python.";
-      homepage = https://github.com/yaml/pyyaml;
-      license = "MIT";
-      maintainers = [ "yaml" ];
+    src = pythonPackages.fetchPypi {
+      inherit pname version;
+      sha256 = "7dda3e0b1b12215e3bb05368d1abbf7d747112a43738e0a4e6deb466b83fd88e";
     };
   };
-
 
   lightgbm = pythonPackages.buildPythonPackage rec {
     name = "lightgbm-${version}";

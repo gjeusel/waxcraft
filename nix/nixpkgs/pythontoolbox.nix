@@ -15,10 +15,13 @@ python.buildEnv.override {
       pkgs.pythonPackages.jedi # python completion for vim
       pkgs.pythonPackages.pathlib # handle path
 
+      pkgs.pythonPackages.setuptools
+      pkgs.pythonPackages.pip
+
       # Test:
-      pkgs.pythonPackages.pytest
       pkgs.pythonPackages.betamax
       pkgs.pythonPackages.responses
+      pkgs.pythonPackages.pytest
       pkgs.pythonPackages.pytestpep8
       pkgs.pythonPackages.pytestflakes
 
@@ -27,6 +30,7 @@ python.buildEnv.override {
       pkgs.pythonPackages.sphinx_rtd_theme
 
       # Database handle:
+      pkgs.pythonPackages.psycopg2
       pkgs.pythonPackages.marshmallow-sqlalchemy
 
       # ML:

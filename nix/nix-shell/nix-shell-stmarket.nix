@@ -8,22 +8,11 @@ stdenv.mkDerivation {
   shellHook = ''
     export PS1=$ps1_stmarket
 
-    #export PYTHONPATH=$PYTHONPATH:/media/sf_windows/src/pm-utils/
-    #export PYTHONPATH=$PYTHONPATH:/media/sf_windows/src/pyhtml/
-    #export PYTHONPATH=$PYTHONPATH:/media/sf_windows/src/inireader/
-    export PYTHONPATH=$PYTHONPATH:/media/sf_windows/src/pymercure/
-
-    #export PYTHONPATH=$PYTHONPATH:/media/sf_windows/src/dash-0.19.0/
-    export PYTHONPATH=$PYTHONPATH:/media/sf_windows/src/stmarket/
-    export PYTHONPATH=$PYTHONPATH:/media/sf_windows/src/gemservices-python/
-
-    #export PYTHONPATH=$PYTHONPATH:/home/gjeusel/.local/lib/python2.7/site-packages/
-    export PYTHONPATH=$PYTHONPATH:/home/gjeusel/.local/lib/python3.6/site-packages/
-
+    export PYTHONPATH=/home/gjeusel/.local/lib/python3.6/site-packages/:$PYTHONPATH
     export PATH=$PATH:/home/gjeusel/.local/bin/
 
-    #export PYTHONPATH=$PYTHONPATH:/home/gjeusel/windows/src/
-    #export PYTHONPATH=$PYTHONPATH:/home/gjeusel/windows/src/tshistory/
+    export PYTHONPATH=/home/gjeusel/src/stmarket:$PYTHONPATH
+    export PYTHONPATH=/home/gjeusel/src/pymercure:$PYTHONPATH
    '';
 
   buildInputs = [
@@ -33,21 +22,24 @@ stdenv.mkDerivation {
     python36Packages.pip
 
     # Python Common Tools:
-    python36Packages.ipdb # Debugger library
     python36Packages.ipython # Ipython library
     python36Packages.click # Create beautiful command line interfaces in Python
     python36Packages.six # for smoothing over the differences between the Python versions
     python36Packages.xmltodict
     python36Packages.arrow # better handle for datetime
+    python36Packages.pyaml # read yaml files
 
     # Test:
     python36Packages.pytest
     python36Packages.betamax
     python36Packages.betamax-serializers
     python36Packages.responses
+
     python36Packages.pytestpep8
     python36Packages.pytestflakes
+
     python36Packages.flake8
+    #python36Packages.pytest-flake8
 
     # Documentaion:
     python36Packages.sphinx_1_2
@@ -55,9 +47,11 @@ stdenv.mkDerivation {
 
     # Database handle:
     python36Packages.marshmallow-sqlalchemy
+    python36Packages.psycopg2  # Database Adapter
 
     # Datascience:
     python36Packages.pandas # dataframe handle
+    python36Packages.numpy
     python36Packages.scikitlearn
     python36Packages.xgboost
 
@@ -69,9 +63,10 @@ stdenv.mkDerivation {
     #python36Packages.dash_plotly
 
     # plot:
+    python36Packages.pyside # pyqt4 for ipython matplotlib interactive
+    python36Packages.matplotlib
     python36Packages.colorlover
     python36Packages.plotly
-    python36Packages.pyside # pyqt4 for ipython matplotlib interactive
 
   ];
 }
