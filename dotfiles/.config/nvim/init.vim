@@ -42,6 +42,7 @@ if dein#load_state('~/.vim/bundle')
   call dein#add('mbbill/undotree')
   call dein#add('Konfekt/FastFold')
   call dein#add('tmhedberg/SimpylFold')
+  call dein#add('kopischke/vim-stay')  " restore session, well integrated with fastfold
   call dein#add('vim-scripts/restore_view.vim')
   set viewoptions=cursor,slash,unix
   " let g:skipview_files = ['*\.vim']
@@ -86,7 +87,7 @@ autocmd VimEnter * call MapTabularInit()
 function! MapEasymotionInit()
     let g:EasyMotion_smartcase = 1
     " bd for bidirectional :
-    map <nowait><leader>f <Plug>(easymotion-bd-w)
+    map <nowait><leader><leader> <Plug>(easymotion-bd-w)
 
     map <nowait><Leader>l <Plug>(easymotion-lineforward)
     map <nowait><Leader>j <Plug>(easymotion-j)
@@ -137,11 +138,18 @@ function! MapAckInit()
 endfunction
 autocmd VimEnter * call MapAckInit()
 
-" SimpylFold
-let g:SimpylFold_docstring_preview = 1
-let g:SimpylFold_fold_docstring = 1
-let g:SimpylFold_fold_import = 0
+" SimpylFold & FastFold
+function! MapSimplyFoldInit()
+    let g:SimpylFold_docstring_preview = 1
+    let g:SimpylFold_fold_docstring = 1
+    let g:SimpylFold_fold_import = 0
 
+    let g:fastfold_savehook = 1
+    let g:fastfold_fold_command_suffixes = []
+    let g:fastfold_fold_movement_commands = []
+    nmap <leader>f <Plug>(FastFoldUpdate)
+endfunction
+autocmd VimEnter * call MapSimplyFoldInit()
 
 " deoplete {
 let g:deoplete#enable_at_startup = 1
@@ -450,9 +458,11 @@ nmap <silent> <A-r> :bp\|bd #<CR>
 nnoremap <Space> za
 vnoremap <Space> za
 
-" --> Folding : closing all opened foldings :
-nnoremap wm zm
-vnoremap wm zm
+" --> Folding : closing/opening all opened foldings :
+nnoremap wM zR
+vnoremap wM zR
+nnoremap wm zM
+vnoremap wm zM
 
 " --> Folding : movements (next / prec) :
 nnoremap wj zj
