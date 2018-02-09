@@ -182,6 +182,7 @@ function! MapPymodeInit()
     let g:pymode_syntax = 1
     let g:pymode_syntax_all = 1
     let g:pymode_syntax_slow_sync = 1 " slower syntax sync
+    let g:pymode_trim_whitespaces = 0 " do not trim unused white spaces on save
     " Python code checking :
     let g:pymode_lint = 1
     let g:pymode_lint_on_write = 1
@@ -337,7 +338,7 @@ endif
 " Autocmd
 if has("autocmd")
   " Delete empty space from the end of lines on every save
-  au BufWritePre * :%s/\s\+$//e
+  "au BufWritePre * :%s/\s\+$//e
 
   " Make sure all markdown files have the correct filetype set and setup
   " wrapping and spell check

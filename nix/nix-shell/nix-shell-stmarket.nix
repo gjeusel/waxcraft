@@ -12,7 +12,11 @@ stdenv.mkDerivation {
     export PATH=$PATH:/home/gjeusel/.local/bin/
 
     export PYTHONPATH=/home/gjeusel/src/stmarket:$PYTHONPATH
-    export PYTHONPATH=/home/gjeusel/src/pymercure:$PYTHONPATH
+    export PYTHONPATH=/home/gjeusel/src/intraday:$PYTHONPATH
+    export PYTHONPATH=/home/gjeusel/src/pymercure-dev:$PYTHONPATH
+    export PYTHONPATH=/home/gjeusel/src/pytest_sa_pg:$PYTHONPATH
+    export PYTHONPATH=/home/gjeusel/projects/tshistory:$PYTHONPATH
+    export PYTHONPATH=/home/gjeusel/projects/intraday_hub:$PYTHONPATH
    '';
 
   buildInputs = [
