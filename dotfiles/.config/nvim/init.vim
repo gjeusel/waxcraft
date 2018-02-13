@@ -34,7 +34,7 @@ if dein#load_state('~/.vim/bundle')
   call dein#add('tpope/vim-fugitive') " Git wrapper for vim
   call dein#add('tpope/vim-repeat') " allows better action repeat with .
   call dein#add('tpope/vim-surround') " change surrounding easily cs([
-  call dein#add('jiangmiao/auto-pairs') " auto pair
+  "call dein#add('jiangmiao/auto-pairs') " auto pair
   call dein#add('kien/ctrlp.vim') " Fuzzy file finder
   call dein#add('godlygeek/tabular') " tabularize
   call dein#add('majutsushi/tagbar')
@@ -525,7 +525,7 @@ map <F10> :call ToggleProfiling()<cr>
 
 " Settings for python-mode
 map <Leader>o oimport pdb; pdb.set_trace() # BREAKPOINT<C-c>
-map <Leader>i ofrom IPython import embed; embed() # Enter Ipython<C-c>
+map <Leader>i ofrom IPython embed; embed() # Enter Ipython<C-c>
 
 "}
 

@@ -8,6 +8,7 @@ stdenv.mkDerivation {
   shellHook = ''
     export PS1=$ps1_deeproof
     export PYTHONPATH=$PYTHONPATH:/home/gjeusel/.local/lib/python3.6/site-packages/
+    export PYTHONPATH=$PYTHONPATH:/home/gjeusel/src/deepRoof
    '';
 
   buildInputs = [
@@ -53,6 +54,7 @@ stdenv.mkDerivation {
     #python36Packages.tensorflowWithoutCuda
 
     python36Packages.pytorch
+    #python36Packages.pytorchWithCuda
     python36Packages.torchvision
 
     python36Packages.h5py # used by keras
