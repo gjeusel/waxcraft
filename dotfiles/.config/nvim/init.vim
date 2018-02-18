@@ -139,14 +139,13 @@ endfunction
 autocmd VimEnter * call MapAckInit()
 
 " SimpylFold & FastFold
+let g:SimpylFold_docstring_preview = 1
+let g:SimpylFold_fold_docstring = 1
+let g:SimpylFold_fold_import = 0
+let g:fastfold_savehook = 1
+let g:fastfold_fold_command_suffixes = []
+let g:fastfold_fold_movement_commands = []
 function! MapSimplyFoldInit()
-    let g:SimpylFold_docstring_preview = 1
-    let g:SimpylFold_fold_docstring = 1
-    let g:SimpylFold_fold_import = 0
-
-    let g:fastfold_savehook = 1
-    let g:fastfold_fold_command_suffixes = []
-    let g:fastfold_fold_movement_commands = []
     nmap <leader>f <Plug>(FastFoldUpdate)
 endfunction
 autocmd VimEnter * call MapSimplyFoldInit()

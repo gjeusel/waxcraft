@@ -8,7 +8,6 @@ stdenv.mkDerivation {
   shellHook = ''
     export PS1=$ps1_deeproof
     export PYTHONPATH=$PYTHONPATH:/home/gjeusel/.local/lib/python3.6/site-packages/
-    export PYTHONPATH=$PYTHONPATH:/home/gjeusel/src/deepRoof
    '';
 
   buildInputs = [
@@ -27,6 +26,7 @@ stdenv.mkDerivation {
     python36Packages.six # for smoothing over the differences between the Python versions
     python36Packages.xmltodict
     python36Packages.arrow # datetime handle
+    python36Packages.tqdm # Fast, Extensible Progress Meter
 
     # Test:
     python36Packages.pytest
@@ -47,7 +47,8 @@ stdenv.mkDerivation {
     python36Packages.scikitlearn
     python36Packages.xgboost
 
-    python36Packages.pypillowfight
+    #python36Packages.pypillowfight
+    python36Packages.pillow-simd
     bazel
     #python36Packages.tensorflow
     #python36Packages.tensorflowCuda
