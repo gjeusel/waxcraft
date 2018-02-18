@@ -32,6 +32,13 @@ function _du() {
 alias du=_du
 alias libclean="find . | grep -E '(__pycache__|\.pyc|\.pyo|\.orig$)' | xargs rm -rf"
 
+function _sep() {
+  echo $1 | sed 's/:/\n/g' |\
+    sed 's/\/nix\/store\/................................-//g' |\
+    sed 's/\/lib\/python...\/site-packages//g'
+}
+alias sep=_sep
+
 # Latex :
 latex_overview(){ $HOME/tools/latexmk/latexmk.pl -pdf -pvc -interaction=nonstopmode $1; }
 
