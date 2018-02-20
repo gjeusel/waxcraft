@@ -2,6 +2,7 @@
 
 # definitly swhich to nvim:
 alias vim="nvim"
+alias v="nvim"
 
 alias sshpi="ssh pi@192.168.1.3"
 

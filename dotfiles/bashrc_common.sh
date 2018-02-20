@@ -10,8 +10,8 @@ unset SSH_ASKPASS
 
 # To adds a * to the branch name if the branch has been changed
 export GIT_PS1_SHOWDIRTYSTATE=1
-export EDITOR=vim
-export GIT_EDITOR=vim
+#export EDITOR=vim
+#export GIT_EDITOR=
 
 # Prompt shell setup : {{{
 ##################################################

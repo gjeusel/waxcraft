@@ -435,6 +435,7 @@ inoremap <silent> <C-S>  :update<CR>
 " For when you forget to sudo.. Really Write the file.
 cmap w!! w !sudo tee % >/dev/null
 
+
 " Buffers {
 " --> About buffers switch
 " Little snippet to get all alt key mapping functional :

@@ -14,7 +14,8 @@ stdenv.mkDerivation {
     export PYTHONPATH=/home/gjeusel/src/stmarket:$PYTHONPATH
     export PYTHONPATH=/home/gjeusel/src/intraday:$PYTHONPATH
     export PYTHONPATH=/home/gjeusel/src/pymercure-dev:$PYTHONPATH
-    export PYTHONPATH=/home/gjeusel/src/pytest_sa_pg:$PYTHONPATH
+    export PYTHONPATH=/home/gjeusel/projects/:$PYTHONPATH
+    export PYTHONPATH=/home/gjeusel/projects/tanker:$PYTHONPATH
     export PYTHONPATH=/home/gjeusel/projects/tshistory:$PYTHONPATH
     export PYTHONPATH=/home/gjeusel/projects/intraday_hub:$PYTHONPATH
    '';
@@ -52,6 +53,7 @@ stdenv.mkDerivation {
     # Database handle:
     python36Packages.marshmallow-sqlalchemy
     python36Packages.psycopg2  # Database Adapter
+    python36Packages.influxdb
 
     # Datascience:
     python36Packages.pandas # dataframe handle

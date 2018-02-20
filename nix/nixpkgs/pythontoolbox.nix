@@ -18,6 +18,9 @@ python.buildEnv.override {
       pkgs.pythonPackages.setuptools
       pkgs.pythonPackages.pip
 
+      #Neovim:
+      pkgs.pythonPackages.neovim
+
       # Test:
       pkgs.pythonPackages.betamax
       pkgs.pythonPackages.responses
