@@ -89,6 +89,8 @@ function! MapEasymotionInit()
     " bd for bidirectional :
     map <nowait><leader><leader> <Plug>(easymotion-bd-w)
 
+    map <nowait><leader>f <Plug>(easymotion-bd-f)
+
     map <nowait><Leader>l <Plug>(easymotion-lineforward)
     map <nowait><Leader>j <Plug>(easymotion-j)
     map <nowait><Leader>k <Plug>(easymotion-k)
@@ -145,10 +147,10 @@ let g:SimpylFold_fold_import = 0
 let g:fastfold_savehook = 1
 let g:fastfold_fold_command_suffixes = []
 let g:fastfold_fold_movement_commands = []
-function! MapSimplyFoldInit()
-    nmap <leader>f <Plug>(FastFoldUpdate)
-endfunction
-autocmd VimEnter * call MapSimplyFoldInit()
+"function! MapSimplyFoldInit()
+"    nmap <leader>f <Plug>(FastFoldUpdate)
+"endfunction
+"autocmd VimEnter * call MapSimplyFoldInit()
 
 " deoplete {
 let g:deoplete#enable_at_startup = 1
@@ -448,7 +450,7 @@ endfor
 
 map <nowait> <A-a> :bp<cr>
 map <nowait> <A-z> :bn<cr>
-map <nowait> <A-e> :cn<cr>
+map <nowait> <A-e> :vs %<cr>
 
 " buffer delete without closing windows :
 nmap <silent> <A-r> :bp\|bd #<CR>
