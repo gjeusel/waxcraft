@@ -1,0 +1,9 @@
+[user]
+	email = jeusel.guillaume@gmail.com
+	name = Guillaume
+	name = Guillaume
+[merge]
+	tool = vimdiff
+	conflictstyle = diff3
+[mergetool]
+	prompt = false

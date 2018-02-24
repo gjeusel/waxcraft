@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import logging
+import urllib
 import sys
 import os
 import subprocess
 from pathlib import Path
 import shutil
-import urllib
 from datetime import datetime
 
 import shutil as sh
@@ -15,12 +14,8 @@ import shutil as sh
 import errno  # cf error raised bu os.makedirs
 import argparse
 
-logger = logging.getLogger(__file__)
-logger.setLevel(logging.INFO)
-
-
 # Global variables :
-waxCraft_dir = dir(__file__).parent()
+waxCraft_dir = Path(__file__).parent.absolute()
 wax_dotfile_dir = waxCraft_dir / 'dotfiles'
 wax_config_dir = waxCraft_dir / 'dotfiles/.config'
 wax_backup_dir = waxCraft_dir / 'backup'
@@ -30,10 +25,11 @@ if not wax_backup_dir.exists():
 
 def pcall(cmd, args, env=None):
     try:
+        print('Executing bash cmd: > {}'.format(cmd + ' ' + ' '.join(args)))
         return subprocess.check_call([cmd] + args, env=env)
-    except OSError:
-        # path might be unset on windows and also debian derivatives
-        raise OSError('command %r failed.' % cmd)
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError("command '{}' return with error (code {}): {}".format(
+            e.cmd, e.returncode, e.output))
 
 
 def query_yes_no(question, default="yes"):
@@ -88,49 +84,58 @@ class bcolors:
 class Wax():
 
     def __init__(self):
+        if not (Path.home() / '.config').exists():
+            (Path.home() / '.config').mkdir()
         pass
 
     def _symlink_lst_files(self, lst_rpath_files, from_dir, target_dir):
         """Create symlink from from_dir to target_dir for all relative files
         in lst_rpath_files."""
         for f in lst_rpath_files:
-            logger.info('Symlinking {ffrom} to {fto}'.format(
+            print('Symlinking {ffrom} to {fto}'.format(
                 ffrom=(from_dir / f).as_posix(),
-                fto=(target_dir / f)/as_posix()))
+                fto=(target_dir / f).as_posix()))
             if (from_dir / f).exists():  # backup
                 assert (from_dir / f).is_file()
-                logger.info('Backing up {ffrom} in {fto}'.format(
+                print('Backing up {ffrom} in {fto}'.format(
                     ffrom=(from_dir / f).as_posix(),
-                    fto=(target_dir / f)/as_posix()))
+                    fto=(target_dir / f).as_posix()))
                 shutil.copy((from_dir / f).as_posix(),
                             (wax_backup_dir / f).as_posix())
-            from_dir.symlink_to(target_dir / f)
+                (from_dir / f).unlink()
+            (from_dir / f).symlink_to((target_dir / f).as_posix())
 
     def neovim(self):
         """Install neovim config files."""
         assert shutil.which('nvim') is not None  # check in PATH
-        try:
-            response = urllib.urlopen(
-                "https://raw.githubusercontent.com/Shougo/dein.vim/master/bin/installer.sh", timeout=5)
-            content = response.read()
-            f = open(wax_backup_dir/'installer_dein.sh', 'w')
-            f.write(content).close()
-        except urllib2.URLError as e:
-            raise("Could not download dein installer for neovim.")
-
+        pcall('wget', [
+              "https://raw.githubusercontent.com/Shougo/dein.vim/master/bin/installer.sh",
+              "-O", (wax_backup_dir/'installer_dein.sh').as_posix(),
+              ])
         bundle_dir = Path.home() / '.vim/bundle'
         if not bundle_dir.exists():
-            bundle_dir.mkdir()
+            bundle_dir.mkdir(parents=True)  # mkdir -r
 
         pcall('sh', [(wax_backup_dir / 'installer_dein.sh').as_posix(),
                      bundle_dir.as_posix(), ])
 
         nvim_dir = Path.home() / '.config/nvim'
+
+        if nvim_dir.exists():
+            if nvim_dir.is_symlink():
+                nvim_dir.unlink()
+            else:
+                shutil.copy(nvim_dir.as_posix(), wax_backup_dir.as_posix())
+                nvim_dir.rmdir()
         nvim_dir.symlink_to(wax_dotfile_dir / '.config/nvim',
                             target_is_directory=True)
 
         # nvim execute:
-        pcall('nvim', ['+"call dein#install()"', '+q'])
+        pcall('nvim', [
+            '-u', (Path.home() / '.config/nvim/dein_plugins.vim').as_posix(),
+            # '+":UpdateRemodePlugins"',
+            '+qall',
+        ])
 
     def bash(self):
         """Install bash config files & else"""
@@ -141,7 +146,7 @@ class Wax():
         if not fbashrc.exists():
             fbashrc.touch()
         if str_source not in open(fbashrc.as_posix()).read():
-            logger.info('Appending ~/.bashrc with {}'.format(str_source))
+            print('Appending ~/.bashrc with {}'.format(str_source))
             open(fbashrc.as_posix(), 'a').write('\n' + str_source)
 
         lst_rpath_files = ['.bash_aliases', '.inputrc',
@@ -177,7 +182,10 @@ class Wax():
                            # 'plasma-org.kde.plasma.desktop-appletsrc',
                            ]
         quest = 'Session need to restart, are your sure you want to quite?'
-        if query_yes_no(query_yes_no):
+        if query_yes_no(quest):
+            xfce_path = Path.home() / '.config/xfce4/terminal'
+            if not xfce_path.exists():
+                xfce_path.mkdir(parents=True)
             self._symlink_lst_files(lst_rpath_files, Path.home() / '.config',
                                     wax_config_dir)
         pcall("loginctl", ['terminate-user', str(os.environ['USER'])])
@@ -188,10 +196,9 @@ def setup_argparser():
     parser = argparse.ArgumentParser(description='''waxCraft config setup.''')
 
     parser.add_argument('cfg_list', nargs='+',
-                        choices=['bash', 'vim', 'plasma', 'nixpkgs'],
+                        choices=['bash', 'neovim', 'vim', 'plasma', 'nixpkgs'],
                         help='''cfg to install''')
     return parser
-
 
 
 if __name__ == "__main__":
@@ -207,8 +214,8 @@ if __name__ == "__main__":
     if 'bash' in args.cfg_list:
         wax.bash()
     if 'vim' in args.cfg_list:
-        vim.bash()
+        wax.vim()
     if 'neovim' in args.cfg_list:
-        neovim.bash()
+        wax.neovim()
     if 'plasma' in args.cfg_list:
-        plasma.bash()
+        wax.plasma()
