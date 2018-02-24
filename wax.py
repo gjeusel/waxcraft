@@ -124,13 +124,6 @@ class Wax():
         nvim_dir.symlink_to(wax_dotfile_dir / '.config/nvim',
                             target_is_directory=True)
 
-        # nvim execute:
-        pcall('nvim', [
-            '-u', (Path.home() / '.config/nvim/dein_plugins.vim').as_posix(),
-            # '+":UpdateRemodePlugins"',
-            '+qall',
-        ])
-
     def bash(self):
         """Install bash config files & else"""
         str_source = ('# waxCraft bashrc_common.sh file sourcing :\n'
