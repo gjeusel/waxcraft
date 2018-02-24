@@ -54,6 +54,32 @@ packageOverrides = super: let self = super.pkgs; in with self; rec {
     buildInputs = [cmake pythonPackages.scipy pythonPackages.scikitlearn];
   };
 
+  floyd-cli = pythonPackages.buildPythonPackage rec {
+    pname = "floyd-cli";
+    version = "0.10.31";
+    name = "${pname}-v${version}";
+
+    src = fetchFromGitHub {
+      owner = "floydhub";
+      repo = "${pname}";
+      rev = "v${version}";
+      sha256 = "15ccg6jhr1skvkwd7dzx7gbv3jdczwd8qssg9h466n8m9vgq3dgg";
+    };
+    buildInputs = [
+      pythonPackages.click
+      pythonPackages.clint
+      pythonPackages.requests
+      pythonPackages.requests-toolbelt
+      pythonPackages.marshmallow
+      pythonPackages.pytz
+      pythonPackages.tabulate
+      pythonPackages.pathlib2
+      pythonPackages.raven
+    ];
+
+    doCheck=false;
+  };
+
   werkzeug = pythonPackages.buildPythonPackage rec {
     name = "werkzeug-${version}";
     version = "0.12.2";

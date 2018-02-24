@@ -38,6 +38,18 @@ python.buildEnv.override {
 
       # ML:
       pkgs.pythonPackages.pandas
+
+      # Perso
+      pkgs.pythonPackages.click
+      pkgs.pythonPackages.clint
+      pkgs.pythonPackages.requests
+      pkgs.pythonPackages.requests-toolbelt
+      pkgs.pythonPackages.marshmallow
+      pkgs.pythonPackages.pytz
+      pkgs.pythonPackages.tabulate
+      pkgs.pythonPackages.pathlib2
+      pkgs.pythonPackages.raven
+      floyd-cli
     ];
     ignoreCollisions = true;
     }

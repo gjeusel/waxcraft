@@ -14,12 +14,12 @@ import time
 
 # Custom imports
 from deeproof.common import DATA_DIR, IMAGE_DIR, SNAPSHOT_DIR, SUBMISSION_DIR, setup_logs
-from deeproof.neuro import ResNet, ShortNet
+from deeproof.neuro.handcraft import ResNet, ShortNet
 from deeproof.dataset import RoofDataset, train_valid_split
-from deeproof.train import train, snapshot
+from deeproof.train import train
 from deeproof.validation import validate
 from deeproof.prediction import predict, write_submission_file
-from deeproof.main import DeepRoof
+from deeproof.model_handler import DeepRoofHandler
 
 log = logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s',
                           level=logging.INFO,
@@ -57,19 +57,24 @@ ds_transform_raw = transforms.Compose([
     normalize
 ])
 
-drq = DeepRoof(run_name, logger,
-               ds_transform_augmented, ds_transform_raw,
-               sampler=None, limit_load=100)
+drq = DeepRoofHandler(logger,
+                      ds_transform_augmented, ds_transform_raw,
+                      sampler=None, limit_load=100)
 
-# model = ResNet50(4)
-model = ShortNet((3, 64, 64))
+im, labels, labels_bin = drq.X_train[0]
+y_true = labels
+y_pred = torch.Tensor([[0.2, 0.1, 0.6, 0.1]]*4)
+
+# model = ResNet(50)
+net = ShortNet((3, 64, 64))
 
 # criterion = ConvolutedLoss()
 weight = torch.Tensor([1., 1.971741, 3.972452, 1.824547])
 criterion = torch.nn.MultiLabelSoftMarginLoss(weight=weight)
+criterion = torch.nn.CrossEntropyLoss(weight=weight)
 
 # Note, p_training has lr_decay automated
-optimizer = optim.SGD(model.parameters(), lr=1e-2, momentum=0.9,
+optimizer = optim.SGD(net.parameters(), lr=1e-2, momentum=0.9,
                       weight_decay=0.0005)  # Finetuning whole model
 
-# drq.train(epochs=1, model=model, loss_func=criterion, optimizer=optimizer)
+# drq.train(epochs=1, model=net, loss_func=criterion, optimizer=optimizer, record_model=False)

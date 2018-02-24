@@ -47,16 +47,20 @@ stdenv.mkDerivation {
     python36Packages.scikitlearn
     python36Packages.xgboost
 
-    #python36Packages.pypillowfight
-    python36Packages.pillow-simd
+    python36Packages.pypillowfight
+    #python36Packages.pillow-simd
     bazel
     #python36Packages.tensorflow
     #python36Packages.tensorflowCuda
     #python36Packages.tensorflowWithoutCuda
 
     python36Packages.pytorch
+    #python36Packages.pytorchWithoutCuda
     #python36Packages.pytorchWithCuda
     python36Packages.torchvision
+
+    python36Packages.opencv  # fore haze removal
+    python36Packages.opencv3
 
     python36Packages.h5py # used by keras
 
