@@ -1,9 +1,15 @@
 [user]
+	;name = Jeusel Guillaume
+	;email = jd5584@engie.com
 	email = jeusel.guillaume@gmail.com
 	name = Guillaume
-	name = Guillaume
-[merge]
-	tool = vimdiff
-	conflictstyle = diff3
+[core]
+	editor = nvim
 [mergetool]
 	prompt = false
+[mergetool "vimdiff"]
+	cmd = nvim -d $LOCAL $REMOTE $MERGED -c '$wincmd w' -c 'wincmd J'
+[difftool]
+	prompt=false
+[diff]
+	path = vimdiff

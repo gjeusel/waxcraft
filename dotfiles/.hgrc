@@ -16,21 +16,31 @@ bb.username = gjeusel
 shelve =
 rebase =
 evolve =
+hgext.convert=
+mq =
 histedit =
+hgext.extdiff =
+purge =
+
+[extdiff]
+cmd.vimdiff =
 
 [ui]
 # name and email (local to this repository, optional), e.g.
 username = Guillaume Jeusel <guillaume.jeusel@engie.com>
-editor = vim
+editor = nvim
 
 [merge-tools]
-filemerge.executable=vim
+filemerge.executable=nvim
 filemerge.args = -d $local $other
 filemerge.checkchanged = true
 filemerge.gui = false
 
 [alias]
 grepcwd = hg grep -r 'reverse(::.)' "$1" .
+vi  = vimdiff
+vim = vimdiff
+nvim = nvim
 
 [trusted]
 groups = vboxsf, root
