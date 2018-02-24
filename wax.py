@@ -1,17 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import urllib
 import sys
 import os
 import subprocess
 from pathlib import Path
 import shutil
-from datetime import datetime
-
-import shutil as sh
-
-import errno  # cf error raised bu os.makedirs
 import argparse
 
 # Global variables :
