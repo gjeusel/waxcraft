@@ -99,6 +99,34 @@ class Wax():
                 (from_dir / f).unlink()
             (from_dir / f).symlink_to((target_dir / f).as_posix())
 
+    def _copy_lst_files(self, lst_rpath_files, from_dir, to_dir):
+        """Copy lst_rpath_files from from_dir to target_dir, creating required directories.
+
+        ..note:
+            Be carefull with the syntax that is not equivalent to _symlink_lst_files
+            regarding folders.
+        """
+        for f in lst_rpath_files:
+            print('Copying {ffrom} to {fto}'.format(
+                ffrom=(from_dir / f).as_posix(),
+                fto=(to_dir / f).as_posix()))
+            if (to_dir / f).exists():  # backup
+                assert (to_dir / f).is_file()
+                print('Backing up {ffrom} in {fto}'.format(
+                    ffrom=(from_dir / f).as_posix(),
+                    fto=(to_dir / f).as_posix()))
+                if not (wax_backup_dir / f).parent.exists():
+                    (wax_backup_dir / f).parent.mkdir(parents=True)
+                shutil.copy((from_dir / f).as_posix(),
+                            (wax_backup_dir / f).as_posix())
+                (from_dir / f).unlink()
+            else:
+                if not (to_dir / f).parent.exists():
+                    (to_dir / f).parent.mkdir(parents=True)
+
+            shutil.copy((to_dir / f).as_posix(),
+                        (from_dir / f).as_posix())
+
     def neovim(self):
         """Install neovim config files."""
         assert shutil.which('nvim') is not None  # check in PATH
@@ -173,8 +201,8 @@ class Wax():
             xfce_path = Path.home() / '.config/xfce4/terminal'
             if not xfce_path.exists():
                 xfce_path.mkdir(parents=True)
-            self._symlink_lst_files(lst_rpath_files, Path.home() / '.config',
-                                    wax_config_dir)
+            self._copy_lst_files(lst_rpath_files, Path.home() / '.config',
+                                 wax_config_dir)
         pcall("loginctl", ['terminate-user', str(os.environ['USER'])])
 
 
