@@ -160,6 +160,7 @@ let g:fastfold_fold_movement_commands = []
 " deoplete {
 let g:deoplete#enable_at_startup = 1
 let g:deoplete#sources#jedi#server_timeout = 20 " extend time for large pkg
+let g:deoplete#sources#jedi#show_docstring = 0  " show docstring in preview window
 
 " compatibility deoplete & ultisnipts:
 call deoplete#custom#set('ultisnips', 'matchers', ['matcher_fuzzy'])
@@ -201,25 +202,24 @@ function! MapPymodeInit()
     "map <nowait> <silent> <A-d> :lclose<CR>:bdelete<CR>
 
     " Code completion :
-    let g:pymode_rope = 0 " enable rope which is slow
-    "let g:pymode_rope_completion = 1 " enable completion
-    "let g:pymode_rope_lookup_project = 0 " do not lookup in parent directories which is slow
-    "let g:pymode_rope_autoimport = 0
+    let g:pymode_rope = 0 " disable rope which is slow
+    let g:pymode_rope_completion = 0 " disable completion
+    let g:pymode_rope_completion_on_dot = 0 " disable completion on dot
+    let g:pymode_rope_autoimport = 0  " disable autoimport
+    let g:pymode_rope_autoimport_after_complete = 0
+    let g:pymode_rope_lookup_project = 0 " do not lookup in parent directories which is slow
+    let g:pymode_rope_autoimport = 0
 endfunction
 autocmd VimEnter * call MapPymodeInit()
 
 " Jedi
-function! MapJediInit()
-    " use all other features of jedi but completion
-    let g:jedi#completions_enabled = 0
-    let g:jedi#auto_vim_configuration = 0
-    let g:jedi#goto_assignments_command = ''  " dynamically done for ft=python.
-    let g:jedi#goto_definitions_command = ''  " dynamically done for ft=python.
-    let g:jedi#use_tabs_not_buffers = 0  " current default is 1.
-    let g:jedi#smart_auto_mappings = 1
-    let g:jedi#auto_close_doc = 1
-endfunction
-autocmd VimEnter * call MapJediInit()
+let g:jedi#completions_enabled = 0
+let g:jedi#auto_vim_configuration = 0  " set completeopt & rempas ctrl-C to Esc
+let g:jedi#goto_assignments_command = ''  " dynamically done for ft=python.
+let g:jedi#goto_definitions_command = ''  " dynamically done for ft=python.
+let g:jedi#use_tabs_not_buffers = 0  " current default is 1.
+let g:jedi#smart_auto_mappings = 0  " disable import completion keyword
+let g:jedi#auto_close_doc = 1
 
 " Autopep8
 function! MapAutopep8Init()
@@ -271,8 +271,8 @@ set wildmode=list:longest,full  " Command <Tab> completion, list matches, then l
 
 " Whitespace
 set nowrap                        " don't wrap lines
-set tabstop=2                     " a tab is two spaces
-set shiftwidth=2                  " an autoindent (with <<) is two spaces
+set tabstop=4                     " a tab is two spaces
+set shiftwidth=4                  " an autoindent (with <<) is two spaces
 set list " show the following:
 set listchars=tab:›\ ,trail:•,extends:#,nbsp:. " Highlight problematic whitespace
 
