@@ -133,7 +133,7 @@ autocmd VimEnter * AirlineRefresh
 
 " CtrlP {
 let g:ctrlp_custom_ignore = {
-    \ 'dir':  '\v(\v[\/]\.(git|hg|svn)$)|(test/data/pgdb)',
+    \ 'dir':  '\v(\v[\/]\.(git|hg|svn)$)|(test/data/pgdb)|(\v\.egg-info)',
     \ 'file': '\v\.(exe|so|dll|pyc)$',
     \ }
 " }
@@ -197,23 +197,16 @@ let g:pymode_syntax = 1
 let g:pymode_syntax_all = 1
 let g:pymode_syntax_slow_sync = 1 " slower syntax sync
 let g:pymode_trim_whitespaces = 0 " do not trim unused white spaces on save
-" Python code checking :
-let g:pymode_lint = 1
-let g:pymode_lint_on_write = 1
-let g:pymode_lint_checkers = ['flake8'] " pep8 code checker
-let g:syntastic_python_flake8_args='--ignore=E501'
-let g:pymode_lint_ignore = ["E501", "W0611"] " ignore warning line too long
-let g:pymode_lint_cwindow = 0  " do not open quickfix cwindows if errors
 
 " Code completion :
 let g:pymode_rope = 0 " disable rope which is slow
-let g:pymode_rope_completion = 0 " disable completion
-let g:pymode_rope_completion_on_dot = 0 " disable completion on dot
-let g:pymode_rope_autoimport = 0  " disable autoimport
-let g:pymode_rope_autoimport_after_complete = 0
-let g:pymode_rope_lookup_project = 0 " do not lookup in parent directories which is slow
-let g:pymode_rope_autoimport = 0
 function! MapPymodeInit()
+    " Python code checking :
+    let g:pymode_lint = 1
+    let g:pymode_lint_on_write = 1
+    let g:pymode_lint_checkers = ['flake8'] " pep8 code checker
+    let g:syntastic_python_flake8_args='--ignore=E501'
+    let g:pymode_lint_cwindow = 0  " do not open quickfix cwindows if errors
     map <nowait> <A-q> :lnext<CR>
     map <nowait> <A-s> :lprevious<CR>
     "map <nowait> <silent> <A-d> :lclose<CR>:bdelete<CR>
@@ -222,6 +215,7 @@ autocmd VimEnter * call MapPymodeInit()
 
 " Jedi
 let g:jedi#completions_enabled = 0
+let g:jedi#auto_initialization = 0 " do not set omnifunc, mapping and call_signatures
 let g:jedi#auto_vim_configuration = 0  " set completeopt & rempas ctrl-C to Esc
 let g:jedi#goto_assignments_command = ''  " dynamically done for ft=python.
 let g:jedi#goto_definitions_command = ''  " dynamically done for ft=python.
@@ -401,11 +395,11 @@ endif
 set ttimeoutlen=10
 set timeoutlen=500
 " improve quick escape from insertion mode:
-augroup FastEscape
-  autocmd!
-  au InsertEnter * set timeoutlen=0
-  au InsertLeave * set timeoutlen=500
-augroup END
+"augroup FastEscape
+"  autocmd!
+"  au InsertEnter * set timeoutlen=0
+"  au InsertLeave * set timeoutlen=500
+"augroup END
 
 map <nowait> ² <C-c>
 map <nowait> <Esc> <C-c>
@@ -508,7 +502,7 @@ vnoremap <Leader>y "+y
 " source config
 if !exists('*ActualizeInit')
   function! ActualizeInit()
-    call dein#recache_runtimepath()
+    "call dein#recache_runtimepath()
     source ${HOME}/.config/nvim/init.vim
   endfunction
 endif
@@ -540,7 +534,7 @@ map <F10> :call ToggleProfiling()<cr>
 
 " Settings for python-mode
 map <Leader>o oimport pdb; pdb.set_trace() # BREAKPOINT<C-c>
-map <Leader>i ofrom IPython embed; embed() # Enter Ipython<C-c>
+map <Leader>i ofrom IPython import embed; embed() # Enter Ipython<C-c>
 
 "}
 
