@@ -115,7 +115,7 @@ alias le_stmarket="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-stmarket.nix
 alias unproxy="source $waxCraft_PATH/tools/unset_proxy.py"
 alias li="unproxy && cd ~/intraday/ && load_env_intraday"
 
-alias ip="ipython -i "
+alias ipy="ipython -i "
 alias pt="pytest -s -x --pdb -k "
 
 alias vimrc="vim ~/.vimrc*"
@@ -146,3 +146,5 @@ ml
 alias pgi='_load_pgi_env'
 
 alias infogpu='nvidia-smi --query-gpu=timestamp,name,pci.bus_id,driver_version,pstate,pcie.link.gen.max,pcie.link.gen.current,temperature.gpu,utilization.gpu,utilization.memory,memory.total,memory.free,memory.used --format=csv -l 5'
+
+alias act='source activate'

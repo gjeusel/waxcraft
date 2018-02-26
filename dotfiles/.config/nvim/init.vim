@@ -66,6 +66,7 @@ if dein#load_state('~/.vim/bundle')
   call dein#add('python-mode/python-mode')
   call dein#add('davidhalter/jedi-vim')
   call dein#add('tell-k/vim-autopep8')
+  "call dein#add('nvie/vim-flake8', {'rev': '91818a7d5f5a0af5139e9adfedc9d00fa963e699'})
   "}
 
   call dein#end()
@@ -130,6 +131,13 @@ autocmd VimEnter * call AirlineInit()
 autocmd VimEnter * AirlineRefresh
 "}
 
+" CtrlP {
+let g:ctrlp_custom_ignore = {
+    \ 'dir':  '\v(\v[\/]\.(git|hg|svn)$)|(test/data/pgdb)',
+    \ 'file': '\v\.(exe|so|dll|pyc)$',
+    \ }
+" }
+
 " Supartab
 let g:SuperTabMappingForward = '<S-Tab>'
 let g:SuperTabMappingBackward = '<Tab>'
@@ -174,41 +182,41 @@ let g:UltiSnipsExpandTrigger = "<S-Tab>" " default to <tab> that override tab de
 "}
 
 " Pymode {
-function! MapPymodeInit()
 
-    let g:pymode_indent = 1 " pep8 indent
-    let g:pymode_folding = 0 " disable folding to use SimpyFold
-    let g:pymode_motion = 1
-    " breakpoin
-    let g:pymode_breakpoint_bind = '<leader>b'
-    let g:pymode_breakpoint = 1
-    " doc
-    let g:pymode_doc = 1
-    let g:pymode_doc_bind = 'K'
-    " syntax
-    let g:pymode_syntax = 1
-    let g:pymode_syntax_all = 1
-    let g:pymode_syntax_slow_sync = 1 " slower syntax sync
-    let g:pymode_trim_whitespaces = 0 " do not trim unused white spaces on save
-    " Python code checking :
-    let g:pymode_lint = 1
-    let g:pymode_lint_on_write = 1
-    let g:pymode_lint_checkers = ['pep8', 'pyflakes'] " pep8 code checker
-    let g:pymode_lint_ignore = ["E501", "W0611"] " ignore warning line too long
-    let g:pymode_lint_cwindow = 0  " do not open quickfix cwindows if errors
-    " Lint shortcut:
+let g:pymode_indent = 1 " pep8 indent
+let g:pymode_folding = 0 " disable folding to use SimpyFold
+let g:pymode_motion = 1
+" breakpoin
+let g:pymode_breakpoint_bind = '<leader>b'
+let g:pymode_breakpoint = 1
+" doc
+let g:pymode_doc = 1
+let g:pymode_doc_bind = 'K'
+" syntax
+let g:pymode_syntax = 1
+let g:pymode_syntax_all = 1
+let g:pymode_syntax_slow_sync = 1 " slower syntax sync
+let g:pymode_trim_whitespaces = 0 " do not trim unused white spaces on save
+" Python code checking :
+let g:pymode_lint = 1
+let g:pymode_lint_on_write = 1
+let g:pymode_lint_checkers = ['flake8'] " pep8 code checker
+let g:syntastic_python_flake8_args='--ignore=E501'
+let g:pymode_lint_ignore = ["E501", "W0611"] " ignore warning line too long
+let g:pymode_lint_cwindow = 0  " do not open quickfix cwindows if errors
+
+" Code completion :
+let g:pymode_rope = 0 " disable rope which is slow
+let g:pymode_rope_completion = 0 " disable completion
+let g:pymode_rope_completion_on_dot = 0 " disable completion on dot
+let g:pymode_rope_autoimport = 0  " disable autoimport
+let g:pymode_rope_autoimport_after_complete = 0
+let g:pymode_rope_lookup_project = 0 " do not lookup in parent directories which is slow
+let g:pymode_rope_autoimport = 0
+function! MapPymodeInit()
     map <nowait> <A-q> :lnext<CR>
     map <nowait> <A-s> :lprevious<CR>
     "map <nowait> <silent> <A-d> :lclose<CR>:bdelete<CR>
-
-    " Code completion :
-    let g:pymode_rope = 0 " disable rope which is slow
-    let g:pymode_rope_completion = 0 " disable completion
-    let g:pymode_rope_completion_on_dot = 0 " disable completion on dot
-    let g:pymode_rope_autoimport = 0  " disable autoimport
-    let g:pymode_rope_autoimport_after_complete = 0
-    let g:pymode_rope_lookup_project = 0 " do not lookup in parent directories which is slow
-    let g:pymode_rope_autoimport = 0
 endfunction
 autocmd VimEnter * call MapPymodeInit()
 
@@ -222,8 +230,8 @@ let g:jedi#smart_auto_mappings = 0  " disable import completion keyword
 let g:jedi#auto_close_doc = 1
 
 " Autopep8
+let g:autopep8_disable_show_diff=1 " disable show diff windows
 function! MapAutopep8Init()
-    let g:autopep8_disable_show_diff=1 " disable show diff windows
     "let g:autopep8_ignore="E501" " ignore line too long
     nnoremap <leader>p :Autopep8<CR>
     vnoremap <leader>p :Autopep8<CR>
