@@ -170,7 +170,7 @@ let g:deoplete#enable_at_startup = 1
 let g:deoplete#sources#jedi#server_timeout = 10 " extend time for large pkg
 let g:deoplete#sources#jedi#show_docstring = 0  " show docstring in preview window
 autocmd CompleteDone * silent! pclose!
-set completeopt-=preview
+"set completeopt-=preview
 
 " compatibility deoplete & ultisnipts:
 call deoplete#custom#set('ultisnips', 'matchers', ['matcher_fuzzy'])
@@ -218,7 +218,7 @@ autocmd VimEnter * call MapPymodeInit()
 " Jedi
 let g:jedi#completions_enabled = 0
 let g:jedi#auto_initialization = 0 " do not set omnifunc, mapping and call_signatures
-let g:jedi#show_call_signatures = 0  " do not show the small window wiwth args
+let g:jedi#show_call_signatures = 1  " do not show the small window wiwth args
 
 " buggy:
 "let g:jedi#auto_vim_configuration = 0  " set completeopt & rempas ctrl-C to Esc
