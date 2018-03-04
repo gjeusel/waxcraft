@@ -169,8 +169,8 @@ let g:fastfold_fold_movement_commands = []
 let g:deoplete#enable_at_startup = 1
 let g:deoplete#sources#jedi#server_timeout = 10 " extend time for large pkg
 let g:deoplete#sources#jedi#show_docstring = 0  " show docstring in preview window
-autocmd CompleteDone * silent! pclose!
-"set completeopt-=preview
+"autocmd CompleteDone * silent! pclose!
+"set completeopt-=preview  " if you don't want windows popup
 
 " compatibility deoplete & ultisnipts:
 call deoplete#custom#set('ultisnips', 'matchers', ['matcher_fuzzy'])
@@ -217,17 +217,15 @@ autocmd VimEnter * call MapPymodeInit()
 
 " Jedi
 let g:jedi#completions_enabled = 0
-let g:jedi#auto_initialization = 0 " do not set omnifunc, mapping and call_signatures
-let g:jedi#show_call_signatures = 1  " do not show the small window wiwth args
-
-" buggy:
-"let g:jedi#auto_vim_configuration = 0  " set completeopt & rempas ctrl-C to Esc
-
-let g:jedi#goto_assignments_command = ''  " dynamically done for ft=python.
-let g:jedi#goto_definitions_command = ''  " dynamically done for ft=python.
 let g:jedi#use_tabs_not_buffers = 0  " current default is 1.
 let g:jedi#smart_auto_mappings = 0  " disable import completion keyword
 let g:jedi#auto_close_doc = 1 " Automatically close preview windows upon leaving insert mode
+
+let g:jedi#auto_initialization = 1 " careful, it set omnifunc that is unwanted
+let g:jedi#show_call_signatures = 2  " do show the args of func in cmdline
+" buggy:
+"let g:jedi#auto_vim_configuration = 0  " set completeopt & rempas ctrl-C to Esc
+
 
 " Autopep8
 let g:autopep8_disable_show_diff=1 " disable show diff windows
