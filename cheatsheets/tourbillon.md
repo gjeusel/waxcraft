@@ -79,7 +79,13 @@ should be:
 
 This should implicate a lot more regarding sql requests
 
+- log message : "DEBUG:tourbillon.lib.connection:tz-naive dataframe detected for
+  id_merc_test_28216, assuming UTC"
+  is not True. pd.to_datetime loose the timezone info
+  (https://stackoverflow.com/questions/47310814/pandas-to-datetime-loses-timezone)
+  tourbillon.web.endpoints l400 -> l405
 
-- df.index.tz should be set to 'UTC' in order that
-`trb_client.write(table='something', data=df, version="2018-02-18")` really get
-the timezone info.
+
+# Developer Experience:
+
+- should exists a tourbillon_client.Client fixture that create a local db.
