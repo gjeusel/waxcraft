@@ -98,6 +98,7 @@ alias gco='git checkout'
 alias gb='git branch'
 alias gs='git status'
 alias ga='git add'
+alias glog='git log --oneline --graph --decorate --all'
 
 
 # env nix-shell :
@@ -116,7 +117,7 @@ alias unproxy="source $waxCraft_PATH/tools/unset_proxy.py"
 alias li="unproxy && cd ~/intraday/ && load_env_intraday"
 
 alias ipy="ipython -i "
-alias pt="pytest -s -x --pdb -k "
+alias pt="pytest --log-level=DEBUG -s -x --pdb -k "
 
 alias vimrc="vim ~/.vimrc*"
 alias nvimrc="nvim $waxCraft_PATH/dotfiles/.config/nvim/init.vim"
