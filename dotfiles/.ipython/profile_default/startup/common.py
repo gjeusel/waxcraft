@@ -53,6 +53,8 @@ try:
     from intraday_hub.utils import CFG
     from intraday_hub.tankertsio import TankerTimeSerie
     tktseries = TankerTimeSerie()
+    from intraday_hub.mercure import MercureClient
+    mc = MercureClient()
 except ImportError as e:
     print("Could not import intraday_hub: {}".format(e))
 
