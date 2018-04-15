@@ -4,3 +4,4 @@ tags
 *nixpkgs/pgi*
 result
 backup
+dotfiles/.config/nvim/.netrwhist

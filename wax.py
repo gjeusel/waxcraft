@@ -12,6 +12,7 @@ import argparse
 waxCraft_dir = Path(__file__).parent.absolute()
 wax_dotfile_dir = waxCraft_dir / 'dotfiles'
 wax_config_dir = waxCraft_dir / 'dotfiles/.config'
+wax_ipython_dir = waxCraft_dir / 'dotfiles/.ipython'
 wax_backup_dir = waxCraft_dir / 'backup'
 if not wax_backup_dir.exists():
     wax_backup_dir.mkdir()
@@ -94,6 +95,8 @@ class Wax():
                 print('Backing up {ffrom} in {fto}'.format(
                     ffrom=(from_dir / f).as_posix(),
                     fto=(target_dir / f).as_posix()))
+                if not (wax_backup_dir / f).parent.exists():
+                    (wax_backup_dir / f).mkdir(parents=True)
                 shutil.copy((from_dir / f).as_posix(),
                             (wax_backup_dir / f).as_posix())
                 (from_dir / f).unlink()
@@ -205,13 +208,26 @@ class Wax():
                                  wax_config_dir)
         pcall("loginctl", ['terminate-user', str(os.environ['USER'])])
 
+    def ipython(self):
+        """Install ipython config files."""
+        ipythonhome = Path.home() / '.ipython'
+        profilehome = ipythonhome / 'profile_default'
+        startuppath = profilehome / 'startup'
+        if not any([ipythonhome.exists(), profilehome.exists(), startuppath.exists()]):
+            startuppath.mkdir(parents=True)
+
+        lst_rpath_files = ['profile_default/ipython_config.py',
+                           'profile_default/startup/common.py']
+        self._symlink_lst_files(lst_rpath_files, ipythonhome, wax_ipython_dir)
+
 
 def setup_argparser():
     """ Define and return the command argument parser. """
     parser = argparse.ArgumentParser(description='''waxCraft config setup.''')
 
     parser.add_argument('cfg_list', nargs='+',
-                        choices=['bash', 'neovim', 'vim', 'plasma', 'nixpkgs'],
+                        choices=['bash', 'neovim', 'vim', 'plasma',
+                                 'nixpkgs', 'ipython'],
                         help='''cfg to install''')
     return parser
 
@@ -234,3 +250,5 @@ if __name__ == "__main__":
         wax.neovim()
     if 'plasma' in args.cfg_list:
         wax.plasma()
+    if 'ipython' in args.cfg_list:
+        wax.ipython()

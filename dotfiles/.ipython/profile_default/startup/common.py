@@ -14,6 +14,11 @@ import pytz
 from datetime import datetime, timedelta
 
 try:
+    import numpy as np
+except Exception as e:
+    print("Could not import numpy: {}".format(e))
+
+try:
     import pandas as pd
     IDX = pd.IndexSlice
 except ImportError:
