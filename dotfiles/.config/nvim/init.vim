@@ -544,8 +544,8 @@ endfunction
 map <F10> :call ToggleProfiling()<cr>
 
 " Settings for python-mode
-map <Leader>o oimport pdb; pdb.set_trace() # BREAKPOINT<C-c>
-map <Leader>i ofrom IPython import embed; embed() # Enter Ipython<C-c>
+map <Leader>o o__import__('pdb').set_trace()  # BREAKPOINT<C-c>
+map <Leader>i o__import__('IPython').embed()  # Enter Ipython<C-c>
 
 "}
 
