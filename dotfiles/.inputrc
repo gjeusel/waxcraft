@@ -9,3 +9,5 @@
 #"\e[2~": yank                   # Insert
 # "\e[3~": delete-char
 "\e[3~":delete-char             # Suppr
+
+set mark-symlinked-directories on
