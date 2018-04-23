@@ -13,7 +13,7 @@ EOF
 }
 
 open_editor() {
-	editor=vim
+	editor=nvim
 	eval "$editor -q \$1"
 }
 
