@@ -387,6 +387,12 @@ if has("autocmd")
   au BufNewFile,BufRead *.cmake set filetype=cmake
   au BufNewFile,BufRead CMakeLists.txt set filetype=cmake
 
+  " html:
+  au BufNewFile,BufRead *.html set expandtab
+  au BufNewFile,BufRead *.html set shiftwidth=4
+  au BufNewFile,BufRead *.html set tabstop=4
+  au BufNewFile,BufRead *.html set softtabstop=4
+
   " Git
   au Filetype gitcommit setlocal spell textwidth=72
 

@@ -10,9 +10,13 @@ from pathlib import Path
 #     for p in path_module.iterdir():
 #         sys.path.append(p.as_posix())
 
-from pprint import pprint
 import pytz
 from datetime import datetime, timedelta
+
+try:
+    import numpy as np
+except Exception as e:
+    print("Could not import numpy: {}".format(e))
 
 try:
     import pandas as pd

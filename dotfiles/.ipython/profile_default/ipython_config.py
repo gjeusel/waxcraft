@@ -30,7 +30,7 @@
 
 ## lines of code to run at IPython startup.
 c.InteractiveShellApp.exec_lines = [
-    "import PyQt4",
+    "import PyQt5",
     "",
 ]
 
@@ -45,7 +45,7 @@ c.InteractiveShellApp.exec_lines = [
 
 ## Enable GUI event loop integration with any of ('glut', 'gtk', 'gtk2', 'gtk3',
 #  'osx', 'pyglet', 'qt', 'qt4', 'qt5', 'tk', 'wx', 'gtk2', 'qt4').
-c.InteractiveShellApp.gui = 'qt4'
+c.InteractiveShellApp.gui = 'qt5'
 
 ## Should variables loaded at startup (by startup files, exec_lines, etc.) be
 #  hidden from tools like %who?
@@ -59,7 +59,7 @@ c.InteractiveShellApp.matplotlib = None
 
 ## Pre-load matplotlib and numpy for interactive use, selecting a particular
 #  matplotlib backend and loop integration.
-c.InteractiveShellApp.pylab = 'qt4'
+c.InteractiveShellApp.pylab = 'qt5'
 
 ## If true, IPython will populate the user namespace with numpy, pylab, etc. and
 #  an ``import *`` is done from numpy and pylab, when using pylab mode.
@@ -572,3 +572,7 @@ c.InteractiveShellApp.pylab = 'qt4'
 ## If True, any %store-d variables will be automatically restored when IPython
 #  starts.
 #c.StoreMagics.autorestore = False
+
+c.InteractiveShellApp.extensions = ['autoreload']
+c.InteractiveShellApp.exec_lines = ['%autoreload 2']
+c.InteractiveShellApp.exec_lines.append('print("Warning: disable autoreload in ipython_config.py to improve performance.")')
