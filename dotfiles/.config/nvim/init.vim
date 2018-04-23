@@ -134,7 +134,7 @@ autocmd VimEnter * AirlineRefresh
 " CtrlP {
 let g:ctrlp_custom_ignore = {
     \ 'dir':  '\v(\v[\/]\.(git|hg|svn)$)|(test/data/pgdb)|(\v\.egg-info)',
-    \ 'file': '\v\.(exe|so|dll|pyc)$',
+    \ 'file': '\v\.(exe|so|dll|pyc|html)$',
     \ }
 " }
 
@@ -146,12 +146,12 @@ let g:rainbow_active = 1 "0 if you want to enable it later via :RainbowToggle
 
 " Ack
 
-function! MapAckInit()
-    let g:ackprg="ack-grep -H --nocolor --nogroup --column"
-    nmap <leader>a :Ack ""<Left>
-    nmap <leader>A :Ack <C-r><C-w>
-endfunction
-autocmd VimEnter * call MapAckInit()
+"function! MapAckInit()
+"    let g:ackprg="ack-grep -H --nocolor --nogroup --column"
+"    nmap <leader>a :Ack ""<Left>
+"    nmap <leader>A :Ack <C-r><C-w>
+"endfunction
+"autocmd VimEnter * call MapAckInit()
 
 " SimpylFold & FastFold
 let g:SimpylFold_docstring_preview = 1
@@ -167,6 +167,9 @@ let g:fastfold_fold_movement_commands = []
 
 " deoplete {
 let g:deoplete#enable_at_startup = 1
+call deoplete#enable_logging('DEBUG', '/tmp/deoplete.log')
+let g:deoplete#enable_profile = 1
+let g:deoplete#sources#jedi#debug_server = 1
 let g:deoplete#sources#jedi#server_timeout = 10 " extend time for large pkg
 let g:deoplete#sources#jedi#show_docstring = 0  " show docstring in preview window
 "autocmd CompleteDone * silent! pclose!
@@ -230,7 +233,7 @@ let g:jedi#show_call_signatures = 2  " do show the args of func in cmdline
 " Autopep8
 let g:autopep8_disable_show_diff=1 " disable show diff windows
 function! MapAutopep8Init()
-    "let g:autopep8_ignore="E501" " ignore line too long
+    let g:autopep8_ignore="E501" " ignore line too long
     let g:jedi#auto_close_doc = 1 " Automatically close preview windows upon leaving insert mode
     nnoremap <leader>p :Autopep8<CR>
     vnoremap <leader>p :Autopep8<CR>
@@ -537,9 +540,15 @@ endfunction
 "}
 map <F10> :call ToggleProfiling()<cr>
 
+"if !exists('*ACurrentLineWithIndent')
+"  function! ACurrentLineWithIndent(content)
+"    call append(line('.'), [repeat(' ', indent('.')) . a:content])
+"  endfunction
+"endif
+
 " Settings for python-mode
-map <Leader>o oimport pdb; pdb.set_trace() # BREAKPOINT<C-c>
-map <Leader>i ofrom IPython import embed; embed() # Enter Ipython<C-c>
+map <Leader>o o__import__('pdb').set_trace()  # BREAKPOINT<C-c>
+map <Leader>i o__import__('IPython').embed()  # Enter Ipython<C-c>
 
 "}
 
