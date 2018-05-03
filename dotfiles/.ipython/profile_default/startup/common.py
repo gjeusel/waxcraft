@@ -105,30 +105,19 @@ except Exception as e:
     print("Could not import tourbillon_client: {}".format(e))
 
 try:
+    from da_versus_id.ml.base_model import *
     from da_versus_id.ml.featureing import *
-    from da_versus_id.model import DAvIDde
-    da_versus_id_imported = True
-    david = DAvIDde()
-    # david.get_raw_data(start_2017, start_2017 + onemonth)
+    from da_versus_id.ml.split_datas import *
+    from da_versus_id.ml.tuning import *
+    from da_versus_id.ml.gbensemble import *
+    from da_versus_id.david_model import DAvIDde
+
+    tscv = TSSplit(n_splits=10)
+    david = DAvIDde()  # david with LigthGBM
+    davidxgb = DAvIDde(model=default_xgb)  # david with XGBoost
+    davidgbe = DAvIDde(model=GBEnsemble())  # Gradient Boosting ensemble of xgb & lgb
 except ImportError as e:
-    da_versus_id_imported = False
     print("Could not import da_versus_id: {}".format(e))
-
-if da_versus_id_imported:
-    try:
-        import lightgbm as lgb
-
-        params = {'learning_rate': 0.008, 'max_depth': 4,
-                  'n_estimators': 100, 'num_leaves': 400}
-
-        # params = {"max_depth": 12, "learning_rate": 0.1, "num_leaves": 10,
-        #           "n_estimators": 300}
-
-        lg = lgb.LGBMRegressor(**params, silent=False)
-        david = DAvIDde(model=lg)
-    except ImportError as e:
-        print("Could not import lightgbm: {}".format(e))
-
 
 try:
     from stmarket.inputs.gemapis import RTE, ImbalanceSettlement
@@ -137,3 +126,9 @@ try:
     ibe = imbalance.imbalance_plot_be(now - tenhours, keep_delta_hours=None)
 except ImportError as e:
     print("Could not import stmarket.scrapers.elia: {}".format(e))
+
+
+# try:
+#     import plotlyink
+# except ImportError as e:
+#     print("Could not import plotlyink: {}".format(e))
