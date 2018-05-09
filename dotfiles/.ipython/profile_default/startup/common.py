@@ -74,7 +74,7 @@ try:
     from intraday_hub.mercure import MercureClient
     mc = MercureClient()
     from intraday_hub import tourbillon
-    from intraday_hub.__main__ import *
+    from intraday_hub.cli import *
 except ImportError as e:
     print("Could not import intraday_hub: {}".format(e))
 
@@ -112,10 +112,12 @@ try:
     from da_versus_id.ml.gbensemble import *
     from da_versus_id.david_model import DAvIDde
 
+    from da_versus_id.global_business import *
+
     tscv = TSSplit(n_splits=10)
     david = DAvIDde()  # david with LigthGBM
-    davidxgb = DAvIDde(model=default_xgb)  # david with XGBoost
-    davidgbe = DAvIDde(model=GBEnsemble())  # Gradient Boosting ensemble of xgb & lgb
+    davidxgb = DAvIDde(algo='xgboost')  # david with XGBoost
+    davidgbe = DAvIDde(algo='gbensemble')  # Gradient Boosting ensemble of xgb & lgb
 except ImportError as e:
     print("Could not import da_versus_id: {}".format(e))
 
