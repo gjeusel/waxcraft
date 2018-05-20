@@ -30,12 +30,11 @@ if dein#load_state('~/.vim/bundle')
   "}
 
   " Generic tools {
-  call dein#add('mileszs/ack.vim') " get ack cmd in vim
+  call dein#add('Shougo/denite.nvim')  " unite all interfaces
   call dein#add('tpope/vim-fugitive') " Git wrapper for vim
   call dein#add('tpope/vim-repeat') " allows better action repeat with .
   call dein#add('tpope/vim-surround') " change surrounding easily cs([
   "call dein#add('jiangmiao/auto-pairs') " auto pair
-  call dein#add('kien/ctrlp.vim') " Fuzzy file finder
   call dein#add('godlygeek/tabular') " tabularize
   call dein#add('majutsushi/tagbar')
   call dein#add('scrooloose/nerdcommenter')
@@ -56,7 +55,8 @@ if dein#load_state('~/.vim/bundle')
   "call dein#add('Shougo/neoinclude.vim') " include completion framework
   call dein#add('Shougo/neco-vim') " vim completion framework
   call dein#add('Shougo/neco-syntax') " syntax source for neocomplete
-  call dein#add('vim-syntastic/syntastic') " general syntax checker
+  "call dein#add('vim-syntastic/syntastic') " general syntax checker
+  call dein#add('w0rp/ale')  " general asynchronous syntax checker
 
   call dein#add('SirVer/ultisnips') " snippets engine handle
   call dein#add('honza/vim-snippets') " those are the snippets
@@ -74,10 +74,15 @@ if dein#load_state('~/.vim/bundle')
 endif
 "}
 
- "If you want to install not installed plugins on startup.
+" Dein cfg {
+" ask for log file
+let g:dein#install_log_filename = '~/.vim/dein.log'
+
+"If you want to install not installed plugins on startup.
 if dein#check_install()
-  call dein#install()
+call dein#install()
 endif
+"}
 
 " Plugin configuration{
 
@@ -131,11 +136,29 @@ autocmd VimEnter * call AirlineInit()
 autocmd VimEnter * AirlineRefresh
 "}
 
-" CtrlP {
-let g:ctrlp_custom_ignore = {
-    \ 'dir':  '\v(\v[\/]\.(git|hg|svn)$)|(test/data/pgdb)|(\v\.egg-info)',
-    \ 'file': '\v\.(exe|so|dll|pyc)$',
-    \ }
+" Denite {
+call denite#custom#source('file/rec', 'matchers',
+            \    ['matcher_fuzzy', 'matcher/ignore_globs'])
+call denite#custom#filter('matcher/ignore_globs', 'ignore_globs',
+      \ [ '.git/', '.hg/', '.bzr/', '.svn/',
+      \   '*~', '*.o', '*.exe', '*.bak',
+      \   'tmp/', 'log/', '.idea/', 'dist/',
+      \   '*__pycache__/', '*.pyc', 'venv/',
+      \ ])
+
+call denite#custom#map('insert', '<Down>', '<denite:move_to_next_line>',
+    \ 'noremap')
+call denite#custom#map('insert', '<Up>', '<denite:move_to_previous_line>',
+    \ 'noremap')
+map <C-p> :Denite file/rec <CR>
+
+" Ag command on grep source
+call denite#custom#var('grep', 'command', ['ag'])
+call denite#custom#var('grep', 'default_opts', ['-i', '--vimgrep'])
+call denite#custom#var('grep', 'recursive_opts', [])
+call denite#custom#var('grep', 'pattern_opt', [])
+call denite#custom#var('grep', 'separator', ['--'])
+call denite#custom#var('grep', 'final_opts', [])
 " }
 
 " Supartab
@@ -143,15 +166,6 @@ let g:SuperTabMappingForward = '<S-Tab>'
 let g:SuperTabMappingBackward = '<Tab>'
 
 let g:rainbow_active = 1 "0 if you want to enable it later via :RainbowToggle
-
-" Ack
-
-function! MapAckInit()
-    let g:ackprg="ack-grep -H --nocolor --nogroup --column"
-    nmap <leader>a :Ack ""<Left>
-    nmap <leader>A :Ack <C-r><C-w>
-endfunction
-autocmd VimEnter * call MapAckInit()
 
 " SimpylFold & FastFold
 let g:SimpylFold_docstring_preview = 1
@@ -173,7 +187,7 @@ let g:deoplete#sources#jedi#show_docstring = 0  " show docstring in preview wind
 "set completeopt-=preview  " if you don't want windows popup
 
 " compatibility deoplete & ultisnipts:
-call deoplete#custom#set('ultisnips', 'matchers', ['matcher_fuzzy'])
+call deoplete#custom#source('ultisnips', 'matchers', ['matcher_fuzzy'])
 
 " Fix deoplete & ultisnips problem with <tab> completion :
 let g:UltiSnipsExpandTrigger = "<S-Tab>" " default to <tab> that override tab deoplete completion
@@ -204,16 +218,20 @@ let g:pymode_trim_whitespaces = 0 " do not trim unused white spaces on save
 let g:pymode_rope = 0 " disable rope which is slow
 function! MapPymodeInit()
     " Python code checking :
-    let g:pymode_lint = 1
-    let g:pymode_lint_on_write = 1
-    let g:pymode_lint_checkers = ['flake8'] " pep8 code checker
-    let g:syntastic_python_flake8_args='--ignore=E501'
-    let g:pymode_lint_cwindow = 0  " do not open quickfix cwindows if errors
-    map <nowait> <A-q> :lnext<CR>
-    map <nowait> <A-s> :lprevious<CR>
+    let g:pymode_lint = 0  " disable it to use ALE
+    "let g:pymode_lint_on_write = 0
+    "let g:pymode_lint_checkers = ['flake8'] " pep8 code checker
+    "let g:syntastic_python_flake8_args='--ignore=E501'
+    "let g:pymode_lint_cwindow = 0  " do not open quickfix cwindows if errors
+    "map <nowait> <A-q> :lnext<CR>
+    "map <nowait> <A-s> :lprevious<CR>
     "map <nowait> <silent> <A-d> :lclose<CR>:bdelete<CR>
 endfunction
 autocmd VimEnter * call MapPymodeInit()
+
+let g:ale_fixers = {
+\ 'python': ['flake8'],
+\}
 
 " Jedi
 let g:jedi#completions_enabled = 0
@@ -236,6 +254,7 @@ function! MapAutopep8Init()
     vnoremap <leader>p :Autopep8<CR>
 endfunction
 autocmd VimEnter * call MapAutopep8Init()
+
 "}
 
 
@@ -363,6 +382,8 @@ if has("autocmd")
   endfunction
   au BufRead,BufNewFile *.{md,md.erb,markdown,mdown,mkd,mkdn,txt} setf markdown | call s:setupWrappingAndSpellcheck()
 
+  set expandtab
+
   " Treat JSON files like JavaScript
   au BufNewFile,BufRead *.json set ft=javascript
 
@@ -378,9 +399,9 @@ if has("autocmd")
   au BufNewFile,BufRead *.nml set filetype=fortran
   au BufNewFile,BufRead *.namelist set filetype=fortran
   au BufNewFile,BufRead *.nix set filetype=nix
-  au BufNewFile,BufRead *.sh set filetype=sh
+  au BufNewFile,BufRead *.sh set filetype=sh foldlevel=0 foldmethod=marker foldmarker={{{,}}}
   au BufNewFile,BufRead *.vimrc* set filetype=vim
-  au BufNewFile,BufRead *.vim set filetype=vim
+  au BufNewFile,BufRead *.vim set filetype=vim tabstop=2
   au BufNewFile,BufRead *.cmake set filetype=cmake
   au BufNewFile,BufRead CMakeLists.txt set filetype=cmake
 
@@ -542,6 +563,13 @@ function! ToggleProfiling()
 endfunction
 "}
 map <F10> :call ToggleProfiling()<cr>
+
+"" see logs of update
+"command! DeinUpdate  call s:dein_update()
+"function! s:dein_update()
+"  call dein#update()
+"  Denite dein/log:!
+"endfunction
 
 " Settings for python-mode
 map <Leader>o o__import__('pdb').set_trace()  # BREAKPOINT<C-c>
