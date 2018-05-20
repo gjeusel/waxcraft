@@ -237,8 +237,6 @@ if __name__ == "__main__":
     wax = Wax()
     if 'bash' in args.cfg_list:
         wax.bash()
-    if 'vim' in args.cfg_list:
-        wax.vim()
     if 'neovim' in args.cfg_list:
         wax.neovim()
     if 'plasma' in args.cfg_list:
