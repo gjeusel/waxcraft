@@ -1,26 +1,21 @@
-# Add non-system directories to sys.path
-# Uses a list of top level directories of any and all of your repos.
-
+import logging
 import os
 import sys
-from pathlib import Path
-# PYTHON_MODULES_DIR_LIST = [(Path.home().absolute() / 'src')]
-
-# for path_module in PYTHON_MODULES_DIR_LIST:
-#     for p in path_module.iterdir():
-#         sys.path.append(p.as_posix())
-
-import pytz
 from datetime import datetime, timedelta
+from pathlib import Path
+import pytz
 
-try:
-    import numpy as np
-except Exception as e:
-    print("Could not import numpy: {}".format(e))
 
 try:
     import pandas as pd
     IDX = pd.IndexSlice
+    try:
+        import numpy as np
+        randdf = pd.DataFrame(np.random.randn(20, 10))
+        nan_randdf = randdf.copy()
+        nan_randdf.loc[2:10, 4:7] = pd.core.common.np.nan
+    except ImportError:
+        pass
 except ImportError:
     print("Could not import pandas as pd")
 
@@ -39,10 +34,10 @@ try:
     start_2016 = Timestamp("2016-01-01T00:00:00", tz='CET')
     end_2016 = Timestamp("2017-01-01T00:00:00", tz='CET')
 
+
 except ImportError as e:
     print("Could not import pandas.Timestamp: {}".format(e))
 
-import logging
 log = logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s',
                           level=logging.INFO,
                           datefmt='%I:%M:%S')
@@ -64,3 +59,19 @@ except ImportError as e:
 
 appd = 'application_date'
 pubd = 'publication_date'
+
+try:
+    import plotly
+    import plotly.graph_objs as go
+except Exception as e:
+    print("Could not import plotly: {}".format(e))
+
+# try:
+#     import cufflinks as cf
+# except Exception as e:
+#     print("Could not import cufflinks: {}".format(e))
+
+try:
+    import plotlyink as plink
+except Exception as e:
+    print("Could not import plotlyink: {}".format(e))
