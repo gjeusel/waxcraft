@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sys
-import os
-import subprocess
-from pathlib import Path
-import shutil
 import argparse
+import os
+import shutil
+import subprocess
+import sys
+from pathlib import Path
 
 # Global variables :
 waxCraft_dir = Path(__file__).parent.absolute()
@@ -77,16 +77,25 @@ class bcolors:
 
 
 class Wax():
+    """Entry point to setup configurations."""
 
     def __init__(self):
         if not (Path.home() / '.config').exists():
             (Path.home() / '.config').mkdir()
         pass
 
-    def _symlink_lst_files(self, lst_rpath_files, from_dir, target_dir):
+    def _symlink_lst_files(self, relative_paths, from_dir, target_dir):
         """Create symlink from from_dir to target_dir for all relative files
-        in lst_rpath_files."""
-        for f in lst_rpath_files:
+        in relative_paths.
+
+        Example:
+            self._symlink_lst_files(
+                relative_paths=['.inputrc', '.bash_aliases'],
+                from_dir=Path.home(),
+                target_dir=wax_dotfile_dir)
+
+        """
+        for f in relative_paths:
             print('Symlinking {ffrom} to {fto}'.format(
                 ffrom=(from_dir / f).as_posix(),
                 fto=(target_dir / f).as_posix()))
@@ -102,14 +111,14 @@ class Wax():
                 (from_dir / f).unlink()
             (from_dir / f).symlink_to((target_dir / f).as_posix())
 
-    def _copy_lst_files(self, lst_rpath_files, from_dir, to_dir):
-        """Copy lst_rpath_files from from_dir to target_dir, creating required directories.
+    def _copy_lst_files(self, relative_paths, from_dir, to_dir):
+        """Copy relative_paths from from_dir to target_dir, creating required directories.
 
         ..note:
             Be carefull with the syntax that is not equivalent to _symlink_lst_files
             regarding folders.
         """
-        for f in lst_rpath_files:
+        for f in relative_paths:
             print('Copying {ffrom} to {fto}'.format(
                 ffrom=(from_dir / f).as_posix(),
                 fto=(to_dir / f).as_posix()))
@@ -135,7 +144,7 @@ class Wax():
         assert shutil.which('nvim') is not None  # check in PATH
         pcall('wget', [
               "https://raw.githubusercontent.com/Shougo/dein.vim/master/bin/installer.sh",
-              "-O", (wax_backup_dir/'installer_dein.sh').as_posix(),
+              "-O", (wax_backup_dir / 'installer_dein.sh').as_posix(),
               ])
         bundle_dir = Path.home() / '.vim/bundle'
         if not bundle_dir.exists():
@@ -167,44 +176,27 @@ class Wax():
             print('Appending ~/.bashrc with {}'.format(str_source))
             open(fbashrc.as_posix(), 'a').write('\n' + str_source)
 
-        lst_rpath_files = ['.bash_aliases', '.inputrc',
-                           '.gitconfig', '.hgrc',
-                           ]
-        self._symlink_lst_files(lst_rpath_files, Path.home(), wax_dotfile_dir)
-
-    def vim(self):
-        """Install vim config files."""
-        lst_rpath_files = ['.vimrc', '.vimrc_local', '.vimrc.bundles',
-                           '.vimrc.bundles.local', '.vimrc.before',
-                           '.vimrc.before.local']
-        self._symlink_lst_files(lst_rpath_files, Path.home(), wax_dotfile_dir)
-
-        quest = ('\nDo you want to install all' + bcolors.BOLD + bcolors.YELLOW,
-                 ' Vim Plugin ' + bcolors.ENDC + 'now ?')
-        if query_yes_no(quest):
-            vundle_dir = Path.home() / '.vim/bundle/vundle'
-            if not vundle_dir.exists():
-                assert shutil.which('git') is not None  # check in PATH
-                pcall('git clone', ['https://github.com/VundleVim/Vundle.vim.git',
-                                    (Path.home() / '.vim/bundle/vundle').as_posix()])
-            pcall('vim', ['+set nomore', '+BundleInstall!',
-                          '+BundleClean', '+qall'])
+        relative_paths = ['.bash_aliases', '.inputrc',
+                          '.gitconfig', '.hgrc',
+                          '.config/flake8',
+                          ]
+        self._symlink_lst_files(relative_paths, Path.home(), wax_dotfile_dir)
 
     def plasma(self):
-        lst_rpath_files = ['kglobalshortcutsrc',
-                           'khotkeysrc',
-                           'kwinrc',
-                           'xfce4/terminal/terminalrc'
-                           # 'ksmserverrc',
-                           # 'kwalletrc',
-                           # 'plasma-org.kde.plasma.desktop-appletsrc',
-                           ]
+        relative_paths = ['kglobalshortcutsrc',
+                          'khotkeysrc',
+                          'kwinrc',
+                          'xfce4/terminal/terminalrc'
+                          # 'ksmserverrc',
+                          # 'kwalletrc',
+                          # 'plasma-org.kde.plasma.desktop-appletsrc',
+                          ]
         quest = 'Session need to restart, are your sure you want to quite?'
         if query_yes_no(quest):
             xfce_path = Path.home() / '.config/xfce4/terminal'
             if not xfce_path.exists():
                 xfce_path.mkdir(parents=True)
-            self._copy_lst_files(lst_rpath_files, Path.home() / '.config',
+            self._copy_lst_files(relative_paths, Path.home() / '.config',
                                  wax_config_dir)
         pcall("loginctl", ['terminate-user', str(os.environ['USER'])])
 
@@ -216,23 +208,24 @@ class Wax():
         if not any([ipythonhome.exists(), profilehome.exists(), startuppath.exists()]):
             startuppath.mkdir(parents=True)
 
-        lst_rpath_files = ['profile_default/ipython_config.py',
-                           'profile_default/startup/common.py']
-        self._symlink_lst_files(lst_rpath_files, ipythonhome, wax_ipython_dir)
-
-
-def setup_argparser():
-    """ Define and return the command argument parser. """
-    parser = argparse.ArgumentParser(description='''waxCraft config setup.''')
-
-    parser.add_argument('cfg_list', nargs='+',
-                        choices=['bash', 'neovim', 'vim', 'plasma',
-                                 'nixpkgs', 'ipython'],
-                        help='''cfg to install''')
-    return parser
+        relative_paths = ['profile_default/ipython_config.py',
+                          'profile_default/startup/common.py']
+        self._symlink_lst_files(relative_paths, ipythonhome, wax_ipython_dir)
 
 
 if __name__ == "__main__":
+
+    def setup_argparser():
+        """ Define and return the command argument parser. """
+        parser = argparse.ArgumentParser(
+            description='''waxCraft config setup.''')
+
+        parser.add_argument('cfg_list', nargs='+',
+                            choices=['bash', 'neovim', 'vim', 'plasma',
+                                     'nixpkgs', 'ipython'],
+                            help='''cfg to install''')
+        return parser
+
     parser = setup_argparser()
 
     try:
