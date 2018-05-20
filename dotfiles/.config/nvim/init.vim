@@ -180,6 +180,9 @@ let g:fastfold_fold_movement_commands = []
 
 " deoplete {
 let g:deoplete#enable_at_startup = 1
+"call deoplete#enable_logging('DEBUG', '/tmp/deoplete.log')
+"let g:deoplete#enable_profile = 1
+"let g:deoplete#sources#jedi#debug_server = 1
 let g:deoplete#sources#jedi#server_timeout = 10 " extend time for large pkg
 let g:deoplete#sources#jedi#show_docstring = 0  " show docstring in preview window
 "autocmd CompleteDone * silent! pclose!
