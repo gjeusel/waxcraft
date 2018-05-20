@@ -8,6 +8,7 @@ if &compatible
   set nocompatible
 endif
 set runtimepath+=~/.vim/bundle/repos/github.com/Shougo/dein.vim/
+let mapleader=","
 
 " Plugins dein declarations {
 
@@ -46,6 +47,7 @@ if dein#load_state('~/.vim/bundle')
   set viewoptions=cursor,slash,unix
   " let g:skipview_files = ['*\.vim']
   call dein#add('easymotion/vim-easymotion')
+  call dein#add('skywind3000/asyncrun.vim')  " run async shell commands
   "}
 
   " Completion engine {
@@ -161,7 +163,7 @@ call denite#custom#var('grep', 'separator', ['--'])
 call denite#custom#var('grep', 'final_opts', [])
 " }
 
-" Supartab
+" SuperTab, SimpylFold & FastFold {
 let g:SuperTabMappingForward = '<S-Tab>'
 let g:SuperTabMappingBackward = '<Tab>'
 
@@ -174,10 +176,7 @@ let g:SimpylFold_fold_import = 0
 let g:fastfold_savehook = 1
 let g:fastfold_fold_command_suffixes = []
 let g:fastfold_fold_movement_commands = []
-"function! MapSimplyFoldInit()
-"    nmap <leader>f <Plug>(FastFoldUpdate)
-"endfunction
-"autocmd VimEnter * call MapSimplyFoldInit()
+"}
 
 " deoplete {
 let g:deoplete#enable_at_startup = 1
@@ -198,17 +197,13 @@ let g:UltiSnipsExpandTrigger = "<S-Tab>" " default to <tab> that override tab de
 "}
 
 " Pymode {
-
 let g:pymode_indent = 1 " pep8 indent
 let g:pymode_folding = 0 " disable folding to use SimpyFold
 let g:pymode_motion = 1
-" breakpoin
-let g:pymode_breakpoint_bind = '<leader>b'
-let g:pymode_breakpoint = 1
 " doc
 let g:pymode_doc = 1
 let g:pymode_doc_bind = 'K'
-" syntax
+" syntax (colors for self keyword for example)
 let g:pymode_syntax = 1
 let g:pymode_syntax_all = 1
 let g:pymode_syntax_slow_sync = 1 " slower syntax sync
@@ -216,24 +211,52 @@ let g:pymode_trim_whitespaces = 0 " do not trim unused white spaces on save
 
 " Code completion :
 let g:pymode_rope = 0 " disable rope which is slow
-function! MapPymodeInit()
-    " Python code checking :
-    let g:pymode_lint = 0  " disable it to use ALE
-    "let g:pymode_lint_on_write = 0
-    "let g:pymode_lint_checkers = ['flake8'] " pep8 code checker
-    "let g:syntastic_python_flake8_args='--ignore=E501'
-    "let g:pymode_lint_cwindow = 0  " do not open quickfix cwindows if errors
-    "map <nowait> <A-q> :lnext<CR>
-    "map <nowait> <A-s> :lprevious<CR>
-    "map <nowait> <silent> <A-d> :lclose<CR>:bdelete<CR>
-endfunction
-autocmd VimEnter * call MapPymodeInit()
 
+" Python code checking :
+let g:pymode_lint = 0  " disable it to use ALE
+"let g:pymode_lint_on_write = 0
+"let g:pymode_lint_checkers = ['flake8'] " pep8 code checker
+"let g:syntastic_python_flake8_args='--ignore=E501'
+"let g:pymode_lint_cwindow = 0  " do not open quickfix cwindows if errors
+
+map <Leader>o o__import__('pdb').set_trace()  # BREAKPOINT<C-c>
+map <Leader>i o__import__('IPython').embed()  # Enter Ipython<C-c>
+
+"}
+
+" Lint ALE {
 let g:ale_fixers = {
-\ 'python': ['flake8'],
-\}
+            \ 'python': ['autopep8', 'isort'],
+            \}
 
-" Jedi
+let g:ale_linters = {
+            \ 'python': ['flake8'],
+            \}
+
+" choice of ignored errors in ~/.config/flake8
+
+"let g:ale_fix_on_save = 1  " always fix at save time
+
+" go to previous error in current windows
+map <nowait> <A-q> :lprevious<CR>
+" go to next error in current windows
+map <nowait> <A-s> :lnext<CR>
+
+"map <nowait> <silent> <A-d> :lclose<CR>:bdelete<CR>
+
+" autofix when in normal mode for all file and keep autopep8 for fix on range
+" (i.e keep autopep8 for fix in visualmode)
+noremap <leader>p :ALEFix<CR>
+"}
+
+" Autopep8 {
+let g:autopep8_disable_show_diff=1 " disable show diff windows
+"let g:autopep8_ignore="E501" " ignore line too long
+let g:jedi#auto_close_doc = 1 " Automatically close preview windows upon leaving insert mode
+vnoremap <leader>p :Autopep8<CR>
+"}
+
+" Jedi {
 let g:jedi#completions_enabled = 0
 let g:jedi#use_tabs_not_buffers = 0  " current default is 1.
 let g:jedi#smart_auto_mappings = 0  " disable import completion keyword
@@ -243,20 +266,33 @@ let g:jedi#auto_initialization = 1 " careful, it set omnifunc that is unwanted
 let g:jedi#show_call_signatures = 2  " do show the args of func in cmdline
 " buggy:
 "let g:jedi#auto_vim_configuration = 0  " set completeopt & rempas ctrl-C to Esc
+" }
 
+" AsyncRun {
+" Quick run via <F5>
+nnoremap <F5> :call <SID>compile_and_run()<CR>
 
-" Autopep8
-let g:autopep8_disable_show_diff=1 " disable show diff windows
-function! MapAutopep8Init()
-    "let g:autopep8_ignore="E501" " ignore line too long
-    let g:jedi#auto_close_doc = 1 " Automatically close preview windows upon leaving insert mode
-    nnoremap <leader>p :Autopep8<CR>
-    vnoremap <leader>p :Autopep8<CR>
+augroup SPACEVIM_ASYNCRUN
+    autocmd!
+    " Automatically open the quickfix window
+    autocmd User AsyncRunStart call asyncrun#quickfix_toggle(15, 1)
+augroup END
+
+function! s:compile_and_run()
+    exec 'w'
+    if &filetype == 'c'
+        exec "AsyncRun! gcc % -o %<; time ./%<"
+    elseif &filetype == 'cpp'
+       exec "AsyncRun! g++ -std=c++11 % -o %<; time ./%<"
+    elseif &filetype == 'java'
+       exec "AsyncRun! javac %; time java %<"
+    elseif &filetype == 'sh'
+       exec "AsyncRun! time bash %"
+    elseif &filetype == 'python'
+       exec "AsyncRun! time python %"
+    endif
 endfunction
-autocmd VimEnter * call MapAutopep8Init()
-
 "}
-
 
 " }
 
@@ -454,7 +490,6 @@ nnoremap q <Nop>
 " }
 
 " Key (re)Mappings {
-let mapleader=","
 
 " clear the search highlight
 nnoremap <leader>; :nohl<cr>
@@ -570,10 +605,6 @@ map <F10> :call ToggleProfiling()<cr>
 "  call dein#update()
 "  Denite dein/log:!
 "endfunction
-
-" Settings for python-mode
-map <Leader>o o__import__('pdb').set_trace()  # BREAKPOINT<C-c>
-map <Leader>i o__import__('IPython').embed()  # Enter Ipython<C-c>
 
 "}
 
