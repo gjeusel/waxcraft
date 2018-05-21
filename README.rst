@@ -9,8 +9,7 @@ You'll find here my configuration for:
 - Desktop Manager Plasma_
 - OS & package manager NixOs_ and nixpkgs_ (**old**)
 - bash (but I should take time to investigate on ZSH)
-- and more
-
+- `cheatsheets <https://github.com/gjeusel/waxCraft/blob/dev/cheatsheets/README.rst>`_
 
 Neovim
 ------
@@ -22,8 +21,14 @@ Among them:
 
 - `dein <https://github.com/Shougo/dein.vim>`_ as the plugin manager.
 - `ALE <https://github.com/w0rp/ale>`_ asynchronous Lint engine.
-- `deoplete <https://github.com/Shougo/deoplete.nvim>`_ asynchronous auto-completion with `<deoplete-jedi https://github.com/zchee/deoplete-jedi>`_ for python completion.
-- For the beauty: `vim-airline <https://github.com/vim-airline/vim-airline>`_, `vim-color-solarized <https://github.com/altercation/vim-colors-solarized>`_, `vim-surround <https://github.com/tpope/vim-surround>`_.
+- `deoplete <https://github.com/Shougo/deoplete.nvim>`_ asynchronous auto-completion with `deoplete-jedi <https://github.com/zchee/deoplete-jedi>`_ for python completion.
+- For the beauty:
+  `vim-bufferline <https://github.com/bling/vim-bufferline>`_,
+  `vim-airline <https://github.com/vim-airline/vim-airline>`_,
+  `vim-airline-themes <https://github.com/vim-airline/vim-airline-themes>`_,
+  `vim-color-solarized <https://github.com/altercation/vim-colors-solarized>`_,
+  `vim-surround <https://github.com/tpope/vim-surround>`_,
+  `rainbow <https://github.com/luochen1990/rainbow>`_.
 - `denite.nvim <https://github.com/Shougo/denite.nvim>`_ instead of `ctrlp <https://github.com/kien/ctrlp.vim>`_.
 
 |OverviewNeovim|
