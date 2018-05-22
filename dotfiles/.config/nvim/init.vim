@@ -31,7 +31,7 @@ if dein#load_state('~/.vim/bundle')
   "}
 
   " Generic tools {
-  call dein#add('Shougo/denite.nvim')  " unite all interfaces
+  call dein#add('kien/ctrlp.vim') " Fuzzy file finder
   call dein#add('tpope/vim-fugitive') " Git wrapper for vim
   call dein#add('tpope/vim-repeat') " allows better action repeat with .
   call dein#add('tpope/vim-surround') " change surrounding easily cs([
@@ -138,30 +138,12 @@ autocmd VimEnter * call AirlineInit()
 autocmd VimEnter * AirlineRefresh
 "}
 
-" Denite {
-call denite#custom#source('file/rec', 'matchers',
-            \    ['matcher_fuzzy', 'matcher/ignore_globs'])
-call denite#custom#filter('matcher/ignore_globs', 'ignore_globs',
-      \ [ '.git/', '.hg/', '.bzr/', '.svn/',
-      \   '*~', '*.o', '*.exe', '*.bak',
-      \   'tmp/', 'log/', '.idea/', 'dist/',
-      \   '*__pycache__/', '*.pyc', 'venv/',
-      \ ])
-
-call denite#custom#map('insert', '<Down>', '<denite:move_to_next_line>',
-    \ 'noremap')
-call denite#custom#map('insert', '<Up>', '<denite:move_to_previous_line>',
-    \ 'noremap')
-map <C-p> :Denite file/rec <CR>
-
-" Ag command on grep source
-call denite#custom#var('grep', 'command', ['ag'])
-call denite#custom#var('grep', 'default_opts', ['-i', '--vimgrep'])
-call denite#custom#var('grep', 'recursive_opts', [])
-call denite#custom#var('grep', 'pattern_opt', [])
-call denite#custom#var('grep', 'separator', ['--'])
-call denite#custom#var('grep', 'final_opts', [])
-" }
+" CtrlP {
+let g:ctrlp_custom_ignore = {
+    \ 'dir':  '\v(\v[\/]\.(git|hg|svn)$)|(test/data/pgdb)|(\v\.egg-info)',
+    \ 'file': '\v\.(exe|so|dll|pyc)$',
+    \ }
+"}
 
 " SuperTab, SimpylFold & FastFold {
 let g:SuperTabMappingForward = '<S-Tab>'
@@ -231,6 +213,7 @@ map <Leader>i o__import__('IPython').embed()  # Enter Ipython<C-c>
 let g:ale_fixers = {
             \ 'python': ['autopep8', 'isort'],
             \}
+let g:ale_python_autopep8_options = '--max-line-length 160'
 
 let g:ale_linters = {
             \ 'python': ['flake8'],
