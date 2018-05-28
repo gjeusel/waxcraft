@@ -161,6 +161,12 @@ let g:fastfold_fold_movement_commands = []
 "}
 
 " deoplete {
+
+" Debug mode to avoid error
+call deoplete#enable_logging('DEBUG', '/tmp/deoplete.log')
+let g:deoplete#enable_profile = 1
+let g:deoplete#sources#jedi#debug_server = 1
+
 let g:deoplete#enable_at_startup = 1
 "call deoplete#enable_logging('DEBUG', '/tmp/deoplete.log')
 "let g:deoplete#enable_profile = 1
@@ -513,7 +519,7 @@ map <nowait> <A-z> :bn<cr>
 map <nowait> <A-e> :vs %<cr>
 
 " buffer delete without closing windows :
-nmap <silent> <A-r> :bp\|bd #<CR>
+nmap <silent> <A-r> :bp\|bd! #<CR>
 "}
 
 " Folding binds : {
@@ -563,7 +569,7 @@ map <F12> :call ActualizeInit()<cr>
 
 " Profile vim {
 function! StartProfiling()
-  execute ":profile start profile.log"
+  execute ":profile start ~/.config/nvim/profile.log"
   execute ":profile func *"
   execute ":profile file *"
   let b:profiling=1
@@ -591,6 +597,9 @@ map <F10> :call ToggleProfiling()<cr>
 "  call dein#update()
 "  Denite dein/log:!
 "endfunction
+
+" map open terminal
+map <nowait> <A-t> :vsplit \| terminal <CR>
 
 "}
 
