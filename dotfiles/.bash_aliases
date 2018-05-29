@@ -118,7 +118,7 @@ alias unproxy="source $waxCraft_PATH/tools/unset_proxy.py"
 alias li="unproxy && cd ~/intraday/ && load_env_intraday"
 
 alias ipy="ipython -i "
-alias pt="pytest --log-level=DEBUG -s -x --pdb -k "
+alias pt="pytest --log-level=DEBUG -x --pdb -k "
 
 alias vimrc="vim ~/.vimrc*"
 alias nvimrc="nvim $waxCraft_PATH/dotfiles/.config/nvim/init.vim"
@@ -150,3 +150,16 @@ alias pgi='_load_pgi_env'
 alias infogpu='nvidia-smi --query-gpu=timestamp,name,pci.bus_id,driver_version,pstate,pcie.link.gen.max,pcie.link.gen.current,temperature.gpu,utilization.gpu,utilization.memory,memory.total,memory.free,memory.used --format=csv -l 5'
 
 alias act='source activate'
+
+
+dockerrun() {
+    docker run \
+        -e rsync_proxy=$rsync_proxy \
+        -e https_proxy=$https_proxy \
+        -e http_proxy=$https_proxy \
+        -e no_proxy=$no_proxy \
+        -e ftp_proxy=$ftp_proxy \
+        --volume $(pwd):/data \
+        -ti $1 \
+        /bin/bash
+}
