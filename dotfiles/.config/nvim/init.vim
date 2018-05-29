@@ -318,6 +318,7 @@ highlight SignifySignDelete cterm=none ctermbg=none ctermfg=136
 highlight SignifySignChange cterm=none ctermbg=none ctermfg=124
 highlight Folded                       ctermbg=none
 highlight foldcolumn                   ctermbg=none ctermfg=none
+highlight TermCursorNC      cterm=none ctermbg=14   ctermfg=none
 
 " cmdline
 set wildmenu                    " Show list instead of just completing
@@ -466,10 +467,6 @@ map <nowait> <Esc> <C-c>
 " quick escape from command line with esc :
 cmap <nowait> <Esc> <C-c>
 
-" Nvim Terminal
-" Make escape work in the Neovim terminal.
-tnoremap <Esc> <C-\><C-n>
-
 " Unmapping F1 calling help in vim :
 map <F1> <nop>
 map <A-F1> <nop>
@@ -478,6 +475,13 @@ map <A-F1> <nop>
 nnoremap q: <Nop>
 " Avoid qq recording
 nnoremap q <Nop>
+
+" map open terminal
+map <nowait> <A-t> :vsplit \| terminal <CR>
+
+" Nvim Terminal
+" Make escape work in the Neovim terminal.
+tnoremap <Esc> <C-\><C-n>
 
 " }
 
@@ -597,9 +601,6 @@ map <F10> :call ToggleProfiling()<cr>
 "  call dein#update()
 "  Denite dein/log:!
 "endfunction
-
-" map open terminal
-map <nowait> <A-t> :vsplit \| terminal <CR>
 
 "}
 
