@@ -162,6 +162,12 @@ let g:fastfold_fold_movement_commands = []
 "}
 
 " deoplete {
+
+" Debug mode to avoid error
+call deoplete#enable_logging('DEBUG', '/tmp/deoplete.log')
+let g:deoplete#enable_profile = 1
+let g:deoplete#sources#jedi#debug_server = 1
+
 let g:deoplete#enable_at_startup = 1
 "call deoplete#enable_logging('DEBUG', '/tmp/deoplete.log')
 "let g:deoplete#enable_profile = 1
@@ -315,6 +321,7 @@ highlight SignifySignDelete cterm=none ctermbg=none ctermfg=136
 highlight SignifySignChange cterm=none ctermbg=none ctermfg=124
 highlight Folded                       ctermbg=none
 highlight foldcolumn                   ctermbg=none ctermfg=none
+highlight TermCursorNC      cterm=none ctermbg=14   ctermfg=none
 
 " cmdline
 set wildmenu                    " Show list instead of just completing
@@ -463,10 +470,6 @@ map <nowait> <Esc> <C-c>
 " quick escape from command line with esc :
 cmap <nowait> <Esc> <C-c>
 
-" Nvim Terminal
-" Make escape work in the Neovim terminal.
-tnoremap <Esc> <C-\><C-n>
-
 " Unmapping F1 calling help in vim :
 map <F1> <nop>
 map <A-F1> <nop>
@@ -475,6 +478,13 @@ map <A-F1> <nop>
 nnoremap q: <Nop>
 " Avoid qq recording
 nnoremap q <Nop>
+
+" map open terminal
+map <nowait> <A-t> :vsplit \| terminal <CR>
+
+" Nvim Terminal
+" Make escape work in the Neovim terminal.
+tnoremap <Esc> <C-\><C-n>
 
 " }
 
@@ -516,7 +526,7 @@ map <nowait> <A-z> :bn<cr>
 map <nowait> <A-e> :vs %<cr>
 
 " buffer delete without closing windows :
-nmap <silent> <A-r> :bp\|bd #<CR>
+nmap <silent> <A-r> :bp\|bd! #<CR>
 "}
 
 " Folding binds : {
@@ -566,7 +576,7 @@ map <F12> :call ActualizeInit()<cr>
 
 " Profile vim {
 function! StartProfiling()
-  execute ":profile start profile.log"
+  execute ":profile start ~/.config/nvim/profile.log"
   execute ":profile func *"
   execute ":profile file *"
   let b:profiling=1
