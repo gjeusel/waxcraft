@@ -57,7 +57,7 @@ if dein#load_state('~/.vim/bundle')
   "call dein#add('Shougo/neoinclude.vim') " include completion framework
   call dein#add('Shougo/neco-vim') " vim completion framework
   call dein#add('Shougo/neco-syntax') " syntax source for neocomplete
-  "call dein#add('vim-syntastic/syntastic') " general syntax checker
+  "call dein#add('vim-syntastic/syntastic') " general syntax checker, but synchrone
   call dein#add('w0rp/ale')  " general asynchronous syntax checker
 
   call dein#add('SirVer/ultisnips') " snippets engine handle
@@ -221,12 +221,13 @@ let g:ale_linters = {
 
 " choice of ignored errors in ~/.config/flake8
 
-"let g:ale_fix_on_save = 1  " always fix at save time
+let g:ale_fix_on_save = 1  " always fix at save time
 
 " go to previous error in current windows
-map <nowait> <A-q> :lprevious<CR>
+map <nowait><silent> <A-q> <Plug>(ale_previous_wrap)
+
 " go to next error in current windows
-map <nowait> <A-s> :lnext<CR>
+map <nowait><silent> <A-s> <Plug>(ale_next_wrap)
 
 "map <nowait> <silent> <A-d> :lclose<CR>:bdelete<CR>
 
