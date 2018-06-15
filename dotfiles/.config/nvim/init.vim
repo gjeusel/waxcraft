@@ -60,8 +60,8 @@ if dein#load_state('~/.vim/bundle')
   "call dein#add('vim-syntastic/syntastic') " general syntax checker, but synchrone
   call dein#add('w0rp/ale')  " general asynchronous syntax checker
 
-  call dein#add('SirVer/ultisnips') " snippets engine handle
-  call dein#add('honza/vim-snippets') " those are the snippets
+  "call dein#add('SirVer/ultisnips') " snippets engine handle
+  "call dein#add('honza/vim-snippets') " those are the snippets
 
   " Python
   call dein#add('zchee/deoplete-jedi') " python completion framework
@@ -143,6 +143,7 @@ let g:ctrlp_custom_ignore = {
     \ 'dir':  '\v(\v[\/]\.(git|hg|svn)$)|(test/data/pgdb)|(\v\.egg-info)',
     \ 'file': '\v\.(exe|so|dll|pyc)$',
     \ }
+let g:ctrlp_user_command = 'ag %s -l -U --nocolor -g ""'
 "}
 
 " SuperTab, SimpylFold & FastFold {
@@ -171,10 +172,11 @@ let g:deoplete#sources#jedi#show_docstring = 0  " show docstring in preview wind
 "set completeopt-=preview  " if you don't want windows popup
 
 " compatibility deoplete & ultisnipts:
-call deoplete#custom#source('ultisnips', 'matchers', ['matcher_fuzzy'])
+"call deoplete#custom#source('ultisnips', 'matchers', ['matcher_fuzzy'])
 
 " Fix deoplete & ultisnips problem with <tab> completion :
-let g:UltiSnipsExpandTrigger = "<S-Tab>" " default to <tab> that override tab deoplete completion
+"let g:UltiSnipsExpandTrigger = "<S-Tab>" " default to <tab> that override tab deoplete completion
+
 "let g:UltiSnipsListSnippets = "<c-tab>"
 "let g:UltiSnipsJumpForwardTrigger = "<c-j>"
 "let g:UltiSnipsJumpBackwardTrigger = "<c-k>"
