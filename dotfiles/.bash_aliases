@@ -34,13 +34,6 @@ function _du() {
 alias du=_du
 alias libclean="find . | grep -E '(__pycache__|\.pyc|\.pyo|\.orig$)' | xargs rm -rf"
 
-function _sep() {
-  echo $1 | sed 's/:/\n/g' |\
-    sed 's/\/nix\/store\/................................-//g' |\
-    sed 's/\/lib\/python...\/site-packages//g'
-}
-alias sep=_sep
-
 # Latex :
 latex_overview(){ $HOME/tools/latexmk/latexmk.pl -pdf -pvc -interaction=nonstopmode $1; }
 
@@ -55,21 +48,10 @@ alias hearthstone="wine /home/gjeusel/.wine/drive_c/Program\ Files/Battle.net/Ba
 alias IHT="wine /home/gjeusel/.wine/drive_c/Program\ Files/Interactive\ Heat\ Transfer/IHT32.exe"
 alias ageofmythology="WINEARCH=win32 WINEPREFIX=$HOME/.wine-AgeOf/ wine ~/.wine-AgeOf/drive_c/Program\ Files/Microsoft\ Games/Age\ of\ Mythology/aomx.exe"
 
-# NixOS aliases
-#function _nix_which_() {
-#ls $(ls -la $(which $1) |grep --only-matching "/nix/store/.*")
-#}
-#alias nwhich=_nix_which_
-nwhich(){ readlink $(which $1);}
-
-# Nixpkgs
-nix?(){ nix-env --query --available --attr-path --status --description ".*$1.*";  }
-fnix?(){ nix-env --file "/etc/nixpkgs/" --query --available --attr-path --status --description ".*$1.*";  }
-nixgrep(){ grep --color=always --recursive "$1" "$(nix-instantiate --find-file --eval --expr nixpkgs)";}
-
-# KDE plasma 5:
-kde?(){ kcmshell5 --list |grep "$1";}
-kde!(){ kcmshell5 "$1";}
+## KDE plasma 5:
+qkde() {
+    kcmshell5 --list |grep "$1";
+}
 
 # git-jump
 alias git-jump="$waxCraft_PATH/tools/git-jump"
@@ -101,18 +83,6 @@ alias gs='git status'
 alias ga='git add'
 alias glog='git log --oneline --graph --decorate --all'
 
-
-# env nix-shell :
-alias load_env_clang="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-clang.nix"
-alias load_env_GNU="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-GNU.nix"
-alias load_env_scipy="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-scipy.nix"
-alias load_env_intraday="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-intraday.nix"
-alias load_env_machlearn="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-machlearn.nix"
-alias load_env_deeproof="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-deepRoof.nix"
-alias lml=load_env_machlearn
-alias lmp=load_env_deeproof
-
-alias le_stmarket="nix-shell $waxCraft_PATH/nix/nix-shell/nix-shell-stmarket.nix"
 
 alias unproxy="source $waxCraft_PATH/tools/unset_proxy.py"
 alias li="unproxy && cd ~/intraday/ && load_env_intraday"

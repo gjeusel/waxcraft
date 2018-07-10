@@ -2,7 +2,6 @@
 if [ -z "$PS1"  ]; then return; fi
 
 # To declare waxCraft PATH :
-#export waxCraft_PATH="$(cd "$(dirname "$(dirname $(readlink "${HOME}/.bash_aliases"))")" && pwd)"
 export waxCraft_PATH="$(cd "$(dirname "$(dirname "$BASH_SOURCE" )")" && pwd)"
 
 # Deactivate ksshaskpass popup

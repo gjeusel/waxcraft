@@ -164,6 +164,11 @@ class Wax():
         nvim_dir.symlink_to(wax_dotfile_dir / '.config/nvim',
                             target_is_directory=True)
 
+    def zsh(self):
+        """Instal zsh."""
+        # source ~/waxcraft/dotfiles/zshrc_common.sh
+        raise NotImplementedError
+
     def bash(self):
         """Install bash config files & else"""
         str_source = ('# waxCraft bashrc_common.sh file sourcing :\n'
