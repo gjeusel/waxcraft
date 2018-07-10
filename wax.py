@@ -164,10 +164,27 @@ class Wax():
         nvim_dir.symlink_to(wax_dotfile_dir / '.config/nvim',
                             target_is_directory=True)
 
+    def _common_bash_zsh(self):
+        relative_paths = ['.bash_aliases', '.inputrc',
+                          '.gitconfig', '.hgrc',
+                          '.config/flake8',
+                          ]
+        self._symlink_lst_files(relative_paths, Path.home(), wax_dotfile_dir)
+
     def zsh(self):
         """Instal zsh."""
         # source ~/waxcraft/dotfiles/zshrc_common.sh
-        raise NotImplementedError
+        str_source = ('# waxCraft zshrc_common.sh file sourcing :\n'
+                      'source ' + (wax_dotfile_dir / 'zshrc_common.sh').as_posix())
+
+        fzshrc = (Path.home() / '.zshrc')
+        if not fzshrc.exists():
+            fzshrc.touch()
+        if str_source not in open(fzshrc.as_posix()).read():
+            print('Appending ~/.zshrc with {}'.format(str_source))
+            open(fzshrc.as_posix(), 'a').write('\n' + str_source)
+
+        self._common_bash_zsh()
 
     def bash(self):
         """Install bash config files & else"""
@@ -181,11 +198,7 @@ class Wax():
             print('Appending ~/.bashrc with {}'.format(str_source))
             open(fbashrc.as_posix(), 'a').write('\n' + str_source)
 
-        relative_paths = ['.bash_aliases', '.inputrc',
-                          '.gitconfig', '.hgrc',
-                          '.config/flake8',
-                          ]
-        self._symlink_lst_files(relative_paths, Path.home(), wax_dotfile_dir)
+        self._common_bash_zsh()
 
     def plasma(self):
         relative_paths = ['kglobalshortcutsrc',
