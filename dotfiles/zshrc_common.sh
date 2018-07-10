@@ -1,19 +1,28 @@
-# Source aliases
-if [ -f ~/.bash_aliases ]; then
-    . ~/.bash_aliases
-fi
+# Path to your oh-my-zsh installation.
+export ZSH="$HOME/.oh-my-zsh"
 
-# To declare waxCraft PATH :
-export waxCraft_PATH="$(cd "$(dirname "$(dirname "$BASH_SOURCE" )")" && pwd)"
+# Set name of the theme to load. Optionally, if you set this to "random"
+# it'll load a random theme each time that oh-my-zsh is loaded.
+# See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
+ZSH_THEME="refined"
 
-# Deactivate ksshaskpass popup
-unset SSH_ASKPASS
+# Uncomment the following line to enable command auto-correction.
+ENABLE_CORRECTION="true"
 
-# Visual for yaourt help at fail:
-export VISUAL="vim"
+# Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
+# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
+# Example format: plugins=(rails git textmate ruby lighthouse)
+# Add wisely, as too many plugins slow down shell startup.
+plugins=(
+  git extract common-aliases
+  docker jsontools
+  pep8 autopep8 pip pyenv pylint python
+  redis-cli
+  tmux
+  archlinux
+)
 
-# better yaourt colors
-export YAOURT_COLORS="nb=1:pkg=1:ver=1;32:lver=1;45:installed=1;42:grp=1;34:od=1;41;5:votes=1;44:dsc=0:other=1;35"
+source $ZSH/oh-my-zsh.sh
 
-export LC_ALL=en_US.utf8
-export LANG=en_US.utf8
+# Source common to bash & zsh:
+source "/${0:1:h}/common.sh"
