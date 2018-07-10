@@ -7,12 +7,14 @@ alias vimdiff="nvim -d"
 
 alias sshpi="ssh pi@192.168.1.3"
 
-# ls aliases
-alias ls="ls -I '*.pyc' --color=auto"
-alias ll='ls -l'
-alias la='ls -A'
-alias lla='ls -Al'
-alias lt='ls -la --sort=time'
+if [[ $_shell == "bash" || $_shell == "sh" ]]; then
+    # ls aliases
+    alias ls="ls -I '*.pyc' --color=auto"
+    alias ll='ls -l'
+    alias la='ls -A'
+    alias lla='ls -Al'
+    alias lt='ls -la --sort=time'
+fi
 
 # grep aliases
 alias grep='grep --color=auto'
@@ -31,7 +33,9 @@ function _du() {
         }
         {gsub(/^[0-9]+/, human($1)); print}'
 }
-alias du=_du
+if [[ $_shell == "bash" || $_shell == "sh" ]]; then
+    alias du=_du
+fi
 alias libclean="find . | grep -E '(__pycache__|\.pyc|\.pyo|\.orig$)' | xargs rm -rf"
 
 # Latex :
@@ -115,12 +119,9 @@ module swap $(module list 2>&1 |grep --only-matching PrgEnv.*) PrgEnv-pgi
 ml
 }
 
-alias pgi='_load_pgi_env'
-
 alias infogpu='nvidia-smi --query-gpu=timestamp,name,pci.bus_id,driver_version,pstate,pcie.link.gen.max,pcie.link.gen.current,temperature.gpu,utilization.gpu,utilization.memory,memory.total,memory.free,memory.used --format=csv -l 5'
 
 alias act='source activate'
-
 
 dockerrun() {
     docker run \

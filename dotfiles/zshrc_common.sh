@@ -15,6 +15,7 @@ ENABLE_CORRECTION="true"
 # Plugins
 antigen bundle git
 antigen bundle extract
+antigen bundle colored-man-pages
 antigen bundle common-aliases
 antigen bundle docker
 antigen bundle jsontools
@@ -27,6 +28,7 @@ antigen bundle python
 antigen bundle redis-cli
 antigen bundle tmux
 antigen bundle archlinux
+
 
 antigen bundle zsh-users/zsh-syntax-highlighting
 

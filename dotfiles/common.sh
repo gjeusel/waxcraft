@@ -42,3 +42,8 @@ if [ "$TERM" != "dumb" ]; then
 fi
 
 #}}}
+
+# Start tmux if installed
+if command -v tmux>/dev/null; then
+  [[ ! $TERM =~ screen ]] && [ -z $TMUX ] && exec tmux
+fi
