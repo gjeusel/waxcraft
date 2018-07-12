@@ -218,8 +218,8 @@ class Wax():
                                  wax_config_dir)
         pcall("loginctl", ['terminate-user', str(os.environ['USER'])])
 
-    def ipython(self):
-        """Install ipython config files."""
+    def python(self):
+        """Install python config files."""
         ipythonhome = Path.home() / '.ipython'
         profilehome = ipythonhome / 'profile_default'
         startuppath = profilehome / 'startup'
@@ -229,6 +229,8 @@ class Wax():
         relative_paths = ['profile_default/ipython_config.py',
                           'profile_default/startup/common.py']
         self._symlink_lst_files(relative_paths, ipythonhome, wax_ipython_dir)
+
+        self._symlink_lst_files(['.pdbrc.py'], Path.home(), wax_dotfile_dir)
 
 
 if __name__ == "__main__":
