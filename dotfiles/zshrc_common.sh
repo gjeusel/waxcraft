@@ -9,8 +9,10 @@ source "$_dotfile_dir/antigen.zsh"
 # Load the oh-my-zsh's library.
 antigen use oh-my-zsh
 
-# Uncomment the following line to enable command auto-correction.
 ENABLE_CORRECTION="true"
+CASE_SENSITIVE="true"
+TranslateWheelToCursor=on
+DisableWheelToCursorByCtrl=on
 
 # Plugins
 antigen bundle git
