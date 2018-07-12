@@ -37,6 +37,7 @@ antigen bundle zsh-users/zsh-syntax-highlighting
 # Theme
 antigen theme https://github.com/denysdovhan/spaceship-prompt spaceship
 SPACESHIP_TIME_SHOW=true
+SPACESHIP_CHAR_SYMBOL="❯ "
 
 # Tell Antigen that you're done.
 antigen apply
