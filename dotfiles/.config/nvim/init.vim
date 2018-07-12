@@ -37,7 +37,7 @@ if dein#load_state('~/.vim/bundle')
   call dein#add('tpope/vim-surround') " change surrounding easily cs([
   "call dein#add('jiangmiao/auto-pairs') " auto pair
   call dein#add('godlygeek/tabular') " tabularize
-  call dein#add('majutsushi/tagbar')
+  call dein#add('majutsushi/tagbar') " get an overview of the file structure
   call dein#add('scrooloose/nerdcommenter')
   call dein#add('mbbill/undotree')
   call dein#add('Konfekt/FastFold')
@@ -48,6 +48,7 @@ if dein#load_state('~/.vim/bundle')
   " let g:skipview_files = ['*\.vim']
   call dein#add('easymotion/vim-easymotion')
   call dein#add('skywind3000/asyncrun.vim')  " run async shell commands
+  call dein#add('dhruvasagar/vim-table-mode')  " to easily create tables.
   "}
 
   " Completion engine {
@@ -289,6 +290,12 @@ function! s:compile_and_run()
 endfunction
 "}
 
+" Table Mode {
+" Restructured text compatible
+let g:table_mode_corner_corner='+'
+let g:table_mode_header_fillchar='='
+"}
+
 " }
 
 " User Interface {
@@ -436,6 +443,8 @@ if has("autocmd")
   au BufNewFile,BufRead *.vim set filetype=vim tabstop=2
   au BufNewFile,BufRead *.cmake set filetype=cmake
   au BufNewFile,BufRead CMakeLists.txt set filetype=cmake
+
+  au BufNewFile,BufRead *.txt set filetype=sh
 
   " html:
   au BufNewFile,BufRead *.html set expandtab
