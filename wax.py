@@ -241,7 +241,7 @@ if __name__ == "__main__":
             description='''waxCraft config setup.''')
 
         parser.add_argument('cfg_list', nargs='+',
-                            choices=['bash', 'neovim', 'vim', 'plasma',
+                            choices=['bash', 'zsh', 'neovim', 'vim', 'plasma',
                                      'nixpkgs', 'ipython'],
                             help='''cfg to install''')
         return parser
@@ -257,6 +257,8 @@ if __name__ == "__main__":
     wax = Wax()
     if 'bash' in args.cfg_list:
         wax.bash()
+    if 'zsh' in args.cfg_list:
+        wax.zsh()
     if 'neovim' in args.cfg_list:
         wax.neovim()
     if 'plasma' in args.cfg_list:
