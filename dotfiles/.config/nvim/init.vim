@@ -158,7 +158,7 @@ let g:ctrlp_user_command = 'ag %s -l -U --nocolor -g ""'
 "}
 
 " fzf {
-map ; :Files<CR>
+map ; :GFiles<CR>
 
 " This is the default extra key bindings
 let g:fzf_action = {
