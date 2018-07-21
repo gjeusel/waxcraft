@@ -21,11 +21,14 @@ if dein#load_state('~/.vim/bundle')
 
   " User Interface {
   call dein#add('bling/vim-bufferline')
-  call dein#add('vim-airline/vim-airline')
-  call dein#add('vim-airline/vim-airline-themes')
+  call dein#add('itchyny/lightline.vim')
   call dein#add('altercation/vim-colors-solarized')
-  call dein#add('LnL7/vim-nix')
+
+  " Sytax highlight
+  call dein#add('LnL7/vim-nix')  " for .nix
+  call dein#add('cespare/vim-toml')  "syntax for .toml
   call dein#add('luochen1990/rainbow')
+
   call dein#add('airblade/vim-gitgutter') " column sign for git changes
   call dein#add('rhysd/conflict-marker.vim') " conflict markers for vimdiff
   "}
@@ -38,38 +41,53 @@ if dein#load_state('~/.vim/bundle')
   "call dein#add('jiangmiao/auto-pairs') " auto pair
   call dein#add('godlygeek/tabular') " tabularize
   call dein#add('majutsushi/tagbar') " get an overview of the file structure
-  call dein#add('scrooloose/nerdcommenter')
+  call dein#add('scrooloose/nerdcommenter')  " easy comments
   call dein#add('mbbill/undotree')
+
+  " Snippets
+  "call dein#add('SirVer/ultisnips') " snippets engine handle
+  "call dein#add('honza/vim-snippets') " those are the snippets
+
+  " folds
   call dein#add('Konfekt/FastFold')
   call dein#add('tmhedberg/SimpylFold')
+
   call dein#add('kopischke/vim-stay')  " restore session, well integrated with fastfold
   call dein#add('vim-scripts/restore_view.vim')
   set viewoptions=cursor,slash,unix
   " let g:skipview_files = ['*\.vim']
+
   call dein#add('easymotion/vim-easymotion')
   call dein#add('skywind3000/asyncrun.vim')  " run async shell commands
+
   call dein#add('dhruvasagar/vim-table-mode')  " to easily create tables.
   "}
 
   " Completion engine {
-  call dein#add('Shougo/deoplete.nvim')
   call dein#add('ervandew/supertab') " tab handler for better autocompletion
 
-  "call dein#add('Shougo/neoinclude.vim') " include completion framework
-  call dein#add('Shougo/neco-vim') " vim completion framework
+  call dein#add('Shougo/deoplete.nvim')  " async engine
+  call dein#add('carlitux/deoplete-ternjs')  " for javascript
+  call dein#add('zchee/deoplete-jedi') " for python
+  call dein#add('zchee/deoplete-go') " for golang
+  call dein#add('Shougo/neco-vim') " for vim
+
+  " }
+
+  " Syntax Check {
   call dein#add('Shougo/neco-syntax') " syntax source for neocomplete
-  "call dein#add('vim-syntastic/syntastic') " general syntax checker, but synchrone
   call dein#add('w0rp/ale')  " general asynchronous syntax checker
 
-  "call dein#add('SirVer/ultisnips') " snippets engine handle
-  "call dein#add('honza/vim-snippets') " those are the snippets
+  "}
+
+  " Specific Languages {
 
   " Python
-  call dein#add('zchee/deoplete-jedi') " python completion framework
   call dein#add('python-mode/python-mode')
   call dein#add('davidhalter/jedi-vim')
   call dein#add('tell-k/vim-autopep8')
-  "call dein#add('nvie/vim-flake8', {'rev': '91818a7d5f5a0af5139e9adfedc9d00fa963e699'})
+  "call dein#add('nvie/vim-flake8')
+
   "}
 
   call dein#end()
@@ -121,23 +139,11 @@ endfunction
 autocmd VimEnter * call MapEasymotionInit()
 " }
 
-" Airline config {
-let g:bufferline_echo = 0 " buffer line at top
-" see for patching terminal fonts :
-" https://powerline.readthedocs.org/en/latest/installation/linux.html#font-installation
-let g:airline_powerline_fonts=1
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#tabline#show_buffers = 1
-function! AirlineInit()
-    let g:airline_section_a = airline#section#create(['mode'])
-    let g:airline_section_b = airline#section#create_left(['%f'])
-    let g:airline_section_c = airline#section#create(['%{getcwd()}'])
-    let g:airline_section_x = airline#section#create([])
-    let g:airline_section_y = airline#section#create([])
-endfunction
-autocmd VimEnter * call AirlineInit()
-autocmd VimEnter * AirlineRefresh
-"}
+" lightline {
+let g:lightline = {
+            \ 'colorscheme': 'solarized',
+            \}
+" }
 
 " CtrlP {
 let g:ctrlp_custom_ignore = {
@@ -448,9 +454,9 @@ if has("autocmd")
 
   " html:
   au BufNewFile,BufRead *.html set expandtab
-  au BufNewFile,BufRead *.html set shiftwidth=4
-  au BufNewFile,BufRead *.html set tabstop=4
-  au BufNewFile,BufRead *.html set softtabstop=4
+  au BufNewFile,BufRead *.html set shiftwidth=2
+  au BufNewFile,BufRead *.html set tabstop=2
+  au BufNewFile,BufRead *.html set softtabstop=2
 
   " Git
   au Filetype gitcommit setlocal spell textwidth=72
