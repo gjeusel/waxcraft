@@ -81,6 +81,7 @@ if dein#load_state('~/.vim/bundle')
   call dein#add('w0rp/ale')  " general asynchronous syntax checker
   call dein#add('wooorm/alex')  " general syntax checker
   call dein#add('yaniswang/HTMLHint')  " html
+  call dein#add('eslint/eslint')  " js
 
   "}
 
@@ -245,11 +246,14 @@ map <Leader>i o__import__('IPython').embed()  # Enter Ipython<C-c>
 " Lint ALE {
 let g:ale_fixers = {
             \ 'python': ['autopep8', 'isort'],
+            \ 'javascript': ['prettier', 'eslint'],
             \}
 let g:ale_python_autopep8_options = '--max-line-length 160'
 
 let g:ale_linters = {
             \ 'python': ['flake8'],
+            \ 'text': ['alex'],
+            \ 'html': ['htmlhint'],
             \}
 
 " choice of ignored errors in ~/.config/flake8
