@@ -9,8 +9,9 @@ source "$_dotfile_dir/antigen.zsh"
 # Load the oh-my-zsh's library.
 antigen use oh-my-zsh
 
-ENABLE_CORRECTION="true"
-CASE_SENSITIVE="true"
+#ENABLE_CORRECTION="true"
+CASE_SENSITIVE=true
+RM_STAR_SILENT=true
 TranslateWheelToCursor=on
 DisableWheelToCursorByCtrl=on
 

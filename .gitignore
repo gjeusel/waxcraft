@@ -5,3 +5,4 @@ tags
 result
 backup
 dotfiles/.config/nvim/.netrwhist
+*.zwc
