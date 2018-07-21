@@ -20,8 +20,8 @@ if dein#load_state('~/.vim/bundle')
   call dein#add('~/.vim/bundle/repos/github.com/Shougo/dein.vim/')
 
   " User Interface {
-  call dein#add('bling/vim-bufferline')
   call dein#add('itchyny/lightline.vim')
+  call dein#add('ap/vim-buftabline')
   call dein#add('altercation/vim-colors-solarized')
 
   " Sytax highlight
@@ -72,12 +72,15 @@ if dein#load_state('~/.vim/bundle')
   call dein#add('zchee/deoplete-jedi') " for python
   call dein#add('zchee/deoplete-go') " for golang
   call dein#add('Shougo/neco-vim') " for vim
+  call dein#add('mattn/emmet-vim') " for html - CSS - javascript
 
   " }
 
   " Syntax Check {
   call dein#add('Shougo/neco-syntax') " syntax source for neocomplete
   call dein#add('w0rp/ale')  " general asynchronous syntax checker
+  call dein#add('wooorm/alex')  " general syntax checker
+  call dein#add('yaniswang/HTMLHint')  " html
 
   "}
 
@@ -338,6 +341,7 @@ set hidden         " Allow backgrounding buffers without writin them, and rememb
 set foldenable                  " Auto fold code
 set splitright " split at the right of current buffer (left default behaviour)
 set splitbelow " split at the below of current buffer (top default behaviour)
+"set relativenumber  " relative line number
 
 " columns
 set colorcolumn=80 " Show vertical bar at column 80
@@ -636,33 +640,3 @@ map <F10> :call ToggleProfiling()<cr>
 "endfunction
 
 "}
-
-
-" Function to write in a vim buffer the output of vim commands :
-"   - Execute 'cmd' while redirecting output.
-"   - Delete all lines that do not match regex 'filter' (if not empty).
-"   - Delete any blank lines.
-"   - Delete '<whitespace><number>:<whitespace>' from start of each line.
-"   - Display result in a scratch buffer.
-function! s:Filter_lines(cmd, filter)
-  let save_more = &more
-  set nomore
-  redir => lines
-  silent execute a:cmd
-  redir END
-  let &more = save_more
-  new
-  setlocal buftype=nofile bufhidden=hide noswapfile
-  put =lines
-  g/^\s*$/d
-  %s/^\s*\d\+:\s*//e
-  if !empty(a:filter)
-    execute 'v/' . a:filter . '/d'
-  endif
-  0
-endfunction
-silent command! -nargs=? Scriptnames call s:Filter_lines('scriptnames', <q-args>)<cr>
-silent command! -nargs=? Syntaxlist call s:Filter_lines('syntax list', <q-args>)<cr>
-silent command! -nargs=? VerboseHighlight call s:Filter_lines('verbose highlight', <q-args>)<cr>
-silent command! -nargs=? CurrentHighlight call s:Filter_lines('highlight', <q-args>)<cr>
-silent command! -nargs=? GetPluginsList call s:Filter_lines('PluginList', <q-args>)<cr>
