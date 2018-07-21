@@ -35,6 +35,7 @@ if dein#load_state('~/.vim/bundle')
 
   " Generic tools {
   call dein#add('kien/ctrlp.vim') " Fuzzy file finder
+  call dein#add('junegunn/fzf.vim')  " better fuzzy finder
   call dein#add('tpope/vim-fugitive') " Git wrapper for vim
   call dein#add('tpope/vim-repeat') " allows better action repeat with .
   call dein#add('tpope/vim-surround') " change surrounding easily cs([
@@ -152,6 +153,20 @@ let g:ctrlp_custom_ignore = {
     \ }
 let g:ctrlp_user_command = 'ag %s -l -U --nocolor -g ""'
 "}
+
+" fzf {
+map ; :Files<CR>
+
+" This is the default extra key bindings
+let g:fzf_action = {
+  \ 'ctrl-t': 'tab split',
+  \ 'ctrl-x': 'split',
+  \ 'ctrl-v': 'vsplit' }
+
+" Default fzf layout
+" - down / up / left / right
+let g:fzf_layout = { 'down': '~40%' }
+" }
 
 " SuperTab, SimpylFold & FastFold {
 let g:SuperTabMappingForward = '<S-Tab>'
@@ -651,38 +666,3 @@ silent command! -nargs=? Syntaxlist call s:Filter_lines('syntax list', <q-args>)
 silent command! -nargs=? VerboseHighlight call s:Filter_lines('verbose highlight', <q-args>)<cr>
 silent command! -nargs=? CurrentHighlight call s:Filter_lines('highlight', <q-args>)<cr>
 silent command! -nargs=? GetPluginsList call s:Filter_lines('PluginList', <q-args>)<cr>
-
-set foldtext=MyFoldText()
-function! MyFoldText()
-  let line = getline(v:foldstart)
-  if match( line, '^[ \t]*\(\/\*\|\/\/\)[*/\\]*[ \t]*$' ) == 0
-    let initial = substitute( line, '^\([ \t]\)*\(\/\*\|\/\/\)\(.*\)', '\1\2', '' )
-    let linenum = v:foldstart + 1
-    while linenum < v:foldend
-      let line = getline( linenum )
-      let comment_content = substitute( line, '^\([ \t\/\*]*\)\(.*\)$', '\2', 'g' )
-      if comment_content != ''
-        break
-      endif
-      let linenum = linenum + 1
-    endwhile
-    let sub = initial . ' ' . comment_content
-  else
-    let sub = line
-    let startbrace = substitute( line, '^.*{[ \t]*$', '{', 'g')
-    if startbrace == '{'
-      let line = getline(v:foldend)
-      let endbrace = substitute( line, '^[ \t]*}\(.*\)$', '}', 'g')
-      if endbrace == '}'
-        let sub = sub.substitute( line, '^[ \t]*}\(.*\)$', '...}\1', 'g')
-      endif
-    endif
-  endif
-  let n = v:foldend - v:foldstart + 1
-  let info = " " . n . " lines"
-  let sub = sub . "                                                                                                                  "
-  let num_w = getwinvar( 0, '&number' ) * getwinvar( 0, '&numberwidth' )
-  let fold_w = getwinvar( 0, '&foldcolumn' )
-  let sub = strpart( sub, 0, winwidth(0) - strlen( info ) - num_w - fold_w - 1 )
-  return sub . info
-endfunction
