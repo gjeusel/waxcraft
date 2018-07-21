@@ -145,9 +145,17 @@ autocmd VimEnter * call MapEasymotionInit()
 " }
 
 " lightline {
+" https://github.com/itchyny/lightline.vim/issues/87
 let g:lightline = {
-            \ 'colorscheme': 'solarized',
-            \}
+      \ 'colorscheme': 'solarized',
+      \ 'component_function': {
+      \   'filename': 'LightLineFilename',
+      \ },
+      \ }
+function! LightLineFilename()
+  return expand('%:p:h')
+endfunction
+
 " }
 
 " CtrlP {
