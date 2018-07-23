@@ -1,7 +1,3 @@
-# example repository config (see 'hg help config' for more info)
-[paths]
-default = https://gjeusel@bitbucket.org/prove_team/intraday
-
 # path aliases to other clones of this repo in URLs or filesystem paths
 # (see 'hg help config.paths' for more info)
 #
@@ -16,11 +12,13 @@ bb.username = gjeusel
 shelve =
 rebase =
 evolve =
-hgext.convert=
 mq =
 histedit =
 hgext.extdiff =
 purge =
+hgext.convert=
+hgext.bookmarks =
+hggit =
 
 [extdiff]
 cmd.vimdiff =
