@@ -46,8 +46,8 @@ if dein#load_state('~/.vim/bundle')
   call dein#add('mbbill/undotree')
 
   " Snippets
-  "call dein#add('SirVer/ultisnips') " snippets engine handle
-  "call dein#add('honza/vim-snippets') " those are the snippets
+  call dein#add('SirVer/ultisnips') " snippets engine handle
+  call dein#add('honza/vim-snippets') " those are the snippets
 
   " folds
   call dein#add('Konfekt/FastFold')
@@ -148,10 +148,10 @@ autocmd VimEnter * call MapEasymotionInit()
 " https://github.com/itchyny/lightline.vim/issues/87
 let g:lightline = {
       \ 'colorscheme': 'solarized',
-      \ 'component_function': {
-      \   'filename': 'LightLineFilename',
-      \ },
       \ }
+      "\ 'component_function': {
+      "\   'filename': 'LightLineFilename',
+      "\ },
 function! LightLineFilename()
   return expand('%:p:h')
 endfunction
@@ -212,14 +212,14 @@ let g:deoplete#sources#jedi#show_docstring = 0  " show docstring in preview wind
 "set completeopt-=preview  " if you don't want windows popup
 
 " compatibility deoplete & ultisnipts:
-"call deoplete#custom#source('ultisnips', 'matchers', ['matcher_fuzzy'])
+call deoplete#custom#source('ultisnips', 'matchers', ['matcher_fuzzy'])
 
 " Fix deoplete & ultisnips problem with <tab> completion :
-"let g:UltiSnipsExpandTrigger = "<S-Tab>" " default to <tab> that override tab deoplete completion
+let g:UltiSnipsExpandTrigger = "<S-Tab>" " default to <tab> that override tab deoplete completion
 
-"let g:UltiSnipsListSnippets = "<c-tab>"
-"let g:UltiSnipsJumpForwardTrigger = "<c-j>"
-"let g:UltiSnipsJumpBackwardTrigger = "<c-k>"
+let g:UltiSnipsListSnippets = "<c-tab>"
+let g:UltiSnipsJumpForwardTrigger = "<c-j>"
+let g:UltiSnipsJumpBackwardTrigger = "<c-k>"
 
 "}
 
@@ -484,10 +484,7 @@ if has("autocmd")
   au BufNewFile,BufRead *.txt set filetype=sh
 
   " html:
-  au BufNewFile,BufRead *.html set expandtab
-  au BufNewFile,BufRead *.html set shiftwidth=2
-  au BufNewFile,BufRead *.html set tabstop=2
-  au BufNewFile,BufRead *.html set softtabstop=2
+  au BufNewFile,BufRead *.html set foldmethod=syntax expandtab shiftwidth=2 tabstop=2 softtabstop=2
 
   " Git
   au Filetype gitcommit setlocal spell textwidth=72
