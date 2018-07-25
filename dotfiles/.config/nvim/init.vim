@@ -45,6 +45,8 @@ if dein#load_state('~/.vim/bundle')
   call dein#add('scrooloose/nerdcommenter')  " easy comments
   call dein#add('mbbill/undotree')
 
+  call dein#add('vim-scripts/loremipsum')  " dummy text generator
+
   " Snippets
   call dein#add('SirVer/ultisnips') " snippets engine handle
   call dein#add('honza/vim-snippets') " those are the snippets
@@ -62,6 +64,7 @@ if dein#load_state('~/.vim/bundle')
   call dein#add('skywind3000/asyncrun.vim')  " run async shell commands
 
   call dein#add('dhruvasagar/vim-table-mode')  " to easily create tables.
+  call dein#add('vim-scripts/ZoomWin')  " zoom into split siwhout loosing split cfg
   "}
 
   " Completion engine {
@@ -92,7 +95,11 @@ if dein#load_state('~/.vim/bundle')
   call dein#add('davidhalter/jedi-vim')
   call dein#add('tell-k/vim-autopep8')
   "call dein#add('nvie/vim-flake8')
+  "}
 
+  " Html {
+  call dein#add('tmhedberg/matchit')  " % for matching tag
+  call dein#add('rstacruz/sparkup')  " for html auto generation
   "}
 
   call dein#end()
@@ -198,7 +205,6 @@ let g:fastfold_fold_movement_commands = []
 " deoplete {
 
 " Debug mode to avoid error
-call deoplete#enable_logging('DEBUG', '/tmp/deoplete.log')
 let g:deoplete#enable_profile = 1
 let g:deoplete#sources#jedi#debug_server = 1
 
@@ -484,7 +490,8 @@ if has("autocmd")
   au BufNewFile,BufRead *.txt set filetype=sh
 
   " html:
-  au BufNewFile,BufRead *.html set foldmethod=syntax expandtab shiftwidth=2 tabstop=2 softtabstop=2
+  au BufNewFile,BufRead *.html set shiftwidth=2 tabstop=2 softtabstop=2
+  au BufNewFile,BufRead *.html set foldmethod=syntax expandtab nowrap
 
   " Git
   au Filetype gitcommit setlocal spell textwidth=72
@@ -512,6 +519,9 @@ map <nowait> ² <C-c>
 map <nowait> <Esc> <C-c>
 " quick escape from command line with esc :
 cmap <nowait> <Esc> <C-c>
+
+" ALT + backspace in cmd to delete word
+cmap <a-bs> <c-w>
 
 " Unmapping F1 calling help in vim :
 map <F1> <nop>
