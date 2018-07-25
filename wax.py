@@ -168,6 +168,7 @@ class Wax():
         relative_paths = ['.bash_aliases', '.inputrc',
                           '.gitconfig', '.hgrc',
                           '.config/flake8',
+                          '.tmux.conf',
                           ]
         self._symlink_lst_files(relative_paths, Path.home(), wax_dotfile_dir)
 
