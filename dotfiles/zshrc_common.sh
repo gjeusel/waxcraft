@@ -1,8 +1,5 @@
 _dotfile_dir="/${0:1:h}"
 
-# Source common to bash & zsh:
-source "/${0:1:h}/common.sh"
-
 # Source zsh antigen
 source "$_dotfile_dir/antigen.zsh"
 
@@ -17,7 +14,7 @@ DisableWheelToCursorByCtrl=on
 
 # Plugins
 antigen bundle git
-antigen bundle extract
+antigen bundle extract  # generic cmd to decompress files
 antigen bundle colored-man-pages
 antigen bundle common-aliases
 antigen bundle docker
@@ -31,6 +28,7 @@ antigen bundle python
 antigen bundle redis-cli
 antigen bundle tmux
 antigen bundle archlinux
+antigen bundle ytet5uy4/pctl
 
 
 antigen bundle zsh-users/zsh-syntax-highlighting
@@ -42,3 +40,6 @@ SPACESHIP_CHAR_SYMBOL="❯ "
 
 # Tell Antigen that you're done.
 antigen apply
+
+# Source common to bash & zsh:
+source "/${0:1:h}/common.sh"
