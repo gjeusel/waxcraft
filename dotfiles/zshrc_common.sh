@@ -43,7 +43,6 @@ antigen bundle tmux
 antigen bundle archlinux
 antigen bundle ytet5uy4/pctl
 
-
 antigen bundle zsh-users/zsh-syntax-highlighting
 
 # Theme
@@ -54,7 +53,14 @@ SPACESHIP_CHAR_SYMBOL="❯ "
 # Tell Antigen that you're done.
 antigen apply
 
-# See https://github.com/robbyrussell/oh-my-zsh/issues/6163
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+# Set up Node Version Manager
+if [ -f "/usr/share/nvm/init-nvm.sh" ]; then
+    source /usr/share/nvm/init-nvm.sh
+
+    # See https://github.com/robbyrussell/oh-my-zsh/issues/6163
+    if [ -d $HOME/.nvm ]; then
+        export NVM_DIR="$HOME/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+        #[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+    fi
+fi
