@@ -34,6 +34,7 @@ if dein#load_state('~/.vim/bundle')
   "}
 
   " Generic tools {
+  call dein#add('terryma/vim-smooth-scroll')  " smooth scroll
   call dein#add('kien/ctrlp.vim') " Fuzzy file finder
   call dein#add('junegunn/fzf.vim')  " better fuzzy finder
   call dein#add('tpope/vim-fugitive') " Git wrapper for vim
@@ -149,6 +150,13 @@ function! MapEasymotionInit()
     map <nowait><leader>E <Plug>(easymotion-ge)
 endfunction
 autocmd VimEnter * call MapEasymotionInit()
+" }
+
+" Smooth Scroll {
+noremap <silent> <c-u> :call smooth_scroll#up(&scroll, 0, 2)<CR>
+noremap <silent> <c-d> :call smooth_scroll#down(&scroll, 0, 2)<CR>
+noremap <silent> <c-b> :call smooth_scroll#up(&scroll*2, 0, 4)<CR>
+noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 0, 4)<CR>
 " }
 
 " lightline {
@@ -334,8 +342,10 @@ endfunction
 
 " Table Mode {
 " Restructured text compatible
-let g:table_mode_corner_corner='+'
-let g:table_mode_header_fillchar='='
+au BufNewFile,BufRead *.rst let g:table_mode_header_fillchar='='
+au BufNewFile,BufRead *.rst let g:table_mode_corner_corner='+'
+au BufNewFile,BufRead *.py let g:table_mode_header_fillchar='='
+au BufNewFile,BufRead *.py let g:table_mode_corner_corner='+'
 "}
 
 " }
@@ -481,7 +491,7 @@ if has("autocmd")
   au BufNewFile,BufRead *.nml set filetype=fortran
   au BufNewFile,BufRead *.namelist set filetype=fortran
   au BufNewFile,BufRead *.nix set filetype=nix
-  au BufNewFile,BufRead *.sh set filetype=sh foldlevel=0 foldmethod=marker foldmarker={{{,}}}
+  au BufNewFile,BufRead *.sh set filetype=sh foldlevel=0 foldmethod=marker
   au BufNewFile,BufRead *.vimrc* set filetype=vim
   au BufNewFile,BufRead *.vim set filetype=vim tabstop=2
   au BufNewFile,BufRead *.cmake set filetype=cmake
@@ -608,11 +618,15 @@ function! InitMovementMap()
     endif
     noremap <nowait> z w
 endfunction
+inoremap ww zz
+inoremap wt zt
+inoremap wb zb
 autocmd VimEnter * call InitMovementMap()
 noremap <nowait> z w
 noremap <nowait> Z b
 noremap <nowait> e e
 noremap <nowait> E ge
+
 
 
 " copy to clipboard :
