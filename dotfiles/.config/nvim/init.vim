@@ -34,6 +34,7 @@ if dein#load_state('~/.vim/bundle')
   "}
 
   " Generic tools {
+  call dein#add('terryma/vim-smooth-scroll')  " smooth scroll
   call dein#add('kien/ctrlp.vim') " Fuzzy file finder
   call dein#add('junegunn/fzf.vim')  " better fuzzy finder
   call dein#add('tpope/vim-fugitive') " Git wrapper for vim
@@ -45,6 +46,8 @@ if dein#load_state('~/.vim/bundle')
   call dein#add('scrooloose/nerdcommenter')  " easy comments
   call dein#add('mbbill/undotree')
 
+  call dein#add('vim-scripts/loremipsum')  " dummy text generator
+
   " Snippets
   call dein#add('SirVer/ultisnips') " snippets engine handle
   call dein#add('honza/vim-snippets') " those are the snippets
@@ -53,7 +56,7 @@ if dein#load_state('~/.vim/bundle')
   call dein#add('Konfekt/FastFold')
   call dein#add('tmhedberg/SimpylFold')
 
-  "call dein#add('kopischke/vim-stay')  " restore session, well integrated with fastfold
+  call dein#add('kopischke/vim-stay')  " restore session, well integrated with fastfold
   call dein#add('vim-scripts/restore_view.vim')
   set viewoptions=cursor,slash,unix
   " let g:skipview_files = ['*\.vim']
@@ -62,6 +65,7 @@ if dein#load_state('~/.vim/bundle')
   call dein#add('skywind3000/asyncrun.vim')  " run async shell commands
 
   call dein#add('dhruvasagar/vim-table-mode')  " to easily create tables.
+  call dein#add('vim-scripts/ZoomWin')  " zoom into split siwhout loosing split cfg
   "}
 
   " Completion engine {
@@ -92,7 +96,11 @@ if dein#load_state('~/.vim/bundle')
   call dein#add('davidhalter/jedi-vim')
   call dein#add('tell-k/vim-autopep8')
   "call dein#add('nvie/vim-flake8')
+  "}
 
+  " Html {
+  call dein#add('tmhedberg/matchit')  " % for matching tag
+  call dein#add('rstacruz/sparkup')  " for html auto generation
   "}
 
   call dein#end()
@@ -142,6 +150,13 @@ function! MapEasymotionInit()
     map <nowait><leader>E <Plug>(easymotion-ge)
 endfunction
 autocmd VimEnter * call MapEasymotionInit()
+" }
+
+" Smooth Scroll {
+noremap <silent> <c-u> :call smooth_scroll#up(&scroll, 0, 2)<CR>
+noremap <silent> <c-d> :call smooth_scroll#down(&scroll, 0, 2)<CR>
+noremap <silent> <c-b> :call smooth_scroll#up(&scroll*2, 0, 4)<CR>
+noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 0, 4)<CR>
 " }
 
 " lightline {
@@ -266,7 +281,7 @@ let g:ale_linters = {
 
 " choice of ignored errors in ~/.config/flake8
 
-"let g:ale_fix_on_save = 1  " always fix at save time
+"let g:ale_fix_on_save = 0  " always fix at save time
 
 " go to previous error in current windows
 map <nowait><silent> <A-q> <Plug>(ale_previous_wrap)
@@ -328,8 +343,11 @@ endfunction
 
 " Table Mode {
 " Restructured text compatible
-let g:table_mode_corner_corner='+'
-let g:table_mode_header_fillchar='='
+au BufNewFile,BufRead *.rst let g:table_mode_header_fillchar='='
+au BufNewFile,BufRead *.rst let g:table_mode_corner_corner='+'
+au BufNewFile,BufRead *.py let g:table_mode_header_fillchar='='
+au BufNewFile,BufRead *.py let g:table_mode_corner_corner='+'
+au BufNewFile,BufRead *.md let g:table_mode_corner='|'
 "}
 
 " }
@@ -478,7 +496,7 @@ if has("autocmd")
   au BufNewFile,BufRead *.nml set filetype=fortran
   au BufNewFile,BufRead *.namelist set filetype=fortran
   au BufNewFile,BufRead *.nix set filetype=nix
-  au BufNewFile,BufRead *.sh set filetype=sh foldlevel=0 foldmethod=marker foldmarker={{{,}}}
+  au BufNewFile,BufRead *.sh set filetype=sh foldlevel=0 foldmethod=marker
   au BufNewFile,BufRead *.vimrc* set filetype=vim
   au BufNewFile,BufRead *.vim set filetype=vim tabstop=2
   au BufNewFile,BufRead *.cmake set filetype=cmake
@@ -487,7 +505,8 @@ if has("autocmd")
   au BufNewFile,BufRead *.txt set filetype=sh
 
   " html:
-  au BufNewFile,BufRead *.html set foldmethod=syntax expandtab shiftwidth=2 tabstop=2 softtabstop=2
+  au BufNewFile,BufRead *.html set shiftwidth=2 tabstop=2 softtabstop=2
+  au BufNewFile,BufRead *.html set foldmethod=syntax expandtab nowrap
 
   " Git
   au Filetype gitcommit setlocal spell textwidth=72
@@ -516,12 +535,12 @@ map <nowait> <Esc> <C-c>
 " quick escape from command line with esc :
 cmap <nowait> <Esc> <C-c>
 
+" ALT + backspace in cmd to delete word
+cmap <a-bs> <c-w>
+
 " Unmapping F1 calling help in vim :
 map <F1> <nop>
 map <A-F1> <nop>
-
-" cmdline map ALT+BackSpace
-cmap <A-BS> <C-w>
 
 " Avoid vim history cmd to pop up with q:
 nnoremap q: <Nop>
@@ -616,11 +635,15 @@ function! InitMovementMap()
     endif
     noremap <nowait> z w
 endfunction
+inoremap ww zz
+inoremap wt zt
+inoremap wb zb
 autocmd VimEnter * call InitMovementMap()
 noremap <nowait> z w
 noremap <nowait> Z b
 noremap <nowait> e e
 noremap <nowait> E ge
+
 
 
 " copy to clipboard :
