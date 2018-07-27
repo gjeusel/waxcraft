@@ -97,6 +97,8 @@ alias pt="pytest --log-level=DEBUG -x --pdb -k "
 alias vimrc="vim ~/.config/nvim/init.vim*"
 alias nvimrc="nvim $waxCraft_PATH/dotfiles/.config/nvim/init.vim"
 
+alias wax='cd "$waxCraft_PATH"'
+
 # Spark aliases :
 if hash ipython 2>/dev/null; then
   alias pyspark="PYSPARK_DRIVER_PYTHON=$(which ipython) pyspark"
