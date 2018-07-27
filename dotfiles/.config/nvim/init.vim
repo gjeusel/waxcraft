@@ -53,7 +53,7 @@ if dein#load_state('~/.vim/bundle')
   call dein#add('Konfekt/FastFold')
   call dein#add('tmhedberg/SimpylFold')
 
-  call dein#add('kopischke/vim-stay')  " restore session, well integrated with fastfold
+  "call dein#add('kopischke/vim-stay')  " restore session, well integrated with fastfold
   call dein#add('vim-scripts/restore_view.vim')
   set viewoptions=cursor,slash,unix
   " let g:skipview_files = ['*\.vim']
@@ -198,15 +198,15 @@ let g:fastfold_fold_movement_commands = []
 " deoplete {
 
 " Debug mode to avoid error
-call deoplete#enable_logging('DEBUG', '/tmp/deoplete.log')
-let g:deoplete#enable_profile = 1
-let g:deoplete#sources#jedi#debug_server = 1
+"call deoplete#enable_logging('DEBUG', '/tmp/deoplete.log')
+let g:deoplete#enable_profile = 0
+let g:deoplete#sources#jedi#debug_server = 0
 
 let g:deoplete#enable_at_startup = 1
 "call deoplete#enable_logging('DEBUG', '/tmp/deoplete.log')
 "let g:deoplete#enable_profile = 1
 "let g:deoplete#sources#jedi#debug_server = 1
-let g:deoplete#sources#jedi#server_timeout = 10 " extend time for large pkg
+let g:deoplete#sources#jedi#server_timeout = 40 " extend time for large pkg
 let g:deoplete#sources#jedi#show_docstring = 0  " show docstring in preview window
 "autocmd CompleteDone * silent! pclose!
 "set completeopt-=preview  " if you don't want windows popup
@@ -266,7 +266,7 @@ let g:ale_linters = {
 
 " choice of ignored errors in ~/.config/flake8
 
-let g:ale_fix_on_save = 1  " always fix at save time
+"let g:ale_fix_on_save = 1  " always fix at save time
 
 " go to previous error in current windows
 map <nowait><silent> <A-q> <Plug>(ale_previous_wrap)
@@ -366,6 +366,9 @@ highlight SignifySignChange cterm=none ctermbg=none ctermfg=124
 highlight Folded                       ctermbg=none
 highlight foldcolumn                   ctermbg=none ctermfg=none
 highlight TermCursorNC      cterm=none ctermbg=14   ctermfg=none
+
+" transparent
+hi Normal guibg=none ctermbg=none
 
 " cmdline
 set wildmenu                    " Show list instead of just completing
@@ -517,6 +520,9 @@ cmap <nowait> <Esc> <C-c>
 map <F1> <nop>
 map <A-F1> <nop>
 
+" cmdline map ALT+BackSpace
+cmap <A-BS> <C-w>
+
 " Avoid vim history cmd to pop up with q:
 nnoremap q: <Nop>
 " Avoid qq recording
@@ -544,6 +550,18 @@ nnoremap <c-j> <c-w>j
 nnoremap <c-k> <c-w>k
 nnoremap <c-h> <c-w>h
 nnoremap <c-l> <c-w>l
+
+" Terminal mode:
+tnoremap <c-h> <c-\><c-n><c-w>h
+tnoremap <c-j> <c-\><c-n><c-w>j
+tnoremap <c-k> <c-\><c-n><c-w>k
+tnoremap <c-l> <c-\><c-n><c-w>l
+
+" Insert mode:
+inoremap <c-h> <c-\><c-n><c-w>h
+inoremap <c-j> <c-\><c-n><c-w>j
+inoremap <c-k> <c-\><c-n><c-w>k
+inoremap <c-l> <c-\><c-n><c-w>l
 
 " map Ctrl+S to :w
 noremap <silent> <C-S>  :update<CR>
@@ -619,20 +637,20 @@ map <F12> :call ActualizeInit()<cr>
 
 " Profile vim {
 function! StartProfiling()
-  execute ":profile start ~/.config/nvim/profile.log"
+  execute ":profile start /tmp/neovim.profile"
   execute ":profile func *"
   execute ":profile file *"
-  let b:profiling=1
+  let g:profiling=1
 endfunction
 
 function! EndProfiling()
   execute ":profile pause"
-  let b:profiling=0
+  let g:profiling=0
 endfunction
 
-let b:profiling=0
+let g:profiling=0
 function! ToggleProfiling()
-  if b:profiling == 0
+  if g:profiling == 0
     call StartProfiling()
   else
     call EndProfiling()
