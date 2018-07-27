@@ -27,6 +27,7 @@ for lib in ["requests", "urllib3", "mercure", "parso", "diff", "pickle", "cache"
 
 try:
     import pandas as pd
+    from pandas.io.json import json_normalize
     IDX = pd.IndexSlice
     try:
         import numpy as np
@@ -76,8 +77,13 @@ except Exception as e:
 
 CFG = None
 try:
+    from stt_utils.config_handler import get_config
+    CFG = get_config()
+except Exception as e:
+    print('Could not import stt_utils and read config: {}'.format(e))
+
+try:
     import intraday_hub
-    from intraday_hub.utils import CFG
     from intraday_hub.tankertsio import TankerTimeSerie
     tktseries = TankerTimeSerie()
     from intraday_hub.mercure import MercureClient
@@ -86,11 +92,6 @@ try:
     from intraday_hub.cli import *
 except ImportError as e:
     print("Could not import intraday_hub: {}".format(e))
-
-try:
-    engine = create_engine(CFG['db_uri']['hubtest'])
-except:
-    print('Could not initialize engine')
 
 
 try:
@@ -185,6 +186,8 @@ except ImportError as e:
 
 try:
     from tso_scrapers import TSOClient, RTEClient, EliaClient, EntsoeClient
+    from tso_scrapers.nordpool import NordpoolClient
+    message_types = ['ProductionUnavailability', 'transmissionUnavailability']
     tsocl = TSOClient()
 except ImportError as e:
     print('Could not import tso_scrapers: {}'.format(e))
@@ -200,3 +203,9 @@ params = {
     'processType': 'A01',
     'securityToken': 'f7cb2979-5e90-468a-97a5-af4fdb78c060',
 }
+
+try:
+    from gemservices.nordpool import NordPoolClient
+    clnord = NordPoolClient(GEMS_KEY=CFG['gemservices']['nordpool'], instance='prod')
+except ImportError as e:
+    print('Could not import gemservices-python: {}'.format(e))

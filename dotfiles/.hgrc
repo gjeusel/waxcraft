@@ -11,14 +11,14 @@ bb.username = gjeusel
 [extensions]
 shelve =
 rebase =
-evolve =
+#evolve =
 mq =
 histedit =
 hgext.extdiff =
 purge =
 hgext.convert=
 hgext.bookmarks =
-hggit =
+#hggit =
 
 [extdiff]
 cmd.vimdiff =
