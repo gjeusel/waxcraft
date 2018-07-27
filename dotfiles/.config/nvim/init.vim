@@ -346,6 +346,7 @@ au BufNewFile,BufRead *.rst let g:table_mode_header_fillchar='='
 au BufNewFile,BufRead *.rst let g:table_mode_corner_corner='+'
 au BufNewFile,BufRead *.py let g:table_mode_header_fillchar='='
 au BufNewFile,BufRead *.py let g:table_mode_corner_corner='+'
+au BufNewFile,BufRead *.md let g:table_mode_corner='|'
 "}
 
 " }
