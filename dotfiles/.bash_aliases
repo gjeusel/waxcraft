@@ -134,3 +134,5 @@ dockerrun() {
         -ti $1 \
         /bin/bash
 }
+
+alias negociate_proxy='curl --proxy-negotiate -I -u :  http://google.com'
