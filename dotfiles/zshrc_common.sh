@@ -1,7 +1,20 @@
 _dotfile_dir="/${0:1:h}"
 
+# Up for case if proxy set
+# Source common to bash & zsh:
+source "/${0:1:h}/common.sh"
+
 # Source zsh antigen
 source "$_dotfile_dir/antigen.zsh"
+
+autoload -U zargs
+setopt appendhistory autocd extendedglob notify nomatch autopushd pushdignoredups promptsubst
+
+autoload -Uz compinit
+compinit -i
+
+autoload -U promptinit
+promptinit
 
 # Load the oh-my-zsh's library.
 antigen use oh-my-zsh
@@ -41,5 +54,7 @@ SPACESHIP_CHAR_SYMBOL="❯ "
 # Tell Antigen that you're done.
 antigen apply
 
-# Source common to bash & zsh:
-source "/${0:1:h}/common.sh"
+# See https://github.com/robbyrussell/oh-my-zsh/issues/6163
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
