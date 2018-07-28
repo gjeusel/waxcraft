@@ -24,10 +24,10 @@ if dein#load_state('~/.vim/bundle')
   call dein#add('ap/vim-buftabline')
   call dein#add('altercation/vim-colors-solarized')
 
-  " Sytax highlight
+  " Syntax highlight
   call dein#add('LnL7/vim-nix')  " for .nix
-  call dein#add('cespare/vim-toml')  "syntax for .toml
-  call dein#add('luochen1990/rainbow')
+  call dein#add('cespare/vim-toml')  " syntax for .toml
+  call dein#add('luochen1990/rainbow')  " embed parenthesis colors
 
   call dein#add('airblade/vim-gitgutter') " column sign for git changes
   call dein#add('rhysd/conflict-marker.vim') " conflict markers for vimdiff
@@ -35,37 +35,31 @@ if dein#load_state('~/.vim/bundle')
 
   " Generic tools {
   call dein#add('terryma/vim-smooth-scroll')  " smooth scroll
+
   call dein#add('kien/ctrlp.vim') " Fuzzy file finder
-  call dein#add('junegunn/fzf.vim')  " better fuzzy finder
+  "call dein#add('junegunn/fzf.vim')  " asynchronous fuzzy finder, should replace ctrlp if ever to work with huuge projects
+
   call dein#add('tpope/vim-fugitive') " Git wrapper for vim
-  call dein#add('tpope/vim-repeat') " allows better action repeat with .
-  call dein#add('tpope/vim-surround') " change surrounding easily cs([
+  call dein#add('tpope/vim-surround') " change surrounding easily
+  call dein#add('tpope/vim-repeat') " better action repeat for vim-surround with .
+
   "call dein#add('jiangmiao/auto-pairs') " auto pair
   call dein#add('godlygeek/tabular') " tabularize
-  call dein#add('majutsushi/tagbar') " get an overview of the file structure
+  call dein#add('dhruvasagar/vim-table-mode')  " to easily create tables.
+  call dein#add('majutsushi/tagbar') " browsing the tags, require ctags
   call dein#add('scrooloose/nerdcommenter')  " easy comments
-  call dein#add('mbbill/undotree')
+  call dein#add('mbbill/undotree')  " visualize undo tree
 
-  call dein#add('vim-scripts/loremipsum')  " dummy text generator
+  call dein#add('vim-scripts/loremipsum')  " dummy text generator (:Loremipsum [number of words])
 
   " Snippets
   call dein#add('SirVer/ultisnips') " snippets engine handle
   call dein#add('honza/vim-snippets') " those are the snippets
 
-  " folds
-  call dein#add('Konfekt/FastFold')
-  call dein#add('tmhedberg/SimpylFold')
+  call dein#add('Konfekt/FastFold')  " update folds only when needed, otherwise folds slowdown vim
 
-  call dein#add('kopischke/vim-stay')  " restore session, well integrated with fastfold
-  call dein#add('vim-scripts/restore_view.vim')
-  set viewoptions=cursor,slash,unix
-  " let g:skipview_files = ['*\.vim']
-
-  call dein#add('easymotion/vim-easymotion')
+  call dein#add('easymotion/vim-easymotion')  " easymotion when fedup to think
   call dein#add('skywind3000/asyncrun.vim')  " run async shell commands
-
-  call dein#add('dhruvasagar/vim-table-mode')  " to easily create tables.
-  call dein#add('vim-scripts/ZoomWin')  " zoom into split siwhout loosing split cfg
   "}
 
   " Completion engine {
@@ -86,12 +80,12 @@ if dein#load_state('~/.vim/bundle')
   call dein#add('wooorm/alex')  " general syntax checker
   call dein#add('yaniswang/HTMLHint')  " html
   call dein#add('eslint/eslint')  " js
-
   "}
 
   " Specific Languages {
 
   " Python
+  call dein#add('tmhedberg/SimpylFold')  " better folds
   call dein#add('python-mode/python-mode')
   call dein#add('davidhalter/jedi-vim')
   call dein#add('tell-k/vim-autopep8')
@@ -181,20 +175,6 @@ let g:ctrlp_custom_ignore = {
 let g:ctrlp_user_command = 'ag %s -l -U --nocolor -g ""'
 "}
 
-" fzf {
-map ; :GFiles<CR>
-
-" This is the default extra key bindings
-let g:fzf_action = {
-  \ 'ctrl-t': 'tab split',
-  \ 'ctrl-x': 'split',
-  \ 'ctrl-v': 'vsplit' }
-
-" Default fzf layout
-" - down / up / left / right
-let g:fzf_layout = { 'down': '~40%' }
-" }
-
 " SuperTab, SimpylFold & FastFold {
 let g:SuperTabMappingForward = '<S-Tab>'
 let g:SuperTabMappingBackward = '<Tab>'
@@ -212,15 +192,12 @@ let g:fastfold_fold_movement_commands = []
 
 " deoplete {
 
-" Debug mode to avoid error
+" Debug mode
 "call deoplete#enable_logging('DEBUG', '/tmp/deoplete.log')
 let g:deoplete#enable_profile = 0
 let g:deoplete#sources#jedi#debug_server = 0
 
 let g:deoplete#enable_at_startup = 1
-"call deoplete#enable_logging('DEBUG', '/tmp/deoplete.log')
-"let g:deoplete#enable_profile = 1
-"let g:deoplete#sources#jedi#debug_server = 1
 let g:deoplete#sources#jedi#server_timeout = 40 " extend time for large pkg
 let g:deoplete#sources#jedi#show_docstring = 0  " show docstring in preview window
 "autocmd CompleteDone * silent! pclose!
@@ -316,8 +293,8 @@ let g:jedi#show_call_signatures = 2  " do show the args of func in cmdline
 " }
 
 " AsyncRun {
-" Quick run via <F5>
-nnoremap <F5> :call <SID>compile_and_run()<CR>
+" Quick run via <F10>
+nnoremap <F10> :call <SID>compile_and_run()<CR>
 
 augroup SPACEVIM_ASYNCRUN
     autocmd!
@@ -348,6 +325,11 @@ au BufNewFile,BufRead *.rst let g:table_mode_corner_corner='+'
 au BufNewFile,BufRead *.py let g:table_mode_header_fillchar='='
 au BufNewFile,BufRead *.py let g:table_mode_corner_corner='+'
 au BufNewFile,BufRead *.md let g:table_mode_corner='|'
+"}
+
+" TagBar & UndoTree {
+nnoremap <silent> <F9> :TagbarToggle<CR>
+nnoremap <silent> <F8> :UndotreeToggle<CR>
 "}
 
 " }
@@ -443,7 +425,7 @@ endfunction
 call InitializeDirectories()
 " }
 
-set viewoptions=folds,options,cursor,unix,slash " Better Unix / Windows compatibility
+set viewoptions=folds,cursor,unix,slash " Better Unix / Windows compatibility
 set backup                  " Backups are nice ...
 if has('persistent_undo')
   set undofile                " So is persistent undo ...
@@ -530,22 +512,15 @@ augroup FastEscape
   au InsertLeave * set timeoutlen=500
 augroup END
 
-map <nowait> ² <C-c>
+" quick escape:
 map <nowait> <Esc> <C-c>
-" quick escape from command line with esc :
 cmap <nowait> <Esc> <C-c>
 
-" ALT + backspace in cmd to delete word
+" ALT + backspace in cmd to delete word, like in terminal
 cmap <a-bs> <c-w>
-
-" Unmapping F1 calling help in vim :
-map <F1> <nop>
-map <A-F1> <nop>
 
 " Avoid vim history cmd to pop up with q:
 nnoremap q: <Nop>
-" Avoid qq recording
-nnoremap q <Nop>
 
 " map open terminal
 map <nowait> <A-t> :vsplit \| terminal <CR>
@@ -613,6 +588,14 @@ nmap <silent> <A-r> :bp\|bd! #<CR>
 " --> About folding open and close :
 nnoremap <Space> za
 vnoremap <Space> za
+" }
+
+" qwerty --> azerty {
+
+" Some motions
+vnoremap ww zz
+vnoremap wt zt
+vnoremap wb zb
 
 " --> Folding : closing/opening all opened foldings :
 nnoremap wM zR
@@ -625,26 +608,19 @@ nnoremap wj zj
 vnoremap wj zj
 nnoremap wk zk
 vnoremap wk zk
-" }
 
-" qwerty --> azerty beginning of the next word eased by this bind :
-" the <nowait> prevent a delay when typing z (for za for example)
 function! InitMovementMap()
     if mapcheck("z", "N") != ""
         unmap z
     endif
     noremap <nowait> z w
 endfunction
-inoremap ww zz
-inoremap wt zt
-inoremap wb zb
 autocmd VimEnter * call InitMovementMap()
 noremap <nowait> z w
 noremap <nowait> Z b
 noremap <nowait> e e
 noremap <nowait> E ge
-
-
+"}
 
 " copy to clipboard :
 vnoremap <Leader>y "+y
@@ -680,7 +656,6 @@ function! ToggleProfiling()
   endif
 endfunction
 "}
-map <F10> :call ToggleProfiling()<cr>
 
 "" see logs of update
 "command! DeinUpdate  call s:dein_update()
