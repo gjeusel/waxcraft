@@ -1,4 +1,4 @@
-" vim: set sw=4 ts=4 sts=4 et tw=78 foldmarker={,} foldlevel=0 foldmethod=marker spell:
+"/ vim: set sw=4 ts=4 sts=4 et tw=78 foldmarker={,} foldlevel=0 foldmethod=marker spell:
 
 " Install dein :
 " curl https://raw.githubusercontent.com/Shougo/dein.vim/master/bin/installer.sh > installer.sh
@@ -155,15 +155,14 @@ noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 0, 4)<CR>
 
 " lightline {
 " https://github.com/itchyny/lightline.vim/issues/87
-let g:lightline = {
-      \ 'colorscheme': 'solarized',
-      \ }
-      "\ 'component_function': {
-      "\   'filename': 'LightLineFilename',
-      "\ },
-function! LightLineFilename()
-  return expand('%:p:h')
-endfunction
+let g:lightline = {'colorscheme': 'solarized'}
+
+let g:lightline.active = {
+    \ 'left': [ [ 'mode', 'paste' ],
+    \           [ 'readonly', 'filename', 'modified' ] ],
+    \ 'right': [ [ 'lineinfo' ],
+    \            [ 'percent' ],
+    \            [ 'absolutepath', 'filetype' ] ] }
 
 " }
 
@@ -244,17 +243,22 @@ map <Leader>i o__import__('IPython').embed()  # Enter Ipython<C-c>
 "}
 
 " Lint ALE {
-let g:ale_fixers = {
-            \ 'python': ['autopep8', 'isort'],
-            \ 'javascript': ['prettier', 'eslint'],
-            \}
-let g:ale_python_autopep8_options = '--max-line-length 160'
+let g:ale_linter_aliases = {
+    \ 'html': ['html', 'javascript', 'css'],
+    \}
 
+let g:ale_python_autopep8_options = '--max-line-length 160'
 let g:ale_linters = {
             \ 'python': ['flake8'],
-            \ 'text': ['alex'],
-            \ 'html': ['htmlhint'],
+            \ 'text': ['alex', 'proselint'],
+            \ 'html': ['htmlhint', 'proselint', 'writegood', 'tidy'],
             \}
+
+let g:ale_fixers = {
+            \ 'python': ['autopep8', 'isort', 'black'],
+            \ 'html': ['prettier', 'eslint'],
+            \}
+
 
 " choice of ignored errors in ~/.config/flake8
 
@@ -270,7 +274,7 @@ map <nowait><silent> <A-s> <Plug>(ale_next_wrap)
 
 " autofix when in normal mode for all file and keep autopep8 for fix on range
 " (i.e keep autopep8 for fix in visualmode)
-noremap <leader>p :ALEFix<CR>
+noremap <leader>p <Plug>(ale_fix)
 "}
 
 " Autopep8 {
@@ -340,20 +344,20 @@ syntax enable
 set background=dark
 colorscheme solarized
 
-set mouse=a                 " Automatically enable mouse usage
-set mousehide               " Hide the mouse cursor while typing
-set number " display line number column
-set ruler          " Show the cursor position all the time
-set cursorline     " Highlight the line of the cursor
+set mouse=a             " Automatically enable mouse usage
+set mousehide           " Hide the mouse cursor while typing
+set number              " display line number column
+set ruler               " Show the cursor position all the time
+set cursorline          " Highlight the line of the cursor
 set guicursor=
-set scrolljump=5                " Lines to scroll when cursor leaves screen
-set scrolloff=3    " Have some context around the current line always on screen
-set virtualedit=onemore             " Allow for cursor beyond last character
-set hidden         " Allow backgrounding buffers without writin them, and remember marks/undo for backgrounded buffers
-set foldenable                  " Auto fold code
-set splitright " split at the right of current buffer (left default behaviour)
-set splitbelow " split at the below of current buffer (top default behaviour)
-"set relativenumber  " relative line number
+set scrolljump=5        " Lines to scroll when cursor leaves screen
+set scrolloff=3         " Have some context around the current line always on screen
+set virtualedit=onemore " Allow for cursor beyond last character
+set hidden              " Allow backgrounding buffers without writin them, and remember marks/undo for backgrounded buffers
+set foldenable          " Auto fold code
+set splitright          " split at the right of current buffer (left default behaviour)
+set splitbelow          " split at the below of current buffer (top default behaviour)
+set relativenumber                                                                                " relative line number
 
 " columns
 set colorcolumn=80 " Show vertical bar at column 80
@@ -395,16 +399,7 @@ function! InitializeDirectories()
         let dir_list['undo'] = 'undodir'
     endif
 
-    " To specify a different directory in which to place the vimbackup,
-    " vimviews, vimundo, and vimswap files/directories, add the following to
-    " your .vimrc.before.local file:
-    "   let g:spf13_consolidated_directory = <full path to desired directory>
-    "   eg: let g:spf13_consolidated_directory = $HOME . '/.vim/'
-    if exists('g:spf13_consolidated_directory')
-        let common_dir = g:spf13_consolidated_directory . prefix
-    else
-        let common_dir = parent . '/.' . prefix
-    endif
+    let common_dir = parent . '/.' . prefix
 
     for [dirname, settingname] in items(dir_list)
         let directory = common_dir . dirname . '/'
@@ -426,16 +421,16 @@ call InitializeDirectories()
 " }
 
 set viewoptions=folds,cursor,unix,slash " Better Unix / Windows compatibility
-set backup                  " Backups are nice ...
+set backup                              " Backups are nice ...
 if has('persistent_undo')
-  set undofile                " So is persistent undo ...
-  set undolevels=1000         " Maximum number of changes that can be undone
-  set undoreload=10000        " Maximum number lines to save for undo on a buffer reload
+  set undofile                          " So is persistent undo ...
+  set undolevels=1000                   " Maximum number of changes that can be undone
+  set undoreload=10000                  " Maximum number lines to save for undo on a buffer reload
 endif
 
 " Searching
-set ignorecase                    " searches are case insensitive...
-set smartcase                     " ... unless they contain at least one capital letter
+set ignorecase " searches are case insensitive...
+set smartcase  " ... unless they contain at least one capital letter
 
 " Clipboard
 if has('clipboard')
@@ -500,8 +495,6 @@ endif
 
 "}
 
-" Behaviour fixes {
-
 " Times choices:
 set ttimeoutlen=10
 set timeoutlen=500
@@ -511,6 +504,10 @@ augroup FastEscape
   au InsertEnter * set timeoutlen=0
   au InsertLeave * set timeoutlen=500
 augroup END
+
+" Key (re)Mappings {
+
+" Behaviour fixes {
 
 " quick escape:
 map <nowait> <Esc> <C-c>
@@ -530,8 +527,6 @@ map <nowait> <A-t> :vsplit \| terminal <CR>
 tnoremap <Esc> <C-\><C-n>
 
 " }
-
-" Key (re)Mappings {
 
 " clear the search highlight
 nnoremap <leader>; :nohl<cr>
@@ -564,7 +559,6 @@ inoremap <silent> <C-S>  :update<CR>
 
 " For when you forget to sudo.. Really Write the file.
 cmap w!! w !sudo tee % >/dev/null
-
 
 " Buffers {
 " --> About buffers switch
@@ -656,6 +650,16 @@ function! ToggleProfiling()
   endif
 endfunction
 "}
+
+function! ToggleVerbose()
+    if !&verbose
+        set verbosefile=/tmp/vim_verbose.log
+        set verbose=15
+    else
+        set verbose=0
+        set verbosefile=
+    endif
+endfunction
 
 "" see logs of update
 "command! DeinUpdate  call s:dein_update()
