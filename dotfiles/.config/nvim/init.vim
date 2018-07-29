@@ -19,6 +19,9 @@ if dein#load_state('~/.vim/bundle')
   " path to plugin manager:
   call dein#add('~/.vim/bundle/repos/github.com/Shougo/dein.vim/')
 
+  " tmux navigation in love with vim
+  call dein#add('christoomey/vim-tmux-navigator')
+
   " User Interface {
   call dein#add('itchyny/lightline.vim')
   call dein#add('ap/vim-buftabline')
@@ -572,11 +575,14 @@ endfor
 
 map <nowait> <A-a> :bp<cr>
 map <nowait> <A-z> :bn<cr>
-map <nowait> <A-e> :vs %<cr>
 
 " buffer delete without closing windows :
-nmap <silent> <A-r> :bp\|bd! #<CR>
+nmap <silent> <A-d> :bp\|bd! #<CR>
 "}
+
+" Split windows
+map <nowait> <A-e> :vs %<cr>
+map <nowait> <A-r> :sp %<cr>
 
 " Folding binds : {
 " --> About folding open and close :
