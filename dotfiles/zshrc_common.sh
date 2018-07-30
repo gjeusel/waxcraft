@@ -1,9 +1,5 @@
 _dotfile_dir="/${0:1:h}"
 
-# Up for case if proxy set
-# Source common to bash & zsh:
-source "/${0:1:h}/common.sh"
-
 # Source zsh antigen
 source "$_dotfile_dir/antigen.zsh"
 
@@ -64,3 +60,8 @@ if [ -f "/usr/share/nvm/init-nvm.sh" ]; then
         #[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
     fi
 fi
+
+# Up for case if proxy set
+# Source common to bash & zsh:
+source "/${0:1:h}/common.sh"
+

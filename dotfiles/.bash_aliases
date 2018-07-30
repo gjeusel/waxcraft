@@ -97,7 +97,7 @@ alias pt="pytest --log-level=DEBUG -x --pdb -k "
 alias vimrc="vim ~/.config/nvim/init.vim*"
 alias nvimrc="nvim $waxCraft_PATH/dotfiles/.config/nvim/init.vim"
 
-alias wax='cd "$waxCraft_PATH"'
+alias wax="cd $waxCraft_PATH"
 alias ananke='cd "$HOME/src/proquick/themes/ananke/"'
 
 # Spark aliases :

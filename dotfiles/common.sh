@@ -1,8 +1,3 @@
-# Source aliases
-if [ -f ~/.bash_aliases ]; then
-    . ~/.bash_aliases
-fi
-
 # Which type of shell:
 _shell="$(ps -p $$ --no-headers -o comm=)"
 
@@ -47,3 +42,8 @@ fi
 #if command -v tmux>/dev/null; then
 #  [[ ! $TERM =~ screen ]] && [ -z $TMUX ] && exec tmux
 #fi
+
+# Source aliases
+if [ -f ~/.bash_aliases ]; then
+    . ~/.bash_aliases
+fi
