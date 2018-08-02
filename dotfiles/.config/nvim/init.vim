@@ -277,7 +277,7 @@ map <nowait><silent> <A-s> <Plug>(ale_next_wrap)
 
 " autofix when in normal mode for all file and keep autopep8 for fix on range
 " (i.e keep autopep8 for fix in visualmode)
-noremap <leader>p <Plug>(ale_fix)
+noremap <leader>p :ALEFix <cr>
 "}
 
 " Autopep8 {
