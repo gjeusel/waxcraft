@@ -260,6 +260,7 @@ let g:ale_linters = {
 let g:ale_fixers = {
             \ 'python': ['autopep8', 'isort', 'black'],
             \ 'html': ['prettier', 'eslint'],
+            \ 'json': ['fixjson'],
             \}
 
 
@@ -277,7 +278,7 @@ map <nowait><silent> <A-s> <Plug>(ale_next_wrap)
 
 " autofix when in normal mode for all file and keep autopep8 for fix on range
 " (i.e keep autopep8 for fix in visualmode)
-noremap <leader>p <Plug>(ale_fix)
+noremap <leader>p :ALEFix <cr>
 "}
 
 " Autopep8 {
@@ -481,6 +482,8 @@ if has("autocmd")
   au BufNewFile,BufRead *.vim set filetype=vim tabstop=2
   au BufNewFile,BufRead *.cmake set filetype=cmake
   au BufNewFile,BufRead CMakeLists.txt set filetype=cmake
+  au BufNewFile,BufRead *.json set filetype=json
+
 
   au BufNewFile,BufRead *.txt set filetype=sh
 
@@ -537,11 +540,12 @@ nnoremap <leader>; :nohl<cr>
 " select all of current paragraph with enter:
 nnoremap <return> vip
 
+" Are remapped by vim-tmux-navigator
 " easier navigation between split windows
-nnoremap <c-j> <c-w>j
-nnoremap <c-k> <c-w>k
-nnoremap <c-h> <c-w>h
-nnoremap <c-l> <c-w>l
+"nnoremap <c-j> <c-w>j
+"nnoremap <c-k> <c-w>k
+"nnoremap <c-h> <c-w>h
+"nnoremap <c-l> <c-w>l
 
 " Terminal mode:
 tnoremap <c-h> <c-\><c-n><c-w>h
