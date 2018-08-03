@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# pip deps
+pip install black  # code formatter
+pip install isort  # sort imports
+pip install autopep8  # auto pep8
+pip install flake8  # style guide renforcement
+pip install proselint  # a linter for prose
+
+# npm deps
+npm install -g fixjson  # json fixer
+npm install -g eslint  # js fixer
+npm install -g alex   # Catch insensitive, inconsiderate writing
+npm install -g prettier  # js & html & json & else
