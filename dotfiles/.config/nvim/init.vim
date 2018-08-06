@@ -39,8 +39,7 @@ if dein#load_state('~/.vim/bundle')
   " Generic tools {
   call dein#add('terryma/vim-smooth-scroll')  " smooth scroll
 
-  call dein#add('kien/ctrlp.vim') " Fuzzy file finder
-  "call dein#add('junegunn/fzf.vim')  " asynchronous fuzzy finder, should replace ctrlp if ever to work with huuge projects
+  call dein#add('junegunn/fzf.vim')  " asynchronous fuzzy finder, should replace ctrlp if ever to work with huuge projects
 
   call dein#add('tpope/vim-fugitive') " Git wrapper for vim
   call dein#add('tpope/vim-surround') " change surrounding easily
@@ -169,13 +168,27 @@ let g:lightline.active = {
 
 " }
 
-" CtrlP {
-let g:ctrlp_custom_ignore = {
-    \ 'dir':  '\v(\v[\/]\.(git|hg|svn)$)|(test/data/pgdb)|(\v\.egg-info)',
-    \ 'file': '\v\.(exe|so|dll|pyc)$',
-    \ }
-let g:ctrlp_user_command = 'ag %s -l -U --nocolor -g ""'
-"}
+" fzf {
+function! FzfOmniFiles()
+    let is_git = system('git status')
+    if v:shell_error
+        :Files
+    else
+        :GitFiles
+    endif
+endfunction
+
+nnoremap <leader>g :Ag<CR>
+nnoremap <leader>c :Commands<CR>
+nnoremap <C-p> :call FzfOmniFiles()<CR>
+
+" fzf
+" Hide statusline of terminal buffer
+autocmd! FileType fzf
+autocmd  FileType fzf set laststatus=0 noshowmode noruler
+            \| autocmd BufLeave <buffer> set laststatus=2 showmode ruler
+
+" }
 
 " SuperTab, SimpylFold & FastFold {
 let g:SuperTabMappingForward = '<S-Tab>'
