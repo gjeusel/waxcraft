@@ -178,7 +178,7 @@ function! FzfOmniFiles()
     endif
 endfunction
 
-nnoremap <leader>g :Ag<CR>
+nnoremap <leader>a :Ag<CR>
 nnoremap <leader>c :Commands<CR>
 nnoremap <C-p> :call FzfOmniFiles()<CR>
 
