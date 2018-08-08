@@ -12,6 +12,9 @@ compinit -i
 autoload -U promptinit
 promptinit
 
+autoload bashcompinit
+bashcompinit
+
 # Load the oh-my-zsh's library.
 antigen use oh-my-zsh
 
@@ -67,3 +70,10 @@ fi
 # Source common to bash & zsh:
 source "/${0:1:h}/common.sh"
 
+if type "fasd" > /dev/null; then
+    fasd_cache="$HOME/.fasd-init-bash"
+    eval "$(fasd --init posix-alias bash-hook bash-ccomp bash-ccomp-install >| '$fasd_cache')"
+    source "$fasd_cache"
+    unset fasd_cache
+fi
+alias v='f -e nvim' # quick opening files with vim
