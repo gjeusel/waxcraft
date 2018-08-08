@@ -38,9 +38,8 @@ antigen bundle redis-cli
 antigen bundle tmux
 antigen bundle archlinux
 antigen bundle ytet5uy4/pctl
-
-
-antigen bundle clvv/fasd  # better than z
+antigen bundle z
+antigen bundle fasd  # like z but for vim & other
 
 antigen bundle zsh-users/zsh-syntax-highlighting
 
