@@ -29,10 +29,10 @@
 #c.InteractiveShellApp.exec_files = []
 
 ## lines of code to run at IPython startup.
-c.InteractiveShellApp.exec_lines = [
-    "import PyQt5",
-    "",
-]
+# c.InteractiveShellApp.exec_lines = [
+#     "import PyQt5",
+#     "",
+# ]
 
 ## A list of dotted module names of IPython extensions to load.
 #c.InteractiveShellApp.extensions = []
@@ -45,21 +45,21 @@ c.InteractiveShellApp.exec_lines = [
 
 ## Enable GUI event loop integration with any of ('glut', 'gtk', 'gtk2', 'gtk3',
 #  'osx', 'pyglet', 'qt', 'qt4', 'qt5', 'tk', 'wx', 'gtk2', 'qt4').
-c.InteractiveShellApp.gui = 'qt5'
+# c.InteractiveShellApp.gui = 'qt5'
 
 ## Should variables loaded at startup (by startup files, exec_lines, etc.) be
 #  hidden from tools like %who?
 #c.InteractiveShellApp.hide_initial_ns = True
 
 ## Configure matplotlib for interactive use with the default matplotlib backend.
-c.InteractiveShellApp.matplotlib = None
+# c.InteractiveShellApp.matplotlib = None
 
 ## Run the module as a script.
 #c.InteractiveShellApp.module_to_run = ''
 
 ## Pre-load matplotlib and numpy for interactive use, selecting a particular
 #  matplotlib backend and loop integration.
-c.InteractiveShellApp.pylab = 'qt5'
+# c.InteractiveShellApp.pylab = 'qt5'
 
 ## If true, IPython will populate the user namespace with numpy, pylab, etc. and
 #  an ``import *`` is done from numpy and pylab, when using pylab mode.
