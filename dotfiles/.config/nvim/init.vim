@@ -212,6 +212,8 @@ let g:fastfold_fold_movement_commands = []
 let g:deoplete#enable_profile = 0
 let g:deoplete#sources#jedi#debug_server = 0
 
+let g:deoplete#sources#jedi#enable_cache = 1
+
 let g:deoplete#enable_at_startup = 1
 let g:deoplete#sources#jedi#server_timeout = 40 " extend time for large pkg
 let g:deoplete#sources#jedi#show_docstring = 0  " show docstring in preview window
@@ -692,3 +694,8 @@ endfunction
 "endfunction
 
 "}
+
+" local config
+if !empty(glob("~/.nvimrc_local"))
+    source ~/.nvimrc_local
+endif
