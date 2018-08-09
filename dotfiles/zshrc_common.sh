@@ -42,7 +42,6 @@ antigen bundle tmux
 antigen bundle archlinux
 antigen bundle ytet5uy4/pctl
 antigen bundle z
-antigen bundle fasd  # like z but for vim & other
 
 antigen bundle zsh-users/zsh-syntax-highlighting
 
@@ -69,11 +68,3 @@ fi
 # Up for case if proxy set
 # Source common to bash & zsh:
 source "/${0:1:h}/common.sh"
-
-if type "fasd" > /dev/null; then
-    fasd_cache="$HOME/.fasd-init-bash"
-    eval "$(fasd --init posix-alias bash-hook bash-ccomp bash-ccomp-install >| '$fasd_cache')"
-    source "$fasd_cache"
-    unset fasd_cache
-fi
-alias v='f -e nvim' # quick opening files with vim
