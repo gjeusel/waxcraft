@@ -1,8 +1,9 @@
 "/ vim: set sw=4 ts=4 sts=4 et tw=78 foldmarker={{{,}}} foldlevel=0 foldmethod=marker spell:
+"  _   _   __  __   __  __  _  ___  __   _   _  _  __ __
+" | | | | /  \ \ \_/ / |  \| || __|/__\ | \ / || ||  V  |
+" | 'V' || /\ | > , <  | | ' || _|| \/ |`\ V /'| || \_/ |
+" !_/ \_!|_||_|/_/ \_\ |_|\__||___|\__/   \_/  |_||_| |_|
 
-" Install dein :
-" curl https://raw.githubusercontent.com/Shougo/dein.vim/master/bin/installer.sh > installer.sh
-" sh installer.sh ~/.vim/bundle/
 
 let mapleader=","
 
@@ -218,29 +219,39 @@ let g:fastfold_fold_movement_commands = []
 "}}}
 
 " deoplete {{{
+let g:deoplete#enable_at_startup = 1
+let g:deoplete#auto_complete_delay = 0
+let g:deoplete#sources#jedi#enable_cache = 1
+let g:echodoc_enable_at_startup=1
+
+let g:deoplete#file#enable_buffer_path=1
+call deoplete#custom#source('buffer', 'mark', 'ℬ')
+call deoplete#custom#source('omni', 'mark', '⌾')
+call deoplete#custom#source('file', 'mark', '')
+call deoplete#custom#source('jedi', 'mark', '')
+call deoplete#custom#source('neosnippet', 'mark', '')
+call deoplete#custom#source('LanguageClient', 'mark', '')
 
 " Debug mode
-"call deoplete#enable_logging('DEBUG', '/tmp/deoplete.log')
-let g:deoplete#enable_profile = 0
-let g:deoplete#sources#jedi#debug_server = 0
+" call deoplete#enable_logging('DEBUG', '/tmp/deoplete.log')
+" let g:deoplete#enable_profile = 0
+" let g:deoplete#sources#jedi#debug_server = 0
 
-let g:deoplete#sources#jedi#enable_cache = 1
-
-let g:deoplete#enable_at_startup = 1
+" deoplete jedi for python
 let g:deoplete#sources#jedi#server_timeout = 40 " extend time for large pkg
 let g:deoplete#sources#jedi#show_docstring = 0  " show docstring in preview window
 "autocmd CompleteDone * silent! pclose!
 "set completeopt-=preview  " if you don't want windows popup
 
 " compatibility deoplete & ultisnipts:
-call deoplete#custom#source('ultisnips', 'matchers', ['matcher_fuzzy'])
+"call deoplete#custom#source('ultisnips', 'matchers', ['matcher_fuzzy'])
 
-" Fix deoplete & ultisnips problem with <tab> completion :
-let g:UltiSnipsExpandTrigger = "<S-Tab>" " default to <tab> that override tab deoplete completion
+"" Fix deoplete & ultisnips problem with <tab> completion :
+"let g:UltiSnipsExpandTrigger = "<S-Tab>" " default to <tab> that override tab deoplete completion
 
-let g:UltiSnipsListSnippets = "<c-tab>"
-let g:UltiSnipsJumpForwardTrigger = "<c-j>"
-let g:UltiSnipsJumpBackwardTrigger = "<c-k>"
+"let g:UltiSnipsListSnippets = "<c-tab>"
+"let g:UltiSnipsJumpForwardTrigger = "<c-j>"
+"let g:UltiSnipsJumpBackwardTrigger = "<c-k>"
 
 "}}}
 
@@ -266,6 +277,10 @@ let g:UltiSnipsJumpBackwardTrigger = "<c-k>"
 ""let g:pymode_lint_checkers = ['flake8'] " pep8 code checker
 ""let g:syntastic_python_flake8_args='--ignore=E501'
 ""let g:pymode_lint_cwindow = 0  " do not open quickfix cwindows if errors
+
+let g:jedi#documentation_command = "<leader>k"
+let g:jedi#completions_enabled = 0
+let g:jedi#force_py_version=3
 
 map <Leader>o o__import__('pdb').set_trace()  # BREAKPOINT<C-c>
 map <Leader>i o__import__('IPython').embed()  # Enter Ipython<C-c>
@@ -368,6 +383,16 @@ nnoremap <silent> <F9> :TagbarToggle<CR>
 nnoremap <silent> <F8> :UndotreeToggle<CR>
 "}}}
 
+" Git {{{
+  set signcolumn=yes
+  let g:conflict_marker_enable_mappings = 0
+  let g:gitgutter_sign_added = '•'
+  let g:gitgutter_sign_modified = '•'
+  let g:gitgutter_sign_removed = '•'
+  let g:gitgutter_sign_removed_first_line = '•'
+  let g:gitgutter_sign_modified_removed = '•'
+" }}}
+
 "}}}
 
 " User Interface {{{
@@ -467,8 +492,7 @@ if has("autocmd")
   au BufNewFile,BufRead *.nix set filetype=nix
   au BufNewFile,BufRead *.sh set filetype=sh foldlevel=0 foldmethod=marker
 
-  au BufNewFile,BufRead *.vimrc* set filetype=vim
-  au BufNewFile,BufRead *.vim set filetype=vim tabstop=2
+  au BufNewFile,BufRead Filetype vim setlocal tabstop=2 foldmethod=marker
 
   au BufNewFile,BufRead *.cmake set filetype=cmake
   au BufNewFile,BufRead CMakeLists.txt set filetype=cmake
@@ -617,6 +641,11 @@ noremap <nowait> E ge
 " copy to clipboard :
 vnoremap <Leader>y "+y
 
+noremap H ^
+noremap L g_
+noremap J 5j
+noremap K 5k
+
 " source config
 if !exists('*ActualizeInit')
   function! ActualizeInit()
@@ -625,8 +654,10 @@ if !exists('*ActualizeInit')
   endfunction
 endif
 map <F12> :call ActualizeInit()<cr>
+"}}}
 
-" Profile vim {
+" Custom Functions {{{
+" Profile vim
 function! StartProfiling()
   execute ":profile start /tmp/neovim.profile"
   execute ":profile func *"
@@ -647,7 +678,6 @@ function! ToggleProfiling()
     call EndProfiling()
   endif
 endfunction
-"}
 
 function! ToggleVerbose()
     if !&verbose
@@ -658,14 +688,6 @@ function! ToggleVerbose()
         set verbosefile=
     endif
 endfunction
-
-"" see logs of update
-"command! DeinUpdate  call s:dein_update()
-"function! s:dein_update()
-"  call dein#update()
-"  Denite dein/log:!
-"endfunction
-
 "}}}
 
 " local config
