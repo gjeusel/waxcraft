@@ -142,27 +142,14 @@ class Wax():
     def neovim(self):
         """Install neovim config files."""
         assert shutil.which('nvim') is not None  # check in PATH
-        pcall('wget', [
-              "https://raw.githubusercontent.com/Shougo/dein.vim/master/bin/installer.sh",
-              "-O", (wax_backup_dir / 'installer_dein.sh').as_posix(),
-              ])
-        bundle_dir = Path.home() / '.vim/bundle'
-        if not bundle_dir.exists():
-            bundle_dir.mkdir(parents=True)  # mkdir -r
 
-        pcall('sh', [(wax_backup_dir / 'installer_dein.sh').as_posix(),
-                     bundle_dir.as_posix(), ])
+        nvim_init = '.config/nvim/init.vim'
 
-        nvim_dir = Path.home() / '.config/nvim'
-
-        if nvim_dir.exists():
-            if nvim_dir.is_symlink():
-                nvim_dir.unlink()
-            else:
-                shutil.copy(nvim_dir.as_posix(), wax_backup_dir.as_posix())
-                nvim_dir.rmdir()
-        nvim_dir.symlink_to(wax_dotfile_dir / '.config/nvim',
-                            target_is_directory=True)
+        self._symlink_lst_files(
+            relative_paths=[nvim_init],
+            from_dir=Path.home(),
+            target_dir=wax_dotfile_dir,
+        )
 
     def _common_bash_zsh(self):
         relative_paths = ['.bash_aliases', '.inputrc',

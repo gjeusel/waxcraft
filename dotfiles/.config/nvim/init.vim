@@ -1,128 +1,143 @@
-"/ vim: set sw=4 ts=4 sts=4 et tw=78 foldmarker={,} foldlevel=0 foldmethod=marker spell:
+"/ vim: set sw=4 ts=4 sts=4 et tw=78 foldmarker={{{,}}} foldlevel=0 foldmethod=marker spell:
 
 " Install dein :
 " curl https://raw.githubusercontent.com/Shougo/dein.vim/master/bin/installer.sh > installer.sh
 " sh installer.sh ~/.vim/bundle/
 
-if &compatible
-  set nocompatible
-endif
-set runtimepath+=~/.vim/bundle/repos/github.com/Shougo/dein.vim/
 let mapleader=","
 
-" Plugins dein declarations {
+" Plugins {{{
 
-" path to where to store plugins:
-if dein#load_state('~/.vim/bundle')
-  call dein#begin('~/.vim/bundle')
+" Setup dein
+  if (!isdirectory(expand("$HOME/.config/nvim/repos/github.com/Shougo/dein.vim")))
+    call system(expand("mkdir -p $HOME/.config/nvim/repos/github.com"))
+    call system(expand("git clone https://github.com/Shougo/dein.vim $HOME/.config/nvim/repos/github.com/Shougo/dein.vim"))
+  endif
 
-  " path to plugin manager:
-  call dein#add('~/.vim/bundle/repos/github.com/Shougo/dein.vim/')
+  set runtimepath+=~/.config/nvim/repos/github.com/Shougo/dein.vim/
+  call dein#begin(expand('~/.config/nvim'))
 
-  " tmux navigation in love with vim
-  call dein#add('christoomey/vim-tmux-navigator')
+  call dein#add('Shougo/dein.vim')
 
-  " User Interface {
-  call dein#add('itchyny/lightline.vim')
-  call dein#add('ap/vim-buftabline')
-  call dein#add('altercation/vim-colors-solarized')
-
-  " Syntax highlight
-  call dein#add('LnL7/vim-nix')  " for .nix
-  call dein#add('cespare/vim-toml')  " syntax for .toml
-  call dein#add('luochen1990/rainbow')  " embed parenthesis colors
-
-  call dein#add('airblade/vim-gitgutter') " column sign for git changes
-  call dein#add('rhysd/conflict-marker.vim') " conflict markers for vimdiff
-  "}
-
-  " Generic tools {
+" System {{{
+  call dein#add('christoomey/vim-tmux-navigator') " tmux navigation in love with vim
+  call dein#add('scrooloose/nerdcommenter')  " easy comments
   call dein#add('terryma/vim-smooth-scroll')  " smooth scroll
 
-  call dein#add('junegunn/fzf.vim')  " asynchronous fuzzy finder, should replace ctrlp if ever to work with huuge projects
-
-  call dein#add('tpope/vim-fugitive') " Git wrapper for vim
   call dein#add('tpope/vim-surround') " change surrounding easily
   call dein#add('tpope/vim-repeat') " better action repeat for vim-surround with .
-
-  "call dein#add('jiangmiao/auto-pairs') " auto pair
-  call dein#add('godlygeek/tabular') " tabularize
-  call dein#add('dhruvasagar/vim-table-mode')  " to easily create tables.
-  call dein#add('majutsushi/tagbar') " browsing the tags, require ctags
-  call dein#add('scrooloose/nerdcommenter')  " easy comments
-  call dein#add('mbbill/undotree')  " visualize undo tree
-
   call dein#add('vim-scripts/loremipsum')  " dummy text generator (:Loremipsum [number of words])
-
-  " Snippets
-  call dein#add('SirVer/ultisnips') " snippets engine handle
-  call dein#add('honza/vim-snippets') " those are the snippets
-
-  call dein#add('Konfekt/FastFold')  " update folds only when needed, otherwise folds slowdown vim
-
   call dein#add('easymotion/vim-easymotion')  " easymotion when fedup to think
   call dein#add('skywind3000/asyncrun.vim')  " run async shell commands
-  "}
+  call dein#add('Konfekt/FastFold')  " update folds only when needed, otherwise folds slowdown vim
+  call dein#add('junegunn/vim-easy-align')  " easy alignment, better than tabularize
+  call dein#add('majutsushi/tagbar') " browsing the tags, require ctags
+  call dein#add('mattn/gist-vim')  " easily upload gist on github
+  call dein#add('mbbill/undotree')  " visualize undo tree
+  call dein#add('jiangmiao/auto-pairs') " auto pair
 
-  " Completion engine {
-  call dein#add('ervandew/supertab') " tab handler for better autocompletion
+  call dein#add('terryma/vim-multiple-cursors')  " nice plugin for multiple cursors
+  call dein#add('junegunn/fzf.vim')  " asynchronous fuzzy finder, should replace ctrlp if ever to work with huuge projects
+"}}}
 
+" User Interface {{{
+  call dein#add('scrooloose/nerdtree')  " file tree
+  call dein#add('itchyny/lightline.vim')  " light status line
+  call dein#add('ap/vim-buftabline')  " buffer line
+  call dein#add('Shougo/defx.nvim')  " thin indent line
+  call dein#add('rhysd/conflict-marker.vim') " conflict markers for vimdiff
+  call dein#add('luochen1990/rainbow')  " embed parenthesis colors
+  call dein#add('altercation/vim-colors-solarized')  " prefered colorscheme
+  "call dein#add('morhetz/gruvbox') " other nice colorscheme
+" }}}
+
+" Other languages syntax highlight {{{
+  call dein#add('LnL7/vim-nix')  " for .nix
+  call dein#add('cespare/vim-toml')  " syntax for .toml
+  call dein#add('tmux-plugins/vim-tmux')  " syntax highlight for .tmux.conf file
+
+"}}}
+
+" Git {{{
+  call dein#add('airblade/vim-gitgutter') " column sign for git changes
+  call dein#add('tpope/vim-fugitive') " Git wrapper for vim
+  call dein#add('tpope/vim-rhubarb')  " GitHub extension for fugitive.vim
+  "call dein#add('jreybert/vimagit', {'on_cmd': ['Magit', 'MagitOnly']}) " magit for vim
+" }}}
+
+" markdown & rst {{{
+  call dein#add('dhruvasagar/vim-table-mode')  " to easily create tables.
+  call dein#add('rhysd/vim-grammarous')  " grammar checker
+  call dein#add('junegunn/goyo.vim')  "  Distraction-free writing in Vim
+
+  " plugin that adds asynchronous Markdown preview to Neovim
+  " > cargo build --release   # should be run in vim-markdown-composer after
+  " installation
+  call dein#add('euclio/vim-markdown-composer', {'build': 'cargo build --release'})
+" }}}
+
+" Completion {{{
+  call dein#add('ervandew/supertab') " use <Tab> for all your insert completion
   call dein#add('Shougo/deoplete.nvim')  " async engine
-  call dein#add('carlitux/deoplete-ternjs')  " for javascript
-  call dein#add('zchee/deoplete-jedi') " for python
-  call dein#add('zchee/deoplete-go') " for golang
+
+  call dein#add('Shougo/neoinclude.vim')  " completion framework for neocomplete/deoplete
   call dein#add('Shougo/neco-vim') " for vim
-  call dein#add('mattn/emmet-vim') " for html - CSS - javascript
 
-  " }
+  call dein#add('zchee/deoplete-jedi') " for python
+  call dein#add('zchee/deoplete-go', {'build': 'make'})  " for golang
+  call dein#add('carlitux/deoplete-ternjs')  " for javascript
 
-  " Syntax Check {
-  call dein#add('Shougo/neco-syntax') " syntax source for neocomplete
+  call dein#add('Shougo/echodoc.vim') " displays function signatures from completions in the command line.
+" }}}
+
+" Code Style {{{
   call dein#add('w0rp/ale')  " general asynchronous syntax checker
-  call dein#add('wooorm/alex')  " general syntax checker
-  call dein#add('yaniswang/HTMLHint')  " html
-  call dein#add('eslint/eslint')  " js
-  "}
+  call dein#add('editorconfig/editorconfig-vim')  " EditorConfig plugin for Vim
+"}}}
 
-  " Specific Languages {
-
-  " Python
-  call dein#add('tmhedberg/SimpylFold')  " better folds
-  call dein#add('python-mode/python-mode')
-  call dein#add('davidhalter/jedi-vim')
-  call dein#add('tell-k/vim-autopep8')
+" Python {{{
+  call dein#add('tmhedberg/SimpylFold', {'on_ft': 'python'})  " better folds
+  call dein#add('davidhalter/jedi-vim', {'on_ft': ['python', 'markdown', 'rst']})
+  call dein#add('tell-k/vim-autopep8', {'on_ft': 'python'})  " still kept for ranged syntax fix
+  "call dein#add('python-mode/python-mode')
   "call dein#add('nvie/vim-flake8')
-  "}
+"}}}
 
-  " Html {
+" Javascript, Html & CSS {{{
+  call dein#add('wooorm/alex')  " general syntax checker
+
+  call dein#add('eslint/eslint')  " javascript
+
+  "call dein#add('othree/html5.vim')  " HTML5 omnicomplete and syntax
+  call dein#add('yaniswang/HTMLHint')  " html
   call dein#add('tmhedberg/matchit')  " % for matching tag
   call dein#add('rstacruz/sparkup')  " for html auto generation
-  "}
 
-  call dein#end()
-  call dein#save_state()
-endif
-"}
+  call dein#add('mattn/emmet-vim') " for html - CSS - javascript
 
-" Dein cfg {
-" ask for log file
-let g:dein#install_log_filename = '~/.vim/dein.log'
+  call dein#add('ap/vim-css-color')  " change bg color in css for colors
+"}}}
 
-"If you want to install not installed plugins on startup.
-if dein#check_install()
-call dein#install()
-endif
-"}
+" Golang {{{
+  call dein#add('fatih/vim-go')
+" }}}
 
-" Plugin configuration{
+" Snippets {{{
+  call dein#add('Shougo/neosnippet.vim')
+  call dein#add('Shougo/neosnippet-snippets')
+  call dein#add('honza/vim-snippets') " those are the snippets
+"}}}
 
-" Tabular {
-function! MapTabularInit()
-    noremap <Leader>t :Tabularize /
-    vnoremap <Leader>t :Tabularize /
-endfunction
-autocmd VimEnter * call MapTabularInit()
-"}
+  if dein#check_install()
+    let g:dein#install_log_filename = '~/.config/nvim/dein.log' " ask for log file
+    call dein#install()
+    let pluginsExist=1
+  endif
+
+call dein#end()
+"}}}
+
+" Plugin configuration {{{
 
 " Easymotion {
 function! MapEasymotionInit()
@@ -185,7 +200,7 @@ nnoremap <C-p> :call FzfOmniFiles()<CR>
 " fzf
 " Hide statusline of terminal buffer
 autocmd! FileType fzf
-autocmd  FileType fzf set laststatus=0 noshowmode noruler
+autocmd  FileType fzf set laststatus=0 noruler
             \| autocmd BufLeave <buffer> set laststatus=2 showmode ruler
 
 " }
@@ -355,11 +370,12 @@ nnoremap <silent> <F9> :TagbarToggle<CR>
 nnoremap <silent> <F8> :UndotreeToggle<CR>
 "}
 
-" }
+"}}}
 
 " User Interface {
 filetype plugin indent on
 syntax enable
+
 set background=dark
 colorscheme solarized
 
@@ -368,7 +384,9 @@ set mousehide           " Hide the mouse cursor while typing
 set number              " display line number column
 set ruler               " Show the cursor position all the time
 set cursorline          " Highlight the line of the cursor
-set guicursor=
+set guicursor=          " disable cursor-styling
+set noshowmode          " do not put a message on the cmdline for the mode ('insert', 'normal', ...)
+
 set scrolljump=5        " Lines to scroll when cursor leaves screen
 set scrolloff=3         " Have some context around the current line always on screen
 set virtualedit=onemore " Allow for cursor beyond last character
@@ -398,10 +416,10 @@ set wildmenu                    " Show list instead of just completing
 set wildmode=list:longest,full  " Command <Tab> completion, list matches, then longest common part, then all.
 
 " Whitespace
-set nowrap                        " don't wrap lines
-set tabstop=4                     " a tab is two spaces
-set shiftwidth=4                  " an autoindent (with <<) is two spaces
-set list " show the following:
+set nowrap                " don't wrap lines
+set tabstop=2 expandtab   " a tab is two spaces
+set shiftwidth=2          " an autoindent (with <<) is two spaces
+set list                  " show the following:
 set listchars=tab:›\ ,trail:•,extends:#,nbsp:. " Highlight problematic whitespace
 
 " Backup
