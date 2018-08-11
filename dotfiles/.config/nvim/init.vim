@@ -252,8 +252,27 @@ let g:deoplete#sources#jedi#show_docstring = 0  " show docstring in preview wind
 "let g:UltiSnipsListSnippets = "<c-tab>"
 "let g:UltiSnipsJumpForwardTrigger = "<c-j>"
 "let g:UltiSnipsJumpBackwardTrigger = "<c-k>"
-
 "}}}
+
+" Snippets {{{
+" I don't realy use backward search movement, so let's remap it
+imap <C-Tab>     <Plug>(neosnippet_expand_or_jump)
+smap <C-Tab>     <Plug>(neosnippet_expand_or_jump)
+xmap <C-Tab>     <Plug>(neosnippet_expand_target)
+
+" SuperTab like snippets behavior.
+imap <expr><TAB>
+ \ pumvisible() ? "\<C-n>" :
+ \ neosnippet#expandable_or_jumpable() ?
+ \    "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>"
+
+" For conceal markers.
+if has('conceal')
+  set conceallevel=2 concealcursor=niv
+endif
+
+" }}}
+
 
 " Pymode {{{
 "let g:pymode_indent = 1 " pep8 indent
@@ -649,7 +668,7 @@ noremap K 5k
 " source config
 if !exists('*ActualizeInit')
   function! ActualizeInit()
-    "call dein#recache_runtimepath()
+    call dein#recache_runtimepath()
     source ${HOME}/.config/nvim/init.vim
   endfunction
 endif
