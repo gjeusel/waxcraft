@@ -139,38 +139,35 @@ call dein#end()
 
 " Plugin configuration {{{
 
-" Easymotion {
-function! MapEasymotionInit()
-    let g:EasyMotion_smartcase = 1
-    " bd for bidirectional :
-    map <nowait><leader><leader> <Plug>(easymotion-bd-w)
+" Easymotion {{{
+let g:EasyMotion_smartcase = 1
+" bd for bidirectional :
+map <nowait><leader><leader> <Plug>(easymotion-bd-w)
 
-    map <nowait><leader>f <Plug>(easymotion-bd-f)
+map <nowait><leader>f <Plug>(easymotion-bd-f)
 
-    map <nowait><Leader>l <Plug>(easymotion-lineforward)
-    map <nowait><Leader>j <Plug>(easymotion-j)
-    map <nowait><Leader>k <Plug>(easymotion-k)
-    map <nowait><Leader>h <Plug>(easymotion-linebackward)
+map <nowait><Leader>l <Plug>(easymotion-lineforward)
+map <nowait><Leader>j <Plug>(easymotion-j)
+map <nowait><Leader>k <Plug>(easymotion-k)
+map <nowait><Leader>h <Plug>(easymotion-linebackward)
 
-    " beginning of words :
-    map <nowait><leader>z <Plug>(easymotion-w)
-    map <nowait><leader>Z <Plug>(easymotion-b)
+" beginning of words :
+map <nowait><leader>z <Plug>(easymotion-w)
+map <nowait><leader>Z <Plug>(easymotion-b)
 
-    " end of words :
-    map <nowait><leader>e <Plug>(easymotion-e)
-    map <nowait><leader>E <Plug>(easymotion-ge)
-endfunction
-autocmd VimEnter * call MapEasymotionInit()
-" }
+" end of words :
+map <nowait><leader>e <Plug>(easymotion-e)
+map <nowait><leader>E <Plug>(easymotion-ge)
+" }}}
 
-" Smooth Scroll {
+" Smooth Scroll {{{
 noremap <silent> <c-u> :call smooth_scroll#up(&scroll, 0, 2)<CR>
 noremap <silent> <c-d> :call smooth_scroll#down(&scroll, 0, 2)<CR>
 noremap <silent> <c-b> :call smooth_scroll#up(&scroll*2, 0, 4)<CR>
 noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 0, 4)<CR>
-" }
+" }}}
 
-" lightline {
+" lightline {{{
 " https://github.com/itchyny/lightline.vim/issues/87
 let g:lightline = {'colorscheme': 'solarized'}
 
@@ -181,9 +178,9 @@ let g:lightline.active = {
     \            [ 'percent' ],
     \            [ 'absolutepath', 'filetype' ] ] }
 
-" }
+" }}}
 
-" fzf {
+" fzf {{{
 function! FzfOmniFiles()
     let is_git = system('git status')
     if v:shell_error
@@ -200,12 +197,12 @@ nnoremap <C-p> :call FzfOmniFiles()<CR>
 " fzf
 " Hide statusline of terminal buffer
 autocmd! FileType fzf
-autocmd  FileType fzf set laststatus=0 noruler
+autocmd  FileType fzf set laststatus=0 noshowmode noruler
             \| autocmd BufLeave <buffer> set laststatus=2 showmode ruler
 
-" }
+" }}}
 
-" SuperTab, SimpylFold & FastFold {
+" SuperTab, SimpylFold & FastFold {{{
 let g:SuperTabMappingForward = '<S-Tab>'
 let g:SuperTabMappingBackward = '<Tab>'
 
@@ -218,9 +215,9 @@ let g:SimpylFold_fold_import = 0
 let g:fastfold_savehook = 1
 let g:fastfold_fold_command_suffixes = []
 let g:fastfold_fold_movement_commands = []
-"}
+"}}}
 
-" deoplete {
+" deoplete {{{
 
 " Debug mode
 "call deoplete#enable_logging('DEBUG', '/tmp/deoplete.log')
@@ -245,42 +242,43 @@ let g:UltiSnipsListSnippets = "<c-tab>"
 let g:UltiSnipsJumpForwardTrigger = "<c-j>"
 let g:UltiSnipsJumpBackwardTrigger = "<c-k>"
 
-"}
+"}}}
 
-" Pymode {
-let g:pymode_indent = 1 " pep8 indent
-let g:pymode_folding = 0 " disable folding to use SimpyFold
-let g:pymode_motion = 1
-" doc
-let g:pymode_doc = 1
-let g:pymode_doc_bind = 'K'
-" syntax (colors for self keyword for example)
-let g:pymode_syntax = 1
-let g:pymode_syntax_all = 1
-let g:pymode_syntax_slow_sync = 1 " slower syntax sync
-let g:pymode_trim_whitespaces = 0 " do not trim unused white spaces on save
+" Pymode {{{
+"let g:pymode_indent = 1 " pep8 indent
+"let g:pymode_folding = 0 " disable folding to use SimpyFold
+"let g:pymode_motion = 1
+"" doc
+"let g:pymode_doc = 1
+"let g:pymode_doc_bind = 'K'
+"" syntax (colors for self keyword for example)
+"let g:pymode_syntax = 1
+"let g:pymode_syntax_all = 1
+"let g:pymode_syntax_slow_sync = 1 " slower syntax sync
+"let g:pymode_trim_whitespaces = 0 " do not trim unused white spaces on save
 
-" Code completion :
-let g:pymode_rope = 0 " disable rope which is slow
+"" Code completion :
+"let g:pymode_rope = 0 " disable rope which is slow
 
-" Python code checking :
-let g:pymode_lint = 0  " disable it to use ALE
-"let g:pymode_lint_on_write = 0
-"let g:pymode_lint_checkers = ['flake8'] " pep8 code checker
-"let g:syntastic_python_flake8_args='--ignore=E501'
-"let g:pymode_lint_cwindow = 0  " do not open quickfix cwindows if errors
+"" Python code checking :
+"let g:pymode_lint = 0  " disable it to use ALE
+""let g:pymode_lint_on_write = 0
+""let g:pymode_lint_checkers = ['flake8'] " pep8 code checker
+""let g:syntastic_python_flake8_args='--ignore=E501'
+""let g:pymode_lint_cwindow = 0  " do not open quickfix cwindows if errors
 
 map <Leader>o o__import__('pdb').set_trace()  # BREAKPOINT<C-c>
 map <Leader>i o__import__('IPython').embed()  # Enter Ipython<C-c>
 
-"}
+"}}}
 
-" Lint ALE {
+" Lint ALE {{{
 let g:ale_linter_aliases = {
     \ 'html': ['html', 'javascript', 'css'],
     \}
 
 let g:ale_python_autopep8_options = '--max-line-length 160'
+
 let g:ale_linters = {
             \ 'python': ['flake8'],
             \ 'text': ['alex', 'proselint'],
@@ -309,16 +307,16 @@ map <nowait><silent> <A-s> <Plug>(ale_next_wrap)
 " autofix when in normal mode for all file and keep autopep8 for fix on range
 " (i.e keep autopep8 for fix in visualmode)
 noremap <leader>p :ALEFix <cr>
-"}
+"}}}
 
-" Autopep8 {
+" Autopep8 {{{
 let g:autopep8_disable_show_diff=1 " disable show diff windows
 "let g:autopep8_ignore="E501" " ignore line too long
 let g:jedi#auto_close_doc = 1 " Automatically close preview windows upon leaving insert mode
 vnoremap <leader>p :Autopep8<CR>
-"}
+"}}}
 
-" Jedi {
+" Jedi {{{
 let g:jedi#completions_enabled = 0
 let g:jedi#use_tabs_not_buffers = 0  " current default is 1.
 let g:jedi#smart_auto_mappings = 0  " disable import completion keyword
@@ -328,9 +326,9 @@ let g:jedi#auto_initialization = 1 " careful, it set omnifunc that is unwanted
 let g:jedi#show_call_signatures = 2  " do show the args of func in cmdline
 " buggy:
 "let g:jedi#auto_vim_configuration = 0  " set completeopt & rempas ctrl-C to Esc
-" }
+" }}}
 
-" AsyncRun {
+" AsyncRun {{{
 " Quick run via <F10>
 nnoremap <F10> :call <SID>compile_and_run()<CR>
 
@@ -354,25 +352,25 @@ function! s:compile_and_run()
        exec "AsyncRun! time python %"
     endif
 endfunction
-"}
+"}}}
 
-" Table Mode {
+" Table Mode {{{
 " Restructured text compatible
 au BufNewFile,BufRead *.rst let g:table_mode_header_fillchar='='
 au BufNewFile,BufRead *.rst let g:table_mode_corner_corner='+'
 au BufNewFile,BufRead *.py let g:table_mode_header_fillchar='='
 au BufNewFile,BufRead *.py let g:table_mode_corner_corner='+'
 au BufNewFile,BufRead *.md let g:table_mode_corner='|'
-"}
+"}}}
 
-" TagBar & UndoTree {
+" TagBar & UndoTree {{{
 nnoremap <silent> <F9> :TagbarToggle<CR>
 nnoremap <silent> <F8> :UndotreeToggle<CR>
-"}
+"}}}
 
 "}}}
 
-" User Interface {
+" User Interface {{{
 filetype plugin indent on
 syntax enable
 
@@ -394,19 +392,14 @@ set hidden              " Allow backgrounding buffers without writin them, and r
 set foldenable          " Auto fold code
 set splitright          " split at the right of current buffer (left default behaviour)
 set splitbelow          " split at the below of current buffer (top default behaviour)
-set relativenumber                                                                                " relative line number
+set relativenumber      " relative line number
+
+let g:indentLine_color_gui = '#343d46'  " indent line color got indentLine plugin
 
 " columns
 set colorcolumn=80 " Show vertical bar at column 80
 sign define dummy
 execute 'sign place 9999 line=1 name=dummy buffer=' . bufnr('')
-highlight SignColumn        cterm=none ctermbg=none
-highlight SignifySignAdd    cterm=bold ctermbg=none ctermfg=64
-highlight SignifySignDelete cterm=none ctermbg=none ctermfg=136
-highlight SignifySignChange cterm=none ctermbg=none ctermfg=124
-highlight Folded                       ctermbg=none
-highlight foldcolumn                   ctermbg=none ctermfg=none
-highlight TermCursorNC      cterm=none ctermbg=14   ctermfg=none
 
 " transparent
 hi Normal guibg=none ctermbg=none
@@ -422,47 +415,12 @@ set shiftwidth=2          " an autoindent (with <<) is two spaces
 set list                  " show the following:
 set listchars=tab:›\ ,trail:•,extends:#,nbsp:. " Highlight problematic whitespace
 
-" Backup
-" Initialize directories {
-function! InitializeDirectories()
-    let parent = $HOME
-    let prefix = 'vim'
-    let dir_list = {
-                \ 'backup': 'backupdir',
-                \ 'views': 'viewdir',
-                \ 'swap': 'directory' }
-
-    if has('persistent_undo')
-        let dir_list['undo'] = 'undodir'
-    endif
-
-    let common_dir = parent . '/.' . prefix
-
-    for [dirname, settingname] in items(dir_list)
-        let directory = common_dir . dirname . '/'
-        if exists("*mkdir")
-            if !isdirectory(directory)
-                call mkdir(directory)
-            endif
-        endif
-        if !isdirectory(directory)
-            echo "Warning: Unable to create backup directory: " . directory
-            echo "Try: mkdir -p " . directory
-        else
-            let directory = substitute(directory, " ", "\\\\ ", "g")
-            exec "set " . settingname . "=" . directory
-        endif
-    endfor
-endfunction
-call InitializeDirectories()
-" }
-
 set viewoptions=folds,cursor,unix,slash " Better Unix / Windows compatibility
 set backup                              " Backups are nice ...
 if has('persistent_undo')
-  set undofile                          " So is persistent undo ...
-  set undolevels=1000                   " Maximum number of changes that can be undone
-  set undoreload=10000                  " Maximum number lines to save for undo on a buffer reload
+  set undofile              " So is persistent undo ...
+  set undolevels=1000       " Maximum number of changes that can be undone
+  set undoreload=10000      " Maximum number lines to save for undo on a buffer reload
 endif
 
 " Searching
@@ -478,7 +436,9 @@ if has('clipboard')
   endif
 endif
 
-" Autocmd
+"}}}
+
+" Autocmd {{{
 if has("autocmd")
   " Delete empty space from the end of lines on every save
   "au BufWritePre * :%s/\s\+$//e
@@ -500,23 +460,20 @@ if has("autocmd")
 
   " Python
   au BufRead,BufNewFile *.py setlocal filetype=python
-  au BufRead,BufNewFile *.py setlocal shiftwidth=4
-  au BufRead,BufNewFile *.py setlocal tabstop=4
-  au BufRead,BufNewFile *.py setlocal softtabstop=4
+  au BufRead,BufNewFile *.py setlocal shiftwidth=4 tabstop=4 softtabstop=4
   au BufRead,BufNewFile *.py setlocal textwidth=79
 
-  " other
-  au BufNewFile,BufRead *.cuf set filetype=fortran
-  au BufNewFile,BufRead *.nml set filetype=fortran
-  au BufNewFile,BufRead *.namelist set filetype=fortran
+  " Other
   au BufNewFile,BufRead *.nix set filetype=nix
   au BufNewFile,BufRead *.sh set filetype=sh foldlevel=0 foldmethod=marker
+
   au BufNewFile,BufRead *.vimrc* set filetype=vim
   au BufNewFile,BufRead *.vim set filetype=vim tabstop=2
+
   au BufNewFile,BufRead *.cmake set filetype=cmake
   au BufNewFile,BufRead CMakeLists.txt set filetype=cmake
-  au BufNewFile,BufRead *.json set filetype=json
 
+  au BufNewFile,BufRead *.json set filetype=json
 
   au BufNewFile,BufRead *.txt set filetype=sh
 
@@ -532,7 +489,7 @@ if has("autocmd")
 
 endif
 
-"}
+"}}}
 
 " Times choices:
 set ttimeoutlen=10
@@ -544,9 +501,9 @@ augroup FastEscape
   au InsertLeave * set timeoutlen=500
 augroup END
 
-" Key (re)Mappings {
+" Mappings {{{
 
-" Behaviour fixes {
+" Behaviour fixes {{{
 
 " quick escape:
 map <nowait> <Esc> <C-c>
@@ -558,14 +515,14 @@ cmap <a-bs> <c-w>
 " Avoid vim history cmd to pop up with q:
 nnoremap q: <Nop>
 
-" map open terminal
-map <nowait> <A-t> :vsplit \| terminal <CR>
-
 " Nvim Terminal
 " Make escape work in the Neovim terminal.
 tnoremap <Esc> <C-\><C-n>
 
-" }
+" }}}
+
+" map open terminal
+map <nowait> <A-t> :vsplit \| terminal <CR>
 
 " clear the search highlight
 nnoremap <leader>; :nohl<cr>
@@ -592,15 +549,10 @@ inoremap <c-j> <c-\><c-n><c-w>j
 inoremap <c-k> <c-\><c-n><c-w>k
 inoremap <c-l> <c-\><c-n><c-w>l
 
-" map Ctrl+S to :w
-noremap <silent> <C-S>  :update<CR>
-vnoremap <silent> <C-S>  :update<CR>
-inoremap <silent> <C-S>  :update<CR>
-
 " For when you forget to sudo.. Really Write the file.
 cmap w!! w !sudo tee % >/dev/null
 
-" Buffers {
+" Buffers {{{
 " --> About buffers switch
 " Little snippet to get all alt key mapping functional :
 " works for alt-a .. alt-z
@@ -615,19 +567,22 @@ map <nowait> <A-z> :bn<cr>
 
 " buffer delete without closing windows :
 nmap <silent> <A-d> :bp\|bd! #<CR>
-"}
+"}}}
 
 " Split windows
 map <nowait> <A-e> :vs %<cr>
 map <nowait> <A-r> :sp %<cr>
 
-" Folding binds : {
-" --> About folding open and close :
+" About folding open and close :
 nnoremap <Space> za
 vnoremap <Space> za
-" }
 
-" qwerty --> azerty {
+" qwerty --> azerty {{{
+noremap w z
+noremap z w
+
+nnoremap ww zz
+nnoremap zz ww
 
 " Some motions
 vnoremap ww zz
@@ -657,7 +612,7 @@ noremap <nowait> z w
 noremap <nowait> Z b
 noremap <nowait> e e
 noremap <nowait> E ge
-"}
+"}}}
 
 " copy to clipboard :
 vnoremap <Leader>y "+y
@@ -711,7 +666,7 @@ endfunction
 "  Denite dein/log:!
 "endfunction
 
-"}
+"}}}
 
 " local config
 if !empty(glob("~/.nvimrc_local"))
