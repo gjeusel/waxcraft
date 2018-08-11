@@ -44,6 +44,7 @@ antigen bundle ytet5uy4/pctl
 antigen bundle z
 
 antigen bundle zsh-users/zsh-syntax-highlighting
+antigen bundle zsh-users/zsh-autosuggestions
 
 # Theme
 antigen theme https://github.com/denysdovhan/spaceship-prompt spaceship
@@ -68,3 +69,6 @@ fi
 # Up for case if proxy set
 # Source common to bash & zsh:
 source "/${0:1:h}/common.sh"
+
+export TERM="xterm-256color"
+export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=240"
