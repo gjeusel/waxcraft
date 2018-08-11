@@ -72,3 +72,6 @@ source "/${0:1:h}/common.sh"
 
 export TERM="xterm-256color"
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=240"
+
+# Bind ctrl + space
+bindkey '^ ' autosuggest-accept
