@@ -157,6 +157,7 @@ class Wax():
                           '.config/flake8',
                           '.tmux.conf',
                           '.conkyrc',
+                          '.config/tmuxinator'
                           ]
         self._symlink_lst_files(relative_paths, Path.home(), wax_dotfile_dir)
 

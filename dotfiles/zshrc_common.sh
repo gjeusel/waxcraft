@@ -94,3 +94,7 @@ vfzf() {
 # type fzf
 # (^M) to execute the line
 bindkey -s "^P" "^Uvfzf^M"
+
+if [ -f "~/.bin/tmuxinator.zsh" ]; then
+  source ~/.bin/tmuxinator.zsh
+fi
