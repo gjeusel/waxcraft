@@ -143,24 +143,27 @@ call dein#end()
 " Plugin configuration {{{
 
 " Easymotion {{{
-let g:EasyMotion_smartcase = 1
-" bd for bidirectional :
-map <nowait><leader><leader> <Plug>(easymotion-bd-w)
+function! MapEasymotionInit()
+    let g:EasyMotion_smartcase = 1
+    " bd for bidirectional :
+    map <nowait><leader><leader> <Plug>(easymotion-bd-w)
 
-map <nowait><leader>f <Plug>(easymotion-bd-f)
+    map <nowait><leader>f <Plug>(easymotion-bd-f)
 
-map <nowait><Leader>l <Plug>(easymotion-lineforward)
-map <nowait><Leader>j <Plug>(easymotion-j)
-map <nowait><Leader>k <Plug>(easymotion-k)
-map <nowait><Leader>h <Plug>(easymotion-linebackward)
+    map <nowait><Leader>l <Plug>(easymotion-lineforward)
+    map <nowait><Leader>j <Plug>(easymotion-j)
+    map <nowait><Leader>k <Plug>(easymotion-k)
+    map <nowait><Leader>h <Plug>(easymotion-linebackward)
 
-" beginning of words :
-map <nowait><leader>z <Plug>(easymotion-w)
-map <nowait><leader>Z <Plug>(easymotion-b)
+    " beginning of words :
+    map <nowait><leader>z <Plug>(easymotion-w)
+    map <nowait><leader>Z <Plug>(easymotion-b)
 
-" end of words :
-map <nowait><leader>e <Plug>(easymotion-e)
-map <nowait><leader>E <Plug>(easymotion-ge)
+    " end of words :
+    map <nowait><leader>e <Plug>(easymotion-e)
+    map <nowait><leader>E <Plug>(easymotion-ge)
+endfunction
+autocmd VimEnter * call MapEasymotionInit()
 " }}}
 
 " Smooth Scroll {{{
@@ -507,14 +510,13 @@ set listchars=tab:›\ ,trail:•,extends:#,nbsp:. " Highlight problematic white
 
 set viewoptions=folds,cursor,unix,slash " Better Unix / Windows compatibility
 set backup                              " Backups are nice ...
+set backupdir=~/.vimbackup/
 if has('persistent_undo')
   set undofile              " So is persistent undo ...
   set undolevels=1000       " Maximum number of changes that can be undone
   set undoreload=10000      " Maximum number lines to save for undo on a buffer reload
+  set undodir=~/.vimundo/
 endif
-" Directories for undo & backup
-set undodir="$HOME/.vimundo/"
-set backupdir="$HOME/.vimbackup"
 
 " Searching
 set ignorecase " searches are case insensitive...
