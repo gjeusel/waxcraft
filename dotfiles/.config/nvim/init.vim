@@ -672,8 +672,8 @@ nmap <silent> <A-d> :bp\|bd! #<CR>
 "}}}
 
 " Split windows
-map <nowait> <A-e> :vs %<cr>
-map <nowait> <A-r> :sp %<cr>
+map <nowait> <A-e> :vs<cr>
+map <nowait> <A-r> :sp<cr>
 
 " About folding open and close :
 nnoremap <Space> za
