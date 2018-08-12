@@ -4,7 +4,8 @@
 " | 'V' || /\ | > , <  | | ' || _|| \/ |`\ V /'| || \_/ |
 " !_/ \_!|_||_|/_/ \_\ |_|\__||___|\__/   \_/  |_||_| |_|
 
-set encoding=UTF-8
+scriptencoding utf-8
+set encoding=utf-8
 let mapleader=","
 
 " Plugins {{{
@@ -39,6 +40,8 @@ let mapleader=","
 
   call dein#add('terryma/vim-multiple-cursors')  " nice plugin for multiple cursors
   call dein#add('junegunn/fzf.vim')  " asynchronous fuzzy finder, should replace ctrlp if ever to work with huuge projects
+
+  call dein#add('wincent/loupe')  " better focus on current highlight search
 "}}}
 
 " User Interface {{{
@@ -488,6 +491,13 @@ set splitright          " split at the right of current buffer (left default beh
 set splitbelow          " split at the below of current buffer (top default behaviour)
 set relativenumber      " relative line number
 
+set fillchars=vert:│    " box drawings heavy vertical (U+2503, UTF-8: E2 94 83)
+highlight VertSplit ctermbg=none
+
+if has('linebreak')
+  let &showbreak='⤷ '   " arrow pointing downwards then curving rightwards (u+2937, utf-8: e2 a4 b7)
+endif
+
 let g:indentLine_color_gui = '#343d46'  " indent line color got indentLine plugin
 
 " columns
@@ -509,22 +519,36 @@ set shiftwidth=2          " an autoindent (with <<) is two spaces
 set list                  " show the following:
 set listchars=tab:›\ ,trail:•,extends:#,nbsp:. " Highlight problematic whitespace
 
-set viewoptions=folds,cursor,unix,slash " Better Unix / Windows compatibility
-
+" Backup, swap, undo & sessions{{{
 if (!isdirectory(expand("$HOME/.vim/backup")))
   call system(expand("mkdir -p $HOME/.vim/backup"))
 endif
+set backup                              " Backups are nice ...
+set backupdir=~/.vim/backup/
+
 if (!isdirectory(expand("$HOME/.vim/undo")))
   call system(expand("mkdir -p $HOME/.vim/undo"))
 endif
-set backup                              " Backups are nice ...
-set backupdir=~/.vim/backup/
 if has('persistent_undo')
   set undofile              " So is persistent undo ...
   set undolevels=1000       " Maximum number of changes that can be undone
   set undoreload=10000      " Maximum number lines to save for undo on a buffer reload
   set undodir=~/.vim/undo/
 endif
+
+if (!isdirectory(expand("$HOME/.vim/swap")))
+  call system(expand("mkdir -p $HOME/.vim/swap"))
+endif
+set directory=~/.vim/swap/
+
+if has('mksession')
+  if (!isdirectory(expand("$HOME/.vim/view")))
+    call system(expand("mkdir -p $HOME/.vim/view"))
+  endif
+  set viewdir=~/.vim/view
+  set viewoptions=folds,cursor,unix,slash " Better Unix / Windows compatibility
+endif
+" }}}
 
 " Searching
 set ignorecase " searches are case insensitive...
@@ -593,16 +617,6 @@ if has("autocmd")
 endif
 
 "}}}
-
-" Times choices:
-set ttimeoutlen=10
-set timeoutlen=500
-" improve quick escape from insertion mode:
-augroup FastEscape
-  autocmd!
-  au InsertEnter * set timeoutlen=0
-  au InsertLeave * set timeoutlen=500
-augroup END
 
 " Mappings {{{
 
@@ -766,6 +780,16 @@ function! ToggleVerbose()
     endif
 endfunction
 "}}}
+
+" Times choices:
+set ttimeoutlen=10
+set timeoutlen=500
+" improve quick escape from insertion mode:
+augroup FastEscape
+  autocmd!
+  au InsertEnter * set timeoutlen=0
+  au InsertLeave * set timeoutlen=500
+augroup END
 
 " local config
 if !empty(glob("~/.nvimrc_local"))
