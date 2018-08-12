@@ -85,7 +85,7 @@ let mapleader=","
   call dein#add('Shougo/neco-vim') " for vim
 
   call dein#add('zchee/deoplete-jedi') " for python
-  call dein#add('zchee/deoplete-go', {'build': 'make'})  " for golang
+  call dein#add('zchee/deoplete-go')  " for golang
   call dein#add('carlitux/deoplete-ternjs')  " for javascript
 
   call dein#add('Shougo/echodoc.vim') " displays function signatures from completions in the command line.
@@ -105,28 +105,29 @@ let mapleader=","
 "}}}
 
 " Javascript, Html & CSS {{{
-  call dein#add('wooorm/alex')  " general syntax checker
+  call dein#add('wooorm/alex', {'on_ft': ['html', 'js', 'css']})  " general syntax checker
 
-  call dein#add('eslint/eslint')  " javascript
+  call dein#add('eslint/eslint', {'on_ft': ['html', 'js', 'css']})  " javascript
 
   "call dein#add('othree/html5.vim')  " HTML5 omnicomplete and syntax
-  call dein#add('yaniswang/HTMLHint')  " html
-  call dein#add('tmhedberg/matchit')  " % for matching tag
+  call dein#add('yaniswang/HTMLHint', {'on_ft': 'html'})  " html
+  call dein#add('tmhedberg/matchit', {'on_ft': 'html'})  " % for matching tag
   call dein#add('rstacruz/sparkup')  " for html auto generation
 
-  call dein#add('mattn/emmet-vim') " for html - CSS - javascript
+  call dein#add('mattn/emmet-vim', {'on_ft': ['html', 'js', 'css']}) " for html - CSS - javascript
 
-  call dein#add('ap/vim-css-color')  " change bg color in css for colors
+  call dein#add('ap/vim-css-color', {'on_ft': 'css'})  " change bg color in css for colors
 "}}}
 
 " Golang {{{
-  call dein#add('fatih/vim-go')
+  call dein#add('fatih/vim-go', {'on_ft': 'go'})
 " }}}
 
 " Snippets {{{
-  call dein#add('Shougo/neosnippet.vim')
-  call dein#add('Shougo/neosnippet-snippets')
-  call dein#add('honza/vim-snippets') " those are the snippets
+  "call dein#add('Shougo/neosnippet.vim')  " shougo snippet engine
+  "call dein#add('Shougo/neosnippet-snippets')
+  call dein#add('SirVer/ultisnips') " snippet engine
+  call dein#add('honza/vim-snippets') " those are the best snippets for python
 "}}}
 
   if dein#check_install()
@@ -230,6 +231,7 @@ call deoplete#custom#source('omni', 'mark', '⌾')
 call deoplete#custom#source('file', 'mark', '')
 call deoplete#custom#source('jedi', 'mark', '')
 call deoplete#custom#source('neosnippet', 'mark', '')
+call deoplete#custom#source('ultisnips', 'mark', '')
 call deoplete#custom#source('LanguageClient', 'mark', '')
 
 " Debug mode
@@ -243,36 +245,46 @@ let g:deoplete#sources#jedi#show_docstring = 0  " show docstring in preview wind
 "autocmd CompleteDone * silent! pclose!
 "set completeopt-=preview  " if you don't want windows popup
 
-" compatibility deoplete & ultisnipts:
-"call deoplete#custom#source('ultisnips', 'matchers', ['matcher_fuzzy'])
-
-"" Fix deoplete & ultisnips problem with <tab> completion :
-"let g:UltiSnipsExpandTrigger = "<S-Tab>" " default to <tab> that override tab deoplete completion
-
-"let g:UltiSnipsListSnippets = "<c-tab>"
-"let g:UltiSnipsJumpForwardTrigger = "<c-j>"
-"let g:UltiSnipsJumpBackwardTrigger = "<c-k>"
 "}}}
 
 " Snippets {{{
-" I don't realy use backward search movement, so let's remap it
-imap <C-Tab>     <Plug>(neosnippet_expand_or_jump)
-smap <C-Tab>     <Plug>(neosnippet_expand_or_jump)
-xmap <C-Tab>     <Plug>(neosnippet_expand_target)
 
-" SuperTab like snippets behavior.
-imap <expr><TAB>
- \ pumvisible() ? "\<C-n>" :
- \ neosnippet#expandable_or_jumpable() ?
- \    "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>"
+" Register ultisnips in deoplete:
+call deoplete#custom#source('ultisnips', 'matchers', ['matcher_fuzzy'])
 
-" For conceal markers.
-if has('conceal')
-  set conceallevel=2 concealcursor=niv
+" Choose Shift-Tab as expand for snippets:
+let g:UltiSnipsExpandTrigger = "<S-Tab>" " default to <tab> that override tab deoplete completion
+
+let g:UltiSnipsListSnippets = "<C-Tab>"
+let g:UltiSnipsJumpForwardTrigger = "<C-n>"
+let g:UltiSnipsJumpBackwardTrigger = "<C-p>"
+
+let g:ultisnips_python_style = "google"
+
+if (isdirectory(expand("$waxCraft_PATH/snippets/UltiSnips")))
+  let g:UltiSnipsSnippetDirectories = [expand("$waxCraft_PATH/snippets/UltiSnips"), "UltiSnips"]
 endif
 
+" If wanted to use honza snippets with neosnippet engine:
+" {{{
+"if (isdirectory(expand("$HOME/.config/nvim/repos/github.com/honza/vim-snippets/")))
+"  let g:neosnippet#snippets_directory = "$HOME/.config/nvim/repos/github.com/honza/vim-snippets/UltiSnips"
+"endif
+"" Choose Shift-Tab as expand for snippets:
+"imap <S-Tab> <Plug>(neosnippet_expand_or_jump)
+"smap <S-Tab> <Plug>(neosnippet_expand_or_jump)
+"xmap <S-Tab> <Plug>(neosnippet_expand_target)
+"" SuperTab like snippets behavior.
+"imap <expr><TAB>
+" \ pumvisible() ? "\<C-n>" :
+" \ neosnippet#expandable_or_jumpable() ?
+" \    "\<Plug>(neosnippet_expand_or_jump)" : "\<S-TAB>"
+"" For conceal markers.
+"if has('conceal')
+"  set conceallevel=2 concealcursor=niv
+"endif
+"}}}
 " }}}
-
 
 " Pymode {{{
 "let g:pymode_indent = 1 " pep8 indent
@@ -508,6 +520,7 @@ if has("autocmd")
   au BufRead,BufNewFile *.py setlocal textwidth=79
 
   " Other
+  au BufNewFile,BufRead *.snippets set filetype=snippets foldmethod=marker
   au BufNewFile,BufRead *.nix set filetype=nix
   au BufNewFile,BufRead *.sh set filetype=sh foldlevel=0 foldmethod=marker
 
