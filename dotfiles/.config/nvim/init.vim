@@ -4,7 +4,7 @@
 " | 'V' || /\ | > , <  | | ' || _|| \/ |`\ V /'| || \_/ |
 " !_/ \_!|_||_|/_/ \_\ |_|\__||___|\__/   \_/  |_||_| |_|
 
-
+set encoding=UTF-8
 let mapleader=","
 
 " Plugins {{{
@@ -449,6 +449,7 @@ au BufNewFile,BufRead *.md let g:table_mode_corner='|'
 " TagBar & UndoTree {{{
 nnoremap <silent> <F9> :TagbarToggle<CR>
 nnoremap <silent> <F8> :UndotreeToggle<CR>
+nnoremap <silent> <F7> :NERDTreeToggle<CR>
 "}}}
 
 " Git {{{
@@ -509,13 +510,20 @@ set list                  " show the following:
 set listchars=tab:›\ ,trail:•,extends:#,nbsp:. " Highlight problematic whitespace
 
 set viewoptions=folds,cursor,unix,slash " Better Unix / Windows compatibility
+
+if (!isdirectory(expand("$HOME/.vim/backup")))
+  call system(expand("mkdir -p $HOME/.vim/backup"))
+endif
+if (!isdirectory(expand("$HOME/.vim/undo")))
+  call system(expand("mkdir -p $HOME/.vim/undo"))
+endif
 set backup                              " Backups are nice ...
-set backupdir=~/.vimbackup/
+set backupdir=~/.vim/backup/
 if has('persistent_undo')
   set undofile              " So is persistent undo ...
   set undolevels=1000       " Maximum number of changes that can be undone
   set undoreload=10000      " Maximum number lines to save for undo on a buffer reload
-  set undodir=~/.vimundo/
+  set undodir=~/.vim/undo/
 endif
 
 " Searching
