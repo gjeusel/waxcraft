@@ -75,3 +75,22 @@ export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=240"
 
 # Bind ctrl + space
 bindkey '^ ' autosuggest-accept
+
+vfzf() {
+  _match_fzf="$(fzf --preview '[[ $(file --mime {}) =~ binary ]] &&
+    echo {} is a binary file ||
+    (highlight -O ansi -l {} ||
+    coderay {} ||
+    rougify {} ||
+    cat {}) 2> /dev/null | head -500')"
+
+  if [ -n "$_match_fzf" ]; then
+    nvim "$_match_fzf"
+  fi
+}
+# Bind ctrl + p  to fuzzy finder
+# -s simulate keyboard entry
+# (^U) to delete the whole line
+# type fzf
+# (^M) to execute the line
+bindkey -s "^P" "^Uvfzf^M"
