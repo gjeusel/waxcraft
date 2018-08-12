@@ -105,7 +105,7 @@ let mapleader=","
   call dein#add('tmhedberg/SimpylFold', {'on_ft': 'python'})  " better folds
   call dein#add('davidhalter/jedi-vim', {'on_ft': ['python', 'markdown', 'rst']})
   call dein#add('tell-k/vim-autopep8', {'on_ft': 'python'})  " still kept for ranged syntax fix
-  "call dein#add('python-mode/python-mode')
+  call dein#add('python-mode/python-mode')
   "call dein#add('nvie/vim-flake8')
 "}}}
 
@@ -327,27 +327,25 @@ endif
 " }}}
 
 " Pymode {{{
-"let g:pymode_indent = 1 " pep8 indent
-"let g:pymode_folding = 0 " disable folding to use SimpyFold
-"let g:pymode_motion = 1
-"" doc
-"let g:pymode_doc = 1
-"let g:pymode_doc_bind = 'K'
-"" syntax (colors for self keyword for example)
-"let g:pymode_syntax = 1
-"let g:pymode_syntax_all = 1
-"let g:pymode_syntax_slow_sync = 1 " slower syntax sync
-"let g:pymode_trim_whitespaces = 0 " do not trim unused white spaces on save
+let g:pymode_indent = 1 " pep8 indent
+let g:pymode_folding = 0 " disable folding to use SimpyFold
+let g:pymode_motion = 1
 
-"" Code completion :
-"let g:pymode_rope = 0 " disable rope which is slow
+" doc
+let g:pymode_doc = 1
+let g:pymode_doc_bind = '<leader>k'
 
-"" Python code checking :
-"let g:pymode_lint = 0  " disable it to use ALE
-""let g:pymode_lint_on_write = 0
-""let g:pymode_lint_checkers = ['flake8'] " pep8 code checker
-""let g:syntastic_python_flake8_args='--ignore=E501'
-""let g:pymode_lint_cwindow = 0  " do not open quickfix cwindows if errors
+" syntax (colors for self keyword for example)
+let g:pymode_syntax = 1
+let g:pymode_syntax_all = 1
+let g:pymode_syntax_slow_sync = 1 " slower syntax sync
+let g:pymode_trim_whitespaces = 0 " do not trim unused white spaces on save
+
+" Code completion :
+let g:pymode_rope = 0 " disable rope which is slow
+
+" Python code checking :
+let g:pymode_lint = 0  " disable it to use ALE
 
 let g:jedi#documentation_command = "<leader>k"
 let g:jedi#completions_enabled = 0
