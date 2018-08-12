@@ -642,7 +642,11 @@ tnoremap <Esc> <C-\><C-n>
 map <nowait> <A-t> :vsplit \| terminal <CR>
 
 " clear the search highlight
-nnoremap <leader>; :nohl<cr>
+if exists(":LoupeClearHighlight")
+  nmap <leader>; <Plug>(LoupeClearHighlight)
+else
+  nmap <leader>; :nohl<cr>
+endif
 
 " select all of current paragraph with enter:
 nnoremap <return> vip
