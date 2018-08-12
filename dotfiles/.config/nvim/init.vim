@@ -465,6 +465,11 @@ nnoremap <silent> <F7> :NERDTreeToggle<CR>
   let g:gitgutter_sign_modified_removed = '•'
 " }}}
 
+" Markdown {{{
+  let g:markdown_composer_autostart = 0  " do not autostart the server, instead use :ComposerStart
+  " should use :ComposerStart & :ComposerOpen
+" }}}
+
 "}}}
 
 " User Interface {{{
