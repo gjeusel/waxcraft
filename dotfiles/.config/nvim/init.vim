@@ -51,6 +51,7 @@ let mapleader=","
   call dein#add('altercation/vim-colors-solarized')  " prefered colorscheme
   "call dein#add('morhetz/gruvbox') " other nice colorscheme
   call dein#add('ryanoasis/vim-devicons')  " nice icons added
+  call dein#add('blueyed/vim-diminactive') " dim inactive windows
 " }}}
 
 " Other languages syntax highlight {{{
