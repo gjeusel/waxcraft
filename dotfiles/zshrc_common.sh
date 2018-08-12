@@ -70,7 +70,7 @@ if [ -f "/usr/share/nvm/init-nvm.sh" ]; then
     fi
 fi
 
-export TERM="xterm-256color"
+export TERM="tmux-256color"
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=240"
 
 # Bind ctrl + space
