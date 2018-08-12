@@ -279,7 +279,7 @@ call deoplete#custom#source('LanguageClient', 'mark', '')
 let g:deoplete#sources#jedi#server_timeout = 40 " extend time for large pkg
 let g:deoplete#sources#jedi#show_docstring = 0  " show docstring in preview window
 "autocmd CompleteDone * silent! pclose!
-"set completeopt-=preview  " if you don't want windows popup
+set completeopt-=preview  " if you don't want windows popup
 
 "}}}
 
