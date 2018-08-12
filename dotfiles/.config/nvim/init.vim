@@ -204,8 +204,7 @@ nnoremap <C-p> :call FzfOmniFiles()<CR>
 " Hide statusline of terminal buffer
 autocmd! FileType fzf
 autocmd  FileType fzf set laststatus=0 noshowmode noruler
-            \| autocmd BufLeave <buffer> set laststatus=2 showmode ruler
-
+            \| autocmd BufLeave <buffer> set laststatus=2 noshowmode ruler
 
 " Customize fzf colors to match your color scheme
 let g:fzf_colors =
