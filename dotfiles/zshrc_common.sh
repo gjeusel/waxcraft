@@ -50,10 +50,14 @@ antigen bundle z
 antigen bundle zsh-users/zsh-syntax-highlighting
 antigen bundle zsh-users/zsh-autosuggestions
 
-# Theme
-antigen theme https://github.com/denysdovhan/spaceship-prompt spaceship
-SPACESHIP_TIME_SHOW=true
-SPACESHIP_CHAR_SYMBOL="❯ "
+## Theme
+#antigen theme https://github.com/denysdovhan/spaceship-prompt spaceship
+#SPACESHIP_TIME_SHOW=true
+#SPACESHIP_CHAR_SYMBOL="❯ "
+
+#or:
+antigen bundle mafredri/zsh-async
+antigen bundle sindresorhus/pure
 
 # Tell Antigen that you're done.
 antigen apply
