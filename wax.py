@@ -10,21 +10,27 @@ from pathlib import Path
 
 # Global variables :
 waxCraft_dir = Path(__file__).parent.absolute()
-wax_dotfile_dir = waxCraft_dir / 'dotfiles'
-wax_config_dir = waxCraft_dir / 'dotfiles/.config'
-wax_ipython_dir = waxCraft_dir / 'dotfiles/.ipython'
-wax_backup_dir = waxCraft_dir / 'backup'
+wax_dotfile_dir = waxCraft_dir / "dotfiles"
+wax_config_dir = waxCraft_dir / "dotfiles/.config"
+wax_backup_dir = waxCraft_dir / "backup"
 if not wax_backup_dir.exists():
     wax_backup_dir.mkdir()
 
 
+if not (Path.home() / ".config").exists():
+    (Path.home() / ".config").mkdir()
+
+
 def pcall(cmd, args, env=None):
     try:
-        print('Executing bash cmd: > {}'.format(cmd + ' ' + ' '.join(args)))
+        print("Executing bash cmd: > {}".format(cmd + " " + " ".join(args)))
         return subprocess.check_call([cmd] + args, env=env)
     except subprocess.CalledProcessError as e:
-        raise RuntimeError("command '{}' return with error (code {}): {}".format(
-            e.cmd, e.returncode, e.output))
+        raise RuntimeError(
+            "command '{}' return with error (code {}): {}".format(
+                e.cmd, e.returncode, e.output
+            )
+        )
 
 
 def query_yes_no(question, default="yes"):
@@ -37,8 +43,7 @@ def query_yes_no(question, default="yes"):
 
     The "answer" return value is True for "yes" or False for "no".
     """
-    valid = {"yes": True, "y": True, "ye": True,
-             "no": False, "n": False}
+    valid = {"yes": True, "y": True, "ye": True, "no": False, "n": False}
     if default is None:
         prompt = " [y/n] "
     elif default == "yes":
@@ -51,190 +56,188 @@ def query_yes_no(question, default="yes"):
     while True:
         sys.stdout.write(question + prompt)
         choice = input().lower()
-        if default is not None and choice == '':
+        if default is not None and choice == "":
             return valid[default]
         elif choice in valid:
             return valid[choice]
         else:
-            sys.stdout.write("Please respond with 'yes' or 'no' "
-                             "(or 'y' or 'n').\n")
+            sys.stdout.write("Please respond with 'yes' or 'no' " "(or 'y' or 'n').\n")
 
 
-class bcolors:
-    HEADER = '\033[95m'
-    WARNING = '\033[93m'
+# Low level conveniant functions:
+def _robust_copy_or_symlink(from_obj, to_obj, mode):
+    """
+    Args:
+        from_obj (pathlib.Path): copy (or symlink) this object
+        to_obj (pathlib.Path): into this one
+        mode (str): 'copy' or 'symlink'
+    """
+    print("{} -- {} to {}".format(mode, to_obj, from_obj))
 
-    FAIL = '\033[91m'
+    if not from_obj.exists():
+        raise ValueError("from_obj {} do not exists.".format(from_obj))
 
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
+    if mode not in ["copy", "symlink"]:
+        raise ValueError("mode incorrect: {}".format(mode))
 
-    GREEN = '\033[38;5;002m'
-    YELLOW = '\033[38;5;003m'
-    BLUE = '\033[38;5;004m'
+    to_dir = to_obj.parent
+    if not to_dir.exists():
+        to_dir.mkdir(parents=True)
 
-    ENDC = '\033[0m'
+    if to_obj.exists():
+
+        if to_obj.is_symlink():  # if symlink, unlink it
+            os.unlink(to_obj.as_posix())
+
+        elif to_obj.is_file():  # if file, backup it
+            backup_fpath = wax_backup_dir / to_obj.name
+            print("Backing up {} in {}".format(to_obj, backup_fpath))
+            shutil.copyfile(to_obj, backup_fpath)
+
+        elif to_obj.is_dir():  # if dir, backup it
+            backup_dpath = wax_backup_dir / to_obj.name
+            print("Backing up {} in {}".format(to_obj, backup_dpath))
+            shutil.copytree(to_obj, backup_dpath)
+        else:
+            raise ValueError
+
+    if mode == "symlink":
+        from_obj.symlink_to(to_obj)
+    elif mode == "copy":
+        if from_obj.is_file():
+            shutil.copyfile(from_obj, to_obj)
+        elif from_obj.is_dir():
+            shutil.copytree(from_obj, to_obj)
 
 
-class Wax():
-    """Entry point to setup configurations."""
+def create_symlinks_robust(relative_paths, from_dir, to_dir):
+    """Create symlink from from_dir to to_dir for all relative files
+    in relative_paths.
 
-    def __init__(self):
-        if not (Path.home() / '.config').exists():
-            (Path.home() / '.config').mkdir()
-        pass
+    Example:
+        create_symlinks_robust(
+            relative_paths=['.inputrc', '.bash_aliases'],
+            from_dir=wax_dotfile_dir,
+            to_dir=Path.home(),
+            )
 
-    def _symlink_lst_files(self, relative_paths, from_dir, target_dir):
-        """Create symlink from from_dir to target_dir for all relative files
-        in relative_paths.
+    """
+    for f in relative_paths:
+        from_file = from_dir / f
+        to_file = to_dir / f
+        _robust_copy_or_symlink(from_file, to_file, mode="symlink")
 
-        Example:
-            self._symlink_lst_files(
-                relative_paths=['.inputrc', '.bash_aliases'],
-                from_dir=Path.home(),
-                target_dir=wax_dotfile_dir)
 
-        """
-        for f in relative_paths:
-            print('Symlinking {ffrom} to {fto}'.format(
-                ffrom=(from_dir / f).as_posix(),
-                fto=(target_dir / f).as_posix()))
-            if (from_dir / f).exists():  # backup
-                assert (from_dir / f).is_file()
-                print('Backing up {ffrom} in {fto}'.format(
-                    ffrom=(from_dir / f).as_posix(),
-                    fto=(target_dir / f).as_posix()))
-                if not (wax_backup_dir / f).parent.exists():
-                    (wax_backup_dir / f).mkdir(parents=True)
-                shutil.copy((from_dir / f).as_posix(),
-                            (wax_backup_dir / f).as_posix())
-                (from_dir / f).unlink()
-            (from_dir / f).symlink_to((target_dir / f).as_posix())
+def copy_robust(relative_paths, from_dir, to_dir):
+    for f in relative_paths:
+        from_file = from_dir / f
+        to_file = to_dir / f
+        _robust_copy_or_symlink(from_file, to_file, mode="copy")
 
-    def _copy_lst_files(self, relative_paths, from_dir, to_dir):
-        """Copy relative_paths from from_dir to target_dir, creating required directories.
 
-        ..note:
-            Be carefull with the syntax that is not equivalent to _symlink_lst_files
-            regarding folders.
-        """
-        for f in relative_paths:
-            print('Copying {ffrom} to {fto}'.format(
-                ffrom=(from_dir / f).as_posix(),
-                fto=(to_dir / f).as_posix()))
-            if (to_dir / f).exists():  # backup
-                assert (to_dir / f).is_file()
-                print('Backing up {ffrom} in {fto}'.format(
-                    ffrom=(from_dir / f).as_posix(),
-                    fto=(to_dir / f).as_posix()))
-                if not (wax_backup_dir / f).parent.exists():
-                    (wax_backup_dir / f).parent.mkdir(parents=True)
-                shutil.copy((from_dir / f).as_posix(),
-                            (wax_backup_dir / f).as_posix())
-                (from_dir / f).unlink()
-            else:
-                if not (to_dir / f).parent.exists():
-                    (to_dir / f).parent.mkdir(parents=True)
+# High Level functions:
+def neovim():
+    """Install neovim config files."""
+    assert shutil.which("nvim") is not None  # check in PATH
 
-            shutil.copy((to_dir / f).as_posix(),
-                        (from_dir / f).as_posix())
+    nvim_init = ".config/nvim/init.vim"
 
-    def neovim(self):
-        """Install neovim config files."""
-        assert shutil.which('nvim') is not None  # check in PATH
+    create_symlinks_robust(
+        relative_paths=[nvim_init], from_dir=wax_dotfile_dir, to_dir=Path.home()
+    )
 
-        nvim_init = '.config/nvim/init.vim'
 
-        self._symlink_lst_files(
-            relative_paths=[nvim_init],
-            from_dir=Path.home(),
-            target_dir=wax_dotfile_dir,
-        )
+def tmux():
+    """Install tmux config files."""
+    relative_paths = [".tmux.conf", ".config/tmuxinator"]
+    create_symlinks_robust(relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home())
 
-    def _common_bash_zsh(self):
-        relative_paths = ['.bash_aliases', '.inputrc',
-                          '.gitconfig', '.hgrc',
-                          '.config/flake8',
-                          '.tmux.conf',
-                          '.conkyrc',
-                          '.config/tmuxinator'
-                          ]
-        self._symlink_lst_files(relative_paths, Path.home(), wax_dotfile_dir)
 
-    def zsh(self):
-        """Instal zsh."""
-        # source ~/waxcraft/dotfiles/zshrc_common.sh
-        str_source = ('# waxCraft zshrc_common.sh file sourcing :\n'
-                      'source ' + (wax_dotfile_dir / 'zshrc_common.sh').as_posix())
+def _common_bash_zsh():
+    relative_paths = [".bash_aliases", ".inputrc"]
+    create_symlinks_robust(relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home())
 
-        fzshrc = (Path.home() / '.zshrc')
-        if not fzshrc.exists():
-            fzshrc.touch()
-        if str_source not in open(fzshrc.as_posix()).read():
-            print('Appending ~/.zshrc with {}'.format(str_source))
-            open(fzshrc.as_posix(), 'a').write('\n' + str_source)
 
-        self._common_bash_zsh()
+def zsh():
+    """Instal zsh."""
+    # source ~/waxcraft/dotfiles/zshrc_common.sh
+    str_source = (
+        "# waxCraft zshrc_common.sh file sourcing :\n"
+        "source " + (wax_dotfile_dir / "zshrc_common.sh").as_posix()
+    )
 
-    def bash(self):
-        """Install bash config files & else"""
-        str_source = ('# waxCraft bashrc_common.sh file sourcing :\n'
-                      'source ' + (wax_dotfile_dir / 'bashrc_common.sh').as_posix())
+    fzshrc = Path.home() / ".zshrc"
+    if not fzshrc.exists():
+        fzshrc.touch()
+    if str_source not in open(fzshrc.as_posix()).read():
+        print("Appending ~/.zshrc with {}".format(str_source))
+        open(fzshrc.as_posix(), "a").write("\n" + str_source)
 
-        fbashrc = (Path.home() / '.bashrc')
-        if not fbashrc.exists():
-            fbashrc.touch()
-        if str_source not in open(fbashrc.as_posix()).read():
-            print('Appending ~/.bashrc with {}'.format(str_source))
-            open(fbashrc.as_posix(), 'a').write('\n' + str_source)
+    _common_bash_zsh()
 
-        self._common_bash_zsh()
 
-    def plasma(self):
-        relative_paths = ['kglobalshortcutsrc',
-                          'khotkeysrc',
-                          'kwinrc',
-                          'xfce4/terminal/terminalrc'
-                          # 'ksmserverrc',
-                          # 'kwalletrc',
-                          # 'plasma-org.kde.plasma.desktop-appletsrc',
-                          ]
-        quest = 'Session need to restart, are your sure you want to quite?'
-        if query_yes_no(quest):
-            xfce_path = Path.home() / '.config/xfce4/terminal'
-            if not xfce_path.exists():
-                xfce_path.mkdir(parents=True)
-            self._copy_lst_files(relative_paths, Path.home() / '.config',
-                                 wax_config_dir)
-        pcall("loginctl", ['terminate-user', str(os.environ['USER'])])
+def bash():
+    """Install bash config files & else"""
+    str_source = (
+        "# waxCraft bashrc_common.sh file sourcing :\n"
+        "source " + (wax_dotfile_dir / "bashrc_common.sh").as_posix()
+    )
 
-    def python(self):
-        """Install python config files."""
-        ipythonhome = Path.home() / '.ipython'
-        profilehome = ipythonhome / 'profile_default'
-        startuppath = profilehome / 'startup'
-        if not any([ipythonhome.exists(), profilehome.exists(), startuppath.exists()]):
-            startuppath.mkdir(parents=True)
+    fbashrc = Path.home() / ".bashrc"
+    if not fbashrc.exists():
+        fbashrc.touch()
+    if str_source not in open(fbashrc.as_posix()).read():
+        print("Appending ~/.bashrc with {}".format(str_source))
+        open(fbashrc.as_posix(), "a").write("\n" + str_source)
 
-        relative_paths = ['profile_default/ipython_config.py',
-                          'profile_default/startup/common.py']
-        self._symlink_lst_files(relative_paths, ipythonhome, wax_ipython_dir)
+    _common_bash_zsh()
 
-        self._symlink_lst_files(['.pdbrc.py'], Path.home(), wax_dotfile_dir)
+
+def plasma():
+    relative_paths = [
+        "kglobalshortcutsrc",
+        "khotkeysrc",
+        "kwinrc",
+        "xfce4/terminal/terminalrc",
+    ]
+    quest = "Session need to restart, are your sure you want to quite?"
+    if not query_yes_no(quest):  # if answered no, quit
+        return
+    copy_robust(relative_paths, from_dir=wax_config_dir, to_dir=Path.home / ".config")
+    pcall("loginctl", ["terminate-user", str(os.environ["USER"])])
+
+
+def python():
+    """Install python config files."""
+    ipythonhome = Path.home() / ".ipython"
+    profilehome = ipythonhome / "profile_default"
+    startuppath = profilehome / "startup"
+    if not any([ipythonhome.exists(), profilehome.exists(), startuppath.exists()]):
+        startuppath.mkdir(parents=True)
+
+    relative_paths = [
+        ".pdbrc.py",
+        ".config/flake8",
+        ".ipython/profile_default/ipython_config.py",
+        ".ipython/profile_default/startup/common.py",
+    ]
+    create_symlinks_robust(relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.Home())
+
+
+def setup_argparser():
+    """ Define and return the command argument parser. """
+    parser = argparse.ArgumentParser(description="""waxCraft config setup.""")
+
+    parser.add_argument(
+        "cfg_list",
+        nargs="+",
+        # choices=["bash", "zsh", "neovim", "vim", "plasma", "nixpkgs", "ipython"],
+        help="""Config to install among ['bash', 'zsh', 'vim', 'python', 'tmux', 'plasma' ]""",
+    )
+    return parser
 
 
 if __name__ == "__main__":
-
-    def setup_argparser():
-        """ Define and return the command argument parser. """
-        parser = argparse.ArgumentParser(
-            description='''waxCraft config setup.''')
-
-        parser.add_argument('cfg_list', nargs='+',
-                            choices=['bash', 'zsh', 'neovim', 'vim', 'plasma',
-                                     'nixpkgs', 'ipython'],
-                            help='''cfg to install''')
-        return parser
 
     parser = setup_argparser()
 
@@ -244,14 +247,19 @@ if __name__ == "__main__":
     except argparse.ArgumentError as exc:
         raise
 
-    wax = Wax()
-    if 'bash' in args.cfg_list:
-        wax.bash()
-    if 'zsh' in args.cfg_list:
-        wax.zsh()
-    if 'neovim' in args.cfg_list:
-        wax.neovim()
-    if 'plasma' in args.cfg_list:
-        wax.plasma()
-    if 'ipython' in args.cfg_list:
-        wax.ipython()
+    optlist = args.cfg_list
+
+    if any([sh in optlist for sh in ["bash", "sh", "shell"]]):
+        bash()
+
+    if "zsh" in args.cfg_list:
+        zsh()
+
+    if any([v in optlist for v in ["vim", "nvim", "neovim"]]):
+        neovim()
+
+    if "plasma" in args.cfg_list:
+        plasma()
+
+    if any([p in optlist for p in ["python", "ipython"]]):
+        python()
