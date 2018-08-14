@@ -200,9 +200,10 @@ function! FzfOmniFiles()
     endif
 endfunction
 
-nnoremap <leader>a :Ag<CR>
-nnoremap <leader>c :Commands<CR>
-nnoremap <C-p> :call FzfOmniFiles()<CR>
+nmap <leader>a :Ag<CR>
+nmap <leader>c :Commands<CR>
+nmap <C-p> :call FzfOmniFiles()<CR>
+nmap <leader>b :Buffers<CR>
 
 " fzf
 " Hide statusline of terminal buffer
@@ -326,7 +327,7 @@ endif
 "}}}
 " }}}
 
-" Pymode {{{
+" Pymode & Jedi {{{
 let g:pymode_indent = 1 " pep8 indent
 let g:pymode_folding = 0 " disable folding to use SimpyFold
 let g:pymode_motion = 1
@@ -346,6 +347,9 @@ let g:pymode_rope = 0 " disable rope which is slow
 
 " Python code checking :
 let g:pymode_lint = 0  " disable it to use ALE
+
+" Breakpoint:
+let g:pymode_breakpoint = 0  " disable
 
 let g:jedi#documentation_command = "<leader>k"
 let g:jedi#completions_enabled = 0
