@@ -38,10 +38,10 @@ let mapleader=","
   call dein#add('mbbill/undotree')  " visualize undo tree
   call dein#add('jiangmiao/auto-pairs') " auto pair
 
-  call dein#add('terryma/vim-multiple-cursors')  " nice plugin for multiple cursors
+  "call dein#add('terryma/vim-multiple-cursors')  " nice plugin for multiple cursors
   call dein#add('junegunn/fzf.vim')  " asynchronous fuzzy finder, should replace ctrlp if ever to work with huuge projects
 
-  call dein#add('wincent/loupe')  " better focus on current highlight search
+  "call dein#add('wincent/loupe')  " better focus on current highlight search
 "}}}
 
 " User Interface {{{
@@ -79,7 +79,7 @@ let mapleader=","
   " plugin that adds asynchronous Markdown preview to Neovim
   " > cargo build --release   # should be run in vim-markdown-composer after
   " installation
-  call dein#add('euclio/vim-markdown-composer', {'build': 'cargo build --release'})
+  call dein#add('euclio/vim-markdown-composer')
 " }}}
 
 " Completion {{{
