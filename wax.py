@@ -87,17 +87,19 @@ def _robust_copy_or_symlink(from_obj, to_obj, mode):
     if to_obj.exists():
 
         if to_obj.is_symlink():  # if symlink, unlink it
-            os.unlink(to_obj.as_posix())
+            to_obj.unlink()
 
         elif to_obj.is_file():  # if file, backup it
             backup_fpath = wax_backup_dir / to_obj.name
             print("Backing up {} in {}".format(to_obj, backup_fpath))
             shutil.copyfile(to_obj, backup_fpath)
+            to_obj.unlink()
 
         elif to_obj.is_dir():  # if dir, backup it
             backup_dpath = wax_backup_dir / to_obj.name
             print("Backing up {} in {}".format(to_obj, backup_dpath))
             shutil.copytree(to_obj, backup_dpath)
+            shutil.rmtree(to_obj)
         else:
             raise ValueError
 
