@@ -14,7 +14,7 @@ log = logging.basicConfig(
 )
 
 logroot = logging.getLogger('')
-logroot.setLevel(logging.DEBUG)
+logroot.setLevel(logging.INFO)
 
 logging.getLogger('parso.python.diff').disabled = True
 
@@ -77,90 +77,17 @@ except Exception as e:
     print("Could not import pandas as pd: {}".format(e))
 
 try:
-    from ml_utils import plot
-except Exception as e:
-    print("Could not import ml_utils: {}".format(e))
-
-
-CFG = None
-try:
-    from stt_utils.config_handler import get_config
-
-    CFG = get_config()
-except Exception as e:
-    print("Could not import stt_utils and read config: {}".format(e))
-
-try:
-    import intraday_hub
-    from intraday_hub.tankertsio import TankerTimeSerie
-
-    tktseries = TankerTimeSerie()
-    from intraday_hub.mercure import MercureClient
-
-    mc = MercureClient()
-    from intraday_hub import tourbillon
-    from intraday_hub.utils import *
-    from intraday_hub.cli import *
-except ImportError as e:
-    print("Could not import intraday_hub: {}".format(e))
-
-
-try:
-    import tourbillon_client
-    import requests
-
-    session = requests.Session()
-    session.verify = False
-    if CFG is not None:
-        try:
-            trb = tourbillon_client.Client(
-                url=CFG["tourbillon"]["preprodurl"],
-                token=CFG["tourbillon"]["preprodtoken"],
-                session=session,
-            )
-        except Exception as e:
-            print("Could not initiate trb instance: {}".format(e))
-
-except Exception as e:
-    print("Could not import tourbillon_client: {}".format(e))
-
-try:
-    import plotly
-    import plotly.graph_objs as go
-except Exception as e:
-    print("Could not import plotly: {}".format(e))
-
-try:
-    from da_versus_id.ml.split_datas import *
-    from da_versus_id.david_model import DAvIDde
-
-    # from da_versus_id.global_business import *
-
-    david = DAvIDde()
-
-    tscv = TSSplit(n_splits=10)
-    # david = DAvIDde()  # david with LigthGBM
-except ImportError as e:
-    print("Could not import da_versus_id: {}".format(e))
-
-try:
     import plotlyink as plink
 except Exception as e:
     print("Could not import plotlyink: {}".format(e))
 
-
 try:
-    from stmarket.global_vars import SESSION
-except ImportError as e:
-    print("Could not import stmarket.scrapers.elia: {}".format(e))
+    import seaborn as sns
+except Exception as e:
+    print("Could not import seaborn: {}".format(e))
 
-try:
-    from tso_scrapers import TSOClient, RTEClient, EliaClient, EntsoeClient
-    from tso_scrapers.nordpool import NordpoolClient
+local_init_path = Path(__file__).parent / 'ipythoninit_local.py'
+if local_init_path.exists():
+    from ipythoninit_local import *
 
-    message_types = ["ProductionUnavailability", "transmissionUnavailability"]
-    tsocl = TSOClient()
-except ImportError as e:
-    print("Could not import tso_scrapers: {}".format(e))
-
-table = 'id_merc_48048'
+logroot.setLevel(logging.DEBUG)
