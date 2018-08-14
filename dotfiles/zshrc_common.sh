@@ -100,10 +100,9 @@ if [ -f "~/.bin/tmuxinator.zsh" ]; then
 fi
 
 # Auto install tpm (tmux plugin) ?
-if [-f "~/.tmux/plugins/tpm"]; then
+if [ -f "~/.tmux/plugins/tpm" ]; then
   git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 fi
-
 
 #https://www.bountysource.com/issues/33111484-problems-with-sudo-vim
 alias sudo='sudo TMUX="${TMUX}" '
