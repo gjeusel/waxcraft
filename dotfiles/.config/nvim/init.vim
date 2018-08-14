@@ -5,7 +5,7 @@
 " !_/ \_!|_||_|/_/ \_\ |_|\__||___|\__/   \_/  |_||_| |_|
 
 scriptencoding utf-8
-set encoding=utf-8
+set encoding=utf-8   " is the default in neovim though
 let mapleader=","
 
 " Plugins {{{
@@ -53,6 +53,9 @@ let mapleader=","
   call dein#add('luochen1990/rainbow')  " embed parenthesis colors
   call dein#add('altercation/vim-colors-solarized')  " prefered colorscheme
   "call dein#add('morhetz/gruvbox') " other nice colorscheme
+
+  " nerd font need to be installed, see https://github.com/ryanoasis/nerd-fonts#font-installation
+  " > sudo pacman -S ttf-nerd-fonts-symbols
   call dein#add('ryanoasis/vim-devicons')  " nice icons added
   call dein#add('blueyed/vim-diminactive') " dim inactive windows
 " }}}
