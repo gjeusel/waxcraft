@@ -102,7 +102,7 @@ def _robust_copy_or_symlink(from_obj, to_obj, mode):
             raise ValueError
 
     if mode == "symlink":
-        from_obj.symlink_to(to_obj)
+        to_obj.symlink_to(from_obj)
     elif mode == "copy":
         if from_obj.is_file():
             shutil.copyfile(from_obj, to_obj)
@@ -248,18 +248,24 @@ if __name__ == "__main__":
         raise
 
     optlist = args.cfg_list
+    msg = "------------<     Installing    {}    >-------------"
 
     if any([sh in optlist for sh in ["bash", "sh", "shell"]]):
+        print(msg.format("bash"))
         bash()
 
     if "zsh" in args.cfg_list:
+        print(msg.format("zsh"))
         zsh()
 
     if any([v in optlist for v in ["vim", "nvim", "neovim"]]):
+        print(msg.format("neovim"))
         neovim()
 
     if "plasma" in args.cfg_list:
+        print(msg.format("plasma"))
         plasma()
 
     if any([p in optlist for p in ["python", "ipython"]]):
+        print(msg.format("python"))
         python()
