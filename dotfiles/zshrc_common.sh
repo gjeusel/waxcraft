@@ -58,6 +58,8 @@ antigen bundle zsh-users/zsh-autosuggestions
 #or:
 antigen bundle mafredri/zsh-async
 antigen bundle sindresorhus/pure
+# For pure & conda, see:
+# https://github.com/sindresorhus/pure/issues/411
 
 # Tell Antigen that you're done.
 antigen apply
