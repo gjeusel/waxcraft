@@ -101,14 +101,11 @@ vfzf() {
 # (^M) to execute the line
 bindkey -s "^P" "^Uvfzf^M"
 
-if [ -f "~/.bin/tmuxinator.zsh" ]; then
-  source ~/.bin/tmuxinator.zsh
-fi
-
 # Auto install tpm (tmux plugin) ?
 if [ -f "~/.tmux/plugins/tpm" ]; then
   git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 fi
 
+# To get tmux navigation accross root panes
 #https://www.bountysource.com/issues/33111484-problems-with-sudo-vim
 alias sudo='sudo TMUX="${TMUX}" '
