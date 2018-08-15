@@ -53,6 +53,7 @@ let mapleader=","
   call dein#add('luochen1990/rainbow')  " embed parenthesis colors
   call dein#add('altercation/vim-colors-solarized')  " prefered colorscheme
   "call dein#add('morhetz/gruvbox') " other nice colorscheme
+  "call dein#add('chriskempson/base16-vim')
 
   " nerd font need to be installed, see https://github.com/ryanoasis/nerd-fonts#font-installation
   " > sudo pacman -S ttf-nerd-fonts-symbols
@@ -576,55 +577,53 @@ endif
 "}}}
 
 " Autocmd {{{
-if has("autocmd")
-  " Delete empty space from the end of lines on every save
-  "au BufWritePre * :%s/\s\+$//e
 
-  " Make sure all markdown files have the correct filetype set and setup
-  " wrapping and spell check
-  function! s:setupWrappingAndSpellcheck()
-      set wrap
-      set wrapmargin=2
-      set textwidth=80
-      set spell
-  endfunction
-  au BufRead,BufNewFile *.{md,md.erb,markdown,mdown,mkd,mkdn,txt} setf markdown | call s:setupWrappingAndSpellcheck()
+" Delete empty space from the end of lines on every save
+"au BufWritePre * :%s/\s\+$//e
 
-  set expandtab
+" Make sure all markdown files have the correct filetype set and setup
+" wrapping and spell check
+function! s:setupWrappingAndSpellcheck()
+    set wrap
+    set wrapmargin=2
+    set textwidth=80
+    set spell
+endfunction
+au BufRead,BufNewFile *.{md,md.erb,markdown,mdown,mkd,mkdn,txt} setf markdown | call s:setupWrappingAndSpellcheck()
 
-  " Treat JSON files like JavaScript
-  au BufNewFile,BufRead *.json set ft=javascript
+set expandtab
 
-  " Python
-  au BufRead,BufNewFile *.py setlocal filetype=python
-  au BufRead,BufNewFile *.py setlocal shiftwidth=4 tabstop=4 softtabstop=4
-  au BufRead,BufNewFile *.py setlocal textwidth=79
+" Treat JSON files like JavaScript
+au BufNewFile,BufRead *.json set ft=javascript
 
-  " Other
-  au BufNewFile,BufRead *.snippets set filetype=snippets foldmethod=marker
-  au BufNewFile,BufRead *.nix set filetype=nix
-  au BufNewFile,BufRead *.sh set filetype=sh foldlevel=0 foldmethod=marker
+" Python
+au BufRead,BufNewFile *.py setlocal filetype=python
+au BufRead,BufNewFile *.py setlocal shiftwidth=4 tabstop=4 softtabstop=4
+au BufRead,BufNewFile *.py setlocal textwidth=79
 
-  au BufNewFile,BufRead Filetype vim setlocal tabstop=2 foldmethod=marker
+" Other
+au BufNewFile,BufRead *.snippets set filetype=snippets foldmethod=marker
+au BufNewFile,BufRead *.nix set filetype=nix
+au BufNewFile,BufRead *.sh set filetype=sh foldlevel=0 foldmethod=marker
 
-  au BufNewFile,BufRead *.cmake set filetype=cmake
-  au BufNewFile,BufRead CMakeLists.txt set filetype=cmake
+au BufNewFile,BufRead Filetype vim setlocal tabstop=2 foldmethod=marker
 
-  au BufNewFile,BufRead *.json set filetype=json
+au BufNewFile,BufRead *.cmake set filetype=cmake
+au BufNewFile,BufRead CMakeLists.txt set filetype=cmake
 
-  au BufNewFile,BufRead *.txt set filetype=sh
+au BufNewFile,BufRead *.json set filetype=json
 
-  " html:
-  au BufNewFile,BufRead *.html set shiftwidth=2 tabstop=2 softtabstop=2
-  au BufNewFile,BufRead *.html set foldmethod=syntax expandtab nowrap
+au BufNewFile,BufRead *.txt set filetype=sh
 
-  " Git
-  au Filetype gitcommit setlocal spell textwidth=72
+" html:
+au BufNewFile,BufRead *.html set shiftwidth=2 tabstop=2 softtabstop=2
+au BufNewFile,BufRead *.html set foldmethod=syntax expandtab nowrap
 
-  " Switch to the current file directory when a new buffer is opened
-  au BufEnter * if bufname("") !~ "^\[A-Za-z0-9\]*://" | lcd %:p:h | endif
+" Git
+au Filetype gitcommit setlocal spell textwidth=72
 
-endif
+" Switch to the current file directory when a new buffer is opened
+au BufEnter * if bufname("") !~ "^\[A-Za-z0-9\]*://" | lcd %:p:h | endif
 
 "}}}
 
@@ -796,14 +795,14 @@ endfunction
 "}}}
 
 " Times choices:
-set ttimeoutlen=10
-set timeoutlen=500
-" improve quick escape from insertion mode:
-augroup FastEscape
-  autocmd!
-  au InsertEnter * set timeoutlen=0
-  au InsertLeave * set timeoutlen=500
-augroup END
+set ttimeoutlen=10 timeoutlen=500
+
+"" improve quick escape from insertion mode:
+"augroup FastEscape
+"  autocmd!
+"  au InsertEnter * set timeoutlen=0
+"  au InsertLeave * set timeoutlen=500
+"augroup END
 
 " local config
 if !empty(glob("~/.nvimrc_local"))
