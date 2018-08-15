@@ -3,6 +3,10 @@
 " | | | | /  \ \ \_/ / |  \| || __|/__\ | \ / || ||  V  |
 " | 'V' || /\ | > , <  | | ' || _|| \/ |`\ V /'| || \_/ |
 " !_/ \_!|_||_|/_/ \_\ |_|\__||___|\__/   \_/  |_||_| |_|
+"
+" Inspired by:
+"   - https://github.com/kristijanhusak/neovim-config/blob/master/init.vim
+"   - https://github.com/wincent/wincent
 
 scriptencoding utf-8
 set encoding=utf-8   " is the default in neovim though
@@ -23,23 +27,25 @@ let mapleader=","
 
 " System {{{
   call dein#add('christoomey/vim-tmux-navigator') " tmux navigation in love with vim
-  call dein#add('scrooloose/nerdcommenter')  " easy comments
-  call dein#add('terryma/vim-smooth-scroll')  " smooth scroll
+  call dein#add('scrooloose/nerdcommenter')       " easy comments
+  call dein#add('terryma/vim-smooth-scroll')      " smooth scroll
 
-  call dein#add('tpope/vim-surround') " change surrounding easily
-  call dein#add('tpope/vim-repeat') " better action repeat for vim-surround with .
-  call dein#add('vim-scripts/loremipsum')  " dummy text generator (:Loremipsum [number of words])
-  call dein#add('easymotion/vim-easymotion')  " easymotion when fedup to think
-  call dein#add('skywind3000/asyncrun.vim')  " run async shell commands
-  call dein#add('Konfekt/FastFold')  " update folds only when needed, otherwise folds slowdown vim
-  call dein#add('junegunn/vim-easy-align')  " easy alignment, better than tabularize
-  call dein#add('majutsushi/tagbar') " browsing the tags, require ctags
-  call dein#add('mattn/gist-vim')  " easily upload gist on github
-  call dein#add('mbbill/undotree')  " visualize undo tree
-  call dein#add('jiangmiao/auto-pairs') " auto pair
+  call dein#add('tpope/vim-surround')             " change surrounding easily
+  call dein#add('tpope/vim-repeat')               " better action repeat for vim-surround with .
+  call dein#add('vim-scripts/loremipsum')         " dummy text generator (:Loremipsum [number of words])
+  call dein#add('easymotion/vim-easymotion')      " easymotion when fedup to think
+  call dein#add('skywind3000/asyncrun.vim')       " run async shell commands
+  call dein#add('Konfekt/FastFold')               " update folds only when needed, otherwise folds slowdown vim
+  call dein#add('junegunn/vim-easy-align')        " easy alignment, better than tabularize
+  call dein#add('majutsushi/tagbar')              " browsing the tags, require ctags
+  call dein#add('mattn/gist-vim')                 " easily upload gist on github
+  call dein#add('mbbill/undotree')                " visualize undo tree
+  call dein#add('jiangmiao/auto-pairs')           " auto pair
+  call dein#add('AndrewRadev/splitjoin.vim')      " easy split join on whole paragraph
+  call dein#add('wellle/targets.vim')             " text object for parenthesis & more !
 
-  call dein#add('terryma/vim-multiple-cursors')  " nice plugin for multiple cursors
-  call dein#add('junegunn/fzf.vim')  " asynchronous fuzzy finder, should replace ctrlp if ever to work with huuge projects
+  call dein#add('terryma/vim-multiple-cursors')   " nice plugin for multiple cursors
+  call dein#add('junegunn/fzf.vim')               " asynchronous fuzzy finder, should replace ctrlp if ever to work with huuge projects
 
   "call dein#add('wincent/loupe')  " better focus on current highlight search
 "}}}
@@ -172,6 +178,11 @@ function! MapEasymotionInit()
     map <nowait><leader>E <Plug>(easymotion-ge)
 endfunction
 autocmd VimEnter * call MapEasymotionInit()
+" }}}
+
+" Easy Align {{{
+" used to tabularize map:
+vmap <leader>t <Plug>(EasyAlign)
 " }}}
 
 " Smooth Scroll {{{
@@ -365,6 +376,9 @@ map <Leader>i o__import__('IPython').embed()  # Enter Ipython<C-c>
 "}}}
 
 " Lint ALE {{{
+let g:ale_sign_error = '✖'   " Lint error sign
+let g:ale_sign_warning = '⚠' " Lint warning sign
+
 let g:ale_linter_aliases = {
     \ 'html': ['html', 'javascript', 'css'],
     \}
@@ -564,6 +578,7 @@ endif
 " Searching
 set ignorecase " searches are case insensitive...
 set smartcase  " ... unless they contain at least one capital letter
+highlight Search ctermbg=white
 
 " Clipboard
 if has('clipboard')
