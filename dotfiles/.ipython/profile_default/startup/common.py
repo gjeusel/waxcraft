@@ -81,11 +81,6 @@ try:
 except Exception as e:
     print("Could not import plotlyink: {}".format(e))
 
-try:
-    import seaborn as sns
-except Exception as e:
-    print("Could not import seaborn: {}".format(e))
-
 local_init_path = Path(__file__).parent / 'ipythoninit_local.py'
 if local_init_path.exists():
     from ipythoninit_local import *

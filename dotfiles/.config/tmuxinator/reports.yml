@@ -14,5 +14,5 @@ windows:
     shell_command_before:
       - act david
     panes:
-      - cd ~/src/knowledgeable/ && jupyter-lab -y --browser='firefox'
+      - cd ~/src/knowledgeable-gj/ && jupyter-lab -y --browser='firefox'
       - wax
