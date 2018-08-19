@@ -256,7 +256,7 @@ if __name__ == "__main__":
         print(msg.format("bash"))
         bash()
 
-    if "zsh" in args.cfg_list:
+    if "zsh" in optlist:
         print(msg.format("zsh"))
         zsh()
 
@@ -264,10 +264,14 @@ if __name__ == "__main__":
         print(msg.format("neovim"))
         neovim()
 
-    if "plasma" in args.cfg_list:
+    if "plasma" in optlist:
         print(msg.format("plasma"))
         plasma()
 
     if any([p in optlist for p in ["python", "ipython"]]):
         print(msg.format("python"))
         python()
+
+    if "tmux" in optlist:
+        print(msg.format("tmux"))
+        tmux()
