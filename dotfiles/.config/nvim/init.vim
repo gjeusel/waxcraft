@@ -199,7 +199,7 @@ let g:lightline = {'colorscheme': 'solarized'}
 
 let g:lightline.active = {
     \ 'left': [ [ 'mode', 'paste' ],
-    \           [ 'readonly', 'filename', 'modified' ] ],
+    \           [ 'readonly', 'modified' ] ],
     \ 'right': [ [ 'lineinfo' ],
     \            [ 'percent' ],
     \            [ 'absolutepath', 'filetype' ] ] }
@@ -666,22 +666,14 @@ set expandtab
 au BufNewFile,BufRead *.json set ft=javascript
 
 " Python
-au BufRead,BufNewFile *.py setlocal filetype=python
-au BufRead,BufNewFile *.py setlocal shiftwidth=4 tabstop=4 softtabstop=4
-au BufRead,BufNewFile *.py setlocal textwidth=79
+au BufRead,BufNewFile *.py setlocal shiftwidth=4 tabstop=4 softtabstop=4 textwidth=79
 
 " Other
 au BufNewFile,BufRead *.snippets set filetype=snippets foldmethod=marker
-au BufNewFile,BufRead *.nix set filetype=nix
 au BufNewFile,BufRead *.sh set filetype=sh foldlevel=0 foldmethod=marker
-
+au BufNewFile,BufRead *.nix set filetype=nix
 au BufNewFile,BufRead Filetype vim setlocal tabstop=2 foldmethod=marker
-
-au BufNewFile,BufRead *.cmake set filetype=cmake
-au BufNewFile,BufRead CMakeLists.txt set filetype=cmake
-
 au BufNewFile,BufRead *.json set filetype=json
-
 au BufNewFile,BufRead *.txt set filetype=sh
 
 " html:
@@ -693,7 +685,6 @@ au Filetype gitcommit setlocal spell textwidth=72
 
 " Switch to the current file directory when a new buffer is opened
 au BufEnter * if bufname("") !~ "^\[A-Za-z0-9\]*://" | lcd %:p:h | endif
-
 "}}}
 
 " Mappings {{{
