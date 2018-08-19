@@ -8,7 +8,7 @@ source "/${0:1:h}/common.sh"
 source "$_dotfile_dir/antigen.zsh"
 
 autoload -U zargs
-setopt appendhistory autocd extendedglob notify nomatch autopushd pushdignoredups promptsubst
+setopt inc_append_history share_history autocd extendedglob notify nomatch autopushd pushdignoredups promptsubst
 
 autoload -Uz compinit
 compinit -i
