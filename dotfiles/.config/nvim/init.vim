@@ -570,7 +570,7 @@ function! CustomFoldText(delim)
   let foldLine = foldLineHead . expansionString . foldLineTail
   return foldLine
 endfunction
-set foldtext=CustomFoldText('\ ')
+autocmd BufEnter * set foldtext=CustomFoldText('\ ')
 "}}}
 
 if has('linebreak')
