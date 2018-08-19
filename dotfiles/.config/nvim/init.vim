@@ -272,7 +272,6 @@ let g:SimpylFold_docstring_preview = 1
 let g:SimpylFold_fold_docstring = 1
 let g:SimpylFold_fold_import = 0
 let g:fastfold_savehook = 1
-" fix fastfold & simpylfold when same buffer in different windows:
 let g:fastfold_fold_command_suffixes = []
 let g:fastfold_fold_movement_commands = []
 "}}}
@@ -414,7 +413,8 @@ map <nowait><silent> <A-s> <Plug>(ale_next_wrap)
 
 " autofix when in normal mode for all file and keep autopep8 for fix on range
 " (i.e keep autopep8 for fix in visualmode)
-noremap <leader>p :ALEFix <cr> :FastFoldUpdate <cr>
+nmap <leader>p :ALEFix <cr>
+nmap <leader>m :e!<cr>
 "}}}
 
 " Autopep8 {{{
