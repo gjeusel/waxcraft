@@ -15,13 +15,13 @@ let mapleader=","
 " Plugins {{{
 
 " Setup dein
-  if (!isdirectory(expand("$HOME/.config/nvim/repos/github.com/Shougo/dein.vim")))
-    call system(expand("mkdir -p $HOME/.config/nvim/repos/github.com"))
-    call system(expand("git clone https://github.com/Shougo/dein.vim $HOME/.config/nvim/repos/github.com/Shougo/dein.vim"))
-  endif
+if (!isdirectory(expand("$HOME/.config/nvim/repos/github.com/Shougo/dein.vim")))
+  call system(expand("mkdir -p $HOME/.config/nvim/repos/github.com"))
+  call system(expand("git clone https://github.com/Shougo/dein.vim $HOME/.config/nvim/repos/github.com/Shougo/dein.vim"))
+endif
 
-  set runtimepath+=~/.config/nvim/repos/github.com/Shougo/dein.vim/
-  call dein#begin(expand('~/.config/nvim'))
+set runtimepath+=~/.config/nvim/repos/github.com/Shougo/dein.vim/
+call dein#begin(expand('~/.config/nvim'))
 
   call dein#add('Shougo/dein.vim')
 
@@ -36,6 +36,7 @@ let mapleader=","
   call dein#add('easymotion/vim-easymotion')      " easymotion when fedup to think
   call dein#add('skywind3000/asyncrun.vim')       " run async shell commands
   call dein#add('Konfekt/FastFold')               " update folds only when needed, otherwise folds slowdown vim
+  call dein#add('zhimsel/vim-stay')               " adds automated view session creation and restoration whenever editing a buffer
   call dein#add('junegunn/vim-easy-align')        " easy alignment, better than tabularize
   call dein#add('majutsushi/tagbar')              " browsing the tags, require ctags
   call dein#add('mattn/gist-vim')                 " easily upload gist on github
@@ -54,7 +55,7 @@ let mapleader=","
   call dein#add('scrooloose/nerdtree')  " file tree
   call dein#add('itchyny/lightline.vim')  " light status line
   call dein#add('ap/vim-buftabline')  " buffer line
-  call dein#add('Shougo/defx.nvim')  " thin indent line
+  call dein#add('Yggdroot/indentLine')  " thin indent line
   call dein#add('rhysd/conflict-marker.vim') " conflict markers for vimdiff
   call dein#add('luochen1990/rainbow')  " embed parenthesis colors
   call dein#add('altercation/vim-colors-solarized')  " prefered colorscheme
@@ -64,7 +65,7 @@ let mapleader=","
   " nerd font need to be installed, see https://github.com/ryanoasis/nerd-fonts#font-installation
   " > sudo pacman -S ttf-nerd-fonts-symbols
   call dein#add('ryanoasis/vim-devicons')  " nice icons added
-  call dein#add('blueyed/vim-diminactive') " dim inactive windows
+  "call dein#add('blueyed/vim-diminactive') " dim inactive windows
 " }}}
 
 " Other languages syntax highlight {{{
@@ -271,6 +272,7 @@ let g:SimpylFold_docstring_preview = 1
 let g:SimpylFold_fold_docstring = 1
 let g:SimpylFold_fold_import = 0
 let g:fastfold_savehook = 1
+" fix fastfold & simpylfold when same buffer in different windows:
 let g:fastfold_fold_command_suffixes = []
 let g:fastfold_fold_movement_commands = []
 "}}}
@@ -518,6 +520,58 @@ set relativenumber      " relative line number
 
 set fillchars=vert:│    " box drawings heavy vertical (U+2503, UTF-8: E2 94 83)
 highlight VertSplit ctermbg=none
+
+" Custom Fold Text {{{
+function! CustomFoldText(delim)
+  "get first non-blank line
+  let fs = v:foldstart
+  while getline(fs) =~ '^\s*$' | let fs = nextnonblank(fs + 1)
+  endwhile
+  if fs > v:foldend
+      let line = getline(v:foldstart)
+  else
+      let line = substitute(getline(fs), '\t', repeat(' ', &tabstop), 'g')
+  endif
+
+  " indent foldtext corresponding to foldlevel
+  let indent = repeat(' ',shiftwidth())
+  let foldLevelStr = repeat(indent, v:foldlevel-1)
+  let foldLineHead = substitute(line, '^\s*', foldLevelStr, '')
+
+  " size foldtext according to window width
+  let w = winwidth(0) - &foldcolumn - (&number ? &numberwidth : 0)
+  let foldSize = 1 + v:foldend - v:foldstart
+
+  " estimate fold length
+  let foldSizeStr = " " . foldSize . " lines "
+  let lineCount = line("$")
+  if has("float")
+    try
+      let foldPercentage = "[" . printf("%4s", printf("%.1f", (foldSize*1.0)/lineCount*100)) . "%] "
+    catch /^Vim\%((\a\+)\)\=:E806/	" E806: Using Float as String
+      let foldPercentage = printf("[of %d lines] ", lineCount)
+    endtry
+  endif
+
+  " build up foldtext
+  let foldLineTail = foldSizeStr . foldPercentage
+  let lengthTail = strwidth(foldLineTail)
+  let lengthHead = w - (lengthTail + indent)
+
+  if strwidth(foldLineHead) > lengthHead
+    let foldLineHead = strpart(foldLineHead, 0, lengthHead-2) . '..'
+  endif
+
+  let lengthMiddle = w - strwidth(foldLineHead.foldLineTail)
+
+  " truncate foldtext according to window width
+  let expansionString = repeat(a:delim, lengthMiddle)
+
+  let foldLine = foldLineHead . expansionString . foldLineTail
+  return foldLine
+endfunction
+set foldtext=CustomFoldText('\ ')
+"}}}
 
 if has('linebreak')
   let &showbreak='⤷ '   " arrow pointing downwards then curving rightwards (u+2937, utf-8: e2 a4 b7)
