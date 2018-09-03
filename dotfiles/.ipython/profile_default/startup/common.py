@@ -76,11 +76,6 @@ try:
 except Exception as e:
     print("Could not import pandas as pd: {}".format(e))
 
-try:
-    import plotlyink as plink
-except Exception as e:
-    print("Could not import plotlyink: {}".format(e))
-
 local_init_path = Path(__file__).parent / 'ipythoninit_local.py'
 if local_init_path.exists():
     from ipythoninit_local import *
