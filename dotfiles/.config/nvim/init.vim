@@ -7,6 +7,9 @@
 " Inspired by:
 "   - https://github.com/kristijanhusak/neovim-config/blob/master/init.vim
 "   - https://github.com/wincent/wincent
+"
+" Should look up into:
+"   - https://github.com/joker1007/dotfiles/blob/master/vimrc<Paste>
 
 scriptencoding utf-8
 set encoding=utf-8   " is the default in neovim though
@@ -90,7 +93,7 @@ call dein#begin(expand('~/.config/nvim'))
   " plugin that adds asynchronous Markdown preview to Neovim
   " > cargo build --release   # should be run in vim-markdown-composer after
   " installation
-  "call dein#add('euclio/vim-markdown-composer')
+  call dein#add('euclio/vim-markdown-composer', {'build': 'cargo build --release'})
   "call dein#add('plasticboy/vim-markdown')
 " }}}
 
