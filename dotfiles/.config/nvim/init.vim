@@ -7,6 +7,9 @@
 " Inspired by:
 "   - https://github.com/kristijanhusak/neovim-config/blob/master/init.vim
 "   - https://github.com/wincent/wincent
+"
+" Should look up into:
+"   - https://github.com/joker1007/dotfiles/blob/master/vimrc<Paste>
 
 scriptencoding utf-8
 set encoding=utf-8   " is the default in neovim though
@@ -90,7 +93,8 @@ call dein#begin(expand('~/.config/nvim'))
   " plugin that adds asynchronous Markdown preview to Neovim
   " > cargo build --release   # should be run in vim-markdown-composer after
   " installation
-  call dein#add('euclio/vim-markdown-composer')
+  call dein#add('euclio/vim-markdown-composer', {'build': 'cargo build --release'})
+  "call dein#add('plasticboy/vim-markdown')
 " }}}
 
 " Completion {{{
@@ -393,7 +397,7 @@ let g:ale_linters = {
             \}
 
 let g:ale_fixers = {
-            \ 'python': ['autopep8', 'isort', 'black'],
+            \ 'python': ['autopep8', 'isort', 'yapf'],
             \ 'html': ['prettier', 'eslint'],
             \ 'json': ['fixjson'],
             \}
@@ -466,9 +470,12 @@ endfunction
 " Restructured text compatible
 au BufNewFile,BufRead *.rst let g:table_mode_header_fillchar='='
 au BufNewFile,BufRead *.rst let g:table_mode_corner_corner='+'
+
 au BufNewFile,BufRead *.py let g:table_mode_header_fillchar='='
 au BufNewFile,BufRead *.py let g:table_mode_corner_corner='+'
-au BufNewFile,BufRead *.md let g:table_mode_corner='|'
+
+au BufNewFile,BufRead *.md let g:table_mode_header_fillchar='-'
+au BufNewFile,BufRead *.md let g:table_mode_corner_corner='|'
 "}}}
 
 " TagBar & UndoTree {{{
@@ -489,6 +496,7 @@ nnoremap <silent> <F7> :NERDTreeToggle<CR>
 
 " Markdown {{{
   let g:markdown_composer_autostart = 0  " do not autostart the server, instead use :ComposerStart
+  let g:vim_markdown_conceal = 0
   " should use :ComposerStart & :ComposerOpen
 " }}}
 
