@@ -18,5 +18,5 @@ windows:
     shell_command_before:
       - act homeserv
     panes:
-      - cd ~/src/homeserv-inter && jupyter-lab -y --browser='firefox'
+      - cd ~/src/homeserv-inter #&& jupyter-lab -y --browser='firefox'
       - wax
