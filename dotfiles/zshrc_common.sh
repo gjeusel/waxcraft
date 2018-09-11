@@ -1,11 +1,14 @@
+# Source common to bash & zsh:
+if [ ! -f "~/.antigen.zsh" ]; then
+  curl -L git.io/antigen -o "$HOME/.antigen.zsh"
+fi
+source "$HOME/.antigen.zsh"
+
 _dotfile_dir="/${0:1:h}"
 
 # Up for case if proxy set
-# Source common to bash & zsh:
 source "/${0:1:h}/common.sh"
 
-# Source zsh antigen
-source "$_dotfile_dir/antigen.zsh"
 
 autoload -U zargs
 setopt inc_append_history share_history autocd extendedglob notify nomatch autopushd pushdignoredups promptsubst
@@ -76,7 +79,7 @@ if [ -f "/usr/share/nvm/init-nvm.sh" ]; then
     fi
 fi
 
-export TERM="tmux-256color"
+#export TERM="tmux-256color"
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=240"
 
 # Bind ctrl + space
