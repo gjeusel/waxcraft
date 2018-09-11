@@ -59,8 +59,8 @@ antigen bundle zsh-users/zsh-autosuggestions
 #SPACESHIP_CHAR_SYMBOL="❯ "
 
 #or:
-#antigen bundle mafredri/zsh-async
-#antigen bundle sindresorhus/pure
+antigen bundle mafredri/zsh-async
+antigen bundle sindresorhus/pure
 # For pure & conda, see:
 # https://github.com/sindresorhus/pure/issues/411
 
