@@ -1,8 +1,8 @@
 # Source common to bash & zsh:
-if [ ! -e "$HOME/.antigen.zsh" ]; then
-  curl -L git.io/antigen -o "$HOME/.antigen.zsh"
+if [ ! -e "$HOME/.config/antigen.zsh" ]; then
+  curl -L git.io/antigen -o "$HOME/.config/antigen.zsh"
 fi
-source "$HOME/.antigen.zsh"
+source "$HOME/.config/antigen.zsh"
 
 _dotfile_dir="/${0:1:h}"
 
