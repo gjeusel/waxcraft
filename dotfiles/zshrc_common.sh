@@ -1,5 +1,5 @@
 # Source common to bash & zsh:
-if [ ! -f "~/.antigen.zsh" ]; then
+if [ ! -e "$HOME/.antigen.zsh" ]; then
   curl -L git.io/antigen -o "$HOME/.antigen.zsh"
 fi
 source "$HOME/.antigen.zsh"
@@ -59,8 +59,8 @@ antigen bundle zsh-users/zsh-autosuggestions
 #SPACESHIP_CHAR_SYMBOL="❯ "
 
 #or:
-antigen bundle mafredri/zsh-async
-antigen bundle sindresorhus/pure
+#antigen bundle mafredri/zsh-async
+#antigen bundle sindresorhus/pure
 # For pure & conda, see:
 # https://github.com/sindresorhus/pure/issues/411
 
