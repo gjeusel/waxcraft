@@ -137,3 +137,5 @@ dockerrun() {
 }
 
 alias negociate_proxy='curl --proxy-negotiate -I -u :  http://google.com'
+
+alias ssh="TERM=xterm ssh"
