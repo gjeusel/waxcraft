@@ -47,6 +47,7 @@ antigen bundle python
 antigen bundle redis-cli
 antigen bundle tmux
 antigen bundle archlinux
+antigen bundle yum
 antigen bundle ytet5uy4/pctl
 antigen bundle z
 
@@ -54,13 +55,17 @@ antigen bundle zsh-users/zsh-syntax-highlighting
 antigen bundle zsh-users/zsh-autosuggestions
 
 ## Theme
-#antigen theme https://github.com/denysdovhan/spaceship-prompt spaceship
+antigen theme https://github.com/denysdovhan/spaceship-prompt spaceship
 #SPACESHIP_TIME_SHOW=true
-#SPACESHIP_CHAR_SYMBOL="❯ "
+SPACESHIP_CHAR_SYMBOL="❯ "
+SPACESHIP_USER_SHOW="needed"
+SPACESHIP_USER_PREFIX=" "
+SPACESHIP_HOST_PREFIX="@"
+SPACESHIP_GIT_BRANCH_COLOR="cyan"
 
 #or:
-antigen bundle mafredri/zsh-async
-antigen bundle sindresorhus/pure
+#antigen bundle mafredri/zsh-async
+#antigen bundle sindresorhus/pure
 # For pure & conda, see:
 # https://github.com/sindresorhus/pure/issues/411
 

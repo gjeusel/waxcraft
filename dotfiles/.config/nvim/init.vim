@@ -93,7 +93,7 @@ call dein#begin(expand('~/.config/nvim'))
   " plugin that adds asynchronous Markdown preview to Neovim
   " > cargo build --release   # should be run in vim-markdown-composer after
   " installation
-  call dein#add('euclio/vim-markdown-composer', {'build': 'cargo build --release'})
+  "call dein#add('euclio/vim-markdown-composer', {'build': 'cargo build --release'})
   "call dein#add('plasticboy/vim-markdown')
 " }}}
 
