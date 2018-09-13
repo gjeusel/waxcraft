@@ -375,7 +375,7 @@ let g:jedi#documentation_command = "<leader>k"
 let g:jedi#completions_enabled = 0
 let g:jedi#force_py_version=3
 
-map <Leader>o o__import__('pdb').set_trace()  # BREAKPOINT<C-c>
+map <Leader>o o__import__('ipdb').set_trace()  # BREAKPOINT<C-c>
 map <Leader>i o__import__('IPython').embed()  # Enter Ipython<C-c>
 
 "}}}
@@ -396,8 +396,9 @@ let g:ale_linters = {
             \ 'html': ['htmlhint', 'proselint', 'writegood', 'tidy'],
             \}
 
+"\ 'python': ['autopep8', 'isort', 'black'],
 let g:ale_fixers = {
-            \ 'python': ['autopep8', 'isort', 'yapf'],
+            \ 'python': ['autopep8', 'yapf', 'isort'],
             \ 'html': ['prettier', 'eslint'],
             \ 'json': ['fixjson'],
             \}

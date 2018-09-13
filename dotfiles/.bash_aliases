@@ -91,7 +91,7 @@ alias unproxy="source $waxCraft_PATH/tools/unset_proxy.py"
 alias li="unproxy && cd ~/intraday/ && load_env_intraday"
 
 alias ipy="ipython -i "
-alias pt="pytest --log-level=DEBUG -x --pdb -k "
+alias pt="pytest --log-level=DEBUG -x -s --pdb -k "
 
 alias vimrc="vim $waxCraft_PATH/dotfiles/.config/nvim/init.vim"
 
@@ -137,3 +137,6 @@ dockerrun() {
 }
 
 alias negociate_proxy='curl --proxy-negotiate -I -u :  http://google.com'
+
+#Using tmux locally and SSHing into a remote: Avoiding the 'screen-256color': unknown terminal type.
+alias ssh="TERM=xterm ssh"
