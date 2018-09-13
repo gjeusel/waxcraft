@@ -1,11 +1,14 @@
+# Source common to bash & zsh:
+if [ ! -e "$HOME/.config/antigen.zsh" ]; then
+  curl -L git.io/antigen -o "$HOME/.config/antigen.zsh"
+fi
+source "$HOME/.config/antigen.zsh"
+
 _dotfile_dir="/${0:1:h}"
 
 # Up for case if proxy set
-# Source common to bash & zsh:
 source "/${0:1:h}/common.sh"
 
-# Source zsh antigen
-source "$_dotfile_dir/antigen.zsh"
 
 autoload -U zargs
 setopt inc_append_history share_history autocd extendedglob notify nomatch autopushd pushdignoredups promptsubst
@@ -44,6 +47,7 @@ antigen bundle python
 antigen bundle redis-cli
 antigen bundle tmux
 antigen bundle archlinux
+antigen bundle yum
 antigen bundle ytet5uy4/pctl
 antigen bundle z
 
@@ -51,13 +55,17 @@ antigen bundle zsh-users/zsh-syntax-highlighting
 antigen bundle zsh-users/zsh-autosuggestions
 
 ## Theme
-#antigen theme https://github.com/denysdovhan/spaceship-prompt spaceship
+antigen theme https://github.com/denysdovhan/spaceship-prompt spaceship
 #SPACESHIP_TIME_SHOW=true
-#SPACESHIP_CHAR_SYMBOL="❯ "
+SPACESHIP_CHAR_SYMBOL="❯ "
+SPACESHIP_USER_SHOW="needed"
+SPACESHIP_USER_PREFIX=" "
+SPACESHIP_HOST_PREFIX="@"
+SPACESHIP_GIT_BRANCH_COLOR="cyan"
 
 #or:
-antigen bundle mafredri/zsh-async
-antigen bundle sindresorhus/pure
+#antigen bundle mafredri/zsh-async
+#antigen bundle sindresorhus/pure
 # For pure & conda, see:
 # https://github.com/sindresorhus/pure/issues/411
 
@@ -76,7 +84,7 @@ if [ -f "/usr/share/nvm/init-nvm.sh" ]; then
     fi
 fi
 
-export TERM="tmux-256color"
+#export TERM="tmux-256color"
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=240"
 
 # Bind ctrl + space
