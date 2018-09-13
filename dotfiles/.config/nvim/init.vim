@@ -49,7 +49,12 @@ call dein#begin(expand('~/.config/nvim'))
   call dein#add('wellle/targets.vim')             " text object for parenthesis & more !
 
   call dein#add('terryma/vim-multiple-cursors')   " nice plugin for multiple cursors
-  call dein#add('junegunn/fzf.vim')               " asynchronous fuzzy finder, should replace ctrlp if ever to work with huuge projects
+
+  " asynchronous fuzzy finder, should replace ctrlp if ever to work with huuge projects
+  " ./install --all so the interactive script doesn't block
+  " you can check the other command line options  in the install file
+  call dein#add('junegunn/fzf', { 'build': './install --all', 'merged': 0 })
+  call dein#add('junegunn/fzf.vim', { 'depends': 'fzf' })
 
   "call dein#add('wincent/loupe')  " better focus on current highlight search
 "}}}
