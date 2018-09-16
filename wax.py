@@ -16,7 +16,6 @@ wax_backup_dir = waxCraft_dir / "backup"
 if not wax_backup_dir.exists():
     wax_backup_dir.mkdir()
 
-
 if not (Path.home() / ".config").exists():
     (Path.home() / ".config").mkdir()
 
@@ -28,9 +27,7 @@ def pcall(cmd, args, env=None):
     except subprocess.CalledProcessError as e:
         raise RuntimeError(
             "command '{}' return with error (code {}): {}".format(
-                e.cmd, e.returncode, e.output
-            )
-        )
+                e.cmd, e.returncode, e.output))
 
 
 def query_yes_no(question, default="yes"):
@@ -61,7 +58,8 @@ def query_yes_no(question, default="yes"):
         elif choice in valid:
             return valid[choice]
         else:
-            sys.stdout.write("Please respond with 'yes' or 'no' " "(or 'y' or 'n').\n")
+            sys.stdout.write("Please respond with 'yes' or 'no' "
+                             "(or 'y' or 'n').\n")
 
 
 # Low level conveniant functions:
@@ -145,28 +143,29 @@ def neovim():
     nvim_init = ".config/nvim/init.vim"
 
     create_symlinks_robust(
-        relative_paths=[nvim_init], from_dir=wax_dotfile_dir, to_dir=Path.home()
-    )
+        relative_paths=[nvim_init],
+        from_dir=wax_dotfile_dir,
+        to_dir=Path.home())
 
 
 def tmux():
     """Install tmux config files."""
     relative_paths = [".tmux.conf", ".config/tmuxinator"]
-    create_symlinks_robust(relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home())
+    create_symlinks_robust(
+        relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home())
 
 
 def _common_bash_zsh():
     relative_paths = [".bash_aliases", ".inputrc"]
-    create_symlinks_robust(relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home())
+    create_symlinks_robust(
+        relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home())
 
 
 def zsh():
     """Instal zsh."""
     # source ~/waxcraft/dotfiles/zshrc_common.sh
-    str_source = (
-        "# waxCraft zshrc_common.sh file sourcing :\n"
-        "source " + (wax_dotfile_dir / "zshrc_common.sh").as_posix()
-    )
+    str_source = ("# waxCraft zshrc_common.sh file sourcing :\n"
+                  "source " + (wax_dotfile_dir / "zshrc_common.sh").as_posix())
 
     fzshrc = Path.home() / ".zshrc"
     if not fzshrc.exists():
@@ -182,8 +181,7 @@ def bash():
     """Install bash config files & else"""
     str_source = (
         "# waxCraft bashrc_common.sh file sourcing :\n"
-        "source " + (wax_dotfile_dir / "bashrc_common.sh").as_posix()
-    )
+        "source " + (wax_dotfile_dir / "bashrc_common.sh").as_posix())
 
     fbashrc = Path.home() / ".bashrc"
     if not fbashrc.exists():
@@ -205,7 +203,8 @@ def plasma():
     quest = "Session need to restart, are your sure you want to quite?"
     if not query_yes_no(quest):  # if answered no, quit
         return
-    copy_robust(relative_paths, from_dir=wax_config_dir, to_dir=Path.home / ".config")
+    copy_robust(
+        relative_paths, from_dir=wax_config_dir, to_dir=Path.home / ".config")
     pcall("loginctl", ["terminate-user", str(os.environ["USER"])])
 
 
@@ -214,7 +213,10 @@ def python():
     ipythonhome = Path.home() / ".ipython"
     profilehome = ipythonhome / "profile_default"
     startuppath = profilehome / "startup"
-    if not any([ipythonhome.exists(), profilehome.exists(), startuppath.exists()]):
+    if not any(
+        [ipythonhome.exists(),
+         profilehome.exists(),
+         startuppath.exists()]):
         startuppath.mkdir(parents=True)
 
     relative_paths = [
@@ -223,7 +225,8 @@ def python():
         ".ipython/profile_default/ipython_config.py",
         ".ipython/profile_default/startup/common.py",
     ]
-    create_symlinks_robust(relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.Home())
+    create_symlinks_robust(
+        relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home())
 
 
 def setup_argparser():
@@ -234,7 +237,8 @@ def setup_argparser():
         "cfg_list",
         nargs="+",
         # choices=["bash", "zsh", "neovim", "vim", "plasma", "nixpkgs", "ipython"],
-        help="""Config to install among ['bash', 'zsh', 'vim', 'python', 'tmux', 'plasma' ]""",
+        help=
+        """Config to install among ['bash', 'zsh', 'vim', 'python', 'tmux', 'plasma' ]""",
     )
     return parser
 

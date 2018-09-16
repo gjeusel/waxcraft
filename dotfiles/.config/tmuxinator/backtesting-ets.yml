@@ -1,0 +1,24 @@
+# $HOME/.config/tmuxinator/backtesting-ets.yml
+
+session_name: backtesting-ets
+windows:
+  - window_name: editor
+    layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
+    shell_command_before:
+      - clear
+      #- act homeserv
+      #- cd ~/src/b2e2
+    panes:
+      - vim
+      - pwd
+
+  - window_name: launch_server
+    layout: e105,189x54,0,0{131x54,0,0,3,57x54,132,0[57x9,132,0,4,57x22,132,10,5,57x21,132,33,6]}
+    shell_command_before:
+      - clear
+    panes:
+      - pwd
+      - htop
+      - watch sensors
+      - pwd
+

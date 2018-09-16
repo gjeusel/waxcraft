@@ -6,7 +6,7 @@ windows:
     layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
     shell_command_before:
       - act bluesnake
-      - cd ~/src/b2e2
+      - cd ~/src/bluesnake
     panes:
       - vim
       - echo bluesnake SESSION !
