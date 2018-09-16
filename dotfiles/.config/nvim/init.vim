@@ -289,7 +289,9 @@ let g:fastfold_fold_movement_commands = []
 let g:deoplete#enable_at_startup = 1
 let g:deoplete#auto_complete_delay = 0
 let g:deoplete#sources#jedi#enable_cache = 1
-let g:echodoc_enable_at_startup=1
+
+let g:echodoc#enable_at_startup = 1
+let g:echodoc#enable_force_overwrite = 1
 
 let g:deoplete#file#enable_buffer_path=1
 call deoplete#custom#source('buffer', 'mark', 'ℬ')
