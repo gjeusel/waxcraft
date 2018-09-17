@@ -49,7 +49,12 @@ call dein#begin(expand('~/.config/nvim'))
   call dein#add('wellle/targets.vim')             " text object for parenthesis & more !
 
   call dein#add('terryma/vim-multiple-cursors')   " nice plugin for multiple cursors
-  call dein#add('junegunn/fzf.vim')               " asynchronous fuzzy finder, should replace ctrlp if ever to work with huuge projects
+
+  " asynchronous fuzzy finder, should replace ctrlp if ever to work with huuge projects
+  " ./install --all so the interactive script doesn't block
+  " you can check the other command line options  in the install file
+  call dein#add('junegunn/fzf', { 'build': './install --all', 'merged': 0 })
+  call dein#add('junegunn/fzf.vim', { 'depends': 'fzf' })
 
   "call dein#add('wincent/loupe')  " better focus on current highlight search
 "}}}
@@ -284,7 +289,9 @@ let g:fastfold_fold_movement_commands = []
 let g:deoplete#enable_at_startup = 1
 let g:deoplete#auto_complete_delay = 0
 let g:deoplete#sources#jedi#enable_cache = 1
-let g:echodoc_enable_at_startup=1
+
+let g:echodoc#enable_at_startup = 1
+let g:echodoc#enable_force_overwrite = 1
 
 let g:deoplete#file#enable_buffer_path=1
 call deoplete#custom#source('buffer', 'mark', 'ℬ')
@@ -398,7 +405,7 @@ let g:ale_linters = {
 
 "\ 'python': ['autopep8', 'isort', 'black'],
 let g:ale_fixers = {
-            \ 'python': ['autopep8', 'yapf', 'isort'],
+            \ 'python': ['isort', 'yapf'],
             \ 'html': ['prettier', 'eslint'],
             \ 'json': ['fixjson'],
             \}

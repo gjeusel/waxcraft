@@ -66,10 +66,11 @@ antigen bundle zsh-users/zsh-autosuggestions
 #SPACESHIP_GIT_BRANCH_COLOR="cyan"
 
 ## Pure:
-# For pure & conda, see:
-# https://github.com/sindresorhus/pure/issues/411
 antigen bundle mafredri/zsh-async
 antigen bundle sindresorhus/pure
+# For pure & conda, see:
+# https://github.com/sindresorhus/pure/issues/411
+# For pure on remote, user must be part of tty group to get access to zsh-async correctly
 
 # Tell Antigen that you're done.
 antigen apply
@@ -112,7 +113,7 @@ vfzf() {
 bindkey -s "^P" "^Uvfzf^M"
 
 # Auto install tpm (tmux plugin) ?
-if [ -f "~/.tmux/plugins/tpm" ]; then
+if [ ! -e "$HOME/.tmux/plugins/tpm" ]; then
   git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 fi
 
