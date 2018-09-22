@@ -2,7 +2,7 @@ import pdb
 
 
 class Config(pdb.DefaultConfig):
-    highlight = False
+    highlight = True
     filename_color = pdb.Color.lightgray
     use_terminal256formatter = False
 
