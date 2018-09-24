@@ -5,6 +5,7 @@ class Config(pdb.DefaultConfig):
     highlight = True
     filename_color = pdb.Color.lightgray
     use_terminal256formatter = False
+    current_line_color = 10
 
     def __init__(self):
         # readline.parse_and_bind('set convert-meta on')
