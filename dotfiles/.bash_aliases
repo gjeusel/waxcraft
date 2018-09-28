@@ -92,6 +92,8 @@ alias li="unproxy && cd ~/intraday/ && load_env_intraday"
 
 alias ipy="ipython -i "
 alias pt="pytest --log-level=DEBUG -x -s --pdb -k "
+alias pdb="pytest --pdb -x -s "
+alias ptp="pytest -s -n auto "
 
 alias vimrc="vim $waxCraft_PATH/dotfiles/.config/nvim/init.vim"
 

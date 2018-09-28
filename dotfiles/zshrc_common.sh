@@ -51,6 +51,10 @@ antigen bundle yum
 antigen bundle ytet5uy4/pctl
 antigen bundle z
 
+# Python:
+antigen bundle "esc/conda-zsh-completion"
+antigen bundle "bckim92/zsh-autoswitch-conda"
+
 antigen bundle zsh-users/zsh-syntax-highlighting
 antigen bundle zsh-users/zsh-autosuggestions
 
