@@ -142,3 +142,8 @@ alias negociate_proxy='curl --proxy-negotiate -I -u :  http://google.com'
 
 #Using tmux locally and SSHing into a remote: Avoiding the 'screen-256color': unknown terminal type.
 alias ssh="TERM=xterm ssh"
+
+compip() {
+  pip install -U pip neovim isort yapf \
+    pdbpp pytest pytest-xdist pytest-cov pytest-flakes
+}
