@@ -5,6 +5,7 @@ class Config(pdb.DefaultConfig):
     highlight = True
     filename_color = pdb.Color.lightgray
     use_terminal256formatter = False
+    current_line_color = 10
 
     def __init__(self):
         # readline.parse_and_bind('set convert-meta on')
@@ -17,11 +18,11 @@ class Config(pdb.DefaultConfig):
         else:
             self.colorscheme = terminal.TERMINAL_COLORS.copy()
             self.colorscheme.update({
-                terminal.Keyword:            ('darkred',     'red'),
-                terminal.Number:             ('darkyellow',  'yellow'),
-                terminal.String:             ('brown',       'green'),
-                terminal.Name.Function:      ('darkgreen',   'blue'),
-                terminal.Name.Namespace:     ('teal',        'turquoise'),
+                terminal.Keyword: ('darkred', 'red'),
+                terminal.Number: ('darkyellow', 'yellow'),
+                terminal.String: ('brown', 'green'),
+                terminal.Name.Function: ('darkgreen', 'blue'),
+                terminal.Name.Namespace: ('teal', 'turquoise'),
             })
 
     def setup(self, pdb):
