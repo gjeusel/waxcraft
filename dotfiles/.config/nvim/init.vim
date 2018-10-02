@@ -109,9 +109,9 @@ call dein#begin(expand('~/.config/nvim'))
   call dein#add('Shougo/neoinclude.vim')  " completion framework for neocomplete/deoplete
   call dein#add('Shougo/neco-vim') " for vim
 
-  call dein#add('zchee/deoplete-jedi') " for python
-  call dein#add('zchee/deoplete-go')  " for golang
-  call dein#add('carlitux/deoplete-ternjs')  " for javascript
+  call dein#add('zchee/deoplete-jedi', {'on_ft': 'python'}) " for python
+  call dein#add('zchee/deoplete-go', {'on_ft': 'go'})  " for golang
+  call dein#add('carlitux/deoplete-ternjs', {'on_ft': ['js', 'html', 'css']})  " for javascript
 
   call dein#add('Shougo/echodoc.vim') " displays function signatures from completions in the command line.
 " }}}
@@ -149,10 +149,10 @@ call dein#begin(expand('~/.config/nvim'))
 " }}}
 
 " Snippets {{{
-  "call dein#add('Shougo/neosnippet.vim')  " shougo snippet engine
-  "call dein#add('Shougo/neosnippet-snippets')
-  call dein#add('SirVer/ultisnips') " snippet engine
-  call dein#add('honza/vim-snippets') " those are the best snippets for python
+  ""call dein#add('Shougo/neosnippet.vim')  " shougo snippet engine
+  ""call dein#add('Shougo/neosnippet-snippets')
+  "call dein#add('SirVer/ultisnips') " snippet engine
+  "call dein#add('honza/vim-snippets') " those are the best snippets for python
 "}}}
 
   if dein#check_install()
@@ -287,8 +287,20 @@ let g:fastfold_fold_movement_commands = []
 
 " deoplete {{{
 let g:deoplete#enable_at_startup = 1
-let g:deoplete#auto_complete_delay = 0
-let g:deoplete#sources#jedi#enable_cache = 1
+" set multiple options:
+call deoplete#custom#option({
+      \ 'auto_complete_delay': 0,
+      \ 'max_list': 20,
+      \ })
+      "\ 'auto_refresh_delay': -1,
+      "\ 'min_patter_length': 2,
+      "\ 'refresh_always': v:false,
+      "\ 'ignore_sources': {'python': 'numpy'},
+      "\ 'num_processes': 2,
+
+"" Disable the candidates in Comment syntaxes.
+"call deoplete#custom#source('_', 'disable_syntaxes', ['Comment'])
+
 
 let g:echodoc#enable_at_startup = 1
 let g:echodoc#enable_force_overwrite = 1
@@ -302,16 +314,19 @@ call deoplete#custom#source('neosnippet', 'mark', '')
 call deoplete#custom#source('ultisnips', 'mark', '')
 call deoplete#custom#source('LanguageClient', 'mark', '')
 
-" Debug mode
-" call deoplete#enable_logging('DEBUG', '/tmp/deoplete.log')
-" let g:deoplete#enable_profile = 0
-" let g:deoplete#sources#jedi#debug_server = 0
-
 " deoplete jedi for python
 let g:deoplete#sources#jedi#server_timeout = 40 " extend time for large pkg
 let g:deoplete#sources#jedi#show_docstring = 0  " show docstring in preview window
+let g:deoplete#sources#jedi#enable_cache = 1
+"let g:deoplete#sources#jedi#statement_length = 20
+
 "autocmd CompleteDone * silent! pclose!
 set completeopt-=preview  " if you don't want windows popup
+
+"" Debug mode
+"call deoplete#enable_logging('DEBUG', '/tmp/deoplete.log')
+"let g:deoplete#sources#jedi#debug_server = 0
+"let g:deoplete#enable_profile = 0
 
 "}}}
 

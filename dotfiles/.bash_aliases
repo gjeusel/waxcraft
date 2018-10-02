@@ -92,6 +92,8 @@ alias li="unproxy && cd ~/intraday/ && load_env_intraday"
 
 alias ipy="ipython -i "
 alias pt="pytest --log-level=DEBUG -x -s --pdb -k "
+alias pdb="pytest --pdb -x -s "
+alias ptp="pytest -s -n auto "
 
 alias vimrc="vim $waxCraft_PATH/dotfiles/.config/nvim/init.vim"
 
@@ -140,3 +142,8 @@ alias negociate_proxy='curl --proxy-negotiate -I -u :  http://google.com'
 
 #Using tmux locally and SSHing into a remote: Avoiding the 'screen-256color': unknown terminal type.
 alias ssh="TERM=xterm ssh"
+
+compip() {
+  pip install -U pip neovim isort yapf \
+    pdbpp pytest pytest-xdist pytest-cov pytest-flakes
+}
