@@ -135,7 +135,7 @@ call dein#begin(expand('~/.config/nvim'))
   call dein#add('eslint/eslint', {'on_ft': ['html', 'js', 'css']})  " javascript
 
   "call dein#add('othree/html5.vim')  " HTML5 omnicomplete and syntax
-  call dein#add('yaniswang/HTMLHint', {'on_ft': 'html'})  " html
+  "call dein#add('yaniswang/HTMLHint', {'on_ft': 'html'})  " html
   call dein#add('tmhedberg/matchit', {'on_ft': 'html'})  " % for matching tag
   call dein#add('rstacruz/sparkup')  " for html auto generation
 
@@ -288,10 +288,10 @@ let g:fastfold_fold_movement_commands = []
 " deoplete {{{
 let g:deoplete#enable_at_startup = 1
 " set multiple options:
-call deoplete#custom#option({
-      \ 'auto_complete_delay': 0,
-      \ 'max_list': 20,
-      \ })
+"call deoplete#custom#option({
+"      \ 'auto_complete_delay': 0,
+"      \ 'max_list': 20,
+"      \ })
       "\ 'auto_refresh_delay': -1,
       "\ 'min_patter_length': 2,
       "\ 'refresh_always': v:false,
