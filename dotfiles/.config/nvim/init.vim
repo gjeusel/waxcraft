@@ -287,11 +287,20 @@ let g:fastfold_fold_movement_commands = []
 
 " deoplete {{{
 let g:deoplete#enable_at_startup = 1
+
+" make sure the autocompletion will actually trigger using the omnifuncs set later on
+if !exists('g:deoplete#omni#input_patterns')
+  let g:deoplete#omni#input_patterns = {}
+endif
+
+let g:deoplete#enable_ignore_case = 1
+let g:deoplete#enable_smart_case = 1
+
 " set multiple options:
-"call deoplete#custom#option({
-"      \ 'auto_complete_delay': 0,
-"      \ 'max_list': 20,
-"      \ })
+call deoplete#custom#option({
+      \ 'auto_complete_delay': 0,
+      \ 'max_list': 5,
+      \ })
       "\ 'auto_refresh_delay': -1,
       "\ 'min_patter_length': 2,
       "\ 'refresh_always': v:false,
@@ -309,7 +318,7 @@ let g:deoplete#file#enable_buffer_path=1
 call deoplete#custom#source('buffer', 'mark', 'ℬ')
 call deoplete#custom#source('omni', 'mark', '⌾')
 call deoplete#custom#source('file', 'mark', '')
-call deoplete#custom#source('jedi', 'mark', '')
+call deoplete#custom#source('jedi', 'mark', '🐍')
 call deoplete#custom#source('neosnippet', 'mark', '')
 call deoplete#custom#source('ultisnips', 'mark', '')
 call deoplete#custom#source('LanguageClient', 'mark', '')
@@ -318,10 +327,13 @@ call deoplete#custom#source('LanguageClient', 'mark', '')
 let g:deoplete#sources#jedi#server_timeout = 40 " extend time for large pkg
 let g:deoplete#sources#jedi#show_docstring = 0  " show docstring in preview window
 let g:deoplete#sources#jedi#enable_cache = 1
-"let g:deoplete#sources#jedi#statement_length = 20
+
+" Sets the maximum length of completion description text. If this is exceeded, a simple description is used instead
+let g:deoplete#sources#jedi#statement_length = 20
 
 "autocmd CompleteDone * silent! pclose!
 set completeopt-=preview  " if you don't want windows popup
+set completeopt+=noinsert " needed so deoplete can auto select the first suggestion
 
 "" Debug mode
 "call deoplete#enable_logging('DEBUG', '/tmp/deoplete.log')
@@ -369,10 +381,10 @@ endif
 "}}}
 " }}}
 
-" Pymode & Jedi {{{
+" Pymode {{{
 let g:pymode_indent = 1 " pep8 indent
 let g:pymode_folding = 0 " disable folding to use SimpyFold
-let g:pymode_motion = 1
+let g:pymode_motion = 1  " give jumps to functions / methods / classes
 
 " doc
 let g:pymode_doc = 1
@@ -390,12 +402,27 @@ let g:pymode_rope = 0 " disable rope which is slow
 " Python code checking :
 let g:pymode_lint = 0  " disable it to use ALE
 
-" Breakpoint:
-let g:pymode_breakpoint = 0  " disable
+" Breakpoint :
+let g:pymode_breakpoint = 0  " disable it for custom
 
+" }}}
+
+" Jedi {{{
 let g:jedi#documentation_command = "<leader>k"
-let g:jedi#completions_enabled = 0
+
+" Force python 3
 let g:jedi#force_py_version=3
+
+let g:jedi#completions_enabled = 0
+let g:jedi#use_tabs_not_buffers = 0  " current default is 1.
+let g:jedi#smart_auto_mappings = 0  " disable import completion keyword
+let g:jedi#auto_close_doc = 1 " Automatically close preview windows upon leaving insert mode
+
+let g:jedi#auto_initialization = 1 " careful, it set omnifunc that is unwanted
+let g:jedi#show_call_signatures = 0  " do show the args of func, use echodoc for it
+
+" buggy:
+"let g:jedi#auto_vim_configuration = 0  " set completeopt & rempas ctrl-C to Esc
 
 map <Leader>o o__import__('pdb').set_trace()  # BREAKPOINT<C-c>
 map <Leader>i o__import__('IPython').embed()  # Enter Ipython<C-c>
@@ -410,7 +437,7 @@ let g:ale_linter_aliases = {
     \ 'html': ['html', 'javascript', 'css'],
     \}
 
-let g:ale_python_autopep8_options = '--max-line-length 160'
+let g:ale_python_autopep8_options = '--max-line-length 100'
 
 let g:ale_linters = {
             \ 'python': ['flake8'],
@@ -436,12 +463,9 @@ map <nowait><silent> <A-q> <Plug>(ale_previous_wrap)
 " go to next error in current windows
 map <nowait><silent> <A-s> <Plug>(ale_next_wrap)
 
-"map <nowait> <silent> <A-d> :lclose<CR>:bdelete<CR>
-
 " autofix when in normal mode for all file and keep autopep8 for fix on range
 " (i.e keep autopep8 for fix in visualmode)
 nmap <leader>p :ALEFix <cr>
-nmap <leader>m :e!<cr>
 "}}}
 
 " Autopep8 {{{
@@ -450,18 +474,6 @@ let g:autopep8_disable_show_diff=1 " disable show diff windows
 let g:jedi#auto_close_doc = 1 " Automatically close preview windows upon leaving insert mode
 vnoremap <leader>p :Autopep8<CR>
 "}}}
-
-" Jedi {{{
-let g:jedi#completions_enabled = 0
-let g:jedi#use_tabs_not_buffers = 0  " current default is 1.
-let g:jedi#smart_auto_mappings = 0  " disable import completion keyword
-let g:jedi#auto_close_doc = 1 " Automatically close preview windows upon leaving insert mode
-
-let g:jedi#auto_initialization = 1 " careful, it set omnifunc that is unwanted
-let g:jedi#show_call_signatures = 2  " do show the args of func in cmdline
-" buggy:
-"let g:jedi#auto_vim_configuration = 0  " set completeopt & rempas ctrl-C to Esc
-" }}}
 
 " AsyncRun {{{
 " Quick run via <F10>
@@ -501,7 +513,7 @@ au BufNewFile,BufRead *.md let g:table_mode_header_fillchar='-'
 au BufNewFile,BufRead *.md let g:table_mode_corner_corner='|'
 "}}}
 
-" TagBar & UndoTree {{{
+" TagBar & UndoTree & NERDTree {{{
 nnoremap <silent> <F9> :TagbarToggle<CR>
 nnoremap <silent> <F8> :UndotreeToggle<CR>
 nnoremap <silent> <F7> :NERDTreeToggle<CR>
