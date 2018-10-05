@@ -42,13 +42,13 @@ call dein#begin(expand('~/.config/nvim'))
   call dein#add('zhimsel/vim-stay')               " adds automated view session creation and restoration whenever editing a buffer
   call dein#add('junegunn/vim-easy-align')        " easy alignment, better than tabularize
   call dein#add('majutsushi/tagbar')              " browsing the tags, require ctags
-  call dein#add('mattn/gist-vim')                 " easily upload gist on github
+  "call dein#add('mattn/gist-vim')                 " easily upload gist on github
   call dein#add('mbbill/undotree')                " visualize undo tree
   call dein#add('jiangmiao/auto-pairs')           " auto pair
   call dein#add('AndrewRadev/splitjoin.vim')      " easy split join on whole paragraph
   call dein#add('wellle/targets.vim')             " text object for parenthesis & more !
 
-  call dein#add('terryma/vim-multiple-cursors')   " nice plugin for multiple cursors
+  "call dein#add('terryma/vim-multiple-cursors')   " nice plugin for multiple cursors
 
   " asynchronous fuzzy finder, should replace ctrlp if ever to work with huuge projects
   " ./install --all so the interactive script doesn't block
@@ -60,7 +60,7 @@ call dein#begin(expand('~/.config/nvim'))
 "}}}
 
 " User Interface {{{
-  call dein#add('scrooloose/nerdtree')  " file tree
+  "call dein#add('scrooloose/nerdtree')  " file tree
   call dein#add('itchyny/lightline.vim')  " light status line
   call dein#add('ap/vim-buftabline')  " buffer line
   call dein#add('Yggdroot/indentLine')  " thin indent line
@@ -80,7 +80,6 @@ call dein#begin(expand('~/.config/nvim'))
   call dein#add('LnL7/vim-nix')  " for .nix
   call dein#add('cespare/vim-toml')  " syntax for .toml
   call dein#add('tmux-plugins/vim-tmux')  " syntax highlight for .tmux.conf file
-
 "}}}
 
 " Git {{{
@@ -90,7 +89,7 @@ call dein#begin(expand('~/.config/nvim'))
   "call dein#add('jreybert/vimagit', {'on_cmd': ['Magit', 'MagitOnly']}) " magit for vim
 " }}}
 
-" markdown & rst {{{
+" markdown & rst & grammar checker {{{
   call dein#add('dhruvasagar/vim-table-mode')  " to easily create tables.
   call dein#add('rhysd/vim-grammarous')  " grammar checker
   call dein#add('junegunn/goyo.vim')  "  Distraction-free writing in Vim
@@ -106,7 +105,7 @@ call dein#begin(expand('~/.config/nvim'))
   call dein#add('ervandew/supertab') " use <Tab> for all your insert completion
   call dein#add('Shougo/deoplete.nvim')  " async engine
 
-  call dein#add('Shougo/neoinclude.vim')  " completion framework for neocomplete/deoplete
+  "call dein#add('Shougo/neoinclude.vim')  " completion framework for neocomplete/deoplete
   call dein#add('Shougo/neco-vim') " for vim
 
   call dein#add('zchee/deoplete-jedi', {'on_ft': 'python'}) " for python
@@ -118,7 +117,7 @@ call dein#begin(expand('~/.config/nvim'))
 
 " Code Style {{{
   call dein#add('w0rp/ale')  " general asynchronous syntax checker
-  call dein#add('editorconfig/editorconfig-vim')  " EditorConfig plugin for Vim
+  "call dein#add('editorconfig/editorconfig-vim')  " EditorConfig plugin for Vim
 "}}}
 
 " Python {{{
@@ -268,6 +267,10 @@ command! -bang -nargs=* Ag
   \                 <bang>0)
 
 
+" }}}
+
+" Grammarous {{{
+nmap <leader>g :GrammarousCheck <cr>
 " }}}
 
 " SuperTab, SimpylFold & FastFold {{{
