@@ -33,8 +33,11 @@ call dein#begin(expand('~/.config/nvim'))
   call dein#add('scrooloose/nerdcommenter')       " easy comments
   call dein#add('terryma/vim-smooth-scroll')      " smooth scroll
 
+  " Tpope is awesome
   call dein#add('tpope/vim-surround')             " change surrounding easily
   call dein#add('tpope/vim-repeat')               " better action repeat for vim-surround with .
+  call dein#add('tpope/vim-eunuch')               " sugar for the UNIX shell commands
+
   call dein#add('vim-scripts/loremipsum')         " dummy text generator (:Loremipsum [number of words])
   call dein#add('easymotion/vim-easymotion')      " easymotion when fedup to think
   call dein#add('skywind3000/asyncrun.vim')       " run async shell commands

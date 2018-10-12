@@ -145,5 +145,6 @@ alias ssh="TERM=xterm ssh"
 
 compip() {
   pip install -U pip neovim isort yapf \
-    pdbpp pytest pytest-xdist pytest-cov pytest-flakes
+    pdbpp pytest pytest-xdist pytest-cov pytest-flakes \
+    python-box
 }
