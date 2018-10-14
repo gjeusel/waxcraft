@@ -362,8 +362,8 @@ let g:UltiSnipsJumpBackwardTrigger = "<C-p>"
 
 let g:ultisnips_python_style = "google"
 
-if (isdirectory(expand("$waxCraft_PATH/snippets/UltiSnips")))
-  let g:UltiSnipsSnippetDirectories = [expand("$waxCraft_PATH/snippets/UltiSnips"), "UltiSnips"]
+if (isdirectory(expand("$waxCraft_PATH/tools/snippets/UltiSnips")))
+  let g:UltiSnipsSnippetDirectories = [expand("$waxCraft_PATH/tool/snippets/UltiSnips"), "UltiSnips"]
 endif
 
 " If wanted to use honza snippets with neosnippet engine:

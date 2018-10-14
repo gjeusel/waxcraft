@@ -71,5 +71,5 @@ Installation
 .. _Neovim: https://neovim.io/
 .. _Plasma: https://www.kde.org/plasma-desktop
 
-.. |OverviewNeovim| image:: https://github.com/gjeusel/waxcraft/blob/master/datas/overview_neovim.png
-.. |OverviewPlasma| image:: https://github.com/gjeusel/waxcraft/blob/master/datas/overview_plasma.png
+.. |OverviewNeovim| image:: https://github.com/gjeusel/waxcraft/blob/master/_static/img/overview_neovim.png
+.. |OverviewPlasma| image:: https://github.com/gjeusel/waxcraft/blob/master/_static/img/overview_plasma.png
