@@ -151,6 +151,7 @@ compip() {
   pip install -U python-box
 }
 
+# https://docs.npmjs.com/getting-started/fixing-npm-permissions
 comnpm() {
   npm install -g fixjson  # json fixer
   npm install -g eslint  # js fixer
