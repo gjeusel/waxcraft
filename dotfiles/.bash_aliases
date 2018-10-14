@@ -87,8 +87,9 @@ alias ga='git add'
 alias glog='git log --oneline --graph --decorate --all'
 
 
-alias unproxy="source $waxCraft_PATH/tools/unset_proxy.py"
-alias li="unproxy && cd ~/intraday/ && load_env_intraday"
+function unproxy() {
+  unset http_proxy https_proxy rsync_proxy ftp_proxy HTTP_PROXY HTTPS_PROXY
+}
 
 alias ipy="ipython -i "
 alias pt="pytest --log-level=DEBUG -x -s --pdb -k "
@@ -144,7 +145,15 @@ alias negociate_proxy='curl --proxy-negotiate -I -u :  http://google.com'
 alias ssh="TERM=xterm ssh"
 
 compip() {
-  pip install -U pip neovim isort yapf \
-    pdbpp pytest pytest-xdist pytest-cov pytest-flakes \
-    python-box
+  pip install -U pip neovim isort yapf
+  pip install -U proselint  # linter for prose
+  pip install -U pdbpp pytest pytest-xdist pytest-cov pytest-flakes
+  pip install -U python-box
+}
+
+comnpm() {
+  npm install -g fixjson  # json fixer
+  npm install -g eslint  # js fixer
+  npm install -g alex   # Catch insensitive, inconsiderate writing
+  npm install -g prettier  # js & html & json & else
 }
