@@ -92,7 +92,6 @@ if [ -f "/usr/share/nvm/init-nvm.sh" ]; then
     fi
 fi
 
-#export TERM="tmux-256color"
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=240"
 
 # Bind ctrl + space
@@ -118,6 +117,8 @@ vfzf() {
 bindkey -s "^P" "^Uvfzf^M"
 
 # Auto install tpm (tmux plugin) ?
+#export TERM="tmux-256color"
+[ -n "$TMUX" ] && export TERM=screen-256color
 if [ ! -e "$HOME/.tmux/plugins/tpm" ]; then
   git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 fi

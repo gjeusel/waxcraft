@@ -148,7 +148,7 @@ compip() {
   pip install -U pip neovim isort yapf
   pip install -U proselint  # linter for prose
   pip install -U pdbpp pytest pytest-xdist pytest-cov pytest-flakes
-  pip install -U python-box
+  pip install -U python-box pgcli ansible
 }
 
 # https://docs.npmjs.com/getting-started/fixing-npm-permissions

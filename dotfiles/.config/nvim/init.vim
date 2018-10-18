@@ -69,8 +69,8 @@ call dein#begin(expand('~/.config/nvim'))
   call dein#add('Yggdroot/indentLine')  " thin indent line
   call dein#add('rhysd/conflict-marker.vim') " conflict markers for vimdiff
   call dein#add('luochen1990/rainbow')  " embed parenthesis colors
-  call dein#add('altercation/vim-colors-solarized')  " prefered colorscheme
-  "call dein#add('morhetz/gruvbox') " other nice colorscheme
+  "call dein#add('altercation/vim-colors-solarized')  " prefered colorscheme
+  call dein#add('morhetz/gruvbox') " other nice colorscheme
   "call dein#add('chriskempson/base16-vim')
 
   " nerd font need to be installed, see https://github.com/ryanoasis/nerd-fonts#font-installation
@@ -206,7 +206,7 @@ noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 0, 4)<CR>
 
 " lightline {{{
 " https://github.com/itchyny/lightline.vim/issues/87
-let g:lightline = {'colorscheme': 'solarized'}
+let g:lightline = {'colorscheme': 'gruvbox'}
 
 let g:lightline.active = {
     \ 'left': [ [ 'mode', 'paste' ],
@@ -548,7 +548,7 @@ filetype plugin indent on
 syntax enable
 
 set background=dark
-colorscheme solarized
+colorscheme gruvbox
 
 set mouse=a             " Automatically enable mouse usage
 set mousehide           " Hide the mouse cursor while typing
@@ -816,48 +816,27 @@ map <nowait> <A-r> :sp<cr>
 nnoremap <Space> za
 vnoremap <Space> za
 
-" qwerty --> azerty {{{
-noremap w z
-noremap z w
+" qwerty fixes {{{
 
-nnoremap ww zz
-nnoremap zz ww
+" remap ; in :
+nnoremap ; :
+nnoremap : ;
+vnoremap ; :
+vnoremap : ;
 
-" Some motions
-vnoremap ww zz
-vnoremap wt zt
-vnoremap wb zb
+" }}}
 
-" --> Folding : closing/opening all opened foldings :
-nnoremap wM zR
-vnoremap wM zR
-nnoremap wm zM
-vnoremap wm zM
-
-" --> Folding : movements (next / prec) :
-nnoremap wj zj
-vnoremap wj zj
-nnoremap wk zk
-vnoremap wk zk
-
-function! InitMovementMap()
-    if mapcheck("z", "N") != ""
-        unmap z
-    endif
-    noremap <nowait> z w
-endfunction
-autocmd VimEnter * call InitMovementMap()
-noremap <nowait> z w
-noremap <nowait> Z b
+" Remap some motions:
+noremap <nowait> w w
+noremap <nowait> W b
 noremap <nowait> e e
 noremap <nowait> E ge
-"}}}
 
 " copy to clipboard :
 vnoremap <Leader>y "+y
 
-noremap H ^
-noremap L g_
+"noremap H ^
+"noremap L g_
 
 " source config
 if !exists('*ActualizeInit')
