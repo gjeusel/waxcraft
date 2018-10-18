@@ -1,0 +1,21 @@
+# /home/gjeusel/.config/tmuxinator/octopus.yml
+
+session_name: octopus
+windows:
+  - window_name: editor
+    layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
+    shell_command_before:
+      - act octopus
+      - cd ~/src/octopus
+    panes:
+      - vim
+      - echo octopus SESSION !
+
+  - window_name: launch_server
+    layout: main-vertical
+    shell_command_before:
+      - act octopus
+    panes:
+      - echo octopus SESSION !
+      - wax
+
