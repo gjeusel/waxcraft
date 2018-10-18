@@ -174,20 +174,20 @@ function! MapEasymotionInit()
     " bd for bidirectional :
     map <nowait><leader><leader> <Plug>(easymotion-bd-w)
 
-    map <nowait><leader>f <Plug>(easymotion-bd-f)
+    "map <nowait><leader>f <Plug>(easymotion-bd-f)
 
-    map <nowait><Leader>l <Plug>(easymotion-lineforward)
-    map <nowait><Leader>j <Plug>(easymotion-j)
-    map <nowait><Leader>k <Plug>(easymotion-k)
-    map <nowait><Leader>h <Plug>(easymotion-linebackward)
+    "map <nowait><Leader>l <Plug>(easymotion-lineforward)
+    "map <nowait><Leader>j <Plug>(easymotion-j)
+    "map <nowait><Leader>k <Plug>(easymotion-k)
+    "map <nowait><Leader>h <Plug>(easymotion-linebackward)
 
-    " beginning of words :
-    map <nowait><leader>z <Plug>(easymotion-w)
-    map <nowait><leader>Z <Plug>(easymotion-b)
+    "" beginning of words :
+    "map <nowait><leader>z <Plug>(easymotion-w)
+    "map <nowait><leader>Z <Plug>(easymotion-b)
 
-    " end of words :
-    map <nowait><leader>e <Plug>(easymotion-e)
-    map <nowait><leader>E <Plug>(easymotion-ge)
+    "" end of words :
+    "map <nowait><leader>e <Plug>(easymotion-e)
+    "map <nowait><leader>E <Plug>(easymotion-ge)
 endfunction
 autocmd VimEnter * call MapEasymotionInit()
 " }}}
@@ -229,7 +229,7 @@ endfunction
 
 nmap <leader>a :Ag<CR>
 nmap <leader>c :Commands<CR>
-nmap <C-p> :call FzfOmniFiles()<CR>
+nmap <leader>p :call FzfOmniFiles()<CR>
 nmap <leader>b :Buffers<CR>
 
 " fzf
@@ -464,21 +464,21 @@ let g:ale_fixers = {
 "let g:ale_fix_on_save = 0  " always fix at save time
 
 " go to previous error in current windows
-map <nowait><silent> <A-q> <Plug>(ale_previous_wrap)
+map <nowait><silent> <leader>[ <Plug>(ale_previous_wrap)
 
 " go to next error in current windows
-map <nowait><silent> <A-s> <Plug>(ale_next_wrap)
+map <nowait><silent> <leader>] <Plug>(ale_next_wrap)
 
 " autofix when in normal mode for all file and keep autopep8 for fix on range
 " (i.e keep autopep8 for fix in visualmode)
-nmap <leader>p :ALEFix <cr>
+nmap <leader>l :ALEFix <cr>
 "}}}
 
 " Autopep8 {{{
 let g:autopep8_disable_show_diff=1 " disable show diff windows
 "let g:autopep8_ignore="E501" " ignore line too long
 let g:jedi#auto_close_doc = 1 " Automatically close preview windows upon leaving insert mode
-vnoremap <leader>p :Autopep8<CR>
+vnoremap <leader>l :Autopep8<CR>
 "}}}
 
 " AsyncRun {{{
@@ -681,7 +681,6 @@ endif
 " Searching
 set ignorecase " searches are case insensitive...
 set smartcase  " ... unless they contain at least one capital letter
-highlight Search ctermbg=white
 
 " Clipboard
 if has('clipboard')
@@ -750,6 +749,9 @@ cmap <a-bs> <c-w>
 " Avoid vim history cmd to pop up with q:
 nnoremap q: <Nop>
 
+" Avoid entering some weird mode:
+map <S-Q> <nop>
+
 " Nvim Terminal
 " Make escape work in the Neovim terminal.
 tnoremap <Esc> <C-\><C-n>
@@ -757,14 +759,7 @@ tnoremap <Esc> <C-\><C-n>
 " }}}
 
 " map open terminal
-map <nowait> <A-t> :vsplit \| terminal <CR>
-
-" clear the search highlight
-if exists(":LoupeClearHighlight")
-  nmap <leader>; <Plug>(LoupeClearHighlight)
-else
-  nmap <leader>; :nohl<cr>
-endif
+map <nowait> <leader>t :vsplit \| terminal <CR>
 
 " select all of current paragraph with enter:
 nnoremap <return> vip
@@ -801,30 +796,20 @@ for i in range(97,122)
   exec "map! \e".c." <A-".c.">"
 endfor
 
-map <nowait> <A-a> :bp<cr>
-map <nowait> <A-z> :bn<cr>
+map <nowait> <leader>q :bp<cr>
+map <nowait> <leader>w :bn<cr>
 
 " buffer delete without closing windows :
-nmap <silent> <A-d> :bp\|bd! #<CR>
+nmap <silent> <leader>d :bp\|bd! #<CR>
 "}}}
 
 " Split windows
-map <nowait> <A-e> :vs<cr>
-map <nowait> <A-r> :sp<cr>
+map <nowait> <leader>e :vs<cr>
+map <nowait> <leader>r :sp<cr>
 
 " About folding open and close :
 nnoremap <Space> za
 vnoremap <Space> za
-
-" qwerty fixes {{{
-
-" remap ; in :
-nnoremap ; :
-nnoremap : ;
-vnoremap ; :
-vnoremap : ;
-
-" }}}
 
 " Remap some motions:
 noremap <nowait> w w
