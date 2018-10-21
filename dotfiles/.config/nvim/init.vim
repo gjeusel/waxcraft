@@ -1,8 +1,8 @@
 "/ vim: set sw=2 ts=2 sts=2 et tw=78 foldmarker={{{,}}} foldlevel=0 foldmethod=marker spell:
-"  _   _   __  __   __  __  _  ___  __   _   _  _  __ __
-" | | | | /  \ \ \_/ / |  \| || __|/__\ | \ / || ||  V  |
-" | 'V' || /\ | > , <  | | ' || _|| \/ |`\ V /'| || \_/ |
-" !_/ \_!|_||_|/_/ \_\ |_|\__||___|\__/   \_/  |_||_| |_|
+"      _   _   __  __   __    __  _  ___  __   _   _  _  __ __
+"     | | | | /  \ \ \_/ /   |  \| || __|/__\ | \ / || ||  V  |
+"     | 'V' || /\ | > , <    | | ' || _|| \/ |`\ V /'| || \_/ |
+"     !_/ \_!|_||_|/_/ \_\   |_|\__||___|\__/   \_/  |_||_| |_|
 "
 " Inspired by:
 "   - https://github.com/kristijanhusak/neovim-config/blob/master/init.vim
@@ -39,7 +39,7 @@ call dein#begin(expand('~/.config/nvim'))
   call dein#add('tpope/vim-eunuch')               " sugar for the UNIX shell commands
 
   call dein#add('vim-scripts/loremipsum')         " dummy text generator (:Loremipsum [number of words])
-  call dein#add('easymotion/vim-easymotion')      " easymotion when fedup to think
+  "call dein#add('easymotion/vim-easymotion')      " easymotion when fedup to think
   call dein#add('skywind3000/asyncrun.vim')       " run async shell commands
   call dein#add('Konfekt/FastFold')               " update folds only when needed, otherwise folds slowdown vim
   call dein#add('zhimsel/vim-stay')               " adds automated view session creation and restoration whenever editing a buffer
@@ -629,7 +629,7 @@ endif
 let g:indentLine_color_gui = '#343d46'  " indent line color got indentLine plugin
 
 " columns
-set colorcolumn=80 " Show vertical bar at column 80
+set colorcolumn=100 " Show vertical bar at column 100
 sign define dummy
 execute 'sign place 9999 line=1 name=dummy buffer=' . bufnr('')
 
@@ -759,12 +759,12 @@ tnoremap <Esc> <C-\><C-n>
 " }}}
 
 " map open terminal
-map <nowait> <leader>t :vsplit \| terminal <CR>
+map <nowait> <leader>n :vsplit \| terminal <CR>
 
 " select all of current paragraph with enter:
 nnoremap <return> vip
 
-" Are remapped by vim-tmux-navigator
+" Are alredy mapped by vim-tmux-navigator
 " easier navigation between split windows
 "nnoremap <c-j> <c-w>j
 "nnoremap <c-k> <c-w>k
@@ -786,22 +786,12 @@ inoremap <c-l> <c-\><c-n><c-w>l
 " For when you forget to sudo.. Really Write the file.
 cmap w!! w !sudo tee % >/dev/null
 
-" Buffers {{{
-" --> About buffers switch
-" Little snippet to get all alt key mapping functional :
-" works for alt-a .. alt-z
-for i in range(97,122)
-  let c = nr2char(i)
-  exec "map \e".c." <A-".c.">"
-  exec "map! \e".c." <A-".c.">"
-endfor
-
+" Buffers switch
 map <nowait> <leader>q :bp<cr>
 map <nowait> <leader>w :bn<cr>
 
 " buffer delete without closing windows :
-nmap <silent> <leader>d :bp\|bd! #<CR>
-"}}}
+nmap <silent> <leader>f :bp\|bd! #<CR>
 
 " Split windows
 map <nowait> <leader>e :vs<cr>
@@ -820,8 +810,14 @@ noremap <nowait> E ge
 " copy to clipboard :
 vnoremap <Leader>y "+y
 
-"noremap H ^
-"noremap L g_
+" easy save:
+map <C-s> :w<CR>
+
+" easy no hl
+nmap <leader>; :nohl<cr>
+
+noremap H ^
+noremap L g_
 
 " source config
 if !exists('*ActualizeInit')
