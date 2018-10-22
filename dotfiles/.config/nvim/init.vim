@@ -218,6 +218,14 @@ let g:lightline.active = {
 " }}}
 
 " fzf {{{
+
+command! -bang -nargs=* GGrep
+  \ call fzf#vim#grep(
+  \   'git grep --line-number '.shellescape(<q-args>), 0,
+  \   <bang>0 ? fzf#vim#with_preview({'options': '--no-hscroll'},'up:60%')
+  \           : fzf#vim#with_preview({'options': '--no-hscroll'},'right:50%'),
+  \   <bang>0)
+
 function! FzfOmniFiles()
     let is_git = system('git status')
     if v:shell_error
@@ -227,7 +235,16 @@ function! FzfOmniFiles()
     endif
 endfunction
 
-nmap <leader>a :Ag<CR>
+function! AgOmniFiles()
+  let is_git = system('git status')
+  if v:shell_error
+    :Ag
+  else
+    :GGrep
+  endif
+endfunction
+
+nmap <leader>a :call AgOmniFiles()<CR>
 nmap <leader>c :Commands<CR>
 nmap <leader>p :call FzfOmniFiles()<CR>
 nmap <leader>b :Buffers<CR>
@@ -816,8 +833,8 @@ map <C-s> :w<CR>
 " easy no hl
 nmap <leader>; :nohl<cr>
 
-noremap H ^
-noremap L g_
+"noremap H ^
+"noremap L g_
 
 " source config
 if !exists('*ActualizeInit')
