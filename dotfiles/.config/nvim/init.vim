@@ -9,7 +9,8 @@
 "   - https://github.com/wincent/wincent
 "
 " Should look up into:
-"   - https://github.com/joker1007/dotfiles/blob/master/vimrc<Paste>
+"   - https://github.com/joker1007/dotfiles/blob/master/vimrc
+"   - https://github.com/alexlafroscia/dotfiles/blob/master/nvim/init.vim  for js / html 
 
 scriptencoding utf-8
 set encoding=utf-8   " is the default in neovim though
@@ -75,6 +76,7 @@ call dein#begin(expand('~/.config/nvim'))
 
   " nerd font need to be installed, see https://github.com/ryanoasis/nerd-fonts#font-installation
   " > sudo pacman -S ttf-nerd-fonts-symbols
+	" > brew tap caskroom/fonts && brew cask install font-hack-nerd-font
   call dein#add('ryanoasis/vim-devicons')  " nice icons added
   "call dein#add('blueyed/vim-diminactive') " dim inactive windows
 " }}}
@@ -113,7 +115,8 @@ call dein#begin(expand('~/.config/nvim'))
 
   call dein#add('zchee/deoplete-jedi', {'on_ft': 'python'}) " for python
   call dein#add('zchee/deoplete-go', {'on_ft': 'go'})  " for golang
-  call dein#add('carlitux/deoplete-ternjs', {'on_ft': ['js', 'html', 'css']})  " for javascript
+  call dein#add('steelsojka/deoplete-flow', {'on_ft': ['javascript', 'html', 'css']})  " for javascript
+  "call dein#add('carlitux/deoplete-ternjs', {'on_ft': ['javascript', 'html', 'css']})  " for javascript
 
   call dein#add('Shougo/echodoc.vim') " displays function signatures from completions in the command line.
 " }}}
@@ -132,16 +135,16 @@ call dein#begin(expand('~/.config/nvim'))
 "}}}
 
 " Javascript, Html & CSS {{{
-  call dein#add('wooorm/alex', {'on_ft': ['html', 'js', 'css']})  " general syntax checker
+  call dein#add('wooorm/alex', {'on_ft': ['html', 'javascript', 'css']})  " general syntax checker
 
-  call dein#add('eslint/eslint', {'on_ft': ['html', 'js', 'css']})  " javascript
+  call dein#add('eslint/eslint', {'on_ft': ['html', 'javascript', 'css']})  " javascript
 
   "call dein#add('othree/html5.vim')  " HTML5 omnicomplete and syntax
   "call dein#add('yaniswang/HTMLHint', {'on_ft': 'html'})  " html
   call dein#add('tmhedberg/matchit', {'on_ft': 'html'})  " % for matching tag
   call dein#add('rstacruz/sparkup')  " for html auto generation
 
-  call dein#add('mattn/emmet-vim', {'on_ft': ['html', 'js', 'css']}) " for html - CSS - javascript
+  call dein#add('mattn/emmet-vim', {'on_ft': ['html', 'javascript', 'css']}) " for html - CSS - javascript
 
   call dein#add('ap/vim-css-color', {'on_ft': 'css'})  " change bg color in css for colors
 "}}}
@@ -151,10 +154,10 @@ call dein#begin(expand('~/.config/nvim'))
 " }}}
 
 " Snippets {{{
-  ""call dein#add('Shougo/neosnippet.vim')  " shougo snippet engine
-  ""call dein#add('Shougo/neosnippet-snippets')
-  "call dein#add('SirVer/ultisnips') " snippet engine
-  "call dein#add('honza/vim-snippets') " those are the best snippets for python
+  "call dein#add('Shougo/neosnippet.vim')  " shougo snippet engine
+  "call dein#add('Shougo/neosnippet-snippets')
+  call dein#add('SirVer/ultisnips') " snippet engine
+  call dein#add('honza/vim-snippets') " those are the best snippets for python
 "}}}
 
   if dein#check_install()
@@ -342,21 +345,37 @@ call deoplete#custom#source('buffer', 'mark', 'ℬ')
 call deoplete#custom#source('omni', 'mark', '⌾')
 call deoplete#custom#source('file', 'mark', '')
 call deoplete#custom#source('jedi', 'mark', '🐍')
+"call deoplete#custom#source('flow', 'mark', '⛵')
 call deoplete#custom#source('neosnippet', 'mark', '')
 call deoplete#custom#source('ultisnips', 'mark', '')
 call deoplete#custom#source('LanguageClient', 'mark', '')
 
-" deoplete jedi for python
+" deoplete jedi for python {{{
 let g:deoplete#sources#jedi#server_timeout = 40 " extend time for large pkg
 let g:deoplete#sources#jedi#show_docstring = 0  " show docstring in preview window
 let g:deoplete#sources#jedi#enable_cache = 1
 
 " Sets the maximum length of completion description text. If this is exceeded, a simple description is used instead
 let g:deoplete#sources#jedi#statement_length = 20
+"}}}
 
 "autocmd CompleteDone * silent! pclose!
 set completeopt-=preview  " if you don't want windows popup
 set completeopt+=noinsert " needed so deoplete can auto select the first suggestion
+
+" deoplete ternjs or flow for javascript {{{
+
+"" Most of the time you will probably want your flow-bin installed in your node_modules directory of your current project.
+"" This example configuration will preferably take the local version before the global one:
+"function! StrTrim(txt)
+"  return substitute(a:txt, '^\n*\s*\(.\{-}\)\n*\s*$', '\1', '')
+"endfunction
+"let g:flow_path = StrTrim(system('PATH=$(npm bin):$PATH && which flow'))
+"if g:flow_path != 'flow not found'
+"  let g:deoplete#sources#flow#flow_bin = g:flow_path
+"endif
+
+"}}}
 
 "" Debug mode
 "call deoplete#enable_logging('DEBUG', '/tmp/deoplete.log')
@@ -453,14 +472,15 @@ map <Leader>i o__import__('IPython').embed()  # Enter Ipython<C-c>
 "}}}
 
 " Lint ALE {{{
+" Only run linters named in ale_linters settings.
+let g:ale_linters_explicit = 1
+
 let g:ale_sign_error = '✖'   " Lint error sign
 let g:ale_sign_warning = '⚠' " Lint warning sign
 
 let g:ale_linter_aliases = {
     \ 'html': ['html', 'javascript', 'css'],
     \}
-
-let g:ale_python_autopep8_options = '--max-line-length 100'
 
 let g:ale_linters = {
             \ 'python': ['flake8'],
@@ -471,7 +491,8 @@ let g:ale_linters = {
 "\ 'python': ['autopep8', 'isort', 'black'],
 let g:ale_fixers = {
             \ 'python': ['isort', 'yapf'],
-            \ 'html': ['prettier', 'eslint'],
+            \ 'html': ['prettier'],
+            \ 'javascript': ['eslint'],
             \ 'json': ['fixjson'],
             \}
 
