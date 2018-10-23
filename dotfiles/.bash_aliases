@@ -154,7 +154,8 @@ compip() {
 # https://docs.npmjs.com/getting-started/fixing-npm-permissions
 comnpm() {
   npm install -g fixjson  # json fixer
-  npm install -g eslint  # js fixer
   npm install -g alex   # Catch insensitive, inconsiderate writing
-  npm install -g prettier  # js & html & json & else
+
+  # html / js / css
+  npm install -g flow-bin prettier eslint-plugin-prettier eslint-config-prettier
 }
