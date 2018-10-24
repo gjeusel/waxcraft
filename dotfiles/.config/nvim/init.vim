@@ -456,8 +456,6 @@ let g:pymode_breakpoint = 0  " disable it for custom
 " }}}
 
 " Jedi {{{
-let g:jedi#documentation_command = "<leader>k"
-
 " Force python 3
 let g:jedi#force_py_version=3
 
@@ -849,7 +847,7 @@ map <nowait> <leader>' :sp<cr>
 autocmd FileType python let g:jedi#goto_command = "<leader>d"
 autocmd FileType python let g:jedi#goto_assignments_command = ""
 autocmd FileType python let g:jedi#goto_definitions_command = ""
-autocmd FileType python let g:jedi#documentation_command = "K"
+autocmd FileType python let g:jedi#documentation_command = "<leader>k"
 autocmd FileType python let g:jedi#usages_command = "<leader>n"
 "autocmd FileType python let g:jedi#completions_command = "<C-Space>"
 autocmd FileType python let g:jedi#rename_command = "<leader>r"
@@ -857,7 +855,7 @@ autocmd FileType python let g:jedi#rename_command = "<leader>r"
 
 " tern javascript
 autocmd FileType javascript nmap <leader>d :TernDef<cr>
-autocmd FileType javascript nmap <S-k> :TernDoc<cr>
+autocmd FileType javascript nmap <leader>k :TernDoc<cr>
 autocmd FileType javascript nmap <leader>n :TernRefs<cr>
 autocmd FileType javascript nmap <leader>r :TernRename<cr>
 autocmd FileType javascript nmap <leader>j :TernType<cr>
