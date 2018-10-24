@@ -131,9 +131,7 @@ call dein#begin(expand('~/.config/nvim'))
 " Python {{{
   call dein#add('tmhedberg/SimpylFold', {'on_ft': 'python'})  " better folds
   call dein#add('davidhalter/jedi-vim', {'on_ft': ['python', 'markdown', 'rst']})
-  call dein#add('tell-k/vim-autopep8', {'on_ft': 'python'})  " still kept for ranged syntax fix
-  call dein#add('python-mode/python-mode')
-  "call dein#add('nvie/vim-flake8')
+  call dein#add('python-mode/python-mode', {'on_ft': 'python'})
 "}}}
 
 " Javascript, Html & CSS {{{
@@ -303,7 +301,8 @@ command! -bang -nargs=* Ag
 " Grammarous
 nmap <leader>gr :GrammarousCheck <cr>
 " Goyo
-nmap <leader>go :Goyo 120 <cr>
+let g:goyo_width = 120
+nmap <leader>go :Goyo <cr>
 
 " SuperTab, SimpylFold & FastFold {{{
 let g:SuperTabMappingForward = '<S-Tab>'
@@ -515,16 +514,7 @@ map <nowait><silent> <leader>[ <Plug>(ale_previous_wrap)
 " go to next error in current windows
 map <nowait><silent> <leader>] <Plug>(ale_next_wrap)
 
-" autofix when in normal mode for all file and keep autopep8 for fix on range
-" (i.e keep autopep8 for fix in visualmode)
-nmap <leader>[ :ALEFix <cr>
-"}}}
-
-" Autopep8 {{{
-let g:autopep8_disable_show_diff=1 " disable show diff windows
-"let g:autopep8_ignore="E501" " ignore line too long
-let g:jedi#auto_close_doc = 1 " Automatically close preview windows upon leaving insert mode
-vnoremap <leader>[ :Autopep8<CR>
+nmap <leader>m :ALEFix <cr>
 "}}}
 
 " AsyncRun {{{
