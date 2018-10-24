@@ -135,18 +135,14 @@ call dein#begin(expand('~/.config/nvim'))
 "}}}
 
 " Javascript, Html & CSS {{{
-  call dein#add('wooorm/alex', {'on_ft': ['html', 'javascript', 'css']})  " general syntax checker
-
-  call dein#add('eslint/eslint', {'on_ft': ['html', 'javascript', 'css']})  " javascript
-
   "call dein#add('othree/html5.vim')  " HTML5 omnicomplete and syntax
   "call dein#add('yaniswang/HTMLHint', {'on_ft': 'html'})  " html
-  call dein#add('tmhedberg/matchit', {'on_ft': 'html'})  " % for matching tag
-  call dein#add('rstacruz/sparkup')  " for html auto generation
-
-  call dein#add('mattn/emmet-vim', {'on_ft': ['html', 'javascript', 'css']}) " for html - CSS - javascript
 
   call dein#add('ap/vim-css-color', {'on_ft': 'css'})  " change bg color in css for colors
+  call dein#add('tmhedberg/matchit', {'on_ft': 'html'})  " % for matching tag
+
+  call dein#add('rstacruz/sparkup')  " for html auto generation
+  call dein#add('mattn/emmet-vim', {'on_ft': ['html', 'javascript', 'css']}) " for html - CSS - javascript
 "}}}
 
 " Golang {{{
@@ -210,6 +206,13 @@ noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 0, 4)<CR>
 " lightline {{{
 " https://github.com/itchyny/lightline.vim/issues/87
 let g:lightline = {'colorscheme': 'gruvbox'}
+
+let g:lightline.inactive = {
+    \ 'left': [ [ 'mode', 'paste' ],
+    \           [ 'readonly', 'modified' ] ],
+    \ 'right': [ [ 'lineinfo' ],
+    \            [ 'percent' ],
+    \            [ 'absolutepath', 'filetype' ] ] }
 
 let g:lightline.active = {
     \ 'left': [ [ 'mode', 'paste' ],
@@ -480,12 +483,14 @@ let g:ale_sign_warning = '⚠' " Lint warning sign
 
 let g:ale_linter_aliases = {
     \ 'html': ['html', 'javascript', 'css'],
+    \ 'text': ['markdown', 'sh', 'rst', 'html'],
     \}
 
+" - alex: helps you find gender favouring, polarising, race related, religion inconsiderate, or other unequal phrasing
 let g:ale_linters = {
-            \ 'python': ['flake8'],
-            \ 'text': ['alex', 'proselint'],
-            \ 'html': ['htmlhint', 'proselint', 'writegood', 'tidy'],
+            \ 'python': ['flake8', 'pylint'],
+            \ 'text': ['alex', 'proselint', 'writegood'],
+            \ 'html': ['htmlhint', 'tidy'],
             \}
 
 "\ 'python': ['autopep8', 'isort', 'black'],
@@ -577,6 +582,11 @@ nnoremap <silent> <F7> :NERDTreeToggle<CR>
   let g:markdown_composer_autostart = 0  " do not autostart the server, instead use :ComposerStart
   let g:vim_markdown_conceal = 0
   " should use :ComposerStart & :ComposerOpen
+" }}}
+
+" tmux {{{
+" Disable tmux navigator when zooming the Vim pane
+let g:tmux_navigator_disable_when_zoomed = 1
 " }}}
 
 "}}}
