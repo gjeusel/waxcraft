@@ -145,18 +145,34 @@ alias negociate_proxy='curl --proxy-negotiate -I -u :  http://google.com'
 alias ssh="TERM=xterm ssh"
 
 compip() {
-  pip install -U pip neovim
+  # Linters:
   pip install -U flake8 pylint proselint
+
+  # Fixers:
   pip install -U isort yapf
+
+  # pytest:
   pip install -U pdbpp pytest pytest-xdist pytest-cov pytest-flakes
+
+  # Others
+  pip install -U pip neovim
   pip install -U python-box
   pip install -U pgcli tmuxp
 }
 
 # https://docs.npmjs.com/getting-started/fixing-npm-permissions
 comnpm() {
+  # AutoComplete
+  #npm install -g flow-bin  # js
+  npm install -g tern tern
+
+  # Fixers:
   npm install -g fixjson  # json fixer
-  npm install -g eslint  # js fixer
-  npm install -g alex write-good # grammar linters
+  npm install -g eslint # js fixer
+
   npm install -g prettier eslint-plugin-prettier eslint-config-prettier # js & html & json & else
+
+  # Linters:
+  npm install -g alex write-good # grammar linters
+  npm install -g htlmhint
 }

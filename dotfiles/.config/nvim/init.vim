@@ -115,8 +115,7 @@ call dein#begin(expand('~/.config/nvim'))
 
   call dein#add('zchee/deoplete-jedi', {'on_ft': 'python'}) " for python
   call dein#add('zchee/deoplete-go', {'on_ft': 'go'})  " for golang
-  call dein#add('steelsojka/deoplete-flow', {'on_ft': ['javascript', 'html', 'css']})  " for javascript
-  "call dein#add('carlitux/deoplete-ternjs', {'on_ft': ['javascript', 'html', 'css']})  " for javascript
+  call dein#add('carlitux/deoplete-ternjs', {'on_ft': ['javascript', 'html', 'css']})  " for javascript
 
   call dein#add('Shougo/echodoc.vim') " displays function signatures from completions in the command line.
 " }}}
@@ -137,6 +136,9 @@ call dein#begin(expand('~/.config/nvim'))
 " Javascript, Html & CSS {{{
   "call dein#add('othree/html5.vim')  " HTML5 omnicomplete and syntax
   "call dein#add('yaniswang/HTMLHint', {'on_ft': 'html'})  " html
+
+  call dein#add('ternjs/tern_for_vim', {'on_ft': 'javascript'})
+  " cd ~/.config/nvim/repos/github.com/ternjs/tern_for_vim && npm install tern
 
   call dein#add('ap/vim-css-color', {'on_ft': 'css'})  " change bg color in css for colors
   call dein#add('tmhedberg/matchit', {'on_ft': 'html'})  " % for matching tag
@@ -348,7 +350,6 @@ call deoplete#custom#source('buffer', 'mark', 'ℬ')
 call deoplete#custom#source('omni', 'mark', '⌾')
 call deoplete#custom#source('file', 'mark', '')
 call deoplete#custom#source('jedi', 'mark', '🐍')
-"call deoplete#custom#source('flow', 'mark', '⛵')
 call deoplete#custom#source('neosnippet', 'mark', '')
 call deoplete#custom#source('ultisnips', 'mark', '')
 call deoplete#custom#source('LanguageClient', 'mark', '')
@@ -366,18 +367,17 @@ let g:deoplete#sources#jedi#statement_length = 20
 set completeopt-=preview  " if you don't want windows popup
 set completeopt+=noinsert " needed so deoplete can auto select the first suggestion
 
-" deoplete ternjs or flow for javascript {{{
+" deoplete ternjs for javascript {{{
+let g:deoplete#sources#ternjs#tern_bin = '/usr/local/bin/tern'
+" Whether to include the types of the completions in the result data. Default: 0
+let g:deoplete#sources#ternjs#types = 1
+" Whether to include documentation strings (if found) in the result data.
+" Default: 0
+let g:deoplete#sources#ternjs#docs = 1
 
-"" Most of the time you will probably want your flow-bin installed in your node_modules directory of your current project.
-"" This example configuration will preferably take the local version before the global one:
-"function! StrTrim(txt)
-"  return substitute(a:txt, '^\n*\s*\(.\{-}\)\n*\s*$', '\1', '')
-"endfunction
-"let g:flow_path = StrTrim(system('PATH=$(npm bin):$PATH && which flow'))
-"if g:flow_path != 'flow not found'
-"  let g:deoplete#sources#flow#flow_bin = g:flow_path
-"endif
-
+" if using tern_for_vim:
+let g:tern#command = ["tern"]
+let g:tern#arguments = ["--persistent"]
 "}}}
 
 "" Debug mode
@@ -481,16 +481,15 @@ let g:ale_linters_explicit = 1
 let g:ale_sign_error = '✖'   " Lint error sign
 let g:ale_sign_warning = '⚠' " Lint warning sign
 
-let g:ale_linter_aliases = {
-    \ 'html': ['html', 'javascript', 'css'],
-    \ 'text': ['markdown', 'sh', 'rst', 'html'],
-    \}
-
 " - alex: helps you find gender favouring, polarising, race related, religion inconsiderate, or other unequal phrasing
 let g:ale_linters = {
-            \ 'python': ['flake8', 'pylint'],
-            \ 'text': ['alex', 'proselint', 'writegood'],
-            \ 'html': ['htmlhint', 'tidy'],
+            \ 'python': ['flake8'],
+            \ 'markdown': ['alex', 'proselint', 'writegood'],
+            \ 'sh': ['alex', 'proselint', 'writegood'],
+            \ 'rst': ['alex', 'proselint', 'writegood'],
+            \ 'html': ['alex', 'proselint', 'writegood', 'htmlhint', 'eslint', 'prettier'],
+            \ 'javascript': ['htmlhint', 'eslint', 'prettier'],
+            \ 'css': ['prettier'],
             \}
 
 "\ 'python': ['autopep8', 'isort', 'black'],
@@ -514,14 +513,14 @@ map <nowait><silent> <leader>] <Plug>(ale_next_wrap)
 
 " autofix when in normal mode for all file and keep autopep8 for fix on range
 " (i.e keep autopep8 for fix in visualmode)
-nmap <leader>l :ALEFix <cr>
+nmap <leader>[ :ALEFix <cr>
 "}}}
 
 " Autopep8 {{{
 let g:autopep8_disable_show_diff=1 " disable show diff windows
 "let g:autopep8_ignore="E501" " ignore line too long
 let g:jedi#auto_close_doc = 1 " Automatically close preview windows upon leaving insert mode
-vnoremap <leader>l :Autopep8<CR>
+vnoremap <leader>[ :Autopep8<CR>
 "}}}
 
 " AsyncRun {{{
@@ -806,11 +805,13 @@ tnoremap <Esc> <C-\><C-n>
 
 " }}}
 
-" map open terminal
-map <nowait> <leader>n :vsplit \| terminal <CR>
-
 " select all of current paragraph with enter:
 nnoremap <return> vip
+
+" For when you forget to sudo.. Really Write the file.
+cmap w!! w !sudo tee % >/dev/null
+
+"{{{ Pane motions
 
 " Are alredy mapped by vim-tmux-navigator
 " easier navigation between split windows
@@ -830,20 +831,42 @@ inoremap <c-h> <c-\><c-n><c-w>h
 inoremap <c-j> <c-\><c-n><c-w>j
 inoremap <c-k> <c-\><c-n><c-w>k
 inoremap <c-l> <c-\><c-n><c-w>l
+"}}}
 
-" For when you forget to sudo.. Really Write the file.
-cmap w!! w !sudo tee % >/dev/null
+"{{{ Pane operations
+" map open terminal
+"map <nowait> <leader>n :vsplit \| terminal <CR>
 
 " Buffers switch
-map <nowait> <leader>q :bp<cr>
-map <nowait> <leader>w :bn<cr>
+map <nowait> <leader>. :bp<cr>
+map <nowait> <leader>/ :bn<cr>
 
 " buffer delete without closing windows :
-nmap <silent> <leader>f :bp\|bd! #<CR>
+nmap <silent> <leader>\ :bp\|bd! #<CR>
 
 " Split windows
-map <nowait> <leader>e :vs<cr>
-map <nowait> <leader>r :sp<cr>
+map <nowait> <leader>l :vs<cr>
+map <nowait> <leader>' :sp<cr>
+"}}}
+
+"{{{ GoTo
+
+" Jedi for python
+autocmd FileType python let g:jedi#goto_command = "<leader>d"
+autocmd FileType python let g:jedi#goto_assignments_command = "<leader>g"
+autocmd FileType python let g:jedi#goto_definitions_command = ""
+autocmd FileType python let g:jedi#documentation_command = "K"
+autocmd FileType python let g:jedi#usages_command = "<leader>n"
+"autocmd FileType python let g:jedi#completions_command = "<C-Space>"
+autocmd FileType python let g:jedi#rename_command = "<leader>r"
+"}}}
+
+" tern javascript
+autocmd FileType javascript nmap <leader>d :TernDef<cr>
+autocmd FileType javascript nmap <S-k> :TernDoc<cr>
+autocmd FileType javascript nmap <leader>n :TernRefs<cr>
+autocmd FileType javascript nmap <leader>r :TernRename<cr>
+autocmd FileType javascript nmap <leader>j :TernType<cr>
 
 " About folding open and close :
 nnoremap <Space> za
@@ -863,9 +886,6 @@ map <C-s> :w<CR>
 
 " easy no hl
 nmap <leader>; :nohl<cr>
-
-"noremap H ^
-"noremap L g_
 
 " source config
 if !exists('*ActualizeInit')
