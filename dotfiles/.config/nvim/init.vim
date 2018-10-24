@@ -10,7 +10,10 @@
 "
 " Should look up into:
 "   - https://github.com/joker1007/dotfiles/blob/master/vimrc
-"   - https://github.com/alexlafroscia/dotfiles/blob/master/nvim/init.vim  for js / html 
+"   - https://github.com/alexlafroscia/dotfiles/blob/master/nvim/init.vim  for js / html
+
+" Specific config in ~/.nvimrc_local
+" let g:python3_host_prog = "/Users/jd5584/miniconda3/envs/neovim/bin/python"
 
 scriptencoding utf-8
 set encoding=utf-8   " is the default in neovim though
@@ -297,9 +300,10 @@ command! -bang -nargs=* Ag
 
 " }}}
 
-" Grammarous {{{
-nmap <leader>g :GrammarousCheck <cr>
-" }}}
+" Grammarous
+nmap <leader>gr :GrammarousCheck <cr>
+" Goyo
+nmap <leader>go :Goyo 120 <cr>
 
 " SuperTab, SimpylFold & FastFold {{{
 let g:SuperTabMappingForward = '<S-Tab>'
@@ -853,7 +857,7 @@ map <nowait> <leader>' :sp<cr>
 
 " Jedi for python
 autocmd FileType python let g:jedi#goto_command = "<leader>d"
-autocmd FileType python let g:jedi#goto_assignments_command = "<leader>g"
+autocmd FileType python let g:jedi#goto_assignments_command = ""
 autocmd FileType python let g:jedi#goto_definitions_command = ""
 autocmd FileType python let g:jedi#documentation_command = "K"
 autocmd FileType python let g:jedi#usages_command = "<leader>n"
