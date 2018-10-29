@@ -669,6 +669,7 @@ let g:indentLine_color_gui = '#343d46'  " indent line color got indentLine plugi
 
 " columns
 set colorcolumn=100 " Show vertical bar at column 100
+au Filetype python set colorcolumn=100 " do it again for python overriden by some plugin
 sign define dummy
 execute 'sign place 9999 line=1 name=dummy buffer=' . bufnr('')
 
@@ -762,6 +763,7 @@ au BufNewFile,BufRead *.nix set filetype=nix
 au BufNewFile,BufRead Filetype vim setlocal tabstop=2 foldmethod=marker
 au BufNewFile,BufRead *.json set filetype=json
 au BufNewFile,BufRead *.txt set filetype=sh
+au BufNewFile,BufRead cronfile set filetype=sh
 
 " html:
 au BufNewFile,BufRead *.html set shiftwidth=2 tabstop=2 softtabstop=2
@@ -844,9 +846,9 @@ map <nowait> <leader>' :sp<cr>
 "{{{ GoTo
 
 " Jedi for python
-autocmd FileType python let g:jedi#goto_command = "<leader>d"
-autocmd FileType python let g:jedi#goto_assignments_command = ""
-autocmd FileType python let g:jedi#goto_definitions_command = ""
+autocmd FileType python let g:jedi#goto_command = ""
+autocmd FileType python let g:jedi#goto_assignments_command = "<leader>g"
+autocmd FileType python let g:jedi#goto_definitions_command = "<leader>d"
 autocmd FileType python let g:jedi#documentation_command = "<leader>k"
 autocmd FileType python let g:jedi#usages_command = "<leader>n"
 "autocmd FileType python let g:jedi#completions_command = "<C-Space>"
@@ -872,6 +874,9 @@ noremap <nowait> E ge
 
 " copy to clipboard :
 vnoremap <Leader>y "+y
+
+" I never use the s in normal mode, so let substitue on pattern:
+vnoremap s :s/
 
 " easy save:
 map <C-s> :w<CR>
@@ -924,7 +929,7 @@ endfunction
 "}}}
 
 " Times choices:
-set ttimeoutlen=10 timeoutlen=500
+"set ttimeoutlen=10 timeoutlen=500
 
 "" improve quick escape from insertion mode:
 "augroup FastEscape
