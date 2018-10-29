@@ -8,14 +8,5 @@ windows:
       - act b2e2
       - cd ~/src/b2e2
     panes:
-      - vim
-      - echo b2e2 SESSION !
-
-  - window_name: launch_server
-    layout: main-vertical
-    shell_command_before:
-      - act b2e2
-    panes:
-      - echo b2e2 SESSION !
-      - wax
-
+      - echo "b2e2 powa"
+      - screenfetch
