@@ -227,7 +227,6 @@ let g:lightline.active = {
 " }}}
 
 " fzf {{{
-
 command! -bang -nargs=* GGrep
   \ call fzf#vim#grep(
   \   'git grep --line-number '.shellescape(<q-args>), 0,
@@ -235,26 +234,48 @@ command! -bang -nargs=* GGrep
   \           : fzf#vim#with_preview({'options': '--no-hscroll'},'right:50%'),
   \   <bang>0)
 
+" Augmenting Ag command using fzf#vim#with_preview function
+"   * fzf#vim#with_preview([[options], preview window, [toggle keys...]])
+"     * For syntax-highlighting, Ruby and any of the following tools are required:
+"       - Highlight: http://www.andre-simon.de/doku/highlight/en/highlight.php
+"       - CodeRay: http://coderay.rubychan.de/
+"       - Rouge: https://github.com/jneen/rouge
+"
+"   :Ag  - Start fzf with hidden preview window that can be enabled with "?" key
+"   :Ag! - Start fzf in fullscreen and display the preview window above
+command! -bang -nargs=* Ag
+  \ call fzf#vim#ag(<q-args>,
+  \                 <bang>0 ? fzf#vim#with_preview('up:60%')
+  \                         : fzf#vim#with_preview('right:50%:hidden', '?'),
+  \                 <bang>0)
+
+function! s:find_git_root()
+  return system('git rev-parse --show-toplevel 2> /dev/null')[:-2]
+endfunction
+
 function! FzfOmniFiles()
     let is_git = system('git status')
     if v:shell_error
-        :Files
+        execute 'Files'
     else
-        :GitFiles
+        execute 'Files' s:find_git_root()
     endif
 endfunction
 
 function! AgOmniFiles()
   let is_git = system('git status')
   if v:shell_error
-    :Ag
+    execute 'Ag'
   else
-    :GGrep
+    let s:current_dir = getcwd()
+    execute 'cd' s:find_git_root()
+    execute 'Ag'
+    execute 'cd' s:current_dir
   endif
 endfunction
 
 nmap <leader>a :call AgOmniFiles()<CR>
-nmap <leader>c :Commands<CR>
+nmap <leader>c :BCommits<CR>
 nmap <leader>p :call FzfOmniFiles()<CR>
 nmap <leader>b :Buffers<CR>
 
@@ -279,21 +300,6 @@ let g:fzf_colors =
   \ 'marker':  ['fg', 'Keyword'],
   \ 'spinner': ['fg', 'Label'],
   \ 'header':  ['fg', 'Comment'] }
-
-" Augmenting Ag command using fzf#vim#with_preview function
-"   * fzf#vim#with_preview([[options], preview window, [toggle keys...]])
-"     * For syntax-highlighting, Ruby and any of the following tools are required:
-"       - Highlight: http://www.andre-simon.de/doku/highlight/en/highlight.php
-"       - CodeRay: http://coderay.rubychan.de/
-"       - Rouge: https://github.com/jneen/rouge
-"
-"   :Ag  - Start fzf with hidden preview window that can be enabled with "?" key
-"   :Ag! - Start fzf in fullscreen and display the preview window above
-command! -bang -nargs=* Ag
-  \ call fzf#vim#ag(<q-args>,
-  \                 <bang>0 ? fzf#vim#with_preview('up:60%')
-  \                         : fzf#vim#with_preview('right:50%:hidden', '?'),
-  \                 <bang>0)
 
 
 " }}}
@@ -722,6 +728,10 @@ endif
 set ignorecase " searches are case insensitive...
 set smartcase  " ... unless they contain at least one capital letter
 
+" edit file search path ignore
+set wildignore+=**.egg-info/**
+set wildignore+=**__pycache__/**
+
 " Clipboard
 if has('clipboard')
   if has('unnamedplus')  " When possible use + register for copy-paste
@@ -774,6 +784,12 @@ au Filetype gitcommit setlocal spell textwidth=72
 
 " Switch to the current file directory when a new buffer is opened
 au BufEnter * if bufname("") !~ "^\[A-Za-z0-9\]*://" | lcd %:p:h | endif
+
+" Keep fold under cursor open at write time for python files:
+autocmd BufWritePost *.py normal! zv
+
+" Open all unfolded if git file type:
+autocmd Filetype git normal! zR
 "}}}
 
 " Mappings {{{
