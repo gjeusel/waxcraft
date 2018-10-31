@@ -2,16 +2,13 @@
 
 session_name: ets-servers
 windows:
-  - window_name: b2e2 Server
+  - window_name: b2e2 and Trident
     layout: even-horizontal
-    shell_command_before:
-      - act b2e2
-      - cd ~/src/b2e2
     panes:
-      - python -m b2e2 runserver
-      - screenfetch
+      - act b2e2 && python -m b2e2 runserver -p 5000
+      - act trident && python -m trident runserver -p 5002
 
-  - window_name: Tourbillon Server
+  - window_name: Tourbillon
     layout: 3ba0,208x55,0,0{102x55,0,0[102x30,0,0,37,102x9,0,31,53,102x14,0,41,52],105x55,103,0,38}
     shell_command_before:
       - act trb
