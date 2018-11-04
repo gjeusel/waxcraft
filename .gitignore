@@ -10,3 +10,4 @@ dotfiles/.config/nvim/*
 !dotfiles/.config/nvim/init.vim
 
 *.zwc
+*.DS_store
