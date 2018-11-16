@@ -2,18 +2,30 @@
 
 session_name: ets-servers
 windows:
-  - window_name: b2e2 and Trident
-    layout: even-horizontal
+
+  - window_name: B2E2
+    shell_command_before:
+      - act b2e2
+      - cd ~/src/b2e2
     panes:
-      - act b2e2 && python -m b2e2 runserver -p 5000
-      - act trident && python -m trident runserver -p 5002
+      - python -m b2e2 runserver -p 5000 --threaded
+
+  - window_name: Trident
+    layout: even-horizontal
+    shell_command_before:
+      - act trident
+      - cd ~/src/trident
+    panes:
+      - python -m trident runserver -p 5002 --threaded
+      - celery -A trident.tasks.celery worker --loglevel=debug -B
 
   - window_name: Tourbillon
     layout: 3ba0,208x55,0,0{102x55,0,0[102x30,0,0,37,102x9,0,31,53,102x14,0,41,52],105x55,103,0,38}
     shell_command_before:
       - act trb
+      - cd ~/src/tourbillon
     panes:
       - celery -A tourbillon.tasks.config.app worker --loglevel=debug -B
       - celery -A tourbillon.tasks beat --max-interval '10'
-      - cd ~/src/tourbillon/ui && npm run dev
-      - python -m tourbillon runserver -p 5001
+      - cd ~/src/tourbillon/ui && BROWSER=none npm run dev
+      - python -m tourbillon runserver -p 5001 --threaded
