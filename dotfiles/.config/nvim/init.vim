@@ -277,6 +277,7 @@ endfunction
 nmap <leader>a :call AgOmniFiles()<CR>
 nmap <leader>c :BCommits<CR>
 nmap <leader>p :call FzfOmniFiles()<CR>
+nmap <C-p> :call FzfOmniFiles()<CR>
 nmap <leader>b :Buffers<CR>
 
 " fzf
@@ -514,9 +515,11 @@ let g:ale_fixers = {
 
 " go to previous error in current windows
 map <nowait><silent> <leader>[ <Plug>(ale_previous_wrap)
+map <nowait><silent> <C-[> <Plug>(ale_previous_wrap)
 
 " go to next error in current windows
 map <nowait><silent> <leader>] <Plug>(ale_next_wrap)
+map <nowait><silent> <C-]> <Plug>(ale_next_wrap)
 
 nmap <leader>m :ALEFix <cr>
 "}}}
@@ -774,6 +777,7 @@ au BufNewFile,BufRead Filetype vim setlocal tabstop=2 foldmethod=marker
 au BufNewFile,BufRead *.json set filetype=json
 au BufNewFile,BufRead *.txt set filetype=sh
 au BufNewFile,BufRead cronfile set filetype=sh
+au BufNewFile,BufRead .gitconfig set filetype=conf
 
 " html:
 au BufNewFile,BufRead *.html set shiftwidth=2 tabstop=2 softtabstop=2
@@ -849,7 +853,9 @@ inoremap <c-l> <c-\><c-n><c-w>l
 
 " Buffers switch
 map <nowait> <leader>. :bp<cr>
+map <nowait> <C-q> :bp<cr>
 map <nowait> <leader>/ :bn<cr>
+map <nowait> <C-w> :bn<cr>
 
 " buffer delete without closing windows :
 nmap <silent> <leader>\ :bp\|bd! #<CR>
