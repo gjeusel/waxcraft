@@ -15,3 +15,11 @@
 "\e[3~":delete-char             # Suppr
 
 set mark-symlinked-directories on
+
+# On MacOS: ~/Library/Keybindings/DefaultKeyBinding.dict
+#{
+#    "~d" = "deleteWordForward:";
+#    "^w" = "deleteWordBackward:";
+#    "~f" = "moveWordForward:";
+#    "~b" = "moveWordBackward:";
+#}
