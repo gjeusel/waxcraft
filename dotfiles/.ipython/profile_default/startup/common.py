@@ -7,6 +7,8 @@ from pprint import pprint
 
 import pytz
 
+TZ = pytz.timezone('Europe/Brussels')
+
 log = logging.basicConfig(
     format="%(asctime)s %(levelname)s:%(message)s",
     level=logging.INFO,
