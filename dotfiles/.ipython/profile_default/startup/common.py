@@ -50,6 +50,7 @@ try:
 
     # Recent Dates aware:
     now = pd.Timestamp.now(tz="CET").replace(microsecond=0)
+
     end = pd.Timestamp(now, tz="CET") + pd.Timedelta(hours=4)
     start = end - pd.Timedelta(days=3)
 
@@ -75,6 +76,9 @@ try:
     oneday = pd.Timedelta(days=1)
     oneweek = pd.Timedelta(days=7)
     onemonth = pd.Timedelta(days=31)
+
+    today = now.floor('D')
+    tomorrow = today + oneday
 except Exception as e:
     print("Could not import pandas as pd: {}".format(e))
 
