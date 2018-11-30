@@ -86,6 +86,8 @@ alias gs='git status'
 alias ga='git add'
 alias glog='git log --oneline --graph --decorate --all'
 
+alias gcos='gco `git branch -a| fzf`'
+
 function unproxy() {
   unset http_proxy https_proxy rsync_proxy ftp_proxy HTTP_PROXY HTTPS_PROXY
 }
