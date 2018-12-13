@@ -1,12 +1,32 @@
 # /home/gjeusel/.config/tmuxinator/octopus.yml
 
-session_name: octopus
+session_name: OCTOPUS
+
 windows:
-  - window_name: editor
+
+  - window_name: soscripts
+    layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
+    shell_command_before:
+      - act octopus
+      - cd ~/src/soscripts
+    panes:
+      - screenfetch
+      - 
+
+  - window_name: octopus
     layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
     shell_command_before:
       - act octopus
       - cd ~/src/octopus
     panes:
-      - echo "Octopus powa"
       - screenfetch
+      - 
+
+  - window_name: INFRA
+    layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
+    shell_command_before:
+      - act octopus
+      - cd ~/src/ets-infra
+    panes:
+      - screenfetch
+      - 

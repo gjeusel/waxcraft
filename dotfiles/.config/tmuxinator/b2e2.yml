@@ -1,12 +1,23 @@
 # /home/gjeusel/.config/tmuxinator/b2e2.yml
 
-session_name: b2e2
+session_name: B2E2
+
 windows:
-  - window_name: editor
+
+  - window_name: b2e2
     layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
     shell_command_before:
       - act b2e2
       - cd ~/src/b2e2
     panes:
-      - echo "b2e2 powa"
       - screenfetch
+      - 
+
+  - window_name: bluesnake
+    layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
+    shell_command_before:
+      - act b2e2
+      - cd ~/src/bluesnake
+    panes:
+      - screenfetch
+      - 

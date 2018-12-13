@@ -8,8 +8,8 @@ windows:
       - act trident
       - cd ~/src/trident
     panes:
-      - echo "Trident powa"
       - screenfetch
+      - 
 
   - window_name: meteor-client
     layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
@@ -17,5 +17,5 @@ windows:
       - act trident
       - cd ~/src/meteor-client
     panes:
-      - echo "Trident powa"
       - screenfetch
+      - 
