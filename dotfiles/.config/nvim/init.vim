@@ -68,6 +68,8 @@ call dein#begin(expand('~/.config/nvim'))
 
 " User Interface {{{
   "call dein#add('scrooloose/nerdtree')  " file tree
+  call dein#add('mhinz/vim-startify')  " fancy start screen for Vim
+  call dein#add('kshenoy/vim-signature')  " toggle display marks
   call dein#add('itchyny/lightline.vim')  " light status line
   call dein#add('ap/vim-buftabline')  " buffer line
   call dein#add('Yggdroot/indentLine')  " thin indent line
@@ -596,6 +598,10 @@ filetype plugin indent on
 syntax enable
 
 set background=dark
+
+let g:gruvbox_invert_selection=0
+"let g:gruvbox_improved_strings=1
+let g:gruvbox_improved_warnings=1
 colorscheme gruvbox
 
 set mouse=a             " Automatically enable mouse usage
