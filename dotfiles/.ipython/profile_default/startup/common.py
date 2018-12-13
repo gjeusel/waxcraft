@@ -54,9 +54,13 @@ try:
     end = pd.Timestamp(now, tz="CET") + pd.Timedelta(hours=4)
     start = end - pd.Timedelta(days=3)
 
-    # DST
-    dst_start = pd.Timestamp("2017-03-26T00:00:00", tz="CET")
-    dst_end = pd.Timestamp("2017-03-26T04:00:00", tz="CET")
+    # DST: Winter -> Summer
+    dst_start_ws = pd.Timestamp("2017-03-26T00:00:00", tz="CET")
+    dst_end_ws = pd.Timestamp("2017-03-26T04:00:00", tz="CET")
+
+    # DST: Summer -> Winter
+    dst_start_sw = pd.Timestamp("2019-10-27T00:00:00", tz="CET")
+    dst_end_sw = pd.Timestamp("2019-10-28T00:00:00", tz="CET")
 
     # 2016
     start_2016 = pd.Timestamp("2016-01-01T00:00:00", tz="CET")
@@ -79,6 +83,12 @@ try:
 
     today = now.floor('D')
     tomorrow = today + oneday
+
+    def generate_ts(freq):
+        idx = pd.date_range(start='2018-01-01', end='2018-01-02', freq=freq, closed='left')
+        idx = idx.tz_localize('CET')
+        return pd.DataFrame(data={'value': range(len(idx))}, index=idx)
+
 except Exception as e:
     print("Could not import pandas as pd: {}".format(e))
 
