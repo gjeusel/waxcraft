@@ -13,6 +13,17 @@ windows:
       - python -m trident runserver -p 5002 --threaded
       - celery -A trident.tasks.celery worker --loglevel=debug -B
 
+  # Trident Meteor
+  - window_name: Trident Meteor
+    layout: even-horizontal
+    shell_command_before:
+      - export B2E2_CONFIG=~/.trident_meteor_settings.py
+      - act tridentmeteor
+      - cd ~/meteorsrc/trident
+    panes:
+      - python -m trident runserver -p 7052 --threaded
+      - celery -A trident.tasks.celery worker --loglevel=debug -B
+
   # B2E2
   - window_name: B2E2
     layout: d55a,238x64,0,0{118x64,0,0,468,119x64,119,0[119x32,119,0,469,119x31,119,33,479]}
@@ -21,7 +32,19 @@ windows:
       - cd ~/src/b2e2
     panes:
       - python -m b2e2 runserver -p 5000 --threaded
-      - celery -A b2e2.tasks.celery worker --loglevel=debug -B
+      - echo "celery -A b2e2.tasks.celery worker --loglevel=debug -B"
+      - screenfetch && env |grep -i proxy
+
+  # B2E2 METEOR
+  - window_name: B2E2 METEOR
+    layout: d55a,238x64,0,0{118x64,0,0,468,119x64,119,0[119x32,119,0,469,119x31,119,33,479]}
+    shell_command_before:
+      - export B2E2_CONFIG=~/.b2e2_meteor_settings.py
+      - act b2e2meteor
+      - cd ~/meteorsrc/b2e2
+    panes:
+      - python -m b2e2 runserver -p 7050 --threaded
+      - 
       - screenfetch && env |grep -i proxy
 
   # Tourbillon
