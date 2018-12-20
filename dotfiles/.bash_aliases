@@ -158,7 +158,7 @@ compip() {
   # Others
   pip install -U pip neovim
   pip install -U python-box
-  pip install -U pgcli tmuxp
+  pip install -U pgcli tmuxp fire
 }
 
 # https://docs.npmjs.com/getting-started/fixing-npm-permissions
