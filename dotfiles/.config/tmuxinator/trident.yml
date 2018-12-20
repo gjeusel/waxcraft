@@ -2,6 +2,7 @@
 
 session_name: trident
 windows:
+
   - window_name: trident
     layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
     shell_command_before:
@@ -11,11 +12,22 @@ windows:
       - screenfetch
       - 
 
+  - window_name: meteortrident
+    layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
+    shell_command_before:
+      - export TRIDENT_CONFIG=~/.trident_meteor_settings.py
+      - act trident
+      - cd ~/meteorsrc/trident
+    panes:
+      - screenfetch
+      - 
+
   - window_name: meteor-client
     layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
     shell_command_before:
+      - export TRIDENT_CONFIG=~/.trident_meteor_settings.py
       - act trident
-      - cd ~/src/meteor-client
+      - cd ~/meteorsrc/meteor-client
     panes:
       - screenfetch
       - 
