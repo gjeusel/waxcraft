@@ -116,6 +116,9 @@ vfzf() {
 # (^M) to execute the line
 bindkey -s "^P" "^Uvfzf^M"
 
+# Bind ctrl + n for nnn
+bindkey -s "^N" "^Unnn^M"
+
 # Auto install tpm (tmux plugin) ?
 #export TERM="tmux-256color"
 [ -n "$TMUX" ] && export TERM=screen-256color
