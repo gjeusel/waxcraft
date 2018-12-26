@@ -44,7 +44,8 @@ windows:
       - cd ~/meteorsrc/b2e2
     panes:
       - python -m b2e2 runserver -p 7050 --threaded
-      - echo "celery -A b2e2.tasks.celery worker --loglevel=debug -B -n b2e2meteor@%h "
+      #- echo "celery -A b2e2.tasks.celery worker --loglevel=debug -B -n b2e2meteor@%h "
+      - celery -A b2e2.tasks.celery worker --loglevel=info -B -n b2e2meteor@%h --logfile=/tmp/celery_b2e2meteor.log
       - screenfetch && env |grep -i proxy
 
   # Tourbillon
@@ -57,4 +58,5 @@ windows:
       - celery -A tourbillon.tasks.config.app worker --loglevel=debug -B
       - celery -A tourbillon.tasks beat --max-interval '10'
       - cd ~/src/tourbillon/ui && BROWSER=none npm run dev
-      - python -m tourbillon runserver -p 5001 --threaded
+      #- python -m tourbillon runserver -p 5001 --threaded
+      - kill $(lsof -t -i :5001) && gunicorn tourbillon.__main__:app -b localhost:5001 --workers=4 --threads=4
