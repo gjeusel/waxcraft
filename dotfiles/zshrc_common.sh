@@ -37,20 +37,20 @@ antigen bundle extract  # generic cmd to decompress files
 antigen bundle colored-man-pages
 antigen bundle common-aliases
 antigen bundle docker
-antigen bundle jsontools
-antigen bundle pep8
-antigen bundle autopep8
+#antigen bundle jsontools
+#antigen bundle pep8
+#antigen bundle autopep8
 antigen bundle pip
-antigen bundle pyenv
-antigen bundle pylint
-antigen bundle python
-antigen bundle redis-cli
+#antigen bundle pyenv
+#antigen bundle pylint
+#antigen bundle python
+#antigen bundle redis-cli
 antigen bundle tmux
-antigen bundle archlinux
-antigen bundle yum
-antigen bundle ytet5uy4/pctl
+#antigen bundle archlinux
+#antigen bundle yum
+#antigen bundle ytet5uy4/pctl
 antigen bundle z
-antigen bundle ansible
+#antigen bundle ansible
 
 # Python:
 antigen bundle "esc/conda-zsh-completion"
