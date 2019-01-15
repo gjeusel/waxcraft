@@ -90,6 +90,7 @@ call dein#begin(expand('~/.config/nvim'))
   call dein#add('LnL7/vim-nix')  " for .nix
   call dein#add('cespare/vim-toml')  " syntax for .toml
   call dein#add('tmux-plugins/vim-tmux')  " syntax highlight for .tmux.conf file
+  call dein#add('posva/vim-vue')  " syntax highlight for .vue file
 "}}}
 
 " Git {{{

@@ -41,6 +41,7 @@ antigen bundle docker
 #antigen bundle pep8
 #antigen bundle autopep8
 antigen bundle pip
+antigen bundle celery
 #antigen bundle pyenv
 #antigen bundle pylint
 #antigen bundle python
