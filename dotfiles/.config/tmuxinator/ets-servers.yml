@@ -37,16 +37,16 @@ windows:
 
   # B2E2 METEOR
   - window_name: B2E2 METEOR
-    layout: d55a,238x64,0,0{118x64,0,0,468,119x64,119,0[119x32,119,0,469,119x31,119,33,479]}
+    layout: e924,238x64,0,0{118x64,0,0[118x32,0,0,42,118x31,0,33,65],119x64,119,0[119x57,119,0,43,119x6,119,58,64]}
     shell_command_before:
       - export B2E2_CONFIG=~/.b2e2_meteor_settings.py
       - act b2e2meteor
       - cd ~/meteorsrc/b2e2
     panes:
       - python -m b2e2 runserver -p 7050 --threaded
-      #- echo "celery -A b2e2.tasks.celery worker --loglevel=debug -B -n b2e2meteor@%h "
-      - celery -A b2e2.tasks.celery worker --loglevel=info -B -n b2e2meteor@%h --logfile=/tmp/celery_b2e2meteor.log
       - screenfetch && env |grep -i proxy
+      - celery -A b2e2.tasks.celery worker --loglevel=info -B -n b2e2meteor@%h | tee -a /tmp/celery_b2e2meteor.log
+      - celery flower -A "b2e2.tasks.celery" --broker="redis://localhost:6379//"
 
   # Tourbillon
   - window_name: Tourbillon
@@ -59,4 +59,4 @@ windows:
       - echo "celery -A tourbillon.tasks beat --max-interval '10'"
       - cd ~/src/tourbillon/ui && BROWSER=none npm run dev
       #- python -m tourbillon runserver -p 5001 --threaded
-      - if [[ $(lsof -t -i :5001) -ne 0 ]]; then kill $(lsof -t -i :5001); fi && gunicorn tourbillon.__main__:app -b localhost:5001 --workers=4 --threads=4
+      - if [[ $(lsof -t -i :5001) ]]; then kill $(lsof -t -i :5001); fi && gunicorn tourbillon.__main__:app -b localhost:5001 --workers=4 --threads=4
