@@ -1,6 +1,11 @@
 # Launch all servers needed for working locally in ets
 
 session_name: ets-servers
+
+shell_command_before:
+  - current_pid_celery=$(ps auxww | grep '[c]elery worker')
+  - if [[ $current_pid_celery ]]; then echo $current_pid_celery | awk '{print $2}' | xargs kill; fi
+
 windows:
 
   # Trident
@@ -13,50 +18,49 @@ windows:
       - python -m trident runserver -p 5002 --threaded
       - celery -A trident.tasks.celery worker --loglevel=debug -B -n trident@%h
 
-  # Trident Meteor
-  - window_name: Trident Meteor
-    layout: even-horizontal
-    shell_command_before:
-      - export TRIDENT_CONFIG=~/.trident_meteor_settings.py
-      - act tridentmeteor
-      - cd ~/meteorsrc/trident
-    panes:
-      - python -m trident runserver -p 7052 --threaded
-      - celery -A trident.tasks.celery worker --loglevel=debug -B -n tridentmeteor@%h
-
-  # B2E2
-  - window_name: B2E2
-    layout: d55a,238x64,0,0{118x64,0,0,468,119x64,119,0[119x32,119,0,469,119x31,119,33,479]}
-    shell_command_before:
-      - act b2e2
-      - cd ~/src/b2e2
-    panes:
-      - python -m b2e2 runserver -p 5000 --threaded
-      - echo "celery -A b2e2.tasks.celery worker --loglevel=debug -B -n b2e2@%h"
-      - screenfetch && env |grep -i proxy
+  ## Trident Meteor
+  #- window_name: Trident Meteor
+  #  layout: even-horizontal
+  #  shell_command_before:
+  #    - export TRIDENT_CONFIG=~/.trident_meteor_settings.py
+  #    - act tridentmeteor
+  #    - cd ~/meteorsrc/trident
+  #  panes:
+  #    - python -m trident runserver -p 7052 --threaded
+  #    - celery -A trident.tasks.celery worker --loglevel=debug -B -n tridentmeteor@%h
 
   # B2E2 METEOR
   - window_name: B2E2 METEOR
-    layout: e924,238x64,0,0{118x64,0,0[118x32,0,0,42,118x31,0,33,65],119x64,119,0[119x57,119,0,43,119x6,119,58,64]}
+    layout: 033f,238x64,0,0{118x64,0,0[118x32,0,0,65,118x31,0,33,66],119x64,119,0,67}
     shell_command_before:
       - export B2E2_CONFIG=~/.b2e2_meteor_settings.py
       - act b2e2meteor
       - cd ~/meteorsrc/b2e2
     panes:
-      - python -m b2e2 runserver -p 7050 --threaded
+      - echo "celery -A b2e2.tasks.celery worker --loglevel=info -B -n b2e2meteor@%h | tee -a /tmp/celery_b2e2.log"
       - screenfetch && env |grep -i proxy
-      - celery -A b2e2.tasks.celery worker --loglevel=info -B -n b2e2meteor@%h | tee -a /tmp/celery_b2e2meteor.log
-      - celery flower -A "b2e2.tasks.celery" --broker="redis://localhost:6379//"
+      - python -m b2e2 runserver -p 7050 --threaded
+      #- celery -A b2e2.tasks.celery worker --loglevel=info -B -n b2e2meteor@%h | tee -a /tmp/celery_b2e2meteor.log
+      #- celery flower -A "b2e2.tasks.celery" --broker="redis://localhost:6379//"
+
+  # B2E2
+  - window_name: B2E2
+    layout: 033f,238x64,0,0{118x64,0,0[118x32,0,0,65,118x31,0,33,66],119x64,119,0,67}
+    shell_command_before:
+      - act b2e2
+      - cd ~/src/b2e2
+    panes:
+      - python -m b2e2 runserver -p 5000 --threaded
+      - screenfetch && env |grep -i proxy
+      - celery -A b2e2.tasks.celery worker --loglevel=info -B -n b2e2@%h | tee -a /tmp/celery_b2e2.log
 
   # Tourbillon
   - window_name: Tourbillon
-    layout: 3ba0,208x55,0,0{102x55,0,0[102x30,0,0,37,102x9,0,31,53,102x14,0,41,52],105x55,103,0,38}
+    layout: 1319,238x64,0,0{117x64,0,0,71,120x64,118,0,72}
     shell_command_before:
       - act trb
       - cd ~/src/tourbillon
     panes:
-      - echo "celery -A tourbillon.tasks.config.app worker --loglevel=debug -B"
-      - echo "celery -A tourbillon.tasks beat --max-interval '10'"
       - cd ~/src/tourbillon/ui && BROWSER=none npm run dev
-      #- python -m tourbillon runserver -p 5001 --threaded
       - if [[ $(lsof -t -i :5001) ]]; then kill $(lsof -t -i :5001); fi && gunicorn tourbillon.__main__:app -b localhost:5001 --workers=4 --threads=4
+      #- python -m tourbillon runserver -p 5001 --threaded
