@@ -378,7 +378,7 @@ let g:deoplete#sources#jedi#statement_length = 20
 
 "autocmd CompleteDone * silent! pclose!
 set completeopt-=preview  " if you don't want windows popup
-set completeopt+=noinsert " needed so deoplete can auto select the first suggestion
+"set completeopt+=noinsert " auto select the first suggestion
 
 " deoplete ternjs for javascript {{{
 let g:deoplete#sources#ternjs#tern_bin = '/usr/local/bin/tern'
