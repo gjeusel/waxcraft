@@ -974,3 +974,7 @@ endfunction
 if !empty(glob("~/.nvimrc_local"))
     source ~/.nvimrc_local
 endif
+
+" Example of content:
+"let g:python3_host_prog = "/Users/username/miniconda3/envs/neovim/bin/python"
+"let g:python_host_prog = "/Users/username/miniconda3/envs/neovim27/bin/python"
