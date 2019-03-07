@@ -13,15 +13,15 @@ windows:
       - screenfetch
       - 
 
-  - window_name: b2e2meteor
-    layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
-    shell_command_before:
-      - act b2e2meteor
-      - export B2E2_CONFIG=~/.b2e2_meteor_settings.py
-      - cd ~/meteorsrc/b2e2
-    panes:
-      - screenfetch
-      - 
+  #- window_name: b2e2meteor
+  #  layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
+  #  shell_command_before:
+  #    - act b2e2meteor
+  #    - export B2E2_CONFIG=~/.b2e2_meteor_settings.py
+  #    - cd ~/meteorsrc/b2e2
+  #  panes:
+  #    - screenfetch
+  #    - 
 
   - window_name: bluesnake
     layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]

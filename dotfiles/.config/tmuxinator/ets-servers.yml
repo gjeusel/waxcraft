@@ -29,19 +29,20 @@ windows:
   #    - python -m trident runserver -p 7052 --threaded
   #    - celery -A trident.tasks.celery worker --loglevel=debug -B -n tridentmeteor@%h
 
-  # B2E2 METEOR
-  - window_name: B2E2 METEOR
-    layout: 033f,238x64,0,0{118x64,0,0[118x32,0,0,65,118x31,0,33,66],119x64,119,0,67}
-    shell_command_before:
-      - export B2E2_CONFIG=~/.b2e2_meteor_settings.py
-      - act b2e2meteor
-      - cd ~/meteorsrc/b2e2
-    panes:
-      - echo "celery -A b2e2.tasks.celery worker --loglevel=info -B -n b2e2meteor@%h | tee -a /tmp/celery_b2e2.log"
-      - screenfetch && env |grep -i proxy
-      - python -m b2e2 runserver -p 7050 --threaded
-      #- celery -A b2e2.tasks.celery worker --loglevel=info -B -n b2e2meteor@%h | tee -a /tmp/celery_b2e2meteor.log
-      #- celery flower -A "b2e2.tasks.celery" --broker="redis://localhost:6379//"
+  ## B2E2 METEOR
+  #- window_name: B2E2 METEOR
+  #  layout: 033f,238x64,0,0{118x64,0,0[118x32,0,0,65,118x31,0,33,66],119x64,119,0,67}
+  #  shell_command_before:
+  #    - export B2E2_CONFIG=~/.b2e2_meteor_settings.py
+  #    - act b2e2meteor
+  #    - cd ~/meteorsrc/b2e2
+  #  panes:
+  #    - echo "celery -A b2e2.tasks.celery worker --loglevel=info -B -n b2e2meteor@%h | tee -a /tmp/celery_b2e2.log"
+  #    #- screenfetch && env |grep -i proxy
+  #    - vim ~/.b2e2_meteor_settings.py
+  #    - python -m b2e2 runserver -p 7050 --threaded
+  #    #- celery -A b2e2.tasks.celery worker --loglevel=info -B -n b2e2meteor@%h | tee -a /tmp/celery_b2e2meteor.log
+  #    #- celery flower -A "b2e2.tasks.celery" --broker="redis://localhost:6379//"
 
   # B2E2
   - window_name: B2E2
@@ -51,7 +52,8 @@ windows:
       - cd ~/src/b2e2
     panes:
       - python -m b2e2 runserver -p 5000 --threaded
-      - screenfetch && env |grep -i proxy
+      #- screenfetch && env |grep -i proxy
+      - vim ~/.b2e2_settings.py
       - celery -A b2e2.tasks.celery worker --loglevel=info -B -n b2e2@%h | tee -a /tmp/celery_b2e2.log
 
   # Tourbillon
