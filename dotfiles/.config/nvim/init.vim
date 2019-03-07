@@ -56,7 +56,7 @@ call dein#begin(expand('~/.config/nvim'))
   call dein#add('AndrewRadev/splitjoin.vim')      " easy split join on whole paragraph
   call dein#add('wellle/targets.vim')             " text object for parenthesis & more !
 
-  "call dein#add('terryma/vim-multiple-cursors')   " nice plugin for multiple cursors
+  call dein#add('terryma/vim-multiple-cursors')   " nice plugin for multiple cursors
 
   " asynchronous fuzzy finder, should replace ctrlp if ever to work with huuge projects
   " ./install --all so the interactive script doesn't block
