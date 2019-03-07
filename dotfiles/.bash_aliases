@@ -150,7 +150,7 @@ compip() {
   pip install -U flake8 pylint proselint
 
   # Fixers:
-  pip install -U isort yapf
+  pip install -U isort yapf==0.25.0 autoflake
 
   # pytest:
   pip install -U pdbpp pytest pytest-xdist pytest-cov pytest-flakes
