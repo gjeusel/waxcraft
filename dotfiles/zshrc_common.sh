@@ -10,6 +10,8 @@ _dotfile_dir="/${0:1:h}"
 source "/${0:1:h}/common.sh"
 
 
+HISTFILE=~/.zsh_history
+
 autoload -U zargs
 setopt inc_append_history share_history autocd extendedglob notify nomatch autopushd pushdignoredups promptsubst
 
