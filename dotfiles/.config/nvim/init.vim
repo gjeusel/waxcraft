@@ -11,6 +11,7 @@
 " Should look up into:
 "   - https://github.com/joker1007/dotfiles/blob/master/vimrc
 "   - https://github.com/alexlafroscia/dotfiles/blob/master/nvim/init.vim  for js / html
+"   - https://github.com/Leotomas/dotfiles-that-fly/blob/master/vim/vimrc for js / html
 
 " Specific config in ~/.nvimrc_local
 " let g:python3_host_prog = "/Users/jd5584/miniconda3/envs/neovim/bin/python"
@@ -35,20 +36,20 @@ call dein#begin(expand('~/.config/nvim'))
 " System {{{
   call dein#add('christoomey/vim-tmux-navigator') " tmux navigation in love with vim
   call dein#add('scrooloose/nerdcommenter')       " easy comments
-  call dein#add('terryma/vim-smooth-scroll')      " smooth scroll
+  "call dein#add('terryma/vim-smooth-scroll')      " smooth scroll
 
   " Tpope is awesome
   call dein#add('tpope/vim-surround')             " change surrounding easily
   call dein#add('tpope/vim-repeat')               " better action repeat for vim-surround with .
   call dein#add('tpope/vim-eunuch')               " sugar for the UNIX shell commands
 
-  call dein#add('vim-scripts/loremipsum')         " dummy text generator (:Loremipsum [number of words])
+  "call dein#add('vim-scripts/loremipsum')         " dummy text generator (:Loremipsum [number of words])
   "call dein#add('easymotion/vim-easymotion')      " easymotion when fedup to think
-  call dein#add('skywind3000/asyncrun.vim')       " run async shell commands
+  "call dein#add('skywind3000/asyncrun.vim')       " run async shell commands
   call dein#add('Konfekt/FastFold')               " update folds only when needed, otherwise folds slowdown vim
   call dein#add('zhimsel/vim-stay')               " adds automated view session creation and restoration whenever editing a buffer
   call dein#add('junegunn/vim-easy-align')        " easy alignment, better than tabularize
-  call dein#add('majutsushi/tagbar')              " browsing the tags, require ctags
+  "call dein#add('majutsushi/tagbar')              " browsing the tags, require ctags
   "call dein#add('mattn/gist-vim')                 " easily upload gist on github
   call dein#add('mbbill/undotree')                " visualize undo tree
   call dein#add('jiangmiao/auto-pairs')           " auto pair
@@ -87,8 +88,8 @@ call dein#begin(expand('~/.config/nvim'))
 " }}}
 
 " Other languages syntax highlight {{{
-  call dein#add('LnL7/vim-nix')  " for .nix
-  call dein#add('cespare/vim-toml')  " syntax for .toml
+  "call dein#add('LnL7/vim-nix')  " for .nix
+  "call dein#add('cespare/vim-toml')  " syntax for .toml
   call dein#add('tmux-plugins/vim-tmux')  " syntax highlight for .tmux.conf file
   call dein#add('posva/vim-vue')  " syntax highlight for .vue file
 "}}}
@@ -96,13 +97,13 @@ call dein#begin(expand('~/.config/nvim'))
 " Git {{{
   call dein#add('airblade/vim-gitgutter') " column sign for git changes
   call dein#add('tpope/vim-fugitive') " Git wrapper for vim
-  call dein#add('tpope/vim-rhubarb')  " GitHub extension for fugitive.vim
+  "call dein#add('tpope/vim-rhubarb')  " GitHub extension for fugitive.vim
   "call dein#add('jreybert/vimagit', {'on_cmd': ['Magit', 'MagitOnly']}) " magit for vim
 " }}}
 
 " markdown & rst & grammar checker {{{
   call dein#add('dhruvasagar/vim-table-mode')  " to easily create tables.
-  call dein#add('rhysd/vim-grammarous')  " grammar checker
+  "call dein#add('rhysd/vim-grammarous')  " grammar checker
   call dein#add('junegunn/goyo.vim')  "  Distraction-free writing in Vim
 
   " plugin that adds asynchronous Markdown preview to Neovim
@@ -117,7 +118,7 @@ call dein#begin(expand('~/.config/nvim'))
   call dein#add('Shougo/deoplete.nvim')  " async engine
 
   "call dein#add('Shougo/neoinclude.vim')  " completion framework for neocomplete/deoplete
-  call dein#add('Shougo/neco-vim') " for vim
+  call dein#add('Shougo/neco-vim', {'on_ft': 'vim'}) " for vim
 
   call dein#add('zchee/deoplete-jedi', {'on_ft': 'python'}) " for python
   call dein#add('zchee/deoplete-go', {'on_ft': 'go'})  " for golang
@@ -174,27 +175,27 @@ call dein#end()
 " Plugin configuration {{{
 
 " Easymotion {{{
-function! MapEasymotionInit()
-    let g:EasyMotion_smartcase = 1
-    " bd for bidirectional :
-    map <nowait><leader><leader> <Plug>(easymotion-bd-w)
+"function! MapEasymotionInit()
+"    let g:EasyMotion_smartcase = 1
+"    " bd for bidirectional :
+"    map <nowait><leader><leader> <Plug>(easymotion-bd-w)
 
-    "map <nowait><leader>f <Plug>(easymotion-bd-f)
+"    "map <nowait><leader>f <Plug>(easymotion-bd-f)
 
-    "map <nowait><Leader>l <Plug>(easymotion-lineforward)
-    "map <nowait><Leader>j <Plug>(easymotion-j)
-    "map <nowait><Leader>k <Plug>(easymotion-k)
-    "map <nowait><Leader>h <Plug>(easymotion-linebackward)
+"    "map <nowait><Leader>l <Plug>(easymotion-lineforward)
+"    "map <nowait><Leader>j <Plug>(easymotion-j)
+"    "map <nowait><Leader>k <Plug>(easymotion-k)
+"    "map <nowait><Leader>h <Plug>(easymotion-linebackward)
 
-    "" beginning of words :
-    "map <nowait><leader>z <Plug>(easymotion-w)
-    "map <nowait><leader>Z <Plug>(easymotion-b)
+"    "" beginning of words :
+"    "map <nowait><leader>z <Plug>(easymotion-w)
+"    "map <nowait><leader>Z <Plug>(easymotion-b)
 
-    "" end of words :
-    "map <nowait><leader>e <Plug>(easymotion-e)
-    "map <nowait><leader>E <Plug>(easymotion-ge)
-endfunction
-autocmd VimEnter * call MapEasymotionInit()
+"    "" end of words :
+"    "map <nowait><leader>e <Plug>(easymotion-e)
+"    "map <nowait><leader>E <Plug>(easymotion-ge)
+"endfunction
+"autocmd VimEnter * call MapEasymotionInit()
 " }}}
 
 " Easy Align {{{
@@ -203,10 +204,10 @@ vmap <leader>t <Plug>(EasyAlign)
 " }}}
 
 " Smooth Scroll {{{
-noremap <silent> <c-u> :call smooth_scroll#up(&scroll, 0, 2)<CR>
-noremap <silent> <c-d> :call smooth_scroll#down(&scroll, 0, 2)<CR>
-noremap <silent> <c-b> :call smooth_scroll#up(&scroll*2, 0, 4)<CR>
-noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 0, 4)<CR>
+"noremap <silent> <c-u> :call smooth_scroll#up(&scroll, 0, 2)<CR>
+"noremap <silent> <c-d> :call smooth_scroll#down(&scroll, 0, 2)<CR>
+"noremap <silent> <c-b> :call smooth_scroll#up(&scroll*2, 0, 4)<CR>
+"noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 0, 4)<CR>
 " }}}
 
 " lightline {{{
@@ -481,6 +482,7 @@ let g:jedi#show_call_signatures = 0  " do show the args of func, use echodoc for
 "let g:jedi#auto_vim_configuration = 0  " set completeopt & rempas ctrl-C to Esc
 
 map <Leader>o o__import__('pdb').set_trace()  # BREAKPOINT<C-c>
+map <Leader>O O__import__('pdb').set_trace()  # BREAKPOINT<C-c>
 map <Leader>i o__import__('IPython').embed()  # Enter Ipython<C-c>
 
 "}}}
@@ -978,3 +980,8 @@ endif
 " Example of content:
 "let g:python3_host_prog = "/Users/username/miniconda3/envs/neovim/bin/python"
 "let g:python_host_prog = "/Users/username/miniconda3/envs/neovim27/bin/python"
+
+hi DiffAdd cterm=none ctermfg=Green ctermbg=none
+hi DiffChange cterm=none ctermfg=Yellow ctermbg=none
+hi DiffDelete cterm=bold ctermfg=Red ctermbg=none
+hi DiffText cterm=none ctermfg=Blue ctermbg=none
