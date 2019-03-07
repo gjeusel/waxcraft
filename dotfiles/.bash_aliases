@@ -177,3 +177,14 @@ comnpm() {
   npm install -g alex write-good # grammar linters
   npm install -g htlmhint
 }
+
+vag() {
+  regex=${1}
+  files=$(ag --recurse --files-with-matches $regex)
+
+  if [ $files ]; then
+    vim $(echo $files)
+  else;
+    echo "$regex not found in any file here."
+  fi;
+}
