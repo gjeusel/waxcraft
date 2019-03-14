@@ -49,9 +49,11 @@ call dein#begin(expand('~/.config/nvim'))
   call dein#add('Konfekt/FastFold')               " update folds only when needed, otherwise folds slowdown vim
   call dein#add('zhimsel/vim-stay')               " adds automated view session creation and restoration whenever editing a buffer
   call dein#add('junegunn/vim-easy-align')        " easy alignment, better than tabularize
-  "call dein#add('majutsushi/tagbar')              " browsing the tags, require ctags
+
   "call dein#add('mattn/gist-vim')                 " easily upload gist on github
   call dein#add('mbbill/undotree')                " visualize undo tree
+  "call dein#add('majutsushi/tagbar')              " browsing the tags, require ctags
+  "
   call dein#add('jiangmiao/auto-pairs')           " auto pair
   call dein#add('AndrewRadev/splitjoin.vim')      " easy split join on whole paragraph
   call dein#add('wellle/targets.vim')             " text object for parenthesis & more !
@@ -76,7 +78,8 @@ call dein#begin(expand('~/.config/nvim'))
   call dein#add('Yggdroot/indentLine')  " thin indent line
   call dein#add('rhysd/conflict-marker.vim') " conflict markers for vimdiff
   call dein#add('luochen1990/rainbow')  " embed parenthesis colors
-  "call dein#add('altercation/vim-colors-solarized')  " prefered colorscheme
+
+  "call dein#add('altercation/vim-colors-solarized')
   call dein#add('morhetz/gruvbox') " other nice colorscheme
   "call dein#add('chriskempson/base16-vim')
 
@@ -84,12 +87,11 @@ call dein#begin(expand('~/.config/nvim'))
   " > sudo pacman -S ttf-nerd-fonts-symbols
 	" > brew tap caskroom/fonts && brew cask install font-hack-nerd-font
   call dein#add('ryanoasis/vim-devicons')  " nice icons added
+
   "call dein#add('blueyed/vim-diminactive') " dim inactive windows
 " }}}
 
 " Other languages syntax highlight {{{
-  "call dein#add('LnL7/vim-nix')  " for .nix
-  "call dein#add('cespare/vim-toml')  " syntax for .toml
   call dein#add('tmux-plugins/vim-tmux')  " syntax highlight for .tmux.conf file
   call dein#add('posva/vim-vue')  " syntax highlight for .vue file
 "}}}
@@ -103,8 +105,8 @@ call dein#begin(expand('~/.config/nvim'))
 
 " markdown & rst & grammar checker {{{
   call dein#add('dhruvasagar/vim-table-mode')  " to easily create tables.
-  "call dein#add('rhysd/vim-grammarous')  " grammar checker
   call dein#add('junegunn/goyo.vim')  "  Distraction-free writing in Vim
+  "call dein#add('rhysd/vim-grammarous')  " grammar checker
 
   " plugin that adds asynchronous Markdown preview to Neovim
   " > cargo build --release   # should be run in vim-markdown-composer after
@@ -118,11 +120,11 @@ call dein#begin(expand('~/.config/nvim'))
   call dein#add('Shougo/deoplete.nvim')  " async engine
 
   "call dein#add('Shougo/neoinclude.vim')  " completion framework for neocomplete/deoplete
-  call dein#add('Shougo/neco-vim', {'on_ft': 'vim'}) " for vim
 
+  call dein#add('Shougo/neco-vim', {'on_ft': 'vim'}) " for vim
   call dein#add('zchee/deoplete-jedi', {'on_ft': 'python'}) " for python
   call dein#add('zchee/deoplete-go', {'on_ft': 'go'})  " for golang
-  call dein#add('carlitux/deoplete-ternjs', {'on_ft': ['javascript', 'html', 'css']})  " for javascript
+  call dein#add('carlitux/deoplete-ternjs', {'on_ft': ['javascript', 'html', 'css', 'vue']})  " for javascript
 
   call dein#add('Shougo/echodoc.vim') " displays function signatures from completions in the command line.
 " }}}
@@ -138,18 +140,19 @@ call dein#begin(expand('~/.config/nvim'))
   call dein#add('python-mode/python-mode', {'on_ft': 'python'})
 "}}}
 
-" Javascript, Html & CSS {{{
+" Frontend {{{
   "call dein#add('othree/html5.vim')  " HTML5 omnicomplete and syntax
   "call dein#add('yaniswang/HTMLHint', {'on_ft': 'html'})  " html
 
-  call dein#add('ternjs/tern_for_vim', {'on_ft': 'javascript'})
+  call dein#add('alvan/vim-closetag')  " autoclose tags
+
+  call dein#add('ternjs/tern_for_vim', {'on_ft': ['javascript', 'html', 'css', 'vue']})
   " cd ~/.config/nvim/repos/github.com/ternjs/tern_for_vim && npm install tern
 
   call dein#add('ap/vim-css-color', {'on_ft': 'css'})  " change bg color in css for colors
-  call dein#add('tmhedberg/matchit', {'on_ft': 'html'})  " % for matching tag
 
-  call dein#add('rstacruz/sparkup')  " for html auto generation
-  call dein#add('mattn/emmet-vim', {'on_ft': ['html', 'javascript', 'css']}) " for html - CSS - javascript
+  "call dein#add('rstacruz/sparkup')  " for html auto generation
+  "call dein#add('mattn/emmet-vim', {'on_ft': ['html', 'javascript', 'css']}) " for html - CSS - javascript
 "}}}
 
 " Golang {{{
@@ -159,8 +162,8 @@ call dein#begin(expand('~/.config/nvim'))
 " Snippets {{{
   "call dein#add('Shougo/neosnippet.vim')  " shougo snippet engine
   "call dein#add('Shougo/neosnippet-snippets')
-  call dein#add('SirVer/ultisnips') " snippet engine
-  call dein#add('honza/vim-snippets') " those are the best snippets for python
+  "call dein#add('SirVer/ultisnips') " snippet engine
+  "call dein#add('honza/vim-snippets') " those are the best snippets for python
 "}}}
 
   if dein#check_install()
@@ -174,34 +177,9 @@ call dein#end()
 
 " Plugin configuration {{{
 
-" Easymotion {{{
-"function! MapEasymotionInit()
-"    let g:EasyMotion_smartcase = 1
-"    " bd for bidirectional :
-"    map <nowait><leader><leader> <Plug>(easymotion-bd-w)
-
-"    "map <nowait><leader>f <Plug>(easymotion-bd-f)
-
-"    "map <nowait><Leader>l <Plug>(easymotion-lineforward)
-"    "map <nowait><Leader>j <Plug>(easymotion-j)
-"    "map <nowait><Leader>k <Plug>(easymotion-k)
-"    "map <nowait><Leader>h <Plug>(easymotion-linebackward)
-
-"    "" beginning of words :
-"    "map <nowait><leader>z <Plug>(easymotion-w)
-"    "map <nowait><leader>Z <Plug>(easymotion-b)
-
-"    "" end of words :
-"    "map <nowait><leader>e <Plug>(easymotion-e)
-"    "map <nowait><leader>E <Plug>(easymotion-ge)
-"endfunction
-"autocmd VimEnter * call MapEasymotionInit()
-" }}}
-
-" Easy Align {{{
+" Easy Align
 " used to tabularize map:
 vmap <leader>t <Plug>(EasyAlign)
-" }}}
 
 " Smooth Scroll {{{
 "noremap <silent> <c-u> :call smooth_scroll#up(&scroll, 0, 2)<CR>
@@ -249,8 +227,8 @@ command! -bang -nargs=* GGrep
 "   :Ag! - Start fzf in fullscreen and display the preview window above
 command! -bang -nargs=* Ag
   \ call fzf#vim#ag(<q-args>,
-  \                 <bang>0 ? fzf#vim#with_preview('up:60%')
-  \                         : fzf#vim#with_preview('right:50%:hidden', '?'),
+  \                 <bang>0 ? fzf#vim#with_preview({'options': '--delimiter : --nth 4..'}, 'up:60%')
+  \                         : fzf#vim#with_preview({'options': '--delimiter : --nth 4..'}, 'right:50%:hidden', '?'),
   \                 <bang>0)
 
 function! s:find_git_root()
@@ -325,7 +303,7 @@ let g:rainbow_active = 1 "0 if you want to enable it later via :RainbowToggle
 let g:SimpylFold_docstring_preview = 1
 let g:SimpylFold_fold_docstring = 1
 let g:SimpylFold_fold_import = 0
-let g:fastfold_savehook = 1
+let g:fastfold_savehook = 1  " update all folds when save a buffer
 let g:fastfold_fold_command_suffixes = []
 let g:fastfold_fold_movement_commands = []
 "}}}
@@ -368,6 +346,8 @@ call deoplete#custom#source('neosnippet', 'mark', '')
 call deoplete#custom#source('ultisnips', 'mark', '')
 call deoplete#custom#source('LanguageClient', 'mark', '')
 
+set completeopt-=preview  " if you don't want windows popup
+
 " deoplete jedi for python {{{
 let g:deoplete#sources#jedi#server_timeout = 40 " extend time for large pkg
 let g:deoplete#sources#jedi#show_docstring = 0  " show docstring in preview window
@@ -376,10 +356,6 @@ let g:deoplete#sources#jedi#enable_cache = 1
 " Sets the maximum length of completion description text. If this is exceeded, a simple description is used instead
 let g:deoplete#sources#jedi#statement_length = 20
 "}}}
-
-"autocmd CompleteDone * silent! pclose!
-set completeopt-=preview  " if you don't want windows popup
-"set completeopt+=noinsert " auto select the first suggestion
 
 " deoplete ternjs for javascript {{{
 let g:deoplete#sources#ternjs#tern_bin = '/usr/local/bin/tern'
@@ -401,44 +377,44 @@ let g:tern#arguments = ["--persistent"]
 
 "}}}
 
-" Snippets {{{
+"" Snippets {{{
 
-" Register ultisnips in deoplete:
-call deoplete#custom#source('ultisnips', 'matchers', ['matcher_fuzzy'])
+"" Register ultisnips in deoplete:
+"call deoplete#custom#source('ultisnips', 'matchers', ['matcher_fuzzy'])
 
-" Choose Shift-Tab as expand for snippets:
-let g:UltiSnipsExpandTrigger = "<S-Tab>" " default to <tab> that override tab deoplete completion
-
-let g:UltiSnipsListSnippets = "<C-Tab>"
-let g:UltiSnipsJumpForwardTrigger = "<C-n>"
-let g:UltiSnipsJumpBackwardTrigger = "<C-p>"
-
-let g:ultisnips_python_style = "google"
-
-if (isdirectory(expand("$waxCraft_PATH/tools/snippets/UltiSnips")))
-  let g:UltiSnipsSnippetDirectories = [expand("$waxCraft_PATH/tool/snippets/UltiSnips"), "UltiSnips"]
-endif
-
-" If wanted to use honza snippets with neosnippet engine:
-" {{{
-"if (isdirectory(expand("$HOME/.config/nvim/repos/github.com/honza/vim-snippets/")))
-"  let g:neosnippet#snippets_directory = "$HOME/.config/nvim/repos/github.com/honza/vim-snippets/UltiSnips"
-"endif
 "" Choose Shift-Tab as expand for snippets:
-"imap <S-Tab> <Plug>(neosnippet_expand_or_jump)
-"smap <S-Tab> <Plug>(neosnippet_expand_or_jump)
-"xmap <S-Tab> <Plug>(neosnippet_expand_target)
-"" SuperTab like snippets behavior.
-"imap <expr><TAB>
-" \ pumvisible() ? "\<C-n>" :
-" \ neosnippet#expandable_or_jumpable() ?
-" \    "\<Plug>(neosnippet_expand_or_jump)" : "\<S-TAB>"
-"" For conceal markers.
-"if has('conceal')
-"  set conceallevel=2 concealcursor=niv
+"let g:UltiSnipsExpandTrigger = "<S-Tab>" " default to <tab> that override tab deoplete completion
+
+"let g:UltiSnipsListSnippets = "<C-Tab>"
+"let g:UltiSnipsJumpForwardTrigger = "<C-n>"
+"let g:UltiSnipsJumpBackwardTrigger = "<C-p>"
+
+"let g:ultisnips_python_style = "google"
+
+"if (isdirectory(expand("$waxCraft_PATH/tools/snippets/UltiSnips")))
+"  let g:UltiSnipsSnippetDirectories = [expand("$waxCraft_PATH/tool/snippets/UltiSnips"), "UltiSnips"]
 "endif
-"}}}
-" }}}
+
+"" If wanted to use honza snippets with neosnippet engine:
+"" {{{
+""if (isdirectory(expand("$HOME/.config/nvim/repos/github.com/honza/vim-snippets/")))
+""  let g:neosnippet#snippets_directory = "$HOME/.config/nvim/repos/github.com/honza/vim-snippets/UltiSnips"
+""endif
+""" Choose Shift-Tab as expand for snippets:
+""imap <S-Tab> <Plug>(neosnippet_expand_or_jump)
+""smap <S-Tab> <Plug>(neosnippet_expand_or_jump)
+""xmap <S-Tab> <Plug>(neosnippet_expand_target)
+""" SuperTab like snippets behavior.
+""imap <expr><TAB>
+"" \ pumvisible() ? "\<C-n>" :
+"" \ neosnippet#expandable_or_jumpable() ?
+"" \    "\<Plug>(neosnippet_expand_or_jump)" : "\<S-TAB>"
+""" For conceal markers.
+""if has('conceal')
+""  set conceallevel=2 concealcursor=niv
+""endif
+""}}}
+"" }}}
 
 " Pymode {{{
 let g:pymode_indent = 1 " pep8 indent
@@ -488,31 +464,36 @@ map <Leader>i o__import__('IPython').embed()  # Enter Ipython<C-c>
 "}}}
 
 " Lint ALE {{{
-" Only run linters named in ale_linters settings.
-let g:ale_linters_explicit = 1
-
 let g:ale_sign_error = '✖'   " Lint error sign
 let g:ale_sign_warning = '⚠' " Lint warning sign
 
 " - alex: helps you find gender favouring, polarising, race related, religion inconsiderate, or other unequal phrasing
+
+" Only run linters named in ale_linters settings.
+let g:ale_linters_explicit = 1
+
 let g:ale_linters = {
             \ 'python': ['flake8'],
             \ 'markdown': ['alex', 'proselint', 'writegood'],
-            \ 'sh': ['alex', 'proselint', 'writegood'],
-            \ 'rst': ['alex', 'proselint', 'writegood'],
-            \ 'html': ['alex', 'proselint', 'writegood', 'htmlhint', 'eslint', 'prettier'],
-            \ 'javascript': ['htmlhint', 'eslint', 'prettier'],
+            \ 'sh': ['proselint', 'writegood'],
+            \ 'rst': ['proselint', 'writegood'],
+            \ 'html': ['prettier'],
+            \ 'javascript': ['prettier'],
+            \ 'vue': ['prettier'],
             \ 'css': ['prettier'],
             \}
 
 "\ 'python': ['autopep8', 'isort', 'black'],
 let g:ale_fixers = {
             \ 'python': ['isort', 'yapf'],
+            \ 'css': ['prettier'],
             \ 'html': ['prettier'],
-            \ 'javascript': ['eslint'],
+            \ 'javascript': ['prettier'],
+            \ 'vue': ['prettier'],
             \ 'json': ['fixjson'],
             \}
 
+let g:ale_javascript_prettier_options = '--single-quote --trailing-comma none --no-semi'
 
 " choice of ignored errors in ~/.config/flake8
 
@@ -529,32 +510,6 @@ map <nowait><silent> ß <Plug>(ale_next_wrap)
 nmap <leader>m :ALEFix <cr>
 "}}}
 
-" AsyncRun {{{
-" Quick run via <F10>
-nnoremap <F10> :call <SID>compile_and_run()<CR>
-
-augroup SPACEVIM_ASYNCRUN
-    autocmd!
-    " Automatically open the quickfix window
-    autocmd User AsyncRunStart call asyncrun#quickfix_toggle(15, 1)
-augroup END
-
-function! s:compile_and_run()
-    exec 'w'
-    if &filetype == 'c'
-        exec "AsyncRun! gcc % -o %<; time ./%<"
-    elseif &filetype == 'cpp'
-       exec "AsyncRun! g++ -std=c++11 % -o %<; time ./%<"
-    elseif &filetype == 'java'
-       exec "AsyncRun! javac %; time java %<"
-    elseif &filetype == 'sh'
-       exec "AsyncRun! time bash %"
-    elseif &filetype == 'python'
-       exec "AsyncRun! time python %"
-    endif
-endfunction
-"}}}
-
 " Table Mode {{{
 " Restructured text compatible
 au BufNewFile,BufRead *.rst let g:table_mode_header_fillchar='='
@@ -568,9 +523,9 @@ au BufNewFile,BufRead *.md let g:table_mode_corner_corner='|'
 "}}}
 
 " TagBar & UndoTree & NERDTree {{{
-nnoremap <silent> <F9> :TagbarToggle<CR>
-nnoremap <silent> <F8> :UndotreeToggle<CR>
 nnoremap <silent> <F7> :NERDTreeToggle<CR>
+nnoremap <silent> <F8> :UndotreeToggle<CR>
+nnoremap <silent> <F9> :TagbarToggle<CR>
 "}}}
 
 " Git {{{
@@ -593,6 +548,12 @@ nnoremap <silent> <F7> :NERDTreeToggle<CR>
 " Disable tmux navigator when zooming the Vim pane
 let g:tmux_navigator_disable_when_zoomed = 1
 " }}}
+
+" Frontend {{{
+let g:closetag_filenames = '*.vue,*.js,*.html,*.xhtml,*.phtml'
+let g:vue_disable_pre_processors=1
+
+"}}}
 
 "}}}
 
@@ -757,9 +718,6 @@ endif
 
 " Autocmd {{{
 
-" Delete empty space from the end of lines on every save
-"au BufWritePre * :%s/\s\+$//e
-
 " Make sure all markdown files have the correct filetype set and setup
 " wrapping and spell check
 function! s:setupWrappingAndSpellcheck()
@@ -772,9 +730,6 @@ au BufRead,BufNewFile *.{md,md.erb,markdown,mdown,mkd,mkdn,txt} setf markdown | 
 
 set expandtab
 
-" Treat JSON files like JavaScript
-au BufNewFile,BufRead *.json set ft=javascript
-
 " Python
 au BufRead,BufNewFile *.py setlocal shiftwidth=4 tabstop=4 softtabstop=4 textwidth=79
 
@@ -783,27 +738,25 @@ au BufNewFile,BufRead *.snippets set filetype=snippets foldmethod=marker
 au BufNewFile,BufRead *.sh set filetype=sh foldlevel=0 foldmethod=marker
 au BufNewFile,BufRead *.nix set filetype=nix
 au BufNewFile,BufRead Filetype vim setlocal tabstop=2 foldmethod=marker
-au BufNewFile,BufRead *.json set filetype=json
 au BufNewFile,BufRead *.txt set filetype=sh
 au BufNewFile,BufRead cronfile set filetype=sh
 au BufNewFile,BufRead .gitconfig set filetype=conf
 au BufNewFile,BufRead *.conf set filetype=config
 
+au FileType git setlocal foldlevelstart=20  " open all unfolded
+
 " html:
-au BufNewFile,BufRead *.html set shiftwidth=2 tabstop=2 softtabstop=2
-au BufNewFile,BufRead *.html set foldmethod=syntax expandtab nowrap
+augroup frontend
+  au BufNewFile,BufRead *.html set shiftwidth=2 tabstop=2 softtabstop=2
+  au BufNewFile,BufRead *.html set foldmethod=syntax expandtab nowrap
+  au BufNewFile,BufRead *.html set foldlevelstart=20
+augroup end
 
 " Git
 au Filetype gitcommit setlocal spell textwidth=72
 
 " Switch to the current file directory when a new buffer is opened
 au BufEnter * if bufname("") !~ "^\[A-Za-z0-9\]*://" | lcd %:p:h | endif
-
-" Keep fold under cursor open at write time for python files:
-autocmd BufWritePost *.py normal! zv
-
-" Open all unfolded if git file type:
-autocmd Filetype git normal! zR
 "}}}
 
 " Mappings {{{
@@ -880,21 +833,24 @@ map <nowait> <leader>' :sp<cr>
 "{{{ GoTo
 
 " Jedi for python
-autocmd FileType python let g:jedi#goto_command = ""
-autocmd FileType python let g:jedi#goto_assignments_command = "<leader>g"
-autocmd FileType python let g:jedi#goto_definitions_command = "<leader>d"
-autocmd FileType python let g:jedi#documentation_command = "<leader>k"
-autocmd FileType python let g:jedi#usages_command = "<leader>n"
-"autocmd FileType python let g:jedi#completions_command = "<C-Space>"
-autocmd FileType python let g:jedi#rename_command = "<leader>r"
-"}}}
+augroup python
+  autocmd FileType python let g:jedi#goto_command = ""
+  autocmd FileType python let g:jedi#goto_assignments_command = "<leader>g"
+  autocmd FileType python let g:jedi#goto_definitions_command = "<leader>d"
+  autocmd FileType python let g:jedi#documentation_command = "<leader>k"
+  autocmd FileType python let g:jedi#usages_command = "<leader>n"
+  autocmd FileType python let g:jedi#rename_command = "<leader>r"
+augroup end
 
 " tern javascript
-autocmd FileType javascript nmap <leader>d :TernDef<cr>
-autocmd FileType javascript nmap <leader>k :TernDoc<cr>
-autocmd FileType javascript nmap <leader>n :TernRefs<cr>
-autocmd FileType javascript nmap <leader>r :TernRename<cr>
-autocmd FileType javascript nmap <leader>j :TernType<cr>
+augroup javascript
+  autocmd FileType javascript,vue nmap <leader>d :TernDef<cr>
+  autocmd FileType javascript,vue nmap <leader>k :TernDoc<cr>
+  autocmd FileType javascript,vue nmap <leader>n :TernRefs<cr>
+  autocmd FileType javascript,vue nmap <leader>r :TernRename<cr>
+  autocmd FileType javascript,vue nmap <leader>j :TernType<cr>
+augroup end
+"}}}
 
 " About folding open and close :
 nnoremap <Space> za
@@ -961,16 +917,6 @@ function! ToggleVerbose()
     endif
 endfunction
 "}}}
-
-" Times choices:
-"set ttimeoutlen=10 timeoutlen=500
-
-"" improve quick escape from insertion mode:
-"augroup FastEscape
-"  autocmd!
-"  au InsertEnter * set timeoutlen=0
-"  au InsertLeave * set timeoutlen=500
-"augroup END
 
 " local config
 if !empty(glob("~/.nvimrc_local"))
