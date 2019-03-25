@@ -95,7 +95,7 @@ function unproxy() {
 alias ipy="ipython -i "
 alias pt="pytest --log-level=DEBUG -x -s --pdb -k "
 alias pdb="pytest --pdb -x -s "
-alias ptp="pytest -s -n auto "
+alias ptp="pytest -s -n auto -vv "
 
 alias vimrc="vim $waxCraft_PATH/dotfiles/.config/nvim/init.vim"
 
@@ -164,18 +164,38 @@ compip() {
 # https://docs.npmjs.com/getting-started/fixing-npm-permissions
 comnpm() {
   # AutoComplete
-  #npm install -g flow-bin  # js
-  npm install -g tern tern
+  npm install -g\
+    tern
+    #flow-bin
 
-  # Fixers:
-  npm install -g fixjson  # json fixer
-  npm install -g eslint # js fixer
+  # Fixers
+  npm install -g\
+    fixjson
+    #eslint
 
-  npm install -g prettier eslint-plugin-prettier eslint-config-prettier # js & html & json & else
+  ## eslint plugins:
+  #npm install -g\
+  #  eslint-plugin-prettier \
+  #  eslint-config-prettier \
+  #  eslint-plugin-vue \
+  #  eslint-config-standard \
+  #  eslint-plugin-standard \
+  #  eslint-plugin-promise \
+  #  eslint-plugin-import \
+  #  eslint-plugin-html \
+  #  eslint-friendly-formatter \
+  #  eslint-plugin-node \
+  #  babel-eslint
+
+  npm install -g\
+    prettier
 
   # Linters:
-  npm install -g alex write-good # grammar linters
-  npm install -g htlmhint
+  npm install -g\
+    alex \
+    write-good
+
+    #htlmhint
 }
 
 vag() {
