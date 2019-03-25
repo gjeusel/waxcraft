@@ -188,6 +188,12 @@ vmap <leader>t <Plug>(EasyAlign)
 "noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 0, 4)<CR>
 " }}}
 
+" {{{ indentLine
+let g:indentLine_color_gui = '#343d46'  " indent line color got indentLine plugin
+let g:indentLine_fileTypeExclude = ['json']
+" }}}
+
+
 " lightline {{{
 " https://github.com/itchyny/lightline.vim/issues/87
 let g:lightline = {'colorscheme': 'gruvbox'}
@@ -321,7 +327,7 @@ let g:deoplete#enable_smart_case = 1
 
 " set multiple options:
 call deoplete#custom#option({
-      \ 'auto_complete_delay': 0,
+      \ 'auto_complete_delay': 200,
       \ 'max_list': 5,
       \ })
       "\ 'auto_refresh_delay': -1,
@@ -473,10 +479,11 @@ let g:ale_sign_warning = '⚠' " Lint warning sign
 let g:ale_linters_explicit = 1
 
 let g:ale_linters = {
+            \ '*': ['writegood', 'remove_trailing_lines', 'trim_whitespace'],
             \ 'python': ['flake8'],
-            \ 'markdown': ['alex', 'proselint', 'writegood'],
-            \ 'sh': ['proselint', 'writegood'],
-            \ 'rst': ['proselint', 'writegood'],
+            \ 'markdown': ['alex', 'proselint'],
+            \ 'sh': ['proselint'],
+            \ 'rst': ['proselint'],
             \ 'html': ['prettier'],
             \ 'javascript': ['prettier'],
             \ 'vue': ['prettier'],
@@ -538,11 +545,11 @@ nnoremap <silent> <F9> :TagbarToggle<CR>
   let g:gitgutter_sign_modified_removed = '•'
 " }}}
 
-" Markdown {{{
-  let g:markdown_composer_autostart = 0  " do not autostart the server, instead use :ComposerStart
-  let g:vim_markdown_conceal = 0
-  " should use :ComposerStart & :ComposerOpen
-" }}}
+"" Markdown {{{
+"  let g:markdown_composer_autostart = 0  " do not autostart the server, instead use :ComposerStart
+"  let g:vim_markdown_conceal = 0
+"  " should use :ComposerStart & :ComposerOpen
+"" }}}
 
 " tmux {{{
 " Disable tmux navigator when zooming the Vim pane
@@ -552,7 +559,6 @@ let g:tmux_navigator_disable_when_zoomed = 1
 " Frontend {{{
 let g:closetag_filenames = '*.vue,*.js,*.html,*.xhtml,*.phtml'
 let g:vue_disable_pre_processors=1
-
 "}}}
 
 "}}}
@@ -643,8 +649,6 @@ autocmd BufEnter * set foldtext=CustomFoldText('\ ')
 if has('linebreak')
   let &showbreak='⤷ '   " arrow pointing downwards then curving rightwards (u+2937, utf-8: e2 a4 b7)
 endif
-
-let g:indentLine_color_gui = '#343d46'  " indent line color got indentLine plugin
 
 " columns
 set colorcolumn=100 " Show vertical bar at column 100
@@ -743,13 +747,17 @@ au BufNewFile,BufRead cronfile set filetype=sh
 au BufNewFile,BufRead .gitconfig set filetype=conf
 au BufNewFile,BufRead *.conf set filetype=config
 
+
 au FileType git setlocal foldlevelstart=20  " open all unfolded
 
 " html:
 augroup frontend
-  au BufNewFile,BufRead *.html set shiftwidth=2 tabstop=2 softtabstop=2
-  au BufNewFile,BufRead *.html set foldmethod=syntax expandtab nowrap
-  au BufNewFile,BufRead *.html set foldlevelstart=20
+  autocmd BufNewFile,BufRead *.html set shiftwidth=2 tabstop=2 softtabstop=2
+  autocmd BufNewFile,BufRead *.html set foldmethod=syntax expandtab nowrap
+  autocmd BufNewFile,BufRead *.html set foldlevelstart=20
+
+  " avoid syntax highlighting stops working randomly in vue:
+  autocmd FileType vue syntax sync fromstart
 augroup end
 
 " Git
