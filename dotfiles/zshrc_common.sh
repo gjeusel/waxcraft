@@ -1,31 +1,26 @@
 # Source common to bash & zsh:
+source "/${0:1:h}/common.sh"
+
+_dotfile_dir="/${0:1:h}"
+
 if [ ! -e "$HOME/.config/antigen.zsh" ]; then
   curl -L git.io/antigen -o "$HOME/.config/antigen.zsh"
 fi
 source "$HOME/.config/antigen.zsh"
-
-_dotfile_dir="/${0:1:h}"
-
-# Up for case if proxy set
-source "/${0:1:h}/common.sh"
-
 
 HISTFILE=~/.zsh_history
 
 autoload -U zargs
 setopt inc_append_history share_history autocd extendedglob notify nomatch autopushd pushdignoredups promptsubst
 
-autoload -Uz compinit
-compinit -i
+# Save a lot of time at startup:
+skip_global_compinit=1
 
 autoload -U promptinit
 promptinit
 
 autoload bashcompinit
 bashcompinit
-
-# Load the oh-my-zsh's library.
-antigen use oh-my-zsh
 
 #ENABLE_CORRECTION="true"
 CASE_SENSITIVE=true
@@ -34,30 +29,28 @@ TranslateWheelToCursor=on
 DisableWheelToCursorByCtrl=on
 
 # Plugins
+antigen use oh-my-zsh
 antigen bundle git
 antigen bundle extract  # generic cmd to decompress files
 antigen bundle colored-man-pages
 antigen bundle common-aliases
-antigen bundle docker
-#antigen bundle jsontools
-#antigen bundle pep8
-#antigen bundle autopep8
-antigen bundle pip
-antigen bundle celery
-#antigen bundle pyenv
-#antigen bundle pylint
-#antigen bundle python
-#antigen bundle redis-cli
 antigen bundle tmux
+#antigen bundle z
+#antigen bundle jsontools
+
+#antigen bundle docker
+#antigen bundle redis-cli
+#antigen bundle ansible
+
 #antigen bundle archlinux
 #antigen bundle yum
 #antigen bundle ytet5uy4/pctl
-antigen bundle z
-#antigen bundle ansible
 
 # Python:
-antigen bundle "esc/conda-zsh-completion"
+#antigen bundle "esc/conda-zsh-completion"
 #antigen bundle "bckim92/zsh-autoswitch-conda"
+antigen bundle pip
+#antigen bundle celery
 
 antigen bundle zsh-users/zsh-syntax-highlighting
 antigen bundle zsh-users/zsh-autosuggestions
@@ -100,18 +93,6 @@ export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=240"
 # Bind ctrl + space
 bindkey '^ ' autosuggest-accept
 
-vfzf() {
-  _match_fzf="$(fzf --preview '[[ $(file --mime {}) =~ binary ]] &&
-    echo {} is a binary file ||
-    (highlight -O ansi -l {} ||
-    coderay {} ||
-    rougify {} ||
-    cat {}) 2> /dev/null | head -500')"
-
-  if [ -n "$_match_fzf" ]; then
-    nvim "$_match_fzf"
-  fi
-}
 # Bind ctrl + p  to fuzzy finder
 # -s simulate keyboard entry
 # (^U) to delete the whole line
@@ -128,7 +109,3 @@ bindkey -s "^N" "^Unnn^M"
 if [ ! -e "$HOME/.tmux/plugins/tpm" ]; then
   git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 fi
-
-# To get tmux navigation accross root panes
-#https://www.bountysource.com/issues/33111484-problems-with-sudo-vim
-alias sudo='sudo TMUX="${TMUX}" '

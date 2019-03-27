@@ -1,0 +1,134 @@
+# Own config
+alias vimrc="vim $waxCraft_PATH/dotfiles/.config/nvim/init.vim"
+alias wax="cd $waxCraft_PATH"
+
+# definitly swhich to nvim:
+alias vim="nvim"
+alias vimdiff="nvim -d"
+
+if [[ $_shell == "bash" || $_shell == "sh" ]]; then
+    # ls aliases
+    alias ls="ls -I '*.pyc' --color=auto"
+    alias ll='ls -l'
+    alias la='ls -A'
+    alias lla='ls -Al'
+    alias lt='ls -la --sort=time'
+fi
+
+# Latex :
+latex_overview(){ $HOME/tools/latexmk/latexmk.pl -pdf -pvc -interaction=nonstopmode $1; }
+
+# git
+alias gl='git pull'
+alias gp='git push'
+alias gd='git diff'
+alias gc='git commit'
+alias gco='git checkout'
+alias gb='git branch'
+alias gs='git status'
+alias ga='git add'
+alias glog='git log --oneline --graph --decorate --all'
+
+alias gcos='gco `git branch -a| fzf`'
+
+# Proxy
+function unproxy() {
+  unset http_proxy https_proxy rsync_proxy ftp_proxy HTTP_PROXY HTTPS_PROXY
+}
+alias negociate_proxy='curl --proxy-negotiate -I -u :  http://google.com'
+
+# Python
+alias ipy="ipython -i "
+alias pt="pytest --log-level=DEBUG -x -s --pdb -k "
+alias pdb="pytest --pdb -x -s "
+alias ptp="pytest -s -n auto -vv "
+alias act='source activate'
+alias libclean="find . | grep -E '(__pycache__|\.pyc|\.pyo|\.orig$)' | xargs rm -rf"
+
+alias infogpu='nvidia-smi --query-gpu=timestamp,name,pci.bus_id,driver_version,pstate,pcie.link.gen.max,pcie.link.gen.current,temperature.gpu,utilization.gpu,utilization.memory,memory.total,memory.free,memory.used --format=csv -l 5'
+
+# Using tmux locally and SSHing into a remote:
+# (Avoiding the 'screen-256color': unknown terminal type.)
+alias ssh="TERM=xterm ssh"
+
+compip() {
+  # Linters:
+  pip install -U flake8 pylint proselint
+
+  # Fixers:
+  pip install -U isort yapf==0.25.0 autoflake
+
+  # pytest:
+  pip install -U pdbpp pytest pytest-xdist pytest-cov pytest-flakes
+
+  # Others
+  pip install -U pip neovim
+  pip install -U python-box
+  pip install -U pgcli tmuxp fire
+}
+
+# https://docs.npmjs.com/getting-started/fixing-npm-permissions
+comnpm() {
+  # AutoComplete
+  npm install -g\
+    tern
+    #flow-bin
+
+  # Fixers
+  npm install -g\
+    fixjson
+    #eslint
+
+  ## eslint plugins:
+  #npm install -g\
+  #  eslint-plugin-prettier \
+  #  eslint-config-prettier \
+  #  eslint-plugin-vue \
+  #  eslint-config-standard \
+  #  eslint-plugin-standard \
+  #  eslint-plugin-promise \
+  #  eslint-plugin-import \
+  #  eslint-plugin-html \
+  #  eslint-friendly-formatter \
+  #  eslint-plugin-node \
+  #  babel-eslint
+
+  npm install -g\
+    prettier
+
+  # Linters:
+  npm install -g\
+    alex \
+    write-good
+
+    #htlmhint
+}
+
+# Fuzzy finders
+vag() {
+  regex=${1}
+  files=$(ag --recurse --files-with-matches $regex)
+
+  if [ $files ]; then
+    vim $(echo $files)
+  else;
+    echo "$regex not found in any file here."
+  fi;
+}
+
+vfzf() {
+  _match_fzf="$(fzf --preview '[[ $(file --mime {}) =~ binary ]] &&
+    echo {} is a binary file ||
+    (highlight -O ansi -l {} ||
+    coderay {} ||
+    rougify {} ||
+    cat {}) 2> /dev/null | head -500')"
+
+  if [ -n "$_match_fzf" ]; then
+    nvim "$_match_fzf"
+  fi
+}
+
+# To get tmux navigation accross root panes
+#https://www.bountysource.com/issues/33111484-problems-with-sudo-vim
+alias sudo='sudo TMUX="${TMUX}" '

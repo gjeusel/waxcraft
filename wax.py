@@ -156,7 +156,7 @@ def tmux():
 
 
 def _common_bash_zsh():
-    relative_paths = [".bash_aliases", ".inputrc"]
+    relative_paths = [".inputrc", ".aliases"]
     create_symlinks_robust(
         relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home())
 
@@ -164,8 +164,19 @@ def _common_bash_zsh():
 def zsh():
     """Instal zsh."""
     # source ~/waxcraft/dotfiles/zshrc_common.sh
-    str_source = ("# waxCraft zshrc_common.sh file sourcing :\n"
-                  "source " + (wax_dotfile_dir / "zshrc_common.sh").as_posix())
+    str_source = (
+        "# source aliases:",
+        "if [ -f ~/.aliases ]; then",
+        "  . ~/.aliases",
+        "fi",
+        "",
+        "# Specific config here",
+        ""
+        "# waxCraft zshrc_common.sh file sourcing :",
+        "source {}".format((wax_dotfile_dir / "zshrc_common.sh").as_posix()),
+    )
+
+    str_source = "\n".join(str_source)
 
     fzshrc = Path.home() / ".zshrc"
     if not fzshrc.exists():

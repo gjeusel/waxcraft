@@ -14,7 +14,7 @@ fi
 unset SSH_ASKPASS
 
 # Visual for yaourt help at fail:
-export VISUAL="vim"
+export VISUAL="nvim"
 
 #export LC_CTYPE=en_US.utf8
 #export LC_ALL=en_US.utf8
@@ -48,3 +48,7 @@ export YAOURT_COLORS="nb=1:pkg=1:ver=1;32:lver=1;45:installed=1;42:grp=1;34:od=1
 if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
 fi
+
+# nnn config
+export NNN_USE_EDITOR=1  # Open text files in $EDITOR ($VISUAL, if defined; fallback vi)
+export NNN_OPENER_DETACH=1  # do not block when invoking file opener
