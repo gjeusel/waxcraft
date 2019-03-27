@@ -706,6 +706,7 @@ au BufRead,BufNewFile *.py setlocal shiftwidth=4 tabstop=4 softtabstop=4 textwid
 " Other
 au BufNewFile,BufRead *.snippets set filetype=snippets foldmethod=marker
 au BufNewFile,BufRead *.sh set filetype=sh foldlevel=0 foldmethod=marker
+au BufNewFile,BufRead .aliases set filetype=sh foldlevel=0 foldmethod=marker
 au BufNewFile,BufRead *.nix set filetype=nix
 au BufNewFile,BufRead *.txt set filetype=sh
 au BufNewFile,BufRead cronfile set filetype=sh
