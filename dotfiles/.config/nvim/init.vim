@@ -58,7 +58,7 @@ call dein#begin(expand('~/.config/nvim'))
   call dein#add('AndrewRadev/splitjoin.vim')      " easy split join on whole paragraph
   call dein#add('wellle/targets.vim')             " text object for parenthesis & more !
 
-  call dein#add('terryma/vim-multiple-cursors')   " nice plugin for multiple cursors
+  "call dein#add('terryma/vim-multiple-cursors')   " nice plugin for multiple cursors
 
   " asynchronous fuzzy finder, should replace ctrlp if ever to work with huuge projects
   " ./install --all so the interactive script doesn't block
@@ -92,8 +92,8 @@ call dein#begin(expand('~/.config/nvim'))
 " }}}
 
 " Other languages syntax highlight {{{
-  call dein#add('tmux-plugins/vim-tmux')  " syntax highlight for .tmux.conf file
-  call dein#add('posva/vim-vue')  " syntax highlight for .vue file
+  call dein#add('tmux-plugins/vim-tmux', {'on_ft': 'config'})  " syntax highlight for .tmux.conf file
+  call dein#add('posva/vim-vue', {'on_ft': 'vue'})  " syntax highlight for .vue file
 "}}}
 
 " Git {{{
@@ -144,9 +144,9 @@ call dein#begin(expand('~/.config/nvim'))
   "call dein#add('othree/html5.vim')  " HTML5 omnicomplete and syntax
   "call dein#add('yaniswang/HTMLHint', {'on_ft': 'html'})  " html
 
-  call dein#add('alvan/vim-closetag')  " autoclose tags
+  call dein#add('alvan/vim-closetag', {'on_ft': ['html', 'vue']})  " autoclose tags
 
-  call dein#add('ternjs/tern_for_vim', {'on_ft': ['javascript', 'html', 'css', 'vue']})
+  "call dein#add('ternjs/tern_for_vim', {'on_ft': ['javascript', 'html', 'css', 'vue']})
   " cd ~/.config/nvim/repos/github.com/ternjs/tern_for_vim && npm install tern
 
   call dein#add('ap/vim-css-color', {'on_ft': 'css'})  " change bg color in css for colors
@@ -177,9 +177,12 @@ call dein#end()
 
 " Plugin configuration {{{
 
-" Easy Align
-" used to tabularize map:
+" Easy Align, used to tabularize map:
 vmap <leader>t <Plug>(EasyAlign)
+
+" Goyo
+let g:goyo_width = 120
+nmap <leader>go :Goyo <cr>
 
 " Smooth Scroll {{{
 "noremap <silent> <c-u> :call smooth_scroll#up(&scroll, 0, 2)<CR>
@@ -188,11 +191,12 @@ vmap <leader>t <Plug>(EasyAlign)
 "noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 0, 4)<CR>
 " }}}
 
-" {{{ indentLine
+" indentLine
 let g:indentLine_color_gui = '#343d46'  " indent line color got indentLine plugin
-let g:indentLine_fileTypeExclude = ['json']
-" }}}
+let g:indentLine_fileTypeExclude = ['json', 'startify']
 
+" rainbow
+let g:rainbow_active = 1 "0 if you want to enable it later via :RainbowToggle
 
 " lightline {{{
 " https://github.com/itchyny/lightline.vim/issues/87
@@ -293,19 +297,9 @@ let g:fzf_colors =
 
 " }}}
 
-" Grammarous
-nmap <leader>gr :GrammarousCheck <cr>
-" Goyo
-let g:goyo_width = 120
-nmap <leader>go :Goyo <cr>
-
 " SuperTab, SimpylFold & FastFold {{{
 let g:SuperTabMappingForward = '<S-Tab>'
 let g:SuperTabMappingBackward = '<Tab>'
-
-let g:rainbow_active = 1 "0 if you want to enable it later via :RainbowToggle
-
-" SimpylFold & FastFold
 let g:SimpylFold_docstring_preview = 1
 let g:SimpylFold_fold_docstring = 1
 let g:SimpylFold_fold_import = 0
@@ -354,27 +348,13 @@ call deoplete#custom#source('LanguageClient', 'mark', '')
 
 set completeopt-=preview  " if you don't want windows popup
 
-" deoplete jedi for python {{{
+" deoplete jedi for python
 let g:deoplete#sources#jedi#server_timeout = 40 " extend time for large pkg
 let g:deoplete#sources#jedi#show_docstring = 0  " show docstring in preview window
 let g:deoplete#sources#jedi#enable_cache = 1
 
 " Sets the maximum length of completion description text. If this is exceeded, a simple description is used instead
 let g:deoplete#sources#jedi#statement_length = 20
-"}}}
-
-" deoplete ternjs for javascript {{{
-let g:deoplete#sources#ternjs#tern_bin = '/usr/local/bin/tern'
-" Whether to include the types of the completions in the result data. Default: 0
-let g:deoplete#sources#ternjs#types = 1
-" Whether to include documentation strings (if found) in the result data.
-" Default: 0
-let g:deoplete#sources#ternjs#docs = 1
-
-" if using tern_for_vim:
-let g:tern#command = ["tern"]
-let g:tern#arguments = ["--persistent"]
-"}}}
 
 "" Debug mode
 "call deoplete#enable_logging('DEBUG', '/tmp/deoplete.log')
@@ -402,7 +382,6 @@ let g:tern#arguments = ["--persistent"]
 "endif
 
 "" If wanted to use honza snippets with neosnippet engine:
-"" {{{
 ""if (isdirectory(expand("$HOME/.config/nvim/repos/github.com/honza/vim-snippets/")))
 ""  let g:neosnippet#snippets_directory = "$HOME/.config/nvim/repos/github.com/honza/vim-snippets/UltiSnips"
 ""endif
@@ -419,7 +398,7 @@ let g:tern#arguments = ["--persistent"]
 ""if has('conceal')
 ""  set conceallevel=2 concealcursor=niv
 ""endif
-""}}}
+
 "" }}}
 
 " Pymode {{{
@@ -517,8 +496,7 @@ map <nowait><silent> ß <Plug>(ale_next_wrap)
 nmap <leader>m :ALEFix <cr>
 "}}}
 
-" Table Mode {{{
-" Restructured text compatible
+" Table Mode, Restructured text compatible
 au BufNewFile,BufRead *.rst let g:table_mode_header_fillchar='='
 au BufNewFile,BufRead *.rst let g:table_mode_corner_corner='+'
 
@@ -527,23 +505,20 @@ au BufNewFile,BufRead *.py let g:table_mode_corner_corner='+'
 
 au BufNewFile,BufRead *.md let g:table_mode_header_fillchar='-'
 au BufNewFile,BufRead *.md let g:table_mode_corner_corner='|'
-"}}}
 
-" TagBar & UndoTree & NERDTree {{{
+" TagBar & UndoTree & NERDTree
 nnoremap <silent> <F7> :NERDTreeToggle<CR>
 nnoremap <silent> <F8> :UndotreeToggle<CR>
 nnoremap <silent> <F9> :TagbarToggle<CR>
-"}}}
 
-" Git {{{
-  set signcolumn=yes
-  let g:conflict_marker_enable_mappings = 0
-  let g:gitgutter_sign_added = '•'
-  let g:gitgutter_sign_modified = '•'
-  let g:gitgutter_sign_removed = '•'
-  let g:gitgutter_sign_removed_first_line = '•'
-  let g:gitgutter_sign_modified_removed = '•'
-" }}}
+" Git
+set signcolumn=yes
+let g:conflict_marker_enable_mappings = 0
+let g:gitgutter_sign_added = '•'
+let g:gitgutter_sign_modified = '•'
+let g:gitgutter_sign_removed = '•'
+let g:gitgutter_sign_removed_first_line = '•'
+let g:gitgutter_sign_modified_removed = '•'
 
 "" Markdown {{{
 "  let g:markdown_composer_autostart = 0  " do not autostart the server, instead use :ComposerStart
@@ -551,15 +526,12 @@ nnoremap <silent> <F9> :TagbarToggle<CR>
 "  " should use :ComposerStart & :ComposerOpen
 "" }}}
 
-" tmux {{{
-" Disable tmux navigator when zooming the Vim pane
+" tmux, disable tmux navigator when zooming the Vim pane
 let g:tmux_navigator_disable_when_zoomed = 1
-" }}}
 
-" Frontend {{{
+" Frontend
 let g:closetag_filenames = '*.vue,*.js,*.html,*.xhtml,*.phtml'
 let g:vue_disable_pre_processors=1
-"}}}
 
 "}}}
 
@@ -577,6 +549,7 @@ colorscheme gruvbox
 set mouse=a             " Automatically enable mouse usage
 set mousehide           " Hide the mouse cursor while typing
 set number              " display line number column
+set relativenumber      " relative line number
 set ruler               " Show the cursor position all the time
 set cursorline          " Highlight the line of the cursor
 set guicursor=          " disable cursor-styling
@@ -589,10 +562,18 @@ set hidden              " Allow backgrounding buffers without writin them, and r
 set foldenable          " Auto fold code
 set splitright          " split at the right of current buffer (left default behaviour)
 set splitbelow          " split at the below of current buffer (top default behaviour)
-set relativenumber      " relative line number
+
+"set spell spelllang=en_us  " activate vim spell checking
 
 set fillchars=vert:│    " box drawings heavy vertical (U+2503, UTF-8: E2 94 83)
 highlight VertSplit ctermbg=none
+highlight Normal guibg=none ctermbg=none
+
+" Better diff views
+hi DiffAdd cterm=none ctermfg=Green ctermbg=none
+hi DiffChange cterm=none ctermfg=Yellow ctermbg=none
+hi DiffDelete cterm=bold ctermfg=Red ctermbg=none
+hi DiffText cterm=none ctermfg=Blue ctermbg=none
 
 " Custom Fold Text {{{
 function! CustomFoldText(delim)
@@ -651,35 +632,30 @@ if has('linebreak')
 endif
 
 " columns
-set colorcolumn=100 " Show vertical bar at column 100
+set colorcolumn=100                    " Show vertical bar at column 100
 au Filetype python set colorcolumn=100 " do it again for python overriden by some plugin
-sign define dummy
-execute 'sign place 9999 line=1 name=dummy buffer=' . bufnr('')
-
-" transparent
-hi Normal guibg=none ctermbg=none
 
 " cmdline
 set wildmenu                    " Show list instead of just completing
 set wildmode=list:longest,full  " Command <Tab> completion, list matches, then longest common part, then all.
 
 " Whitespace
-set nowrap                " don't wrap lines
-set tabstop=2 expandtab   " a tab is two spaces
-set shiftwidth=2          " an autoindent (with <<) is two spaces
-set list                  " show the following:
+set nowrap                                     " don't wrap lines
+set tabstop=2 expandtab                        " a tab is two spaces
+set shiftwidth=2                               " an autoindent (with <<) is two spaces
+set list                                       " show the following:
 set listchars=tab:›\ ,trail:•,extends:#,nbsp:. " Highlight problematic whitespace
+set expandtab                                  " Spaces are used in indents"
 
-" Backup, swap, undo & sessions{{{
-if (!isdirectory(expand("$HOME/.vim/backup")))
-  call system(expand("mkdir -p $HOME/.vim/backup"))
-endif
+" Backup, swap, undo & sessions {{{
+for directory in ["backup", "swap", "undo", "view"]
+  silent! call mkdir($HOME . "/.vim/" . directory, "p")
+endfor
+
 set backup                              " Backups are nice ...
 set backupdir=~/.vim/backup/
+set directory=~/.vim/swap/
 
-if (!isdirectory(expand("$HOME/.vim/undo")))
-  call system(expand("mkdir -p $HOME/.vim/undo"))
-endif
 if has('persistent_undo')
   set undofile              " So is persistent undo ...
   set undolevels=1000       " Maximum number of changes that can be undone
@@ -687,15 +663,7 @@ if has('persistent_undo')
   set undodir=~/.vim/undo/
 endif
 
-if (!isdirectory(expand("$HOME/.vim/swap")))
-  call system(expand("mkdir -p $HOME/.vim/swap"))
-endif
-set directory=~/.vim/swap/
-
 if has('mksession')
-  if (!isdirectory(expand("$HOME/.vim/view")))
-    call system(expand("mkdir -p $HOME/.vim/view"))
-  endif
   set viewdir=~/.vim/view
   set viewoptions=folds,cursor,unix,slash " Better Unix / Windows compatibility
 endif
@@ -711,9 +679,9 @@ set wildignore+=**__pycache__/**
 
 " Clipboard
 if has('clipboard')
-  if has('unnamedplus')  " When possible use + register for copy-paste
+  if has('unnamedplus') " When possible use + register for copy-paste
     set clipboard=unnamed,unnamedplus
-  else         " On mac and Windows, use * register for copy-paste
+  else                  " On mac and Windows, use * register for copy-paste
     set clipboard=unnamed
   endif
 endif
@@ -732,8 +700,6 @@ function! s:setupWrappingAndSpellcheck()
 endfunction
 au BufRead,BufNewFile *.{md,md.erb,markdown,mdown,mkd,mkdn,txt} setf markdown | call s:setupWrappingAndSpellcheck()
 
-set expandtab
-
 " Python
 au BufRead,BufNewFile *.py setlocal shiftwidth=4 tabstop=4 softtabstop=4 textwidth=79
 
@@ -741,16 +707,13 @@ au BufRead,BufNewFile *.py setlocal shiftwidth=4 tabstop=4 softtabstop=4 textwid
 au BufNewFile,BufRead *.snippets set filetype=snippets foldmethod=marker
 au BufNewFile,BufRead *.sh set filetype=sh foldlevel=0 foldmethod=marker
 au BufNewFile,BufRead *.nix set filetype=nix
-au BufNewFile,BufRead Filetype vim setlocal tabstop=2 foldmethod=marker
 au BufNewFile,BufRead *.txt set filetype=sh
 au BufNewFile,BufRead cronfile set filetype=sh
 au BufNewFile,BufRead .gitconfig set filetype=conf
 au BufNewFile,BufRead *.conf set filetype=config
+au Filetype vim setlocal tabstop=2 foldmethod=marker
 
-
-au FileType git setlocal foldlevelstart=20  " open all unfolded
-
-" html:
+" frontend:
 augroup frontend
   autocmd BufNewFile,BufRead *.html set shiftwidth=2 tabstop=2 softtabstop=2
   autocmd BufNewFile,BufRead *.html set foldmethod=syntax expandtab nowrap
@@ -761,7 +724,10 @@ augroup frontend
 augroup end
 
 " Git
-au Filetype gitcommit setlocal spell textwidth=72
+augroup git
+  autocmd Filetype gitcommit setlocal spell textwidth=72
+  autocmd FileType git setlocal foldlevelstart=20  " open all unfolded
+augroup end
 
 " Switch to the current file directory when a new buffer is opened
 au BufEnter * if bufname("") !~ "^\[A-Za-z0-9\]*://" | lcd %:p:h | endif
@@ -790,6 +756,9 @@ tnoremap <Esc> <C-\><C-n>
 
 " }}}
 
+" activate spellcheck
+map <leader>s :setlocal spell!<CR>
+
 " select all of current paragraph with enter:
 nnoremap <return> vip
 
@@ -798,7 +767,7 @@ cmap w!! w !sudo tee % >/dev/null
 
 "{{{ Pane motions
 
-" Are alredy mapped by vim-tmux-navigator
+" Are already mapped by vim-tmux-navigator
 " easier navigation between split windows
 "nnoremap <c-j> <c-w>j
 "nnoremap <c-k> <c-w>k
@@ -934,8 +903,3 @@ endif
 " Example of content:
 "let g:python3_host_prog = "/Users/username/miniconda3/envs/neovim/bin/python"
 "let g:python_host_prog = "/Users/username/miniconda3/envs/neovim27/bin/python"
-
-hi DiffAdd cterm=none ctermfg=Green ctermbg=none
-hi DiffChange cterm=none ctermfg=Yellow ctermbg=none
-hi DiffDelete cterm=bold ctermfg=Red ctermbg=none
-hi DiffText cterm=none ctermfg=Blue ctermbg=none
