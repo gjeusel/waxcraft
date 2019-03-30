@@ -1,3 +1,4 @@
+# Speedup tricks: https://medium.com/@dannysmith/little-thing-2-speeding-up-zsh-f1860390f92
 # Source common to bash & zsh:
 source "/${0:1:h}/common.sh"
 
@@ -15,6 +16,13 @@ setopt inc_append_history share_history autocd extendedglob notify nomatch autop
 
 # Save a lot of time at startup:
 skip_global_compinit=1
+
+# regenerate zcompdump only every 24h
+autoload -Uz compinit
+for dump in ~/.zcompdump(N.mh+24); do
+  compinit
+done
+compinit -C
 
 autoload -U promptinit
 promptinit
@@ -79,7 +87,6 @@ antigen apply
 # Set up Node Version Manager
 if [ -f "/usr/share/nvm/init-nvm.sh" ]; then
     source /usr/share/nvm/init-nvm.sh
-
     # See https://github.com/robbyrussell/oh-my-zsh/issues/6163
     if [ -d $HOME/.nvm ]; then
         export NVM_DIR="$HOME/.nvm"

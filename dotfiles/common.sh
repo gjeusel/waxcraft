@@ -13,15 +13,13 @@ fi
 # Deactivate ksshaskpass popup
 unset SSH_ASKPASS
 
-# Visual for yaourt help at fail:
-export VISUAL="nvim"
-
 #export LC_CTYPE=en_US.utf8
 #export LC_ALL=en_US.utf8
 #export LANG=en_US.utf8
 
 export EDITOR=nvim
 export GIT_EDITOR=nvim
+export VISUAL="nvim"
 
 # Colors {{{
 
@@ -43,11 +41,6 @@ export YAOURT_COLORS="nb=1:pkg=1:ver=1;32:lver=1;45:installed=1;42:grp=1;34:od=1
 #if command -v tmux>/dev/null; then
 #  [[ ! $TERM =~ screen ]] && [ -z $TMUX ] && exec tmux
 #fi
-
-# Source aliases
-if [ -f ~/.bash_aliases ]; then
-    . ~/.bash_aliases
-fi
 
 # nnn config
 export NNN_USE_EDITOR=1  # Open text files in $EDITOR ($VISUAL, if defined; fallback vi)
