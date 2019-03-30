@@ -1,8 +1,0 @@
-# Python Packages :
-https://media.readthedocs.org/pdf/python-on-nix/latest/python-on-nix.pdf
-
-# Getting access to customized packages :
-ln -s $waxCraft_PATH/nix/nixpkgs/custom-packages.nix ~/.nixpkgs/config.nix
-
-fetchFromGit :
-sha256 ---> nix-prefetch-git
