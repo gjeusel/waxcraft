@@ -29,7 +29,13 @@ alias gs='git status'
 alias ga='git add'
 alias glog='git log --oneline --graph --decorate --all'
 
-alias gcos='gco `git branch -a| fzf`'
+function fuzzy_gco() {
+  branch=`git branch -a| fzf`
+  pattern_to_exclude="remotes/origin/"
+  local_branch=`echo "$branch"| sed "s:$pattern_to_exclude::"`
+  git checkout `echo $local_branch`
+}
+alias gcos=fuzzy_gco
 
 # Proxy
 function unproxy() {
