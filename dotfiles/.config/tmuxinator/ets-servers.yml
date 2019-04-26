@@ -7,16 +7,39 @@ shell_command_before:
   - if [[ $current_pid_celery ]]; then echo $current_pid_celery | awk '{print $2}' | xargs kill; fi
 
 windows:
+  # Tourbillon
+  - window_name: Tourbillon
+    layout: 033f,238x64,0,0{118x64,0,0[118x32,0,0,65,118x31,0,33,66],119x64,119,0,67}
+    shell_command_before:
+      - act trb
+      - cd ~/src/tourbillon
+    panes:
+      - cd ~/src/tourbillon/ui && BROWSER=none npm run dev
+      - vim ~/.tourbillon_settings.py
+      - if [[ $(lsof -t -i :5001) ]]; then kill $(lsof -t -i :5001); fi && gunicorn tourbillon.__main__:app -b localhost:5001 --workers=4 --threads=4
+      #- python -m tourbillon runserver -p 5001 --threaded
+
+  # B2E2
+  - window_name: B2E2
+    layout: 033f,238x64,0,0{118x64,0,0[118x32,0,0,65,118x31,0,33,66],119x64,119,0,67}
+    shell_command_before:
+      - act b2e2
+      - cd ~/src/b2e2
+    panes:
+      - python -m b2e2 runserver -p 5000 --threaded
+      - echo "celery -A b2e2.tasks.celery worker --loglevel=info -B -n b2e2@%h | tee -a /tmp/celery_b2e2.log"
+      - vim ~/.b2e2_settings.py
 
   # Trident
   - window_name: Trident
-    layout: even-horizontal
+    layout: 033f,238x64,0,0{118x64,0,0[118x32,0,0,65,118x31,0,33,66],119x64,119,0,67}
     shell_command_before:
       - act trident
       - cd ~/src/trident
     panes:
       - python -m trident runserver -p 5002 --threaded
-      - celery -A trident.tasks.celery worker --loglevel=debug -B -n trident@%h
+      - screenfetch && env |grep -i proxy
+      - echo "celery -A trident.tasks.celery worker --loglevel=debug -B -n trident@%h"
 
   ## Trident Meteor
   #- window_name: Trident Meteor
@@ -43,26 +66,3 @@ windows:
   #    - python -m b2e2 runserver -p 7050 --threaded
   #    #- celery -A b2e2.tasks.celery worker --loglevel=info -B -n b2e2meteor@%h | tee -a /tmp/celery_b2e2meteor.log
   #    #- celery flower -A "b2e2.tasks.celery" --broker="redis://localhost:6379//"
-
-  # B2E2
-  - window_name: B2E2
-    layout: 033f,238x64,0,0{118x64,0,0[118x32,0,0,65,118x31,0,33,66],119x64,119,0,67}
-    shell_command_before:
-      - act b2e2
-      - cd ~/src/b2e2
-    panes:
-      - python -m b2e2 runserver -p 5000 --threaded
-      #- screenfetch && env |grep -i proxy
-      - vim ~/.b2e2_settings.py
-      - celery -A b2e2.tasks.celery worker --loglevel=info -B -n b2e2@%h | tee -a /tmp/celery_b2e2.log
-
-  # Tourbillon
-  - window_name: Tourbillon
-    layout: 1319,238x64,0,0{117x64,0,0,71,120x64,118,0,72}
-    shell_command_before:
-      - act trb
-      - cd ~/src/tourbillon
-    panes:
-      - cd ~/src/tourbillon/ui && BROWSER=none npm run dev
-      - if [[ $(lsof -t -i :5001) ]]; then kill $(lsof -t -i :5001); fi && gunicorn tourbillon.__main__:app -b localhost:5001 --workers=4 --threads=4
-      #- python -m tourbillon runserver -p 5001 --threaded
