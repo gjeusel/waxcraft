@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import sys
@@ -6,6 +7,7 @@ from pathlib import Path
 from pprint import pprint
 
 import pytz
+import urllib3
 
 TZ = pytz.timezone('Europe/Brussels')
 
@@ -25,11 +27,11 @@ logging.getLogger('parso.python.diff').disabled = True
 logging.getLogger('parso.cache').disabled = True
 logging.getLogger('parso.cache.pickle').disabled = True
 
-for lib in ["requests", "urllib3", "mercure", "parso", "diff", "pickle", "cache"]:
+for lib in [
+        "requests", "urllib3", "mercure", "parso", "diff", "pickle", "cache"
+]:
     logging.getLogger(lib).setLevel(logging.WARNING)
 
-
-import urllib3
 urllib3.disable_warnings()
 
 try:
@@ -85,15 +87,14 @@ try:
     tomorrow = today + oneday
 
     def generate_ts(freq):
-        idx = pd.date_range(start='2018-01-01', end='2018-01-02', freq=freq, closed='left')
+        idx = pd.date_range(
+            start='2018-01-01', end='2018-01-02', freq=freq, closed='left')
         idx = idx.tz_localize('CET')
         return pd.DataFrame(data={'value': range(len(idx))}, index=idx)
 
-except Exception as e:
-    print("Could not import pandas as pd: {}".format(e))
+except ImportError as err:
+    print("Could not import pandas as pd: {}".format(err))
 
 local_init_path = Path(__file__).parent / 'ipythoninit_local.py'
 if local_init_path.exists():
     from ipythoninit_local import *
-
-# logroot.setLevel(logging.DEBUG)
