@@ -13,9 +13,6 @@
 "   - https://github.com/alexlafroscia/dotfiles/blob/master/nvim/init.vim  for js / html
 "   - https://github.com/Leotomas/dotfiles-that-fly/blob/master/vim/vimrc for js / html
 
-" Specific config in ~/.nvimrc_local
-" let g:python3_host_prog = "/Users/jd5584/miniconda3/envs/neovim/bin/python"
-
 scriptencoding utf-8
 set encoding=utf-8   " is the default in neovim though
 let mapleader=","
@@ -795,11 +792,11 @@ function! ToggleVerbose()
 endfunction
 "}}}
 
+" Specific config in ~/.nvimrc_local
+" let g:python3_host_prog = $ HOME . "/miniconda3/envs/neovim/bin/python"
+" let g:python_host_prog = $HOME . "/miniconda3/envs/neovim27/bin/python"
+
 " local config
 if !empty(glob("~/.nvimrc_local"))
     source ~/.nvimrc_local
 endif
-
-" Example of content:
-"let g:python3_host_prog = "/Users/username/miniconda3/envs/neovim/bin/python"
-"let g:python_host_prog = "/Users/username/miniconda3/envs/neovim27/bin/python"
