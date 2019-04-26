@@ -22,160 +22,152 @@ let mapleader=","
 
 " Plugins {{{
 
-" Setup dein
-if (!isdirectory(expand("$HOME/.config/nvim/repos/github.com/Shougo/dein.vim")))
-  call system(expand("mkdir -p $HOME/.config/nvim/repos/github.com"))
-  call system(expand("git clone https://github.com/Shougo/dein.vim $HOME/.config/nvim/repos/github.com/Shougo/dein.vim"))
+let s:url_plug = "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
+let s:path_to_plug_file = $HOME . "/.local/share/nvim/site/autoload/plug.vim"
+if !filereadable(s:path_to_plug_file)
+  echo "Downloading Plug (plugin manager) ..."
+  call system("curl -fLo " . s:path_to_plug_file . " --create-dirs " . s:url_plug)
 endif
 
-set runtimepath+=~/.config/nvim/repos/github.com/Shougo/dein.vim/
-call dein#begin(expand('~/.config/nvim'))
+let s:plugin_dir = $HOME . "/.config/nvim/plugged"
+if !isdirectory(s:plugin_dir)
+  echo "Creating " . s:plugin_dir
+  call system("mkdir -p " . s:plugin_dir)
+endif
 
-  call dein#add('Shougo/dein.vim')
+call plug#begin(s:plugin_dir)
 
 " System {{{
-  call dein#add('christoomey/vim-tmux-navigator') " tmux navigation in love with vim
-  call dein#add('scrooloose/nerdcommenter')       " easy comments
-  "call dein#add('terryma/vim-smooth-scroll')      " smooth scroll
+  Plug 'christoomey/vim-tmux-navigator' " tmux navigation in love with vim
+  Plug 'scrooloose/nerdcommenter'       " easy comments
 
   " Tpope is awesome
-  call dein#add('tpope/vim-surround')             " change surrounding easily
-  call dein#add('tpope/vim-repeat')               " better action repeat for vim-surround with .
-  call dein#add('tpope/vim-eunuch')               " sugar for the UNIX shell commands
+  Plug 'tpope/vim-surround'             " change surrounding easily
+  Plug 'tpope/vim-repeat'               " better action repeat for vim-surround with .
+  Plug 'tpope/vim-eunuch'               " sugar for the UNIX shell commands
 
-  "call dein#add('vim-scripts/loremipsum')         " dummy text generator (:Loremipsum [number of words])
-  "call dein#add('easymotion/vim-easymotion')      " easymotion when fedup to think
-  "call dein#add('skywind3000/asyncrun.vim')       " run async shell commands
-  call dein#add('Konfekt/FastFold')               " update folds only when needed, otherwise folds slowdown vim
-  call dein#add('zhimsel/vim-stay')               " adds automated view session creation and restoration whenever editing a buffer
-  call dein#add('junegunn/vim-easy-align')        " easy alignment, better than tabularize
+  "Plug 'vim-scripts/loremipsum'         " dummy text generator (:Loremipsum [number of words])
+  "Plug 'easymotion/vim-easymotion'      " easymotion when fedup to think
+  "Plug 'skywind3000/asyncrun.vim'       " run async shell commands
+  Plug 'Konfekt/FastFold'               " update folds only when needed, otherwise folds slowdown vim
+  Plug 'zhimsel/vim-stay'               " adds automated view session creation and restoration whenever editing a buffer
+  Plug 'junegunn/vim-easy-align'        " easy alignment, better than tabularize
 
-  "call dein#add('mattn/gist-vim')                 " easily upload gist on github
-  call dein#add('mbbill/undotree')                " visualize undo tree
-  "call dein#add('majutsushi/tagbar')              " browsing the tags, require ctags
+  "Plug 'mattn/gist-vim'                 " easily upload gist on github
+  Plug 'mbbill/undotree'                " visualize undo tree
+  "Plug 'majutsushi/tagbar'              " browsing the tags, require ctags
   "
-  call dein#add('jiangmiao/auto-pairs')           " auto pair
-  call dein#add('AndrewRadev/splitjoin.vim')      " easy split join on whole paragraph
-  call dein#add('wellle/targets.vim')             " text object for parenthesis & more !
+  Plug 'jiangmiao/auto-pairs'           " auto pair
+  Plug 'AndrewRadev/splitjoin.vim'      " easy split join on whole paragraph
+  Plug 'wellle/targets.vim'             " text object for parenthesis & more !
 
-  "call dein#add('terryma/vim-multiple-cursors')   " nice plugin for multiple cursors
+  "Plug 'terryma/vim-multiple-cursors'   " nice plugin for multiple cursors
 
-  " asynchronous fuzzy finder, should replace ctrlp if ever to work with huuge projects
-  " ./install --all so the interactive script doesn't block
-  " you can check the other command line options  in the install file
-  call dein#add('junegunn/fzf', { 'build': './install --all', 'merged': 0 })
-  call dein#add('junegunn/fzf.vim', { 'depends': 'fzf' })
+  Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }  " Fuzzy Finder
+  Plug 'junegunn/fzf.vim'
 
-  "call dein#add('wincent/loupe')  " better focus on current highlight search
+  "Plug 'wincent/loupe'  " better focus on current highlight search
 "}}}
 
 " User Interface {{{
-  "call dein#add('scrooloose/nerdtree')  " file tree
-  call dein#add('mhinz/vim-startify')  " fancy start screen for Vim
-  call dein#add('kshenoy/vim-signature')  " toggle display marks
-  call dein#add('itchyny/lightline.vim')  " light status line
-  call dein#add('ap/vim-buftabline')  " buffer line
-  call dein#add('Yggdroot/indentLine')  " thin indent line
-  call dein#add('rhysd/conflict-marker.vim') " conflict markers for vimdiff
-  call dein#add('luochen1990/rainbow')  " embed parenthesis colors
+  Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }  " file tree
+  Plug 'mhinz/vim-startify'  " fancy start screen for Vim
+  Plug 'kshenoy/vim-signature'  " toggle display marks
+  Plug 'itchyny/lightline.vim'  " light status line
+  Plug 'ap/vim-buftabline'  " buffer line
+  Plug 'Yggdroot/indentLine'  " thin indent line
+  Plug 'rhysd/conflict-marker.vim' " conflict markers for vimdiff
+  Plug 'luochen1990/rainbow'  " embed parenthesis colors
 
-  "call dein#add('altercation/vim-colors-solarized')
-  call dein#add('morhetz/gruvbox') " other nice colorscheme
-  "call dein#add('chriskempson/base16-vim')
+  "Plug 'altercation/vim-colors-solarized'
+  Plug 'morhetz/gruvbox' " other nice colorscheme
+  "Plug 'chriskempson/base16-vim'
 
   " nerd font need to be installed, see https://github.com/ryanoasis/nerd-fonts#font-installation
   " > sudo pacman -S ttf-nerd-fonts-symbols
 	" > brew tap caskroom/fonts && brew cask install font-hack-nerd-font
-  call dein#add('ryanoasis/vim-devicons')  " nice icons added
+  Plug 'ryanoasis/vim-devicons'  " nice icons added
 
-  call dein#add('junegunn/vim-emoji')  " emoji auto complete
-
-  "call dein#add('blueyed/vim-diminactive') " dim inactive windows
+  "Plug 'blueyed/vim-diminactive' " dim inactive windows
 " }}}
 
 " Other languages syntax highlight {{{
-  call dein#add('tmux-plugins/vim-tmux', {'on_ft': 'config'})  " syntax highlight for .tmux.conf file
-  call dein#add('posva/vim-vue', {'on_ft': 'vue'})  " syntax highlight for .vue file
+  Plug 'tmux-plugins/vim-tmux', {'for': 'config'}  " syntax highlight for .tmux.conf file
+  Plug 'posva/vim-vue', {'for': 'vue'}  " syntax highlight for .vue file
 "}}}
 
 " Git {{{
-  call dein#add('airblade/vim-gitgutter') " column sign for git changes
-  call dein#add('tpope/vim-fugitive') " Git wrapper for vim
-  "call dein#add('tpope/vim-rhubarb')  " GitHub extension for fugitive.vim
-  "call dein#add('jreybert/vimagit', {'on_cmd': ['Magit', 'MagitOnly']}) " magit for vim
+  Plug 'airblade/vim-gitgutter' " column sign for git changes
+  Plug 'tpope/vim-fugitive' " Git wrapper for vim
+  "Plug 'tpope/vim-rhubarb'  " GitHub extension for fugitive.vim
+  "Plug 'jreybert/vimagit', {'on_cmd': ['Magit', 'MagitOnly']} " magit for vim
 " }}}
 
 " markdown & rst & grammar checker {{{
-  call dein#add('dhruvasagar/vim-table-mode')  " to easily create tables.
-  call dein#add('junegunn/goyo.vim')  "  Distraction-free writing in Vim
-  "call dein#add('rhysd/vim-grammarous')  " grammar checker
+  Plug 'dhruvasagar/vim-table-mode'  " to easily create tables.
+  Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }  "  Distraction-free writing in Vim
+  "Plug 'rhysd/vim-grammarous'  " grammar checker
 
   " plugin that adds asynchronous Markdown preview to Neovim
   " > cargo build --release   # should be run in vim-markdown-composer after
   " installation
-  "call dein#add('euclio/vim-markdown-composer', {'build': 'cargo build --release'})
-  "call dein#add('plasticboy/vim-markdown')
+  "Plug 'euclio/vim-markdown-composer', {'build': 'cargo build --release'}
+  "Plug 'plasticboy/vim-markdown'
 " }}}
 
 " Completion {{{
-  call dein#add('ervandew/supertab') " use <Tab> for all your insert completion
-  call dein#add('Shougo/deoplete.nvim')  " async engine
+  Plug 'ervandew/supertab' " use <Tab> for all your insert completion
+  Plug 'Shougo/deoplete.nvim'  " async engine
 
-  "call dein#add('Shougo/neoinclude.vim')  " completion framework for neocomplete/deoplete
+  Plug 'Shougo/neco-vim', {'for': 'vim'}
+  Plug 'zchee/deoplete-jedi', {'for': 'python'}
+  Plug 'zchee/deoplete-go', {'for': 'go'} 
+  Plug 'carlitux/deoplete-ternjs', {'for': ['javascript', 'html', 'css', 'vue']} 
+  Plug 'fszymanski/deoplete-emoji', {'for': 'gitcommit'}
 
-  call dein#add('Shougo/neco-vim', {'on_ft': 'vim'}) " for vim
-  call dein#add('zchee/deoplete-jedi', {'on_ft': 'python'}) " for python
-  call dein#add('zchee/deoplete-go', {'on_ft': 'go'})  " for golang
-  call dein#add('carlitux/deoplete-ternjs', {'on_ft': ['javascript', 'html', 'css', 'vue']})  " for javascript
-  call dein#add('fszymanski/deoplete-emoji', {'on_ft': ['gitcommit']})  " for gitcommit
-
-  call dein#add('Shougo/echodoc.vim') " displays function signatures from completions in the command line.
+  Plug 'Shougo/echodoc.vim' " displays function signatures from completions in the command line.
 " }}}
 
 " Code Style {{{
-  call dein#add('w0rp/ale')  " general asynchronous syntax checker
-  "call dein#add('editorconfig/editorconfig-vim')  " EditorConfig plugin for Vim
+  Plug 'w0rp/ale'  " general asynchronous syntax checker
 "}}}
 
 " Python {{{
-  call dein#add('tmhedberg/SimpylFold', {'on_ft': 'python'})  " better folds
-  call dein#add('davidhalter/jedi-vim', {'on_ft': ['python', 'markdown', 'rst']})
-  call dein#add('python-mode/python-mode', {'on_ft': 'python'})
+  Plug 'tmhedberg/SimpylFold', {'for': 'python'}  " better folds
+  Plug 'davidhalter/jedi-vim', {'for': ['python', 'markdown', 'rst']}
+  Plug 'python-mode/python-mode', {'for': 'python'}
 "}}}
 
 " Frontend {{{
-  "call dein#add('othree/html5.vim')  " HTML5 omnicomplete and syntax
-  "call dein#add('yaniswang/HTMLHint', {'on_ft': 'html'})  " html
+  "Plug 'othree/html5.vim'  " HTML5 omnicomplete and syntax
+  "Plug 'yaniswang/HTMLHint', {'for': 'html'}  " html
 
-  call dein#add('alvan/vim-closetag', {'on_ft': ['html', 'vue']})  " autoclose tags
+  Plug 'alvan/vim-closetag', {'for': ['html', 'vue']}  " autoclose tags
 
-  "call dein#add('ternjs/tern_for_vim', {'on_ft': ['javascript', 'html', 'css', 'vue']})
+  "Plug 'ternjs/tern_for_vim', {'for': ['javascript', 'html', 'css', 'vue']}
   " cd ~/.config/nvim/repos/github.com/ternjs/tern_for_vim && npm install tern
 
-  call dein#add('ap/vim-css-color', {'on_ft': 'css'})  " change bg color in css for colors
+  Plug 'ap/vim-css-color', {'for': 'css'}  " change bg color in css for colors
 
-  "call dein#add('rstacruz/sparkup')  " for html auto generation
-  "call dein#add('mattn/emmet-vim', {'on_ft': ['html', 'javascript', 'css']}) " for html - CSS - javascript
+  " javascript / vue
+  Plug 'carlitux/deoplete-ternjs', {'for': ['javascript', 'vue']}
+
+  "Plug 'rstacruz/sparkup'  " for html auto generation
+  "Plug 'mattn/emmet-vim', {'for': ['html', 'javascript', 'css']} " for html - CSS - javascript
 "}}}
 
 " Golang {{{
-  call dein#add('fatih/vim-go', {'on_ft': 'go'})
+  Plug 'fatih/vim-go', {'for': 'go'}
 " }}}
 
 " Snippets {{{
-  "call dein#add('Shougo/neosnippet.vim')  " shougo snippet engine
-  "call dein#add('Shougo/neosnippet-snippets')
-  "call dein#add('SirVer/ultisnips') " snippet engine
-  "call dein#add('honza/vim-snippets') " those are the best snippets for python
+  "Plug 'Shougo/neosnippet.vim'  " shougo snippet engine
+  "Plug 'Shougo/neosnippet-snippets'
+  "Plug 'SirVer/ultisnips' " snippet engine
+  "Plug 'honza/vim-snippets' " those are the best snippets for python
 "}}}
 
-  if dein#check_install()
-    let g:dein#install_log_filename = '~/.config/nvim/dein.log' " ask for log file
-    call dein#install()
-    let pluginsExist=1
-  endif
-
-call dein#end()
+call plug#end()
 "}}}
 
 " Plugin configuration {{{
@@ -186,13 +178,6 @@ vmap <leader>t <Plug>(EasyAlign)
 " Goyo
 let g:goyo_width = 120
 nmap <leader>go :Goyo <cr>
-
-" Smooth Scroll {{{
-"noremap <silent> <c-u> :call smooth_scroll#up(&scroll, 0, 2)<CR>
-"noremap <silent> <c-d> :call smooth_scroll#down(&scroll, 0, 2)<CR>
-"noremap <silent> <c-b> :call smooth_scroll#up(&scroll*2, 0, 4)<CR>
-"noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 0, 4)<CR>
-" }}}
 
 " indentLine
 let g:indentLine_color_gui = '#343d46'  " indent line color got indentLine plugin
@@ -300,9 +285,12 @@ let g:fzf_colors =
 
 " }}}
 
-" SuperTab, SimpylFold & FastFold {{{
+" SuperTab {{{
 let g:SuperTabMappingForward = '<S-Tab>'
 let g:SuperTabMappingBackward = '<Tab>'
+" }}}
+
+" SimpylFold & FastFold {{{
 let g:SimpylFold_docstring_preview = 1
 let g:SimpylFold_fold_docstring = 1
 let g:SimpylFold_fold_import = 0
@@ -323,7 +311,8 @@ let g:deoplete#enable_ignore_case = 1
 let g:deoplete#enable_smart_case = 1
 
 " set multiple options:
-call deoplete#custom#option({
+if exists("deoplete")
+  call deoplete#custom#option({
       \ 'auto_complete_delay': 200,
       \ 'max_list': 5,
       \ })
@@ -332,22 +321,24 @@ call deoplete#custom#option({
       "\ 'refresh_always': v:false,
       "\ 'ignore_sources': {'python': 'numpy'},
       "\ 'num_processes': 2,
+endif
 
 "" Disable the candidates in Comment syntaxes.
 "call deoplete#custom#source('_', 'disable_syntaxes', ['Comment'])
-
 
 let g:echodoc#enable_at_startup = 1
 let g:echodoc#enable_force_overwrite = 1
 
 let g:deoplete#file#enable_buffer_path=1
-call deoplete#custom#source('buffer', 'mark', 'ℬ')
-call deoplete#custom#source('omni', 'mark', '⌾')
-call deoplete#custom#source('file', 'mark', '')
-call deoplete#custom#source('jedi', 'mark', '🐍')
-call deoplete#custom#source('neosnippet', 'mark', '')
-call deoplete#custom#source('ultisnips', 'mark', '')
-call deoplete#custom#source('LanguageClient', 'mark', '')
+if exists("deoplete")
+  call deoplete#custom#source('buffer', 'mark', 'ℬ')
+  call deoplete#custom#source('omni', 'mark', '⌾')
+  call deoplete#custom#source('file', 'mark', '')
+  call deoplete#custom#source('jedi', 'mark', '🐍')
+  call deoplete#custom#source('neosnippet', 'mark', '')
+  call deoplete#custom#source('ultisnips', 'mark', '')
+  call deoplete#custom#source('LanguageClient', 'mark', '')
+endif
 
 set completeopt-=preview  " if you don't want windows popup
 
@@ -365,44 +356,6 @@ let g:deoplete#sources#jedi#statement_length = 20
 "let g:deoplete#enable_profile = 0
 
 "}}}
-
-"" Snippets {{{
-
-"" Register ultisnips in deoplete:
-"call deoplete#custom#source('ultisnips', 'matchers', ['matcher_fuzzy'])
-
-"" Choose Shift-Tab as expand for snippets:
-"let g:UltiSnipsExpandTrigger = "<S-Tab>" " default to <tab> that override tab deoplete completion
-
-"let g:UltiSnipsListSnippets = "<C-Tab>"
-"let g:UltiSnipsJumpForwardTrigger = "<C-n>"
-"let g:UltiSnipsJumpBackwardTrigger = "<C-p>"
-
-"let g:ultisnips_python_style = "google"
-
-"if (isdirectory(expand("$waxCraft_PATH/tools/snippets/UltiSnips")))
-"  let g:UltiSnipsSnippetDirectories = [expand("$waxCraft_PATH/tool/snippets/UltiSnips"), "UltiSnips"]
-"endif
-
-"" If wanted to use honza snippets with neosnippet engine:
-""if (isdirectory(expand("$HOME/.config/nvim/repos/github.com/honza/vim-snippets/")))
-""  let g:neosnippet#snippets_directory = "$HOME/.config/nvim/repos/github.com/honza/vim-snippets/UltiSnips"
-""endif
-""" Choose Shift-Tab as expand for snippets:
-""imap <S-Tab> <Plug>(neosnippet_expand_or_jump)
-""smap <S-Tab> <Plug>(neosnippet_expand_or_jump)
-""xmap <S-Tab> <Plug>(neosnippet_expand_target)
-""" SuperTab like snippets behavior.
-""imap <expr><TAB>
-"" \ pumvisible() ? "\<C-n>" :
-"" \ neosnippet#expandable_or_jumpable() ?
-"" \    "\<Plug>(neosnippet_expand_or_jump)" : "\<S-TAB>"
-""" For conceal markers.
-""if has('conceal')
-""  set conceallevel=2 concealcursor=niv
-""endif
-
-"" }}}
 
 " Pymode {{{
 let g:pymode_indent = 1 " pep8 indent
@@ -499,7 +452,7 @@ map <nowait><silent> ß <Plug>(ale_next_wrap)
 nmap <leader>m :ALEFix <cr>
 "}}}
 
-" Table Mode, Restructured text compatible
+" Table Mode, Restructured text compatible {{{
 au BufNewFile,BufRead *.rst let g:table_mode_header_fillchar='='
 au BufNewFile,BufRead *.rst let g:table_mode_corner_corner='+'
 
@@ -508,6 +461,7 @@ au BufNewFile,BufRead *.py let g:table_mode_corner_corner='+'
 
 au BufNewFile,BufRead *.md let g:table_mode_header_fillchar='-'
 au BufNewFile,BufRead *.md let g:table_mode_corner_corner='|'
+"}}}
 
 " TagBar & UndoTree & NERDTree
 nnoremap <silent> <F7> :NERDTreeToggle<CR>
@@ -522,12 +476,6 @@ let g:gitgutter_sign_modified = '•'
 let g:gitgutter_sign_removed = '•'
 let g:gitgutter_sign_removed_first_line = '•'
 let g:gitgutter_sign_modified_removed = '•'
-
-"" Markdown {{{
-"  let g:markdown_composer_autostart = 0  " do not autostart the server, instead use :ComposerStart
-"  let g:vim_markdown_conceal = 0
-"  " should use :ComposerStart & :ComposerOpen
-"" }}}
 
 " tmux, disable tmux navigator when zooming the Vim pane
 let g:tmux_navigator_disable_when_zoomed = 1
@@ -547,7 +495,7 @@ set background=dark
 let g:gruvbox_invert_selection=0
 "let g:gruvbox_improved_strings=1
 let g:gruvbox_improved_warnings=1
-colorscheme gruvbox
+silent! colorscheme gruvbox " use of silence in case plugin are not yet installed
 
 set mouse=a             " Automatically enable mouse usage
 set mousehide           " Hide the mouse cursor while typing
@@ -627,9 +575,8 @@ function! CustomFoldText(delim)
   let foldLine = foldLineHead . expansionString . foldLineTail
   return foldLine
 endfunction
-autocmd FileType python set foldtext=CustomFoldText('\ ')
-
 "}}}
+autocmd FileType python set foldtext=CustomFoldText('\ ')
 
 if has('linebreak')
   let &showbreak='⤷ '   " arrow pointing downwards then curving rightwards (u+2937, utf-8: e2 a4 b7)
@@ -857,13 +804,7 @@ map <C-s> :w<CR>
 nmap <leader>; :nohl<cr>
 
 " source config
-if !exists('*ActualizeInit')
-  function! ActualizeInit()
-    call dein#recache_runtimepath()
-    source ${HOME}/.config/nvim/init.vim
-  endfunction
-endif
-map <F12> :call ActualizeInit()<cr>
+map <F12> :call source ${HOME}/.config/nvim/init.vim<cr>
 "}}}
 
 " Custom Functions {{{
