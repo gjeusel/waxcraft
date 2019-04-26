@@ -42,77 +42,48 @@ call plug#begin(s:plugin_dir)
   Plug 'scrooloose/nerdcommenter'       " easy comments
 
   " Tpope is awesome
-  Plug 'tpope/vim-surround'             " change surrounding easily
-  Plug 'tpope/vim-repeat'               " better action repeat for vim-surround with .
-  Plug 'tpope/vim-eunuch'               " sugar for the UNIX shell commands
+  Plug 'tpope/vim-surround'        " change surrounding easily
+  Plug 'tpope/vim-repeat'          " better action repeat for vim-surround with .
+  Plug 'tpope/vim-eunuch'          " sugar for the UNIX shell commands
+  Plug 'tpope/vim-fugitive'        " Git wrapper for vim
 
-  "Plug 'vim-scripts/loremipsum'         " dummy text generator (:Loremipsum [number of words])
-  "Plug 'easymotion/vim-easymotion'      " easymotion when fedup to think
-  "Plug 'skywind3000/asyncrun.vim'       " run async shell commands
-  Plug 'Konfekt/FastFold'               " update folds only when needed, otherwise folds slowdown vim
-  Plug 'zhimsel/vim-stay'               " adds automated view session creation and restoration whenever editing a buffer
-  Plug 'junegunn/vim-easy-align'        " easy alignment, better than tabularize
+  Plug 'Konfekt/FastFold'          " update folds only when needed, otherwise folds slowdown vim
+  Plug 'zhimsel/vim-stay'          " adds automated view session creation and restoration whenever editing a buffer
+  Plug 'junegunn/vim-easy-align'   " easy alignment, better than tabularize
+  Plug 'jiangmiao/auto-pairs'      " auto pair
+  Plug 'AndrewRadev/splitjoin.vim' " easy split join on whole paragraph
+  Plug 'wellle/targets.vim'        " text object for parenthesis & more !
 
-  "Plug 'mattn/gist-vim'                 " easily upload gist on github
-  Plug 'mbbill/undotree'                " visualize undo tree
-  "Plug 'majutsushi/tagbar'              " browsing the tags, require ctags
-  "
-  Plug 'jiangmiao/auto-pairs'           " auto pair
-  Plug 'AndrewRadev/splitjoin.vim'      " easy split join on whole paragraph
-  Plug 'wellle/targets.vim'             " text object for parenthesis & more !
-
-  "Plug 'terryma/vim-multiple-cursors'   " nice plugin for multiple cursors
+  Plug 'mbbill/undotree', {'on': 'UndotreeToggle'}     " visualize undo tree
+  Plug 'majutsushi/tagbar', {'on': 'TagbarToggle'}     " browsing the tags, require ctags
+  Plug 'scrooloose/nerdtree', {'on': 'NERDTreeToggle'} " file tree
 
   Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }  " Fuzzy Finder
   Plug 'junegunn/fzf.vim'
 
-  "Plug 'wincent/loupe'  " better focus on current highlight search
+  " Plug 'vim-scripts/loremipsum'         " dummy text generator (:Loremipsum [number of words])
+  " Plug 'easymotion/vim-easymotion'      " easymotion when fedup to think
+  " Plug 'skywind3000/asyncrun.vim'       " run async shell commands
+  " Plug 'terryma/vim-multiple-cursors'   " nice plugin for multiple cursors
 "}}}
 
 " User Interface {{{
-  Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }  " file tree
-  Plug 'mhinz/vim-startify'  " fancy start screen for Vim
-  Plug 'kshenoy/vim-signature'  " toggle display marks
-  Plug 'itchyny/lightline.vim'  " light status line
-  Plug 'ap/vim-buftabline'  " buffer line
-  Plug 'Yggdroot/indentLine'  " thin indent line
-  Plug 'rhysd/conflict-marker.vim' " conflict markers for vimdiff
-  Plug 'luochen1990/rainbow'  " embed parenthesis colors
+  Plug 'mhinz/vim-startify'                            " fancy start screen for Vim
+  Plug 'kshenoy/vim-signature'                         " toggle display marks
+  Plug 'itchyny/lightline.vim'                         " light status line
+  Plug 'ap/vim-buftabline'                             " buffer line
+  Plug 'Yggdroot/indentLine'                           " thin indent line
+  Plug 'rhysd/conflict-marker.vim'                     " conflict markers for vimdiff
+  Plug 'luochen1990/rainbow'                           " embed parenthesis colors
+  Plug 'airblade/vim-gitgutter'                        " column sign for git changes
+  Plug 'wincent/loupe'                                 " better focus on current highlight search
 
-  "Plug 'altercation/vim-colors-solarized'
-  Plug 'morhetz/gruvbox' " other nice colorscheme
-  "Plug 'chriskempson/base16-vim'
+  Plug 'morhetz/gruvbox'                               " other nice colorscheme
 
   " nerd font need to be installed, see https://github.com/ryanoasis/nerd-fonts#font-installation
   " > sudo pacman -S ttf-nerd-fonts-symbols
-	" > brew tap caskroom/fonts && brew cask install font-hack-nerd-font
+  " > brew tap caskroom/fonts && brew cask install font-hack-nerd-font
   Plug 'ryanoasis/vim-devicons'  " nice icons added
-
-  "Plug 'blueyed/vim-diminactive' " dim inactive windows
-" }}}
-
-" Other languages syntax highlight {{{
-  Plug 'tmux-plugins/vim-tmux', {'for': 'config'}  " syntax highlight for .tmux.conf file
-  Plug 'posva/vim-vue', {'for': 'vue'}  " syntax highlight for .vue file
-"}}}
-
-" Git {{{
-  Plug 'airblade/vim-gitgutter' " column sign for git changes
-  Plug 'tpope/vim-fugitive' " Git wrapper for vim
-  "Plug 'tpope/vim-rhubarb'  " GitHub extension for fugitive.vim
-  "Plug 'jreybert/vimagit', {'on_cmd': ['Magit', 'MagitOnly']} " magit for vim
-" }}}
-
-" markdown & rst & grammar checker {{{
-  Plug 'dhruvasagar/vim-table-mode'  " to easily create tables.
-  Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }  "  Distraction-free writing in Vim
-  "Plug 'rhysd/vim-grammarous'  " grammar checker
-
-  " plugin that adds asynchronous Markdown preview to Neovim
-  " > cargo build --release   # should be run in vim-markdown-composer after
-  " installation
-  "Plug 'euclio/vim-markdown-composer', {'build': 'cargo build --release'}
-  "Plug 'plasticboy/vim-markdown'
 " }}}
 
 " Completion {{{
@@ -121,51 +92,34 @@ call plug#begin(s:plugin_dir)
 
   Plug 'Shougo/neco-vim', {'for': 'vim'}
   Plug 'zchee/deoplete-jedi', {'for': 'python'}
-  Plug 'zchee/deoplete-go', {'for': 'go'} 
-  Plug 'carlitux/deoplete-ternjs', {'for': ['javascript', 'html', 'css', 'vue']} 
+  Plug 'zchee/deoplete-go', {'for': 'go'}
   Plug 'fszymanski/deoplete-emoji', {'for': 'gitcommit'}
-
-  Plug 'Shougo/echodoc.vim' " displays function signatures from completions in the command line.
+  Plug 'carlitux/deoplete-ternjs', {'do': 'npm install -g tern', 'for': ['javascript', 'vue']}
 " }}}
 
-" Code Style {{{
+" Code Style
+  Plug 'Shougo/echodoc.vim' " displays function signatures from completions in the command line.
   Plug 'w0rp/ale'  " general asynchronous syntax checker
-"}}}
 
-" Python {{{
+" Python
   Plug 'tmhedberg/SimpylFold', {'for': 'python'}  " better folds
   Plug 'davidhalter/jedi-vim', {'for': ['python', 'markdown', 'rst']}
   Plug 'python-mode/python-mode', {'for': 'python'}
-"}}}
 
-" Frontend {{{
-  "Plug 'othree/html5.vim'  " HTML5 omnicomplete and syntax
-  "Plug 'yaniswang/HTMLHint', {'for': 'html'}  " html
-
+" Frontend
   Plug 'alvan/vim-closetag', {'for': ['html', 'vue']}  " autoclose tags
-
-  "Plug 'ternjs/tern_for_vim', {'for': ['javascript', 'html', 'css', 'vue']}
-  " cd ~/.config/nvim/repos/github.com/ternjs/tern_for_vim && npm install tern
-
   Plug 'ap/vim-css-color', {'for': 'css'}  " change bg color in css for colors
 
-  " javascript / vue
-  Plug 'carlitux/deoplete-ternjs', {'for': ['javascript', 'vue']}
-
-  "Plug 'rstacruz/sparkup'  " for html auto generation
-  "Plug 'mattn/emmet-vim', {'for': ['html', 'javascript', 'css']} " for html - CSS - javascript
-"}}}
-
-" Golang {{{
+" Golang
   Plug 'fatih/vim-go', {'for': 'go'}
-" }}}
 
-" Snippets {{{
-  "Plug 'Shougo/neosnippet.vim'  " shougo snippet engine
-  "Plug 'Shougo/neosnippet-snippets'
-  "Plug 'SirVer/ultisnips' " snippet engine
-  "Plug 'honza/vim-snippets' " those are the best snippets for python
-"}}}
+" Vuejs
+  Plug 'posva/vim-vue', {'for': 'vue'}  " syntax highlight for .vue file
+
+" markdown & rst
+  Plug 'dhruvasagar/vim-table-mode'  " to easily create tables.
+  Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }  "  Distraction-free writing in Vim
+
 
 call plug#end()
 "}}}
