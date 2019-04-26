@@ -88,6 +88,8 @@ call dein#begin(expand('~/.config/nvim'))
 	" > brew tap caskroom/fonts && brew cask install font-hack-nerd-font
   call dein#add('ryanoasis/vim-devicons')  " nice icons added
 
+  call dein#add('junegunn/vim-emoji')  " emoji auto complete
+
   "call dein#add('blueyed/vim-diminactive') " dim inactive windows
 " }}}
 
@@ -125,6 +127,7 @@ call dein#begin(expand('~/.config/nvim'))
   call dein#add('zchee/deoplete-jedi', {'on_ft': 'python'}) " for python
   call dein#add('zchee/deoplete-go', {'on_ft': 'go'})  " for golang
   call dein#add('carlitux/deoplete-ternjs', {'on_ft': ['javascript', 'html', 'css', 'vue']})  " for javascript
+  call dein#add('fszymanski/deoplete-emoji', {'on_ft': ['gitcommit']})  " for gitcommit
 
   call dein#add('Shougo/echodoc.vim') " displays function signatures from completions in the command line.
 " }}}
@@ -464,7 +467,7 @@ let g:ale_linters = {
             \ 'sh': ['proselint'],
             \ 'rst': ['proselint'],
             \ 'html': ['prettier'],
-            \ 'javascript': ['prettier'],
+            \ 'javascript': ['eslint'],
             \ 'vue': ['prettier'],
             \ 'css': ['prettier'],
             \}
@@ -474,7 +477,7 @@ let g:ale_fixers = {
             \ 'python': ['isort', 'yapf'],
             \ 'css': ['prettier'],
             \ 'html': ['prettier'],
-            \ 'javascript': ['prettier'],
+            \ 'javascript': ['eslint'],
             \ 'vue': ['prettier'],
             \ 'json': ['fixjson'],
             \}
@@ -551,7 +554,7 @@ set mousehide           " Hide the mouse cursor while typing
 set number              " display line number column
 set relativenumber      " relative line number
 set ruler               " Show the cursor position all the time
-set cursorline          " Highlight the line of the cursor
+"set cursorline          " Highlight the line of the cursor
 set guicursor=          " disable cursor-styling
 set noshowmode          " do not put a message on the cmdline for the mode ('insert', 'normal', ...)
 
@@ -563,7 +566,7 @@ set foldenable          " Auto fold code
 set splitright          " split at the right of current buffer (left default behaviour)
 set splitbelow          " split at the below of current buffer (top default behaviour)
 
-"set spell spelllang=en_us  " activate vim spell checking
+set spelllang=en_us  " activate vim spell checking
 
 set fillchars=vert:│    " box drawings heavy vertical (U+2503, UTF-8: E2 94 83)
 highlight VertSplit ctermbg=none
@@ -624,7 +627,8 @@ function! CustomFoldText(delim)
   let foldLine = foldLineHead . expansionString . foldLineTail
   return foldLine
 endfunction
-autocmd BufEnter * set foldtext=CustomFoldText('\ ')
+autocmd FileType python set foldtext=CustomFoldText('\ ')
+
 "}}}
 
 if has('linebreak')
