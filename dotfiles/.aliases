@@ -47,7 +47,7 @@ alias negociate_proxy='curl --proxy-negotiate -I -u :  http://google.com'
 alias ipy="ipython -i "
 alias pt="pytest --log-level=DEBUG -x -s --pdb -k "
 alias pdb="pytest --pdb -x -s "
-alias ptp="pytest -s -n auto -vv "
+alias ptp="pytest -n auto -vv "
 alias act='source activate'
 alias libclean="find . | grep -E '(__pycache__|\.pyc|\.pyo|\.orig$)' | xargs rm -rf"
 
@@ -116,7 +116,7 @@ vag() {
   files=$(ag --recurse --files-with-matches $regex)
 
   if [ $files ]; then
-    vim $(echo $files)
+    vim +/"$regex" $(echo $files)
   else;
     echo "$regex not found in any file here."
   fi;
