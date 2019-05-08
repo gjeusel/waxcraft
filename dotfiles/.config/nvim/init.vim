@@ -36,6 +36,7 @@ call plug#begin(s:plugin_dir)
 
 " System {{{
   Plug 'christoomey/vim-tmux-navigator' " tmux navigation in love with vim
+  Plug 'jgdavey/tslime.vim'             " Send command from vim to a running tmux session
   Plug 'scrooloose/nerdcommenter'       " easy comments
 
   " Tpope is awesome
@@ -50,6 +51,8 @@ call plug#begin(s:plugin_dir)
   Plug 'jiangmiao/auto-pairs'      " auto pair
   Plug 'AndrewRadev/splitjoin.vim' " easy split join on whole paragraph
   Plug 'wellle/targets.vim'        " text object for parenthesis & more !
+
+  Plug 'janko/vim-test'            " test at the spead of light
 
   Plug 'mbbill/undotree', {'on': 'UndotreeToggle'}     " visualize undo tree
   Plug 'majutsushi/tagbar', {'on': 'TagbarToggle'}     " browsing the tags, require ctags
@@ -414,10 +417,27 @@ au BufNewFile,BufRead *.md let g:table_mode_header_fillchar='-'
 au BufNewFile,BufRead *.md let g:table_mode_corner_corner='|'
 "}}}
 
+" Test and tmux
+nmap <silent> <leader>f :TestNearest<CR>
+let test#strategy = 'tslime'
+let test#filename_modifier = ':~' " ~/Code/my_project/test/models/user_test.rb
+let g:tslime_always_current_session = 1
+let g:tslime_always_current_window = 1
+
+"nmap <silent> t<C-f> :TestFile<CR>
+"nmap <silent> t<C-s> :TestSuite<CR>
+"nmap <silent> t<C-l> :TestLast<CR>
+"nmap <silent> t<C-g> :TestVisit<CR>
+
+
 " TagBar & UndoTree & NERDTree
 nnoremap <silent> <F7> :NERDTreeToggle<CR>
 nnoremap <silent> <F8> :UndotreeToggle<CR>
 nnoremap <silent> <F9> :TagbarToggle<CR>
+
+" Loupe
+let g:LoupeClearHighlightMap = 0
+let g:LoupeVeryMagic = 0
 
 " Git
 set signcolumn=yes
@@ -755,7 +775,7 @@ map <C-s> :w<CR>
 nmap <leader>; :nohl<cr>
 
 " source config
-map <F12> :call source ${HOME}/.config/nvim/init.vim<cr>
+map <F12> :source ${HOME}/.config/nvim/init.vim<cr>
 "}}}
 
 " Custom Functions {{{
