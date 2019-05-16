@@ -248,9 +248,12 @@ let g:SuperTabMappingBackward = '<Tab>'
 let g:SimpylFold_docstring_preview = 1
 let g:SimpylFold_fold_docstring = 1
 let g:SimpylFold_fold_import = 0
+"let g:fastfold_fold_command_suffixes = []
+"let g:fastfold_fold_movement_commands = []
+let g:fastfold_fold_command_suffixes = ['x','X','a','A','o','O','c','C','r','R','m','M','i','n','N']
+let g:fastfold_fold_movement_commands = [']z', '[z', 'zj', 'zk']
+let g:fastfold_force = 1 " prevents the fold methods from recomputing on every buffer change
 let g:fastfold_savehook = 1  " update all folds when save a buffer
-let g:fastfold_fold_command_suffixes = []
-let g:fastfold_fold_movement_commands = []
 "}}}
 
 " deoplete {{{
@@ -418,9 +421,15 @@ au BufNewFile,BufRead *.md let g:table_mode_corner_corner='|'
 "}}}
 
 " Test and tmux
-nmap <silent> <leader>f :TestNearest<CR>
+nmap <silent> <leader>1 :TestNearest<CR>
+nmap <silent> <leader>2 :TestLast<CR>
+nmap <silent> <leader>3 :TestFile<CR>
+nmap <leader>v <Plug>SetTmuxVars
 let test#strategy = 'tslime'
+let g:test#preserve_screen = 1
 let test#filename_modifier = ':~' " ~/Code/my_project/test/models/user_test.rb
+"let test#python#pytest#options = '--log-level=DEBUG -x -s --pdb'
+let test#python#pytest#options = '--log-level=WARNING -x -s'
 let g:tslime_always_current_session = 1
 let g:tslime_always_current_window = 1
 
@@ -587,7 +596,8 @@ endif
 
 if has('mksession')
   set viewdir=~/.vim/view
-  set viewoptions=folds,cursor,unix,slash " Better Unix / Windows compatibility
+  set viewoptions-=options
+  "set viewoptions=folds,cursor,unix,slash " Better Unix / Windows compatibility
 endif
 " }}}
 
@@ -623,7 +633,10 @@ endfunction
 au BufRead,BufNewFile *.{md,md.erb,markdown,mdown,mkd,mkdn,txt} setf markdown | call s:setupWrappingAndSpellcheck()
 
 " Python
-au BufRead,BufNewFile *.py setlocal shiftwidth=4 tabstop=4 softtabstop=4 textwidth=79
+augroup python
+  au FileType python set shiftwidth=4 tabstop=4 softtabstop=4 textwidth=79
+  au FileType python set foldmethod=expr
+augroup end
 
 " Other
 au BufNewFile,BufRead *.snippets set filetype=snippets foldmethod=marker
