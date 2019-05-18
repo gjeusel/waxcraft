@@ -91,14 +91,14 @@ call plug#begin(s:plugin_dir)
   Plug 'Shougo/deoplete.nvim'  " async engine
 
   Plug 'Shougo/neco-vim', {'for': 'vim'}
-  Plug 'zchee/deoplete-jedi', {'for': 'python'}
-  Plug 'zchee/deoplete-go', {'for': 'go'}
+  Plug 'deoplete-plugins/deoplete-jedi', {'for': 'python'}
+  Plug 'deoplete-plugins/deoplete-go', {'for': 'go'}
   Plug 'fszymanski/deoplete-emoji', {'for': 'gitcommit'}
   Plug 'carlitux/deoplete-ternjs', {'do': 'npm install -g tern', 'for': ['javascript', 'vue']}
 " }}}
 
 " Code Style
-  Plug 'Shougo/echodoc.vim' " displays function signatures from completions in the command line.
+  Plug 'Shougo/echodoc.vim', {'for': 'python'} " displays function signatures from completions in the command line.
   Plug 'w0rp/ale'  " general asynchronous syntax checker
 
 " Python
@@ -108,7 +108,7 @@ call plug#begin(s:plugin_dir)
 
 " Frontend
   Plug 'alvan/vim-closetag', {'for': ['html', 'vue']}  " autoclose tags
-  Plug 'ap/vim-css-color', {'for': 'css'}  " change bg color in css for colors
+  "Plug 'ap/vim-css-color', {'for': 'css'}  " change bg color in css for colors
 
 " Golang
   Plug 'fatih/vim-go', {'for': 'go'}
@@ -451,6 +451,7 @@ let g:LoupeVeryMagic = 0
 " Git
 set signcolumn=yes
 let g:conflict_marker_enable_mappings = 0
+let g:gitgutter_max_signs = 100
 let g:gitgutter_sign_added = '•'
 let g:gitgutter_sign_modified = '•'
 let g:gitgutter_sign_removed = '•'
@@ -647,7 +648,7 @@ au BufNewFile,BufRead *.txt set filetype=sh
 au BufNewFile,BufRead cronfile set filetype=sh
 au BufNewFile,BufRead .gitconfig set filetype=conf
 au BufNewFile,BufRead *.conf set filetype=config
-au Filetype vim setlocal tabstop=2 foldmethod=marker
+au Filetype vim set tabstop=2 foldmethod=marker
 
 " frontend:
 augroup frontend

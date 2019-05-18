@@ -22,12 +22,15 @@ latex_overview(){ $HOME/tools/latexmk/latexmk.pl -pdf -pvc -interaction=nonstopm
 alias gl='git pull'
 alias gp='git push'
 alias gd='git diff'
-alias gc='git commit'
+alias gc='git commit --verbose'
 alias gco='git checkout'
 alias gb='git branch'
 alias gs='git status'
 alias ga='git add'
 alias glog='git log --oneline --graph --decorate --all'
+
+# ls
+alias ls='ls -G'
 
 function fuzzy_gco() {
   branch=`git branch -a| fzf`
