@@ -3,32 +3,35 @@ ________
 
 Aggregation of configuration files & knowledge.
 
-- text editor Neovim_
-- tmux_ and tmuxp_
-- zsh_ with antigen_ plugin manager
+- Text editor: Neovim_
+- Terminal Multiplexer: tmux_ and tmuxp_
+- Shell: zsh_ with antigen_ plugin manager
 
 Neovim
 ------
 Already better than Vim to my opinion. I develop mainly in python.
 
-Exhaustive List of plugins I use `here <https://github.com/gjeusel/waxCraft/blob/master/dotfiles/.config/nvim/init.vim#L22>`_.
+Main plugins:
 
-Among them:
-
-- `dein <https://github.com/Shougo/dein.vim>`_ as the plugin manager.
+- `vim-plug <https://github.com/junegunn/vim-plug>`_ as the plugin manager.
 - `ALE <https://github.com/w0rp/ale>`_ asynchronous Lint engine.
 - `deoplete <https://github.com/Shougo/deoplete.nvim>`_ asynchronous auto-completion with `deoplete-jedi <https://github.com/zchee/deoplete-jedi>`_ for python completion.
 - `fzf <https://github.com/junegunn/fzf.vim>`_ fuzzy file finder (insanely usefull plugin)
+- `vim-test <https://github.com/janko/vim-test>`_ for quick test launch (strategy in tmux pane)
 - For the beauty:
-  `vim-bufferline <https://github.com/bling/vim-bufferline>`_,
-  `vim-airline <https://github.com/vim-airline/vim-airline>`_,
-  `vim-airline-themes <https://github.com/vim-airline/vim-airline-themes>`_,
-  `gruvbox colorscheme <https://github.com/morhetz/gruvbox>`_,
-  `vim-surround <https://github.com/tpope/vim-surround>`_,
-  `rainbow <https://github.com/luochen1990/rainbow>`_.
+
+  - `vim-bufferline <https://github.com/bling/vim-bufferline>`_
+  - `vim-airline <https://github.com/vim-airline/vim-airline>`_
+  - `vim-airline-themes <https://github.com/vim-airline/vim-airline-themes>`_
+  - `gruvbox colorscheme <https://github.com/morhetz/gruvbox>`_
+  - `vim-surround <https://github.com/tpope/vim-surround>`_
+  - `rainbow <https://github.com/luochen1990/rainbow>`_
+
+----
 
 |OverviewDevTools|
 
+----
 
 Installation
 ------------
