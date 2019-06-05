@@ -1,0 +1,12 @@
+session_name: perso
+
+windows:
+
+  - window_name: ticts
+    layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
+    shell_command_before:
+      - act ticts
+      - cd ~/src/ticts
+    panes:
+      - screenfetch
+      - 
