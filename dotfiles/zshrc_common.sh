@@ -60,6 +60,9 @@ antigen bundle tmux
 antigen bundle pip
 #antigen bundle celery
 
+# Vim binding with text obj:
+#antigen bundle hchbaw/opp.zsh
+
 antigen bundle zsh-users/zsh-syntax-highlighting
 antigen bundle zsh-users/zsh-autosuggestions
 
@@ -97,6 +100,22 @@ fi
 
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=240"
 
+# AUTO COMPLETION
+# Ignore these everywhere except for rm
+zstyle ':completion:*:*:*' ignored-patterns '(|*/)__pycache__' \
+    '(|*/)*.egg-info' '(*/)#lost+found'
+zstyle ':completion:*:rm:*' ignored-patterns
+
+## Enable bim mode on commande line
+#bindkey -v
+#bindkey '^P' up-history
+#bindkey '^N' down-history
+##bindkey '^?' backward-delete-char
+##bindkey '^h' backward-delete-char
+#bindkey '^w' backward-kill-word
+#bindkey '^r' history-incremental-search-backward
+#export KEYTIMEOUT=1
+
 # Bind ctrl + space
 bindkey '^ ' autosuggest-accept
 
@@ -105,10 +124,10 @@ bindkey '^ ' autosuggest-accept
 # (^U) to delete the whole line
 # type fzf
 # (^M) to execute the line
-bindkey -s "^P" "^Uvfzf^M"
+#bindkey -s "^P" "^Uvfzf^M"
 
 # Bind ctrl + n for nnn
-bindkey -s "^N" "^Unnn^M"
+#bindkey -s "^N" "^Unnn^M"
 
 # Auto install tpm (tmux plugin) ?
 #export TERM="tmux-256color"
