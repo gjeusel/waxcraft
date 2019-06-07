@@ -8,6 +8,7 @@ from pprint import pprint
 
 import pytz
 import urllib3
+from collections import defaultdict
 
 TZ = pytz.timezone('Europe/Brussels')
 
@@ -33,6 +34,7 @@ for lib in [
     logging.getLogger(lib).setLevel(logging.WARNING)
 
 urllib3.disable_warnings()
+
 
 try:
     import pandas as pd
@@ -94,6 +96,11 @@ try:
 
 except ImportError as err:
     print("Could not import pandas as pd: {}".format(err))
+
+try:
+    import ticts
+except ImportError as err:
+    pass
 
 local_init_path = Path(__file__).parent / 'ipythoninit_local.py'
 if local_init_path.exists():
