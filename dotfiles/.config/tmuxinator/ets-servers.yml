@@ -19,6 +19,17 @@ windows:
       - if [[ $(lsof -t -i :5001) ]]; then kill $(lsof -t -i :5001); fi && gunicorn tourbillon.__main__:app -b localhost:5001 --workers=4 --threads=4
       #- python -m tourbillon runserver -p 5001 --threaded
 
+  # Greenpandas
+  - window_name: GREENPANDAS
+    layout: 033f,238x64,0,0{118x64,0,0[118x32,0,0,65,118x31,0,33,66],119x64,119,0,67}
+    shell_command_before:
+      - act greenpandas
+      - cd ~/src/greenpandas
+    panes:
+      - python -m greenpandas runserver -p 5010 --threaded
+      - echo "celery -A greenpandas.tasks.celery worker --loglevel=info -B -n greenpandas@%h | tee -a /tmp/celery_greenpandas.log"
+      - vim ~/.greenpandas_settings.py
+
   # B2E2
   - window_name: B2E2
     layout: 033f,238x64,0,0{118x64,0,0[118x32,0,0,65,118x31,0,33,66],119x64,119,0,67}
