@@ -12,7 +12,10 @@ source "$HOME/.config/antigen.zsh"
 HISTFILE=~/.zsh_history
 
 autoload -U zargs
-setopt inc_append_history share_history autocd extendedglob notify nomatch autopushd pushdignoredups promptsubst
+
+# Some options settings:
+setopt inc_append_history share_history hist_ignore_all_dups  # history
+setopt autocd extendedglob notify nomatch autopushd pushdignoredups promptsubst
 
 # Save a lot of time at startup:
 skip_global_compinit=1
@@ -43,7 +46,7 @@ antigen bundle extract  # generic cmd to decompress files
 antigen bundle colored-man-pages
 antigen bundle common-aliases
 antigen bundle tmux
-#antigen bundle z
+antigen bundle z
 #antigen bundle jsontools
 
 #antigen bundle docker
