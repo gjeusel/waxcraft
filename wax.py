@@ -188,22 +188,6 @@ def zsh():
     _common_bash_zsh()
 
 
-def bash():
-    """Install bash config files & else"""
-    str_source = (
-        "# waxCraft bashrc_common.sh file sourcing :\n"
-        "source " + (wax_dotfile_dir / "bashrc_common.sh").as_posix())
-
-    fbashrc = Path.home() / ".bashrc"
-    if not fbashrc.exists():
-        fbashrc.touch()
-    if str_source not in open(fbashrc.as_posix()).read():
-        print("Appending ~/.bashrc with {}".format(str_source))
-        open(fbashrc.as_posix(), "a").write("\n" + str_source)
-
-    _common_bash_zsh()
-
-
 def plasma():
     relative_paths = [
         "kglobalshortcutsrc",
@@ -244,12 +228,12 @@ def setup_argparser():
     """ Define and return the command argument parser. """
     parser = argparse.ArgumentParser(description="""waxCraft config setup.""")
 
+    help_str = "Config to install among ['zsh', 'vim', 'python', 'tmux', 'plasma']"
     parser.add_argument(
         "cfg_list",
         nargs="+",
-        # choices=["bash", "zsh", "neovim", "vim", "plasma", "nixpkgs", "ipython"],
-        help=
-        """Config to install among ['bash', 'zsh', 'vim', 'python', 'tmux', 'plasma' ]""",
+        # choices=["zsh", "neovim", "vim", "plasma", "nixpkgs", "ipython"],
+        help=help_str,
     )
     return parser
 
@@ -262,14 +246,11 @@ if __name__ == "__main__":
         args = parser.parse_args()
 
     except argparse.ArgumentError as exc:
+        print(exc)
         raise
 
     optlist = args.cfg_list
     msg = "------------<     Installing    {}    >-------------"
-
-    if any([sh in optlist for sh in ["bash", "sh", "shell"]]):
-        print(msg.format("bash"))
-        bash()
 
     if "zsh" in optlist:
         print(msg.format("zsh"))

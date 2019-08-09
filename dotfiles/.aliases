@@ -143,3 +143,8 @@ vfzf() {
 # To get tmux navigation accross root panes
 #https://www.bountysource.com/issues/33111484-problems-with-sudo-vim
 alias sudo='sudo TMUX="${TMUX}" '
+
+# move to trash instead of rm
+function del() {
+    mv $* ~/.Trash
+}

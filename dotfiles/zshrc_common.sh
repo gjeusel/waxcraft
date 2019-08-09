@@ -1,6 +1,6 @@
 # Speedup tricks: https://medium.com/@dannysmith/little-thing-2-speeding-up-zsh-f1860390f92
-# Source common to bash & zsh:
-source "/${0:1:h}/common.sh"
+
+export waxCraft_PATH=${0:A:h:h}
 
 _dotfile_dir="/${0:1:h}"
 
@@ -107,7 +107,7 @@ export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=240"
 # Ignore these everywhere except for rm
 zstyle ':completion:*:*:*' ignored-patterns '(|*/)__pycache__' \
     '(|*/)*.egg-info' '(*/)#lost+found'
-zstyle ':completion:*:rm:*' ignored-patterns
+zstyle ':completion:*:rm:*' ignored-patterns '(|*/)*.egg-info'
 
 ## Enable bim mode on commande line
 #bindkey -v
