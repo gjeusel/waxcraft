@@ -130,7 +130,8 @@ vag() {
 vfzf() {
   _match_fzf="$(fzf --preview '[[ $(file --mime {}) =~ binary ]] &&
     echo {} is a binary file ||
-    (highlight -O ansi -l {} ||
+    (bat --style=numbers --color=always {} ||
+    highlight -O ansi -l {} ||
     coderay {} ||
     rougify {} ||
     cat {}) 2> /dev/null | head -500')"
@@ -139,6 +140,9 @@ vfzf() {
     nvim "$_match_fzf"
   fi
 }
+
+# Bind ctrl-p to vfzf
+bindkey '^p' vfzf
 
 # To get tmux navigation accross root panes
 #https://www.bountysource.com/issues/33111484-problems-with-sudo-vim

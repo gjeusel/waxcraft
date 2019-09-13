@@ -174,6 +174,7 @@ def zsh():
         ""
         "# waxCraft zshrc_common.sh file sourcing :",
         "source {}".format((wax_dotfile_dir / "zshrc_common.sh").as_posix()),
+        "source {}".format((wax_dotfile_dir / "envvar.sh").as_posix()),
     )
 
     str_source = "\n".join(str_source)
