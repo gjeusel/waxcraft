@@ -166,35 +166,22 @@ let g:lightline.active = {
 command! -bang -nargs=* GGrep
   \ call fzf#vim#grep(
   \   'git grep --line-number '.shellescape(<q-args>), 0,
-  \   <bang>0 ? fzf#vim#with_preview({'options': '--no-hscroll'},'up:60%')
-  \           : fzf#vim#with_preview({'options': '--no-hscroll'},'right:50%'),
-  \   <bang>0)
+  \   { 'dir': systemlist('git rev-parse --show-toplevel')[0] }, <bang>0)
 
-" Augmenting Ag command using fzf#vim#with_preview function
-"   * fzf#vim#with_preview([[options], preview window, [toggle keys...]])
-"     * For syntax-highlighting, Ruby and any of the following tools are required:
-"       - Highlight: http://www.andre-simon.de/doku/highlight/en/highlight.php
-"       - CodeRay: http://coderay.rubychan.de/
-"       - Rouge: https://github.com/jneen/rouge
-"
-"   :Ag  - Start fzf with hidden preview window that can be enabled with "?" key
-"   :Ag! - Start fzf in fullscreen and display the preview window above
+" :Ag  - Start fzf with hidden preview window that can be enabled with "?" key
+" :Ag! - Start fzf in fullscreen and display the preview window above
 command! -bang -nargs=* Ag
   \ call fzf#vim#ag(<q-args>,
   \                 <bang>0 ? fzf#vim#with_preview({'options': '--delimiter : --nth 4..'}, 'up:60%')
   \                         : fzf#vim#with_preview({'options': '--delimiter : --nth 4..'}, 'right:50%:hidden', '?'),
   \                 <bang>0)
 
-function! s:find_git_root()
-  return system('git rev-parse --show-toplevel 2> /dev/null')[:-2]
-endfunction
-
 function! FzfOmniFiles()
     let is_git = system('git status')
     if v:shell_error
         execute 'Files'
     else
-        execute 'Files' s:find_git_root()
+        execute 'GFiles'
     endif
 endfunction
 
@@ -203,15 +190,13 @@ function! AgOmniFiles()
   if v:shell_error
     execute 'Ag'
   else
-    let s:current_dir = getcwd()
-    execute 'cd' s:find_git_root()
-    execute 'Ag'
-    execute 'cd' s:current_dir
+    execute 'GGrep'
   endif
 endfunction
 
 nmap <leader>a :call AgOmniFiles()<CR>
 nmap <leader>c :BCommits<CR>
+nmap <leader>f :Tags<CR>
 nmap <leader>p :call FzfOmniFiles()<CR>
 nmap <C-p> :call FzfOmniFiles()<CR>
 nmap <leader>b :Buffers<CR>
