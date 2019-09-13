@@ -122,13 +122,6 @@ zstyle ':completion:*:rm:*' ignored-patterns '(|*/)*.egg-info'
 # Bind ctrl + space
 bindkey '^ ' autosuggest-accept
 
-# Bind ctrl + p  to fuzzy finder
-# -s simulate keyboard entry
-# (^U) to delete the whole line
-# type fzf
-# (^M) to execute the line
-#bindkey -s "^P" "^Uvfzf^M"
-
 # Bind ctrl + n for nnn
 #bindkey -s "^N" "^Unnn^M"
 

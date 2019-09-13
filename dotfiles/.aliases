@@ -141,8 +141,12 @@ vfzf() {
   fi
 }
 
-# Bind ctrl-p to vfzf
-bindkey '^p' vfzf
+# Bind ctrl + p  to fuzzy finder
+# -s simulate keyboard entry
+# (^U) to delete the whole line
+# type fzf
+# (^M) to execute the line
+bindkey -s "^P" "^Uvfzf^M"
 
 # To get tmux navigation accross root panes
 #https://www.bountysource.com/issues/33111484-problems-with-sudo-vim
