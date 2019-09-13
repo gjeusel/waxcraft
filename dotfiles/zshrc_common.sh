@@ -51,7 +51,7 @@ antigen bundle z
 
 #antigen bundle docker
 #antigen bundle redis-cli
-#antigen bundle ansible
+antigen bundle ansible
 
 #antigen bundle archlinux
 #antigen bundle yum
