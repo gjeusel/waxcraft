@@ -9,7 +9,7 @@ shell_command_before:
 windows:
   # Tourbillon
   - window_name: Tourbillon
-    layout: 033f,238x64,0,0{118x64,0,0[118x32,0,0,65,118x31,0,33,66],119x64,119,0,67}
+    layout: 5f2b,238x64,0,0{118x64,0,0[118x32,0,0,51,118x31,0,33,52],119x64,119,0[119x32,119,0,53,119x31,119,33,95]}
     shell_command_before:
       - act trb
       - cd ~/src/tourbillon
@@ -17,7 +17,18 @@ windows:
       - cd ~/src/tourbillon/ui && BROWSER=none npm run dev
       - vim ~/.tourbillon_settings.py
       - if [[ $(lsof -t -i :5001) ]]; then kill $(lsof -t -i :5001); fi && gunicorn tourbillon.__main__:app -b localhost:5001 --workers=4 --threads=4
-      #- python -m tourbillon runserver -p 5001 --threaded
+      - python -m tourbillon worker --local
+
+  ## Greenpandas
+  #- window_name: REWORK-GP
+  #  layout: 033f,238x64,0,0{118x64,0,0[118x32,0,0,65,118x31,0,33,66],119x64,119,0,67}
+  #  shell_command_before:
+  #    - act rework-gp
+  #    - cd ~/src/rework-gp
+  #  panes:
+  #    - python -m greenpandas runserver -p 5011 --threaded
+  #    - echo "celery -A greenpandas.tasks.celery worker --loglevel=info -B -n greenpandas@%h | tee -a /tmp/celery_greenpandas.log"
+  #    - vim ~/.greenpandas_settings.py
 
   # Greenpandas
   - window_name: GREENPANDAS

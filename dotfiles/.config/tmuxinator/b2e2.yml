@@ -31,3 +31,21 @@ windows:
     panes:
       - screenfetch
       - 
+
+  #- window_name: rework-gp
+  #  layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
+  #  shell_command_before:
+  #    - act rework-gp
+  #    - cd ~/src/rework-gp
+  #  panes:
+  #    - screenfetch
+  #    - 
+
+  - window_name: greenpandas
+    layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
+    shell_command_before:
+      - act greenpandas
+      - cd ~/src/greenpandas
+    panes:
+      - screenfetch
+      - 
