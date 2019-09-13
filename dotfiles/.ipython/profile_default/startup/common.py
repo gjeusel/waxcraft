@@ -87,6 +87,7 @@ try:
 
     today = now.floor('D')
     tomorrow = today + oneday
+    yesterday = today - oneday
 
     def generate_ts(freq):
         idx = pd.date_range(
@@ -99,6 +100,12 @@ except ImportError as err:
 
 try:
     import ticts
+except ImportError as err:
+    pass
+
+try:
+    import requests
+    session = requests.Session()
 except ImportError as err:
     pass
 
