@@ -120,6 +120,8 @@ call plug#begin(s:plugin_dir)
   Plug 'dhruvasagar/vim-table-mode'  " to easily create tables.
   Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }  "  Distraction-free writing in Vim
 
+" Latex
+  Plug 'lervag/vimtex', { 'for': 'tex' }
 
 call plug#end()
 "}}}
@@ -135,7 +137,7 @@ nmap <leader>go :Goyo <cr>
 
 " indentLine
 let g:indentLine_color_gui = '#343d46'  " indent line color got indentLine plugin
-let g:indentLine_fileTypeExclude = ['json', 'startify', 'markdown', 'vim']
+let g:indentLine_fileTypeExclude = ['json', 'startify', 'markdown', 'vim', 'tex']
 
 " rainbow
 let g:rainbow_active = 1 "0 if you want to enable it later via :RainbowToggle
@@ -735,8 +737,8 @@ map <nowait> <leader>/ :bn<cr>
 map <nowait> ∑ :bn<cr>
 
 " buffer delete without closing windows :
-nmap <silent> <leader>\ :bp\|bd! #<CR>
-nmap <silent> ® :bp\|bd! #<CR>
+nmap <silent> <leader>\ :bp!\|bd! #<CR>
+nmap <silent> ® :bp!\|bd! #<CR>
 
 " Split windows
 map <nowait> <leader>l :vs<cr>
@@ -834,3 +836,7 @@ endfunction
 if !empty(glob("~/.nvimrc_local"))
     source ~/.nvimrc_local
 endif
+
+" activate per project settings
+set exrc  " allows loading local EXecuting local RC files
+set secure  " disallows the use of :autocmd, shell and write commands in local
