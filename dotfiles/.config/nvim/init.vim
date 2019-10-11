@@ -123,6 +123,8 @@ call plug#begin(s:plugin_dir)
 " Latex
   Plug 'lervag/vimtex', { 'for': 'tex' }
 
+" Snippets
+
 call plug#end()
 "}}}
 
@@ -481,6 +483,7 @@ set hidden              " Allow backgrounding buffers without writin them, and r
 set foldenable          " Auto fold code
 set splitright          " split at the right of current buffer (left default behaviour)
 set splitbelow          " split at the below of current buffer (top default behaviour)
+set autochdir           " working directory is always the same as the file you are editing
 
 set spelllang=en_us  " activate vim spell checking
 
@@ -625,6 +628,12 @@ augroup python
   au FileType python set shiftwidth=4 tabstop=4 softtabstop=4 textwidth=79
   au FileType python set foldmethod=expr
 augroup end
+
+" Vagrant
+augroup vagrant
+  au!
+  au BufRead,BufNewFile Vagrantfile set filetype=ruby
+augroup END
 
 " Other
 au BufNewFile,BufRead *.snippets set filetype=snippets foldmethod=marker

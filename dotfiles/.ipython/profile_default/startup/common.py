@@ -2,13 +2,13 @@ import json
 import logging
 import os
 import sys
+from collections import defaultdict
 from datetime import datetime, timedelta
 from pathlib import Path
 from pprint import pprint
 
 import pytz
 import urllib3
-from collections import defaultdict
 
 TZ = pytz.timezone('Europe/Brussels')
 
@@ -89,9 +89,12 @@ try:
     tomorrow = today + oneday
     yesterday = today - oneday
 
-    def generate_ts(freq):
+    MINDT = pd.Timestamp.min.tz_localize('UTC')
+    MAXDT = pd.Timestamp.max.tz_localize('UTC')
+
+    def generate_ts(freq, start='2018-01-01', end='2018-01-02'):
         idx = pd.date_range(
-            start='2018-01-01', end='2018-01-02', freq=freq, closed='left')
+            start=start, end=end, freq=freq, closed='left')
         idx = idx.tz_localize('CET')
         return pd.DataFrame(data={'value': range(len(idx))}, index=idx)
 
