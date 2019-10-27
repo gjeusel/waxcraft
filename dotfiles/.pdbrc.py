@@ -22,7 +22,7 @@ class Config(pdb.DefaultConfig):
                 terminal.Number: ('darkyellow', 'yellow'),
                 terminal.String: ('brown', 'green'),
                 terminal.Name.Function: ('darkgreen', 'blue'),
-                terminal.Name.Namespace: ('teal', 'turquoise'),
+                # terminal.Name.Namespace: ('teal', 'turquoise'),
             })
 
     def setup(self, pdb):
