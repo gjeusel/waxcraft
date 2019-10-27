@@ -46,7 +46,7 @@ call plug#begin(s:plugin_dir)
   Plug 'tpope/vim-fugitive'        " Git wrapper for vim
 
   Plug 'Konfekt/FastFold'          " update folds only when needed, otherwise folds slowdown vim
-  Plug 'zhimsel/vim-stay'          " adds automated view session creation and restoration whenever editing a buffer
+  "Plug 'zhimsel/vim-stay'          " adds automated view session creation and restoration whenever editing a buffer
   Plug 'junegunn/vim-easy-align'   " easy alignment, better than tabularize
   Plug 'jiangmiao/auto-pairs'      " auto pair
   Plug 'AndrewRadev/splitjoin.vim' " easy split join on whole paragraph
@@ -55,8 +55,8 @@ call plug#begin(s:plugin_dir)
   Plug 'janko/vim-test'            " test at the spead of light
 
   Plug 'mbbill/undotree', {'on': 'UndotreeToggle'}     " visualize undo tree
-  Plug 'majutsushi/tagbar', {'on': 'TagbarToggle'}     " browsing the tags, require ctags
-  Plug 'scrooloose/nerdtree', {'on': 'NERDTreeToggle'} " file tree
+  "Plug 'majutsushi/tagbar', {'on': 'TagbarToggle'}     " browsing the tags, require ctags
+  "Plug 'scrooloose/nerdtree', {'on': 'NERDTreeToggle'} " file tree
 
   Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }  " Fuzzy Finder
   Plug 'junegunn/fzf.vim'
@@ -118,7 +118,8 @@ call plug#begin(s:plugin_dir)
 
 " markdown & rst
   Plug 'dhruvasagar/vim-table-mode'  " to easily create tables.
-  Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }  "  Distraction-free writing in Vim
+  Plug 'junegunn/goyo.vim', { 'on': 'Goyo' } " Distraction-free writing in Vim
+  Plug 'junegunn/limelight.vim'              " Dim paragraphs above and below the active paragraph.
 
 " Latex
   Plug 'lervag/vimtex', { 'for': 'tex' }
@@ -136,6 +137,9 @@ vmap <leader>t <Plug>(EasyAlign)
 " Goyo
 let g:goyo_width = 120
 nmap <leader>go :Goyo <cr>
+
+" limelight
+let g:limelight_conceal_ctermfg=244
 
 " indentLine
 let g:indentLine_color_gui = '#343d46'  " indent line color got indentLine plugin
@@ -344,9 +348,9 @@ let g:jedi#show_call_signatures = 0  " do show the args of func, use echodoc for
 " buggy:
 "let g:jedi#auto_vim_configuration = 0  " set completeopt & rempas ctrl-C to Esc
 
-map <Leader>o o__import__('pdb').set_trace()  # BREAKPOINT<C-c>
-map <Leader>O O__import__('pdb').set_trace()  # BREAKPOINT<C-c>
-map <Leader>i o__import__('IPython').embed()  # Enter Ipython<C-c>
+map <Leader>o o__import__("pdb").set_trace()  # BREAKPOINT<C-c>
+map <Leader>O O__import__("pdb").set_trace()  # BREAKPOINT<C-c>
+map <Leader>i o__import__("IPython").embed()  # Enter Ipython<C-c>
 
 "}}}
 
@@ -410,9 +414,9 @@ au BufNewFile,BufRead *.md let g:table_mode_corner_corner='|'
 "}}}
 
 " Test and tmux
-nmap <silent> <leader>1 :TestNearest<CR>
-nmap <silent> <leader>2 :TestLast<CR>
-nmap <silent> <leader>3 :TestFile<CR>
+nmap <silent> <leader>1 :Tmux <CR>:TestNearest<CR>
+nmap <silent> <leader>2 :tmux <CR>:TestLast<CR>
+nmap <silent> <leader>3 :tmux <CR>:TestFile<CR>
 nmap <leader>v <Plug>SetTmuxVars
 let test#strategy = 'tslime'
 let g:test#preserve_screen = 1
@@ -612,6 +616,49 @@ endif
 "}}}
 
 " Autocmd {{{
+
+" Remember cursor position between vim sessions
+autocmd BufReadPost *
+      \ if line("'\"") > 0 && line ("'\"") <= line("$") |
+      \   exe "normal! g'\"" |
+      \ endif
+
+function! ResCur()
+  if line("'\"") <= line("$")
+    normal! g`"
+    return 1
+  endif
+endfunction
+
+if has("folding")
+  function! UnfoldCur()
+    if !&foldenable
+      return
+    endif
+    let cl = line(".")
+    if cl <= 1
+      return
+    endif
+    let cf  = foldlevel(cl)
+    let uf  = foldlevel(cl - 1)
+    let min = (cf > uf ? uf : cf)
+    if min
+      execute "normal!" min . "zo"
+      execute "normal!" . "zz"
+      return 1
+    endif
+  endfunction
+endif
+
+augroup resCur
+  autocmd!
+  if has("folding")
+    autocmd BufWinEnter * if ResCur() | call UnfoldCur() | endif
+  else
+    autocmd BufWinEnter * call ResCur()
+  endif
+augroup END
+
 
 " Make sure all markdown files have the correct filetype set and setup
 " wrapping and spell check
