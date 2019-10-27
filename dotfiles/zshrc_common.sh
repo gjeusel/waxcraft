@@ -125,6 +125,18 @@ bindkey '^ ' autosuggest-accept
 # Bind ctrl + n for nnn
 #bindkey -s "^N" "^Unnn^M"
 
+# FZF config
+# Source fzf-extra
+fzfextra_path=$waxCraft_PATH/dotfiles/fzf-extras.zsh
+if [ -f $fzfextra_path ]; then
+  source $fzfextra_path
+
+  zle -N zd
+  bindkey "^o" zd
+  alias gsl=fzf-gitlog-multi-widget
+fi
+
+
 # Auto install tpm (tmux plugin) ?
 #export TERM="tmux-256color"
 [ -n "$TMUX" ] && export TERM=screen-256color
