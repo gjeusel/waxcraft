@@ -8,18 +8,6 @@ alias wax="cd $waxCraft_PATH"
 alias vim="nvim"
 alias vimdiff="nvim -d"
 
-if [[ $_shell == "bash" || $_shell == "sh" ]]; then
-    # ls aliases
-    alias ls="ls -I '*.pyc' --color=auto"
-    alias ll='ls -l'
-    alias la='ls -A'
-    alias lla='ls -Al'
-    alias lt='ls -la --sort=time'
-fi
-
-# Latex :
-latex_overview(){ $HOME/tools/latexmk/latexmk.pl -pdf -pvc -interaction=nonstopmode $1; }
-
 # git
 alias gl='git pull'
 alias gp='git push'
@@ -31,8 +19,11 @@ alias gs='git status'
 alias ga='git add'
 alias glog='git log --oneline --graph --decorate --all'
 
-# ls
+# ls colorized output
 alias ls='ls -G'
+
+# Latex :
+latex_overview(){ $HOME/tools/latexmk/latexmk.pl -pdf -pvc -interaction=nonstopmode $1; }
 
 function fuzzy_gco() {
   branch=`git branch -a| fzf`
@@ -58,9 +49,9 @@ alias libclean="find . | grep -E '(__pycache__|\.pyc|\.pyo|\.orig$)' | xargs rm 
 
 alias infogpu='nvidia-smi --query-gpu=timestamp,name,pci.bus_id,driver_version,pstate,pcie.link.gen.max,pcie.link.gen.current,temperature.gpu,utilization.gpu,utilization.memory,memory.total,memory.free,memory.used --format=csv -l 5'
 
-# Using tmux locally and SSHing into a remote:
-# (Avoiding the 'screen-256color': unknown terminal type.)
-alias ssh="TERM=xterm ssh"
+## Using tmux locally and SSHing into a remote:
+## (Avoiding the 'screen-256color': unknown terminal type.)
+#alias ssh="TERM=xterm ssh"
 
 compip() {
   # Linters:
@@ -121,7 +112,7 @@ vag() {
   files=$(ag --recurse --files-with-matches $regex)
 
   if [ $files ]; then
-    vim +/"$regex" $(echo $files)
+    $EDITOR +/"$regex" $(echo $files)
   else;
     echo "$regex not found in any file here."
   fi;
@@ -155,4 +146,9 @@ alias sudo='sudo TMUX="${TMUX}" '
 # move to trash instead of rm
 function del() {
     mv $* ~/.Trash
+}
+
+# alias to get resilient shit
+function resilient() {
+  while true; do $* && break; done
 }
