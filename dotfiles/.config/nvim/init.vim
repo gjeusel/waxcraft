@@ -46,15 +46,15 @@ call plug#begin(s:plugin_dir)
   Plug 'tpope/vim-fugitive'        " Git wrapper for vim
 
   Plug 'Konfekt/FastFold'          " update folds only when needed, otherwise folds slowdown vim
-  "Plug 'zhimsel/vim-stay'          " adds automated view session creation and restoration whenever editing a buffer
+  Plug 'zhimsel/vim-stay'          " adds automated view session creation and restoration whenever editing a buffer
   Plug 'junegunn/vim-easy-align'   " easy alignment, better than tabularize
   Plug 'jiangmiao/auto-pairs'      " auto pair
   Plug 'AndrewRadev/splitjoin.vim' " easy split join on whole paragraph
   Plug 'wellle/targets.vim'        " text object for parenthesis & more !
 
-  Plug 'janko/vim-test'            " test at the spead of light
+  Plug 'janko/vim-test'            " test at the speed of light
 
-  Plug 'mbbill/undotree', {'on': 'UndotreeToggle'}     " visualize undo tree
+  "Plug 'mbbill/undotree', {'on': 'UndotreeToggle'}     " visualize undo tree
   "Plug 'majutsushi/tagbar', {'on': 'TagbarToggle'}     " browsing the tags, require ctags
   "Plug 'scrooloose/nerdtree', {'on': 'NERDTreeToggle'} " file tree
 
@@ -68,17 +68,17 @@ call plug#begin(s:plugin_dir)
 "}}}
 
 " User Interface {{{
-  Plug 'mhinz/vim-startify'                            " fancy start screen for Vim
-  Plug 'kshenoy/vim-signature'                         " toggle display marks
-  Plug 'itchyny/lightline.vim'                         " light status line
-  Plug 'ap/vim-buftabline'                             " buffer line
-  Plug 'Yggdroot/indentLine'                           " thin indent line
-  Plug 'rhysd/conflict-marker.vim'                     " conflict markers for vimdiff
-  Plug 'luochen1990/rainbow'                           " embed parenthesis colors
-  Plug 'airblade/vim-gitgutter'                        " column sign for git changes
-  Plug 'wincent/loupe'                                 " better focus on current highlight search
+  Plug 'mhinz/vim-startify'        " fancy start screen for Vim
+  Plug 'kshenoy/vim-signature'     " toggle display marks
+  Plug 'itchyny/lightline.vim'     " light status line
+  Plug 'ap/vim-buftabline'         " buffer line
+  Plug 'Yggdroot/indentLine'       " thin indent line
+  Plug 'rhysd/conflict-marker.vim' " conflict markers for vimdiff
+  Plug 'luochen1990/rainbow'       " embed parenthesis colors
+  Plug 'airblade/vim-gitgutter'    " column sign for git changes
+  Plug 'wincent/loupe'             " better focus on current highlight search
 
-  Plug 'morhetz/gruvbox'                               " other nice colorscheme
+  Plug 'morhetz/gruvbox'           " best colorscheme ever
 
   " nerd font need to be installed, see https://github.com/ryanoasis/nerd-fonts#font-installation
   " > sudo pacman -S ttf-nerd-fonts-symbols
@@ -117,14 +117,12 @@ call plug#begin(s:plugin_dir)
   Plug 'posva/vim-vue', {'for': 'vue'}  " syntax highlight for .vue file
 
 " markdown & rst
-  Plug 'dhruvasagar/vim-table-mode'  " to easily create tables.
-  Plug 'junegunn/goyo.vim', { 'on': 'Goyo' } " Distraction-free writing in Vim
-  Plug 'junegunn/limelight.vim'              " Dim paragraphs above and below the active paragraph.
+  Plug 'dhruvasagar/vim-table-mode'                    " to easily create tables.
+  Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }           " Distraction-free writing in Vim
+  Plug 'junegunn/limelight.vim', { 'on': 'Limelight' } " Dim paragraphs above and below the active paragraph.
 
 " Latex
   Plug 'lervag/vimtex', { 'for': 'tex' }
-
-" Snippets
 
 call plug#end()
 "}}}
@@ -616,49 +614,6 @@ endif
 "}}}
 
 " Autocmd {{{
-
-" Remember cursor position between vim sessions
-autocmd BufReadPost *
-      \ if line("'\"") > 0 && line ("'\"") <= line("$") |
-      \   exe "normal! g'\"" |
-      \ endif
-
-function! ResCur()
-  if line("'\"") <= line("$")
-    normal! g`"
-    return 1
-  endif
-endfunction
-
-if has("folding")
-  function! UnfoldCur()
-    if !&foldenable
-      return
-    endif
-    let cl = line(".")
-    if cl <= 1
-      return
-    endif
-    let cf  = foldlevel(cl)
-    let uf  = foldlevel(cl - 1)
-    let min = (cf > uf ? uf : cf)
-    if min
-      execute "normal!" min . "zo"
-      execute "normal!" . "zz"
-      return 1
-    endif
-  endfunction
-endif
-
-augroup resCur
-  autocmd!
-  if has("folding")
-    autocmd BufWinEnter * if ResCur() | call UnfoldCur() | endif
-  else
-    autocmd BufWinEnter * call ResCur()
-  endif
-augroup END
-
 
 " Make sure all markdown files have the correct filetype set and setup
 " wrapping and spell check
