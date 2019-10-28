@@ -60,7 +60,7 @@ windows:
       - cd ~/src/trident
     panes:
       - python -m trident runserver -p 5002 --threaded
-      - screenfetch && env |grep -i proxy
+      - neofetch && env |grep -i proxy
       - echo "celery -A trident.tasks.celery worker --loglevel=debug -B -n trident@%h"
 
   ## Trident Meteor
@@ -83,7 +83,7 @@ windows:
   #    - cd ~/meteorsrc/b2e2
   #  panes:
   #    - echo "celery -A b2e2.tasks.celery worker --loglevel=info -B -n b2e2meteor@%h | tee -a /tmp/celery_b2e2.log"
-  #    #- screenfetch && env |grep -i proxy
+  #    #- neofetch && env |grep -i proxy
   #    - vim ~/.b2e2_meteor_settings.py
   #    - python -m b2e2 runserver -p 7050 --threaded
   #    #- celery -A b2e2.tasks.celery worker --loglevel=info -B -n b2e2meteor@%h | tee -a /tmp/celery_b2e2meteor.log

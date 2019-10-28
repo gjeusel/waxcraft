@@ -10,7 +10,7 @@ windows:
       - act b2e2
       - cd ~/src/b2e2
     panes:
-      - screenfetch
+      - neofetch
       - 
 
   #- window_name: b2e2meteor
@@ -20,7 +20,7 @@ windows:
   #    - export B2E2_CONFIG=~/.b2e2_meteor_settings.py
   #    - cd ~/meteorsrc/b2e2
   #  panes:
-  #    - screenfetch
+  #    - neofetch
   #    - 
 
   - window_name: bluesnake
@@ -29,7 +29,7 @@ windows:
       - act bluesnake
       - cd ~/src/bluesnake
     panes:
-      - screenfetch
+      - neofetch
       - 
 
   #- window_name: rework-gp
@@ -38,7 +38,7 @@ windows:
   #    - act rework-gp
   #    - cd ~/src/rework-gp
   #  panes:
-  #    - screenfetch
+  #    - neofetch
   #    - 
 
   - window_name: greenpandas
@@ -47,5 +47,5 @@ windows:
       - act greenpandas
       - cd ~/src/greenpandas
     panes:
-      - screenfetch
+      - neofetch
       - 

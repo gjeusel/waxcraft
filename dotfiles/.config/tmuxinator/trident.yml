@@ -9,7 +9,7 @@ windows:
       - act trident
       - cd ~/src/trident
     panes:
-      - screenfetch
+      - neofetch
       - 
 
   - window_name: meteortrident
@@ -19,7 +19,7 @@ windows:
       - act trident
       - cd ~/meteorsrc/trident
     panes:
-      - screenfetch
+      - neofetch
       - 
 
   - window_name: meteor-client
@@ -29,5 +29,5 @@ windows:
       - act trident
       - cd ~/meteorsrc/meteor-client
     panes:
-      - screenfetch
+      - neofetch
       - 

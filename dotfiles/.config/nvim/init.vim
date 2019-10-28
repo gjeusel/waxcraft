@@ -415,8 +415,8 @@ au BufNewFile,BufRead *.md let g:table_mode_corner_corner='|'
 
 " Test and tmux
 nmap <silent> <leader>1 :Tmux <CR>:TestNearest<CR>
-nmap <silent> <leader>2 :tmux <CR>:TestLast<CR>
-nmap <silent> <leader>3 :tmux <CR>:TestFile<CR>
+nmap <silent> <leader>2 :Tmux <CR>:TestLast<CR>
+nmap <silent> <leader>3 :Tmux <CR>:TestFile<CR>
 nmap <leader>v <Plug>SetTmuxVars
 let test#strategy = 'tslime'
 let g:test#preserve_screen = 1

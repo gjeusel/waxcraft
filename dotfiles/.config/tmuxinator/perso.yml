@@ -8,5 +8,5 @@ windows:
       - act ticts
       - cd ~/src/ticts
     panes:
-      - screenfetch
+      - neofetch
       - 

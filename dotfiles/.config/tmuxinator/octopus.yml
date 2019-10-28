@@ -10,7 +10,7 @@ windows:
       - act octopus
       - cd ~/src/soscrips
     panes:
-      - screenfetch
+      - neofetch
       - 
 
   - window_name: octopus
@@ -19,7 +19,7 @@ windows:
       - act octopus
       - cd ~/src/octopus
     panes:
-      - screenfetch
+      - neofetch
       - 
 
   #- window_name: meteoroctopus
@@ -28,7 +28,7 @@ windows:
   #    - act octopusmeteor
   #    - cd ~/meteorsrc/octopus
   #  panes:
-  #    - screenfetch
+  #    - neofetch
   #    - 
 
   - window_name: INFRA
@@ -37,5 +37,5 @@ windows:
       - act octopus
       - cd ~/src/ets-infra
     panes:
-      - screenfetch
+      - neofetch
       - 
