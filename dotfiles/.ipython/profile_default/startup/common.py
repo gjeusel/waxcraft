@@ -53,9 +53,8 @@ try:
     emptydf = pd.DataFrame()
 
     # Recent Dates aware:
-    now = pd.Timestamp.now(tz="CET").replace(microsecond=0)
-
-    end = pd.Timestamp(now, tz="CET") + pd.Timedelta(hours=4)
+    now = pd.Timestamp.now(tz="CET").floor("s")
+    end = now + pd.Timedelta(hours=4)
     start = end - pd.Timedelta(days=3)
 
     # DST: Winter -> Summer
