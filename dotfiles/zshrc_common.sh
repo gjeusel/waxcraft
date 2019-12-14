@@ -49,7 +49,8 @@ antigen bundle tmux
 antigen bundle z
 #antigen bundle jsontools
 
-#antigen bundle docker
+antigen bundle docker
+antigen bundle docker-compose
 #antigen bundle redis-cli
 antigen bundle ansible
 
