@@ -85,10 +85,10 @@ def configure(repl):
     repl.show_line_numbers = True
 
     # Show status bar.
-    repl.show_status_bar = True
+    repl.show_status_bar = False
 
     # When the sidebar is visible, also show the help text.
-    repl.show_sidebar_help = True
+    repl.show_sidebar_help = False
 
     # Swap light/dark colors on or off
     repl.swap_light_and_dark = False
