@@ -14,7 +14,7 @@ windows:
       - act trb
       - cd ~/src/tourbillon
     panes:
-      - cd ~/src/tourbillon/ui && BROWSER=none npm run dev
+      - cd ~/src/tourbillon/ui && BROWSER=none npm run serve
       - vim ~/.tourbillon_settings.py
       - if [[ $(lsof -t -i :5001) ]]; then kill $(lsof -t -i :5001); fi && gunicorn tourbillon.__main__:app -b localhost:5001 --workers=4 --threads=4
       - python -m tourbillon worker --local
@@ -38,7 +38,7 @@ windows:
       - cd ~/src/greenpandas
     panes:
       - python -m greenpandas runserver -p 5010 --threaded
-      - echo "celery -A greenpandas.tasks.celery worker --loglevel=info -B -n greenpandas@%h | tee -a /tmp/celery_greenpandas.log"
+      - echo "celery -A greenpandas.tasks.app_celery worker --loglevel=info -B -n greenpandas@%h | tee -a /tmp/celery_greenpandas.log"
       - vim ~/.greenpandas_settings.py
 
   # B2E2
