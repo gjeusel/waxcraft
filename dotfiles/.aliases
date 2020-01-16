@@ -155,3 +155,6 @@ function resilient() {
 
 # alias to launch Brave
 alias brave="/Applications/Brave\ Browser.app/Contents/MacOS/Brave\ Browser"
+
+# Alias z zsh plugin
+alias w="_z 2>&1"
