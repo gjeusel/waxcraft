@@ -97,6 +97,9 @@ call plug#begin(s:plugin_dir)
   Plug 'carlitux/deoplete-ternjs', {'do': 'npm install -g tern', 'for': ['javascript', 'vue']}
 " }}}
 
+" Every
+  "Plug 'sheerun/vim-polyglot'  " Solid syntax and indentation support
+
 " Code Style
   Plug 'Shougo/echodoc.vim', {'for': 'python'} " displays function signatures from completions in the command line.
   Plug 'w0rp/ale'  " general asynchronous syntax checker
@@ -247,6 +250,30 @@ let g:fastfold_force = 1 " prevents the fold methods from recomputing on every b
 let g:fastfold_savehook = 1  " update all folds when save a buffer
 "}}}
 
+" NERDCommenter {{{
+let g:ft = ''
+
+" VueJS handle:
+function! NERDCommenter_before()
+  if &ft == 'vue'
+    let g:ft = 'vue'
+    let stack = synstack(line('.'), col('.'))
+    if len(stack) > 0
+      let syn = synIDattr((stack)[0], 'name')
+      if len(syn) > 0
+        exe 'setf ' . substitute(tolower(syn), '^vue_', '', '')
+      endif
+    endif
+  endif
+endfunction
+function! NERDCommenter_after()
+  if g:ft == 'vue'
+    setf vue
+    let g:ft = ''
+  endif
+endfunction
+" }}}
+
 " deoplete {{{
 let g:deoplete#enable_at_startup = 1
 
@@ -348,6 +375,7 @@ let g:jedi#show_call_signatures = 0  " do show the args of func, use echodoc for
 
 map <Leader>o o__import__("pdb").set_trace()  # BREAKPOINT<C-c>
 map <Leader>O O__import__("pdb").set_trace()  # BREAKPOINT<C-c>
+"import pdb; pdb.break_on_setattr('session_id')(container._sa_instance_state.__class__)
 map <Leader>i o__import__("IPython").embed()  # Enter Ipython<C-c>
 
 "}}}
@@ -589,8 +617,8 @@ endif
 
 if has('mksession')
   set viewdir=~/.vim/view
-  set viewoptions-=options
-  "set viewoptions=folds,cursor,unix,slash " Better Unix / Windows compatibility
+  "set viewoptions-=options
+  set viewoptions=folds,cursor,unix,slash " Better Unix / Windows compatibility
 endif
 " }}}
 
