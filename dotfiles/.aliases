@@ -40,7 +40,7 @@ function unproxy() {
 alias negociate_proxy='curl --proxy-negotiate -I -u :  http://google.com'
 
 # Python
-alias ipy="ipython -i "
+alias ipy="ptpython"
 alias pt="pytest --log-level=DEBUG -x -s --pdb -k "
 alias pdb="pytest --pdb -x -s "
 alias ptp="pytest -n auto -vv "
@@ -152,3 +152,6 @@ function del() {
 function resilient() {
   while true; do $* && break; done
 }
+
+# alias to launch Brave
+alias brave="/Applications/Brave\ Browser.app/Contents/MacOS/Brave\ Browser"

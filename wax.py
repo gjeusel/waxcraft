@@ -207,10 +207,12 @@ def plasma():
 def python():
     """Install python config files."""
     ipythonhome = Path.home() / ".ipython"
+    ptpythonhome = Path.home() / ".ptpython"
     profilehome = ipythonhome / "profile_default"
     startuppath = profilehome / "startup"
     if not any(
         [ipythonhome.exists(),
+         ptpythonhome.exists(),
          profilehome.exists(),
          startuppath.exists()]):
         startuppath.mkdir(parents=True)
@@ -220,6 +222,7 @@ def python():
         ".config/flake8",
         ".ipython/profile_default/ipython_config.py",
         ".ipython/profile_default/startup/common.py",
+        ".ptpython/config.py",
     ]
     create_symlinks_robust(
         relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home())
