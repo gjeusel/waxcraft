@@ -218,6 +218,7 @@ def python():
         startuppath.mkdir(parents=True)
 
     relative_paths = [
+        ".python_startup.py",
         ".pdbrc.py",
         ".config/flake8",
         ".ipython/profile_default/ipython_config.py",
