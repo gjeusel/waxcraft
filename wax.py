@@ -148,6 +148,13 @@ def neovim():
         to_dir=Path.home())
 
 
+def alacritty():
+    """install Alacritty."""
+    relative_paths = [".config/alacritty"]
+    create_symlinks_robust(
+        relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home())
+
+
 def tmux():
     """Install tmux config files."""
     relative_paths = [".tmux.conf", ".config/tmuxinator"]
@@ -210,11 +217,12 @@ def python():
     ptpythonhome = Path.home() / ".ptpython"
     profilehome = ipythonhome / "profile_default"
     startuppath = profilehome / "startup"
-    if not any(
-        [ipythonhome.exists(),
-         ptpythonhome.exists(),
-         profilehome.exists(),
-         startuppath.exists()]):
+    if not any([
+            ipythonhome.exists(),
+            ptpythonhome.exists(),
+            profilehome.exists(),
+            startuppath.exists()
+    ]):
         startuppath.mkdir(parents=True)
 
     relative_paths = [
@@ -261,7 +269,7 @@ if __name__ == "__main__":
         print(msg.format("zsh"))
         zsh()
 
-    if any([v in optlist for v in ["vim", "nvim", "neovim"]]):
+    if any(v in optlist for v in ["vim", "nvim", "neovim"]):
         print(msg.format("neovim"))
         neovim()
 
@@ -269,10 +277,14 @@ if __name__ == "__main__":
         print(msg.format("plasma"))
         plasma()
 
-    if any([p in optlist for p in ["python", "ipython"]]):
+    if any(p in optlist for p in ["python", "ipython"]):
         print(msg.format("python"))
         python()
 
     if "tmux" in optlist:
         print(msg.format("tmux"))
         tmux()
+
+    if any(v in optlist for v in ["ala", "alacritty"]):
+        print(msg.format("Alacritty"))
+        alacritty()
