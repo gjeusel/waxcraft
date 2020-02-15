@@ -45,12 +45,14 @@ call plug#begin(s:plugin_dir)
   Plug 'tpope/vim-eunuch'          " sugar for the UNIX shell commands
   Plug 'tpope/vim-fugitive'        " Git wrapper for vim
 
-  Plug 'Konfekt/FastFold'          " update folds only when needed, otherwise folds slowdown vim
-  Plug 'zhimsel/vim-stay'          " adds automated view session creation and restoration whenever editing a buffer
-  Plug 'junegunn/vim-easy-align'   " easy alignment, better than tabularize
-  Plug 'jiangmiao/auto-pairs'      " auto pair
-  Plug 'AndrewRadev/splitjoin.vim' " easy split join on whole paragraph
-  Plug 'wellle/targets.vim'        " text object for parenthesis & more !
+  Plug 'Konfekt/FastFold'                " update folds only when needed, otherwise folds slowdown vim
+  Plug 'zhimsel/vim-stay'                " adds automated view session creation and restoration whenever editing a buffer
+  Plug 'junegunn/vim-easy-align'         " easy alignment, better than tabularize
+  Plug 'jiangmiao/auto-pairs'            " auto pair
+  Plug 'AndrewRadev/splitjoin.vim'       " easy split join on whole paragraph
+  Plug 'wellle/targets.vim'              " text object for parenthesis & more !
+  Plug 'michaeljsmith/vim-indent-object' " text object based on indentation levels.
+
 
   Plug 'janko/vim-test'            " test at the speed of light
 
@@ -60,6 +62,8 @@ call plug#begin(s:plugin_dir)
 
   Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }  " Fuzzy Finder
   Plug 'junegunn/fzf.vim'
+
+  Plug 'justinmk/vim-sneak'  " minimalist motion with 2 keys
 
   " Plug 'vim-scripts/loremipsum'         " dummy text generator (:Loremipsum [number of words])
   " Plug 'easymotion/vim-easymotion'      " easymotion when fedup to think
@@ -101,7 +105,7 @@ call plug#begin(s:plugin_dir)
   "Plug 'sheerun/vim-polyglot'  " Solid syntax and indentation support
 
 " Code Style
-  Plug 'Shougo/echodoc.vim', {'for': 'python'} " displays function signatures from completions in the command line.
+  "Plug 'Shougo/echodoc.vim', {'for': 'python'} " displays function signatures from completions in the command line.
   Plug 'w0rp/ale'  " general asynchronous syntax checker
 
 " Python
@@ -110,8 +114,10 @@ call plug#begin(s:plugin_dir)
   Plug 'python-mode/python-mode', {'for': 'python'}
 
 " Frontend
-  Plug 'alvan/vim-closetag', {'for': ['html', 'vue']}  " autoclose tags
-  "Plug 'ap/vim-css-color', {'for': 'css'}  " change bg color in css for colors
+  Plug 'mattn/emmet-vim'
+  Plug 'alvan/vim-closetag'  " autoclose tags
+  Plug 'ap/vim-css-color', {'for': 'css'}  " change bg color in css for colors
+  Plug 'Glench/Vim-Jinja2-Syntax'
 
 " Golang
   Plug 'fatih/vim-go', {'for': 'go'}
@@ -428,6 +434,10 @@ map <nowait><silent> ß <Plug>(ale_next_wrap)
 nmap <leader>m :ALEFix <cr>
 "}}}
 
+" Frontend {{{
+let g:user_emmet_leader_key=','
+" }}}
+
 " Table Mode, Restructured text compatible {{{
 au BufNewFile,BufRead *.rst let g:table_mode_header_fillchar='='
 au BufNewFile,BufRead *.rst let g:table_mode_corner_corner='+'
@@ -470,7 +480,7 @@ let g:LoupeVeryMagic = 0
 " Git
 set signcolumn=yes
 let g:conflict_marker_enable_mappings = 0
-let g:gitgutter_max_signs = 100
+let g:gitgutter_max_signs = 200
 let g:gitgutter_sign_added = '•'
 let g:gitgutter_sign_modified = '•'
 let g:gitgutter_sign_removed = '•'
@@ -682,6 +692,10 @@ augroup frontend
   autocmd BufNewFile,BufRead *.html set foldmethod=syntax expandtab nowrap
   autocmd BufNewFile,BufRead *.html set foldlevelstart=20
 
+  autocmd BufNewFile,BufRead *.djangohtml set shiftwidth=2 tabstop=2 softtabstop=2
+  autocmd BufNewFile,BufRead *.djangohtml set foldmethod=syntax expandtab nowrap
+  autocmd BufNewFile,BufRead *.djangohtml set foldlevelstart=20
+
   " avoid syntax highlighting stops working randomly in vue:
   autocmd FileType vue syntax sync fromstart
 augroup end
@@ -727,6 +741,7 @@ nnoremap <return> vip
 
 " For when you forget to sudo.. Really Write the file.
 cmap w!! w !sudo tee % >/dev/null
+nmap ZZ :wq<cr>
 
 "{{{ Pane motions
 
@@ -792,7 +807,7 @@ augroup javascript
 augroup end
 "}}}
 
-" About folding open and close :
+"About folding open and close :
 nnoremap <Space> za
 vnoremap <Space> za
 
