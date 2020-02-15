@@ -1,3 +1,4 @@
+import importlib
 import json
 import logging
 import os
@@ -12,7 +13,7 @@ import urllib3
 
 import __main__
 
-TZ = pytz.timezone('Europe/Brussels')
+TZ = pytz.timezone("Europe/Brussels")
 
 log = logging.basicConfig(
     format="%(asctime)s %(levelname)s:%(message)s",
@@ -20,19 +21,19 @@ log = logging.basicConfig(
     datefmt="%I:%M:%S",
 )
 
-logroot = logging.getLogger('')
+logroot = logging.getLogger("")
 logroot.setLevel(logging.INFO)
 
-logging.getLogger('parso.python.diff').disabled = True
+logging.getLogger("restless-client").setLevel(logging.DEBUG)
+
+logging.getLogger("parso.python.diff").disabled = True
 
 # Avoid logging repport when auto-complete with tab
 # cd https://stackoverflow.com/questions/49442523/prevent-showing-debugging-log-info-inside-ipython-shell
-logging.getLogger('parso.cache').disabled = True
-logging.getLogger('parso.cache.pickle').disabled = True
+logging.getLogger("parso.cache").disabled = True
+logging.getLogger("parso.cache.pickle").disabled = True
 
-for lib in [
-        "requests", "urllib3", "mercure", "parso", "diff", "pickle", "cache"
-]:
+for lib in ["requests", "urllib3", "mercure", "parso", "diff", "pickle", "cache"]:
     logging.getLogger(lib).setLevel(logging.WARNING)
 
 urllib3.disable_warnings()
@@ -72,12 +73,12 @@ try:
     oneweek = pd.Timedelta(days=7)
     onemonth = pd.Timedelta(days=31)
 
-    today = now.floor('D')
+    today = now.floor("D")
     tomorrow = today + oneday
     yesterday = today - oneday
 
-    MINDT = pd.Timestamp.min.tz_localize('UTC')
-    MAXDT = pd.Timestamp.max.tz_localize('UTC')
+    MINDT = pd.Timestamp.min.tz_localize("UTC")
+    MAXDT = pd.Timestamp.max.tz_localize("UTC")
 except ImportError:
     pass
 
@@ -85,14 +86,17 @@ local_startup_file = Path.home() / ".python_startup_local.py"
 if local_startup_file.exists():
     filepath = local_startup_file.as_posix()
     with open(filepath, "rb") as f:
-        compiled = compile(f.read(), filepath, 'exec')
+        compiled = compile(f.read(), filepath, "exec")
     exec(compiled, __main__.__dict__, __main__.__dict__)
-    # exec(open(local_startup_file.as_posix(), "r").read())
-    # from ipythoninit_local import *  # noqa
 
-for lib in ["ticts", "requests", "flask"]:
+imports = ("ticts", "requests", "flask", ("pdops", "arkolor.pdops"))
+for imp in imports:
+    alias = None
+    if isinstance(imp, (tuple, list)):
+        alias, imp = imp
+    alias = alias or imp
     try:
-        __import__(lib)
+        __main__.__dict__[alias] = importlib.import_module(imp)
     except ImportError:
         pass
 
@@ -115,6 +119,6 @@ else:
         configure=configure,
         locals=__main__.__dict__,
         globals=__main__.__dict__,
-        title='Python REPL (ptpython)',
+        title="Python REPL (ptpython)",
     )
     sys.exit(new)
