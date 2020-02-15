@@ -228,3 +228,12 @@ key_bindings:
   - { key: F,  mods: Alt,           chars: "\x1bf" }
   - { key: B,  mods: Alt,           chars: "\x1bb" }
   - { key: D,  mods: Alt,           chars: "\x1bd"                        }
+
+  # To find escape sequences run `xxd -c1`
+  # Example:
+  #   ▲ xxd -cl
+  #     ^[d # this is ALT+D
+  #     00000000: 1b  .
+  #     00000001: 64  d
+  #
+  # Which becomes `\x1b\x64`
