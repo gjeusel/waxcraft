@@ -1,3 +1,4 @@
+import asyncio
 import importlib
 import json
 import logging
@@ -79,6 +80,12 @@ try:
 
     MINDT = pd.Timestamp.min.tz_localize("UTC")
     MAXDT = pd.Timestamp.max.tz_localize("UTC")
+
+    def gen_ts(size, start=pd.Timestamp("2020-01-01", tz="CET"), freq="1H"):
+        idx = pd.date_range(start=start, freq=freq, periods=size)
+        return pd.Series([1.0] * len(idx), index=idx)
+
+
 except ImportError:
     pass
 
