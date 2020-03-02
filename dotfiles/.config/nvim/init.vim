@@ -130,6 +130,9 @@ call plug#begin(s:plugin_dir)
   Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }           " Distraction-free writing in Vim
   Plug 'junegunn/limelight.vim', { 'on': 'Limelight' } " Dim paragraphs above and below the active paragraph.
 
+" Terraform
+  Plug 'hashivim/vim-terraform', { 'for': 'terraform' }
+
 " Latex
   Plug 'lervag/vimtex', { 'for': 'tex' }
 
@@ -402,7 +405,7 @@ let g:ale_linters = {
             \ 'sh': ['proselint'],
             \ 'rst': ['proselint'],
             \ 'html': ['prettier'],
-            \ 'javascript': ['eslint'],
+            \ 'javascript': ['prettier'],
             \ 'vue': ['prettier'],
             \ 'css': ['prettier'],
             \}
@@ -412,7 +415,7 @@ let g:ale_fixers = {
             \ 'python': ['isort', 'yapf'],
             \ 'css': ['prettier'],
             \ 'html': ['prettier'],
-            \ 'javascript': ['eslint'],
+            \ 'javascript': ['prettier'],
             \ 'vue': ['prettier'],
             \ 'json': ['fixjson'],
             \}
@@ -684,6 +687,7 @@ au BufNewFile,BufRead *.txt set filetype=sh
 au BufNewFile,BufRead cronfile set filetype=sh
 au BufNewFile,BufRead .gitconfig set filetype=conf
 au BufNewFile,BufRead *.conf set filetype=config
+au BufNewFile,BufRead *.kubeconfig set filetype=yaml
 au Filetype vim set tabstop=2 foldmethod=marker
 
 " frontend:
