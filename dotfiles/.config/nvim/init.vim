@@ -452,6 +452,13 @@ au BufNewFile,BufRead *.md let g:table_mode_header_fillchar='-'
 au BufNewFile,BufRead *.md let g:table_mode_corner_corner='|'
 "}}}
 
+" Terraform {{
+let g:terraform_fmt_on_save=1
+let g:terraform_fold_sections=1
+let g:terraform_align=1
+
+" }}
+
 " Test and tmux
 nmap <silent> <leader>1 :Tmux <CR>:TestNearest<CR>
 nmap <silent> <leader>2 :Tmux <CR>:TestLast<CR>
