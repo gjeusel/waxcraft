@@ -44,7 +44,8 @@ alias ipy="ptipython"
 alias pt="pytest --log-level=DEBUG -x -s --pdb -k "
 alias pdb="pytest --pdb -x -s "
 alias ptp="pytest -n auto -vv "
-alias act='source activate'
+alias act='conda activate'
+alias deact='conda deactivate'
 alias libclean="find . | grep -E '(__pycache__|\.pyc|\.pyo|\.orig$)' | xargs rm -rf"
 
 alias infogpu='nvidia-smi --query-gpu=timestamp,name,pci.bus_id,driver_version,pstate,pcie.link.gen.max,pcie.link.gen.current,temperature.gpu,utilization.gpu,utilization.memory,memory.total,memory.free,memory.used --format=csv -l 5'
