@@ -6,10 +6,6 @@ export LANG=en_US.UTF-8
 export CASE_SENSITIVE=true  # prefer case sensitive complete
 #export RM_STAR_SILENT=true  # silent security yes/no on rm *
 
-
-# Used by aliases
-export waxCraft_PATH=${0:A:h:h}
-
 # Styling
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=240"
 

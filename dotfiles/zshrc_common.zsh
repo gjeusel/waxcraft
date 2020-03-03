@@ -1,3 +1,8 @@
+# Used by aliases
+export waxCraft_PATH=${0:A:h:h}
+source "$waxCraft_PATH/dotfiles/envvar.sh"
+source "$waxCraft_PATH/dotfiles/fzf-extras.zsh"
+
 if [ ! -e "$HOME/.config/antigen.zsh" ]; then
   curl -L git.io/antigen -o "$HOME/.config/antigen.zsh"
 fi
@@ -6,7 +11,14 @@ source "$HOME/.config/antigen.zsh"
 # Some options settings:
 setopt inc_append_history share_history hist_ignore_all_dups  # history
 setopt autocd extendedglob notify nomatch autopushd pushdignoredups promptsubst
-autoload -Uz promptinit compinit bashcompinit
+
+autoload -Uz compinit
+# Check compinit cache once per day
+if [ $(date +'%j') != $(/usr/bin/stat -f '%Sm' -t '%j' ${ZDOTDIR:-$HOME}/.zcompdump) ]; then
+  compinit
+else
+  compinit -C
+fi
 
 # Plugins
 antigen use oh-my-zsh
@@ -23,15 +35,18 @@ antigen bundle zsh-users/zsh-autosuggestions
 antigen bundle docker
 antigen bundle akarzim/zsh-docker-aliases
 antigen bundle docker-compose
-antigen bundle kubectl
 antigen bundle helm
+
+antigen bundle kubectl
+#antigen bundle dbz/kube-aliases
+
 
 # Python:
 antigen bundle pip
 antigen bundle esc/conda-zsh-completion
 
 # Golang:
-antigen bundle golang
+#antigen bundle golang
 
 ## Theme Pure:
 antigen bundle mafredri/zsh-async
@@ -89,11 +104,5 @@ rmv() {
   fi
 }
 
-# Execute code in the background to not affect the current session
-{
-  # Compile zcompdump, if modified, to increase startup speed.
-  zcompdump="${ZDOTDIR:-$HOME}/.zcompdump"
-  if [[ -s "$zcompdump" && (! -s "${zcompdump}.zwc" || "$zcompdump" -nt "${zcompdump}.zwc") ]]; then
-    zcompile "$zcompdump"
-  fi
-} &!
+# https://github.com/zsh-users/antigen/issues/583
+source $HOME/.antigen/bundles/robbyrussell/oh-my-zsh/plugins/kubectl/kubectl.plugin.zsh

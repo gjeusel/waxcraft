@@ -163,14 +163,14 @@ def tmux():
 
 
 def _common_bash_zsh():
-    relative_paths = [".inputrc", ".aliases"]
+    relative_paths = [".inputrc", ".aliases", ".zlogin"]
     create_symlinks_robust(
         relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home())
 
 
 def zsh():
     """Instal zsh."""
-    # source ~/waxcraft/dotfiles/zshrc_common.sh
+    # source ~/waxcraft/dotfiles/zshrc_common.zsh
     str_source = (
         "# source aliases:",
         "if [ -f ~/.aliases ]; then",
@@ -179,9 +179,8 @@ def zsh():
         "",
         "# Specific config here",
         ""
-        "# waxCraft zshrc_common.sh file sourcing :",
-        "source {}".format((wax_dotfile_dir / "zshrc_common.sh").as_posix()),
-        "source {}".format((wax_dotfile_dir / "envvar.sh").as_posix()),
+        "# waxCraft zshrc_common.zsh file sourcing :",
+        "source {}".format((wax_dotfile_dir / "zshrc_common.zsh").as_posix()),
     )
 
     str_source = "\n".join(str_source)
