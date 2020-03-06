@@ -8,6 +8,9 @@ alias wax="cd $waxCraft_PATH"
 alias vim="nvim"
 alias vimdiff="nvim -d"
 
+# Fancy
+alias tac=gtac
+
 # git
 alias gl='git pull'
 alias gp='git push'
