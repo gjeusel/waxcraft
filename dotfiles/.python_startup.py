@@ -34,7 +34,9 @@ logging.getLogger("parso.python.diff").disabled = True
 logging.getLogger("parso.cache").disabled = True
 logging.getLogger("parso.cache.pickle").disabled = True
 
-for lib in ["requests", "urllib3", "mercure", "parso", "diff", "pickle", "cache"]:
+for lib in [
+        "requests", "urllib3", "mercure", "parso", "diff", "pickle", "cache"
+]:
     logging.getLogger(lib).setLevel(logging.WARNING)
 
 urllib3.disable_warnings()
@@ -85,7 +87,6 @@ try:
         idx = pd.date_range(start=start, freq=freq, periods=size)
         return pd.Series([1.0] * len(idx), index=idx)
 
-
 except ImportError:
     pass
 
@@ -96,7 +97,14 @@ if local_startup_file.exists():
         compiled = compile(f.read(), filepath, "exec")
     exec(compiled, __main__.__dict__, __main__.__dict__)
 
-imports = ("ticts", "requests", "flask", ("pdops", "arkolor.pdops"))
+imports = (
+    "ticts",
+    "requests",
+    "flask",
+    ("pdops", "arkolor.pdops"),
+    ("sa", "sqlalchemy"),
+    "sqlalchemy.orm",  # else sa.orm not available
+)
 for imp in imports:
     alias = None
     if isinstance(imp, (tuple, list)):
@@ -112,20 +120,22 @@ try:
 except ImportError:
     pass
 else:
-    confdir = Path.home() / ".ptpython"
+    ctx = __main__.__dict__
+    if "get_ipython" not in ctx:  # if not run from ipython
+        confdir = Path.home() / ".ptpython"
 
-    # Apply config file
-    def configure(repl):
-        path = confdir / "config.py"
-        if path.exists():
-            run_config(repl, path.as_posix())
+        # Apply config file
+        def configure(repl):
+            path = confdir / "config.py"
+            if path.exists():
+                run_config(repl, path.as_posix())
 
-    history_path = confdir / "history"
-    new = embed(
-        history_filename=history_path,
-        configure=configure,
-        locals=__main__.__dict__,
-        globals=__main__.__dict__,
-        title="Python REPL (ptpython)",
-    )
-    sys.exit(new)
+        history_path = confdir / "history"
+        new = embed(
+            history_filename=history_path,
+            configure=configure,
+            locals=ctx,
+            globals=ctx,
+            title="Python REPL (ptpython)",
+        )
+        sys.exit(new)
