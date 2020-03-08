@@ -695,6 +695,8 @@ au BufNewFile,BufRead cronfile set filetype=sh
 au BufNewFile,BufRead .gitconfig set filetype=conf
 au BufNewFile,BufRead *.conf set filetype=config
 au BufNewFile,BufRead *.kubeconfig set filetype=yaml
+au BufNewFile,BufRead *.ya?ml set shiftwidth=2 tabstop=2 softtabstop=2
+
 au Filetype vim set tabstop=2 foldmethod=marker
 
 " frontend:
