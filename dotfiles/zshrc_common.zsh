@@ -37,6 +37,8 @@ antigen bundle akarzim/zsh-docker-aliases
 antigen bundle docker-compose
 antigen bundle helm
 
+antigen bundle terraform
+antigen bundle gcloud
 antigen bundle kubectl
 #antigen bundle dbz/kube-aliases
 
@@ -106,3 +108,6 @@ rmv() {
 
 # https://github.com/zsh-users/antigen/issues/583
 source $HOME/.antigen/bundles/robbyrussell/oh-my-zsh/plugins/kubectl/kubectl.plugin.zsh
+
+# Only add in zsh history commnds that did not failed
+zshaddhistory() { whence ${${(z)1}[1]} >| /dev/null || return 1 }
