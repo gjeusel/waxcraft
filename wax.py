@@ -226,7 +226,7 @@ def python():
 
     relative_paths = [
         ".python_startup.py",
-        ".pdbrc"
+        ".pdbrc",
         ".pdbrc.py",
         ".config/flake8",
         ".ipython/profile_default/ipython_config.py",
