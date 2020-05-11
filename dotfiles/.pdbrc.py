@@ -1,4 +1,29 @@
 import pdb
+from pathlib import Path
+
+
+def enter_shell():
+    try:
+        from ptpython.repl import embed, run_config
+    except ImportError:
+        pass
+    else:
+        confdir = Path.home() / ".ptpython"
+
+        # Apply config file
+        def configure(repl):
+            path = confdir / "config.py"
+            if path.exists():
+                run_config(repl, path.as_posix())
+
+        history_path = confdir / "pdb_history"
+        new = embed(
+            history_filename=history_path,
+            configure=configure,
+            locals=locals(),
+            globals=globals(),
+            title="Python REPL (ptpython)",
+        )
 
 
 class Config(pdb.DefaultConfig):
@@ -17,16 +42,20 @@ class Config(pdb.DefaultConfig):
             pass
         else:
             self.colorscheme = terminal.TERMINAL_COLORS.copy()
-            self.colorscheme.update({
-                terminal.Keyword: ('darkred', 'red'),
-                terminal.Number: ('darkyellow', 'yellow'),
-                terminal.String: ('brown', 'green'),
-                terminal.Name.Function: ('darkgreen', 'blue'),
-                # terminal.Name.Namespace: ('teal', 'turquoise'),
-            })
+            self.colorscheme.update(
+                {
+                    terminal.Keyword: ("darkred", "red"),
+                    terminal.Number: ("darkyellow", "yellow"),
+                    terminal.String: ("brown", "green"),
+                    terminal.Name.Function: ("darkgreen", "blue"),
+                    # terminal.Name.Namespace: ('teal', 'turquoise'),
+                }
+            )
 
     def setup(self, pdb):
         # make 'l' an alias to 'longlist'
         Pdb = pdb.__class__
         Pdb.do_l = Pdb.do_longlist
         Pdb.do_st = Pdb.do_sticky
+
+        globals()["psh"] = enter_shell

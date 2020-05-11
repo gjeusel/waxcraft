@@ -1,0 +1,1 @@
+alias sh from ptpython.repl import embed, run_config; embed(history_filename="/tmp/pdb_history", configure=run_config, locals=locals(), globals=globals())

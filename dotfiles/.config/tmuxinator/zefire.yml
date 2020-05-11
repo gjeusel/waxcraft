@@ -1,13 +1,30 @@
 session_name: zefire
 
 windows:
+  - window_name: services
+    layout: 92de,208x59,0,0[208x39,0,0{104x39,0,0,62,103x39,105,0,63},208x19,0,40,64]
+    panes:
+      - shell_command:
+        - cd ~/src/zefire-front
+        - npm run serve -- --port=8080
+      - shell_command:
+        - cd ~/src/zefire
+        - act zefire
+        - python -m zefire runserver 8000
+      - shell_command:
+        - act zefire
+        focus: true
+
   - window_name: zefire
+    focus: true
     layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
     shell_command_before:
       - act zefire
       - cd ~/src/zefire
     panes:
-      - neofetch
+      - shell_command:
+        - neofetch
+        focus: true
       - 
 
   - window_name: peregrine
@@ -16,14 +33,7 @@ windows:
       - act zefire
       - cd ~/src/peregrine
     panes:
-      - neofetch
-      - 
-
-  - window_name: infra
-    layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
-    shell_command_before:
-      - act zefire
-      - cd ~/src/infragreen
-    panes:
-      - neofetch
+      - shell_command:
+        - neofetch
+        focus: true
       - 

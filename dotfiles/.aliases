@@ -46,10 +46,13 @@ alias negociate_proxy='curl --proxy-negotiate -I -u :  http://google.com'
 alias ipy="ptipython"
 alias pt="pytest --log-level=DEBUG -x -s --pdb -k "
 alias pdb="pytest --pdb -x -s "
-alias ptp="pytest -n auto -vv "
+alias ptp="pytest -n 6 -vv "
 alias act='conda activate'
 alias deact='conda deactivate'
 alias libclean="find . | grep -E '(__pycache__|\.pyc|\.pyo|\.orig$)' | xargs rm -rf"
+function pwhere() {
+  python -c "import $1; print($1.__file__)"
+}
 
 alias infogpu='nvidia-smi --query-gpu=timestamp,name,pci.bus_id,driver_version,pstate,pcie.link.gen.max,pcie.link.gen.current,temperature.gpu,utilization.gpu,utilization.memory,memory.total,memory.free,memory.used --format=csv -l 5'
 
@@ -162,3 +165,7 @@ alias brave="/Applications/Brave\ Browser.app/Contents/MacOS/Brave\ Browser"
 
 # Alias z zsh plugin
 alias w="_z 2>&1"
+
+function psql_kill_locks() {
+  psql postgresql://postgres:postgres@localhost:5432/ -c "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname='$1' AND pid <> pg_backend_pid()"
+}

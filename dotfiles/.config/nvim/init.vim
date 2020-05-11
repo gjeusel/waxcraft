@@ -45,7 +45,7 @@ call plug#begin(s:plugin_dir)
   Plug 'tpope/vim-eunuch'          " sugar for the UNIX shell commands
   Plug 'tpope/vim-fugitive'        " Git wrapper for vim
 
-  Plug 'Konfekt/FastFold'                " update folds only when needed, otherwise folds slowdown vim
+  Plug 'Konfekt/FastFold', { 'branch': 'master' } " update folds only when needed, otherwise folds slowdown vim
   Plug 'zhimsel/vim-stay'                " adds automated view session creation and restoration whenever editing a buffer
   Plug 'junegunn/vim-easy-align'         " easy alignment, better than tabularize
   Plug 'jiangmiao/auto-pairs'            " auto pair
@@ -251,12 +251,9 @@ let g:SuperTabMappingBackward = '<Tab>'
 let g:SimpylFold_docstring_preview = 1
 let g:SimpylFold_fold_docstring = 1
 let g:SimpylFold_fold_import = 0
-"let g:fastfold_fold_command_suffixes = []
-"let g:fastfold_fold_movement_commands = []
-let g:fastfold_fold_command_suffixes = ['x','X','a','A','o','O','c','C','r','R','m','M','i','n','N']
+let g:fastfold_savehook = 1
+let g:fastfold_fold_command_suffixes =  ['x','X','a','A','o','O','c','C']
 let g:fastfold_fold_movement_commands = [']z', '[z', 'zj', 'zk']
-let g:fastfold_force = 1 " prevents the fold methods from recomputing on every buffer change
-let g:fastfold_savehook = 1  " update all folds when save a buffer
 "}}}
 
 " NERDCommenter {{{
@@ -385,7 +382,7 @@ let g:jedi#show_call_signatures = 0  " do show the args of func, use echodoc for
 map <Leader>o o__import__("pdb").set_trace()  # BREAKPOINT<C-c>
 map <Leader>O O__import__("pdb").set_trace()  # BREAKPOINT<C-c>
 "import pdb; pdb.break_on_setattr('session_id')(container._sa_instance_state.__class__)
-map <Leader>i o__import__("IPython").embed()  # Enter Ipython<C-c>
+map <Leader>i ofrom ptpython.repl import embed; embed()  # Enter ptpython<C-c>
 
 "}}}
 
@@ -412,7 +409,7 @@ let g:ale_linters = {
 
 "\ 'python': ['autopep8', 'isort', 'black'],
 let g:ale_fixers = {
-            \ 'python': ['isort', 'yapf'],
+            \ 'python': ['isort', 'black'],
             \ 'css': ['prettier'],
             \ 'html': ['prettier'],
             \ 'javascript': ['prettier'],
@@ -530,7 +527,7 @@ set scrolljump=5        " Lines to scroll when cursor leaves screen
 set scrolloff=3         " Have some context around the current line always on screen
 set virtualedit=onemore " Allow for cursor beyond last character
 set hidden              " Allow backgrounding buffers without writin them, and remember marks/undo for backgrounded buffers
-set foldenable          " Auto fold code
+set foldenable          " Open all folds while not set.
 set splitright          " split at the right of current buffer (left default behaviour)
 set splitbelow          " split at the below of current buffer (top default behaviour)
 set autochdir           " working directory is always the same as the file you are editing
@@ -598,6 +595,8 @@ function! CustomFoldText(delim)
 endfunction
 "}}}
 autocmd FileType python set foldtext=CustomFoldText('\ ')
+autocmd FileType python setlocal foldenable foldlevel=20
+
 
 if has('linebreak')
   let &showbreak='⤷ '   " arrow pointing downwards then curving rightwards (u+2937, utf-8: e2 a4 b7)
@@ -637,8 +636,8 @@ endif
 
 if has('mksession')
   set viewdir=~/.vim/view
-  "set viewoptions-=options
-  set viewoptions=folds,cursor,unix,slash " Better Unix / Windows compatibility
+  set viewoptions-=options  " needed by vim-stay
+  "set viewoptions=folds,cursor,unix,slash " Better Unix / Windows compatibility
 endif
 " }}}
 
@@ -653,9 +652,7 @@ set wildignore+=**__pycache__/**
 " Clipboard
 if has('clipboard')
   if has('unnamedplus') " When possible use + register for copy-paste
-    set clipboard=unnamed,unnamedplus
-  else                  " On mac and Windows, use * register for copy-paste
-    set clipboard=unnamed
+    set clipboard+=unnamedplus
   endif
 endif
 
@@ -676,7 +673,6 @@ au BufRead,BufNewFile *.{md,md.erb,markdown,mdown,mkd,mkdn,txt} setf markdown | 
 " Python
 augroup python
   au FileType python set shiftwidth=4 tabstop=4 softtabstop=4 textwidth=79
-  au FileType python set foldmethod=expr
 augroup end
 
 " Vagrant

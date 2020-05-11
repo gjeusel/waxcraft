@@ -104,6 +104,7 @@ imports = (
     ("pdops", "arkolor.pdops"),
     ("sa", "sqlalchemy"),
     "sqlalchemy.orm",  # else sa.orm not available
+    ("m", "zefire.models"),
 )
 for imp in imports:
     alias = None
@@ -120,8 +121,11 @@ try:
 except ImportError:
     pass
 else:
-    ctx = __main__.__dict__
-    if "get_ipython" not in ctx:  # if not run from ipython
+    localctx = __main__.__dict__
+    _should_enter = all([
+        "get_ipython" not in localctx,  # if not run from ipython
+    ])
+    if _should_enter:
         confdir = Path.home() / ".ptpython"
 
         # Apply config file
@@ -134,8 +138,8 @@ else:
         new = embed(
             history_filename=history_path,
             configure=configure,
-            locals=ctx,
-            globals=ctx,
+            locals=localctx,
+            globals=globals(),
             title="Python REPL (ptpython)",
         )
         sys.exit(new)

@@ -13,16 +13,6 @@ windows:
       - neofetch
       - 
 
-  #- window_name: b2e2meteor
-  #  layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
-  #  shell_command_before:
-  #    - act b2e2meteor
-  #    - export B2E2_CONFIG=~/.b2e2_meteor_settings.py
-  #    - cd ~/meteorsrc/b2e2
-  #  panes:
-  #    - neofetch
-  #    - 
-
   - window_name: bluesnake
     layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
     shell_command_before:
@@ -32,20 +22,29 @@ windows:
       - neofetch
       - 
 
-  #- window_name: rework-gp
-  #  layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
-  #  shell_command_before:
-  #    - act rework-gp
-  #    - cd ~/src/rework-gp
-  #  panes:
-  #    - neofetch
-  #    - 
-
   - window_name: greenpandas
     layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
     shell_command_before:
       - act greenpandas
       - cd ~/src/greenpandas
+    panes:
+      - neofetch
+      - 
+
+  - window_name: navyfalcon
+    layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
+    shell_command_before:
+      - act navyfalcon
+      - cd ~/src/navyfalcon
+    panes:
+      - neofetch
+      - 
+
+  - window_name: misc
+    layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
+    shell_command_before:
+      - act greenpandas
+      - cd ~/src/
     panes:
       - neofetch
       - 
