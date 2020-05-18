@@ -96,6 +96,7 @@ call plug#begin(s:plugin_dir)
 
   Plug 'Shougo/neco-vim', {'for': 'vim'}
   Plug 'deoplete-plugins/deoplete-jedi', {'for': 'python'}
+  Plug 'tbodt/deoplete-tabnine', { 'do': './install.sh' }
   Plug 'deoplete-plugins/deoplete-go', {'for': 'go'}
   Plug 'fszymanski/deoplete-emoji', {'for': 'gitcommit'}
   Plug 'carlitux/deoplete-ternjs', {'do': 'npm install -g tern', 'for': ['javascript', 'vue']}
@@ -283,26 +284,18 @@ endfunction
 " deoplete {{{
 let g:deoplete#enable_at_startup = 1
 
-" make sure the autocompletion will actually trigger using the omnifuncs set later on
-if !exists('g:deoplete#omni#input_patterns')
-  let g:deoplete#omni#input_patterns = {}
-endif
-
-let g:deoplete#enable_ignore_case = 1
-let g:deoplete#enable_smart_case = 1
-
 " set multiple options:
-if exists("deoplete")
-  call deoplete#custom#option({
-      \ 'auto_complete_delay': 200,
-      \ 'max_list': 5,
-      \ })
-      "\ 'auto_refresh_delay': -1,
-      "\ 'min_patter_length': 2,
-      "\ 'refresh_always': v:false,
-      "\ 'ignore_sources': {'python': 'numpy'},
-      "\ 'num_processes': 2,
-endif
+call deoplete#custom#option({
+    \ 'auto_complete_delay': 0,
+    \ 'max_list': 10,
+    \ 'smart_case': v:true,
+    \ 'ignore_case': v:true
+    \ })
+    "\ 'auto_refresh_delay': -1,
+    "\ 'min_patter_length': 2,
+    "\ 'refresh_always': v:false,
+    "\ 'ignore_sources': {'python': 'numpy'},
+    "\ 'num_processes': 2,
 
 "" Disable the candidates in Comment syntaxes.
 "call deoplete#custom#source('_', 'disable_syntaxes', ['Comment'])
@@ -310,16 +303,20 @@ endif
 let g:echodoc#enable_at_startup = 1
 let g:echodoc#enable_force_overwrite = 1
 
-let g:deoplete#file#enable_buffer_path=1
-if exists("deoplete")
-  call deoplete#custom#source('buffer', 'mark', 'ℬ')
-  call deoplete#custom#source('omni', 'mark', '⌾')
-  call deoplete#custom#source('file', 'mark', '')
-  call deoplete#custom#source('jedi', 'mark', '🐍')
-  call deoplete#custom#source('neosnippet', 'mark', '')
-  call deoplete#custom#source('ultisnips', 'mark', '')
-  call deoplete#custom#source('LanguageClient', 'mark', '')
-endif
+call deoplete#custom#source('file', 'mark', '')
+call deoplete#custom#source('buffer', 'mark', '﬘')
+
+" tabnine
+call deoplete#custom#source('tabnine', 'mark', '')
+call deoplete#custom#source('tabnine', 'dup', v:false)
+
+call deoplete#custom#source('jedi', 'mark', '')
+call deoplete#custom#source('jedi', 'dup', v:false)
+
+call deoplete#custom#source('omni', 'mark', '⌾')
+
+"call deoplete#custom#source('neosnippet', 'mark', '')
+"call deoplete#custom#source('ultisnips', 'mark', '')
 
 set completeopt-=preview  " if you don't want windows popup
 
@@ -692,6 +689,9 @@ au BufNewFile,BufRead .gitconfig set filetype=conf
 au BufNewFile,BufRead *.conf set filetype=config
 au BufNewFile,BufRead *.kubeconfig set filetype=yaml
 au BufNewFile,BufRead *.ya?ml set shiftwidth=2 tabstop=2 softtabstop=2
+
+au BufNewFile,BufRead *.env set ft=sh
+au BufNewFile,BufRead *.flaskenv set ft=sh
 
 au Filetype vim set tabstop=2 foldmethod=marker
 
