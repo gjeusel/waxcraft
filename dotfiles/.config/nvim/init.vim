@@ -65,7 +65,7 @@ call plug#begin(s:plugin_dir)
 
   Plug 'justinmk/vim-sneak'  " minimalist motion with 2 keys
 
-  " Plug 'vim-scripts/loremipsum'         " dummy text generator (:Loremipsum [number of words])
+   Plug 'vim-scripts/loremipsum'         " dummy text generator (:Loremipsum [number of words])
   " Plug 'easymotion/vim-easymotion'      " easymotion when fedup to think
   " Plug 'skywind3000/asyncrun.vim'       " run async shell commands
   " Plug 'terryma/vim-multiple-cursors'   " nice plugin for multiple cursors
@@ -96,7 +96,7 @@ call plug#begin(s:plugin_dir)
 
   Plug 'Shougo/neco-vim', {'for': 'vim'}
   Plug 'deoplete-plugins/deoplete-jedi', {'for': 'python'}
-  Plug 'tbodt/deoplete-tabnine', { 'do': './install.sh' }
+  "Plug 'tbodt/deoplete-tabnine', { 'do': './install.sh' }
   Plug 'deoplete-plugins/deoplete-go', {'for': 'go'}
   Plug 'fszymanski/deoplete-emoji', {'for': 'gitcommit'}
   Plug 'carlitux/deoplete-ternjs', {'do': 'npm install -g tern', 'for': ['javascript', 'vue']}
@@ -287,11 +287,13 @@ let g:deoplete#enable_at_startup = 1
 " set multiple options:
 call deoplete#custom#option({
     \ 'auto_complete_delay': 0,
-    \ 'max_list': 10,
+    \ 'max_list': 20,
+    \ 'auto_refresh_delay': 1000,
     \ 'smart_case': v:true,
-    \ 'ignore_case': v:true
+    \ 'check_stderr': v:false,
+    \ 'num_processes': 4,
     \ })
-    "\ 'auto_refresh_delay': -1,
+    "\ 'ignore_case': v:true
     "\ 'min_patter_length': 2,
     "\ 'refresh_always': v:false,
     "\ 'ignore_sources': {'python': 'numpy'},
@@ -301,19 +303,27 @@ call deoplete#custom#option({
 "call deoplete#custom#source('_', 'disable_syntaxes', ['Comment'])
 
 let g:echodoc#enable_at_startup = 1
-let g:echodoc#enable_force_overwrite = 1
+"let g:echodoc#enable_force_overwrite = 1
 
+" Builtin source
 call deoplete#custom#source('file', 'mark', '')
 call deoplete#custom#source('buffer', 'mark', '﬘')
+call deoplete#custom#source('around', 'mark', '')
+call deoplete#custom#source('member', 'mark', '')
+
+"call deoplete#custom#source('omni', 'mark', '⌾')  " disabled
 
 " tabnine
+call deoplete#custom#var('tabnine', {
+\ 'line_limit': 200,
+\ 'max_num_results': 5,
+\ })
 call deoplete#custom#source('tabnine', 'mark', '')
-call deoplete#custom#source('tabnine', 'dup', v:false)
+call deoplete#custom#source('tabnine', 'rank', 800)
 
 call deoplete#custom#source('jedi', 'mark', '')
-call deoplete#custom#source('jedi', 'dup', v:false)
+call deoplete#custom#source('jedi', 'rank', 1000)
 
-call deoplete#custom#source('omni', 'mark', '⌾')
 
 "call deoplete#custom#source('neosnippet', 'mark', '')
 "call deoplete#custom#source('ultisnips', 'mark', '')
@@ -379,8 +389,8 @@ let g:jedi#show_call_signatures = 0  " do show the args of func, use echodoc for
 map <Leader>o o__import__("pdb").set_trace()  # BREAKPOINT<C-c>
 map <Leader>O O__import__("pdb").set_trace()  # BREAKPOINT<C-c>
 "import pdb; pdb.break_on_setattr('session_id')(container._sa_instance_state.__class__)
-map <Leader>i ofrom ptpython.repl import embed; embed()  # Enter ptpython<C-c>
-
+"map <Leader>i ofrom ptpython.repl import embed; embed()  # Enter ptpython<C-c>
+map <Leader>i o__import__("IPython").embed()  # ipython embed<C-c>
 "}}}
 
 " Lint ALE {{{
@@ -888,3 +898,20 @@ endif
 " activate per project settings
 set exrc  " allows loading local EXecuting local RC files
 set secure  " disallows the use of :autocmd, shell and write commands in local
+
+
+"" gitconfig:
+""
+"[core]
+"  editor = nvim
+"[merge]
+"  tool = vimdiff
+"[mergetool]
+"  prompt = false
+"[mergetool "vimdiff"]
+"  cmd = nvim -d $LOCAL $REMOTE $MERGED -c '$wincmd w' -c 'wincmd J'
+"[difftool]
+"  prompt=false
+"[diff]
+"  path = vimdiff
+
