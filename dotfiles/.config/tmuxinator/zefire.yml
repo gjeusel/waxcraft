@@ -30,8 +30,18 @@ windows:
   - window_name: peregrine
     layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
     shell_command_before:
-      - act zefire
+      - act peregrine
       - cd ~/src/peregrine
+    panes:
+      - shell_command:
+        - neofetch
+        focus: true
+      - 
+
+  - window_name: remote
+    layout: main-horizontal
+    options:
+      main-pane-height: 50
     panes:
       - shell_command:
         - neofetch

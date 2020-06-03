@@ -28,7 +28,7 @@ windows:
       - cd ~/src/greenpandas
     panes:
       - python -m greenpandas runserver -p 5010 --threaded
-      - echo "dramatiq --watch . --processes 6 --threads 16 'greenpandas.app'"
+      - echo "dramatiq --watch . --processes 6 --threads 16 'greenpandas.tasks.app'"
       - vim $GREENPANDAS_CONFIG
 
   # B2E2
