@@ -96,7 +96,7 @@ call plug#begin(s:plugin_dir)
 
   Plug 'Shougo/neco-vim', {'for': 'vim'}
   Plug 'deoplete-plugins/deoplete-jedi', {'for': 'python'}
-  "Plug 'tbodt/deoplete-tabnine', { 'do': './install.sh' }
+  "Plug 'tbodt/deoplete-tabnine', { 'do': './install.sh', 'for': ['python', 'json', 'yaml'] }
   Plug 'deoplete-plugins/deoplete-go', {'for': 'go'}
   Plug 'fszymanski/deoplete-emoji', {'for': 'gitcommit'}
   Plug 'carlitux/deoplete-ternjs', {'do': 'npm install -g tern', 'for': ['javascript', 'vue']}
