@@ -18,16 +18,21 @@ setopt hist_reduce_blanks hist_ignore_space hist_verify
 setopt no_bg_nice no_hup no_beep
 
 # backward and forward word with option+left/right
-bindkey '^[^[[D' backward-word
 bindkey '^[b' backward-word
-bindkey '^[^[[C' forward-word
 bindkey '^[f' forward-word
+# backward and forward word with ctrl+left/right
+bindkey '^[[1;5D' backward-word
+bindkey '^[[1;5C' forward-word
 
 # delete word with option+backspace
 bindkey '^[^H' backward-delete-word
 
+# beginning / end of line
+bindkey '^A' beginning-of-line
+bindkey '^E' end-of-line
+
 # edit command line in $EDITOR
-bindkey '^e' edit-command-line
+bindkey '^X' edit-command-line
 
 zle -N edit-command-line
 

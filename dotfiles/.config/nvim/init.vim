@@ -72,7 +72,7 @@ call plug#begin(s:plugin_dir)
 "}}}
 
 " User Interface {{{
-  Plug 'mhinz/vim-startify'        " fancy start screen for Vim
+  "Plug 'mhinz/vim-startify'        " fancy start screen for Vim
   Plug 'kshenoy/vim-signature'     " toggle display marks
   Plug 'itchyny/lightline.vim'     " light status line
   Plug 'ap/vim-buftabline'         " buffer line
