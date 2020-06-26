@@ -7,15 +7,18 @@ autoload -U edit-command-line
 
 # Some options settings:
 # History
-setopt inc_append_history share_history
-setopt hist_ignore_all_dups hist_ignore_dups hist_expire_dups_first
-setopt hist_reduce_blanks hist_ignore_space hist_verify
+setopt appendhistory
+setopt inc_append_history
+setopt share_history
+#setopt hist_ignore_all_dups hist_ignore_dups hist_expire_dups_first
+#setopt hist_reduce_blanks hist_ignore_space
+#setopt hist_reduce_blanks hist_ignore_space hist_verify
 
 # Other
 #setopt autocd extendedglob notify nomatch autopushd pushdignoredups promptsubst
 
 # don't nice background tasks
-setopt no_bg_nice no_hup no_beep
+#setopt no_bg_nice no_hup no_beep
 
 # backward and forward word with option+left/right
 bindkey '^[b' backward-word
@@ -27,12 +30,19 @@ bindkey '^[[1;5C' forward-word
 # delete word with option+backspace
 bindkey '^[^H' backward-delete-word
 
+# delete char
+bindkey "^[[3~" delete-char
+
 # beginning / end of line
 bindkey '^A' beginning-of-line
 bindkey '^E' end-of-line
 
 # edit command line in $EDITOR
 bindkey '^X' edit-command-line
+
+# Hist search
+bindkey '^r' history-incremental-search-backward
+bindkey '^R' history-incremental-pattern-search-backward
 
 zle -N edit-command-line
 
