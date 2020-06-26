@@ -3,14 +3,33 @@ export waxCraft_PATH=${0:A:h:h}
 source "$waxCraft_PATH/dotfiles/envvar.sh"
 source "$waxCraft_PATH/dotfiles/fzf-extras.zsh"
 
-if [ ! -e "$HOME/.config/antigen.zsh" ]; then
-  curl -L git.io/antigen -o "$HOME/.config/antigen.zsh"
-fi
-source "$HOME/.config/antigen.zsh"
+autoload -U edit-command-line
 
 # Some options settings:
-setopt inc_append_history share_history hist_ignore_all_dups  # history
-setopt autocd extendedglob notify nomatch autopushd pushdignoredups promptsubst
+# History
+setopt inc_append_history share_history
+setopt hist_ignore_all_dups hist_ignore_dups hist_expire_dups_first
+setopt hist_reduce_blanks hist_ignore_space hist_verify
+
+# Other
+#setopt autocd extendedglob notify nomatch autopushd pushdignoredups promptsubst
+
+# don't nice background tasks
+setopt no_bg_nice no_hup no_beep
+
+# backward and forward word with option+left/right
+bindkey '^[^[[D' backward-word
+bindkey '^[b' backward-word
+bindkey '^[^[[C' forward-word
+bindkey '^[f' forward-word
+
+# delete word with option+backspace
+bindkey '^[^H' backward-delete-word
+
+# edit command line in $EDITOR
+bindkey '^e' edit-command-line
+
+zle -N edit-command-line
 
 autoload -Uz compinit
 # Check compinit cache once per day
@@ -20,43 +39,15 @@ else
   compinit -C
 fi
 
-# Plugins
-antigen use oh-my-zsh
-antigen bundle git
-antigen bundle extract  # generic cmd to decompress files
-antigen bundle colored-man-pages
-antigen bundle common-aliases
-antigen bundle tmux
-antigen bundle z
-antigen bundle zsh-users/zsh-syntax-highlighting
-antigen bundle zsh-users/zsh-autosuggestions
+# PLUGINS
+# Auto-download antibody binary
+if [ ! which gls >/dev/null 2>&1 ]; then
+  curl -sfL git.io/antibody | sh -s - -b /usr/local/bin
+fi
 
-# Docker related
-antigen bundle docker
-antigen bundle akarzim/zsh-docker-aliases
-antigen bundle docker-compose
-antigen bundle helm
-
-antigen bundle terraform
-antigen bundle gcloud
-antigen bundle kubectl
-#antigen bundle dbz/kube-aliases
-
-
-# Python:
-antigen bundle pip
-antigen bundle esc/conda-zsh-completion
-
-# Golang:
-#antigen bundle golang
-
-## Theme Pure:
-antigen bundle mafredri/zsh-async
-antigen bundle sindresorhus/pure
-# for 'pure' on remote, user must be part of tty group to get access to zsh-async correctly
-
-# Tell Antigen that you're done.
-antigen apply
+# Static load, when change of plugins run:
+# antibody bundle < "$waxCraft_PATH/dotfiles/.zsh-plugins.txt" > "$waxCraft_PATH/dotfiles/.zsh-plugins.sh"
+source "$waxCraft_PATH/dotfiles/.zsh-plugins.sh"
 
 # AUTO COMPLETION
 # Ignore these everywhere except for rm
@@ -105,9 +96,6 @@ rmv() {
     return 1
   fi
 }
-
-# https://github.com/zsh-users/antigen/issues/583
-source $HOME/.antigen/bundles/robbyrussell/oh-my-zsh/plugins/kubectl/kubectl.plugin.zsh
 
 ## Only add in zsh history commnds that did not failed
 #zshaddhistory() { whence ${${(z)1}[1]} >| /dev/null || return 1 }

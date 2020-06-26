@@ -8,6 +8,7 @@ export CASE_SENSITIVE=true  # prefer case sensitive complete
 
 # Styling
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=240"
+export PURE_PROMPT_SYMBOL="λ"
 
 # Editor config
 export EDITOR=nvim

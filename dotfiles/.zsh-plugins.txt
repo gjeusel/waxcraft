@@ -1,0 +1,23 @@
+# Base
+robbyrussell/oh-my-zsh path:plugins/git
+robbyrussell/oh-my-zsh path:plugins/extract
+robbyrussell/oh-my-zsh path:plugins/common-aliases
+robbyrussell/oh-my-zsh path:plugins/tmux
+robbyrussell/oh-my-zsh path:plugins/z
+
+# Syntax
+zsh-users/zsh-syntax-highlighting
+zsh-users/zsh-autosuggestions
+
+# Docker related
+robbyrussell/oh-my-zsh path:plugins/docker
+akarzim/zsh-docker-aliases
+robbyrussell/oh-my-zsh path:plugins/docker-compose
+
+# Python
+robbyrussell/oh-my-zsh path:plugins/pip
+esc/conda-zsh-completion
+
+# Theme pure
+mafredri/zsh-async
+sindresorhus/pure
