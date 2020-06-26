@@ -10,6 +10,7 @@ autoload -U edit-command-line
 setopt appendhistory
 setopt inc_append_history
 setopt share_history
+
 #setopt hist_ignore_all_dups hist_ignore_dups hist_expire_dups_first
 #setopt hist_reduce_blanks hist_ignore_space
 #setopt hist_reduce_blanks hist_ignore_space hist_verify
@@ -45,6 +46,9 @@ bindkey '^r' history-incremental-search-backward
 bindkey '^R' history-incremental-pattern-search-backward
 
 zle -N edit-command-line
+
+
+fpath=("$waxCraft_PATH/dotfiles/completions" $fpath)
 
 autoload -Uz compinit
 # Check compinit cache once per day

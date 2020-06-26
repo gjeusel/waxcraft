@@ -5,15 +5,19 @@ robbyrussell/oh-my-zsh path:plugins/common-aliases
 robbyrussell/oh-my-zsh path:plugins/tmux
 robbyrussell/oh-my-zsh path:plugins/z
 b4b4r07/enhancd
+zsh-users/zsh-completions
+
+gantsign/zsh-plugins path:bat
 
 # Syntax
-#zsh-users/zsh-syntax-highlighting
 zdharma/fast-syntax-highlighting
 zsh-users/zsh-autosuggestions
 
 # Docker related
-robbyrussell/oh-my-zsh path:plugins/docker
+#docker/cli path:contrib/completion/zsh/_docker kind:fpath
+
 akarzim/zsh-docker-aliases
+robbyrussell/oh-my-zsh path:plugins/docker/_docker kind:fpath
 robbyrussell/oh-my-zsh path:plugins/docker-compose
 
 # Python
