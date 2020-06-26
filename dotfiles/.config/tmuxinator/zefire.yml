@@ -6,11 +6,11 @@ windows:
     panes:
       - shell_command:
         - cd ~/src/zefire-front
-        - npm run serve -- --port=8080
+        - echo "npm run serve -- --port=8080"
       - shell_command:
         - cd ~/src/zefire
         - act zefire
-        - python -m zefire runserver 8000
+        - echo "flask run"
       - shell_command:
         - act zefire
         focus: true
@@ -42,6 +42,8 @@ windows:
     layout: main-horizontal
     options:
       main-pane-height: 50
+    shell_command_before:
+      - cd ~/src/ovh-cloud
     panes:
       - shell_command:
         - neofetch

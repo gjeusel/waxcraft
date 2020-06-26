@@ -10,7 +10,9 @@ windows:
       - act b2e2
       - cd ~/src/b2e2
     panes:
-      - neofetch
+      - shell_command:
+        - neofetch
+        focus: true
       - 
 
   - window_name: bluesnake
@@ -19,25 +21,21 @@ windows:
       - act bluesnake
       - cd ~/src/bluesnake
     panes:
-      - neofetch
+      - shell_command:
+        - neofetch
+        focus: true
       - 
 
   - window_name: greenpandas
     layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
+    focus: true
     shell_command_before:
       - act greenpandas
       - cd ~/src/greenpandas
     panes:
-      - neofetch
-      - 
-
-  - window_name: navyfalcon
-    layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
-    shell_command_before:
-      - act navyfalcon
-      - cd ~/src/navyfalcon
-    panes:
-      - neofetch
+      - shell_command:
+        - neofetch
+        focus: true
       - 
 
   - window_name: misc
@@ -46,5 +44,7 @@ windows:
       - act greenpandas
       - cd ~/src/
     panes:
-      - neofetch
+      - shell_command:
+        - neofetch
+        focus: true
       - 
