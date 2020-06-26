@@ -737,8 +737,16 @@ au BufEnter * if bufname("") !~ "^\[A-Za-z0-9\]*://" | lcd %:p:h | endif
 map <nowait> <Esc> <C-c>
 cmap <nowait> <Esc> <C-c>
 
+" Vim command line bindings to match zsh
 " ALT + backspace in cmd to delete word, like in terminal
 cmap <a-bs> <c-w>
+
+" move beginning of line
+cmap <c-a> <c-b>
+
+" Move words
+cmap <nowait> <M-b> <S-Left>
+cmap <nowait> <M-f> <S-Right>
 
 " Avoid vim history cmd to pop up with q:
 nnoremap q: <Nop>
@@ -782,6 +790,12 @@ inoremap <c-h> <c-\><c-n><c-w>h
 inoremap <c-j> <c-\><c-n><c-w>j
 inoremap <c-k> <c-\><c-n><c-w>k
 inoremap <c-l> <c-\><c-n><c-w>l
+
+" Command mode:
+cnoremap <c-h> <c-\><c-n><c-w>h
+cnoremap <c-j> <c-\><c-n><c-w>j
+cnoremap <c-k> <c-\><c-n><c-w>k
+cnoremap <c-l> <c-\><c-n><c-w>l
 "}}}
 
 "{{{ Pane operations
