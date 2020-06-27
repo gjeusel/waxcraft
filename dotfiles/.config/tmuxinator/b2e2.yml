@@ -39,7 +39,7 @@ windows:
       - 
 
   - window_name: misc
-    layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
+    layout: fa82,208x59,0,0[208x29,0,0{104x29,0,0,37,103x29,105,0,47},208x29,0,30,38]
     shell_command_before:
       - act greenpandas
       - cd ~/src/

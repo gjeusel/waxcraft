@@ -163,7 +163,7 @@ def tmux():
 
 
 def _common_bash_zsh():
-    relative_paths = [".inputrc", ".aliases", ".zlogin"]
+    relative_paths = [".aliases", ".zlogin"]
     create_symlinks_robust(
         relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home())
 
