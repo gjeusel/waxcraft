@@ -412,6 +412,7 @@ let g:ale_linters = {
             \ 'javascript': ['prettier'],
             \ 'vue': ['prettier'],
             \ 'css': ['prettier'],
+            \ 'json': ['jsonlint'],
             \}
 
 "\ 'python': ['autopep8', 'isort', 'black'],
@@ -421,7 +422,7 @@ let g:ale_fixers = {
             \ 'html': ['prettier'],
             \ 'javascript': ['prettier'],
             \ 'vue': ['prettier'],
-            \ 'json': ['fixjson'],
+            \ 'json': ['jq'],
             \}
 
 let g:ale_javascript_prettier_options = '--single-quote --trailing-comma none --no-semi'
