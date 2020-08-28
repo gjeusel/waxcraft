@@ -28,8 +28,14 @@ bindkey '^[f' forward-word
 bindkey '^[[1;5D' backward-word
 bindkey '^[[1;5C' forward-word
 
-# delete word with option+backspace
-bindkey '^[^H' backward-delete-word
+# Delete word with option+backspace with more word delimiters
+# https://www.zsh.org/mla/users/2001/msg00870.html
+tcsh-backward-delete-word () {
+  local WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
+  zle backward-delete-word
+}
+zle -N tcsh-backward-delete-word
+bindkey '^[^H' tcsh-backward-delete-word
 
 # delete char
 bindkey "^[[3~" delete-char
@@ -74,7 +80,7 @@ fi
 
 # Static load, when change of plugins run:
 # antibody bundle < "$waxCraft_PATH/dotfiles/.zsh-plugins.txt" > "$waxCraft_PATH/dotfiles/.zsh-plugins.sh"
-source "$waxCraft_PATH/dotfiles/.zsh-plugins.sh"
+source "$HOME/.zsh_plugins.sh"
 
 # AUTO COMPLETION
 # Ignore these everywhere except for rm
