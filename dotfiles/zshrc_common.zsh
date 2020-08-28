@@ -28,6 +28,10 @@ bindkey '^[f' forward-word
 bindkey '^[[1;5D' backward-word
 bindkey '^[[1;5C' forward-word
 
+# https://superuser.com/questions/1421423/how-to-bind-option-delete-to-backward-delete-word-in-zsh-vi-mode-in-tmux-and-ala
+# Ensure having same behaviour in tmux
+bindkey '^W' backward-kill-word
+
 # Delete word with option+backspace with more word delimiters
 # https://www.zsh.org/mla/users/2001/msg00870.html
 tcsh-backward-delete-word () {
