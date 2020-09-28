@@ -141,9 +141,10 @@ def neovim():
     assert shutil.which("nvim") is not None  # check in PATH
 
     nvim_init = ".config/nvim/init.vim"
+    coc_settings = ".config/nvim/coc-settings.json"
 
     create_symlinks_robust(
-        relative_paths=[nvim_init],
+        relative_paths=[nvim_init, coc_settings],
         from_dir=wax_dotfile_dir,
         to_dir=Path.home())
 
