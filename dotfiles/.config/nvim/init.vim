@@ -48,11 +48,9 @@ call plug#begin(s:plugin_dir)
   Plug 'Konfekt/FastFold', { 'branch': 'master' } " update folds only when needed, otherwise folds slowdown vim
   Plug 'zhimsel/vim-stay'                " adds automated view session creation and restoration whenever editing a buffer
   Plug 'junegunn/vim-easy-align'         " easy alignment, better than tabularize
-  Plug 'jiangmiao/auto-pairs'            " auto pair
   Plug 'AndrewRadev/splitjoin.vim'       " easy split join on whole paragraph
   Plug 'wellle/targets.vim'              " text object for parenthesis & more !
   Plug 'michaeljsmith/vim-indent-object' " text object based on indentation levels.
-
 
   Plug 'janko/vim-test'            " test at the speed of light
 
@@ -65,16 +63,15 @@ call plug#begin(s:plugin_dir)
 
   Plug 'justinmk/vim-sneak'  " minimalist motion with 2 keys
 
-   Plug 'vim-scripts/loremipsum'         " dummy text generator (:Loremipsum [number of words])
-  " Plug 'easymotion/vim-easymotion'      " easymotion when fedup to think
-  " Plug 'skywind3000/asyncrun.vim'       " run async shell commands
+  Plug 'vim-scripts/loremipsum'         " dummy text generator (:Loremipsum [number of words])
   " Plug 'terryma/vim-multiple-cursors'   " nice plugin for multiple cursors
 "}}}
 
 " User Interface {{{
-  "Plug 'mhinz/vim-startify'        " fancy start screen for Vim
+  Plug 'mhinz/vim-startify'        " fancy start screen for Vim
   Plug 'kshenoy/vim-signature'     " toggle display marks
   Plug 'itchyny/lightline.vim'     " light status line
+  Plug 'josa42/vim-lightline-coc'  " coc diagnostic in statusline
   Plug 'ap/vim-buftabline'         " buffer line
   Plug 'Yggdroot/indentLine'       " thin indent line
   Plug 'rhysd/conflict-marker.vim' " conflict markers for vimdiff
@@ -92,39 +89,20 @@ call plug#begin(s:plugin_dir)
 
 " Completion {{{
   Plug 'ervandew/supertab' " use <Tab> for all your insert completion
-  Plug 'Shougo/deoplete.nvim'  " async engine
-
+  Plug 'neoclide/coc.nvim', {'branch': 'release'}
   Plug 'Shougo/neco-vim', {'for': 'vim'}
-  Plug 'deoplete-plugins/deoplete-jedi', {'for': 'python'}
-  "Plug 'tbodt/deoplete-tabnine', { 'do': './install.sh', 'for': ['python', 'json', 'yaml'] }
-  Plug 'deoplete-plugins/deoplete-go', {'for': 'go'}
-  Plug 'fszymanski/deoplete-emoji', {'for': 'gitcommit'}
-  Plug 'carlitux/deoplete-ternjs', {'do': 'npm install -g tern', 'for': ['javascript', 'vue']}
-" }}}
+  Plug 'neoclide/coc-neco', {'for': 'vim'}
+  " }}}
 
 " Every
   "Plug 'sheerun/vim-polyglot'  " Solid syntax and indentation support
 
-" Code Style
-  "Plug 'Shougo/echodoc.vim', {'for': 'python'} " displays function signatures from completions in the command line.
-  Plug 'w0rp/ale'  " general asynchronous syntax checker
-
 " Python
   Plug 'tmhedberg/SimpylFold', {'for': 'python'}  " better folds
-  Plug 'davidhalter/jedi-vim', {'for': ['python', 'markdown', 'rst']}
   Plug 'python-mode/python-mode', {'for': 'python'}
-
-" Frontend
-  Plug 'mattn/emmet-vim'
-  Plug 'alvan/vim-closetag'  " autoclose tags
-  Plug 'ap/vim-css-color', {'for': 'css'}  " change bg color in css for colors
-  Plug 'Glench/Vim-Jinja2-Syntax'
 
 " Golang
   Plug 'fatih/vim-go', {'for': 'go'}
-
-" Vuejs
-  Plug 'posva/vim-vue', {'for': 'vue'}  " syntax highlight for .vue file
 
 " markdown & rst
   Plug 'dhruvasagar/vim-table-mode'                    " to easily create tables.
@@ -161,21 +139,35 @@ let g:rainbow_active = 1 "0 if you want to enable it later via :RainbowToggle
 
 " lightline {{{
 " https://github.com/itchyny/lightline.vim/issues/87
-let g:lightline = {'colorscheme': 'gruvbox'}
 
-let g:lightline.inactive = {
-    \ 'left': [ [ 'mode', 'paste' ],
+let g:lightline = { 'colorscheme': 'gruvbox'}
+
+" Register the components:
+let g:lightline.component_expand = {
+  \   'coc_warnings': 'lightline#coc#warnings',
+  \   'coc_errors': 'lightline#coc#errors',
+  \   'coc_ok': 'lightline#coc#ok',
+  \   'status': 'lightline#coc#status',
+  \ }
+
+" Set color to the components:
+let g:lightline.component_type = {
+  \   'linter_warnings': 'warning',
+  \   'linter_errors': 'error',
+  \   'linter_ok': 'left',
+  \ }
+
+let g:lightline_custom_layout = {
+    \ 'left': [ [ 'mode', 'paste', 'coc_errors', 'coc_warnings', 'coc_ok' ],
     \           [ 'readonly', 'modified' ] ],
     \ 'right': [ [ 'lineinfo' ],
     \            [ 'percent' ],
     \            [ 'absolutepath', 'filetype' ] ] }
 
-let g:lightline.active = {
-    \ 'left': [ [ 'mode', 'paste' ],
-    \           [ 'readonly', 'modified' ] ],
-    \ 'right': [ [ 'lineinfo' ],
-    \            [ 'percent' ],
-    \            [ 'absolutepath', 'filetype' ] ] }
+let g:lightline.inactive = lightline_custom_layout
+let g:lightline.active = lightline_custom_layout
+
+autocmd User CocStatusChange,CocDiagnosticChange call lightline#update()
 
 " }}}
 
@@ -281,169 +273,87 @@ function! NERDCommenter_after()
 endfunction
 " }}}
 
-" deoplete {{{
-let g:deoplete#enable_at_startup = 1
+"{{{ coc.nvim
+" Use `[g` and `]g` to navigate diagnostics
+" Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
+nmap <silent> [g <Plug>(coc-diagnostic-prev)
+nmap <silent> ]g <Plug>(coc-diagnostic-next)
+nmap <silent> å <Plug>(coc-diagnostic-prev)
+nmap <silent> ß <Plug>(coc-diagnostic-next)
+imap <silent> å <esc><Plug>(coc-diagnostic-prev)
+imap <silent> ß <esc><Plug>(coc-diagnostic-next)
 
-" set multiple options:
-call deoplete#custom#option({
-    \ 'auto_complete_delay': 0,
-    \ 'max_list': 20,
-    \ 'auto_refresh_delay': 1000,
-    \ 'smart_case': v:true,
-    \ 'check_stderr': v:false,
-    \ 'num_processes': 4,
-    \ })
-    "\ 'ignore_case': v:true
-    "\ 'min_patter_length': 2,
-    "\ 'refresh_always': v:false,
-    "\ 'ignore_sources': {'python': 'numpy'},
-    "\ 'num_processes': 2,
+" Format
+nmap <silent> <leader>m <Plug>(coc-format)
+nmap <silent> <leader>. :CocCommand python.sortImports<cr>
 
-"" Disable the candidates in Comment syntaxes.
-"call deoplete#custom#source('_', 'disable_syntaxes', ['Comment'])
+" GoTo code navigation.
+nmap <silent> <leader> d <Plug>(coc-definition)
+nmap <silent> <leader> y <Plug>(coc-type-definition)
+nmap <silent> <leader> i <Plug>(coc-implementation)
+nmap <silent> <leader> r <Plug>(coc-references)
 
-let g:echodoc#enable_at_startup = 1
-"let g:echodoc#enable_force_overwrite = 1
+" Use K to show documentation in preview window.
+nnoremap <silent> K :call <SID>show_documentation()<CR>
 
-" Builtin source
-call deoplete#custom#source('file', 'mark', '')
-call deoplete#custom#source('buffer', 'mark', '﬘')
-call deoplete#custom#source('around', 'mark', '')
-call deoplete#custom#source('member', 'mark', '')
+function! s:show_documentation()
+  if (index(['vim','help'], &filetype) >= 0)
+    execute 'h '.expand('<cword>')
+  else
+    call CocActionAsync('doHover')
+  endif
+endfunction
 
-"call deoplete#custom#source('omni', 'mark', '⌾')  " disabled
+" Highlight the symbol and its references when holding the cursor.
+autocmd CursorHold * silent call CocActionAsync('highlight')
 
-" tabnine
-call deoplete#custom#var('tabnine', {
-\ 'line_limit': 200,
-\ 'max_num_results': 5,
-\ })
-call deoplete#custom#source('tabnine', 'mark', '')
-call deoplete#custom#source('tabnine', 'rank', 800)
+" Symbol renaming.
+nmap <leader>rn <Plug>(coc-rename)
 
-call deoplete#custom#source('jedi', 'mark', '')
-call deoplete#custom#source('jedi', 'rank', 1000)
+" Formatting selected code.
+xmap <leader>f  <Plug>(coc-format-selected)
+nmap <leader>f  <Plug>(coc-format-selected)
 
+" Aliases
+" Command aliases or abbrevations
+function! CommandAlias(aliasname, target)
+  " :aliasname => :target  (only applicable at the beginning of the command line)
+  exec printf('cnoreabbrev <expr> %s ', a:aliasname)
+    \ .printf('((getcmdtype() ==# ":" && getcmdline() ==# "%s") ? ', a:aliasname)
+    \ .printf('("%s") : ("%s"))', escape(a:target, '"'), escape(a:aliasname, '"'))
+endfunction
+call CommandAlias('CC', 'CocCommand')
 
-"call deoplete#custom#source('neosnippet', 'mark', '')
-"call deoplete#custom#source('ultisnips', 'mark', '')
-
-set completeopt-=preview  " if you don't want windows popup
-
-" deoplete jedi for python
-let g:deoplete#sources#jedi#server_timeout = 40 " extend time for large pkg
-let g:deoplete#sources#jedi#show_docstring = 0  " show docstring in preview window
-let g:deoplete#sources#jedi#enable_cache = 1
-
-" Sets the maximum length of completion description text. If this is exceeded, a simple description is used instead
-let g:deoplete#sources#jedi#statement_length = 20
-
-"" Debug mode
-"call deoplete#enable_logging('DEBUG', '/tmp/deoplete.log')
-"let g:deoplete#sources#jedi#debug_server = 0
-"let g:deoplete#enable_profile = 0
-
+let g:coc_global_extensions = [
+      \ "coc-python",
+      \ "coc-pairs",
+      \ "coc-json",
+      \ "coc-yaml",
+      \ "coc-prettier",
+      \ "coc-css",
+      \ "coc-html",
+      \ "coc-eslint",
+      \ "coc-tslint",
+      \ "coc-tsserver",
+      \ "coc-ultisnips",
+      \ "coc-tailwindcss",
+      \ "coc-vetur"]
 "}}}
 
 " Pymode {{{
-let g:pymode_indent = 1 " pep8 indent
-let g:pymode_folding = 0 " disable folding to use SimpyFold
-let g:pymode_motion = 1  " give jumps to functions / methods / classes
-
-" doc
-let g:pymode_doc = 1
-let g:pymode_doc_bind = '<leader>k'
-
 " syntax (colors for self keyword for example)
 let g:pymode_syntax = 1
 let g:pymode_syntax_all = 1
-let g:pymode_syntax_slow_sync = 1 " slower syntax sync
+
+" Disable all the rest, we only want syntax coloring
+let g:pymode_indent = 1 " pep8 indent
+let g:pymode_folding = 0 " disable folding to use SimpyFold
+let g:pymode_motion = 1  " give jumps to functions / methods / classes
+let g:pymode_doc = 0
 let g:pymode_trim_whitespaces = 0 " do not trim unused white spaces on save
-
-" Code completion :
-let g:pymode_rope = 0 " disable rope which is slow
-
-" Python code checking :
-let g:pymode_lint = 0  " disable it to use ALE
-
-" Breakpoint :
+let g:pymode_rope = 0 " disable rope
+let g:pymode_lint = 0  " disable lint
 let g:pymode_breakpoint = 0  " disable it for custom
-
-" }}}
-
-" Jedi {{{
-" Force python 3
-let g:jedi#force_py_version=3
-
-let g:jedi#completions_enabled = 0
-let g:jedi#use_tabs_not_buffers = 0  " current default is 1.
-let g:jedi#smart_auto_mappings = 0  " disable import completion keyword
-let g:jedi#auto_close_doc = 1 " Automatically close preview windows upon leaving insert mode
-
-let g:jedi#auto_initialization = 1 " careful, it set omnifunc that is unwanted
-let g:jedi#show_call_signatures = 0  " do show the args of func, use echodoc for it
-
-" buggy:
-"let g:jedi#auto_vim_configuration = 0  " set completeopt & rempas ctrl-C to Esc
-
-map <Leader>o o__import__("pdb").set_trace()  # BREAKPOINT<C-c>
-map <Leader>O O__import__("pdb").set_trace()  # BREAKPOINT<C-c>
-"import pdb; pdb.break_on_setattr('session_id')(container._sa_instance_state.__class__)
-"map <Leader>i ofrom ptpython.repl import embed; embed()  # Enter ptpython<C-c>
-map <Leader>i o__import__("IPython").embed()  # ipython embed<C-c>
-"}}}
-
-" Lint ALE {{{
-let g:ale_sign_error = '✖'   " Lint error sign
-let g:ale_sign_warning = '⚠' " Lint warning sign
-
-" - alex: helps you find gender favouring, polarising, race related, religion inconsiderate, or other unequal phrasing
-
-" Only run linters named in ale_linters settings.
-let g:ale_linters_explicit = 1
-
-let g:ale_linters = {
-            \ '*': ['writegood', 'remove_trailing_lines', 'trim_whitespace'],
-            \ 'python': ['flake8'],
-            \ 'markdown': ['alex', 'proselint'],
-            \ 'sh': ['proselint'],
-            \ 'rst': ['proselint'],
-            \ 'html': ['prettier'],
-            \ 'javascript': ['prettier'],
-            \ 'vue': ['prettier'],
-            \ 'css': ['prettier'],
-            \ 'json': ['jsonlint'],
-            \}
-
-"\ 'python': ['autopep8', 'isort', 'black'],
-let g:ale_fixers = {
-            \ 'python': ['isort', 'black'],
-            \ 'css': ['prettier'],
-            \ 'html': ['prettier'],
-            \ 'javascript': ['prettier'],
-            \ 'vue': ['prettier'],
-            \ 'json': ['jq'],
-            \}
-
-let g:ale_javascript_prettier_options = '--single-quote --trailing-comma none --no-semi'
-
-" choice of ignored errors in ~/.config/flake8
-
-"let g:ale_fix_on_save = 0  " always fix at save time
-
-" go to previous error in current windows
-map <nowait><silent> <leader>[ <Plug>(ale_previous_wrap)
-map <nowait><silent> å <Plug>(ale_previous_wrap)
-
-" go to next error in current windows
-map <nowait><silent> <leader>] <Plug>(ale_next_wrap)
-map <nowait><silent> ß <Plug>(ale_next_wrap)
-
-nmap <leader>m :ALEFix <cr>
-"}}}
-
-" Frontend {{{
-let g:user_emmet_leader_key=','
 " }}}
 
 " Table Mode, Restructured text compatible {{{
@@ -457,14 +367,13 @@ au BufNewFile,BufRead *.md let g:table_mode_header_fillchar='-'
 au BufNewFile,BufRead *.md let g:table_mode_corner_corner='|'
 "}}}
 
-" Terraform {{
+" Terraform {{{
 let g:terraform_fmt_on_save=1
 let g:terraform_fold_sections=1
 let g:terraform_align=1
+" }}}
 
-" }}
-
-" Test and tmux
+" Test and tmux {{{
 nmap <silent> <leader>1 :Tmux <CR>:TestNearest<CR>
 nmap <silent> <leader>2 :Tmux <CR>:TestLast<CR>
 nmap <silent> <leader>3 :Tmux <CR>:TestFile<CR>
@@ -476,12 +385,7 @@ let test#filename_modifier = ':~' " ~/Code/my_project/test/models/user_test.rb
 let test#python#pytest#options = '--log-level=WARNING -x -s'
 let g:tslime_always_current_session = 1
 let g:tslime_always_current_window = 1
-
-"nmap <silent> t<C-f> :TestFile<CR>
-"nmap <silent> t<C-s> :TestSuite<CR>
-"nmap <silent> t<C-l> :TestLast<CR>
-"nmap <silent> t<C-g> :TestVisit<CR>
-
+"}}}
 
 " TagBar & UndoTree & NERDTree
 nnoremap <silent> <F7> :NERDTreeToggle<CR>
@@ -492,7 +396,7 @@ nnoremap <silent> <F9> :TagbarToggle<CR>
 let g:LoupeClearHighlightMap = 0
 let g:LoupeVeryMagic = 0
 
-" Git
+" Git - gitgutter {{{
 set signcolumn=yes
 let g:conflict_marker_enable_mappings = 0
 let g:gitgutter_max_signs = 200
@@ -501,13 +405,10 @@ let g:gitgutter_sign_modified = '•'
 let g:gitgutter_sign_removed = '•'
 let g:gitgutter_sign_removed_first_line = '•'
 let g:gitgutter_sign_modified_removed = '•'
+"}}}
 
 " tmux, disable tmux navigator when zooming the Vim pane
 let g:tmux_navigator_disable_when_zoomed = 1
-
-" Frontend
-let g:closetag_filenames = '*.vue,*.js,*.html,*.xhtml,*.phtml'
-let g:vue_disable_pre_processors=1
 
 "}}}
 
@@ -540,7 +441,10 @@ set splitright          " split at the right of current buffer (left default beh
 set splitbelow          " split at the below of current buffer (top default behaviour)
 set autochdir           " working directory is always the same as the file you are editing
 
-set spelllang=en_us  " activate vim spell checking
+set updatetime=300      " frequency to apply Autocmd events
+set shortmess+=c        " don't pass messages to ins-completion-menu
+
+set spelllang=en_us     " activate vim spell checking
 
 set fillchars=vert:│    " box drawings heavy vertical (U+2503, UTF-8: E2 94 83)
 highlight VertSplit ctermbg=none
@@ -601,9 +505,9 @@ function! CustomFoldText(delim)
   let foldLine = foldLineHead . expansionString . foldLineTail
   return foldLine
 endfunction
-"}}}
 autocmd FileType python set foldtext=CustomFoldText('\ ')
 autocmd FileType python setlocal foldenable foldlevel=20
+"}}}
 
 
 if has('linebreak')
@@ -680,14 +584,8 @@ au BufRead,BufNewFile *.{md,md.erb,markdown,mdown,mkd,mkdn,txt} setf markdown | 
 
 " Python
 augroup python
-  au FileType python set shiftwidth=4 tabstop=4 softtabstop=4 textwidth=79
+  au FileType python set shiftwidth=4 tabstop=4 softtabstop=4
 augroup end
-
-" Vagrant
-augroup vagrant
-  au!
-  au BufRead,BufNewFile Vagrantfile set filetype=ruby
-augroup END
 
 " Other
 au BufNewFile,BufRead *.snippets set filetype=snippets foldmethod=marker
@@ -711,10 +609,6 @@ augroup frontend
   autocmd BufNewFile,BufRead *.html set shiftwidth=2 tabstop=2 softtabstop=2
   autocmd BufNewFile,BufRead *.html set foldmethod=syntax expandtab nowrap
   autocmd BufNewFile,BufRead *.html set foldlevelstart=20
-
-  autocmd BufNewFile,BufRead *.djangohtml set shiftwidth=2 tabstop=2 softtabstop=2
-  autocmd BufNewFile,BufRead *.djangohtml set foldmethod=syntax expandtab nowrap
-  autocmd BufNewFile,BufRead *.djangohtml set foldlevelstart=20
 
   " avoid syntax highlighting stops working randomly in vue:
   autocmd FileType vue syntax sync fromstart
@@ -804,13 +698,10 @@ cnoremap <c-l> <c-\><c-n><c-w>l
 "map <nowait> <leader>n :vsplit \| terminal <CR>
 
 " Buffers switch
-map <nowait> <leader>. :bp<cr>
 map <nowait> œ :bp<cr>
-map <nowait> <leader>/ :bn<cr>
 map <nowait> ∑ :bn<cr>
 
 " buffer delete without closing windows :
-nmap <silent> <leader>\ :bp!\|bd! #<CR>
 nmap <silent> ® :bp!\|bd! #<CR>
 
 " Split windows
@@ -821,24 +712,25 @@ map <nowait> <leader>' :sp<cr>
 
 "{{{ GoTo
 
-" Jedi for python
-augroup python
-  autocmd FileType python let g:jedi#goto_command = ""
-  autocmd FileType python let g:jedi#goto_assignments_command = "<leader>g"
-  autocmd FileType python let g:jedi#goto_definitions_command = "<leader>d"
-  autocmd FileType python let g:jedi#documentation_command = "<leader>k"
-  autocmd FileType python let g:jedi#usages_command = "<leader>n"
-  autocmd FileType python let g:jedi#rename_command = "<leader>r"
-augroup end
+"" Jedi for python
+"augroup python
+"  autocmd FileType python let g:jedi#goto_command = ""
+"  autocmd FileType python let g:jedi#goto_assignments_command = "<leader>g"
+"  autocmd FileType python let g:jedi#goto_definitions_command = "<leader>d"
+"  autocmd FileType python let g:jedi#documentation_command = "<leader>k"
+"  autocmd FileType python let g:jedi#usages_command = "<leader>n"
+"  autocmd FileType python let g:jedi#rename_command = "<leader>r"
+"augroup end
 
-" tern javascript
-augroup javascript
-  autocmd FileType javascript,vue nmap <leader>d :TernDef<cr>
-  autocmd FileType javascript,vue nmap <leader>k :TernDoc<cr>
-  autocmd FileType javascript,vue nmap <leader>n :TernRefs<cr>
-  autocmd FileType javascript,vue nmap <leader>r :TernRename<cr>
-  autocmd FileType javascript,vue nmap <leader>j :TernType<cr>
-augroup end
+"" tern javascript
+"augroup javascript
+"  autocmd FileType javascript,vue nmap <leader>d :TernDef<cr>
+"  autocmd FileType javascript,vue nmap <leader>k :TernDoc<cr>
+"  autocmd FileType javascript,vue nmap <leader>n :TernRefs<cr>
+"  autocmd FileType javascript,vue nmap <leader>r :TernRename<cr>
+"  autocmd FileType javascript,vue nmap <leader>j :TernType<cr>
+"augroup end
+
 "}}}
 
 "About folding open and close :
@@ -867,47 +759,12 @@ nmap <leader>; :nohl<cr>
 map <F12> :source ${HOME}/.config/nvim/init.vim<cr>
 "}}}
 
-" Custom Functions {{{
-" Profile vim
-function! StartProfiling()
-  execute ":profile start /tmp/neovim.profile"
-  execute ":profile func *"
-  execute ":profile file *"
-  let g:profiling=1
-endfunction
+let g:python3_host_prog = $HOME . "/miniconda3/envs/neovim37/bin/python"
+let g:python_host_prog = $HOME . "/miniconda3/envs/neovim27/bin/python"
 
-function! EndProfiling()
-  execute ":profile pause"
-  let g:profiling=0
-endfunction
-
-let g:profiling=0
-function! ToggleProfiling()
-  if g:profiling == 0
-    call StartProfiling()
-  else
-    call EndProfiling()
-  endif
-endfunction
-
-function! ToggleVerbose()
-    if !&verbose
-        set verbosefile=/tmp/vim_verbose.log
-        set verbose=15
-    else
-        set verbose=0
-        set verbosefile=
-    endif
-endfunction
-"}}}
-
-" Specific config in ~/.nvimrc_local
-" let g:python3_host_prog = $ HOME . "/miniconda3/envs/neovim/bin/python"
-" let g:python_host_prog = $HOME . "/miniconda3/envs/neovim27/bin/python"
-
-" local config
-if !empty(glob("~/.nvimrc_local"))
-    source ~/.nvimrc_local
+" Specific config in ~/.config/nvim/nvimrc_local
+if !empty(glob("~/config/nvim/nvimrc_local"))
+    source ~/config/nvim/nvimrc_local
 endif
 
 " activate per project settings
@@ -929,4 +786,3 @@ set secure  " disallows the use of :autocmd, shell and write commands in local
 "  prompt=false
 "[diff]
 "  path = vimdiff
-
