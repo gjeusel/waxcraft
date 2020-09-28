@@ -67,7 +67,7 @@ compip() {
   # Fixers:
   #pip install -U isort yapf==0.25.0 autoflake black
   # AutoComplete
-  pip install -U jedi
+  pip install -U jedi isort black mypy
 
   # pytest:
   pip install -U pdbpp # pytest pytest-xdist pytest-cov pytest-flakes
