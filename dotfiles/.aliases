@@ -62,11 +62,10 @@ alias infogpu='nvidia-smi --query-gpu=timestamp,name,pci.bus_id,driver_version,p
 
 compip() {
   # Linters:
-  pip install -U flake8 pylint proselint
+  #pip install -U flake8 pylint proselint
 
   # Fixers:
-  pip install -U isort yapf==0.25.0 autoflake black
-
+  #pip install -U isort yapf==0.25.0 autoflake black
   # AutoComplete
   pip install -U jedi
 
@@ -75,7 +74,6 @@ compip() {
 
   # Others
   pip install -U pip
-  pip install -U python-box
   pip install -U pgcli tmuxp
   pip install -U ptpython
 }

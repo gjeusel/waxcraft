@@ -11,7 +11,6 @@ from pathlib import Path
 from pprint import pprint
 
 import pytz
-import urllib3
 
 import __main__
 
@@ -34,8 +33,6 @@ def setup_repl_logs():
     warning_libs = ("requests", "urllib3", "parso", "diff", "pickle", "cache")
     for lib in warning_libs:
         logging.getLogger(lib).setLevel(logging.WARNING)
-
-    urllib3.disable_warnings()
 
 
 setup_repl_logs()

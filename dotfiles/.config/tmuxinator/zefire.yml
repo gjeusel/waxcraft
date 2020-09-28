@@ -1,20 +1,6 @@
 session_name: zefire
 
 windows:
-  - window_name: services
-    layout: 92de,208x59,0,0[208x39,0,0{104x39,0,0,62,103x39,105,0,63},208x19,0,40,64]
-    panes:
-      - shell_command:
-        - cd ~/src/zefire-front
-        - echo "npm run serve -- --port=8080"
-      - shell_command:
-        - cd ~/src/zefire
-        - act zefire
-        - echo "flask run"
-      - shell_command:
-        - act zefire
-        focus: true
-
   - window_name: zefire
     focus: true
     layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
@@ -38,6 +24,17 @@ windows:
         focus: true
       - 
 
+  - window_name: squamish
+    layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
+    shell_command_before:
+      - act squamish
+      - cd ~/src/squamish
+    panes:
+      - shell_command:
+        - neofetch
+        focus: true
+      - 
+
   - window_name: remote
     layout: main-horizontal
     options:
@@ -49,3 +46,18 @@ windows:
         - neofetch
         focus: true
       - 
+
+  - window_name: services
+    layout: 92de,208x59,0,0[208x39,0,0{104x39,0,0,62,103x39,105,0,63},208x19,0,40,64]
+    panes:
+      - shell_command:
+        - cd ~/src/zefire-front
+        - echo "npm run serve -- --port=8080"
+      - shell_command:
+        - cd ~/src/zefire
+        - act zefire
+        - echo "flask run"
+      - shell_command:
+        - act zefire
+        focus: true
+

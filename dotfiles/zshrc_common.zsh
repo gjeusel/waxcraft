@@ -92,6 +92,11 @@ zstyle ':completion:*:*:*' ignored-patterns '(|*/)__pycache__' \
     '(|*/)*.egg-info' '(*/)#lost+found'
 zstyle ':completion:*:rm:*' ignored-patterns '(|*/)*.egg-info'
 
+# Set accept-exact-dirs for cases of mounted drives (Google Drive or S3-bucket)
+# to avoid slow down searching on parent directory
+# https://github.com/ohmyzsh/ohmyzsh/issues/7348
+zstyle ':completion:*' accept-exact-dirs true
+
 # Bind ctrl + space
 bindkey '^ ' autosuggest-accept
 
