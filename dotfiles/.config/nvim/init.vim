@@ -288,10 +288,10 @@ nmap <silent> <leader>m <Plug>(coc-format)
 nmap <silent> <leader>. :CocCommand python.sortImports<cr>
 
 " GoTo code navigation.
-nmap <silent> <leader> d <Plug>(coc-definition)
-nmap <silent> <leader> y <Plug>(coc-type-definition)
-nmap <silent> <leader> i <Plug>(coc-implementation)
-nmap <silent> <leader> r <Plug>(coc-references)
+nmap <silent> <leader>d <Plug>(coc-definition)
+nmap <silent> <leader>y <Plug>(coc-type-definition)
+nmap <silent> <leader>i <Plug>(coc-implementation)
+nmap <silent> <leader>r <Plug>(coc-references)
 
 " Use K to show documentation in preview window.
 nnoremap <silent> K :call <SID>show_documentation()<CR>
@@ -306,6 +306,9 @@ endfunction
 
 " Highlight the symbol and its references when holding the cursor.
 autocmd CursorHold * silent call CocActionAsync('highlight')
+
+" Use <c-space> to trigger completion.
+inoremap <silent><expr> <c-space> coc#refresh()
 
 " Symbol renaming.
 nmap <leader>rn <Plug>(coc-rename)
@@ -340,7 +343,7 @@ let g:coc_global_extensions = [
       \ "coc-vetur"]
 "}}}
 
-" Pymode {{{
+" Python - Pymode {{{
 " syntax (colors for self keyword for example)
 let g:pymode_syntax = 1
 let g:pymode_syntax_all = 1
@@ -354,6 +357,12 @@ let g:pymode_trim_whitespaces = 0 " do not trim unused white spaces on save
 let g:pymode_rope = 0 " disable rope
 let g:pymode_lint = 0  " disable lint
 let g:pymode_breakpoint = 0  " disable it for custom
+
+map <Leader>o o__import__("pdb").set_trace()  # BREAKPOINT<C-c>
+map <Leader>O O__import__("pdb").set_trace()  # BREAKPOINT<C-c>
+"import pdb; pdb.break_on_setattr('session_id')(container._sa_instance_state.__class__)
+"map <Leader>i ofrom ptpython.repl import embed; embed()  # Enter ptpython<C-c>
+map <Leader>i o__import__("IPython").embed()  # ipython embed<C-c>
 " }}}
 
 " Table Mode, Restructured text compatible {{{
@@ -758,6 +767,7 @@ nmap <leader>; :nohl<cr>
 " source config
 map <F12> :source ${HOME}/.config/nvim/init.vim<cr>
 "}}}
+
 
 let g:python3_host_prog = $HOME . "/miniconda3/envs/neovim37/bin/python"
 let g:python_host_prog = $HOME . "/miniconda3/envs/neovim27/bin/python"
