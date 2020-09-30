@@ -48,6 +48,7 @@ call plug#begin(s:plugin_dir)
   Plug 'Konfekt/FastFold', { 'branch': 'master' } " update folds only when needed, otherwise folds slowdown vim
   Plug 'zhimsel/vim-stay'                " adds automated view session creation and restoration whenever editing a buffer
   Plug 'junegunn/vim-easy-align'         " easy alignment, better than tabularize
+  Plug 'jiangmiao/auto-pairs'            " auto pair
   Plug 'AndrewRadev/splitjoin.vim'       " easy split join on whole paragraph
   Plug 'wellle/targets.vim'              " text object for parenthesis & more !
   Plug 'michaeljsmith/vim-indent-object' " text object based on indentation levels.
@@ -89,7 +90,10 @@ call plug#begin(s:plugin_dir)
 
 " Completion {{{
   Plug 'ervandew/supertab' " use <Tab> for all your insert completion
-  Plug 'neoclide/coc.nvim', {'branch': 'release'}
+  "Plug 'neoclide/coc.nvim', {'branch': 'release'}
+  "Plug 'neoclide/coc.nvim', {'tag': 'v0.0.79', 'do': 'yarn install --frozen-lockfile'}
+  Plug 'neoclide/coc.nvim', {'branch': 'master', 'do': 'yarn install --frozen-lockfile'}
+
   Plug 'Shougo/neco-vim', {'for': 'vim'}
   Plug 'neoclide/coc-neco', {'for': 'vim'}
   " }}}
@@ -100,6 +104,8 @@ call plug#begin(s:plugin_dir)
 " Python
   Plug 'tmhedberg/SimpylFold', {'for': 'python'}  " better folds
   Plug 'python-mode/python-mode', {'for': 'python'}
+  Plug 'w0rp/ale', {'for': 'python'}  " general asynchronous syntax checker
+  " use ale only for python as coc-nvim does it well for the rest
 
 " Golang
   Plug 'fatih/vim-go', {'for': 'go'}
@@ -175,7 +181,7 @@ autocmd User CocStatusChange,CocDiagnosticChange call lightline#update()
 command! -bang -nargs=* GGrep
   \ call fzf#vim#grep(
   \   'git grep --line-number '.shellescape(<q-args>), 0,
-  \   { 'dir': systemlist('git rev-parse --show-toplevel')[0] }, <bang>0)
+  \   fzf#vim#with_preview({ 'dir': systemlist('git rev-parse --show-toplevel')[0] }, <bang>0))
 
 " :Ag  - Start fzf with hidden preview window that can be enabled with "?" key
 " :Ag! - Start fzf in fullscreen and display the preview window above
@@ -317,6 +323,9 @@ nmap <leader>rn <Plug>(coc-rename)
 xmap <leader>f  <Plug>(coc-format-selected)
 nmap <leader>f  <Plug>(coc-format-selected)
 
+" Remap ctrl-c to escape to avoid having Floating Window left
+inoremap <C-c> <Esc>
+
 " Aliases
 " Command aliases or abbrevations
 function! CommandAlias(aliasname, target)
@@ -329,18 +338,17 @@ call CommandAlias('CC', 'CocCommand')
 
 let g:coc_global_extensions = [
       \ "coc-python",
-      \ "coc-pairs",
       \ "coc-json",
       \ "coc-yaml",
-      \ "coc-prettier",
       \ "coc-css",
       \ "coc-html",
       \ "coc-eslint",
       \ "coc-tslint",
       \ "coc-tsserver",
-      \ "coc-ultisnips",
-      \ "coc-tailwindcss",
-      \ "coc-vetur"]
+      \ "coc-vetur"
+      \ ]
+      "\ "coc-prettier",
+      "\ "coc-tailwindcss",
 "}}}
 
 " Python - Pymode {{{
@@ -364,6 +372,64 @@ map <Leader>O O__import__("pdb").set_trace()  # BREAKPOINT<C-c>
 "map <Leader>i ofrom ptpython.repl import embed; embed()  # Enter ptpython<C-c>
 map <Leader>i o__import__("IPython").embed()  # ipython embed<C-c>
 " }}}
+
+" Lint ALE {{{
+let g:ale_sign_error = '✖'   " Lint error sign
+let g:ale_sign_warning = '⚠' " Lint warning sign
+
+" - alex: helps you find gender favouring, polarising, race related, religion inconsiderate, or other unequal phrasing
+
+" Only run linters named in ale_linters settings.
+let g:ale_linters_explicit = 1
+
+let g:ale_linters = {
+            \ '*': ['writegood', 'remove_trailing_lines', 'trim_whitespace'],
+            \ 'python': ['flake8'],
+            \ 'markdown': ['alex', 'proselint'],
+            \ 'sh': ['proselint'],
+            \ 'rst': ['proselint'],
+            \ 'html': ['prettier'],
+            \ 'javascript': ['prettier'],
+            \ 'vue': ['prettier'],
+            \ 'css': ['prettier'],
+            \ 'json': ['jsonlint'],
+            \}
+
+"\ 'python': ['autopep8', 'isort', 'black'],
+let g:ale_fixers = {
+            \ 'python': ['isort', 'black'],
+            \ 'css': ['prettier'],
+            \ 'html': ['prettier'],
+            \ 'javascript': ['prettier'],
+            \ 'vue': ['prettier'],
+            \ 'json': ['jq'],
+            \}
+
+let g:ale_javascript_prettier_options = '--single-quote --trailing-comma none --no-semi'
+
+" choice of ignored errors in ~/.config/flake8
+
+"let g:ale_fix_on_save = 0  " always fix at save time
+
+function! s:setPythonAleMapping()
+  " go to previous error in current windows
+  map <nowait><silent> <leader>[ <Plug>(ale_previous_wrap)
+  map <nowait><silent> å <Plug>(ale_previous_wrap)
+
+  " go to next error in current windows
+  map <nowait><silent> <leader>] <Plug>(ale_next_wrap)
+  map <nowait><silent> ß <Plug>(ale_next_wrap)
+
+  nmap <leader>m :ALEFix <cr>
+endfunction
+
+augroup python_ale_mapping
+  au FileType python call s:setPythonAleMapping()
+augroup end
+
+"}}}
+
+
 
 " Table Mode, Restructured text compatible {{{
 au BufNewFile,BufRead *.rst let g:table_mode_header_fillchar='='
@@ -457,13 +523,19 @@ set spelllang=en_us     " activate vim spell checking
 
 set fillchars=vert:│    " box drawings heavy vertical (U+2503, UTF-8: E2 94 83)
 highlight VertSplit ctermbg=none
-highlight Normal guibg=none ctermbg=none
+highlight Normal ctermbg=none
 
 " Better diff views
 hi DiffAdd cterm=none ctermfg=Green ctermbg=none
 hi DiffChange cterm=none ctermfg=Yellow ctermbg=none
 hi DiffDelete cterm=bold ctermfg=Red ctermbg=none
 hi DiffText cterm=none ctermfg=Blue ctermbg=none
+
+" Better Coc Virtual Text
+highlight CocErrorVirtualText ctermfg=Red ctermbg=none
+highlight CocWarningVirtualText ctermfg=Yellow ctermbg=none
+highlight CocInfoVirtualText ctermfg=Blue ctermbg=none
+
 
 " Custom Fold Text {{{
 function! CustomFoldText(delim)
@@ -593,7 +665,7 @@ au BufRead,BufNewFile *.{md,md.erb,markdown,mdown,mkd,mkdn,txt} setf markdown | 
 
 " Python
 augroup python
-  au FileType python set shiftwidth=4 tabstop=4 softtabstop=4
+  au FileType python set shiftwidth=4 tabstop=4 softtabstop=4 textwidth=100
 augroup end
 
 " Other

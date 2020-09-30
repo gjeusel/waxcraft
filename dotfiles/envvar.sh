@@ -26,4 +26,4 @@ export NNN_OPENER_DETACH=1  # do not block when invoking file opener
 export PYTHONSTARTUP=$HOME/.python_startup.py
 
 # Bat for color in terminal
-export BAT_THEME="base16"
+export BAT_THEME="gruvbox"
