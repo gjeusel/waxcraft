@@ -83,8 +83,8 @@ if [ ! which gls >/dev/null 2>&1 ]; then
 fi
 
 # Static load, when change of plugins run:
-# antibody bundle < "$waxCraft_PATH/dotfiles/.zsh-plugins.txt" > "$waxCraft_PATH/dotfiles/.zsh-plugins.sh"
-source "$HOME/.zsh_plugins.sh"
+# # antibody bundle < "$waxCraft_PATH/dotfiles/.zsh-plugins.txt" > ~/.zsh-plugins.sh
+source "$HOME/.zsh-plugins.sh"
 
 # AUTO COMPLETION
 # Ignore these everywhere except for rm

@@ -342,13 +342,13 @@ let g:coc_global_extensions = [
       \ "coc-yaml",
       \ "coc-css",
       \ "coc-html",
+      \ "coc-prettier",
+      \ "coc-tailwindcss",
       \ "coc-eslint",
       \ "coc-tslint",
       \ "coc-tsserver",
       \ "coc-vetur"
       \ ]
-      "\ "coc-prettier",
-      "\ "coc-tailwindcss",
 "}}}
 
 " Python - Pymode {{{

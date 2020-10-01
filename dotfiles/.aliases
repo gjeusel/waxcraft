@@ -25,8 +25,8 @@ alias glog='git log --oneline --graph --decorate --all'
 # ls colorized output
 alias ls='ls -G'
 
-# Latex :
-latex_overview(){ $HOME/tools/latexmk/latexmk.pl -pdf -pvc -interaction=nonstopmode $1; }
+# Kubernetes
+alias k=kubectl
 
 function fuzzy_gco() {
   branch=`git branch -a| fzf`
@@ -192,3 +192,21 @@ function dst() {
   echo -e "2021 -->    $YELLOW 28/03 $NC      -      $BLUE 31/10 $NC"
   echo -e "2022 -->    $YELLOW 27/03 $NC      -      $BLUE 30/10 $NC"
 }
+
+encode64() {
+    if [[ $# -eq 0 ]]; then
+        cat | base64
+    else
+        printf '%s' $1 | base64
+    fi
+}
+
+decode64() {
+    if [[ $# -eq 0 ]]; then
+        cat | base64 --decode
+    else
+        printf '%s' $1 | base64 --decode
+    fi
+}
+alias e64=encode64
+alias d64=decode64

@@ -1,13 +1,18 @@
+# ON CHANGE:
+# antibody bundle < "$waxCraft_PATH/dotfiles/.zsh-plugins.txt" > ~/.zsh-plugins.sh
+
 # Base
-robbyrussell/oh-my-zsh path:plugins/git
-robbyrussell/oh-my-zsh path:plugins/extract
-robbyrussell/oh-my-zsh path:plugins/common-aliases
-robbyrussell/oh-my-zsh path:plugins/tmux
-robbyrussell/oh-my-zsh path:plugins/z
+ohmyzsh/ohmyzsh path:plugins/git
+ohmyzsh/ohmyzsh path:plugins/extract
+ohmyzsh/ohmyzsh path:plugins/common-aliases
+ohmyzsh/ohmyzsh path:plugins/tmux
+ohmyzsh/ohmyzsh path:plugins/gcloud
+ohmyzsh/ohmyzsh path:plugins/z
 b4b4r07/enhancd
 zsh-users/zsh-completions
 
 gantsign/zsh-plugins path:bat
+
 
 # Syntax
 #zdharma/fast-syntax-highlighting  # not that beautiful
@@ -18,11 +23,11 @@ zsh-users/zsh-autosuggestions
 #docker/cli path:contrib/completion/zsh/_docker kind:fpath
 
 akarzim/zsh-docker-aliases
-robbyrussell/oh-my-zsh path:plugins/docker/_docker kind:fpath
-robbyrussell/oh-my-zsh path:plugins/docker-compose
+ohmyzsh/ohmyzsh path:plugins/docker/_docker kind:fpath
+ohmyzsh/ohmyzsh path:plugins/docker-compose
 
 # Python
-robbyrussell/oh-my-zsh path:plugins/pip
+ohmyzsh/ohmyzsh path:plugins/pip
 esc/conda-zsh-completion
 
 # Theme pure
