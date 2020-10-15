@@ -365,6 +365,7 @@ let g:pymode_trim_whitespaces = 0 " do not trim unused white spaces on save
 let g:pymode_rope = 0 " disable rope
 let g:pymode_lint = 0  " disable lint
 let g:pymode_breakpoint = 0  " disable it for custom
+let g:pymode_run_bind = ''  " don't bind <leader>r used for references
 
 map <Leader>o o__import__("pdb").set_trace()  # BREAKPOINT<C-c>
 map <Leader>O O__import__("pdb").set_trace()  # BREAKPOINT<C-c>
@@ -428,8 +429,6 @@ augroup python_ale_mapping
 augroup end
 
 "}}}
-
-
 
 " Table Mode, Restructured text compatible {{{
 au BufNewFile,BufRead *.rst let g:table_mode_header_fillchar='='
@@ -733,6 +732,10 @@ map <S-Q> <nop>
 " Nvim Terminal
 " Make escape work in the Neovim terminal.
 tnoremap <Esc> <C-\><C-n>
+
+" Editing sql files, by default ctrl-c is for insert. The Fuck vim ?!
+" https://www.reddit.com/r/vim/comments/2om1ib/how_to_disable_sql_dynamic_completion/
+let g:omni_sql_no_default_maps = 1
 
 " }}}
 
