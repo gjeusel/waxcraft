@@ -13,11 +13,11 @@ windows:
         focus: true
       - 
 
-  - window_name: peregrine
+  - window_name: peregreen
     layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
     shell_command_before:
-      - act peregrine
-      - cd ~/src/peregrine
+      - act peregreen
+      - cd ~/src/peregreen
     panes:
       - shell_command:
         - neofetch
