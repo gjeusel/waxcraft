@@ -13,6 +13,8 @@ zsh-users/zsh-completions
 
 gantsign/zsh-plugins path:bat
 
+# Vim mode with text objects
+softmoth/zsh-vim-mode
 
 # Syntax
 #zdharma/fast-syntax-highlighting  # not that beautiful
@@ -21,6 +23,9 @@ zsh-users/zsh-autosuggestions
 
 # Docker related
 #docker/cli path:contrib/completion/zsh/_docker kind:fpath
+
+# Kubernetes:
+johanhaleby/kubetail
 
 akarzim/zsh-docker-aliases
 ohmyzsh/ohmyzsh path:plugins/docker/_docker kind:fpath

@@ -35,7 +35,7 @@ bindkey '^W' backward-kill-word
 # Delete word with option+backspace with more word delimiters
 # https://www.zsh.org/mla/users/2001/msg00870.html
 tcsh-backward-delete-word () {
-  local WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
+  local WORDCHARS='*?_[]~=&;!#$%^(){}<>'
   zle backward-delete-word
 }
 zle -N tcsh-backward-delete-word

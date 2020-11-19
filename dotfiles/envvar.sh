@@ -27,3 +27,6 @@ export PYTHONSTARTUP=$HOME/.python_startup.py
 
 # Bat for color in terminal
 export BAT_THEME="gruvbox"
+
+# Disable some default bindings added by zsh-vim-mode plugin
+export VIM_MODE_TRACK_KEYMAP=no  # else it makes the terminal bug
