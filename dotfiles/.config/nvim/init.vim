@@ -107,6 +107,13 @@ call plug#begin(s:plugin_dir)
   Plug 'w0rp/ale', {'for': 'python'}  " general asynchronous syntax checker
   " use ale only for python as coc-nvim does it well for the rest
 
+" FrontEnd
+  let g:frontend_types = ['vue', 'js', 'ts', 'css', 'html']
+  Plug 'pangloss/vim-javascript', {'for': g:frontend_types}    " JavaScript support
+  Plug 'leafgarland/typescript-vim', {'for': g:frontend_types} " TypeScript syntax
+  Plug 'maxmellon/vim-jsx-pretty', {'for': g:frontend_types}   " JS and JSX syntax
+  Plug 'jparise/vim-graphql', {'for': g:frontend_types}        " GraphQL syntax
+
 " Golang
   Plug 'fatih/vim-go', {'for': 'go'}
 
@@ -367,11 +374,17 @@ let g:pymode_lint = 0  " disable lint
 let g:pymode_breakpoint = 0  " disable it for custom
 let g:pymode_run_bind = ''  " don't bind <leader>r used for references
 
-map <Leader>o o__import__("pdb").set_trace()  # BREAKPOINT<C-c>
-map <Leader>O O__import__("pdb").set_trace()  # BREAKPOINT<C-c>
-"import pdb; pdb.break_on_setattr('session_id')(container._sa_instance_state.__class__)
-"map <Leader>i ofrom ptpython.repl import embed; embed()  # Enter ptpython<C-c>
-map <Leader>i o__import__("IPython").embed()  # ipython embed<C-c>
+function! s:setPyModeMappings()
+  map <buffer> <Leader>o o__import__("pdb").set_trace()  # BREAKPOINT<C-c>
+  map <buffer> <Leader>O O__import__("pdb").set_trace()  # BREAKPOINT<C-c>
+  "import pdb; pdb.break_on_setattr('session_id')(container._sa_instance_state.__class__)
+  "map <Leader>i ofrom ptpython.repl import embed; embed()  # Enter ptpython<C-c>
+  map <buffer> <Leader>i o__import__("IPython").embed()  # ipython embed<C-c>
+endfunction
+
+augroup python_pymode_mappings
+  au Filetype python call s:setPyModeMappings()
+augroup end
 " }}}
 
 " Lint ALE {{{
@@ -414,14 +427,14 @@ let g:ale_javascript_prettier_options = '--single-quote --trailing-comma none --
 
 function! s:setPythonAleMapping()
   " go to previous error in current windows
-  map <nowait><silent> <leader>[ <Plug>(ale_previous_wrap)
-  map <nowait><silent> å <Plug>(ale_previous_wrap)
+  map <buffer> <nowait><silent> <leader>[ <Plug>(ale_previous_wrap)
+  map <buffer> <nowait><silent> å <Plug>(ale_previous_wrap)
 
   " go to next error in current windows
-  map <nowait><silent> <leader>] <Plug>(ale_next_wrap)
-  map <nowait><silent> ß <Plug>(ale_next_wrap)
+  map <buffer> <nowait><silent> <leader>] <Plug>(ale_next_wrap)
+  map <buffer> <nowait><silent> ß <Plug>(ale_next_wrap)
 
-  nmap <leader>m :ALEFix <cr>
+  nmap <buffer> <leader>m :ALEFix <cr>
 endfunction
 
 augroup python_ale_mapping
@@ -657,14 +670,22 @@ endif
 function! s:setupWrappingAndSpellcheck()
     set wrap
     set wrapmargin=2
-    set textwidth=80
+    "set textwidth=80
     set spell
 endfunction
 au BufRead,BufNewFile *.{md,md.erb,markdown,mdown,mkd,mkdn,txt} setf markdown | call s:setupWrappingAndSpellcheck()
 
 " Python
+" https://github.com/neoclide/coc-python/issues/55
+if $CONDA_PREFIX == ""
+  let g:current_python_path=$CONDA_PYTHON_EXE
+else
+  let g:current_python_path=$CONDA_PREFIX.'/bin/python'
+endif
+
 augroup python
   au FileType python set shiftwidth=4 tabstop=4 softtabstop=4 textwidth=100
+  au BufNewFile,BufRead *.py call coc#config('python', {'pythonPath': g:current_python_path})
 augroup end
 
 " Other
