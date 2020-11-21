@@ -113,6 +113,12 @@ call plug#begin(s:plugin_dir)
   Plug 'leafgarland/typescript-vim', {'for': g:frontend_types} " TypeScript syntax
   Plug 'maxmellon/vim-jsx-pretty', {'for': g:frontend_types}   " JS and JSX syntax
   Plug 'jparise/vim-graphql', {'for': g:frontend_types}        " GraphQL syntax
+  Plug 'alvan/vim-closetag', {'for': ['html', 'vue']}
+  Plug 'posva/vim-vue', {'for': 'vue'}  " allow to comment with nerdcommenter
+  Plug 'leafOfTree/vim-vue-plugin', {'for': 'vue'}  " fold and nice attr and keyword highlight
+
+  "Plug 'mattn/emmet-vim', {'for': ['html', 'vue']}
+
 
 " Golang
   Plug 'fatih/vim-go', {'for': 'go'}
@@ -298,7 +304,7 @@ imap <silent> ß <esc><Plug>(coc-diagnostic-next)
 
 " Format
 nmap <silent> <leader>m <Plug>(coc-format)
-nmap <silent> <leader>. :CocCommand python.sortImports<cr>
+nmap <silent> <leader>. <Plug>(coc-codeaction)
 
 " GoTo code navigation.
 nmap <silent> <leader>d <Plug>(coc-definition)
@@ -386,6 +392,18 @@ augroup python_pymode_mappings
   au Filetype python call s:setPyModeMappings()
 augroup end
 " }}}
+
+"{{{ Frontend
+"let g:vim_vue_plugin_load_full_syntax = 1
+let g:vim_vue_plugin_highlight_vue_attr = 1
+let g:vim_vue_plugin_highlight_vue_keyword = 1
+let g:vim_vue_plugin_use_foldexpr = 1
+let g:vue_pre_processors = []
+
+" Emmet:
+"let g:user_emmet_leader_key='<C-D>'
+
+"}}}
 
 " Lint ALE {{{
 let g:ale_sign_error = '✖'   " Lint error sign
@@ -516,7 +534,7 @@ set number              " display line number column
 set relativenumber      " relative line number
 set ruler               " Show the cursor position all the time
 "set cursorline          " Highlight the line of the cursor
-set guicursor=          " disable cursor-styling
+"set guicursor=          " disable cursor-styling
 set noshowmode          " do not put a message on the cmdline for the mode ('insert', 'normal', ...)
 
 set scrolljump=5        " Lines to scroll when cursor leaves screen
@@ -598,8 +616,6 @@ function! CustomFoldText(delim)
   let foldLine = foldLineHead . expansionString . foldLineTail
   return foldLine
 endfunction
-autocmd FileType python set foldtext=CustomFoldText('\ ')
-autocmd FileType python setlocal foldenable foldlevel=20
 "}}}
 
 
@@ -609,7 +625,6 @@ endif
 
 " columns
 set colorcolumn=100                    " Show vertical bar at column 100
-au Filetype python set colorcolumn=100 " do it again for python overriden by some plugin
 
 " cmdline
 set wildmenu                    " Show list instead of just completing
@@ -665,17 +680,37 @@ endif
 
 " Autocmd {{{
 
-" Make sure all markdown files have the correct filetype set and setup
-" wrapping and spell check
-function! s:setupWrappingAndSpellcheck()
-    set wrap
-    set wrapmargin=2
-    "set textwidth=80
-    set spell
-endfunction
-au BufRead,BufNewFile *.{md,md.erb,markdown,mdown,mkd,mkdn,txt} setf markdown | call s:setupWrappingAndSpellcheck()
+" Setting FileType:{{{
+" Make sure all markdown files have the correct filetype set
+au BufRead,BufNewFile *.{md,md.erb,markdown,mdown,mkd,mkdn,txt} set filetype=markdown
 
-" Python
+au BufNewFile,BufRead *.snippets set filetype=snippets
+au BufNewFile,BufRead *.sh set filetype=sh
+au BufNewFile,BufRead *.txt set filetype=sh
+au BufNewFile,BufRead *aliases set filetype=zsh
+au BufNewFile,BufRead cronfile set filetype=sh
+au BufNewFile,BufRead *.env set ft=sh
+au BufNewFile,BufRead *.flaskenv set ft=sh
+
+au BufNewFile,BufRead *.nix set filetype=nix
+
+au BufNewFile,BufRead .gitconfig set filetype=conf
+au BufNewFile,BufRead *.conf set filetype=config
+au BufNewFile,BufRead *.kubeconfig set filetype=yaml
+" }}}
+
+" Generic: {{{
+augroup generic
+  au Filetype gitcommit setlocal spell textwidth=72
+  au FileType git setlocal foldlevel=20  " open all unfolded
+  au Filetype vim setlocal tabstop=2 foldmethod=marker
+  au FileType *.ya?ml setlocal shiftwidth=2 tabstop=2 softtabstop=2
+  au FileType sh,zsh,snippets setlocal foldmethod=marker foldlevel=10
+  au FileType markdown setlocal wrap wrapmargin=2 textwidth=100 spell
+augroup end
+" }}}
+
+" Python: {{{
 " https://github.com/neoclide/coc-python/issues/55
 if $CONDA_PREFIX == ""
   let g:current_python_path=$CONDA_PYTHON_EXE
@@ -684,42 +719,31 @@ else
 endif
 
 augroup python
-  au FileType python set shiftwidth=4 tabstop=4 softtabstop=4 textwidth=100
-  au BufNewFile,BufRead *.py call coc#config('python', {'pythonPath': g:current_python_path})
+  au FileType python setlocal shiftwidth=4 tabstop=4 softtabstop=4 textwidth=100 colorcolumn=100
+  au FileType python setlocal foldenable foldlevel=20
+  au FileType python setlocal foldtext=CustomFoldText('\ ')
+  au FileType python call coc#config('python', {'pythonPath': g:current_python_path})
 augroup end
+" }}}
 
-" Other
-au BufNewFile,BufRead *.snippets set filetype=snippets foldmethod=marker
-au BufNewFile,BufRead *.sh set filetype=sh foldlevel=0 foldmethod=marker
-au BufNewFile,BufRead *aliases set filetype=zsh foldlevel=0 foldmethod=marker
-au BufNewFile,BufRead *.nix set filetype=nix
-au BufNewFile,BufRead *.txt set filetype=sh
-au BufNewFile,BufRead cronfile set filetype=sh
-au BufNewFile,BufRead .gitconfig set filetype=conf
-au BufNewFile,BufRead *.conf set filetype=config
-au BufNewFile,BufRead *.kubeconfig set filetype=yaml
-au BufNewFile,BufRead *.ya?ml set shiftwidth=2 tabstop=2 softtabstop=2
-
-au BufNewFile,BufRead *.env set ft=sh
-au BufNewFile,BufRead *.flaskenv set ft=sh
-
-au Filetype vim set tabstop=2 foldmethod=marker
-
-" frontend:
+" Frontend: {{{
 augroup frontend
-  autocmd BufNewFile,BufRead *.html set shiftwidth=2 tabstop=2 softtabstop=2
-  autocmd BufNewFile,BufRead *.html set foldmethod=syntax expandtab nowrap
-  autocmd BufNewFile,BufRead *.html set foldlevelstart=20
+  " HTML
+  autocmd FileType html setlocal shiftwidth=2 tabstop=2 softtabstop=2 expandtab
+  autocmd FileType html setlocal foldmethod=syntax nowrap foldlevel=4
 
+  " JSON
+  autocmd FileType json setlocal foldmethod=syntax foldlevel=20
+
+  " JS / TS
+  autocmd FileType typescript setlocal foldmethod=syntax foldlevel=20 foldtext=CustomFoldText('\ ')
+
+  " VueJS
   " avoid syntax highlighting stops working randomly in vue:
   autocmd FileType vue syntax sync fromstart
+  autocmd FileType vue setlocal foldlevel=20 foldtext=CustomFoldText('\ ')
 augroup end
-
-" Git
-augroup git
-  autocmd Filetype gitcommit setlocal spell textwidth=72
-  autocmd FileType git setlocal foldlevelstart=20  " open all unfolded
-augroup end
+" }}}
 
 " Switch to the current file directory when a new buffer is opened
 au BufEnter * if bufname("") !~ "^\[A-Za-z0-9\]*://" | lcd %:p:h | endif
