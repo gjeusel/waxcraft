@@ -116,8 +116,7 @@ call plug#begin(s:plugin_dir)
   Plug 'alvan/vim-closetag', {'for': ['html', 'vue']}
   Plug 'posva/vim-vue', {'for': 'vue'}  " allow to comment with nerdcommenter
   Plug 'leafOfTree/vim-vue-plugin', {'for': 'vue'}  " fold and nice attr and keyword highlight
-
-  "Plug 'mattn/emmet-vim', {'for': ['html', 'vue']}
+  Plug 'mattn/emmet-vim', {'for': ['html', 'vue']}
 
 
 " Golang
@@ -362,6 +361,7 @@ let g:coc_global_extensions = [
       \ "coc-tsserver",
       \ "coc-vetur"
       \ ]
+
 "}}}
 
 " Python - Pymode {{{
@@ -401,8 +401,8 @@ let g:vim_vue_plugin_use_foldexpr = 1
 let g:vue_pre_processors = []
 
 " Emmet:
-"let g:user_emmet_leader_key='<C-D>'
-
+let g:user_emmet_mode='n'    "only enable normal mode functions.
+imap <expr> <C-d> emmet#expandAbbrIntelligent("\<tab>")
 "}}}
 
 " Lint ALE {{{
