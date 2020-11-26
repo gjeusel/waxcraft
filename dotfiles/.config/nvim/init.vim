@@ -37,7 +37,7 @@ call plug#begin(s:plugin_dir)
 " System {{{
   Plug 'christoomey/vim-tmux-navigator' " tmux navigation in love with vim
   Plug 'jgdavey/tslime.vim'             " Send command from vim to a running tmux session
-  Plug 'scrooloose/nerdcommenter'       " easy comments
+  Plug 'tomtom/tcomment_vim'  " better for vue
 
   " Tpope is awesome
   Plug 'tpope/vim-surround'        " change surrounding easily
@@ -115,8 +115,11 @@ call plug#begin(s:plugin_dir)
   Plug 'jparise/vim-graphql', {'for': g:frontend_types}        " GraphQL syntax
   Plug 'alvan/vim-closetag', {'for': ['html', 'vue']}
   Plug 'posva/vim-vue', {'for': 'vue'}  " allow to comment with nerdcommenter
-  Plug 'leafOfTree/vim-vue-plugin', {'for': 'vue'}  " fold and nice attr and keyword highlight
+  "Plug 'leafOfTree/vim-vue-plugin', {'for': 'vue'}  " fold and nice attr and keyword highlight
   Plug 'mattn/emmet-vim', {'for': ['html', 'vue']}
+  " Plug 'SirVer/ultisnips', {'for': g:frontend_types}
+  " Plug 'honza/vim-snippets', {'for': g:frontend_types}
+
 
 
 " Golang
@@ -267,28 +270,8 @@ let g:fastfold_fold_command_suffixes =  ['x','X','a','A','o','O','c','C']
 let g:fastfold_fold_movement_commands = [']z', '[z', 'zj', 'zk']
 "}}}
 
-" NERDCommenter {{{
-let g:ft = ''
-
-" VueJS handle:
-function! NERDCommenter_before()
-  if &ft == 'vue'
-    let g:ft = 'vue'
-    let stack = synstack(line('.'), col('.'))
-    if len(stack) > 0
-      let syn = synIDattr((stack)[0], 'name')
-      if len(syn) > 0
-        exe 'setf ' . substitute(tolower(syn), '^vue_', '', '')
-      endif
-    endif
-  endif
-endfunction
-function! NERDCommenter_after()
-  if g:ft == 'vue'
-    setf vue
-    let g:ft = ''
-  endif
-endfunction
+" tcomment {{{
+let g:tcomment_opleader1 = "<leader>c"
 " }}}
 
 "{{{ coc.nvim
@@ -338,7 +321,7 @@ nmap <leader>f  <Plug>(coc-format-selected)
 " Remap ctrl-c to escape to avoid having Floating Window left
 inoremap <C-c> <Esc>
 
-" Aliases
+" Aliases: {{{
 " Command aliases or abbrevations
 function! CommandAlias(aliasname, target)
   " :aliasname => :target  (only applicable at the beginning of the command line)
@@ -347,6 +330,7 @@ function! CommandAlias(aliasname, target)
     \ .printf('("%s") : ("%s"))', escape(a:target, '"'), escape(a:aliasname, '"'))
 endfunction
 call CommandAlias('CC', 'CocCommand')
+" }}}
 
 let g:coc_global_extensions = [
       \ "coc-python",
@@ -356,11 +340,32 @@ let g:coc_global_extensions = [
       \ "coc-html",
       \ "coc-prettier",
       \ "coc-tailwindcss",
+      \ "coc-snippets",
       \ "coc-eslint",
       \ "coc-tslint",
       \ "coc-tsserver",
       \ "coc-vetur"
       \ ]
+
+" Snippets:
+" Use tab for trigger completion with characters ahead and navigate.
+" Use command ':verbose imap <tab>' to make sure tab is not mapped by other plugin.
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+" Navigate snippet placeholders using tab
+let g:coc_snippet_next = '<Tab>'
+let g:coc_snippet_prev = '<S-Tab>'
+
+" Use enter to accept snippet expansion
+inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<CR>"
 
 "}}}
 
@@ -401,7 +406,6 @@ let g:vim_vue_plugin_use_foldexpr = 1
 let g:vue_pre_processors = []
 
 " Emmet:
-let g:user_emmet_mode='n'    "only enable normal mode functions.
 imap <expr> <C-d> emmet#expandAbbrIntelligent("\<tab>")
 "}}}
 

@@ -5,9 +5,11 @@ tags
 result
 backup
 
-# Ignore all in nvim except init.vim
+# Ignore all in nvim except init.vim and snippets and coc-settings.json
 dotfiles/.config/nvim/*
 !dotfiles/.config/nvim/init.vim
+!dotfiles/.config/nvim/snippets/
+!dotfiles/.config/nvim/coc-settings.json
 
 *.zwc
 *.DS_store
