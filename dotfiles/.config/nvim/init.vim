@@ -115,12 +115,7 @@ call plug#begin(s:plugin_dir)
   Plug 'jparise/vim-graphql', {'for': g:frontend_types}        " GraphQL syntax
   Plug 'alvan/vim-closetag', {'for': ['html', 'vue']}
   Plug 'posva/vim-vue', {'for': 'vue'}  " allow to comment with nerdcommenter
-  "Plug 'leafOfTree/vim-vue-plugin', {'for': 'vue'}  " fold and nice attr and keyword highlight
   Plug 'mattn/emmet-vim', {'for': ['html', 'vue']}
-  " Plug 'SirVer/ultisnips', {'for': g:frontend_types}
-  " Plug 'honza/vim-snippets', {'for': g:frontend_types}
-
-
 
 " Golang
   Plug 'fatih/vim-go', {'for': 'go'}
@@ -157,6 +152,18 @@ let g:indentLine_fileTypeExclude = ['json', 'startify', 'markdown', 'vim', 'tex'
 
 " rainbow
 let g:rainbow_active = 1 "0 if you want to enable it later via :RainbowToggle
+let g:rainbow_conf = {
+  \  'separately': {
+  \    'vue': {
+  \      'parentheses': [
+  \        'start=/\v\<((script|style|area|base|br|col|embed|hr|img|input|keygen|link|menuitem|meta|param|source|track|wbr)[ >])@!\z([-_:a-zA-Z0-9]+)(\s+[-_:a-zA-Z0-9]+(\=("[^"]*"|'."'".'[^'."'".']*'."'".'|[^ '."'".'"><=`]*))?)*\>/ end=#</\z1># fold'
+  \      ],
+  \    },
+  \ }
+  \}
+  " https://github.com/luochen1990/rainbow/issues/107
+  " \       'start=/{/ end=/}/ fold containedin=vue_typescript',
+  " \       'start=/(/ end=/)/ fold containedin=vue_typescript',
 
 " lightline {{{
 " https://github.com/itchyny/lightline.vim/issues/87
@@ -349,23 +356,24 @@ let g:coc_global_extensions = [
 
 " Snippets:
 " Use tab for trigger completion with characters ahead and navigate.
-" Use command ':verbose imap <tab>' to make sure tab is not mapped by other plugin.
 function! s:check_back_space() abort
   let col = col('.') - 1
   return !col || getline('.')[col - 1]  =~# '\s'
 endfunction
+
 inoremap <silent><expr> <TAB>
       \ pumvisible() ? "\<C-n>" :
       \ <SID>check_back_space() ? "\<TAB>" :
       \ coc#refresh()
-inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 
 " Navigate snippet placeholders using tab
 let g:coc_snippet_next = '<Tab>'
 let g:coc_snippet_prev = '<S-Tab>'
 
-" Use enter to accept snippet expansion
-inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<CR>"
+" Make <CR> auto-select the first completion item and notify coc.nvim to
+" format on enter, <cr> could be remapped by other vim plugin
+inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
+                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
 "}}}
 
@@ -399,10 +407,11 @@ augroup end
 " }}}
 
 "{{{ Frontend
-"let g:vim_vue_plugin_load_full_syntax = 1
+let g:vim_vue_plugin_load_full_syntax = 1
 let g:vim_vue_plugin_highlight_vue_attr = 1
 let g:vim_vue_plugin_highlight_vue_keyword = 1
 let g:vim_vue_plugin_use_foldexpr = 1
+" let g:vue_pre_processors = ['typescript']
 let g:vue_pre_processors = []
 
 " Emmet:
@@ -693,7 +702,7 @@ au BufNewFile,BufRead *.sh set filetype=sh
 au BufNewFile,BufRead *.txt set filetype=sh
 au BufNewFile,BufRead *aliases set filetype=zsh
 au BufNewFile,BufRead cronfile set filetype=sh
-au BufNewFile,BufRead *.env set ft=sh
+au BufNewFile,BufRead *.env* set ft=sh
 au BufNewFile,BufRead *.flaskenv set ft=sh
 
 au BufNewFile,BufRead *.nix set filetype=nix
@@ -745,7 +754,7 @@ augroup frontend
   " VueJS
   " avoid syntax highlighting stops working randomly in vue:
   autocmd FileType vue syntax sync fromstart
-  autocmd FileType vue setlocal foldlevel=20 foldtext=CustomFoldText('\ ')
+  autocmd FileType vue setlocal foldmethod=indent foldlevel=20 foldtext=CustomFoldText('\ ')
 augroup end
 " }}}
 
@@ -891,6 +900,35 @@ nmap <leader>; :nohl<cr>
 " source config
 map <F12> :source ${HOME}/.config/nvim/init.vim<cr>
 "}}}
+
+" Custom Functions {{{
+
+" Redirect output of vim commands like :syntax in other buffer
+" See https://dev.to/dkendal/capture-the-output-of-a-vim-command-5809
+function! s:split(expr) abort
+  let lines = split(execute(a:expr, 'silent'), "[\n\r]")
+  let name = printf('capture://%s', a:expr)
+
+  if bufexists(name) == v:true
+    execute 'bwipeout' bufnr(name)
+  end
+
+  execute 'botright' 'new' name
+
+  setlocal buftype=nofile
+  setlocal bufhidden=hide
+  setlocal noswapfile
+  setlocal filetype=vim
+
+  call append(line('$'), lines)
+endfunction
+
+function s:capture(expr, bang) abort
+  call s:split(a:expr)
+endfunction
+
+command! -nargs=1 -bang P call s:capture(<q-args>, <bang>0)
+" }}}
 
 
 let g:python3_host_prog = $HOME . "/miniconda3/envs/neovim37/bin/python"

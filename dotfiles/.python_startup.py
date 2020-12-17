@@ -10,9 +10,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from pprint import pprint
 
-import pytz
-
 import __main__
+import pytz
 
 TZ = pytz.timezone("Europe/Brussels")
 
@@ -104,6 +103,12 @@ def import_in_ctx(pkg, alias=None):
         __main__.__dict__[alias] = importlib.import_module(pkg)
     except ImportError:
         pass
+
+
+try:
+    from devtools import debug  # noqa
+except Exception:
+    pass
 
 
 imports = (
