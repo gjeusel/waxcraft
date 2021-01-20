@@ -55,16 +55,9 @@ bindkey '^X' edit-command-line
 bindkey '^r' history-incremental-search-backward
 bindkey '^R' history-incremental-pattern-search-backward
 
-# Hist search completion of line with arrows up and down
-autoload -U up-line-or-beginning-search
-autoload -U down-line-or-beginning-search
-zle -N up-line-or-beginning-search
-zle -N down-line-or-beginning-search
-bindkey "^[[A" up-line-or-beginning-search # Up
-bindkey "^[[B" down-line-or-beginning-search # Down
-
-zle -N edit-command-line
-
+# Hist search completion of line with arrows up and down using ohmyzsh history-substring-search
+bindkey "^[[A" history-substring-search-up
+bindkey "^[[B" history-substring-search-down
 
 fpath=("$waxCraft_PATH/dotfiles/completions" $fpath)
 
