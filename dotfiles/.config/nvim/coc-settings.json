@@ -1,7 +1,6 @@
 {
   "diagnostic.messageDelay": 50,
   "diagnostic.refreshOnInsertMode": true,
-  "diagnostic.refreshAfterSave": false,
   "diagnostic.enableSign": true,
   "diagnostic.checkCurrentLine": false,
   "diagnostic.errorSign": "✗",
@@ -12,6 +11,7 @@
   "diagnostic.virtualTextPrefix": "   ‣ ",
   "diagnostic.messageTarget": "float",
   "snippets.userSnippetsDirectory": "~/.config/nvim/snippets",
+  "snippets.ultisnips.usePythonx": true,
   "coc.preferences.currentFunctionSymbolAutoUpdate": true,
   "python.analysis.diagnosticEnabled": true,
   "python.analysis.diagnosticPublishDelay": 100,
@@ -24,5 +24,9 @@
   "python.linting.mypyEnabled": false,
   "python.formatting.provider": "black",
   "python.terminal.activateEnvironment": false,
-  "python.disableInstallationCheck": true
+  "python.disableInstallationCheck": true,
+  "tailwindCSS.headwind.removeDuplicates": true,
+  "tailwindCSS.headwind.runOnSave": true,
+  "tailwindCSS.emmetCompletions": true,
+  "tailwindCSS.headwind.defaultSortOrder": []
 }

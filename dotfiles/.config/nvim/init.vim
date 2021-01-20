@@ -78,9 +78,12 @@ call plug#begin(s:plugin_dir)
   Plug 'rhysd/conflict-marker.vim' " conflict markers for vimdiff
   Plug 'luochen1990/rainbow'       " embed parenthesis colors
   Plug 'airblade/vim-gitgutter'    " column sign for git changes
+
   Plug 'wincent/loupe'             " better focus on current highlight search
+  " Plug 'romainl/vim-cool'          " disable highlight on first movement
 
   Plug 'morhetz/gruvbox'           " best colorscheme ever
+
 
   " nerd font need to be installed, see https://github.com/ryanoasis/nerd-fonts#font-installation
   " > sudo pacman -S ttf-nerd-fonts-symbols
