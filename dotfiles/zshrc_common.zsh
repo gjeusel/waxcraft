@@ -21,44 +21,6 @@ setopt share_history
 # don't nice background tasks
 #setopt no_bg_nice no_hup no_beep
 
-# backward and forward word with option+left/right
-bindkey '^[b' backward-word
-bindkey '^[f' forward-word
-# backward and forward word with ctrl+left/right
-bindkey '^[[1;5D' backward-word
-bindkey '^[[1;5C' forward-word
-
-# https://superuser.com/questions/1421423/how-to-bind-option-delete-to-backward-delete-word-in-zsh-vi-mode-in-tmux-and-ala
-# Ensure having same behaviour in tmux
-bindkey '^W' backward-kill-word
-
-# Delete word with option+backspace with more word delimiters
-# https://www.zsh.org/mla/users/2001/msg00870.html
-tcsh-backward-delete-word () {
-  local WORDCHARS='*?_[]~=&;!#$%^(){}<>'
-  zle backward-delete-word
-}
-zle -N tcsh-backward-delete-word
-bindkey '^[^H' tcsh-backward-delete-word
-
-# delete char
-bindkey "^[[3~" delete-char
-
-# beginning / end of line
-bindkey '^A' beginning-of-line
-bindkey '^E' end-of-line
-
-# edit command line in $EDITOR
-bindkey '^X' edit-command-line
-
-# Hist search
-bindkey '^r' history-incremental-search-backward
-bindkey '^R' history-incremental-pattern-search-backward
-
-# Hist search completion of line with arrows up and down using ohmyzsh history-substring-search
-bindkey "^[[A" history-substring-search-up
-bindkey "^[[B" history-substring-search-down
-
 fpath=("$waxCraft_PATH/dotfiles/completions" $fpath)
 
 autoload -Uz compinit
@@ -90,9 +52,6 @@ zstyle ':completion:*:rm:*' ignored-patterns '(|*/)*.egg-info'
 # https://github.com/ohmyzsh/ohmyzsh/issues/7348
 zstyle ':completion:*' accept-exact-dirs true
 
-# Bind ctrl + space
-bindkey '^ ' autosuggest-accept
-
 # Auto install tpm (tmux plugin)
 #export TERM="tmux-256color"
 [ -n "$TMUX" ] && export TERM=screen-256color
@@ -100,6 +59,9 @@ if [ ! -e "$HOME/.tmux/plugins/tpm" ]; then
   git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 fi
 
+
+# Source bindings
+source "$waxCraft_PATH/dotfiles/bindings.zsh"
 
 #### ZSH STARTUP OPTIM
 
