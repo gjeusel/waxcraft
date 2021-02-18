@@ -30,3 +30,6 @@ export BAT_THEME="gruvbox"
 
 # Disable some default bindings added by zsh-vim-mode plugin
 export VIM_MODE_TRACK_KEYMAP=no  # else it makes the terminal bug
+
+# Enhancd
+export ENHANCD_DISABLE_HYPHEN=1  # disable enhancd for "cd -"
