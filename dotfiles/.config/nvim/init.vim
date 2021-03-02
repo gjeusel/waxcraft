@@ -351,7 +351,7 @@ let g:coc_global_extensions = [
       \ "coc-prettier",
       \ "coc-tailwindcss",
       \ "coc-snippets",
-      \ "coc-eslint",
+      \ "coc-eslint@1.3.2",
       \ "coc-tslint",
       \ "coc-tsserver",
       \ "coc-vetur"
