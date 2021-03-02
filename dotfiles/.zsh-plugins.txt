@@ -32,6 +32,10 @@ akarzim/zsh-docker-aliases
 ohmyzsh/ohmyzsh path:plugins/docker/_docker kind:fpath
 ohmyzsh/ohmyzsh path:plugins/docker-compose
 
+
+# NodeJS
+lukechilds/zsh-nvm
+
 # Python
 ohmyzsh/ohmyzsh path:plugins/pip
 esc/conda-zsh-completion

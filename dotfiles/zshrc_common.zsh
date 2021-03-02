@@ -65,24 +65,6 @@ source "$waxCraft_PATH/dotfiles/bindings.zsh"
 
 #### ZSH STARTUP OPTIM
 
-# Set up Node Version Manager
-nvm() {
-  # On first use, it will set nvm up properly which will replace the `nvm`
-  # shell function with the real one
-  if [ -f "/usr/share/nvm/init-nvm.sh" ]; then
-    source /usr/share/nvm/init-nvm.sh
-    # See https://github.com/robbyrussell/oh-my-zsh/issues/6163
-    if [ -d $HOME/.nvm ]; then
-      export NVM_DIR="$HOME/.nvm"
-      [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-    fi
-    nvm "$@"
-  else:
-    echo "nvm is not installed" >&2
-    return 1
-  fi
-}
-
 # RVM ( Ruby Versin Manager )
 rmv() {
   if [ -f "$HOME/.rvm/scripts/rvm" ]; then
