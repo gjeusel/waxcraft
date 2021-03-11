@@ -113,11 +113,16 @@ call plug#begin(s:plugin_dir)
 " FrontEnd
   let g:frontend_types = ['vue', 'js', 'ts', 'css', 'html']
   Plug 'pangloss/vim-javascript', {'for': g:frontend_types}    " JavaScript support
-  Plug 'leafgarland/typescript-vim', {'for': g:frontend_types} " TypeScript syntax
+  " Plug 'leafgarland/typescript-vim', {'for': g:frontend_types} " TypeScript syntax
   Plug 'maxmellon/vim-jsx-pretty', {'for': g:frontend_types}   " JS and JSX syntax
   Plug 'jparise/vim-graphql', {'for': g:frontend_types}        " GraphQL syntax
   Plug 'alvan/vim-closetag', {'for': ['html', 'vue']}
   Plug 'posva/vim-vue', {'for': 'vue'}  " allow to comment with nerdcommenter
+
+  " https://github.com/romgrk/nvim/blob/ef06dc0eac72e2eadfb2162d77a1b3ba1816dd2d/rc/plugins/tree-sitter.after.lua
+  Plug 'nvim-treesitter/nvim-treesitter', {'for': ['typescript', 'vue'], 'do': ':TSUpdate'}
+  Plug 'nvim-treesitter/playground', {'for': ['typescript', 'vue']}
+
   Plug 'mattn/emmet-vim', {'for': ['html', 'vue']}
 
 " Golang
@@ -413,7 +418,7 @@ augroup end
 let g:vim_vue_plugin_load_full_syntax = 1
 let g:vim_vue_plugin_highlight_vue_attr = 1
 let g:vim_vue_plugin_highlight_vue_keyword = 1
-let g:vim_vue_plugin_use_foldexpr = 1
+let g:vim_vue_plugin_use_foldexpr = 0
 " let g:vue_pre_processors = ['typescript']
 let g:vue_pre_processors = []
 
@@ -584,6 +589,29 @@ highlight CocInfoVirtualText ctermfg=Blue ctermbg=none
 
 
 " Custom Fold Text {{{
+" https://github.com/nvim-treesitter/nvim-treesitter/pull/390#issuecomment-709666989
+function! GetSpaces(foldLevel)
+    if &expandtab == 1
+        " Indenting with spaces
+        let str = repeat(" ", a:foldLevel / (&shiftwidth + 1) - 1)
+        return str
+    elseif &expandtab == 0
+        " Indenting with tabs
+        return repeat(" ", indent(v:foldstart) - (indent(v:foldstart) / &shiftwidth))
+    endif
+endfunction
+
+function! MyFoldText()
+    let startLineText = getline(v:foldstart)
+    let endLineText = trim(getline(v:foldend))
+    let indentation = GetSpaces(foldlevel("."))
+    let spaces = repeat(" ", 200)
+
+    let str = indentation . startLineText . "..." . endLineText . spaces
+
+    return str
+endfunction
+
 function! CustomFoldText(delim)
   "get first non-blank line
   let fs = v:foldstart
@@ -629,7 +657,9 @@ function! CustomFoldText(delim)
   " truncate foldtext according to window width
   let expansionString = repeat(a:delim, lengthMiddle)
 
-  let foldLine = foldLineHead . expansionString . foldLineTail
+  let indentation = GetSpaces(foldlevel("."))
+
+  let foldLine = indentation . foldLineHead . expansionString . foldLineTail
   return foldLine
 endfunction
 "}}}
@@ -752,12 +782,14 @@ augroup frontend
   autocmd FileType json setlocal foldmethod=syntax foldlevel=20
 
   " JS / TS
-  autocmd FileType typescript setlocal foldmethod=syntax foldlevel=20 foldtext=CustomFoldText('\ ')
+  " autocmd FileType typescript setlocal foldmethod=syntax foldlevel=20 foldtext=CustomFoldText('\ ')
 
   " VueJS
   " avoid syntax highlighting stops working randomly in vue:
-  autocmd FileType vue syntax sync fromstart
-  autocmd FileType vue setlocal foldmethod=indent foldlevel=20 foldtext=CustomFoldText('\ ')
+  autocmd FileType vue,typescript syntax sync fromstart
+
+  " autocmd FileType vue setlocal foldmethod=indent foldlevel=20 foldtext=CustomFoldText('\ ')
+  autocmd FileType vue,typescript setlocal foldmethod=expr foldexpr=nvim_treesitter#foldexpr() foldtext=MyFoldText()
 augroup end
 " }}}
 
