@@ -25,7 +25,9 @@
 # Online reference: https://github.com/SirVer/ultisnips/blob/master/doc/UltiSnips.txt
 
 
-snippet vsetup
+# File Skeleton
+
+snippet vsetup "vue RFC script setup" b
 <script setup lang="ts">
 </script>
 
@@ -34,23 +36,22 @@ snippet vsetup
 </template>
 endsnippet
 
-
-snippet vbase
+snippet vbase "vue skeleton" b
 <template>
 	<div></div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent } from "vue"
 
 export default defineComponent({
 	name: "`!p snip.rv = snip.basename`",
 	props: {},
 	components: {},
 	setup() {
-		return {};
+		return {}
 	},
-});
+})
 </script>
 
 <style scoped lang="postcss">
@@ -58,58 +59,41 @@ export default defineComponent({
 </style>
 endsnippet
 
-snippet vfor
+# Conditional Flow
+
+snippet vfor "v-for" b
 <div v-for="(${0:item}, i) in ${1:items}" :key="i">
 </div>
 endsnippet
 
-snippet vif
+snippet vif "v-if" b
 <div v-if="${1}">
 </div>
 endsnippet
 
-snippet velse
+snippet velse "v-else" b
 <div v-else>
 </div>
 endsnippet
 
-snippet slot
+# Slots
+
+snippet slot "slot" b
 <slot name="${0:default}" />
 endsnippet
 
-snippet tslot
+snippet tslot "template slot" b
 <template v-slot:${0}>
 </template>
 endsnippet
 
-snippet fa
-<fa class="h-5" icon="${0:search}" />
+# Components
+
+snippet fa "font awesome vite-icon" b
+<i-fa-solid-"${0:search}" class="h-5" />
 endsnippet
 
-snippet cl "console.log"
-console.log(${0});
-endsnippet
-snippet cd "console.debug"
-console.debug(${0});
-endsnippet
-snippet ce "console.error"
-console.error(${0});
-endsnippet
-snippet cw "console.warn"
-console.warn(${0});
-endsnippet
-snippet ci "console.info"
-console.info(${0});
-endsnippet
-snippet ct "console.trace"
-console.trace(${0:label});
-endsnippet
-
-snippet i_ "import lodash"
-import _ from "lodash";
-endsnippet
-
-snippet suspense "suspense tags"
+snippet suspense "suspense tags" b
 <Suspense>
 	<template #default>
 		<div />
@@ -118,4 +102,14 @@ snippet suspense "suspense tags"
 		<div />
 	</template>
 </Suspense>
+endsnippet
+
+# Imports
+
+snippet "import vue" "import vue" b
+import { defineComponent, ref, computed } from "vue"
+endsnippet
+
+snippet "import store" "import store" b
+import { ${0:useMainStore} } from "@/store"
 endsnippet
