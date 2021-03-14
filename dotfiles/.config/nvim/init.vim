@@ -62,9 +62,7 @@ call plug#begin(s:plugin_dir)
   Plug 'nvim-lua/popup.nvim'
   Plug 'nvim-lua/plenary.nvim'
   Plug 'nvim-telescope/telescope.nvim'
-
-  Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }  " Fuzzy Finder
-  Plug 'junegunn/fzf.vim'
+  Plug 'nvim-telescope/telescope-fzy-native.nvim'
 
   Plug 'justinmk/vim-sneak'  " minimalist motion with 2 keys
 
@@ -212,82 +210,46 @@ autocmd User CocStatusChange,CocDiagnosticChange call lightline#update()
 " }}}
 
 " telescope {{{
-nnoremap <leader>ff <cmd>lua require('telescope.builtin').find_files()<cr>
-nnoremap <leader>fp <cmd>lua require('telescope.builtin').git_files()<cr>
-nnoremap <leader>p <cmd>lua require('telescope.builtin').git_files()<cr>
+nnoremap <leader>ff <cmd>lua require('telescope.builtin').find_files(require('telescope.themes').get_dropdown({}))<cr>
+nnoremap <leader>fp <cmd>lua require('telescope.builtin').git_files(require('telescope.themes').get_dropdown({}))<cr>
+nnoremap <leader>p <cmd>lua require('telescope.builtin').git_files(require('telescope.themes').get_dropdown({}))<cr>
 
-nnoremap <leader>fg <cmd>lua require('telescope.builtin').live_grep()<cr>
-nnoremap <leader>a <cmd>lua require('telescope.builtin').live_grep()<cr>
+nnoremap <leader>fg <cmd>lua require('telescope.builtin').live_grep(require('telescope.themes').get_dropdown({}))<cr>
+nnoremap <leader>a <cmd>lua require('telescope.builtin').live_grep(require('telescope.themes').get_dropdown({}))<cr>
 
-nnoremap <leader>fb <cmd>lua require('telescope.builtin').buffers()<cr>
-nnoremap <leader>b <cmd>lua require('telescope.builtin').buffers()<cr>
+nnoremap <leader>b <cmd>lua require('telescope.builtin').builtin(require('telescope.themes').get_dropdown({}))<cr>
 
-nnoremap <leader>fh <cmd>lua require('telescope.builtin').help_tags()<cr>
-nnoremap <leader>h <cmd>lua require('telescope.builtin').help_tags()<cr>
-" }}}
+nnoremap <leader>h <cmd>lua require('telescope.builtin').command_history(require('telescope.themes').get_dropdown({}))<cr>
 
-" fzf {{{
-command! -bang -nargs=* GGrep
-  \ call fzf#vim#grep(
-  \   'git grep --line-number '.shellescape(<q-args>), 0,
-  \   fzf#vim#with_preview({ 'dir': systemlist('git rev-parse --show-toplevel')[0] }, <bang>0))
+lua << EOF
+local actions = require('telescope.actions')
+require('telescope').setup{
+  defaults = {
+    -- generic_sorter = require('telescope.sorters').get_fzy_sorter,
+    generic_sorter =  require('telescope.sorters').get_generic_fuzzy_sorter,
+    file_sorter = require('telescope.sorters').get_fzy_sorter,
+    vimgrep_arguments = {
+      'ag',
+      '--nocolor',
+      '--filename',
+      '--noheading',
+      '--line-number',
+      '--column',
+      '--smart-case',
+      '--hidden',  -- search hidden files
+      '--follow',  -- follow symlinks
+    },
+    color_devicons = true,
+    mapping = {
+      i = {
+        ["<C-q>"] = actions.send_to_qflist,
+      },
+    }
+  }
+}
 
-" :Ag  - Start fzf with hidden preview window that can be enabled with "?" key
-" :Ag! - Start fzf in fullscreen and display the preview window above
-command! -bang -nargs=* Ag
-  \ call fzf#vim#ag(<q-args>,
-  \                 <bang>0 ? fzf#vim#with_preview({'options': '--delimiter : --nth 4..'}, 'up:60%')
-  \                         : fzf#vim#with_preview({'options': '--delimiter : --nth 4..'}, 'right:50%:hidden', '?'),
-  \                 <bang>0)
-
-function! FzfOmniFiles()
-    let is_git = system('git status')
-    if v:shell_error
-        execute 'Files'
-    else
-        execute 'GFiles'
-    endif
-endfunction
-
-function! AgOmniFiles()
-  let is_git = system('git status')
-  if v:shell_error
-    execute 'Ag'
-  else
-    execute 'GGrep'
-  endif
-endfunction
-
-nmap <leader>a :call AgOmniFiles()<CR>
-nmap <leader>c :BCommits<CR>
-nmap <leader>f :Tags<CR>
-nmap <leader>p :call FzfOmniFiles()<CR>
-nmap <C-p> :call FzfOmniFiles()<CR>
-nmap <leader>b :Buffers<CR>
-
-" fzf
-" Hide statusline of terminal buffer
-autocmd! FileType fzf
-autocmd  FileType fzf set laststatus=0 noshowmode noruler
-            \| autocmd BufLeave <buffer> set laststatus=2 noshowmode ruler
-
-" Customize fzf colors to match your color scheme
-let g:fzf_colors =
-\ { 'fg':      ['fg', 'Normal'],
-  \ 'bg':      ['bg', 'Normal'],
-  \ 'hl':      ['fg', 'Comment'],
-  \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
-  \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
-  \ 'hl+':     ['fg', 'Statement'],
-  \ 'info':    ['fg', 'PreProc'],
-  \ 'border':  ['fg', 'Ignore'],
-  \ 'prompt':  ['fg', 'Conditional'],
-  \ 'pointer': ['fg', 'Exception'],
-  \ 'marker':  ['fg', 'Keyword'],
-  \ 'spinner': ['fg', 'Label'],
-  \ 'header':  ['fg', 'Comment'] }
-
-
+require('telescope').load_extension('fzy_native')
+EOF
 " }}}
 
 " SuperTab {{{
