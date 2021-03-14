@@ -10,6 +10,7 @@
   "diagnostic.virtualTextCurrentLineOnly": true,
   "diagnostic.virtualTextPrefix": "   ‣ ",
   "diagnostic.messageTarget": "float",
+  "snippets.priority": 100,
   "snippets.userSnippetsDirectory": "~/.config/nvim/snippets",
   "snippets.snipmate.enable": false,
   "snippets.ultisnips.enable": true,
