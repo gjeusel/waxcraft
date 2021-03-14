@@ -59,6 +59,10 @@ call plug#begin(s:plugin_dir)
   "Plug 'majutsushi/tagbar', {'on': 'TagbarToggle'}     " browsing the tags, require ctags
   "Plug 'scrooloose/nerdtree', {'on': 'NERDTreeToggle'} " file tree
 
+  Plug 'nvim-lua/popup.nvim'
+  Plug 'nvim-lua/plenary.nvim'
+  Plug 'nvim-telescope/telescope.nvim'
+
   Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }  " Fuzzy Finder
   Plug 'junegunn/fzf.vim'
 
@@ -205,6 +209,21 @@ let g:lightline.active = lightline_custom_layout
 
 autocmd User CocStatusChange,CocDiagnosticChange call lightline#update()
 
+" }}}
+
+" telescope {{{
+nnoremap <leader>ff <cmd>lua require('telescope.builtin').find_files()<cr>
+nnoremap <leader>fp <cmd>lua require('telescope.builtin').git_files()<cr>
+nnoremap <leader>p <cmd>lua require('telescope.builtin').git_files()<cr>
+
+nnoremap <leader>fg <cmd>lua require('telescope.builtin').live_grep()<cr>
+nnoremap <leader>a <cmd>lua require('telescope.builtin').live_grep()<cr>
+
+nnoremap <leader>fb <cmd>lua require('telescope.builtin').buffers()<cr>
+nnoremap <leader>b <cmd>lua require('telescope.builtin').buffers()<cr>
+
+nnoremap <leader>fh <cmd>lua require('telescope.builtin').help_tags()<cr>
+nnoremap <leader>h <cmd>lua require('telescope.builtin').help_tags()<cr>
 " }}}
 
 " fzf {{{
@@ -558,14 +577,27 @@ set shortmess+=c        " don't pass messages to ins-completion-menu
 set spelllang=en_us     " activate vim spell checking
 
 set fillchars=vert:│    " box drawings heavy vertical (U+2503, UTF-8: E2 94 83)
-highlight VertSplit ctermbg=none
+
 highlight Normal ctermbg=none
+highlight VertSplit ctermbg=none
+highlight CursorLineNr ctermbg=none
+highlight ColorColumn ctermbg=236
+
+" Better Fold
+" highlight Folded ctermbg=236
+highlight Folded cterm=bold ctermbg=none
+
+" Better Sign Column
+highlight SignColumn ctermbg=none
+highlight GitGutterAdd ctermbg=none ctermfg=Green
+highlight GitGutterChange ctermbg=none ctermfg=Yellow
+highlight GitGutterDelete ctermbg=none ctermfg=Red
 
 " Better diff views
-hi DiffAdd cterm=none ctermfg=Green ctermbg=none
-hi DiffChange cterm=none ctermfg=Yellow ctermbg=none
-hi DiffDelete cterm=bold ctermfg=Red ctermbg=none
-hi DiffText cterm=none ctermfg=Blue ctermbg=none
+highlight DiffAdd cterm=none ctermfg=Green ctermbg=none
+highlight DiffChange cterm=none ctermfg=Yellow ctermbg=none
+highlight DiffDelete cterm=bold ctermfg=Red ctermbg=none
+highlight DiffText cterm=none ctermfg=Blue ctermbg=none
 
 " Better Coc Virtual Text
 highlight CocErrorVirtualText ctermfg=Red ctermbg=none
@@ -574,79 +606,19 @@ highlight CocInfoVirtualText ctermfg=Blue ctermbg=none
 
 
 " Custom Fold Text {{{
-" https://github.com/nvim-treesitter/nvim-treesitter/pull/390#issuecomment-709666989
-function! GetSpaces(foldLevel)
-    if &expandtab == 1
-        " Indenting with spaces
-        let str = repeat(" ", a:foldLevel / (&shiftwidth + 1) - 1)
-        return str
-    elseif &expandtab == 0
-        " Indenting with tabs
-        return repeat(" ", indent(v:foldstart) - (indent(v:foldstart) / &shiftwidth))
-    endif
+function! FoldText()
+  " clear fold from fillchars to set it up the way we want later
+  let &l:fillchars = substitute(&l:fillchars,',\?fold:.','','gi')
+  let l:numwidth = (v:version < 701 ? 8 : &numberwidth)
+  let l:foldtext = ' '.(v:foldend-v:foldstart).' lines folded'.v:folddashes.'|'
+  " let l:endofline = (&textwidth>0 ? &textwidth : 80)
+  let l:endofline = 100
+  let l:linetext = strpart(getline(v:foldstart),0,l:endofline-strlen(l:foldtext))
+  let l:align = l:endofline-strlen(l:linetext)
+  setlocal fillchars+=fold:\ 
+  return printf('%s%*s', l:linetext, l:align, l:foldtext)
 endfunction
-
-function! MyFoldText()
-    let startLineText = getline(v:foldstart)
-    let endLineText = trim(getline(v:foldend))
-    let indentation = GetSpaces(foldlevel("."))
-    let spaces = repeat(" ", 200)
-
-    let str = indentation . startLineText . "..." . endLineText . spaces
-
-    return str
-endfunction
-
-function! CustomFoldText(delim)
-  "get first non-blank line
-  let fs = v:foldstart
-  while getline(fs) =~ '^\s*$' | let fs = nextnonblank(fs + 1)
-  endwhile
-  if fs > v:foldend
-      let line = getline(v:foldstart)
-  else
-      let line = substitute(getline(fs), '\t', repeat(' ', &tabstop), 'g')
-  endif
-
-  " indent foldtext corresponding to foldlevel
-  let indent = repeat(' ',shiftwidth())
-  let foldLevelStr = repeat(indent, v:foldlevel-1)
-  let foldLineHead = substitute(line, '^\s*', foldLevelStr, '')
-
-  " size foldtext according to window width
-  let w = winwidth(0) - &foldcolumn - (&number ? &numberwidth : 0)
-  let foldSize = 1 + v:foldend - v:foldstart
-
-  " estimate fold length
-  let foldSizeStr = " " . foldSize . " lines "
-  let lineCount = line("$")
-  if has("float")
-    try
-      let foldPercentage = "[" . printf("%4s", printf("%.1f", (foldSize*1.0)/lineCount*100)) . "%] "
-    catch /^Vim\%((\a\+)\)\=:E806/	" E806: Using Float as String
-      let foldPercentage = printf("[of %d lines] ", lineCount)
-    endtry
-  endif
-
-  " build up foldtext
-  let foldLineTail = foldSizeStr . foldPercentage
-  let lengthTail = strwidth(foldLineTail)
-  let lengthHead = w - (lengthTail + indent)
-
-  if strwidth(foldLineHead) > lengthHead
-    let foldLineHead = strpart(foldLineHead, 0, lengthHead-2) . '..'
-  endif
-
-  let lengthMiddle = w - strwidth(foldLineHead.foldLineTail)
-
-  " truncate foldtext according to window width
-  let expansionString = repeat(a:delim, lengthMiddle)
-
-  let indentation = GetSpaces(foldlevel("."))
-
-  let foldLine = indentation . foldLineHead . expansionString . foldLineTail
-  return foldLine
-endfunction
+set foldtext=FoldText()
 "}}}
 
 
@@ -699,6 +671,7 @@ set smartcase  " ... unless they contain at least one capital letter
 " edit file search path ignore
 set wildignore+=**.egg-info/**
 set wildignore+=**__pycache__/**
+set wildignore+=**node_modules/**
 
 " Clipboard
 if has('clipboard')
@@ -751,8 +724,7 @@ endif
 
 augroup python
   au FileType python setlocal shiftwidth=4 tabstop=4 softtabstop=4 textwidth=100 colorcolumn=100
-  au FileType python setlocal foldenable foldlevel=20
-  au FileType python setlocal foldtext=CustomFoldText('\ ')
+  au FileType python setlocal foldenable foldlevel=20 foldtext=FoldText()
   au FileType python call coc#config('python', {'pythonPath': g:current_python_path})
 augroup end
 " }}}
@@ -766,15 +738,10 @@ augroup frontend
   " JSON
   autocmd FileType json setlocal foldmethod=syntax foldlevel=20
 
-  " JS / TS
-  " autocmd FileType typescript setlocal foldmethod=syntax foldlevel=20 foldtext=CustomFoldText('\ ')
-
-  " VueJS
+  " JS / TS / Vue
   " avoid syntax highlighting stops working randomly in vue:
   autocmd FileType vue,typescript syntax sync fromstart
-
-  " autocmd FileType vue setlocal foldmethod=indent foldlevel=20 foldtext=CustomFoldText('\ ')
-  autocmd FileType vue,typescript setlocal foldmethod=expr foldexpr=nvim_treesitter#foldexpr() foldtext=MyFoldText()
+  autocmd FileType vue,typescript setlocal foldlevel=20 foldmethod=expr foldexpr=nvim_treesitter#foldexpr()
 augroup end
 " }}}
 
