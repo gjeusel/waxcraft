@@ -38,7 +38,7 @@ endif
 
 augroup python
   au FileType python setlocal shiftwidth=4 tabstop=4 softtabstop=4 textwidth=100 colorcolumn=100
-  au FileType python setlocal foldenable foldlevel=20 foldtext=FoldText()
+  au FileType python setlocal foldenable foldlevel=20 foldmethod=expr foldtext=FoldText()
   au FileType python call coc#config('python', {'pythonPath': g:current_python_path})
 augroup end
 " }}}
