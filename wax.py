@@ -142,9 +142,12 @@ def neovim():
 
     nvim_init = ".config/nvim/init.vim"
     coc_settings = ".config/nvim/coc-settings.json"
+    nvim_snippets = "~/.config/nvim/snippets"
+    plugin = "~/.config/nvim/plugin"
+    lua = "~/.config/nvim/lua"
 
     create_symlinks_robust(
-        relative_paths=[nvim_init, coc_settings],
+        relative_paths=[nvim_init, coc_settings, nvim_snippets, plugin, lua],
         from_dir=wax_dotfile_dir,
         to_dir=Path.home())
 
