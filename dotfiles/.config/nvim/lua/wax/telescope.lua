@@ -1,11 +1,15 @@
 local actions = require('telescope.actions')
 
+local transform_mod = require('telescope.actions.mt').transform_mod
 
--- https://github.com/nvim-telescope/telescope.nvim/pull/541
-function nvim_file_edit(_)
-  vim.cmd(':e')
-end
-
+-- -- https://github.com/nvim-telescope/telescope.nvim/pull/541
+actions.nvim_file_edit = transform_mod(
+  {
+    nvim_file_edit = function()
+      vim.cmd(':normal! zx')
+    end
+  }
+)
 
 require('telescope').setup{
   defaults = {
@@ -26,10 +30,31 @@ require('telescope').setup{
     mapping = {
       i = {
         ["<C-q>"] = actions.send_to_qflist,
-        ["<CR>"] = actions.select_default + actions.center,
+        ["<CR>"] = actions.select_default + actions.nvim_file_edit + actions.center,
+        -- ["<CR>"] = actions.select_default,
       },
     }
   }
 }
 
 require('telescope').load_extension('fzy_native')
+
+
+local builtin = require('telescope.builtin')
+
+live_git_grep = function(opts)
+  local vimgrep_arguments = {
+    "git", "grep",
+    "--ignore-case",
+    "--untracked",
+    "--exclude-standard",
+    "--line-number",
+    "--column",
+    "-I",  -- don't match pattern in binary files
+    "--threads", "10",
+  }
+  opts.vimgrep_arguments = vimgrep_arguments
+  return builtin.live_grep(opts)
+end
+
+builtin.live_git_grep = live_git_grep
