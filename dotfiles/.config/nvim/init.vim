@@ -60,6 +60,11 @@ Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim'
 Plug 'nvim-telescope/telescope-fzy-native.nvim'
+" Plug 'nvim-telescope/telescope-fzf-writer.nvim'
+
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }  " Fuzzy Finder
+Plug 'junegunn/fzf.vim'
+
 
 Plug 'justinmk/vim-sneak'  " minimalist motion with 2 keys
 

@@ -131,4 +131,5 @@ ts.setup {
 --   ),
 --   ','
 -- )
+-- local ft_str = "typescript,vue,lua"
 -- vim.cmd('autocmd Filetype ' .. ft_str .. ' setlocal foldmethod=expr foldexpr=nvim_treesitter#foldexpr()')

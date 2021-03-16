@@ -11,6 +11,9 @@ actions.nvim_file_edit = transform_mod(
   }
 )
 
+-- Extensions
+require('telescope').load_extension('fzy_native')
+
 require('telescope').setup{
   defaults = {
     generic_sorter =  require('telescope.sorters').get_generic_fuzzy_sorter,
@@ -34,10 +37,8 @@ require('telescope').setup{
         -- ["<CR>"] = actions.select_default,
       },
     }
-  }
+  },
 }
-
-require('telescope').load_extension('fzy_native')
 
 
 local builtin = require('telescope.builtin')
