@@ -4,7 +4,7 @@ local parsers = require'nvim-treesitter.parsers'
 ts.setup {
   highlight = {
     enable = true,
-    -- disable = {"vue", },
+    disable = {"vue", },  -- Break tcomment_vim (see https://github.com/nvim-treesitter/nvim-treesitter/pull/1042)
     -- disable = {"vue", "typescript"},
     -- custom_captures = {}
   },
@@ -20,9 +20,9 @@ ts.setup {
       node_decremental = "grm",
     }
   },
-  indent = {
-    enable = true,
-  },
+  -- indent = {
+  --   enable = true,
+  -- },
   -- refactor = {
   --   highlight_definitions = { enable = true },
   --   highlight_current_scope = { enable = false },

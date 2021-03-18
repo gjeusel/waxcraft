@@ -18,6 +18,14 @@ hi! link Folded GruvboxFg3
 
 " Better Sign Column
 highlight SignColumn ctermbg=none
+highlight CocHintHighlight cterm=none
+
+highlight CocHintSign ctermbg=none ctermfg=Blue
+highlight CocInfoSign ctermbg=none ctermfg=White
+highlight CocWarningSign ctermbg=none ctermfg=Yellow
+highlight CocErrorSign ctermbg=none ctermfg=Red cterm=none
+hi! link CocErrorSign GruvboxRed
+
 highlight GitGutterAdd ctermbg=none ctermfg=Green
 highlight GitGutterChange ctermbg=none ctermfg=Yellow
 highlight GitGutterDelete ctermbg=none ctermfg=Red
@@ -40,7 +48,7 @@ hi! link TSConstructor white
 hi! link TSProperty white
 hi! link TSParameter white
 hi! link TSVariable white
-hi! link TSVariableBuiltin white
+hi! link TSVariableBuiltin GruvboxOrange
 
 hi! link TSFunction GruvboxBlue
 hi! link TSMethod GruvboxBlue
@@ -48,5 +56,6 @@ hi! link TSMethod GruvboxBlue
 hi! link TSType GruvboxYellow
 hi! link TSTypeBuiltin GruvboxYellow
 
+hi! link TSPunctSpecial GruvboxFg3
 hi! link TSPunctBracket GruvboxFg3
 hi! link TSPunctDelimiter white

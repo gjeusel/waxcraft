@@ -116,9 +116,9 @@ let g:frontend_types = ['vue', 'js', 'ts', 'css', 'html']
 Plug 'pangloss/vim-javascript', {'for': g:frontend_types}    " JavaScript support
 Plug 'leafgarland/typescript-vim', {'for': g:frontend_types} " TypeScript syntax
 Plug 'maxmellon/vim-jsx-pretty', {'for': g:frontend_types}   " JS and JSX syntax
-Plug 'jparise/vim-graphql', {'for': g:frontend_types}        " GraphQL syntax
+" Plug 'jparise/vim-graphql', {'for': g:frontend_types}        " GraphQL syntax
 Plug 'alvan/vim-closetag', {'for': ['html', 'vue']}
-Plug 'posva/vim-vue', {'for': 'vue'}  " allow to comment with nerdcommenter
+Plug 'posva/vim-vue', {'for': 'vue'}  " allow to comment with tcomment
 
 " https://github.com/romgrk/nvim/blob/ef06dc0eac72e2eadfb2162d77a1b3ba1816dd2d/rc/plugins/tree-sitter.after.lua
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}

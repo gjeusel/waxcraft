@@ -3,8 +3,10 @@
   "diagnostic.refreshOnInsertMode": true,
   "diagnostic.enableSign": true,
   "diagnostic.checkCurrentLine": false,
-  "diagnostic.errorSign": "✗",
+  "diagnostic.hintSign": "‣",
   "diagnostic.infoSign": "i",
+  "diagnostic.warningSign": "ø",
+  "diagnostic.errorSign": "✗",
   "diagnostic.locationlistUpdate": false,
   "diagnostic.virtualText": true,
   "diagnostic.virtualTextCurrentLineOnly": true,
@@ -39,13 +41,14 @@
   "tailwindCSS.headwind.defaultSortOrder": [],
   "vetur.validation.template": true,
   "vetur.validation.templateProps": true,
-  "vetur.validation.script": false,  // waiting for better vue3 support
+  "vetur.validation.script": true,  // waiting for better vue3 support
   "prettier.eslintIntegration": true,
   "prettier.disableSuccessMessage": true,
   "tsserver.enable": true,
+  "tsserver.log": "verbose",
   "eslint.quiet": false,
   "eslint.packageManager": "npm",
-  "tslint.enable": true,
+  "tslint.enable": false,
   "tslint.alwaysShowRuleFailuresAsWarnings": true,
   "tslint.autoFixOnSave": false
 }

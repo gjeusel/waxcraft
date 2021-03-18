@@ -1,11 +1,11 @@
 " Use `[g` and `]g` to navigate diagnostics
 " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
-nmap <silent> [g <Plug>(coc-diagnostic-prev)
-nmap <silent> ]g <Plug>(coc-diagnostic-next)
-nmap <silent> å <Plug>(coc-diagnostic-prev)
-nmap <silent> ß <Plug>(coc-diagnostic-next)
-imap <silent> å <esc><Plug>(coc-diagnostic-prev)
-imap <silent> ß <esc><Plug>(coc-diagnostic-next)
+nmap <silent> [g <Plug>(coc-diagnostic-prev-error)
+nmap <silent> ]g <Plug>(coc-diagnostic-next-error)
+nmap <silent> å <Plug>(coc-diagnostic-prev-error)
+nmap <silent> ß <Plug>(coc-diagnostic-next-error)
+imap <silent> å <esc><Plug>(coc-diagnostic-prev-error)
+imap <silent> ß <esc><Plug>(coc-diagnostic-next-error)
 
 " Format
 nmap <silent> <leader>m <Plug>(coc-format)
@@ -44,20 +44,28 @@ nmap <leader>f  <Plug>(coc-format-selected)
 " Remap ctrl-c to escape to avoid having Floating Window left
 inoremap <C-c> <Esc>
 
+      " \ "coc-fzf-preview"
 let g:coc_global_extensions = [
+      \ "coc-snippets",
       \ "coc-python",
+      \ "coc-vimlsp",
+      \ "coc-git",
+      \ "coc-sh",
+      \
       \ "coc-lua",
       \ "coc-json",
       \ "coc-yaml",
+      \ "coc-toml",
+      \ "coc-sql",
+      \
       \ "coc-css",
-      \ "coc-html",
-      \ "coc-prettier",
       \ "coc-tailwindcss",
-      \ "coc-snippets",
-      \ "coc-eslint@1.3.2",
-      \ "coc-tslint",
+      \ "coc-html",
       \ "coc-tsserver",
-      \ "coc-vetur"
+      \ "coc-vetur",
+      \ "coc-prettier",
+      \ "coc-eslint",
+      \ "coc-tslint",
       \ ]
 
 " Snippets:

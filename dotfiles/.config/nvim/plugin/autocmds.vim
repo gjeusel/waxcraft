@@ -55,6 +55,7 @@ augroup frontend
 
   " JS / TS / Vue
   " avoid syntax highlighting stops working randomly in vue:
+  " autocmd FileType vue let g:tcomment#filetype#guess_typescriptreact = 1
   autocmd FileType vue syntax sync fromstart
   autocmd FileType vue,typescript set foldmethod=expr foldexpr=nvim_treesitter#foldexpr()
 augroup end
