@@ -14,6 +14,7 @@ highlight ColorColumn ctermbg=236
 " Better Fold
 " highlight Folded ctermbg=236
 highlight Folded cterm=bold ctermbg=none
+hi! link Folded GruvboxFg3
 
 " Better Sign Column
 highlight SignColumn ctermbg=none
@@ -31,3 +32,21 @@ highlight DiffText cterm=none ctermfg=Blue ctermbg=none
 highlight CocErrorVirtualText ctermfg=Red ctermbg=none
 highlight CocWarningVirtualText ctermfg=Yellow ctermbg=none
 highlight CocInfoVirtualText ctermfg=Blue ctermbg=none
+
+"
+" TreeSitter for TypeScript and Vue
+hi! link TSField white
+hi! link TSConstructor white
+hi! link TSProperty white
+hi! link TSParameter white
+hi! link TSVariable white
+hi! link TSVariableBuiltin white
+
+hi! link TSFunction GruvboxBlue
+hi! link TSMethod GruvboxBlue
+
+hi! link TSType GruvboxYellow
+hi! link TSTypeBuiltin GruvboxYellow
+
+hi! link TSPunctBracket GruvboxFg3
+hi! link TSPunctDelimiter white

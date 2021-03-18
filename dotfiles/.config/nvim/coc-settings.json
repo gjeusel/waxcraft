@@ -10,6 +10,8 @@
   "diagnostic.virtualTextCurrentLineOnly": true,
   "diagnostic.virtualTextPrefix": "   ‣ ",
   "diagnostic.messageTarget": "float",
+  "coc.preferences.currentFunctionSymbolAutoUpdate": true,
+  // Snippets
   "snippets.priority": 100,
   "snippets.userSnippetsDirectory": "~/.config/nvim/snippets",
   "snippets.snipmate.enable": false,
@@ -17,7 +19,7 @@
   "snippets.ultisnips.usePythonx": true,
   "snippets.extends": { "vue": ["typescript"] },
   "snippets.loadFromExtensions": false,
-  "coc.preferences.currentFunctionSymbolAutoUpdate": true,
+  // Python
   "python.analysis.diagnosticEnabled": true,
   "python.analysis.diagnosticPublishDelay": 100,
   "python.analysis.downloadChannel": "stable",
@@ -30,8 +32,20 @@
   "python.formatting.provider": "black",
   "python.terminal.activateEnvironment": false,
   "python.disableInstallationCheck": true,
+  // Frontend:
   "tailwindCSS.headwind.removeDuplicates": true,
   "tailwindCSS.headwind.runOnSave": true,
   "tailwindCSS.emmetCompletions": true,
-  "tailwindCSS.headwind.defaultSortOrder": []
+  "tailwindCSS.headwind.defaultSortOrder": [],
+  "vetur.validation.template": true,
+  "vetur.validation.templateProps": true,
+  "vetur.validation.script": false,  // waiting for better vue3 support
+  "prettier.eslintIntegration": true,
+  "prettier.disableSuccessMessage": true,
+  "tsserver.enable": true,
+  "eslint.quiet": false,
+  "eslint.packageManager": "npm",
+  "tslint.enable": true,
+  "tslint.alwaysShowRuleFailuresAsWarnings": true,
+  "tslint.autoFixOnSave": false
 }

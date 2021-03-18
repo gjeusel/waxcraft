@@ -46,6 +46,7 @@ inoremap <C-c> <Esc>
 
 let g:coc_global_extensions = [
       \ "coc-python",
+      \ "coc-lua",
       \ "coc-json",
       \ "coc-yaml",
       \ "coc-css",

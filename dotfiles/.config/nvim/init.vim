@@ -86,6 +86,7 @@ Plug 'airblade/vim-gitgutter'    " column sign for git changes
 Plug 'wincent/loupe'             " better focus on current highlight search
 " Plug 'romainl/vim-cool'          " disable highlight on first movement
 
+" Plug 'christianchiarulli/nvcode-color-schemes.vim'
 Plug 'morhetz/gruvbox'           " best colorscheme ever
 
 " nerd font need to be installed, see https://github.com/ryanoasis/nerd-fonts#font-installation
@@ -122,6 +123,7 @@ Plug 'posva/vim-vue', {'for': 'vue'}  " allow to comment with nerdcommenter
 " https://github.com/romgrk/nvim/blob/ef06dc0eac72e2eadfb2162d77a1b3ba1816dd2d/rc/plugins/tree-sitter.after.lua
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'nvim-treesitter/playground'
+Plug 'p00f/nvim-ts-rainbow'
 
 Plug 'mattn/emmet-vim', {'for': ['html', 'vue']}
 

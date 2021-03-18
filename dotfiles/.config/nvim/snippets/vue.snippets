@@ -28,12 +28,13 @@
 # File Skeleton
 
 snippet vsetup "vue RFC script setup" b
-<script setup lang="ts">
-</script>
-
 <template>
 	<div></div>
 </template>
+
+<script setup name="${0}" lang="ts">
+import { ref, defineProps, defineEmit } from "vue"
+</script>
 endsnippet
 
 snippet vbase "vue skeleton" b

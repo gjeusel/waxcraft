@@ -4,8 +4,13 @@ local parsers = require'nvim-treesitter.parsers'
 ts.setup {
   highlight = {
     enable = true,
-    disable = {"vue", "typescript"},
+    -- disable = {"vue", },
+    -- disable = {"vue", "typescript"},
+    -- custom_captures = {}
   },
+  -- rainbow = {
+  --   enable = true
+  -- },
   incremental_selection = {
     enable = true,
     keymaps = {
