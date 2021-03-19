@@ -1,20 +1,21 @@
 " Setting FileType:{{{
-" Make sure all markdown files have the correct filetype set
-au BufRead,BufNewFile *.{md,md.erb,markdown,mdown,mkd,mkdn,txt} set filetype=markdown
 
-au BufNewFile,BufRead *.snippets set filetype=snippets
-au BufNewFile,BufRead *.sh set filetype=sh
-au BufNewFile,BufRead *.txt set filetype=sh
-au BufNewFile,BufRead *aliases set filetype=zsh
-au BufNewFile,BufRead cronfile set filetype=sh
-au BufNewFile,BufRead *.env* set ft=sh
-au BufNewFile,BufRead *.flaskenv set ft=sh
+augroup ensureFileType
+  " Make sure all markdown files have the correct filetype set
+  au BufRead,BufNewFile *.{md,md.erb,markdown,mdown,mkd,mkdn,txt} set filetype=markdown
 
-au BufNewFile,BufRead *.nix set filetype=nix
+  au BufNewFile,BufRead *.snippets set filetype=snippets
 
-au BufNewFile,BufRead .gitconfig set filetype=conf
-au BufNewFile,BufRead *.conf set filetype=config
-au BufNewFile,BufRead *.kubeconfig set filetype=yaml
+  au BufNewFile,BufRead cronfile set filetype=sh
+  au BufNewFile,BufRead *.{sh,txt,env*,flaskenv} set filetype=sh
+  au BufNewFile,BufRead *aliases set filetype=zsh
+
+  au BufNewFile,BufRead *.nix set filetype=nix
+
+  au BufNewFile,BufRead .gitconfig set filetype=conf
+  au BufNewFile,BufRead *.conf set filetype=config
+  au BufNewFile,BufRead *.{kubeconfig,yml,yaml} set filetype=yaml
+augroup end
 " }}}
 
 " Generic: {{{
@@ -56,6 +57,7 @@ augroup frontend
   " JS / TS / Vue
   " avoid syntax highlighting stops working randomly in vue:
   " autocmd FileType vue let g:tcomment#filetype#guess_typescriptreact = 1
+  " autocmd FileType vue,typescript setlocal shiftwidth=2 tabstop=2 softtabstop=2 expandtab
   autocmd FileType vue syntax sync fromstart
   autocmd FileType vue,typescript set foldmethod=expr foldexpr=nvim_treesitter#foldexpr()
 augroup end

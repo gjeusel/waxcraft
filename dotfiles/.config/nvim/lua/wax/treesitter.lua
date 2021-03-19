@@ -20,9 +20,9 @@ ts.setup {
       node_decremental = "grm",
     }
   },
-  -- indent = {
-  --   enable = true,
-  -- },
+  indent = {
+    enable = true,
+  },
   -- refactor = {
   --   highlight_definitions = { enable = true },
   --   highlight_current_scope = { enable = false },

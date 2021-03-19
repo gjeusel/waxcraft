@@ -112,7 +112,8 @@ Plug 'w0rp/ale', {'for': 'python'}  " general asynchronous syntax checker
 
 
 " ----------- FrontEnd -----------
-let g:frontend_types = ['vue', 'js', 'ts', 'css', 'html']
+" let g:frontend_types = ['vue', 'js', 'ts', 'css', 'html']
+let g:frontend_types = ['vue',]
 Plug 'pangloss/vim-javascript', {'for': g:frontend_types}    " JavaScript support
 Plug 'leafgarland/typescript-vim', {'for': g:frontend_types} " TypeScript syntax
 Plug 'maxmellon/vim-jsx-pretty', {'for': g:frontend_types}   " JS and JSX syntax
