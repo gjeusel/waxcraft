@@ -6,8 +6,9 @@ let g:goyo_width = 120
 nmap <leader>go :Goyo <cr>
 
 " indentLine
+let g:indentLine_char = '│'
 let g:indentLine_color_gui = '#343d46'  " indent line color got indentLine plugin
-let g:indentLine_fileTypeExclude = ['json', 'startify', 'markdown', 'vim', 'tex']
+let g:indentLine_fileTypeExclude = ['startify', 'markdown', 'vim', 'tex', 'help']
 
 " rainbow
 let g:rainbow_active = 1 "0 if you want to enable it later via :RainbowToggle

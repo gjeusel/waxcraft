@@ -79,7 +79,8 @@ Plug 'kshenoy/vim-signature'     " toggle display marks
 Plug 'itchyny/lightline.vim'     " light status line
 Plug 'josa42/vim-lightline-coc'  " coc diagnostic in statusline
 Plug 'ap/vim-buftabline'         " buffer line
-Plug 'Yggdroot/indentLine'       " thin indent line
+Plug 'lukas-reineke/indent-blankline.nvim', { 'branch': 'lua'}  " indent line
+
 Plug 'rhysd/conflict-marker.vim' " conflict markers for vimdiff
 Plug 'luochen1990/rainbow'       " embed parenthesis colors
 Plug 'airblade/vim-gitgutter'    " column sign for git changes
@@ -114,21 +115,14 @@ Plug 'w0rp/ale', {'for': 'python'}  " general asynchronous syntax checker
 
 
 " ----------- FrontEnd -----------
-" let g:frontend_types = ['vue', 'js', 'ts', 'css', 'html']
-let g:frontend_types = ['vue',]
-" Plug 'pangloss/vim-javascript', {'for': g:frontend_types}    " JavaScript support
-" Plug 'leafgarland/typescript-vim', {'for': g:frontend_types} " TypeScript syntax
-" Plug 'maxmellon/vim-jsx-pretty', {'for': g:frontend_types}   " JS and JSX syntax
-" Plug 'jparise/vim-graphql', {'for': g:frontend_types}        " GraphQL syntax
-Plug 'alvan/vim-closetag', {'for': ['html', 'vue']}
-" Plug 'posva/vim-vue', {'for': 'vue'}  " allow to comment with tcomment
+let g:front = ['html', 'vue']
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}       " the one
+Plug 'nvim-treesitter/playground'                                 " play with queries
+Plug 'nvim-treesitter/nvim-treesitter-textobjects'                " better text objects
+" Plug 'p00f/nvim-ts-rainbow'                                       " rainbow parenthesis
+Plug 'windwp/nvim-ts-autotag', {'branch': 'main', 'for': g:front} " close html tags
 
-" https://github.com/romgrk/nvim/blob/ef06dc0eac72e2eadfb2162d77a1b3ba1816dd2d/rc/plugins/tree-sitter.after.lua
-Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-Plug 'nvim-treesitter/playground'
-Plug 'p00f/nvim-ts-rainbow'
-
-Plug 'mattn/emmet-vim', {'for': ['html', 'vue']}
+Plug 'mattn/emmet-vim', {'for': g:front}
 
 
 " ----------- Golang - MarkDown - rst - Terraform - Latex -----------

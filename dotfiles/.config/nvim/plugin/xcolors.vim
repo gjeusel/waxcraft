@@ -41,7 +41,6 @@ highlight CocErrorVirtualText ctermfg=Red ctermbg=none
 highlight CocWarningVirtualText ctermfg=Yellow ctermbg=none
 highlight CocInfoVirtualText ctermfg=Blue ctermbg=none
 
-"
 " TreeSitter for TypeScript and Vue
 hi! link TSProperty white
 hi! link TSParameter white
