@@ -21,7 +21,7 @@ set splitright          " split at the right of current buffer (left default beh
 set splitbelow          " split at the below of current buffer (top default behaviour)
 set autochdir           " working directory is always the same as the file you are editing
 
-set updatetime=300      " frequency to apply Autocmd events
+set updatetime=10       " frequency to apply Autocmd events -> low for nvim-ts-context-commentstring
 set shortmess+=c        " don't pass messages to ins-completion-menu
 
 set spelllang=en_us     " activate vim spell checking

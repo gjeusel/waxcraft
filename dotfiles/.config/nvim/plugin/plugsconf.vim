@@ -31,6 +31,7 @@ let g:SuperTabMappingBackward = '<Tab>'
 
 " tcomment
 let g:tcomment_opleader1 = "<leader>c"
+let g:tcomment#filetype#guess_vue = 0  " https://github.com/tomtom/tcomment_vim/issues/284#issuecomment-809956888
 
 " Python - Pymode {{{
 " syntax (colors for self keyword for example)

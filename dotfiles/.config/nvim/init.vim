@@ -32,9 +32,10 @@ endif
 call plug#begin(s:plugin_dir)
 
 " ----------- System Plugins -----------
-Plug 'christoomey/vim-tmux-navigator' " tmux navigation in love with vim
-Plug 'jgdavey/tslime.vim'             " Send command from vim to a running tmux session
-Plug 'tomtom/tcomment_vim'  " better for vue
+Plug 'christoomey/vim-tmux-navigator'              " tmux navigation in love with vim
+Plug 'jgdavey/tslime.vim', { 'branch': 'main' }    " Send command from vim to a running tmux session
+Plug 'tomtom/tcomment_vim'                         " for contextual comment
+Plug 'JoosepAlviste/nvim-ts-context-commentstring' " used by tcomment when disabled syntax
 
 " Tpope is awesome
 Plug 'tpope/vim-surround'        " change surrounding easily
@@ -88,6 +89,7 @@ Plug 'wincent/loupe'             " better focus on current highlight search
 
 " Plug 'christianchiarulli/nvcode-color-schemes.vim'
 Plug 'morhetz/gruvbox'           " best colorscheme ever
+" Plug 'arcticicestudio/nord-vim'  " nice one though
 
 " nerd font need to be installed, see https://github.com/ryanoasis/nerd-fonts#font-installation
 " > sudo pacman -S ttf-nerd-fonts-symbols
@@ -114,12 +116,12 @@ Plug 'w0rp/ale', {'for': 'python'}  " general asynchronous syntax checker
 " ----------- FrontEnd -----------
 " let g:frontend_types = ['vue', 'js', 'ts', 'css', 'html']
 let g:frontend_types = ['vue',]
-Plug 'pangloss/vim-javascript', {'for': g:frontend_types}    " JavaScript support
-Plug 'leafgarland/typescript-vim', {'for': g:frontend_types} " TypeScript syntax
-Plug 'maxmellon/vim-jsx-pretty', {'for': g:frontend_types}   " JS and JSX syntax
+" Plug 'pangloss/vim-javascript', {'for': g:frontend_types}    " JavaScript support
+" Plug 'leafgarland/typescript-vim', {'for': g:frontend_types} " TypeScript syntax
+" Plug 'maxmellon/vim-jsx-pretty', {'for': g:frontend_types}   " JS and JSX syntax
 " Plug 'jparise/vim-graphql', {'for': g:frontend_types}        " GraphQL syntax
 Plug 'alvan/vim-closetag', {'for': ['html', 'vue']}
-Plug 'posva/vim-vue', {'for': 'vue'}  " allow to comment with tcomment
+" Plug 'posva/vim-vue', {'for': 'vue'}  " allow to comment with tcomment
 
 " https://github.com/romgrk/nvim/blob/ef06dc0eac72e2eadfb2162d77a1b3ba1816dd2d/rc/plugins/tree-sitter.after.lua
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}

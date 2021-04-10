@@ -43,11 +43,13 @@ highlight CocInfoVirtualText ctermfg=Blue ctermbg=none
 
 "
 " TreeSitter for TypeScript and Vue
-hi! link TSField white
-hi! link TSConstructor white
 hi! link TSProperty white
 hi! link TSParameter white
+hi! link TSConstant white
 hi! link TSVariable white
+hi! link TSField white
+hi! link TSConstructor white
+
 hi! link TSVariableBuiltin GruvboxOrange
 
 hi! link TSFunction GruvboxBlue

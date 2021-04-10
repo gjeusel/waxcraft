@@ -56,10 +56,13 @@ augroup frontend
 
   " JS / TS / Vue
   " avoid syntax highlighting stops working randomly in vue:
-  " autocmd FileType vue let g:tcomment#filetype#guess_typescriptreact = 1
   " autocmd FileType vue,typescript setlocal shiftwidth=2 tabstop=2 softtabstop=2 expandtab
-  autocmd FileType vue syntax sync fromstart
-  autocmd FileType vue,typescript set foldmethod=expr foldexpr=nvim_treesitter#foldexpr()
+  " autocmd FileType vue syntax sync fromstart
+
+  " until https://github.com/nvim-treesitter/nvim-treesitter/issues/1100
+  " is fixed, disable viewdir on vue files -> too slow
+  " autocmd FileType vue setlocal viewoptions=
+  autocmd FileType vue,typescript setlocal foldmethod=expr foldexpr=nvim_treesitter#foldexpr()
 augroup end
 " }}}
 

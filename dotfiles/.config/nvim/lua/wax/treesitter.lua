@@ -4,12 +4,13 @@ local parsers = require'nvim-treesitter.parsers'
 ts.setup {
   highlight = {
     enable = true,
-    disable = {"vue", },  -- Break tcomment_vim (see https://github.com/nvim-treesitter/nvim-treesitter/pull/1042)
     -- disable = {"vue", "typescript"},
     -- custom_captures = {}
+    additional_vim_regex_highlighting = false,
   },
   -- rainbow = {
-  --   enable = true
+  --   enable = true,
+  --   extended_mode = true, -- Highlight also non-parentheses delimiters, boolean or table: lang -> boolean
   -- },
   incremental_selection = {
     enable = true,
@@ -21,7 +22,7 @@ ts.setup {
     }
   },
   indent = {
-    enable = true,
+    enable = true,  -- is shit
   },
   -- refactor = {
   --   highlight_definitions = { enable = true },
@@ -125,7 +126,10 @@ ts.setup {
     -- Backend:
     'go',
     'rust',
-  }
+  },
+  context_commentstring = {
+    enable = true,
+  },
 }
 
 -- local configs = parsers.get_parser_configs()
