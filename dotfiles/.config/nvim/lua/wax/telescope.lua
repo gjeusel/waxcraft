@@ -11,9 +11,6 @@ actions.nvim_file_edit = transform_mod(
   }
 )
 
--- Extensions
-require('telescope').load_extension('fzy_native')
-
 require('telescope').setup{
   defaults = {
     generic_sorter =  require('telescope.sorters').get_generic_fuzzy_sorter,
@@ -33,11 +30,19 @@ require('telescope').setup{
     mapping = {
       i = {
         ["<C-q>"] = actions.send_to_qflist,
-        ["<CR>"] = actions.select_default + actions.nvim_file_edit + actions.center,
-        -- ["<CR>"] = actions.select_default,
+        -- ["<CR>"] = actions.select_default + actions.nvim_file_edit + actions.center,
+        ["<CR>"] = actions.select_default,
       },
-    }
+    },
+    file_ignore_patterns = {"node_modules/.*", "dist/.*", "__pycache__/.*"},
   },
+  extensions = {
+    fzf = {
+      override_generic_sorter = true,  -- override the generic sorter
+      override_file_sorter = true,     -- override the file sorter
+      case_mode = "smart_case",        -- or "ignore_case" or "respect_case"
+    },
+  }
 }
 
 
@@ -59,3 +64,6 @@ live_git_grep = function(opts)
 end
 
 builtin.live_git_grep = live_git_grep
+
+-- Extensions
+require('telescope').load_extension('fzf')

@@ -9,8 +9,11 @@
 "   - https://github.com/wincent/wincent
 "   - https://github.com/awesome-streamers/awesome-streamerrc/tree/master/ThePrimeagen
 "
-" Should look up into better telescope + lua:
-"   - https://github.com/Conni2461/dotfiles/tree/master/.config/nvim
+" Should look up into:
+"   - better telescope + lua: https://github.com/Conni2461/dotfiles/tree/master/.config/nvim
+"   - better UI: https://github.com/ChristianChiarulli/nvcode
+"   - tjevries: https://github.com/tjdevries/config_manager/tree/master/xdg_config/nvim
+"   - Connie2461: https://github.com/Conni2461/dotfiles/tree/master/.config/nvim
 
 scriptencoding utf-8
 set encoding=utf-8   " is the default in neovim though
@@ -35,7 +38,7 @@ call plug#begin(s:plugin_dir)
 Plug 'christoomey/vim-tmux-navigator'              " tmux navigation in love with vim
 Plug 'jgdavey/tslime.vim', { 'branch': 'main' }    " Send command from vim to a running tmux session
 Plug 'tomtom/tcomment_vim'                         " for contextual comment
-Plug 'JoosepAlviste/nvim-ts-context-commentstring' " used by tcomment when disabled syntax
+Plug 'JoosepAlviste/nvim-ts-context-commentstring', { 'branch': 'main' } " used by tcomment when disabled syntax
 
 " Tpope is awesome
 Plug 'tpope/vim-surround'        " change surrounding easily
@@ -60,7 +63,7 @@ Plug 'janko/vim-test'            " test at the speed of light
 Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim'
-Plug 'nvim-telescope/telescope-fzy-native.nvim'
+Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'branch': 'main', 'do': 'make' }
 " Plug 'nvim-telescope/telescope-fzf-writer.nvim'
 
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }  " Fuzzy Finder
