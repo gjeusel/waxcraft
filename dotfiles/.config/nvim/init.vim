@@ -38,7 +38,8 @@ call plug#begin(s:plugin_dir)
 Plug 'christoomey/vim-tmux-navigator'              " tmux navigation in love with vim
 Plug 'jgdavey/tslime.vim', { 'branch': 'main' }    " Send command from vim to a running tmux session
 Plug 'tomtom/tcomment_vim'                         " for contextual comment
-Plug 'JoosepAlviste/nvim-ts-context-commentstring', { 'branch': 'main' } " used by tcomment when disabled syntax
+" Plug 'JoosepAlviste/nvim-ts-context-commentstring', { 'branch': 'main' } " used by tcomment when disabled syntax
+Plug 'JoosepAlviste/nvim-ts-context-commentstring', { 'commit': '5024c83e92c3988f6e7119bfa1b2347ae3a42c3e' } " used by tcomment when disabled syntax
 
 " Tpope is awesome
 Plug 'tpope/vim-surround'        " change surrounding easily
@@ -85,7 +86,7 @@ Plug 'ap/vim-buftabline'         " buffer line
 Plug 'lukas-reineke/indent-blankline.nvim', { 'branch': 'lua'}  " indent line
 
 Plug 'rhysd/conflict-marker.vim' " conflict markers for vimdiff
-Plug 'luochen1990/rainbow'       " embed parenthesis colors
+Plug 'luochen1990/rainbow', { 'for': ['python', ] }       " embed parenthesis colors
 Plug 'airblade/vim-gitgutter'    " column sign for git changes
 
 Plug 'wincent/loupe'             " better focus on current highlight search
@@ -119,7 +120,8 @@ Plug 'w0rp/ale', {'for': 'python'}  " general asynchronous syntax checker
 
 " ----------- FrontEnd -----------
 let g:front = ['html', 'vue']
-Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}       " the one
+" Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}       " the one
+Plug 'nvim-treesitter/nvim-treesitter', {'commit': '006aceb574e90fdc3dc911b76ecb7fef4dd0d609', 'do': ':TSUpdate'}       " the one
 Plug 'nvim-treesitter/playground'                                 " play with queries
 Plug 'nvim-treesitter/nvim-treesitter-textobjects'                " better text objects
 " Plug 'p00f/nvim-ts-rainbow'                                       " rainbow parenthesis
