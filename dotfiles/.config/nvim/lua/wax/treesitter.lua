@@ -42,7 +42,7 @@ ts.setup {
     -- Backend:
     'go',
     'rust',
-    -- 'python',  commented as too used to previous config
+    -- 'python',  commented as too many habits on current settings
   },
 
   -- Plugins config:

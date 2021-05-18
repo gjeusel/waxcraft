@@ -74,6 +74,14 @@ let g:vue_pre_processors = []
 
 " Emmet:
 imap <expr> <C-d> emmet#expandAbbrIntelligent("\<tab>")
+
+function! s:setFrontendMappings()
+  map <buffer> <Leader>o odebugger  // BREAKPOINT<C-c>
+  map <buffer> <Leader>O Odebugger  // BREAKPOINT<C-c>
+endfunction
+augroup frontend_mappings
+  au Filetype vue,typescript,javascript call s:setFrontendMappings()
+augroup end
 " }}}
 
 " Lint ALE {{{
