@@ -38,8 +38,8 @@ call plug#begin(s:plugin_dir)
 Plug 'christoomey/vim-tmux-navigator'              " tmux navigation in love with vim
 Plug 'jgdavey/tslime.vim', { 'branch': 'main' }    " Send command from vim to a running tmux session
 Plug 'tomtom/tcomment_vim'                         " for contextual comment
-" Plug 'JoosepAlviste/nvim-ts-context-commentstring', { 'branch': 'main' } " used by tcomment when disabled syntax
 Plug 'JoosepAlviste/nvim-ts-context-commentstring', { 'commit': '5024c83e92c3988f6e7119bfa1b2347ae3a42c3e' } " used by tcomment when disabled syntax
+Plug 'famiu/nvim-reload'  " easy reaload
 
 " Tpope is awesome
 Plug 'tpope/vim-surround'        " change surrounding easily
@@ -67,8 +67,8 @@ Plug 'nvim-telescope/telescope.nvim'
 Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'branch': 'main', 'do': 'make' }
 " Plug 'nvim-telescope/telescope-fzf-writer.nvim'
 
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }  " Fuzzy Finder
-Plug 'junegunn/fzf.vim'
+" Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }  " Fuzzy Finder
+" Plug 'junegunn/fzf.vim'
 
 
 Plug 'justinmk/vim-sneak'  " minimalist motion with 2 keys
@@ -130,6 +130,11 @@ Plug 'windwp/nvim-ts-autotag', {'branch': 'main', 'for': g:front} " close html t
 Plug 'mattn/emmet-vim', {'for': g:front}
 
 
+" ----------- LSP -----------
+Plug 'neovim/nvim-lspconfig'
+Plug 'kabouzeid/nvim-lspinstall'
+
+
 " ----------- Golang - MarkDown - rst - Terraform - Latex -----------
 Plug 'fatih/vim-go', {'for': 'go'}
 
@@ -146,6 +151,10 @@ call plug#end()
 " Mappings {{{
 
 " Behaviour fixes {{{
+
+" remap for ctrl + a and ctrl + e in insert mode
+inoremap <C-e> <End>
+inoremap <C-a> <Home>
 
 " quick escape:
 map <nowait> <Esc> <C-c>
@@ -225,11 +234,11 @@ map <nowait> œ :bp<cr>
 map <nowait> ∑ :bn<cr>
 
 " buffer delete without closing windows :
-nmap <silent> ® :bp!\|bd! #<CR>
+" nmap <silent> ® :bp!\|bd! #<CR>
+nmap <silent> ® :bdelete<CR>
 
 " Split windows
 map <nowait> <leader>l :vs<cr>
-map <nowait> ∂ :vs<cr>
 map <nowait> <leader>' :sp<cr>
 "}}}
 
@@ -255,8 +264,8 @@ map <C-s> :w<CR>
 " easy no hl
 nmap <leader>; :nohl<cr>
 
-" source config
-map <F12> :source ${HOME}/.config/nvim/init.vim<cr>
+" Use nvim-reload plugin
+map <F12> <cmd>Reload<cr>
 "}}}
 
 let g:python3_host_prog = $HOME . "/miniconda3/envs/neovim37/bin/python"

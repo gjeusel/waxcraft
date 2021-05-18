@@ -18,6 +18,7 @@ hi! link Folded GruvboxFg3
 
 " Better Sign Column
 highlight SignColumn ctermbg=none
+
 highlight CocHintHighlight cterm=none
 
 highlight CocHintSign ctermbg=none ctermfg=Blue
@@ -40,6 +41,12 @@ highlight DiffText cterm=none ctermfg=Blue ctermbg=none
 highlight CocErrorVirtualText ctermfg=Red ctermbg=none
 highlight CocWarningVirtualText ctermfg=Yellow ctermbg=none
 highlight CocInfoVirtualText ctermfg=Blue ctermbg=none
+
+" LSP colors
+highlight LspReferenceRead cterm=bold ctermbg=red guibg=#464646
+highlight LspReferenceText cterm=bold ctermbg=red guibg=#464646
+highlight LspReferenceWrite cterm=bold ctermbg=red guibg=#464646
+
 
 " TreeSitter for TypeScript and Vue
 hi! link TSProperty white
