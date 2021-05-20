@@ -132,7 +132,7 @@ Plug 'mattn/emmet-vim', {'for': g:front}
 
 " ----------- LSP -----------
 Plug 'neovim/nvim-lspconfig'
-Plug 'kabouzeid/nvim-lspinstall'
+Plug 'kabouzeid/nvim-lspinstall', { 'branch': 'main' }
 
 
 " ----------- Golang - MarkDown - rst - Terraform - Latex -----------
@@ -234,8 +234,8 @@ map <nowait> œ :bp<cr>
 map <nowait> ∑ :bn<cr>
 
 " buffer delete without closing windows :
-" nmap <silent> ® :bp!\|bd! #<CR>
-nmap <silent> ® :bdelete<CR>
+nmap <silent> ® :bp!\|bd! #<CR>
+" nmap <silent> ® :bdelete<CR>
 
 " Split windows
 map <nowait> <leader>l :vs<cr>

@@ -6,11 +6,13 @@
 " - better integration with fzf. At the moment, it is slow and not a lot customizable (passing custom commands is not implemented, pin to rg)
 "   (https://github.com/nvim-telescope/telescope-fzf-writer.nvim)
 
-nnoremap <leader>a <cmd>lua require('wax.telescope').git_grep_string()<cr>
+nnoremap <leader>a <cmd>lua require('wax.telescope').fallback_grep_string()<cr>
 nnoremap <leader>A <cmd>lua require('wax.telescope').rg_grep_string()<cr>
 
-nnoremap <leader>p <cmd>lua require('wax.telescope').git_files({prompt_title='~ git files ~'})<cr>
-nnoremap <leader>P <cmd>lua require('wax.telescope').find_files({prompt_title='~ files ~'})<cr>
+nnoremap <leader>p <cmd>lua require('wax.telescope').fallback_grep_file()<cr>
+nnoremap <leader>P <cmd>lua require('wax.telescope').find_files({prompt_title='~ files ~', hidden=true})<cr>
+
+nnoremap <leader>q <cmd>lua require('wax.telescope').projects_files()<cr>
 
 nnoremap <leader>n <cmd>lua require('wax.telescope').buffers({prompt_title='~ buffers ~'})<cr>
 " Telescope Builtin:

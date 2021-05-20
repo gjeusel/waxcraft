@@ -3,3 +3,7 @@ P = function(...) print(vim.inspect(...)) end
 
 require("wax.telescope")
 require("wax.treesitter")
+
+
+-- LSP
+-- require("wax.lsp")
