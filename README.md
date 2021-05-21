@@ -24,7 +24,11 @@ Aggregation of configuration files & knowledge.
 - [wincent](https://github.com/wincent/wincent) -> youtube old vim geek
 
 
+<details>
+<summary>Screenshot</summary>
+
 <p align="center">
     <img alt="overview" src="https://github.com/gjeusel/waxcraft/blob/master/_static/img/overview_devtools.png">
 </p>
 
+</details>
