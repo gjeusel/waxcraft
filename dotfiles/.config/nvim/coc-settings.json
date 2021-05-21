@@ -1,4 +1,10 @@
 {
+  // Config references:
+  // https://github.com/neoclide/coc.nvim/blob/master/data/schema.json
+  //
+  // Example config:
+  // https://github.com/theniceboy/nvim/blob/master/coc-settings.json
+  //
   // Icon
   "suggest.completionItemKindLabels": {
     "class": "   (Class)",
