@@ -7,6 +7,7 @@ Aggregation of configuration files & knowledge.
 - Terminal Multiplexer: [tmux](https://github.com/tmux/tmux) and [tmuxp](https://github.com/tmux-python/tmuxp)
 - Shell: [zsh](https://ohmyz.sh/) with [antibody](https://github.com/getantibody/antibody) plugin manager
 
+---
 
 ### nvim standout plugins
 
@@ -23,6 +24,8 @@ Aggregation of configuration files & knowledge.
 - [tjdevries config files](https://github.com/tjdevries/config_manager) -> nvim core maintainer
 - [wincent](https://github.com/wincent/wincent) -> youtube old vim geek
 
+
+---
 
 <details>
 <summary>Screenshot</summary>
