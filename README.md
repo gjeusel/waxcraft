@@ -1,4 +1,4 @@
-<h2 align="center">waxcraft</h2>
+<h2 align="center"> <br/> waxcraft <br/> </h2>
 
 Aggregation of configuration files & knowledge.
 
@@ -6,7 +6,6 @@ Aggregation of configuration files & knowledge.
 - Terminal Multiplexer: [tmux](https://github.com/tmux/tmux) and [tmuxp](https://github.com/tmux-python/tmuxp)
 - Shell: [zsh](https://ohmyz.sh/) with [antibody](https://github.com/getantibody/antibody) plugin manager
 
-<br/>
 
 ### nvim standout plugins
 
