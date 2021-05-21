@@ -1,7 +1,4 @@
-<br/>
 <h2 align="center">waxcraft</h2>
-<br/>
-
 
 Aggregation of configuration files & knowledge.
 
