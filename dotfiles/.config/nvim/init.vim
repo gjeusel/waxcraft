@@ -83,7 +83,8 @@ Plug 'kshenoy/vim-signature'     " toggle display marks
 Plug 'itchyny/lightline.vim'     " light status line
 Plug 'josa42/vim-lightline-coc'  " coc diagnostic in statusline
 Plug 'ap/vim-buftabline'         " buffer line
-Plug 'lukas-reineke/indent-blankline.nvim', { 'branch': 'lua'}  " indent line
+" Plug 'lukas-reineke/indent-blankline.nvim', { 'branch': 'lua'}  " super slow
+Plug 'Yggdroot/indentLine'       " indent line
 
 Plug 'rhysd/conflict-marker.vim' " conflict markers for vimdiff
 Plug 'luochen1990/rainbow', { 'for': ['python', ] }       " embed parenthesis colors

@@ -23,3 +23,29 @@ function s:capture(expr, bang) abort
 endfunction
 
 command! -nargs=1 -bang P call s:capture(<q-args>, <bang>0)
+
+" Always happen to me:
+command Cq :cq
+
+
+" Profiling functions
+function! StartProfiling()
+  execute ":profile start /tmp/neovim.profile"
+  execute ":profile func *"
+  execute ":profile file *"
+  let g:profiling=1
+endfunction
+
+function! EndProfiling()
+  execute ":profile pause"
+  let g:profiling=0
+endfunction
+
+let g:profiling=0
+function! ToggleProfiling()
+  if g:profiling == 0
+    call StartProfiling()
+  else
+    call EndProfiling()
+  endif
+endfunction
