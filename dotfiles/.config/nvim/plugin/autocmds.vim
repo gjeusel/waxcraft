@@ -63,6 +63,13 @@ augroup frontend
   " is fixed, disable viewdir on vue files -> too slow
   " autocmd FileType vue setlocal viewoptions=
   autocmd FileType vue,typescript setlocal foldmethod=expr foldexpr=nvim_treesitter#foldexpr()
+
+  " Remap coc diagnostic as vue lsp is not ready for setup script
+  autocmd FileType vue,typescript nmap <silent> å <Plug>(coc-diagnostic-prev-error)
+  autocmd FileType vue,typescript nmap <silent> ß <Plug>(coc-diagnostic-next-error)
+  autocmd FileType vue,typescript imap <silent> å <esc><Plug>(coc-diagnostic-prev-error)
+  autocmd FileType vue,typescript imap <silent> ß <esc><Plug>(coc-diagnostic-next-error)
+
 augroup end
 " }}}
 

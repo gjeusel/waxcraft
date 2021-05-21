@@ -1,13 +1,11 @@
 " Use `[g` and `]g` to navigate diagnostics
 " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
-nmap <silent> [g <Plug>(coc-diagnostic-prev-error)
-nmap <silent> ]g <Plug>(coc-diagnostic-next-error)
-nmap <silent> <leader>[ <Plug>(coc-diagnostic-prev)
-nmap <silent> <leader>] <Plug>(coc-diagnostic-next)
-nmap <silent> å <Plug>(coc-diagnostic-prev-error)
-nmap <silent> ß <Plug>(coc-diagnostic-next-error)
-imap <silent> å <esc><Plug>(coc-diagnostic-prev-error)
-imap <silent> ß <esc><Plug>(coc-diagnostic-next-error)
+nmap <silent> [g <Plug>(coc-diagnostic-prev)
+nmap <silent> ]g <Plug>(coc-diagnostic-next)
+nmap <silent> å <Plug>(coc-diagnostic-prev)
+nmap <silent> ß <Plug>(coc-diagnostic-next)
+imap <silent> å <esc><Plug>(coc-diagnostic-prev)
+imap <silent> ß <esc><Plug>(coc-diagnostic-next)
 
 " Format
 nmap <silent> <leader>m <Plug>(coc-format)
