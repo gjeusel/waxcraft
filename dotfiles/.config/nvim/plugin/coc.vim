@@ -2,6 +2,8 @@
 " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
 nmap <silent> [g <Plug>(coc-diagnostic-prev-error)
 nmap <silent> ]g <Plug>(coc-diagnostic-next-error)
+nmap <silent> <leader>[ <Plug>(coc-diagnostic-prev)
+nmap <silent> <leader>] <Plug>(coc-diagnostic-next)
 nmap <silent> å <Plug>(coc-diagnostic-prev-error)
 nmap <silent> ß <Plug>(coc-diagnostic-next-error)
 imap <silent> å <esc><Plug>(coc-diagnostic-prev-error)

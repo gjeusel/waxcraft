@@ -50,5 +50,7 @@
   "eslint.packageManager": "npm",
   "tslint.enable": false,
   "tslint.alwaysShowRuleFailuresAsWarnings": true,
-  "tslint.autoFixOnSave": false
+  "tslint.autoFixOnSave": false,
+  // lua:
+  "Lua.diagnostics.globals": ["vim"]
 }

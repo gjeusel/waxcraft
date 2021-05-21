@@ -280,6 +280,7 @@ require('telescope').setup{
       "__pycache__/.*",
       "package-lock.json",
       "%.ipynb",
+      ".git/.*",
     },
   },
   extensions = {
@@ -299,7 +300,7 @@ local M = {}
 
 -- Custom Grep to be fuzzy
 M.git_grep_string = function()
-  local git_root, ret = utils.get_os_command_output({ "git", "rev-parse", "--show-toplevel" })
+  local git_root, _ = utils.get_os_command_output({ "git", "rev-parse", "--show-toplevel" })
   local opts = {
     prompt_title = "~ git grep string ~",
     search = '' ,  -- https://github.com/nvim-telescope/telescope.nvim/issues/564
@@ -335,7 +336,7 @@ end
 -- Custom find file (defaulting to git files if is git)
 M.fallback_grep_file = function(opts)
   opts = opts or {}
-  if utils.is_git() then
+  if utils.is_git(opts.cwd) then
     local default_opts = {prompt_title='~ git files ~', hidden=true}
     for k,v in pairs(default_opts) do opts[k] = v end
     return builtin.git_files(opts)
@@ -351,13 +352,19 @@ end
 M.wax_file = function()
   local opts = {
     prompt_title = "~ dotfiles waxdir ~",
-    cwd = "~/src/waxcraft",
-    -- cwd=nil,
     hidden=true,
     -- find_command="find",
-    -- search_dirs={"~/src/waxcraft", "~/.config/nvim"}
+    search_dirs={
+      "~/src/waxcraft",
+      "~/.config/nvim",
+      -- Local not versioned in dotfiles:
+      "~/.gitconfig",
+      "~/.python_startup_local.py",
+      "~/.zshrc",
+    },
+    layout_strategy = "vertical",
   }
-  return builtin.git_files(opts)
+  return builtin.find_files(opts)
 end
 
 
@@ -378,9 +385,9 @@ M.projects_files = function()
   local opts = {
     prompt_title = "~ projects files ~",
     cwd = "~/src",
+    depth = 1,
   }
 
-  opts.depth = opts.depth or 1
   opts.cwd = opts.cwd and vim.fn.expand(opts.cwd) or vim.loop.cwd()
   opts.new_finder = opts.new_finder or function(path)
     opts.cwd = path
@@ -395,16 +402,18 @@ M.projects_files = function()
       end
     })
 
+    local entry_maker_fn = function()
+      local gen = make_entry.gen_from_file(opts)
+      return function(entry)
+        local tmp = gen(entry)
+        tmp.ordinal = tele_path.make_relative(entry, opts.cwd)
+        return tmp
+      end
+    end
+
     return finders.new_table {
       results = data,
-      entry_maker = (function()
-        local gen = make_entry.gen_from_file(opts)
-        return function(entry)
-          local tmp = gen(entry)
-          tmp.ordinal = tele_path.make_relative(entry, opts.cwd)
-          return tmp
-        end
-      end)()
+      entry_maker = entry_maker_fn()
     }
   end
 
@@ -414,28 +423,17 @@ M.projects_files = function()
     previewer = conf.file_previewer(opts),
     sorter = conf.file_sorter(opts),
     attach_mappings = function(prompt_bufnr)
-      action_set.select:replace(function(_, cmd)
-        local selection = action_state.get_selected_entry()
-        local project = selection[0]
+      action_set.select:replace(function()
+        local entry = action_state.get_selected_entry()
+        local project = entry[1]
         actions.close(prompt_bufnr)
-        builtin.fallback_grep_file({cwd = project})
+        M.fallback_grep_file({ cwd = project })
         vim.cmd(":normal! A")  -- small fix to be in insert mode
+        return true
       end)
 
       return true
     end
-    -- attach_mappings = function(prompt)
-    --   action_set.select:replace {
-    --     post = function()
-    --       print(vim.inspect(action_state.get_selected_entry()))
-    --     end,
-    --     -- post = function()
-    --     --   local selection = action_state.get_selected_entry()
-    --     --   return builtin.find_files(({prompt_title='~ files ~', hidden=true}))
-    --     -- end,
-    --   }
-    --   return true
-    -- end,
   }):find()
 end
 

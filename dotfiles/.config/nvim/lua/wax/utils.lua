@@ -3,8 +3,9 @@ local telescope_utils = require("telescope.utils")
 local M = {}
 
 
-M.is_git = function()
-  local git_root, ret = telescope_utils.get_os_command_output({ "git", "rev-parse", "--show-toplevel" })
+M.is_git = function(cwd)
+  local cmd = { "git", "rev-parse", "--show-toplevel" }
+  local git_root, ret = telescope_utils.get_os_command_output(cmd, cwd)
   if #git_root <= 0 then
     return false
   else
