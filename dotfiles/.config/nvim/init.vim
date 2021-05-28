@@ -157,6 +157,9 @@ call plug#end()
 inoremap <C-e> <End>
 inoremap <C-a> <Home>
 
+" unmap x, better c
+noremap x <Nop>
+
 " quick escape:
 map <nowait> <Esc> <C-c>
 cmap <nowait> <Esc> <C-c>
@@ -234,9 +237,14 @@ cnoremap <c-l> <c-\><c-n><c-w>l
 map <nowait> œ :bp<cr>
 map <nowait> ∑ :bn<cr>
 
-" buffer delete without closing windows :
+" buffer delete without closing pane: (option + r)
 nmap <silent> ® :bp!\|bd! #<CR>
 " nmap <silent> ® :bdelete<CR>
+
+" delete all buffers except current: (option + R)
+command! BufOnly execute '%bdelete|edit#|bdelete#'
+nmap <silent> ‰ <cmd>BufOnly<cr>
+
 
 " Split windows
 map <nowait> <leader>l :vs<cr>
