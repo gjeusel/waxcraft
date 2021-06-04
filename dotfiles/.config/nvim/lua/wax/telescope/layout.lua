@@ -1,3 +1,5 @@
+local layout_strategies = require("telescope.pickers.layout_strategies")
+
 local M = {}
 
 -- Custome layout strategy ( like center but follow layout defaults )
@@ -169,7 +171,7 @@ M.flexwax = function(self, max_columns, max_lines)
     return M.verticalwax(self, max_columns, max_lines)
   else
     self.layout_config = (require("telescope.config").values.layout_defaults or {})['horizontal']
-    return M.horizontal(self, max_columns, max_lines)
+    return layout_strategies.horizontal(self, max_columns, max_lines)
   end
 end
 

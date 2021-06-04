@@ -67,8 +67,8 @@ Plug 'nvim-telescope/telescope.nvim'
 Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'branch': 'main', 'do': 'make' }
 " Plug 'nvim-telescope/telescope-fzf-writer.nvim'
 
-" Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }  " Fuzzy Finder
-" Plug 'junegunn/fzf.vim'
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }  " Fuzzy Finder
+Plug 'junegunn/fzf.vim'
 
 
 Plug 'justinmk/vim-sneak'  " minimalist motion with 2 keys
@@ -158,7 +158,10 @@ inoremap <C-e> <End>
 inoremap <C-a> <Home>
 
 " unmap x, better c
-noremap x <Nop>
+" noremap x <Nop>
+
+" Y to copy until the end of the line instead of the full line like yy
+noremap Y yg_
 
 " quick escape:
 map <nowait> <Esc> <C-c>

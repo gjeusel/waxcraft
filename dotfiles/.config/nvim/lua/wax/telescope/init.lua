@@ -4,7 +4,7 @@ local builtin = require('telescope.builtin')
 local actions = require('telescope.actions')
 local transform_mod = require('telescope.actions.mt').transform_mod
 
-local custom_layouts_strategies = require("wax.telescope.layout_strategies")
+local waxlayouts = require("wax.telescope.layout")
 local layout_strategies = require("telescope.pickers.layout_strategies")
 
 
@@ -63,7 +63,7 @@ local custom_actions = transform_mod(
 
 
 -- Register custom layouts
-for key, value in pairs(custom_layouts_strategies) do
+for key, value in pairs(waxlayouts) do
   layout_strategies[key] = value
 end
 
@@ -115,6 +115,8 @@ require('telescope').setup{
       "package-lock.json",
       "%.ipynb",
       ".git/.*",
+      "static/appbuilder/.*",
+      "%.min.js",
     },
   },
   extensions = {
@@ -138,9 +140,10 @@ M.git_grep_string = function()
   local git_root, _ = utils.get_os_command_output({ "git", "rev-parse", "--show-toplevel" })
   local opts = {
     prompt_title = "~ git grep string ~",
-    search = '' ,  -- https://github.com/nvim-telescope/telescope.nvim/issues/564
+    -- search = '' ,  -- https://github.com/nvim-telescope/telescope.nvim/issues/564
     cwd = git_root[1],
-    vimgrep_arguments = grep_cmds["git"],
+    -- vimgrep_arguments = grep_cmds["git"],
+    vimgrep_arguments = grep_cmds["rg"],
   }
 
   -- local theme_opts = require('telescope.themes').get_dropdown({})
