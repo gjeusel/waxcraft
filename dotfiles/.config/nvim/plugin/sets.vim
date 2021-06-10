@@ -25,6 +25,7 @@ set updatetime=10       " frequency to apply Autocmd events -> low for nvim-ts-c
 set shortmess+=c        " don't pass messages to ins-completion-menu
 
 set spelllang=en_us     " activate vim spell checking
+set nospell
 
 set fillchars=vert:│    " box drawings heavy vertical (U+2503, UTF-8: E2 94 83)
 

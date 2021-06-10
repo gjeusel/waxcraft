@@ -86,6 +86,8 @@
   "tslint.enable": false,
   "tslint.alwaysShowRuleFailuresAsWarnings": true,
   "tslint.autoFixOnSave": false,
+  // yaml:
+  "yaml.format.proseWrap": "never",
   // lua:
   "Lua.diagnostics.globals": ["vim"]
 }

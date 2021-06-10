@@ -20,6 +20,7 @@ ts.setup {
   },
   indent = {
     enable = true,
+    disable = {"yaml"},
   },
   ensure_installed = { -- one of 'all', 'language' or a list of languages
     -- Generic:
