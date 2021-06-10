@@ -1,4 +1,5 @@
 local layout_strategies = require("telescope.pickers.layout_strategies")
+local builtin_themes = require("telescope.themes")
 
 local M = {}
 
@@ -125,7 +126,7 @@ M.verticalwax = function(self, max_columns, max_lines)
 
   preview_total = preview.height + 2
 
-  if height_padding == 0 then
+  if height_padding == 0 or preview_total <= 10 then
     self.preview = false
     preview.height = 0
     preview.width = 0
