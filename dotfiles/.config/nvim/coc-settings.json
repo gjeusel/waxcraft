@@ -69,7 +69,7 @@
   "python.linting.flake8Enabled": true,
   "python.linting.mypyEnabled": true,
   "pyright.organizeimports.provider": "isort",
-  // "pyright.disableDiagnostics": true,
+  "pyright.disableDiagnostics": true,
   "pyright.trace.server": "off",
   "python.analysis.logLevel": "Warning",
   // Frontend:
