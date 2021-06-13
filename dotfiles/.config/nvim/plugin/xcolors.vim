@@ -27,6 +27,12 @@ highlight CocWarningSign ctermbg=none ctermfg=Yellow
 highlight CocErrorSign ctermbg=none ctermfg=Red cterm=none
 hi! link CocErrorSign GruvboxRed
 
+highlight AleHintSign ctermbg=none ctermfg=Blue
+highlight AleInfoSign ctermbg=none ctermfg=White
+highlight AleWarningSign ctermbg=none ctermfg=Yellow
+highlight AleErrorSign ctermbg=none ctermfg=Red cterm=none
+hi! link AleErrorSign GruvboxRed
+
 highlight GitGutterAdd ctermbg=none ctermfg=Green
 highlight GitGutterChange ctermbg=none ctermfg=Yellow
 highlight GitGutterDelete ctermbg=none ctermfg=Red

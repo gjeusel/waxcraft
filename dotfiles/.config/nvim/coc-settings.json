@@ -5,6 +5,8 @@
   // Example config:
   // https://github.com/theniceboy/nvim/blob/master/coc-settings.json
   //
+  // General
+  //
   // Icon
   "suggest.completionItemKindLabels": {
     "class": "   (Class)",
@@ -34,19 +36,20 @@
     "variable": "[] (Variable)"
   },
   // Diagnostics
-  "diagnostic.messageDelay": 50,
+  "diagnostic.displayByAle": true,
+  "diagnostic.messageDelay": 200,
+  "diagnostic.messageTarget": "float",
   "diagnostic.refreshOnInsertMode": true,
+  "diagnostic.checkCurrentLine": true,
   "diagnostic.enableSign": true,
-  "diagnostic.checkCurrentLine": false,
   "diagnostic.hintSign": "‣",
   "diagnostic.infoSign": "i",
-  "diagnostic.warningSign": "ø",
+  "diagnostic.warningSign": "⚠",
   "diagnostic.errorSign": "✗",
   "diagnostic.locationlistUpdate": false,
   "diagnostic.virtualText": true,
   "diagnostic.virtualTextCurrentLineOnly": true,
   "diagnostic.virtualTextPrefix": "   ‣ ",
-  "diagnostic.messageTarget": "float",
   "coc.preferences.currentFunctionSymbolAutoUpdate": true,
   // Snippets
   "snippets.priority": 100,
@@ -57,18 +60,18 @@
   "snippets.extends": { "vue": ["typescript"] },
   "snippets.loadFromExtensions": false,
   // Python
-  "python.analysis.diagnosticEnabled": true,
-  "python.analysis.diagnosticPublishDelay": 100,
-  "python.analysis.downloadChannel": "stable",
-  "diagnostic.displayByAle": false,
-  "python.linting.enabled": true,
-  "python.linting.lintOnSave": true,
-  "python.linting.pylintEnabled": false,
-  "python.linting.flake8Enabled": true,
-  "python.linting.mypyEnabled": false,
+  "python.analysis.autoImportCompletions": true,
   "python.formatting.provider": "black",
-  "python.terminal.activateEnvironment": false,
-  "python.disableInstallationCheck": true,
+  "python.sortImports.path": "isort",
+  "python.sortImports.args": ["--profile", "black"],
+  "python.linting.lintOnSave": false,
+  "python.linting.enabled": true,
+  "python.linting.flake8Enabled": true,
+  "python.linting.mypyEnabled": true,
+  "pyright.organizeimports.provider": "isort",
+  // "pyright.disableDiagnostics": true,
+  "pyright.trace.server": "off",
+  "python.analysis.logLevel": "Warning",
   // Frontend:
   "tailwindCSS.headwind.removeDuplicates": true,
   "tailwindCSS.headwind.runOnSave": true,

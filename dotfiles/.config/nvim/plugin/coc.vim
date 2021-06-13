@@ -37,9 +37,9 @@ inoremap <silent><expr> <c-space> coc#refresh()
 " Symbol renaming.
 nmap <leader>rn <Plug>(coc-rename)
 
-" Formatting selected code.
-xmap <leader>f  <Plug>(coc-format-selected)
-nmap <leader>f  <Plug>(coc-format-selected)
+" " Formatting selected code.
+" xmap <leader>f  <Plug>(coc-format-selected)
+" nmap <leader>f  <Plug>(coc-format-selected)
 
 " Remap ctrl-c to escape to avoid having Floating Window left
 inoremap <C-c> <Esc>
@@ -47,7 +47,7 @@ inoremap <C-c> <Esc>
       " \ "coc-fzf-preview"
 let g:coc_global_extensions = [
       \ "coc-snippets",
-      \ "coc-python",
+      \ "coc-pyright",
       \ "coc-vimlsp",
       \ "coc-git",
       \ "coc-sh",

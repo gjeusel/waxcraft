@@ -55,11 +55,13 @@ function! s:setPyModeMappings()
   map <buffer> <Leader>O O__import__("pdb").set_trace()  # BREAKPOINT<C-c>
   "import pdb; pdb.break_on_setattr('session_id')(container._sa_instance_state.__class__)
   "map <Leader>i ofrom ptpython.repl import embed; embed()  # Enter ptpython<C-c>
-  map <buffer> <Leader>i o__import__("IPython").embed()  # ipython embed<C-c>
+  " map <buffer> <Leader>i o__import__("IPython").embed()  # ipython embed<C-c>
 endfunction
 
 augroup python_pymode_mappings
   au Filetype python call s:setPyModeMappings()
+  au FileType python let b:coc_root_patterns = ['.git', '.env', 'venv', '.venv', 'setup.cfg', 'setup.py', 'pyproject.toml', 'pyrightconfig.json']
+  " au BufWritePre *.py silent! :call CocAction('runCommand', 'python.sortImports')
 augroup end
 " }}}
 
@@ -85,17 +87,27 @@ augroup end
 " }}}
 
 " Lint ALE {{{
-let g:ale_sign_error = '✖'   " Lint error sign
+let g:ale_sign_hint = '‣'   " Lint error sign
+let g:ale_sign_info = 'i'   " Lint error sign
+let g:ale_sign_error = '✗'   " Lint error sign
 let g:ale_sign_warning = '⚠' " Lint warning sign
+
+let g:ale_echo_msg_error_str = 'E'
+let g:ale_echo_msg_warning_str = 'W'
+let g:ale_echo_msg_format = '[%linter%] [%severity%] %s'
 
 " - alex: helps you find gender favouring, polarising, race related, religion inconsiderate, or other unequal phrasing
 
-" Only run linters named in ale_linters settings.
-let g:ale_linters_explicit = 1
+let g:ale_linters_explicit = 1  " Only run linters named in ale_linters settings.
+
+let g:ale_disable_lsp = 1  " only used for linting
+
+" Lint delay
+let g:ale_lint_delay = 50
 
 let g:ale_linters = {
             \ '*': ['writegood', 'remove_trailing_lines', 'trim_whitespace'],
-            \ 'python': ['flake8'],
+            \ 'python': ['flake8', 'pyright', 'mypy'],
             \ 'json': ['jsonlint'],
             \}
 

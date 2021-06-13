@@ -65,6 +65,8 @@ Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim'
 Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'branch': 'main', 'do': 'make' }
+Plug 'fannheyward/telescope-coc.nvim', { 'branch': 'master' }
+
 " Plug 'nvim-telescope/telescope-fzf-writer.nvim'
 
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }  " Fuzzy Finder
@@ -101,12 +103,16 @@ Plug 'morhetz/gruvbox'           " best colorscheme ever
 " > sudo pacman -S ttf-nerd-fonts-symbols
 " > brew tap caskroom/fonts && brew cask install font-hack-nerd-font
 Plug 'ryanoasis/vim-devicons'  " nice icons added
+Plug 'kyazdani42/nvim-web-devicons'  " icons for telescope
 
 
 " ----------- Completion -----------
 Plug 'ervandew/supertab' " use <Tab> for all your insert completion
-"Plug 'neoclide/coc.nvim', {'tag': 'v0.0.79', 'do': 'yarn install --frozen-lockfile'}
 Plug 'neoclide/coc.nvim', {'branch': 'master', 'do': 'yarn install --frozen-lockfile'}
+
+" Use linting from ale for its better async
+Plug 'w0rp/ale'  " general asynchronous syntax checker
+Plug 'maximbaz/lightline-ale'  " general asynchronous syntax checker
 
 Plug 'Shougo/neco-vim', {'for': 'vim'}
 Plug 'neoclide/coc-neco', {'for': 'vim'}
@@ -115,7 +121,8 @@ Plug 'neoclide/coc-neco', {'for': 'vim'}
 " ----------- Python -----------
 Plug 'tmhedberg/SimpylFold', {'for': 'python'}  " better folds
 Plug 'python-mode/python-mode', {'for': 'python'}
-Plug 'w0rp/ale', {'for': 'python'}  " general asynchronous syntax checker
+" Plug 'w0rp/ale', {'for': 'python'}  " general asynchronous syntax checker
+" Plug 'maximbaz/lightline-ale', {'for': 'python'}  " general asynchronous syntax checker
 " use ale only for python as coc-nvim does it well for the rest
 
 
