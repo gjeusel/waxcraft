@@ -12,8 +12,9 @@ vim.cmd('silent! colorscheme gruvbox')
 
 
 -- Highlight API is still a wip in nvim: https://github.com/nanotee/nvim-lua-guide#defining-syntaxhighlights
-vim.api.nvim_exec([[
+vim.cmd([[
 highlight Normal ctermbg=none
+highlight SignColumn ctermbg=none
 highlight VertSplit ctermbg=none
 highlight CursorLineNr ctermbg=none
 highlight ColorColumn ctermbg=236
@@ -61,5 +62,5 @@ hi! link TSTypeBuiltin GruvboxYellow
 hi! link TSPunctSpecial GruvboxFg3
 hi! link TSPunctBracket GruvboxFg3
 hi! link TSPunctDelimiter white
-]],
-false)
+]]
+)

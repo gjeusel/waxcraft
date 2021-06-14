@@ -81,23 +81,28 @@ require('telescope').setup{
 require('telescope').load_extension('fzf')
 
 -- Telescope file
-nnoremap("<leader>p", "<cmd>lua require('wax.plugins.telescope').fallback_grep_file()<cr>")
-nnoremap("<leader>P", "<cmd>lua require('wax.plugins.telescope').find_files({prompt_title='~ files ~', hidden=true})<cr>")
+local basemap = "<cmd>lua require('wax.plugins.telescope')"
+nnoremap("<leader>p", basemap .. ".fallback_grep_file()<cr>")
+nnoremap("<leader>P", basemap .. ".find_files({prompt_title='~ files ~', hidden=true})<cr>")
 
 -- Telescope project then file on ~/src
-nnoremap("<leader>q", "<cmd>lua require('wax.plugins.telescope').projects_files()<cr>")
+nnoremap("<leader>q", basemap .. ".projects_files()<cr>")
 
 -- Telescope opened buffers
-nnoremap("<leader>n", "<cmd>lua require('wax.plugins.telescope').buffers({prompt_title='~ buffers ~'})<cr>")
+nnoremap("<leader>n", basemap .. ".buffers({prompt_title='~ buffers ~'})<cr>")
 
 -- Telescope Builtin:
-nnoremap("<leader>b", "<cmd>lua require('wax.plugins.telescope').builtin(require('telescope.themes').get_dropdown({}))<cr>")
+nnoremap("<leader>b", basemap .. ".builtin(require('telescope.themes').get_dropdown({}))<cr>")
 
 -- Spell Fix:
-nnoremap("z=", "<cmd>lua require('wax.plugins.telescope').spell_suggest(require('telescope.themes').get_dropdown({}))<cr>")
+nnoremap("z=", basemap .. ".spell_suggest(require('telescope.themes').get_dropdown({}))<cr>")
 
 -- Command History: option-d
-keymap("", "∂", "<cmd>lua require('wax.plugins.telescope').command_history(require('telescope.themes').get_dropdown({}))<cr>", { nowait = true })
+keymap("", "∂", basemap .. ".command_history(require('telescope.themes').get_dropdown({}))<cr>", { nowait = true })
+
+-- LSP
+nnoremap("<leader>f", basemap .. ".lsp_workspace_symbols()<cr>")
+nnoremap("<leader>F", basemap .. ".lsp_document_symbols()<cr>")
 
 local telescope_functions = require("wax.plugins.telescope.functions")
 return telescope_functions

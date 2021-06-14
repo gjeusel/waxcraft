@@ -33,11 +33,12 @@ end
 return require('packer').startup {
   function(use)
     -- Packer can manage itself as an optional plugin
-    use {'wbthomason/packer.nvim', opt = true, commit = "a5f3d1ae5c570ac559f4b8103980d53497601d4e"}
+    use {'wbthomason/packer.nvim', opt = true, commit = 'a5f3d1ae5c570ac559f4b8103980d53497601d4e'}
 
     --------- System Plugins ---------
     use {'famiu/nvim-reload',  -- easy reaload
-      config = function() require("wax.plugins.nvim-reload") end,
+      requires = 'nvim-lua/plenary.nvim',
+      config = function() require('wax.plugins.nvim-reload') end,
     }
 
     use 'zhimsel/vim-stay'                         -- adds automated view session creation and restoration whenever editing a buffer
@@ -62,6 +63,11 @@ return require('packer').startup {
         'JoosepAlviste/nvim-ts-context-commentstring',
         commit='5024c83e92c3988f6e7119bfa1b2347ae3a42c3e'
       },
+      config = function() vim.cmd [[
+          let g:tcomment_opleader1 = '<leader>c'
+          let g:tcomment#filetype#guess_vue = 0  " https://github.com/tomtom/tcomment_vim/issues/284#issuecomment-809956888
+        ]]
+      end,
     }
     use {'christoomey/vim-tmux-navigator',                 -- tmux navigation in love with vim
       config = function() require('wax.plugins.vim-tmux-navigator') end,
@@ -93,9 +99,23 @@ return require('packer').startup {
     use 'kyazdani42/nvim-web-devicons' -- icons
     use 'mhinz/vim-startify'           -- fancy start screen
     use 'lewis6991/gitsigns.nvim'      -- git sign column
-    -- use 'glepnir/indent-guides.nvim'   -- indent guide
+
+    -- Waiting for https://github.com/nanotee/nvim-lua-guide
+    -- use {'glepnir/indent-guides.nvim', -- indent guide
+    --   config = function() require('wax.plugins.indent-guides') end,
+    -- }
+    use {       -- indent line
+      'Yggdroot/indentLine',
+      config = function() require('wax.plugins.indent-line') end,
+    }
+
     -- use 'kshenoy/vim-signature'        -- toggle display marks
-    use 'wincent/loupe'                -- better focus on current highlight search
+    use {'wincent/loupe',                 -- better focus on current highlight search
+      config = function()
+        vim.g.LoupeClearHighlightMap = 0
+        vim.g.LoupeVeryMagic = 0
+      end
+    }
 
     use 'rhysd/conflict-marker.vim'                  -- conflict markers for vimdiff
 
@@ -139,18 +159,33 @@ return require('packer').startup {
       requires = {
         {'kabouzeid/nvim-lspinstall', branch = 'main'},
       },
-      config = function() require("wax.lsp") end,
+      config = function() require('wax.lsp') end,
     }
 
     --------- Language Specific ---------
-    use {'mattn/emmet-vim', ft = {'html', 'vue'}}
+    use {
+      'mattn/emmet-vim',
+      ft = {'html', 'vue'},
+      config = function() vim.cmd [[
+        imap <expr> <C-d> emmet#expandAbbrIntelligent('\<tab>')
+      ]]
+      end
+    }
 
-    use {'luochen1990/rainbow', ft = {'python', } }  -- embed parenthesis colors
+    use {
+      'luochen1990/rainbow',  -- embed parenthesis colors
+      ft = {'python', },
+      config = function() vim.cmd [[ RainbowToggleOn ]] end,
+    }
     use { 'tmhedberg/SimpylFold', ft = {'python', } }  -- better folds
     use {
       'python-mode/python-mode',
       ft = {'python', },
-      config = function() require("wax.plugins.python-mode") end,
+      config = function()
+        require('wax.plugins.python-mode')
+        package.loaded['wax.themes'] = nil  -- remove cached module
+        require('wax.themes') -- again for 'syntax on' after new python-mode syntax
+      end,
     }
 
 

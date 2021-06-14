@@ -97,7 +97,6 @@ vim.lsp.protocol.CompletionItemKind = {
 
 
 require("wax.lsp.pyls-ls") -- define new config "pyls"
--- require("wax.lsp.lua-ls")
 
 local function setup_servers()
   require('lspinstall').setup()

@@ -71,8 +71,8 @@ nmap('®', ':bp!\\|bd! #<CR>', { silent = true })
 nmap('‰', '<cmd>BufOnly<cr>', { silent = true })
 
 -- Split panes
-nmap('<leader>l', '<cmd>vs<cr>', { nowait = true })
-nmap('<leader>\'', '<cmd>sp<cr>', { nowait = true })
+nnoremap('<leader>l', '<cmd>vs<cr>', { nowait = true })
+nnoremap('<leader>\'', '<cmd>sp<cr>', { nowait = true })
 
 -- Open / Close  fold
 nnoremap('<Space>', 'za')
@@ -80,7 +80,8 @@ vnoremap('<Space>', 'za')
 
 
 --------- Language Specific Mapping ---------
-vim.api.nvim_exec([[
+-- Python
+vim.cmd([[
 function! SetPyModeMappings()
   map <buffer> <Leader>o o__import__("pdb").set_trace()  # BREAKPOINT<C-c>
   map <buffer> <Leader>O O__import__("pdb").set_trace()  # BREAKPOINT<C-c>
@@ -91,5 +92,15 @@ endfunction
 augroup python_pymode_mappings
   au Filetype python call SetPyModeMappings()
 augroup end
-]],
-false)
+]])
+
+-- Front
+vim.cmd([[
+function! SetFrontendMappings()
+  map <buffer> <Leader>o odebugger  // BREAKPOINT<C-c>
+  map <buffer> <Leader>O Odebugger  // BREAKPOINT<C-c>
+endfunction
+augroup frontend_mappings
+  au Filetype vue,typescript,javascript call SetFrontendMappings()
+augroup end
+]])

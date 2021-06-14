@@ -12,3 +12,7 @@ vim.g.pymode_rope = 0             -- disable rope
 vim.g.pymode_lint = 0             -- disable lint
 vim.g.pymode_breakpoint = 0       -- disable it for custom
 vim.g.pymode_run_bind = ''        -- don't bind <leader>r used for references
+
+
+-- require("wax.themes")
+-- vim.cmd('syntax on')
