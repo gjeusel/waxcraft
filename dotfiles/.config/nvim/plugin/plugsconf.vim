@@ -107,7 +107,7 @@ let g:ale_lint_delay = 50
 
 let g:ale_linters = {
             \ '*': ['writegood', 'remove_trailing_lines', 'trim_whitespace'],
-            \ 'python': ['flake8', 'pyright', 'mypy'],
+            \ 'python': ['flake8', 'mypy', 'pyright'],
             \ 'json': ['jsonlint'],
             \}
 

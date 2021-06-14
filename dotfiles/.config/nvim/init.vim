@@ -108,11 +108,11 @@ Plug 'kyazdani42/nvim-web-devicons'  " icons for telescope
 
 " ----------- Completion -----------
 Plug 'ervandew/supertab' " use <Tab> for all your insert completion
-Plug 'neoclide/coc.nvim', {'branch': 'master', 'do': 'yarn install --frozen-lockfile'}
-
-" Use linting from ale for its better async
-Plug 'w0rp/ale'  " general asynchronous syntax checker
-Plug 'maximbaz/lightline-ale'  " general asynchronous syntax checker
+" Plug 'neoclide/coc.nvim', {'branch': 'master', 'do': 'yarn install --frozen-lockfile'}
+"
+" " Use linting from ale for its better async
+" Plug 'w0rp/ale'  " general asynchronous syntax checker
+" Plug 'maximbaz/lightline-ale'  " general asynchronous syntax checker
 
 Plug 'Shougo/neco-vim', {'for': 'vim'}
 Plug 'neoclide/coc-neco', {'for': 'vim'}
@@ -290,4 +290,4 @@ map <F12> <cmd>Reload<cr>
 let g:python3_host_prog = $HOME . "/miniconda3/envs/neovim37/bin/python"
 let g:python_host_prog = $HOME . "/miniconda3/envs/neovim27/bin/python"
 
-lua require("wax")
+" lua require("wax")

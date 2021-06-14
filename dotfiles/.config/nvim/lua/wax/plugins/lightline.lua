@@ -1,0 +1,27 @@
+-- local ligthline_layout = {
+--   left = {
+--     {"mode", "paste"},
+--     {"readonly", "modified"}
+--   },
+--   right = {
+--     {},
+--     {},
+--     {"gitbranch", "absolutepath", "filetype"}
+--   }
+-- }
+--
+-- vim.g.lightline(
+--   {
+--     colorscheme = "gruvbox",
+--     component_function = {gitbranch = "FugitiveHead"},
+--     component_expand = {  -- custom components
+--     },
+--     component_type = {  -- color to components
+--       linter_warnings = "warning",
+--       linter_errors = "error",
+--       linter_ok = "left",
+--     },
+--     active = ligthline_layout,
+--     inactive = ligthline_layout,
+--   }
+-- )

@@ -19,20 +19,35 @@ hi! link Folded GruvboxFg3
 " Better Sign Column
 highlight SignColumn ctermbg=none
 
+" COC icon linting
 highlight CocHintHighlight cterm=none
-
 highlight CocHintSign ctermbg=none ctermfg=Blue
 highlight CocInfoSign ctermbg=none ctermfg=White
 highlight CocWarningSign ctermbg=none ctermfg=Yellow
 highlight CocErrorSign ctermbg=none ctermfg=Red cterm=none
 hi! link CocErrorSign GruvboxRed
 
+" ALE icon linting
 highlight AleHintSign ctermbg=none ctermfg=Blue
 highlight AleInfoSign ctermbg=none ctermfg=White
 highlight AleWarningSign ctermbg=none ctermfg=Yellow
 highlight AleErrorSign ctermbg=none ctermfg=Red cterm=none
 hi! link AleErrorSign GruvboxRed
 
+" " nvim builtin lsp icon linting
+" highlight LspDiagnosticsSignHint ctermbg=none ctermfg=Blue
+" highlight LspDiagnosticsSignInformation ctermbg=none ctermfg=White
+" highlight LspDiagnosticsSignWarning ctermbg=none ctermfg=Yellow
+" highlight LspDiagnosticsSignError ctermbg=none ctermfg=Red cterm=none
+" hi! link LspDiagnosticsSignError GruvboxRed
+
+hi! link LspDiagnosticsDefaultError GruvboxRed
+hi! link LspDiagnosticsDefaultWarning GruvboxYellow
+hi! link LspDiagnosticsDefaultInformation GruvboxFg3
+hi! link LspDiagnosticsDefaultHint GruvboxBlue
+
+
+" Git gutter
 highlight GitGutterAdd ctermbg=none ctermfg=Green
 highlight GitGutterChange ctermbg=none ctermfg=Yellow
 highlight GitGutterDelete ctermbg=none ctermfg=Red

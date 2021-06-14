@@ -1,5 +1,4 @@
-require('lspconfig').sumneko_lua.setup {
-  cmd = {sumneko_binary, "-E", sumneko_root_path .. "/main.lua"};
+return {
   settings = {
     Lua = {
       runtime = {
@@ -18,11 +17,12 @@ require('lspconfig').sumneko_lua.setup {
           [vim.fn.expand('$VIMRUNTIME/lua')] = true,
           [vim.fn.expand('$VIMRUNTIME/lua/vim/lsp')] = true,
         },
+        maxPreload = 10000
       },
       -- Do not send telemetry data containing a randomized but unique identifier
       telemetry = {
         enable = false,
       },
     },
-  },
+  }
 }

@@ -1,5 +1,4 @@
 local layout_strategies = require("telescope.pickers.layout_strategies")
-local builtin_themes = require("telescope.themes")
 
 local M = {}
 
@@ -177,4 +176,7 @@ M.flexwax = function(self, max_columns, max_lines)
 end
 
 
-return M
+-- Register custom layouts
+for key, value in pairs(M) do
+  layout_strategies[key] = value
+end

@@ -1,33 +1,70 @@
 -- Diagnostic Sign
 vim.fn.sign_define(
     "LspDiagnosticsSignError",
-    {texthl = "LspDiagnosticsSignError", text = "", numhl = "LspDiagnosticsSignError"}
+    {texthl = "LspDiagnosticsSignError", text = "✗", numhl = "LspDiagnosticsSignError"}
 )
 vim.fn.sign_define(
     "LspDiagnosticsSignWarning",
     {texthl = "LspDiagnosticsSignWarning", text = "", numhl = "LspDiagnosticsSignWarning"}
 )
 vim.fn.sign_define(
-    "LspDiagnosticsSignHint",
-    {texthl = "LspDiagnosticsSignHint", text = "", numhl = "LspDiagnosticsSignHint"}
-)
-vim.fn.sign_define(
     "LspDiagnosticsSignInformation",
     {texthl = "LspDiagnosticsSignInformation", text = "", numhl = "LspDiagnosticsSignInformation"}
 )
+vim.fn.sign_define(
+    "LspDiagnosticsSignHint",
+    {texthl = "LspDiagnosticsSignHint", text = "", numhl = "LspDiagnosticsSignHint"}
+)
+
+-- mappings
+local on_attach = function(_, bufnr)
+  local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
+  local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
+
+  --Enable completion triggered by <c-x><c-o>
+  buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
+
+  -- Mappings.
+  local opts = { noremap=true, silent=true }
+
+  -- See `:help vim.lsp.*` for documentation on any of the below functions
+  buf_set_keymap('n', '<leader>D', '<Cmd>lua vim.lsp.buf.declaration()<CR>', opts)
+  buf_set_keymap('n', '<leader>d', '<Cmd>lua vim.lsp.buf.definition()<CR>', opts)
+  buf_set_keymap('n', 'K', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
+  buf_set_keymap('n', '<leader>i', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
+  -- buf_set_keymap('n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+  -- buf_set_keymap('n', '<space>wa', '<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>', opts)
+  -- buf_set_keymap('n', '<space>wr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', opts)
+  -- buf_set_keymap('n', '<space>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', opts)
+  -- buf_set_keymap('n', '<space>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
+  buf_set_keymap('n', '<leader>r', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
+  -- buf_set_keymap('n', '<leader>.', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
+  buf_set_keymap('n', '<leader>R', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
+  -- buf_set_keymap('n', '<space>e', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
+  buf_set_keymap('n', 'å', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
+  buf_set_keymap('n', 'ß', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
+  -- buf_set_keymap('n', '<space>q', '<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>', opts)
+
+  buf_set_keymap("n", "<leader>m", "<cmd>lua vim.lsp.buf.formatting()<CR>", opts)
+end
 
 
 -- Diagnostic publish
 vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
   vim.lsp.diagnostic.on_publish_diagnostics, {
-    virtual_text = {
-      prefix = "",
-      spacing = 0,
-    },
+    -- virtual_text = {
+    --   prefix = "‣",
+    --   spacing = 4,
+    -- },
+    virtual_text = false,
     signs = true,
-    underline = true,
+    underline = false,
+    update_in_insert = true,
   }
 )
+
+-- vim.cmd [[autocmd CursorHold * lua vim.lsp.diagnostic.show_line_diagnostics()]]
+-- vim.cmd [[autocmd CursorHoldI * silent! lua vim.lsp.buf.signature_help()]]
 
 -- symbols for autocomplete
 vim.lsp.protocol.CompletionItemKind = {
@@ -58,15 +95,27 @@ vim.lsp.protocol.CompletionItemKind = {
     "   (TypeParameter)"
 }
 
--- Setup lspinstall
--- https://github.com/kabouzeid/dotfiles/blob/9316a25235d704d0ac5a3c39d87669b6be1a50c9/nvim/lua/lsp-settings.lua
-require('lspinstall').setup()
+
+require("wax.lsp.pyls-ls") -- define new config "pyls"
+-- require("wax.lsp.lua-ls")
 
 local function setup_servers()
   require('lspinstall').setup()
   local servers = require('lspinstall').installed_servers()
   for _, server in pairs(servers) do
-    require('lspconfig')[server].setup({})
+
+    -- If "wax.lsp.{server}-ls.lua" exists, then load its settings
+    local server_setting_module_path = "wax.lsp." .. server .. "-ls"
+    local has_setting_module = is_module_available(server_setting_module_path)
+
+    local custom_settings = {}
+    if has_setting_module then
+      custom_settings = require(server_setting_module_path)
+    end
+
+    local settings = merge_tables({on_attach = on_attach}, custom_settings)
+
+    require('lspconfig')[server].setup(settings)
   end
 end
 

@@ -1,150 +1,20 @@
-local lspconfig = require("lspconfig")
-local utils = require("wax.utils")
+require("wax.plugins.telescope.layout")
+local constants = require("wax.plugins.telescope.constants")
+
 local builtin = require('telescope.builtin')
 local actions = require('telescope.actions')
-local transform_mod = require('telescope.actions.mt').transform_mod
-
-local waxlayouts = require("wax.telescope.layout")
-local layout_strategies = require("telescope.pickers.layout_strategies")
-
-
-local find_root_dir = lspconfig.util.root_pattern(
-  ".git",
-  "Dockerfile",
-  "package.json",
-  "tsconfig.json"
-)
-
-local grep_cmds = {
-  rg = {
-    'rg',
-    '--color=never',
-    '--no-heading',
-    '--with-filename',
-    '--line-number',
-    '--column',
-    '--smart-case'
-  },
-  ag = {
-    'ag',
-    '--nocolor',
-    '--filename',
-    '--noheading',
-    '--line-number',
-    '--column',
-    '--smart-case',
-    '--hidden',  -- search hidden files
-    '--follow',  -- follow symlinks
-  },
-  git = {
-    "git", "grep",
-    "--ignore-case",
-    "--untracked",
-    "--exclude-standard",
-    "--line-number",
-    "--column",
-    "-I",  -- don't match pattern in binary files
-    -- "--threads", "10",
-    "--full-name",
-  }
-}
-
--- Waiting for: https://github.com/nvim-telescope/telescope.nvim/issues/684
--- for this to work
-local custom_actions = transform_mod(
-  {
-    reset_folds = function(_)
-      vim.cmd(':normal! zx')
-      vim.cmd(':normal! zR')
-      -- vim.cmd(':loadview')
-    end,
-  }
-)
-
-
--- Register custom layouts
-for key, value in pairs(waxlayouts) do
-  layout_strategies[key] = value
-end
-
-
-require('telescope').setup{
-  defaults = {
-    prompt_prefix = '❯ ',
-    selection_caret = '❯ ',
-    vimgrep_arguments = grep_cmds["rg"],  -- Using ripgrep
-    color_devicons = true,
-    layout_strategy = "flexwax",
-    sorting_strategy = "descending",
-    layout_defaults = {
-      horizontal = {
-        width_padding = 0.1,
-        height_padding = 0.1,
-        preview_width = 0.6,
-      },
-      vertical = {
-        width_padding = 0.1,
-        height_padding = 2,
-        preview_height = 0.6,
-        -- mirror = true,
-      },
-      wax = {
-        width_padding = 0.1,
-        height_padding = 2,
-        preview_height = 0.6,
-      },
-    },
-    mapping = {
-      i = {
-        ["<C-a>"] = false,
-        ["<C-q>"] = actions.smart_send_to_qflist, -- + actions.open_qflist, -- + my_cool_custom_action.x,
-
-        -- ["<C-t>"] = actions.select_default + actions.nvim_reset_folds,
-        ["<CR>"] = actions.select_default + actions.center + custom_actions.reset_folds,
-        -- ["<CR>"] = actions.center_custom,
-        -- ["<CR>"] = actions.select_default + actions.select_horizontal,
-        -- ["<CR>"] = actions.select_default + actions.center,
-        -- ["<CR>"] = actions.select_default + nvim_reset_folds.x,
-        -- ["<CR>"] = actions.select_default + actions.center + actions.nvim_reset_folds,
-      },
-    },
-    file_ignore_patterns = {
-      "node_modules/.*",
-      "dist/.*",
-      "__pycache__/.*",
-      "package-lock.json",
-      "%.ipynb",
-      ".git/.*",
-      "static/appbuilder/.*",
-      "%.min.js",
-    },
-  },
-  extensions = {
-    fzf = {
-      override_generic_sorter = true,  -- override the generic sorter
-      override_file_sorter = true,     -- override the file sorter
-      case_mode = "smart_case",        -- or "ignore_case" or "respect_case"
-    },
-  }
-}
-
-
--- Extensions
-require('telescope').load_extension('fzf')
-require('telescope').load_extension('coc')
-
 
 local M = {}
 
 -- Custom Grep to be fuzzy
 M.git_grep_string = function()
-  local git_root, _ = utils.get_os_command_output({ "git", "rev-parse", "--show-toplevel" })
+  local git_root, _ = get_os_command_output({ "git", "rev-parse", "--show-toplevel" })
   local opts = {
     prompt_title = "~ git grep string ~",
     -- search = '' ,  -- https://github.com/nvim-telescope/telescope.nvim/issues/564
     cwd = git_root[1],
     -- vimgrep_arguments = grep_cmds["git"],
-    vimgrep_arguments = grep_cmds["rg"],
+    vimgrep_arguments = constants.grep_cmds["rg"],
   }
 
   -- local theme_opts = require('telescope.themes').get_dropdown({})
@@ -153,18 +23,18 @@ M.git_grep_string = function()
   return builtin.grep_string(opts)
 end
 M.rg_grep_string = function()
-  local root_dir = find_root_dir(".")
+  local root_dir = constants.find_root_dir(".")
 
   local opts = {
     prompt_title = "~ rg grep string ~",
     search = '' ,  -- https://github.com/nvim-telescope/telescope.nvim/issues/564
     cwd = root_dir,
-    vimgrep_arguments = grep_cmds["rg"],
+    vimgrep_arguments = constants.grep_cmds["rg"],
   }
   return builtin.grep_string(opts)
 end
 M.fallback_grep_string = function()
-  if utils.is_git() then
+  if is_git() then
     return M.git_grep_string()
   else
     return M.rg_grep_string()
@@ -175,7 +45,7 @@ end
 -- Custom find file (defaulting to git files if is git)
 M.fallback_grep_file = function(opts)
   opts = opts or {}
-  if utils.is_git(opts.cwd) then
+  if is_git(opts.cwd) then
     local default_opts = {prompt_title='~ git files ~', hidden=true}
     for k,v in pairs(default_opts) do opts[k] = v end
     return builtin.git_files(opts)
@@ -276,11 +146,11 @@ M.projects_files = function()
   }):find()
 end
 
-
 -- Add all M commands to builtin for the builtin.builtin leader b search
 for key, value in pairs(M) do
   builtin[key] = value
 end
+
 
 -- Fallback to builtin
 return setmetatable({}, {
