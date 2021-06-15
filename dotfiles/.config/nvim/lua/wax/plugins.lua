@@ -166,6 +166,7 @@ return require('packer').startup {
       requires = {
         'nvim-lua/lsp-status.nvim',
         {'kabouzeid/nvim-lspinstall', branch = 'main'},
+        lock = true,
       },
       config = function() require('wax.lsp') end,
     }

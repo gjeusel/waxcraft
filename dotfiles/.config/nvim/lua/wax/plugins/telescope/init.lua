@@ -47,13 +47,8 @@ require('telescope').setup{
         ["<C-a>"] = false,
         ["<C-q>"] = actions.smart_send_to_qflist, -- + actions.open_qflist, -- + my_cool_custom_action.x,
 
-        -- ["<C-t>"] = actions.select_default + actions.nvim_reset_folds,
-        ["<CR>"] = actions.select_default + actions.center + custom_actions.reset_folds,
-        -- ["<CR>"] = actions.center_custom,
-        -- ["<CR>"] = actions.select_default + actions.select_horizontal,
-        -- ["<CR>"] = actions.select_default + actions.center,
-        -- ["<CR>"] = actions.select_default + nvim_reset_folds.x,
-        -- ["<CR>"] = actions.select_default + actions.center + actions.nvim_reset_folds,
+        ["<C-R>"] = actions.select_default + actions.center,
+        -- ["<CR>"] = actions.select_default + actions.center + custom_actions.reset_folds,
       },
     },
     file_ignore_patterns = {
@@ -98,7 +93,7 @@ nnoremap("<leader>b", basemap .. ".builtin(require('telescope.themes').get_dropd
 nnoremap("z=", basemap .. ".spell_suggest(require('telescope.themes').get_dropdown({}))<cr>")
 
 -- Command History: option-d
-keymap("", "∂", basemap .. ".command_history(require('telescope.themes').get_dropdown({}))<cr>", { nowait = true })
+keymap("nic", "∂", basemap .. ".command_history(require('telescope.themes').get_dropdown({}))<cr>", { nowait = true })
 
 -- LSP
 nnoremap("<leader>f", basemap .. ".lsp_workspace_symbols()<cr>")

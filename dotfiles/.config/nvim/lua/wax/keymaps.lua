@@ -65,10 +65,11 @@ keymap('in', 'œ', '<cmd>bp<cr>', { nowait = true })  -- option + q
 keymap('in', '∑', '<cmd>bn<cr>', { nowait = true })  -- option + w
 
 -- delete buffer without closing pane: (option + r)
-nmap('®', ':bp!\\|bd! #<CR>', { silent = true })
+vim.api.nvim_exec("nnoremap <silent>® :bp!\\|bd! #<CR>", false)
+-- nnoremap('®', ':bp!\\|bd! #<CR>', { silent = true }) -- not working
 
 -- delete all buffers except current: (option + R)
-nmap('‰', '<cmd>BufOnly<cr>', { silent = true })
+nnoremap('‰', '<cmd>BufOnly<cr>', { silent = true })
 
 -- Split panes
 nnoremap('<leader>l', '<cmd>vs<cr>', { nowait = true })

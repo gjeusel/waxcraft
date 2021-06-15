@@ -1,45 +1,43 @@
 local pyls_config = require"lspinstall/util".extract_config("pyls")
-pyls_config.default_config.cmd[1] = "./venv/bin/pylsp"
 
-require'lspinstall/servers'.pyls = vim.tbl_extend('error', pyls_config, {
-  install_script = [[
-  python3 -m venv ./venv
-  ./venv/bin/pip3 install --upgrade pip
-  ./venv/bin/pip3 install --upgrade 'python-lsp-server[rope]'
-  ./venv/bin/pip3 install --upgrade pyls-flake8 mypy-ls pyls-isort python-lsp-black
-  ./venv/bin/pip3 install pyls-flake8 mypy-ls pyls-isort python-lsp-black
-  ./venv/bin/pip3 install flake8==3.9.2 flake8-bugbear==21.4.3 flake8-builtins==1.5.3
-  ./venv/bin/pip3 install mypy==0.902 black==19.10b0 isort==5.7.0
-  ]]
-})
+local conda_prefix = vim.fn.expand("$CONDA_PREFIX")
+local conda_python_exec = vim.fn.expand("$CONDA_PYTHON_EXE")
 
-return {}
+local python_path
+if conda_prefix then
+  python_path = conda_prefix .. "/bin/python"
+else
+  python_path = conda_python_exec
+end
 
+local to_install = {
+  "'python-lsp-server[rope]'",
+  "pyls-flake8", "mypy-ls", "pyls-isort", "python-lsp-black",
+  "flake8==3.9.2", "flake8-bugbear==21.4.3", "flake8-builtins==1.5.3",
+  "mypy==0.902", "black==19.10b0", "isort==5.7.0",
+}
 
--- TODO: Improve mypy speed with dmypy https://github.com/Richardk2n/mypy-ls#configuration
+local install_script = python_path .. " -m pip install"
+for _, dep in ipairs(to_install) do
+  install_script = install_script .. " " .. dep
+end
 
--- -- npm i -g pyright
--- require('lspconfig').pyright.setup {
---   cmd = { "pyright-langserver", "--stdio" },
---   filetypes = filetypes,
---   root_dir = root_dir,
---   on_attach = require'lsp'.common_on_attach,
---   handlers = {
---     ["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {
---       virtual_text = {spacing = 0, prefix = ""},
---       signs = true,
---       underline = true,
---       update_in_insert = true
---     })
---   },
---   settings = {
---     python = {
---       analysis = {
---         typeCheckingMode = "basic",
---         diagnosticMode = "workspace",
---         autoSearchPaths = true,
---         useLibraryCodeForTypes = true,
---       }
---     }
---   }
--- }
+pyls_config.default_config.cmd[1] = "pylsp"
+
+require'lspinstall/servers'.pyls = vim.tbl_extend('error', pyls_config, {install_script = install_script})
+
+local config = {
+  settings = {
+    plugins = {
+      flake8 = {},
+      ["mypy-ls"] = {
+        enabled = true,
+        strict = false,
+        live_mode = false,
+        dmypy = true,
+      }
+    }
+  }
+}
+
+return config

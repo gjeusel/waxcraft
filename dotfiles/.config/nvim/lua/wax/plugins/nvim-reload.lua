@@ -25,4 +25,5 @@ reload.modules_reload_external = { 'packer' }
 --     require('feline').reset_highlights()
 -- end
 
-nmap('<F12>', '<cmd>Reload<cr>')
+-- nmap('<F12>', '<cmd>Reload<cr>')  -- failing
+nmap('<F12>', '<cmd>luafile ~/.config/nvim/init.lua<cr>')

@@ -66,7 +66,7 @@ M.wax_file = function()
     search_dirs={
       "~/src/waxcraft",
       "~/.config/nvim",
-      "~/.local/share/nvim",
+      "~/.local/share/nvim/site/pack/packer",
       -- Local not versioned in dotfiles:
       "~/.gitconfig",
       "~/.python_startup_local.py",

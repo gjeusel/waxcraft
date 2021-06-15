@@ -32,6 +32,8 @@ lsp_status.config({
 })
 
 
+-- vim.lsp.set_log_level("debug")
+
 local function documentHighlight(client, bufnr)
   -- Set autocommands conditional on server_capabilities
   if client.resolved_capabilities.document_highlight then
@@ -139,6 +141,7 @@ require("wax.lsp.pyls-ls") -- define new config "pyls"
 local lspinstall = require("lspinstall")
 lspinstall.setup()
 
+-- https://github.com/kabouzeid/nvim-lspinstall
 -- ensure_installed = {
 --   "efm", "bash","json", "yaml", "lua",
 --   "cmake", "go", "rust",
