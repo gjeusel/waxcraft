@@ -11,17 +11,20 @@ local root_markers = {
 
 -- NOTE: Has to be a list per language
 local languages = {
+  -- https://github.com/Koihik/LuaFormatter
   -- brew install luarocks
   -- luarocks install --server=https://luarocks.org/dev luaformatter
   lua = {
     {
-      formatCommand = 'lua-format -i --double-quote-to-single-quote --indent-width=2 --no-use-tab --column-limit=100',
+      formatCommand = 'lua-format -i' ..
+          ' --double-quote-to-single-quote --indent-width=2 --no-use-tab --column-limit=100' ..
+          ' --no-keep-simple-function-one-line --no-keep-simple-control-block-one-line',
       formatStdin = true
     }
   },
 
   -- brew install jq
-  json = {{formatCommand = 'jq .'}},
+  json = {{formatCommand = 'jq .'}}
 }
 
 return {
@@ -35,9 +38,6 @@ return {
     completion = true
   },
   root_dir = function(fname)
-    -- return root_pattern(".git")(fname) or
-    --   root_pattern("package.json", "tsconfig.json", ".eslintrc.json")(fname) or
-    --   root_pattern("setup.py", "setup.cfg", "pyproject.toml", "requirement.txt")(fname)
     return root_pattern(root_markers)(fname)
   end,
   settings = {rootMarkers = root_markers, lintDebounce = 200, languages = languages}
