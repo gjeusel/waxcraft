@@ -1,5 +1,6 @@
 vim.cmd('syntax on')
 
+-- vim.o.termguicolors = true
 vim.o.colorcolumn = "100"                    -- Show vertical bar at column 100
 vim.o.signcolumn = "yes"
 
@@ -12,14 +13,16 @@ vim.cmd('silent! colorscheme gruvbox')
 
 
 -- Highlight API is still a wip in nvim: https://github.com/nanotee/nvim-lua-guide#defining-syntaxhighlights
-vim.cmd([[
+vim.api.nvim_exec([[
 highlight Normal ctermbg=none
 highlight SignColumn ctermbg=none
 highlight VertSplit ctermbg=none
 highlight CursorLineNr ctermbg=none
 highlight ColorColumn ctermbg=236
+hi! link Statusline GruvboxFg3
 
 " Better Fold
+highlight Folded cterm=bold ctermbg=none
 hi! link Folded GruvboxFg3
 
 " Better Sign Column
@@ -30,6 +33,11 @@ hi! link LspDiagnosticsDefaultError GruvboxRed
 hi! link LspDiagnosticsDefaultWarning GruvboxYellow
 hi! link LspDiagnosticsDefaultInformation GruvboxFg3
 hi! link LspDiagnosticsDefaultHint GruvboxBlue
+
+" LSP colors
+highlight LspReferenceRead cterm=bold ctermbg=red guibg=#464646
+highlight LspReferenceText cterm=bold ctermbg=red guibg=#464646
+highlight LspReferenceWrite cterm=bold ctermbg=red guibg=#464646
 
 " Git gutter
 highlight GitGutterAdd ctermbg=none ctermfg=Green
@@ -62,5 +70,5 @@ hi! link TSTypeBuiltin GruvboxYellow
 hi! link TSPunctSpecial GruvboxFg3
 hi! link TSPunctBracket GruvboxFg3
 hi! link TSPunctDelimiter white
-]]
+]], false
 )

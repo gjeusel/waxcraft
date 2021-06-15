@@ -30,6 +30,11 @@ if not packer_exists then
   return
 end
 
+-- Auto recompile packer on changes
+vim.cmd[[
+  autocmd BufWritePost plugins.lua PackerCompile
+]]
+
 return require('packer').startup {
   function(use)
     -- Packer can manage itself as an optional plugin
@@ -93,7 +98,13 @@ return require('packer').startup {
     use 'morhetz/gruvbox'
     use {'itchyny/lightline.vim',        -- light status line
       config = function() require('wax.plugins.lightline') end,
+      -- after="lspconfig",  -- use lsp-status
     }
+    -- use { 'hoob3rt/lualine.nvim',
+    --   -- requires = {'kyazdani42/nvim-web-devicons', opt = true},
+    --   after="nvim-web-devicons",
+    --   config = function() require("wax.plugins.lualine") end,
+    -- }
     use 'ap/vim-buftabline'            -- buffer line
 
     use 'kyazdani42/nvim-web-devicons' -- icons
@@ -104,8 +115,7 @@ return require('packer').startup {
     -- use {'glepnir/indent-guides.nvim', -- indent guide
     --   config = function() require('wax.plugins.indent-guides') end,
     -- }
-    use {       -- indent line
-      'Yggdroot/indentLine',
+    use { 'Yggdroot/indentLine', -- indent line
       config = function() require('wax.plugins.indent-line') end,
     }
 
@@ -120,8 +130,7 @@ return require('packer').startup {
     use 'rhysd/conflict-marker.vim'                  -- conflict markers for vimdiff
 
     --------- Fuzzy Fuzzy Fuzzy ---------
-    use {
-      'nvim-telescope/telescope.nvim',
+    use { 'nvim-telescope/telescope.nvim',
       lock=true,
       requires = {
         'nvim-lua/popup.nvim',
@@ -130,8 +139,7 @@ return require('packer').startup {
       },
       config = function() require('wax.plugins.telescope') end,
     }
-    use {
-      'junegunn/fzf.vim',
+    use { 'junegunn/fzf.vim',
       requires = {
         'junegunn/fzf', run = './install --all'
       },
@@ -139,9 +147,8 @@ return require('packer').startup {
     }
 
     --------- TreeSitter ---------
-    use {
-      'nvim-treesitter/nvim-treesitter',
-      commit = '006aceb574e90fdc3dc911b76ecb7fef4dd0d609',
+    use { 'nvim-treesitter/nvim-treesitter',
+      -- commit = '006aceb574e90fdc3dc911b76ecb7fef4dd0d609',
       run = function() vim.cmd [[TSUpdate]] end,
       requires = {
         'nvim-treesitter/playground',  -- play with queries
@@ -154,17 +161,21 @@ return require('packer').startup {
 
 
     --------- LSP ---------
-    use {
-      'neovim/nvim-lspconfig',
+    use { 'neovim/nvim-lspconfig',
       requires = {
+        'nvim-lua/lsp-status.nvim',
         {'kabouzeid/nvim-lspinstall', branch = 'main'},
       },
       config = function() require('wax.lsp') end,
     }
+    use {'hrsh7th/nvim-compe',
+      branch = 'master',
+      config = function() require("wax.plugins.nvim-compe") end,
+    }
+
 
     --------- Language Specific ---------
-    use {
-      'mattn/emmet-vim',
+    use { 'mattn/emmet-vim',
       ft = {'html', 'vue'},
       config = function() vim.cmd [[
         imap <expr> <C-d> emmet#expandAbbrIntelligent('\<tab>')
@@ -172,14 +183,16 @@ return require('packer').startup {
       end
     }
 
-    use {
-      'luochen1990/rainbow',  -- embed parenthesis colors
+    use { 'luochen1990/rainbow',  -- embed parenthesis colors
       ft = {'python', },
       config = function() vim.cmd [[ RainbowToggleOn ]] end,
     }
-    use { 'tmhedberg/SimpylFold', ft = {'python', } }  -- better folds
-    use {
-      'python-mode/python-mode',
+    use { 'tmhedberg/SimpylFold',  -- better folds
+      ft = {'python', },
+      config = function()
+      end
+    }
+    use { 'python-mode/python-mode',
       ft = {'python', },
       config = function()
         require('wax.plugins.python-mode')
@@ -188,6 +201,10 @@ return require('packer').startup {
       end,
     }
 
-
-  end
+  end,
+  config = {
+    display = {
+      open_fn = require('packer.util').float,
+    }
+  }
 }

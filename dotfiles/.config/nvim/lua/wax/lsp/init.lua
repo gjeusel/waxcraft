@@ -16,8 +16,25 @@ vim.fn.sign_define(
     {texthl = "LspDiagnosticsSignHint", text = "", numhl = "LspDiagnosticsSignHint"}
 )
 
+-- https://github.com/nvim-lua/lsp-status.nvim#all-together-now
+local lsp_status = require('lsp-status')
+lsp_status.register_progress()
+lsp_status.config({
+  current_function = false,
+  indicator_separator = " ",
+  component_separator = " | ",
+  indicator_errors = '✗',
+  indicator_info = '',
+  indicator_warnings = '',
+  indicator_hint = '',
+  indicator_ok = '',
+  status_symbol='',
+})
+
 -- mappings
-local on_attach = function(_, bufnr)
+local on_attach = function(client, bufnr)
+  lsp_status.on_attach(client, bufnr)
+
   local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
   local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
 
@@ -99,6 +116,8 @@ vim.lsp.protocol.CompletionItemKind = {
 require("wax.lsp.pyls-ls") -- define new config "pyls"
 
 local function setup_servers()
+  local default_settings = {on_attach = on_attach, capabilities = lsp_status.capabilities}
+
   require('lspinstall').setup()
   local servers = require('lspinstall').installed_servers()
   for _, server in pairs(servers) do
@@ -112,7 +131,7 @@ local function setup_servers()
       custom_settings = require(server_setting_module_path)
     end
 
-    local settings = merge_tables({on_attach = on_attach}, custom_settings)
+    local settings = merge_tables(default_settings, custom_settings)
 
     require('lspconfig')[server].setup(settings)
   end

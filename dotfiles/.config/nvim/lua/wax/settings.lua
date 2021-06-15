@@ -19,6 +19,7 @@ vim.o.autochdir = true      -- working directory is always the same as the file 
 
 vim.o.updatetime = 50       -- frequency to apply Autocmd events -> low for nvim-ts-context-commentstring
 vim.cmd [[set shortmess+=c]]        -- don't pass messages to ins-completion-menu
+vim.o.completeopt = "menuone,noselect"
 
 
 vim.o.spelllang="en_us"     -- activate vim spell checking
