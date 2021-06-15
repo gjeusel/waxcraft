@@ -1,5 +1,5 @@
 # Own config
-alias vimrc="vim $waxCraft_PATH/dotfiles/.config/nvim/init.vim"
+alias vimrc="vim $waxCraft_PATH/dotfiles/.config/nvim/init.lua"
 alias zshrc="vim ~/.zshrc"
 alias czshrc="vim $waxCraft_PATH/dotfiles/zshrc_common.zsh"
 alias wax="cd $waxCraft_PATH"
