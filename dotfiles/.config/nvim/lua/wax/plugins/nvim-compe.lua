@@ -78,3 +78,14 @@ vim.api.nvim_set_keymap("i", "<Tab>", "v:lua.tab_complete()", {expr = true})
 vim.api.nvim_set_keymap("s", "<Tab>", "v:lua.tab_complete()", {expr = true})
 vim.api.nvim_set_keymap("i", "<S-Tab>", "v:lua.s_tab_complete()", {expr = true})
 vim.api.nvim_set_keymap("s", "<S-Tab>", "v:lua.s_tab_complete()", {expr = true})
+
+
+-- Fix behaviour of documentation not closing
+_G.control_c_close_complete = function()
+  if vim.fn.pumvisible() == 1 then
+    return t "<Esc><C-c>"
+  else
+    return t "<C-c>"
+  end
+end
+vim.api.nvim_set_keymap("i", "<C-c>", "v:lua.control_c_close_complete()", {expr = true})

@@ -17,25 +17,29 @@ vim.o.splitright = true     -- split at the right of current buffer (left defaul
 vim.o.splitbelow = true     -- split at the below of current buffer (top default behaviour)
 vim.o.autochdir = true      -- working directory is always the same as the file you are editing
 
+vim.o.backup = true                              -- Backups are nice ...
+
+local backupdir = vim.fn.expand("$HOME") .. "/.local/share/nvim/backup"
+vim.fn.mkdir(backupdir, "p")
+vim.o.backupdir = backupdir
+
 vim.o.updatetime = 50       -- frequency to apply Autocmd events -> low for nvim-ts-context-commentstring
-vim.cmd [[set shortmess+=c]]        -- don't pass messages to ins-completion-menu
+vim.api.nvim_exec([[set shortmess+=c]], false)        -- don't pass messages to ins-completion-menu
 vim.o.completeopt = "menuone,noselect"
 
 
 vim.o.spelllang="en_us"     -- activate vim spell checking
 -- vim.o.nospell = true
-
-vim.cmd [[set fillchars=vert:│]]    -- box drawings heavy vertical (U+2503, UTF-8: E2 94 83)
-
-vim.cmd [[
+vim.api.nvim_exec([[set fillchars=vert:│]], false)    -- box drawings heavy vertical (U+2503, UTF-8: E2 94 83)
+vim.api.nvim_exec([[
 if has('linebreak')
   let &showbreak='⤷ '   " arrow pointing downwards then curving rightwards (u+2937, utf-8: e2 a4 b7)
 endif
-]]
+]], false)
 
 -- cmdline
 vim.o.wildmenu = true                       -- Show list instead of just completing
-vim.cmd([[set wildmode=list:longest,full]]) -- Command <Tab> completion, list matches, then longest common part, then all.
+vim.api.nvim_exec([[set wildmode=list:longest,full]], false) -- Command <Tab> completion, list matches, then longest common part, then all.
 
 -- Whitespace
 -- vim.o.nowrap = nil                                          -- don't wrap lines
@@ -43,14 +47,13 @@ vim.o.tabstop = 2
 vim.o.expandtab = true                                      -- a tab is two spaces
 vim.o.shiftwidth = 2                                          -- an autoindent (with <<) is two spaces
 vim.o.list = true                                           -- show the following:
-vim.cmd([[set listchars=tab:›\ ,trail:•,extends:#,nbsp:.]]) -- Highlight problematic whitespace
+vim.api.nvim_exec([[set listchars=tab:›\ ,trail:•,extends:#,nbsp:.]], false) -- Highlight problematic whitespace
 
 -- -- Backup, swap, undo & sessions
 -- for directory in [--backup--, --swap--, --undo--, --view--]
 --   silent! call mkdir($HOME . --/.vim/-- . directory, --p--)
 -- endfor
 --
--- vim.o.backup                              -- Backups are nice ...
 -- vim.o.backupdir=~/.vim/backup/
 -- vim.o.directory=~/.vim/swap/
 --
@@ -72,20 +75,15 @@ vim.o.ignorecase = true -- searches are case insensitive...
 vim.o.smartcase = true  -- ... unless they contain at least one capital letter
 
 -- edit file search path ignore
-vim.cmd([[
-set wildignore+=**.egg-info/**
-set wildignore+=**__pycache__/**
-set wildignore+=**node_modules/**
-]])
+local ignore_file_patterns = {".egg-info/", "__pycache__/", "node_modules/"}
+for _, pattern  in ipairs(ignore_file_patterns) do
+  vim.o.wildignore = vim.o.wildignore .. "," .. "**" .. pattern .. "**"
+end
 
 -- Clipboard
-vim.cmd([[
-if has('clipboard')
-  if has('unnamedplus') " When possible use + register for copy-paste
-    vim.o.clipboard+=unnamedplus
-  endif
-endif
-]])
+if vim.fn.has("clipboard") == 1 and vim.fn.has("unnamedplus") then
+  vim.o.clipboard = vim.o.clipboard .. "unnamedplus"
+end
 
 -- -- activate per project settings
 -- vim.o.exrc = true  -- allows loading local EXecuting local RC files

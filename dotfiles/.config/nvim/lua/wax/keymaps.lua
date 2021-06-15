@@ -3,7 +3,7 @@ inoremap('<C-e>', '<End>')
 inoremap('<C-a>', '<Home>')
 
 -- quick escape:
-keymap('', '<Esc>', '<C-c>', { nowait = true })
+-- noremap('inc', '<Esc>', '<C-c>', { nowait = true })
 
 -- vim command line bindings to match zsh
 cmap('<a-bs>', '<c-w>')  -- ALT + backspace in cmd to delete word, like in terminal
@@ -15,7 +15,7 @@ cmap('<M-f>', '<S-Right', { nowait = true }) -- move right word
 nnoremap('q:', '<Nop>')
 
 -- Avoid entering some weird mode:
-keymap("", '<S-Q>', '<Nop>')
+keymap("nic", '<S-Q>', '<Nop>')
 
 -- Make escape work in the Neovim terminal
 tnoremap('<Esc>', '<C-\\><C-n>')
@@ -24,7 +24,7 @@ tnoremap('<Esc>', '<C-\\><C-n>')
 nnoremap('<return>', 'vip')
 
 -- For when you forget to sudo.. Really Write the file.
-vim.cmd('cmap w!! w !sudo tee % >/dev/null')
+vim.api.nvim_exec('cmap w!! w !sudo tee % >/dev/null', false)
 
 -- Editing sql files, by default ctrl-c is for insert. The Fuck vim ?!
 -- https://www.reddit.com/r/vim/comments/2om1ib/how_to_disable_sql_dynamic_completion/
@@ -61,8 +61,8 @@ nnoremap('Y', 'yg_')
 vnoremap('s', ':s/')
 
 -- Buffers switch
-keymap('', 'œ', '<cmd>bp<cr>', { nowait = true })  -- option + q
-keymap('', '∑', '<cmd>bn<cr>', { nowait = true })  -- option + w
+keymap('in', 'œ', '<cmd>bp<cr>', { nowait = true })  -- option + q
+keymap('in', '∑', '<cmd>bn<cr>', { nowait = true })  -- option + w
 
 -- delete buffer without closing pane: (option + r)
 nmap('®', ':bp!\\|bd! #<CR>', { silent = true })

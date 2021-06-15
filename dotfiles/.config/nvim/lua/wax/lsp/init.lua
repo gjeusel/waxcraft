@@ -31,9 +31,30 @@ lsp_status.config({
   status_symbol='',
 })
 
+
+local function documentHighlight(client, bufnr)
+  -- Set autocommands conditional on server_capabilities
+  if client.resolved_capabilities.document_highlight then
+    vim.api.nvim_exec(
+      [[
+      hi LspReferenceRead cterm=bold ctermbg=red guibg=#464646
+      hi LspReferenceText cterm=bold ctermbg=red guibg=#464646
+      hi LspReferenceWrite cterm=bold ctermbg=red guibg=#464646
+      augroup lsp_document_highlight
+      autocmd! * <buffer>
+      " autocmd CursorHold <buffer> lua vim.lsp.buf.document_highlight()
+      autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()
+      augroup END
+      ]],
+      false
+    )
+  end
+end
+
 -- mappings
 local on_attach = function(client, bufnr)
   lsp_status.on_attach(client, bufnr)
+  -- documentHighlight(client, bufnr)
 
   local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
   local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
@@ -115,10 +136,22 @@ vim.lsp.protocol.CompletionItemKind = {
 
 require("wax.lsp.pyls-ls") -- define new config "pyls"
 
+local lspinstall = require("lspinstall")
+lspinstall.setup()
+
+-- ensure_installed = {
+--   "efm", "bash","json", "yaml", "lua",
+--   "cmake", "go", "rust",
+--   "terraform"
+--   "pyls",
+--   "vue", "typescript", "tailwindcss", "graphql", "html", "css",
+-- }
+-- for _, server in ipairs(ensure_installed) do
+--   lspinstall.install_server(server)
+-- end
+
 local function setup_servers()
   local default_settings = {on_attach = on_attach, capabilities = lsp_status.capabilities}
-
-  require('lspinstall').setup()
   local servers = require('lspinstall').installed_servers()
   for _, server in pairs(servers) do
 
