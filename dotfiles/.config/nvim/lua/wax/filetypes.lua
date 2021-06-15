@@ -1,4 +1,4 @@
-vim.cmd[[
+vim.api.nvim_exec([[
 " Setting FileType:
 
 augroup ensureFileType
@@ -68,7 +68,7 @@ augroup frontend
   autocmd FileType vue,typescript setlocal foldmethod=expr foldexpr=nvim_treesitter#foldexpr()
 augroup end
 "
-]]
+]], false)
 
 -- vim.cmd [[
 -- " Switch to the current file directory when a new buffer is opened

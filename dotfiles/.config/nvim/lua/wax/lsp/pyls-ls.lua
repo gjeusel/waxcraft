@@ -7,6 +7,9 @@ require'lspinstall/servers'.pyls = vim.tbl_extend('error', pyls_config, {
   ./venv/bin/pip3 install --upgrade pip
   ./venv/bin/pip3 install --upgrade 'python-lsp-server[rope]'
   ./venv/bin/pip3 install --upgrade pyls-flake8 mypy-ls pyls-isort python-lsp-black
+  ./venv/bin/pip3 install pyls-flake8 mypy-ls pyls-isort python-lsp-black
+  ./venv/bin/pip3 install flake8==3.9.2 flake8-bugbear==21.4.3 flake8-builtins==1.5.3
+  ./venv/bin/pip3 install mypy==0.902 black==19.10b0 isort==5.7.0
   ]]
 })
 

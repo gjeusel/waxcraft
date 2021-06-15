@@ -1,3 +1,6 @@
+-- TODO:
+-- https://elianiva.my.id/post/my-nvim-lsp-setup#sumneko_lua
+
 require'compe'.setup {
   enabled = true;
   autocomplete = true;
@@ -23,6 +26,7 @@ require'compe'.setup {
     -- ultisnips = true;
   };
 }
+
 
 vim.cmd[[
 inoremap <silent><expr> <C-Space> compe#complete()
