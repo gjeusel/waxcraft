@@ -27,3 +27,4 @@ reload.modules_reload_external = { 'packer' }
 
 -- nmap('<F12>', '<cmd>Reload<cr>')  -- failing
 nmap('<F12>', '<cmd>luafile ~/.config/nvim/init.lua<cr>')
+-- nmap('<F12>', '<cmd>lua require("plenary.reload").reload_module("wax")<cr>')

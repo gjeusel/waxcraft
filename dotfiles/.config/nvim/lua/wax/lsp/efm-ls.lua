@@ -9,6 +9,21 @@ local root_markers = {
   'setup.cfg', 'setup.py', 'pyproject.toml', 'requirement.txt'
 }
 
+local flake8 = {
+  lintCommand = 'flake8 --ignore=E501 --stdin-display-name ${INPUT} -',
+  lintStdin = true,
+  lintFormats = {'%f:%l:%c: %m'},
+  lintSource = 'flake8'
+}
+local mypy = {
+  lintCommand = 'mypy --show-column-numbers --sqlite-cache',
+  lintFormats = {'%f:%l:%c: %trror: %m', '%f:%l:%c: %tarning: %m', '%f:%l:%c: %tote: %m'},
+  lintIgnoreExitCode = true,
+  lintSource = 'mypy'
+}
+local isort = {formatCommand = 'isort --profile black --quiet -', formatStdin = true}
+local black = {formatCommand = 'black --quiet -', formatStdin = true}
+
 -- NOTE: Has to be a list per language
 local languages = {
   -- https://github.com/Koihik/LuaFormatter
@@ -24,7 +39,13 @@ local languages = {
   },
 
   -- brew install jq
-  json = {{formatCommand = 'jq .'}}
+  -- json = {{formatCommand = 'jq .'}},
+
+  -- pip install ...
+  -- python = {flake8, isort, black},
+  -- python = {flake8, mypy, isort, black},
+  -- python = {isort, black},
+
 }
 
 return {
@@ -40,5 +61,5 @@ return {
   root_dir = function(fname)
     return root_pattern(root_markers)(fname)
   end,
-  settings = {rootMarkers = root_markers, lintDebounce = 200, languages = languages}
+  settings = {rootMarkers = root_markers, lintDebounce = 400, languages = languages}
 }

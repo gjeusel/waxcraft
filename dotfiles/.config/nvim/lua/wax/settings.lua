@@ -19,10 +19,6 @@ vim.o.autochdir = true      -- working directory is always the same as the file 
 
 vim.o.backup = true                              -- Backups are nice ...
 
-local backupdir = vim.fn.expand("$HOME") .. "/.local/share/nvim/backup"
-vim.fn.mkdir(backupdir, "p")
-vim.o.backupdir = backupdir
-
 vim.o.updatetime = 50       -- frequency to apply Autocmd events -> low for nvim-ts-context-commentstring
 vim.api.nvim_exec([[set shortmess+=c]], false)        -- don't pass messages to ins-completion-menu
 vim.o.completeopt = "menuone,noselect"
@@ -49,26 +45,28 @@ vim.o.shiftwidth = 2                                          -- an autoindent (
 vim.o.list = true                                           -- show the following:
 vim.api.nvim_exec([[set listchars=tab:›\ ,trail:•,extends:#,nbsp:.]], false) -- Highlight problematic whitespace
 
--- -- Backup, swap, undo & sessions
--- for directory in [--backup--, --swap--, --undo--, --view--]
---   silent! call mkdir($HOME . --/.vim/-- . directory, --p--)
--- endfor
---
--- vim.o.backupdir=~/.vim/backup/
--- vim.o.directory=~/.vim/swap/
---
--- if has('persistent_undo')
---   vim.o.undofile              -- So is persistent undo ...
---   vim.o.undolevels=1000       -- Maximum number of changes that can be undone
---   vim.o.undoreload=10000      -- Maximum number lines to save for undo on a buffer reload
---   vim.o.undodir=~/.vim/undo/
--- endif
---
--- if has('mksession')
---   vim.o.viewdir=~/.vim/view
---   vim.o.viewoptions-=options  -- needed by vim-stay
---   --vim.o.viewoptions=folds,cursor,unix,slash -- Better Unix / Windows compatibility
--- endif
+-- Backup, swap, undo & sessions
+local basedir = vim.fn.expand("$HOME") .. "/.local/share/nvim"
+
+local backupdir = basedir .. "/backup"
+vim.fn.mkdir(backupdir, "p")
+vim.o.backupdir = backupdir
+
+if vim.fn.has("persistent_undo") == 1 then
+  local undodir = basedir .. "/undo"
+  vim.fn.mkdir(undodir, "p")
+  vim.o.undofile = true       -- So is persistent undo ...
+  vim.o.undolevels=1000       -- Maximum number of changes that can be undone
+  vim.o.undoreload=10000      -- Maximum number lines to save for undo on a buffer reload
+  vim.o.undodir = undodir
+end
+
+if vim.fn.has("mksession") == 1 then
+    vim.api.nvim_exec(
+    [[set viewoptions-=options]],  -- needed by vim-stay
+    false
+  )
+end
 
 -- Searching
 vim.o.ignorecase = true -- searches are case insensitive...
@@ -81,7 +79,7 @@ local ignore_file_patterns = {".egg-info/", "__pycache__/", "node_modules/"}
 -- end
 
 -- Clipboard
-if vim.fn.has("clipboard") == 1 and vim.fn.has("unnamedplus") then
+if vim.fn.has("clipboard") == 1 and vim.fn.has("unnamedplus") == 1 then
   vim.o.clipboard = "unnamedplus"
 end
 

@@ -33,6 +33,7 @@ lsp_status.config({
 
 
 -- vim.lsp.set_log_level("debug")
+vim.lsp.set_log_level("info")
 
 local function documentHighlight(client, bufnr)
   -- Set autocommands conditional on server_capabilities
@@ -86,6 +87,7 @@ local on_attach = function(client, bufnr)
   -- buf_set_keymap('n', '<space>q', '<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>', opts)
 
   buf_set_keymap("n", "<leader>m", "<cmd>lua vim.lsp.buf.formatting()<CR>", opts)
+  -- buf_set_keymap("n", "<leader>m", "<cmd>lua vim.lsp.buf.formatting_seq_sync()<CR>", opts)
 end
 
 
