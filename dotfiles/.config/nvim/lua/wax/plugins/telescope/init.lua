@@ -96,8 +96,14 @@ nnoremap("z=", basemap .. ".spell_suggest(require('telescope.themes').get_dropdo
 keymap("nic", "∂", basemap .. ".command_history(require('telescope.themes').get_dropdown({}))<cr>", { nowait = true })
 
 -- LSP
-nnoremap("<leader>f", basemap .. ".lsp_dynamic_workspace_symbols()<cr>")
-nnoremap("<leader>F", basemap .. ".lsp_document_symbols()<cr>")
+nnoremap("<leader>ff", basemap .. ".lsp_dynamic_workspace_symbols()<cr>")
+nnoremap("<leader>fF", basemap .. ".lsp_document_symbols()<cr>")
+
+-- dotfiles
+nnoremap("<leader>fn", basemap .. ".wax_file()<cr>")
+
+-- vim help
+nnoremap("<leader>fh", basemap .. ".wax_file()<cr>")
 
 local telescope_functions = require("wax.plugins.telescope.functions")
 return telescope_functions

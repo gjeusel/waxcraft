@@ -11,10 +11,12 @@ from pathlib import Path
 from pprint import pprint
 
 import __main__
-import pytz
 
-TZ = pytz.timezone("Europe/Brussels")
-
+try:
+    import pytz
+    TZ = pytz.timezone("Europe/Brussels")
+except ImportError:
+    pass
 
 def setup_repl_logs():
     logging.basicConfig(

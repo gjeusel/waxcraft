@@ -138,7 +138,7 @@ vim.lsp.protocol.CompletionItemKind = {
 }
 
 
-require("wax.lsp.pyls-ls") -- define new config "pyls"
+require("wax.lsp.pylsp-ls") -- define new config "pylsp"
 
 local lspinstall = require("lspinstall")
 lspinstall.setup()
@@ -148,7 +148,7 @@ lspinstall.setup()
 --   "efm", "bash","json", "yaml", "lua",
 --   "cmake", "go", "rust",
 --   "terraform"
---   "pyls",
+--   "pylsp",
 --   "vue", "typescript", "tailwindcss", "graphql", "html", "css",
 -- }
 -- for _, server in ipairs(ensure_installed) do

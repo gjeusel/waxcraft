@@ -7,6 +7,8 @@ augroup ensureFileType
 
   au BufNewFile,BufRead *.snippets set filetype=snippets
 
+  au BufNewFile,BufRead .flake8 set filetype=ini
+
   au BufNewFile,BufRead cronfile set filetype=sh
   au BufNewFile,BufRead *.{sh,txt,env*,flaskenv} set filetype=sh
   au BufNewFile,BufRead *aliases set filetype=zsh
