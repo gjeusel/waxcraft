@@ -23,7 +23,7 @@ M.git_grep_string = function()
   return builtin.grep_string(opts)
 end
 M.rg_grep_string = function()
-  local root_dir = constants.find_root_dir(".")
+  local root_dir = find_root_dir(".")
 
   local opts = {
     prompt_title = "~ rg grep string ~",

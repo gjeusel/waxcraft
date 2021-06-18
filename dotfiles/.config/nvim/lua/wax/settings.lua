@@ -23,6 +23,8 @@ vim.o.updatetime = 200       -- frequency to apply Autocmd events -> low for nvi
 vim.api.nvim_exec([[set shortmess+=c]], false)        -- don't pass messages to ins-completion-menu
 vim.o.completeopt = "menuone,noselect"
 
+vim.o.pyxversion = 3
+
 
 vim.o.spelllang="en_us"     -- activate vim spell checking
 -- vim.o.nospell = true
@@ -88,6 +90,6 @@ end
 -- vim.o.secure = true  -- disallows the use of :autocmd, shell and write commands in local
 
 
-local HOME = vim.fn.expand("$HOME")
-vim.g.python3_host_prog = HOME .. "/miniconda3/envs/neovim37/bin/python"
-vim.g.python_host_prog = HOME .. "/miniconda3/envs/neovim27/bin/python"
+-- local HOME = vim.fn.expand("$HOME")
+-- vim.g.python3_host_prog = HOME .. "/miniconda3/envs/neovim37/bin/python"
+-- vim.g.python_host_prog = HOME .. "/miniconda3/envs/neovim27/bin/python"

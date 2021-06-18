@@ -16,6 +16,24 @@ function is_git(cwd)
   end
 end
 
+function find_root_dir_fn()
+  lspconfig = require("lspconfig")
+  return lspconfig.util.root_pattern(
+    ".git", "Dockerfile",
+    "pyproject.toml", "setup.cfg",
+    "package.json", "tsconfig.json"
+  )
+end
+
+function find_root_dir(path)
+  return find_root_dir_fn()(path)
+end
+
+function file_exists(name)
+   local f=io.open(name,"r")
+   if f~=nil then io.close(f) return true else return false end
+end
+
 
 -------- Module Operations --------
 

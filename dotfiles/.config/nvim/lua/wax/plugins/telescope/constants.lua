@@ -1,13 +1,4 @@
-local lspconfig = require("lspconfig")
-
 local M = {}
-
-M.find_root_dir = lspconfig.util.root_pattern(
-  ".git",
-  "Dockerfile",
-  "package.json",
-  "tsconfig.json"
-)
 
 M.grep_cmds = {
   rg = {
