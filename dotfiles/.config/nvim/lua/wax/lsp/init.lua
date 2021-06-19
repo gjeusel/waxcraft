@@ -7,14 +7,11 @@ vim.fn.sign_define(
   "LspDiagnosticsSignWarning",
   { texthl = "LspDiagnosticsSignWarning", text = "", numhl = "LspDiagnosticsSignWarning" }
 )
-vim.fn.sign_define(
-  "LspDiagnosticsSignInformation",
-  {
-    texthl = "LspDiagnosticsSignInformation",
-    text = "",
-    numhl = "LspDiagnosticsSignInformation",
-  }
-)
+vim.fn.sign_define("LspDiagnosticsSignInformation", {
+  texthl = "LspDiagnosticsSignInformation",
+  text = "",
+  numhl = "LspDiagnosticsSignInformation",
+})
 vim.fn.sign_define(
   "LspDiagnosticsSignHint",
   { texthl = "LspDiagnosticsSignHint", text = "", numhl = "LspDiagnosticsSignHint" }
@@ -171,7 +168,19 @@ local function setup_servers()
 
     local custom_settings = {}
     if has_setting_module then
+      log.info("Configuring LSP", "'" .. server .. "'", "with custom settings.")
       custom_settings = require(server_setting_module_path)
+    else
+      log.info("Configuring LSP", "'" .. server .. "'")
+    end
+
+    -- Chain potential on_attach
+    if custom_settings.on_attach then
+      custom_on_attach = vim.deepcopy(custom_settings.on_attach)
+      custom_settings.on_attach = function(client, bufnr)
+        on_attach(client, bufnr)
+        custom_on_attach(client, bufnr)
+      end
     end
 
     local settings = merge_tables(default_settings, custom_settings)
