@@ -22,10 +22,10 @@ require("compe").setup({
     nvim_lsp = true,
     nvim_lua = true,
     -- vsnip = true;
-    ultisnips = true;
+    ultisnips = { priority = 1000 },
     -- treesitter = {}, -- slow
-    spell = {},
-    emoji = { filetypes = { "markdown", "text" } },
+    spell = { filetypes = { "markdown", "text", "gitcommit" } },
+    emoji = { filetypes = { "markdown", "text", "gitcommit" } },
   },
 })
 
