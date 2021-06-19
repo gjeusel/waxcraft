@@ -72,7 +72,6 @@ return require("packer").startup({
 
     use("justinmk/vim-sneak") -- minimalist motion with 2 keys
     use("junegunn/vim-easy-align") -- easy alignment, better than tabularize
-    use("numtostr/BufOnly.nvim") -- deletes all buffers except
     use("vim-scripts/loremipsum") -- dummy text generator (:Loremipsum [number of words])
 
     use({
@@ -129,7 +128,13 @@ return require("packer").startup({
     --   after="nvim-web-devicons",
     --   config = function() require("wax.plugins.lualine") end,
     -- }
-    use("ap/vim-buftabline") -- buffer line
+    -- use("ap/vim-buftabline", require("numtostr/BufOnly.nvim")) -- buffer line
+    use({
+      "romgrk/barbar.nvim",
+      config = function()
+        require("wax.plugins.barbar")
+      end,
+    })
 
     use("kyazdani42/nvim-web-devicons") -- icons
     use("mhinz/vim-startify") -- fancy start screen
