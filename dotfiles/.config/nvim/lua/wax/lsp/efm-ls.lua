@@ -14,15 +14,10 @@ local root_markers = {
 }
 
 local global_prettier = { formatCommand = "prettier --stdin-filepath ${INPUT}", formatStdin = true }
-local prettier = { formatCommand = "./node_modules/.bin/prettier --stdin-filepath ${INPUT}", formatStdin = true }
--- local eslint = {
---     lintCommand = "./node_modules/.bin/eslint -f unix --stdin --stdin-filename ${INPUT}",
---     lintIgnoreExitCode = true,
---     lintStdin = true,
---     lintFormats = {"%f:%l:%c: %m"},
---     formatCommand = "./node_modules/.bin/eslint --fix-to-stdout --stdin --stdin-filename=${INPUT}",
---     formatStdin = true
--- }
+local prettier = {
+  formatCommand = "./node_modules/.bin/prettier --stdin-filepath ${INPUT}",
+  formatStdin = true,
+}
 
 -- NOTE: Has to be a list per language
 local languages = {
@@ -38,9 +33,13 @@ local languages = {
   },
 
   -- json = { global_prettier },
+  -- Frontend
   vue = { prettier },
   typescript = { prettier },
+  typescriptreact = { prettier },
   javascript = { prettier },
+  javascriptreact = { prettier },
+  css = { prettier },
 
   -- brew install jq
   -- json = {{formatCommand = 'jq .'}},

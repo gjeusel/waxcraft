@@ -35,29 +35,9 @@ lsp_status.config({
 -- vim.lsp.set_log_level("debug")
 vim.lsp.set_log_level("info")
 
-local function documentHighlight(client, bufnr)
-  -- Set autocommands conditional on server_capabilities
-  if client.resolved_capabilities.document_highlight then
-    vim.api.nvim_exec(
-      [[
-      hi LspReferenceRead cterm=bold ctermbg=red guibg=#464646
-      hi LspReferenceText cterm=bold ctermbg=red guibg=#464646
-      hi LspReferenceWrite cterm=bold ctermbg=red guibg=#464646
-      augroup lsp_document_highlight
-      autocmd! * <buffer>
-      " autocmd CursorHold <buffer> lua vim.lsp.buf.document_highlight()
-      autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()
-      augroup END
-      ]],
-      false
-    )
-  end
-end
-
 -- mappings
 local on_attach = function(client, bufnr)
   lsp_status.on_attach(client, bufnr)
-  -- documentHighlight(client, bufnr)
 
   local function buf_set_keymap(...)
     vim.api.nvim_buf_set_keymap(bufnr, ...)
@@ -109,9 +89,6 @@ vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
   }
 )
 
--- vim.cmd [[autocmd CursorHold * lua vim.lsp.diagnostic.show_line_diagnostics()]]
--- vim.cmd [[autocmd CursorHoldI * silent! lua vim.lsp.buf.signature_help()]]
-
 -- symbols for autocomplete
 vim.lsp.protocol.CompletionItemKind = {
   "   (Text) ",
@@ -146,17 +123,37 @@ require("wax.lsp.pylsp-ls") -- define new config "pylsp"
 local lspinstall = require("lspinstall")
 lspinstall.setup()
 
--- https://github.com/kabouzeid/nvim-lspinstall
--- ensure_installed = {
---   "efm", "bash","json", "yaml", "lua",
---   "cmake", "go", "rust",
---   "terraform"
---   "pylsp",
---   "vue", "typescript", "tailwindcss", "graphql", "html", "css",
--- }
--- for _, server in ipairs(ensure_installed) do
---   lspinstall.install_server(server)
--- end
+local function install_servers()
+  local required_servers = {
+    -- generic
+    "efm",
+    -- vim / bash / json / yaml
+    "lua",
+    "bash",
+    "yaml",
+    "json",
+    -- frontend
+    "typescript",
+    "html",
+    "svelte",
+    "css",
+    "tailwindcss",
+    "graphql",
+    -- backend
+    "pylsp",
+    "cmake",
+    "rust",
+    "go",
+    -- infra
+    "terraform",
+  }
+  local installed_servers = require("lspinstall").installed_servers()
+  for _, server in pairs(required_servers) do
+    if not vim.tbl_contains(installed_servers, server) then
+      require("lspinstall").install_server(server)
+    end
+  end
+end
 
 local function setup_servers()
   local default_settings = { on_attach = on_attach, capabilities = lsp_status.capabilities }
@@ -189,6 +186,7 @@ local function setup_servers()
   end
 end
 
+install_servers()
 setup_servers()
 
 -- Automatically reload after `:LspInstall <server>` so we don't have to restart neovim
