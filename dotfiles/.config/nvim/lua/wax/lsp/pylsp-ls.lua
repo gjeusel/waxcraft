@@ -10,7 +10,7 @@ local function get_python_path(workspace)
   -- TODO: find a faster way to do so, as it takes:
   --       ~ 0.3 seconds for conda run -n base
   --       ~ 0.3 seconds for poetry run which python
-  if file_exists(path.join(workspace, 'poetry.lock')) then
+  if path.is_file(path.join(workspace, 'poetry.lock')) then
     -- Make sure to not mess up with potential activated conda env
     local poetry_cmd = {'poetry', 'run', 'which', 'python'}
     if vim.env.CONDA_PREFIX then
@@ -41,7 +41,6 @@ local function get_python_path(workspace)
   return 'python'
 end
 
-
 local to_install = {
   '\'python-lsp-server[rope]\'', -- lsp
   'pyls-flake8', -- plugin for flake8
@@ -53,7 +52,6 @@ local to_install = {
   'pyls-isort' -- plugin for isort
   -- 'isort==5.7.0',
 }
-
 
 local log_file = vim.env.HOME .. '/.cache/nvim/pylsp.log'
 
@@ -75,9 +73,9 @@ local function set_lspinstall_pylsp(python_path)
   })
 end
 
-
 -- init lspinstall with CWD at first
 set_lspinstall_pylsp(get_python_path(find_root_dir('.')))
+
 
 return {
   -- init_options = {documentFormatting = false}, -- if python format by efm
