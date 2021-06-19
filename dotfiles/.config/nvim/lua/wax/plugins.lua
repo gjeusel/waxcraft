@@ -224,8 +224,17 @@ return require("packer").startup({
     })
     use({
       "hrsh7th/nvim-compe",
+      requires = "SirVer/ultisnips",
       branch = "master",
       config = function()
+        vim.g.UltiSnipsSnippetDirectories = { "mysnippets" }
+        vim.g.UltiSnipsExpandTrigger = "<nop>"
+        vim.g.UltiSnipsJumpForwardTrigger = "<c-j>"
+        vim.g.UltiSnipsJumpBackwardTrigger = "<c-k>"
+        vim.api.nvim_exec([[
+        au BufNewFile,BufRead *.snippets set filetype=snippets
+        au BufNewFile,BufRead *.snippets highlight snipLeadingSpaces ctermbg=none
+        ]], false)
         require("wax.plugins.nvim-compe")
       end,
     })

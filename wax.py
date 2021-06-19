@@ -142,7 +142,7 @@ def neovim():
 
     nvim_init = ".config/nvim/init.lua"
     # coc_settings = ".config/nvim/coc-settings.json"
-    nvim_snippets = "~/.config/nvim/snippets"
+    nvim_snippets = "~/.config/nvim/mysnippets"
     # plugin = "~/.config/nvim/plugin"
     lua = "~/.config/nvim/lua"
 

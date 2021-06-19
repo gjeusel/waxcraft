@@ -22,7 +22,7 @@ require("compe").setup({
     nvim_lsp = true,
     nvim_lua = true,
     -- vsnip = true;
-    -- ultisnips = true;
+    ultisnips = true;
     -- treesitter = {}, -- slow
     spell = {},
     emoji = { filetypes = { "markdown", "text" } },

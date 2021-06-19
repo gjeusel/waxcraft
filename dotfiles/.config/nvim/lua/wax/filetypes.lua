@@ -6,8 +6,6 @@ augroup ensureFileType
   " Make sure all markdown files have the correct filetype set
   au BufRead,BufNewFile *.{md,md.erb,markdown,mdown,mkd,mkdn,txt} set filetype=markdown
 
-  au BufNewFile,BufRead *.snippets set filetype=snippets
-
   au BufNewFile,BufRead .flake8 set filetype=ini
 
   au BufNewFile,BufRead cronfile set filetype=sh
@@ -28,7 +26,7 @@ augroup generic
   au FileType git setlocal foldlevel=20  " open all unfolded
   au Filetype vim setlocal tabstop=2 foldmethod=marker
   au FileType *.ya?ml setlocal shiftwidth=2 tabstop=2 softtabstop=2
-  au FileType sh,zsh,snippets setlocal foldmethod=marker foldlevel=10
+  au FileType sh,zsh setlocal foldmethod=marker foldlevel=10
   au FileType markdown setlocal wrap wrapmargin=2 textwidth=100 spell
   au FileType lua setlocal foldmethod=expr foldexpr=nvim_treesitter#foldexpr()
 augroup end
