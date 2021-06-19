@@ -6,7 +6,10 @@ inoremap('<C-a>', '<Home>')
 -- noremap('inc', '<Esc>', '<C-c>', { nowait = true })
 
 -- vim command line bindings to match zsh
-cmap('<a-bs>', '<c-w>')  -- ALT + backspace in cmd to delete word, like in terminal
+cnoremap('<a-bs>', '<c-w>')  -- ALT + backspace in cmd to delete word, like in terminal
+cnoremap('<alt-bs>', '<c-w>')  -- ALT + backspace in cmd to delete word, like in terminal
+-- cmap('<a-left>', '<c-left>')  -- ALT + left to act like CTRL + left
+
 cmap('<c-a>', '<c-b>')   -- move to beginning of line
 cmap('<M-b>', '<S-Left>', { nowait = true })  -- move left word
 cmap('<M-f>', '<S-Right', { nowait = true }) -- move right word
@@ -32,9 +35,11 @@ vim.g.omni_sql_no_default_maps = 1
 
 
 --------- Commands Maps ---------
+-- source current lua file
+nmap('<leader>sf', ':luafile %<CR>')
 
 -- activate/deactivate spellcheck
-nmap('<leader>s', ':setlocal spell!<CR>')
+nmap('<leader>ss', ':setlocal spell!<CR>')
 
 -- set no highlight
 nmap('<leader>;', ':nohl<cr>')

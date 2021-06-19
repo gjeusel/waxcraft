@@ -98,6 +98,7 @@ keymap("nic", "∂", basemap .. ".command_history(require('telescope.themes').ge
 -- LSP
 nnoremap("<leader>ff", basemap .. ".lsp_dynamic_workspace_symbols()<cr>")
 nnoremap("<leader>fF", basemap .. ".lsp_document_symbols()<cr>")
+nnoremap('<leader>r', basemap .. ".lsp_references()<cr>")
 
 -- dotfiles
 nnoremap("<leader>fn", basemap .. ".wax_file()<cr>")

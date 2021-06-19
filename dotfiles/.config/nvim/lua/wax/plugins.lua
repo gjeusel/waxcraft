@@ -91,6 +91,7 @@ return require('packer').startup {
     use 'tpope/vim-eunuch'          -- sugar for the UNIX shell commands
     use 'tpope/vim-fugitive'        -- Git wrapper for vim
     use 'tpope/vim-abolish'         -- :S to replace with smartcase
+    use 'tpope/vim-scriptease'      -- gives :Messages
 
     -- use 'airblade/vim-rooter'
 
