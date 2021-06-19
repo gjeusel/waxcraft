@@ -1,5 +1,4 @@
--- TODO:
--- https://elianiva.my.id/post/my-nvim-lsp-setup#sumneko_lua
+-- TODO: snippets at: https://elianiva.my.id/post/my-nvim-lsp-setup#sumneko_lua
 
 require("compe").setup({
   enabled = true,
@@ -24,6 +23,9 @@ require("compe").setup({
     nvim_lua = true,
     -- vsnip = true;
     -- ultisnips = true;
+    -- treesitter = {}, -- slow
+    spell = {},
+    emoji = { filetypes = { "markdown", "text" } },
   },
 })
 
