@@ -50,10 +50,10 @@ highlight LspReferenceRead cterm=bold ctermbg=red guibg=#464646
 highlight LspReferenceText cterm=bold ctermbg=red guibg=#464646
 highlight LspReferenceWrite cterm=bold ctermbg=red guibg=#464646
 
-" Git gutter
-highlight GitGutterAdd ctermbg=none ctermfg=Green
-highlight GitGutterChange ctermbg=none ctermfg=Yellow
-highlight GitGutterDelete ctermbg=none ctermfg=Red
+" gitsigns
+hi! link GitSignsDelete GruvboxRed
+hi! link GitSignsChange GruvboxYellow
+hi! link GitSignsAdd GruvboxAqua
 
 " Better diff views
 highlight DiffAdd cterm=none ctermfg=Green ctermbg=none

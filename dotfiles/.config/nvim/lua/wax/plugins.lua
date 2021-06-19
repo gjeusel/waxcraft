@@ -138,7 +138,12 @@ return require("packer").startup({
 
     use("kyazdani42/nvim-web-devicons") -- icons
     use("mhinz/vim-startify") -- fancy start screen
-    use("lewis6991/gitsigns.nvim") -- git sign column
+    use({
+      "lewis6991/gitsigns.nvim",
+      config = function()
+        require("gitsigns").setup()
+      end,
+    }) -- git sign column
 
     -- Waiting for https://github.com/nanotee/nvim-lua-guide
     -- use {'glepnir/indent-guides.nvim', -- indent guide
