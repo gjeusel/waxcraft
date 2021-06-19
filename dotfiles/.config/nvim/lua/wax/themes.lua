@@ -1,19 +1,19 @@
-vim.cmd('syntax on')
+vim.cmd("syntax on")
 
 -- vim.o.termguicolors = true
-vim.o.colorcolumn = "100"                    -- Show vertical bar at column 100
+vim.o.colorcolumn = "100" -- Show vertical bar at column 100
 vim.o.signcolumn = "yes"
 
 -- vim.o.termguicolors = true
-vim.o.background = 'dark'
+vim.o.background = "dark"
 vim.g.gruvbox_invert_selection = 0
 vim.g.gruvbox_improved_warnings = 1
 
-vim.cmd('silent! colorscheme gruvbox')
-
+vim.cmd("silent! colorscheme gruvbox")
 
 -- Highlight API is still a wip in nvim: https://github.com/nanotee/nvim-lua-guide#defining-syntaxhighlights
-vim.api.nvim_exec([[
+vim.api.nvim_exec(
+  [[
 highlight Normal ctermbg=none
 highlight SignColumn ctermbg=none
 highlight VertSplit ctermbg=none
@@ -70,5 +70,6 @@ hi! link TSTypeBuiltin GruvboxYellow
 hi! link TSPunctSpecial GruvboxFg3
 hi! link TSPunctBracket GruvboxFg3
 hi! link TSPunctDelimiter white
-]], false
+]],
+  false
 )

@@ -6,7 +6,7 @@ function is_module_available(name)
   else
     for _, searcher in ipairs(package.searchers or package.loaders) do
       local loader = searcher(name)
-      if type(loader) == 'function' then
+      if type(loader) == "function" then
         package.preload[name] = loader
         return true
       end
@@ -18,13 +18,13 @@ end
 -------- OS Operations --------
 
 function get_os_command_output(cmd, cwd)
-  local telescope_utils = require('telescope.utils')
+  local telescope_utils = require("telescope.utils")
   return telescope_utils.get_os_command_output(cmd, cwd)
 end
 
 function is_git(cwd)
-  local cmd = {'git', 'rev-parse', '--show-toplevel'}
-  local telescope_utils = require('telescope.utils')
+  local cmd = { "git", "rev-parse", "--show-toplevel" }
+  local telescope_utils = require("telescope.utils")
   local git_root, ret = get_os_command_output(cmd, cwd)
   if ret ~= 0 or #git_root <= 0 then
     return false
@@ -34,9 +34,15 @@ function is_git(cwd)
 end
 
 function find_root_dir_fn()
-  lspconfig = require('lspconfig')
-  return lspconfig.util.root_pattern('.git', 'Dockerfile', 'pyproject.toml', 'setup.cfg',
-                                     'package.json', 'tsconfig.json')
+  lspconfig = require("lspconfig")
+  return lspconfig.util.root_pattern(
+    ".git",
+    "Dockerfile",
+    "pyproject.toml",
+    "setup.cfg",
+    "package.json",
+    "tsconfig.json"
+  )
 end
 
 function find_root_dir(path)
@@ -46,7 +52,7 @@ end
 -------- Table Operations --------
 
 local function clone_table(t, copies)
-  if type(t) ~= 'table' then
+  if type(t) ~= "table" then
     return t
   end
 
@@ -68,20 +74,20 @@ local function clone_table(t, copies)
 end
 
 function merge_tables(...)
-  local tables_to_merge = {...}
-  assert(#tables_to_merge > 1, 'There should be at least two tables to merge them')
+  local tables_to_merge = { ... }
+  assert(#tables_to_merge > 1, "There should be at least two tables to merge them")
 
   for k, t in ipairs(tables_to_merge) do
-    assert(type(t) == 'table', string.format('Expected a table as function parameter %d', k))
+    assert(type(t) == "table", string.format("Expected a table as function parameter %d", k))
   end
 
   local result = clone_table(tables_to_merge[1])
   for i = 2, #tables_to_merge do
     local from = tables_to_merge[i]
     for k, v in pairs(from) do
-      if type(v) == 'table' then
+      if type(v) == "table" then
         result[k] = result[k] or {}
-        assert(type(result[k]) == 'table', string.format('Expected a table: \'%s\'', k))
+        assert(type(result[k]) == "table", string.format("Expected a table: '%s'", k))
         result[k] = merge_tables(result[k], v)
       else
         result[k] = v
@@ -94,17 +100,16 @@ end
 -------- Debug utils --------
 
 function dump(...)
-  local objects = vim.tbl_map(vim.inspect, {...})
+  local objects = vim.tbl_map(vim.inspect, { ... })
   print(unpack(objects))
 end
 
-
 -------- Mapping to other plugins entire modules --------
 
-if is_module_available('lspconfig/util') then
-  local lspconfig_util = require('lspconfig/util')
+if is_module_available("lspconfig/util") then
+  local lspconfig_util = require("lspconfig/util")
   path = lspconfig_util.path
 else
   -- TODO: mock it
-  file = ''
+  file = ""
 end

@@ -1,4 +1,4 @@
-local opts = {silent = true}
+local opts = { silent = true }
 
 nmap("<leader>1", ":Tmux <CR>:TestNearest<CR>", opts)
 nmap("<leader>2", ":Tmux <CR>:TestLast<CR>", opts)

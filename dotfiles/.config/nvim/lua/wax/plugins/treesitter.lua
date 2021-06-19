@@ -1,48 +1,48 @@
-local ts = require'nvim-treesitter.configs'
-local parsers = require'nvim-treesitter.parsers'
+local ts = require("nvim-treesitter.configs")
+local parsers = require("nvim-treesitter.parsers")
 
-ts.setup {
+ts.setup({
   highlight = {
     enable = true,
     -- disable = {"vue", "typescript"},
     -- custom_captures = {}
     -- additional_vim_regex_highlighting = false, -- also activate vim syntax
-    use_languagetree = true,  -- enable language injection
+    use_languagetree = true, -- enable language injection
   },
   incremental_selection = {
     enable = true,
     keymaps = {
-      init_selection = 'gnn',
+      init_selection = "gnn",
       node_incremental = "grn",
       scope_incremental = "grc",
       node_decremental = "grm",
-    }
+    },
   },
   indent = {
     enable = true,
-    disable = {"yaml"},
+    disable = { "yaml" },
   },
   ensure_installed = { -- one of 'all', 'language' or a list of languages
     -- Generic:
-    'bash',
-    'json',
-    'lua',
-    'ql',
-    'query',
-    'regex',
-    'toml',
-    'yaml',
+    "bash",
+    "json",
+    "lua",
+    "ql",
+    "query",
+    "regex",
+    "toml",
+    "yaml",
     -- Frontend:
-    'graphql',
-    'html',
-    'css',
-    'jsdoc',
-    'javascript',
-    'typescript',
-    'vue',
+    "graphql",
+    "html",
+    "css",
+    "jsdoc",
+    "javascript",
+    "typescript",
+    "vue",
     -- Backend:
-    'go',
-    'rust',
+    "go",
+    "rust",
     -- 'python',  commented as too many habits on current settings
   },
 
@@ -52,7 +52,7 @@ ts.setup {
   playground = {
     enable = true,
     updatetime = 25,
-    persist_queries = false
+    persist_queries = false,
   },
   query_linter = {
     enable = true,
@@ -73,7 +73,7 @@ ts.setup {
 
         ["ie"] = "@block.inner",
         ["ae"] = "@block.outer",
-      }
+      },
     },
     move = {
       enable = true,
@@ -110,5 +110,5 @@ ts.setup {
   -- 'windwp/nvim-ts-autotag'
   autotag = {
     enable = true,
-  }
-}
+  },
+})

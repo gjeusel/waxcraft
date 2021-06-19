@@ -3,8 +3,8 @@ vim.g.SimpylFold_fold_docstring = 1
 vim.g.SimpylFold_fold_import = 0
 
 vim.g.fastfold_savehook = 1
-vim.g.fastfold_fold_command_suffixes =  {'x','X','a','A','o','O','c','C'}
-vim.g.fastfold_fold_movement_commands = {']z', '[z', 'zj', 'zk'}
+vim.g.fastfold_fold_command_suffixes = { "x", "X", "a", "A", "o", "O", "c", "C" }
+vim.g.fastfold_fold_movement_commands = { "]z", "[z", "zj", "zk" }
 
 -- TODO: convert it to lua function ?
 vim.cmd([[
@@ -22,4 +22,4 @@ function! FoldText() abort
 endfunction
 ]])
 
-vim.cmd('set foldtext=FoldText()')
+vim.cmd("set foldtext=FoldText()")

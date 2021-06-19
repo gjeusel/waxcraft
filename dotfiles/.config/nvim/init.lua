@@ -4,13 +4,13 @@
 --     !_/ \_!|_||_|/_/ \_\   |_|\__||___|\__/   \_/  |_||_| |_|
 --
 
-require('wax.utils')
-require('wax.plugins')
+require("wax.utils")
+require("wax.plugins")
 
-require('wax.settings')
-require('wax.keymaps')
+require("wax.settings")
+require("wax.keymaps")
 
-require('wax.folds')
-require('wax.themes')
+require("wax.folds")
+require("wax.themes")
 
 require("wax.filetypes")
