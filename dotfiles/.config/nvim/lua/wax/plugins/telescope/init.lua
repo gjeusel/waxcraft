@@ -6,10 +6,12 @@ local constants = require("wax.plugins.telescope.constants")
 -- Waiting for: https://github.com/nvim-telescope/telescope.nvim/issues/684
 -- for this to work
 local custom_actions = transform_mod({
-  reset_folds = function(_)
+  restore_view = function(_)
+    vim.wo.foldmethod = vim.wo.foldmethod or "nvim_treesitter#foldexpr()"
+    vim.wo.foldmethod = "expr"
     vim.cmd(":normal! zx")
-    vim.cmd(":normal! zR")
-    -- vim.cmd(':loadview')
+    vim.cmd(":normal! zz")
+    pcall(vim.cmd, ":loadview") -- suppress error in case of no view stored
   end,
 })
 
@@ -45,7 +47,8 @@ require("telescope").setup({
         ["<C-q>"] = actions.smart_send_to_qflist, -- + actions.open_qflist, -- + my_cool_custom_action.x,
 
         ["<C-R>"] = actions.select_default + actions.center,
-        -- ["<CR>"] = actions.select_default + actions.center + custom_actions.reset_folds,
+        -- ["<C-R>"] = actions.select_default + actions.center + custom_actions.restore_view,
+        -- ["<CR>"] = actions.select_default + actions.center + custom_actions.restore_view,
       },
     },
     file_ignore_patterns = {

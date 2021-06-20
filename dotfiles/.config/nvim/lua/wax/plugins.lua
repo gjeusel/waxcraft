@@ -55,7 +55,7 @@ return require("packer").startup({
       end,
     })
 
-    use("zhimsel/vim-stay") -- adds automated view session creation and restoration whenever editing a buffer
+    use("zhimsel/vim-stay") -- automate makeview and loadview
     use("jiangmiao/auto-pairs") -- auto pair
     use("AndrewRadev/splitjoin.vim") -- easy split join on whole paragraph
     use("wellle/targets.vim") -- text object for parenthesis & more !
