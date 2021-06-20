@@ -27,8 +27,8 @@ M.fallback_grep_file = function(opts)
     hidden = true,
     attach_mappings = function(prompt_bufnr)
       actions.center:replace(function(_)
-        vim.wo.foldmethod = vim.wo.foldmethod or "nvim_treesitter#foldexpr()"
-        vim.wo.foldmethod = "expr"
+        vim.wo.foldmethod = vim.wo.foldmethod or "expr"
+        vim.wo.foldexpr = vim.wo.foldexpr or "nvim_treesitter#foldexpr()"
         vim.cmd(":normal! zx")
         vim.cmd(":normal! zz")
         pcall(vim.cmd, ":loadview") -- silent load view
