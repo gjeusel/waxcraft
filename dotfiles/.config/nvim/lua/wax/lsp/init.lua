@@ -180,7 +180,7 @@ local function setup_servers()
       end
     end
 
-    local settings = merge_tables(default_settings, custom_settings)
+    local settings = vim.tbl_extend("keep", custom_settings, default_settings)
 
     require("lspconfig")[server].setup(settings)
   end

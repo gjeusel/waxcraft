@@ -3,6 +3,8 @@ local constants = require("wax.plugins.telescope.constants")
 
 local builtin = require("telescope.builtin")
 local actions = require("telescope.actions")
+local action_set = require("telescope.actions.set")
+local action_state = require("telescope.actions.state")
 
 local M = {}
 
@@ -20,18 +22,27 @@ end
 -- Custom find file (defaulting to git files if is git)
 M.fallback_grep_file = function(opts)
   opts = opts or {}
+
+  local default_opts = {
+    hidden = true,
+    attach_mappings = function(prompt_bufnr)
+      actions.center:replace(function(_)
+        vim.wo.foldmethod = vim.wo.foldmethod or "nvim_treesitter#foldexpr()"
+        vim.wo.foldmethod = "expr"
+        vim.cmd(":normal! zx")
+        vim.cmd(":normal! zz")
+        pcall(vim.cmd, ":loadview") -- silent load view
+      end)
+      return true
+    end,
+  }
+
   if is_git(opts.cwd) then
-    local default_opts = { prompt_title = "~ git files ~", hidden = true }
-    for k, v in pairs(default_opts) do
-      opts[k] = v
-    end
-    return builtin.git_files(opts)
+    builtin.git_files(
+      vim.tbl_extend("keep", default_opts, { prompt_title = "~ git files ~" }, opts)
+    )
   else
-    local default_opts = { prompt_title = "~ files ~", hidden = true }
-    for k, v in pairs(default_opts) do
-      opts[k] = v
-    end
-    return builtin.find_files(opts)
+    builtin.find_files(vim.tbl_extend("keep", default_opts, { prompt_title = "~ files ~" }, opts))
   end
 end
 
@@ -52,7 +63,7 @@ M.wax_file = function()
     },
     layout_strategy = "vertical",
   }
-  return builtin.find_files(opts)
+  builtin.find_files(opts)
 end
 
 -- Projects find file
@@ -61,8 +72,6 @@ local project_two_step = function(prompt_title, fn_second_step)
   local Path = require("plenary.path")
   local os_sep = Path.path.sep
 
-  local action_set = require("telescope.actions.set")
-  local action_state = require("telescope.actions.state")
   local conf = require("telescope.config").values
   local pickers = require("telescope.pickers")
   local finders = require("telescope.finders")
