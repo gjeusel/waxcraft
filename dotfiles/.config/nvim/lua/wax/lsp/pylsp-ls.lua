@@ -5,9 +5,6 @@ local pyls_config = require("lspinstall/util").extract_config("pylsp")
 
 local function get_python_path(workspace)
   -- https://github.com/neovim/nvim-lspconfig/issues/500#issuecomment-851247107
-  -- https://github.com/neovim/nvim-lspconfig/issues/500#issuecomment-851247107
-  -- https://github.com/neovim/nvim-lspconfig/issues/500#issuecomment-851247107
-  -- https://github.com/neovim/nvim-lspconfig/issues/500#issuecomment-851247107
 
   -- If is poetry project, find the associated venv and use it
   -- TODO: find a faster way to do so, as it takes:
