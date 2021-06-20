@@ -27,7 +27,7 @@ augroup generic
   au Filetype vim setlocal tabstop=2 foldmethod=marker
   au FileType *.ya?ml setlocal shiftwidth=2 tabstop=2 softtabstop=2
   au FileType sh,zsh setlocal foldmethod=marker foldlevel=10
-  au FileType markdown setlocal wrap wrapmargin=2 textwidth=100 spell
+  au FileType markdown setlocal wrap wrapmargin=2 textwidth=140 spell
   au FileType lua setlocal foldmethod=expr foldexpr=nvim_treesitter#foldexpr()
 augroup end
 "

@@ -77,7 +77,8 @@ nnoremap("<leader>p", basemap .. ".fallback_grep_file()<cr>")
 nnoremap("<leader>P", basemap .. ".find_files({prompt_title='~ files ~', hidden=true})<cr>")
 
 -- Telescope project then file on ~/src
-nnoremap("<leader>q", basemap .. ".projects_files()<cr>")
+nnoremap("<leader>q", basemap .. ".projects_grep_files()<cr>")
+nnoremap("<leader>Q", basemap .. ".projects_grep_string()<cr>")
 
 -- Telescope opened buffers
 nnoremap("<leader>n", basemap .. ".buffers({prompt_title='~ buffers ~'})<cr>")

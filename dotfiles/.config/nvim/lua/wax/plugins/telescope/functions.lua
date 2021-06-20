@@ -7,38 +7,14 @@ local actions = require("telescope.actions")
 local M = {}
 
 -- Custom Grep to be fuzzy
-M.git_grep_string = function()
-  local git_root, _ = get_os_command_output({ "git", "rev-parse", "--show-toplevel" })
-  local opts = {
-    prompt_title = "~ git grep string ~",
-    -- search = '' ,  -- https://github.com/nvim-telescope/telescope.nvim/issues/564
-    cwd = git_root[1],
-    -- vimgrep_arguments = grep_cmds["git"],
-    vimgrep_arguments = constants.grep_cmds["rg"],
-  }
-
-  -- local theme_opts = require('telescope.themes').get_dropdown({})
-  -- local theme_opts = require('telescope.themes').get_ivy({})
-  -- for k,v in pairs(theme_opts) do opts[k] = v end
-  return builtin.grep_string(opts)
-end
-M.rg_grep_string = function()
-  local root_dir = find_root_dir(".")
-
-  local opts = {
-    prompt_title = "~ rg grep string ~",
+M.entirely_fuzzy_grep_string = function(opts)
+  local default_opts = {
+    prompt_title = "~ fuzzy grep string ~",
     search = "", -- https://github.com/nvim-telescope/telescope.nvim/issues/564
-    cwd = root_dir,
+    cwd = find_root_dir("."),
     vimgrep_arguments = constants.grep_cmds["rg"],
   }
-  return builtin.grep_string(opts)
-end
-M.fallback_grep_string = function()
-  if is_git() then
-    return M.git_grep_string()
-  else
-    return M.rg_grep_string()
-  end
+  return builtin.grep_string(vim.tbl_extend("force", default_opts, opts))
 end
 
 -- Custom find file (defaulting to git files if is git)
@@ -80,7 +56,7 @@ M.wax_file = function()
 end
 
 -- Projects find file
-M.projects_files = function()
+local project_two_step = function(prompt_title, fn_second_step)
   local scan = require("plenary.scandir")
   local Path = require("plenary.path")
   local os_sep = Path.path.sep
@@ -93,11 +69,7 @@ M.projects_files = function()
   local make_entry = require("telescope.make_entry")
   local tele_path = require("telescope.path")
 
-  local opts = {
-    prompt_title = "~ projects files ~",
-    cwd = "~/src",
-    depth = 1,
-  }
+  local opts = { prompt_title = prompt_title, cwd = "~/src", depth = 1 }
 
   opts.cwd = opts.cwd and vim.fn.expand(opts.cwd) or vim.loop.cwd()
   opts.new_finder = opts.new_finder
@@ -139,7 +111,7 @@ M.projects_files = function()
         local entry = action_state.get_selected_entry()
         local project = entry[1]
         actions.close(prompt_bufnr)
-        M.fallback_grep_file({ cwd = project })
+        fn_second_step({ cwd = project })
         vim.cmd(":normal! A") -- small fix to be in insert mode
         return true
       end)
@@ -149,6 +121,15 @@ M.projects_files = function()
   }):find()
 end
 
+M.projects_grep_files = function()
+  return project_two_step("~ projects files ~", M.fallback_grep_file)
+end
+
+M.projects_grep_string = function()
+  return project_two_step("~ projects grep string ~", M.entirely_fuzzy_grep_string)
+end
+
+-- Projects grep string
 -- Add all M commands to builtin for the builtin.builtin leader b search
 for key, value in pairs(M) do
   builtin[key] = value

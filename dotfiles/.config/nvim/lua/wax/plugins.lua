@@ -216,6 +216,7 @@ return require("packer").startup({
       requires = {
         "nvim-lua/lsp-status.nvim",
         { "kabouzeid/nvim-lspinstall", branch = "main" },
+        -- "ray-x/lsp_signature.nvim",  -- a bit buggy
         lock = true,
       },
       config = function()
@@ -231,10 +232,13 @@ return require("packer").startup({
         vim.g.UltiSnipsExpandTrigger = "<nop>"
         vim.g.UltiSnipsJumpForwardTrigger = "<c-j>"
         vim.g.UltiSnipsJumpBackwardTrigger = "<c-k>"
-        vim.api.nvim_exec([[
+        vim.api.nvim_exec(
+          [[
         au BufNewFile,BufRead *.snippets set filetype=snippets
         au BufNewFile,BufRead *.snippets highlight snipLeadingSpaces ctermbg=none
-        ]], false)
+        ]],
+          false
+        )
         require("wax.plugins.nvim-compe")
       end,
     })
