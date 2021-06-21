@@ -27,7 +27,7 @@ local ligthline_layout = {
 }
 
 vim.g.lightline = {
-  colorscheme = "gruvbox",
+  colorscheme = iterm_colorscheme,
   component_function = { gitbranch = "FugitiveHead", lspstatus = "LspStatus" },
   -- component_expand = {  -- custom components
   -- },

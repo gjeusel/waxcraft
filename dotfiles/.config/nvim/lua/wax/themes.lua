@@ -9,16 +9,34 @@ vim.o.background = "dark"
 vim.g.gruvbox_invert_selection = 0
 vim.g.gruvbox_improved_warnings = 1
 
-vim.cmd("silent! colorscheme gruvbox")
+vim.g.nord_disable_background = true
 
 -- Highlight API is still a wip in nvim: https://github.com/nanotee/nvim-lua-guide#defining-syntaxhighlights
+
 vim.api.nvim_exec(
   [[
+" Base interface
 highlight Normal ctermbg=none
 highlight SignColumn ctermbg=none
 highlight VertSplit ctermbg=none
 highlight CursorLineNr ctermbg=none
 highlight ColorColumn ctermbg=236
+highlight SignColumn ctermbg=none
+
+" Better diff views
+highlight DiffAdd cterm=none ctermfg=Green ctermbg=none
+highlight DiffChange cterm=none ctermfg=Yellow ctermbg=none
+highlight DiffDelete cterm=bold ctermfg=Red ctermbg=none
+highlight DiffText cterm=none ctermfg=Blue ctermbg=none
+  ]],
+  false
+)
+
+-- Gruvbox Specific
+local apply_gruvbox_theme = function()
+  vim.api.nvim_exec(
+    [[
+" Statusline
 hi! link Statusline GruvboxFg3
 
 " barbar
@@ -36,30 +54,21 @@ hi! link BufferTabpageFill GruvboxBg0
 highlight Folded cterm=bold ctermbg=none
 hi! link Folded GruvboxFg3
 
-" Better Sign Column
-highlight SignColumn ctermbg=none
-
 " Lsp
 hi! link LspDiagnosticsDefaultError GruvboxRed
 hi! link LspDiagnosticsDefaultWarning GruvboxYellow
 hi! link LspDiagnosticsDefaultInformation GruvboxFg3
 hi! link LspDiagnosticsDefaultHint GruvboxBlue
 
-" LSP colors
-highlight LspReferenceRead cterm=bold ctermbg=red guibg=#464646
-highlight LspReferenceText cterm=bold ctermbg=red guibg=#464646
-highlight LspReferenceWrite cterm=bold ctermbg=red guibg=#464646
+"" LSP colors
+"highlight LspReferenceRead cterm=bold ctermbg=red guibg=#464646
+"highlight LspReferenceText cterm=bold ctermbg=red guibg=#464646
+"highlight LspReferenceWrite cterm=bold ctermbg=red guibg=#464646
 
 " gitsigns
 hi! link GitSignsDelete GruvboxRed
 hi! link GitSignsChange GruvboxYellow
 hi! link GitSignsAdd GruvboxAqua
-
-" Better diff views
-highlight DiffAdd cterm=none ctermfg=Green ctermbg=none
-highlight DiffChange cterm=none ctermfg=Yellow ctermbg=none
-highlight DiffDelete cterm=bold ctermfg=Red ctermbg=none
-highlight DiffText cterm=none ctermfg=Blue ctermbg=none
 
 
 " TreeSitter for TypeScript and Vue
@@ -82,5 +91,11 @@ hi! link TSPunctSpecial GruvboxFg3
 hi! link TSPunctBracket GruvboxFg3
 hi! link TSPunctDelimiter white
 ]],
-  false
-)
+    false
+  )
+end
+
+if iterm_colorscheme == "gruvbox" then
+  vim.cmd("silent! colorscheme gruvbox")
+  apply_gruvbox_theme()
+end

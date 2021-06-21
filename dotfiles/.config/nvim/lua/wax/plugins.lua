@@ -116,6 +116,7 @@ return require("packer").startup({
 
     --------- User Interface ---------
     use("morhetz/gruvbox")
+    use("shaunsingh/nord.nvim")
     use({
       "itchyny/lightline.vim", -- light status line
       config = function()
