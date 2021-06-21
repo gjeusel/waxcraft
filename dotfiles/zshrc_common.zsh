@@ -37,6 +37,12 @@ if [ ! which gls >/dev/null 2>&1 ]; then
   curl -sfL git.io/antibody | sh -s - -b /usr/local/bin
 fi
 
+# Make sure to have binaries in PATH before sourcing antibody
+# else tmux is not yet available and it messes up iterm2 startup
+if [ -f  /opt/homebrew/bin/brew ]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+
 # Static load, when change of plugins run:
 # # antibody bundle < "$waxCraft_PATH/dotfiles/.zsh-plugins.txt" > ~/.zsh-plugins.sh
 source "$HOME/.zsh-plugins.sh"

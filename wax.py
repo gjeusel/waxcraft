@@ -141,16 +141,12 @@ def neovim():
     assert shutil.which("nvim") is not None  # check in PATH
 
     nvim_init = ".config/nvim/init.lua"
-    # coc_settings = ".config/nvim/coc-settings.json"
-    nvim_snippets = "~/.config/nvim/mysnippets"
-    # plugin = "~/.config/nvim/plugin"
-    lua = "~/.config/nvim/lua"
+    lua = ".config/nvim/lua"
+    nvim_snippets = ".config/nvim/mysnippets"
 
     relative_paths = [
         nvim_init,
-        # coc_settings,
         nvim_snippets,
-        # plugin,
         lua,
     ]
     create_symlinks_robust(
