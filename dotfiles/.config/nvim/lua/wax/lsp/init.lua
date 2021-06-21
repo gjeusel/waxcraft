@@ -165,10 +165,10 @@ local function setup_servers()
 
     local custom_settings = {}
     if has_setting_module then
-      log.info("Configuring LSP", "'" .. server .. "'", "with custom settings.")
+      log.debug("Configuring LSP", "'" .. server .. "'", "with custom settings.")
       custom_settings = require(server_setting_module_path)
     else
-      log.info("Configuring LSP", "'" .. server .. "'")
+      log.debug("Configuring LSP", "'" .. server .. "'")
     end
 
     -- Chain potential on_attach

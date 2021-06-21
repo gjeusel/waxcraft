@@ -96,7 +96,7 @@ return {
   },
   on_new_config = function(new_config, new_root_dir)
     local python_path = get_python_path(new_root_dir)
-    log.debug("LSP python path: ", python_path)
+    log.info(string.format("LSP python path '%s' for new_root_dir '%s'", python_path, new_root_dir))
     set_lspinstall_pylsp(python_path)
     new_config.cmd = { python_path, "-m", "pylsp", "--log-file", log_file, "-v" }
   end,
