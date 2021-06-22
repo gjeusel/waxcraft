@@ -159,15 +159,15 @@ local function setup_servers()
 
     local custom_settings = {}
     if has_setting_module then
-      log.debug("Configuring LSP", "'" .. server .. "'", "with custom settings.")
+      log.debug(string.format("Configuring LSP '%s' with custom settings", server))
       custom_settings = require(server_setting_module_path) or {}
     else
-      log.debug("Configuring LSP", "'" .. server .. "'")
+      log.debug(string.format("Configuring LSP '%s'", server))
     end
 
     -- Chain potential on_attach
     if custom_settings.on_attach then
-      custom_on_attach = vim.deepcopy(custom_settings.on_attach)
+      local custom_on_attach = vim.deepcopy(custom_settings.on_attach)
       custom_settings.on_attach = function(client, bufnr)
         on_attach(client, bufnr)
         custom_on_attach(client, bufnr)
