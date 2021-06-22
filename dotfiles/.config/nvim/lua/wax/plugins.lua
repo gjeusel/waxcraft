@@ -83,7 +83,8 @@ return require("packer").startup({
       config = function()
         vim.cmd([[
           let g:tcomment_opleader1 = '<leader>c'
-          let g:tcomment#filetype#guess_vue = 0  " https://github.com/tomtom/tcomment_vim/issues/284#issuecomment-809956888
+          " https://github.com/tomtom/tcomment_vim/issues/284#issuecomment-809956888
+          let g:tcomment#filetype#guess_vue = 0
         ]])
       end,
     })
@@ -208,6 +209,9 @@ return require("packer").startup({
       },
       config = function()
         require("wax.plugins.treesitter")
+      end,
+      cond = function()
+        return vim.bo.filetype ~= "python"  -- mess up foldmethod
       end,
     })
 

@@ -66,9 +66,8 @@ else
   file = ""
 end
 
+iterm_colorscheme = "gruvbox"
 local known_colorschemes = { "gruvbox", "nord" }
 if vim.tbl_contains(known_colorschemes, os.getenv("ITERM_PROFILE")) then
   iterm_colorscheme = os.getenv("ITERM_PROFILE")
-else
-  iterm_colorscheme = "default"
 end

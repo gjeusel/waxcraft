@@ -13,25 +13,6 @@ vim.g.nord_disable_background = true
 
 -- Highlight API is still a wip in nvim: https://github.com/nanotee/nvim-lua-guide#defining-syntaxhighlights
 
-vim.api.nvim_exec(
-  [[
-" Base interface
-highlight Normal ctermbg=none
-highlight SignColumn ctermbg=none
-highlight VertSplit ctermbg=none
-highlight CursorLineNr ctermbg=none
-highlight ColorColumn ctermbg=236
-highlight SignColumn ctermbg=none
-
-" Better diff views
-highlight DiffAdd cterm=none ctermfg=Green ctermbg=none
-highlight DiffChange cterm=none ctermfg=Yellow ctermbg=none
-highlight DiffDelete cterm=bold ctermfg=Red ctermbg=none
-highlight DiffText cterm=none ctermfg=Blue ctermbg=none
-  ]],
-  false
-)
-
 -- Gruvbox Specific
 local apply_gruvbox_theme = function()
   vim.api.nvim_exec(
@@ -99,3 +80,21 @@ if iterm_colorscheme == "gruvbox" then
   vim.cmd("silent! colorscheme gruvbox")
   apply_gruvbox_theme()
 end
+
+vim.api.nvim_exec(
+  [[
+" Base interface
+highlight Normal ctermbg=none
+highlight SignColumn ctermbg=none
+highlight VertSplit ctermbg=none
+highlight CursorLineNr ctermbg=none
+highlight ColorColumn ctermbg=236
+
+" Better diff views
+highlight DiffAdd cterm=none ctermfg=Green ctermbg=none
+highlight DiffChange cterm=none ctermfg=Yellow ctermbg=none
+highlight DiffDelete cterm=bold ctermfg=Red ctermbg=none
+highlight DiffText cterm=none ctermfg=Blue ctermbg=none
+  ]],
+  false
+)

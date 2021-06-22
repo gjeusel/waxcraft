@@ -27,8 +27,14 @@ M.fallback_grep_file = function(opts)
     hidden = true,
     attach_mappings = function(prompt_bufnr)
       actions.center:replace(function(_)
-        vim.wo.foldmethod = vim.wo.foldmethod or "expr"
-        vim.wo.foldexpr = vim.wo.foldexpr or "nvim_treesitter#foldexpr()"
+        if vim.bo.filetype == "python" then
+          vim.wo.foldmethod = "expr"
+          vim.wo.foldexpr = "SimpylFold#FoldExpr(v:lnum)"
+        else
+          vim.wo.foldmethod = vim.wo.foldmethod or "expr"
+          vim.wo.foldexpr = vim.wo.foldexpr or "nvim_treesitter#foldexpr()"
+        end
+
         vim.cmd(":normal! zx")
         vim.cmd(":normal! zz")
         pcall(vim.cmd, ":loadview") -- silent load view
