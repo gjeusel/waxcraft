@@ -10,7 +10,7 @@ local function get_python_path(workspace)
   -- TODO: find a faster way to do so, as it takes:
   --       ~ 0.3 seconds for conda run -n base
   --       ~ 0.3 seconds for poetry run which python
-  if path.is_file(path.join(workspace, "poetry.lock")) then
+  if workspace and path.is_file(path.join(workspace, "poetry.lock")) then
     -- Make sure to not mess up with potential activated conda env
     local poetry_cmd = { "poetry", "run", "which", "python" }
     if vim.env.CONDA_PREFIX then
@@ -35,6 +35,17 @@ local function get_python_path(workspace)
   -- If virtualenv is activated, use it
   if vim.env.VIRTUAL_ENV then
     return path.join(vim.env.VIRTUAL_ENV, "bin", "python")
+  end
+
+  -- If a conda env exists with the same name as the workspace, use it
+  if workspace then
+    local path_parts = vim.split(workspace, "/")
+    local project_name = path_parts[#path_parts]
+    local conda_cmd = {"conda", "run", "-n", project_name, "which", "python"}
+    local stdout, ret = get_os_command_output(conda_cmd, workspace)
+    if ret == 0 and #stdout > 1 then
+      return stdout[1]
+    end
   end
 
   -- Fallback to system Python.
