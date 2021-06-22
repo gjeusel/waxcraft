@@ -1,10 +1,13 @@
-session_name: zefire
+# To show current layout:
+# > tmux display-message -p "#{window_layout}"
+
+session_name: renewex
 
 windows:
 
   - window_name: zefire
     focus: true
-    layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
+    layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
     shell_command_before:
       - act zefire
       - cd ~/src/zefire
@@ -15,7 +18,7 @@ windows:
       - 
 
   - window_name: front
-    layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
+    layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
     shell_command_before:
       - cd ~/src/zefire-front
     panes:
@@ -25,8 +28,29 @@ windows:
       - shell_command:
         - npm run dev
 
+  - window_name: peregreen
+    layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
+    shell_command_before:
+      - act peregreen
+      - cd ~/src/peregreen
+    panes:
+      - shell_command:
+        - neofetch
+        focus: true
+      - 
+
+  - window_name: pocdagster
+    layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
+    shell_command_before:
+      - cd ~/src/pocdagster
+    panes:
+      - shell_command:
+        - neofetch
+        focus: true
+      - 
+
   - window_name: remote
-    layout: main-horizontal
+    layout: aa80,158x47,0,0{79x47,0,0,9,78x47,80,0[78x23,80,0,14,78x23,80,24,15]}
     options:
       main-pane-height: 50
     shell_command_before:
@@ -37,24 +61,3 @@ windows:
         focus: true
       - 
 
-  - window_name: peregreen
-    layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
-    shell_command_before:
-      - act peregreen
-      - cd ~/src/peregreen
-    panes:
-      - shell_command:
-        - neofetch
-        focus: true
-      - 
-
-  - window_name: squamish
-    layout: 5cd8,189x53,0,0[189x44,0,0,1,189x8,0,45,2]
-    shell_command_before:
-      - act squamish
-      - cd ~/src/squamish
-    panes:
-      - shell_command:
-        - neofetch
-        focus: true
-      - 
