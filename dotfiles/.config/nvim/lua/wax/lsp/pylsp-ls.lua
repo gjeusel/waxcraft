@@ -1,4 +1,4 @@
-local lspconfig_util = require("lspconfig/util")
+local lspconfig_util = require("lspconfig.util")
 local path = lspconfig_util.path
 
 local pyls_config = require("lspinstall/util").extract_config("pylsp")
@@ -65,9 +65,10 @@ local function set_lspinstall_pylsp(python_path)
 
   -- default python_path is the one deduced from CWD at vim startup
   local cmd = { python_path, "-m", "pylsp", "--log-file", log_file, "-v" }
-  pyls_config.default_config.cmd = cmd
 
-  require("lspinstall/servers").pylsp = vim.tbl_extend("error", pyls_config, {
+  require("lspinstall/servers")["pylsp"] = vim.tbl_deep_extend("force", pyls_config, {
+    default_config = { cmd = cmd },
+    filetypes = { "python" },
     install_script = install_script,
     uninstall_script = uninstall_script,
   })

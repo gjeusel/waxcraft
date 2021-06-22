@@ -13,7 +13,10 @@ local root_markers = {
   "requirement.txt",
 }
 
-local global_prettier = { formatCommand = "prettier --stdin-filepath ${INPUT}", formatStdin = true }
+local global_prettier = {
+  formatCommand = "prettier --stdin-filepath ${INPUT}",
+  formatStdin = true,
+}
 local prettier = {
   formatCommand = "./node_modules/.bin/prettier --stdin-filepath ${INPUT}",
   formatStdin = true,
@@ -33,6 +36,7 @@ local languages = {
   },
 
   -- json = { global_prettier },
+  yaml = { global_prettier },
   -- Frontend
   vue = { prettier },
   typescript = { prettier },

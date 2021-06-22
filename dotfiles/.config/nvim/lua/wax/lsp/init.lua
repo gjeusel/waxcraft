@@ -118,47 +118,41 @@ vim.lsp.protocol.CompletionItemKind = {
   "   (TypeParameter)",
 }
 
+-- make sure to require modules with overwrite of lspinstall beforehand
 require("wax.lsp.pylsp-ls") -- define new config "pylsp"
+require("wax.lsp.yaml-ls") -- rewrite install setup
 
 local lspinstall = require("lspinstall")
 lspinstall.setup()
 
-local function install_servers()
-  local required_servers = {
-    -- generic
-    "efm",
-    -- vim / bash / json / yaml
-    "lua",
-    "bash",
-    "yaml",
-    "json",
-    -- frontend
-    "typescript",
-    "html",
-    "svelte",
-    "css",
-    "tailwindcss",
-    "graphql",
-    -- backend
-    "pylsp",
-    "cmake",
-    "rust",
-    "go",
-    -- infra
-    "terraform",
-  }
-  local installed_servers = require("lspinstall").installed_servers()
-  for _, server in pairs(required_servers) do
-    if not vim.tbl_contains(installed_servers, server) then
-      require("lspinstall").install_server(server)
-    end
-  end
-end
+local required_servers = {
+  -- generic
+  "efm",
+  -- vim / bash / json / yaml
+  "lua",
+  "bash",
+  "yaml",
+  "json",
+  -- frontend
+  "typescript",
+  "html",
+  "svelte",
+  "css",
+  "tailwindcss",
+  "graphql",
+  -- backend
+  "pylsp",
+  "cmake",
+  "rust",
+  "go",
+  -- infra
+  "terraform",
+}
 
 local function setup_servers()
   local default_settings = { on_attach = on_attach, capabilities = lsp_status.capabilities }
-  local servers = require("lspinstall").installed_servers()
-  for _, server in pairs(servers) do
+  local installed_servers = require("lspinstall").installed_servers()
+  for _, server in pairs(required_servers) do
     -- If "wax.lsp.{server}-ls.lua" exists, then load its settings
     local server_setting_module_path = "wax.lsp." .. server .. "-ls"
     local has_setting_module = is_module_available(server_setting_module_path)
@@ -166,7 +160,7 @@ local function setup_servers()
     local custom_settings = {}
     if has_setting_module then
       log.debug("Configuring LSP", "'" .. server .. "'", "with custom settings.")
-      custom_settings = require(server_setting_module_path)
+      custom_settings = require(server_setting_module_path) or {}
     else
       log.debug("Configuring LSP", "'" .. server .. "'")
     end
@@ -180,13 +174,18 @@ local function setup_servers()
       end
     end
 
-    local settings = vim.tbl_extend("keep", custom_settings, default_settings)
+    -- Install if not yet installed
+    if not vim.tbl_contains(installed_servers, server) then
+      log.info(string.format("Installing LSP '%s' ...", server))
+      require("lspinstall").install_server(server)
+    end
 
+    -- Setup it
+    local settings = vim.tbl_extend("keep", custom_settings, default_settings)
     require("lspconfig")[server].setup(settings)
   end
 end
 
-install_servers()
 setup_servers()
 
 -- Automatically reload after `:LspInstall <server>` so we don't have to restart neovim
