@@ -66,6 +66,9 @@ local function set_lspinstall_pylsp(python_path)
   -- default python_path is the one deduced from CWD at vim startup
   local cmd = { python_path, "-m", "pylsp", "--log-file", log_file, "-v" }
 
+  -- Make sure to use 'lspinstall/servers' in requires as its changes the behavior.
+  -- If "lspinstall.servers" was used, the variable 'servers' in the module won't be updated.
+  -- TODO: investigate why the fuck ?
   require("lspinstall/servers")["pylsp"] = vim.tbl_deep_extend("force", pyls_config, {
     default_config = { cmd = cmd },
     filetypes = { "python" },
