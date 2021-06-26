@@ -10,6 +10,7 @@ local M = {}
 
 -- Custom Grep to be fuzzy
 M.entirely_fuzzy_grep_string = function(opts)
+  opts = opts or {}
   local default_opts = {
     prompt_title = "~ fuzzy grep string ~",
     search = "", -- https://github.com/nvim-telescope/telescope.nvim/issues/564

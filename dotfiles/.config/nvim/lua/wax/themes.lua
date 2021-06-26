@@ -79,6 +79,8 @@ end
 if iterm_colorscheme == "gruvbox" then
   vim.cmd("silent! colorscheme gruvbox")
   apply_gruvbox_theme()
+elseif iterm_colorscheme == "nord" then
+  require("wax.themes.nord")
 end
 
 vim.api.nvim_exec(

@@ -107,3 +107,7 @@ augroup frontend_mappings
   au Filetype vue,typescript,javascript call SetFrontendMappings()
 augroup end
 ]])
+
+-- quick fix list
+nnoremap("]q", "<cmd>cnext<cr>")
+nnoremap("[q", "<cmd>cprev<cr>")

@@ -40,7 +40,7 @@ endfunction
 vim.api.nvim_exec(
   [[
 nmap <leader>a :call AgOmniFiles()<CR>
-nmap <leader>A :Ag<CR>
+" nmap <leader>A :Ag<CR>
 " nmap <leader>p :call FzfOmniFiles()<CR>
 " nmap <leader>P :Files<CR>
 " nmap <C-p> :call FzfOmniFiles()<CR>

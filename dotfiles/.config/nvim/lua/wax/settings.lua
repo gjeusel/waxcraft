@@ -91,6 +91,5 @@ end
 -- vim.o.exrc = true  -- allows loading local EXecuting local RC files
 -- vim.o.secure = true  -- disallows the use of :autocmd, shell and write commands in local
 
--- local HOME = vim.fn.expand("$HOME")
--- vim.g.python3_host_prog = HOME .. "/miniconda3/envs/neovim37/bin/python"
+vim.g.python3_host_prog = os.getenv("HOME") .. "/opt/miniconda3/envs/nvim/bin/python"
 -- vim.g.python_host_prog = HOME .. "/miniconda3/envs/neovim27/bin/python"

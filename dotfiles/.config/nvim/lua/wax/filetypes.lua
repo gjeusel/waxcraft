@@ -32,20 +32,10 @@ augroup generic
 augroup end
 "
 
-" Python:
-" https://github.com/neoclide/coc-python/issues/55
-if $CONDA_PREFIX == ""
-  let g:current_python_path=$CONDA_PYTHON_EXE
-else
-  let g:current_python_path=$CONDA_PREFIX.'/bin/python'
-endif
-
 augroup python
   au FileType python setlocal shiftwidth=4 tabstop=4 softtabstop=4 textwidth=100 colorcolumn=100
-  au FileType python setlocal foldenable foldlevel=20 foldmethod=expr foldtext=FoldText()
-  if exists('coc#config')
-    au FileType python call coc#config('python', {'pythonPath': g:current_python_path})
-  endif
+  au FileType python setlocal foldenable foldlevel=20 foldmethod=expr foldexpr=SimpylFold#FoldExpr(v:lnum)
+  au BufNewFile,BufRead *.py set foldmethod=expr foldexpr=SimpylFold#FoldExpr(v:lnum)
 augroup end
 "
 

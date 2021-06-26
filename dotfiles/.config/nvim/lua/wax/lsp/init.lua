@@ -137,6 +137,7 @@ local required_servers = {
   "typescript",
   "html",
   "svelte",
+  "vue",
   "css",
   "tailwindcss",
   "graphql",

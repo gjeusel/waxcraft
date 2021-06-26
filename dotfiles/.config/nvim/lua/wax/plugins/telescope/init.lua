@@ -43,13 +43,15 @@ require("telescope").setup({
         preview_height = 0.6,
       },
     },
-    mapping = {
+    mappings = {
       i = {
-        ["<C-a>"] = false,
-        ["<C-q>"] = actions.smart_send_to_qflist, -- + actions.open_qflist, -- + my_cool_custom_action.x,
-
-        ["<C-R>"] = actions.select_default + actions.center,
-        -- ["<C-R>"] = actions.select_default + actions.center + custom_actions.restore_view,
+        ["<C-f>"] = actions.smart_send_to_qflist, -- + actions.open_qflist, -- + my_cool_custom_action.x,
+        ["<CR>"] = actions.select_default + actions.center,
+        -- ["<CR>"] = actions.select_default + actions.center + custom_actions.restore_view,
+      },
+      n = {
+        ["<C-f>"] = actions.smart_send_to_qflist, -- + actions.open_qflist, -- + my_cool_custom_action.x,
+        ["<CR>"] = actions.select_default + actions.center,
         -- ["<CR>"] = actions.select_default + actions.center + custom_actions.restore_view,
       },
     },
@@ -76,8 +78,13 @@ require("telescope").setup({
 -- Extensions
 require("telescope").load_extension("fzf")
 
--- Telescope file
 local basemap = "<cmd>lua require('wax.plugins.telescope')"
+
+-- Telescope live grep
+-- nnoremap("<leader>A", basemap .. ".entirely_fuzzy_grep_string()<cr>")
+nnoremap("<leader>A", basemap .. ".entirely_fuzzy_grep_string()<cr>")
+
+-- Telescope file
 nnoremap("<leader>p", basemap .. ".fallback_grep_file()<cr>")
 nnoremap("<leader>P", basemap .. ".find_files({prompt_title='~ files ~', hidden=true})<cr>")
 

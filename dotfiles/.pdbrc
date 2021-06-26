@@ -1,3 +1,5 @@
 alias sh from ptpython.repl import embed, run_config; embed(history_filename="/tmp/pdb_history", configure=run_config, locals=locals(), globals=globals())
-alias sqlfmt import sqlparse; print(sqlparse.format(%1, reindent=True, keyword_case="upper"))
-alias dpp from devtools import debug; debug(%1)
+
+alias dpp __import__("devtools").debug(%1)
+
+alias sqlfmt print(__import__("sqlparse").format(%1, reindent=True, keyword_case="upper"))

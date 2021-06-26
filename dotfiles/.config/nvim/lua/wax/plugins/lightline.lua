@@ -22,7 +22,7 @@ local ligthline_layout = {
   right = {
     {},
     {},
-    { "gitbranch", "absolutepath", "filetype" },
+    { "gitbranch", "absolutepath", "column", "filetype" },
   },
 }
 

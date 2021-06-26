@@ -75,11 +75,7 @@ return require("packer").startup({
     use("vim-scripts/loremipsum") -- dummy text generator (:Loremipsum [number of words])
 
     use({
-      "tomtom/tcomment_vim", -- for contextual comment
-      requires = {
-        "JoosepAlviste/nvim-ts-context-commentstring",
-        commit = "5024c83e92c3988f6e7119bfa1b2347ae3a42c3e",
-      },
+      "tomtom/tcomment_vim", -- for contextual comment, see nvim-treesitter-textobjects
       config = function()
         vim.cmd([[
           let g:tcomment_opleader1 = '<leader>c'
@@ -118,6 +114,7 @@ return require("packer").startup({
     --------- User Interface ---------
     use("morhetz/gruvbox")
     use("shaunsingh/nord.nvim")
+    use("tjdevries/colorbuddy.nvim") -- help to write its own colorscheme
     use({
       "itchyny/lightline.vim", -- light status line
       config = function()
@@ -138,7 +135,12 @@ return require("packer").startup({
       end,
     })
 
-    use("kyazdani42/nvim-web-devicons") -- icons
+    use({
+      "kyazdani42/nvim-web-devicons",
+      config = function()
+        require("nvim-web-devicons").setup()
+      end,
+    }) -- icons
     use("mhinz/vim-startify") -- fancy start screen
     use({
       "lewis6991/gitsigns.nvim",
@@ -194,6 +196,9 @@ return require("packer").startup({
     })
 
     --------- TreeSitter ---------
+    local conditional_python = function()
+      return vim.bo.filetype ~= "python" -- mess up foldmethod
+    end
     use({
       "nvim-treesitter/nvim-treesitter",
       -- commit = '006aceb574e90fdc3dc911b76ecb7fef4dd0d609',
@@ -202,17 +207,26 @@ return require("packer").startup({
         vim.cmd([[TSUpdate]])
       end,
       requires = {
-        "nvim-treesitter/playground", -- play with queries
-        "nvim-treesitter/nvim-treesitter-textobjects", -- better text objects
-        -- 'p00f/nvim-ts-rainbow', -- rainbow parenthesis
-        { "windwp/nvim-ts-autotag", branch = "main", ft = { "html", "vue" } },
+        { "nvim-treesitter/playground", cond = conditional_python }, -- play with queries
+        { "nvim-treesitter/nvim-treesitter-textobjects", cond = conditional_python }, -- better text objects
+        {
+          "JoosepAlviste/nvim-ts-context-commentstring",
+          -- commit = "5024c83e92c3988f6e7119bfa1b2347ae3a42c3e",
+          ft = { "html", "vue" },
+          cond = conditional_python,
+        },
+        -- { "p00f/nvim-ts-rainbow", cond = conditional_python }, -- rainbow parenthesis
+        {
+          "windwp/nvim-ts-autotag",
+          branch = "main",
+          ft = { "html", "vue" },
+          cond = conditional_python,
+        },
       },
       config = function()
         require("wax.plugins.treesitter")
       end,
-      cond = function()
-        return vim.bo.filetype ~= "python"  -- mess up foldmethod
-      end,
+      cond = conditional_python,
     })
 
     --------- LSP ---------
