@@ -207,16 +207,22 @@ return require("packer").startup({
         vim.cmd([[TSUpdate]])
       end,
       requires = {
-        { "nvim-treesitter/playground", cond = conditional_python }, -- play with queries
-        { "nvim-treesitter/nvim-treesitter-textobjects", cond = conditional_python }, -- better text objects
-        {
+        { -- play with queries
+          "nvim-treesitter/playground",
+          cond = conditional_python,
+        },
+        { -- better text objects
+          "nvim-treesitter/nvim-treesitter-textobjects",
+          cond = conditional_python,
+        },
+        { -- comment string update on context (vue -> html + typescript)
           "JoosepAlviste/nvim-ts-context-commentstring",
           -- commit = "5024c83e92c3988f6e7119bfa1b2347ae3a42c3e",
           ft = { "html", "vue" },
           cond = conditional_python,
         },
         -- { "p00f/nvim-ts-rainbow", cond = conditional_python }, -- rainbow parenthesis
-        {
+        { -- auto html tag
           "windwp/nvim-ts-autotag",
           branch = "main",
           ft = { "html", "vue" },

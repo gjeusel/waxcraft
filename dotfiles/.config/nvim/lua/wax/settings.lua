@@ -66,6 +66,7 @@ if vim.fn.has("persistent_undo") == 1 then
 end
 
 if vim.fn.has("mksession") == 1 then
+  -- vim.api.nvim_exec([[set viewoptions=cursor,folds,slash,unix]], false)
   vim.api.nvim_exec(
     [[set viewoptions-=options]], -- needed by vim-stay
     false
@@ -91,5 +92,5 @@ end
 -- vim.o.exrc = true  -- allows loading local EXecuting local RC files
 -- vim.o.secure = true  -- disallows the use of :autocmd, shell and write commands in local
 
+vim.g.python_host_prog = os.getenv("HOME") .. "/opt/miniconda3/envs/nvim27/bin/python"
 vim.g.python3_host_prog = os.getenv("HOME") .. "/opt/miniconda3/envs/nvim/bin/python"
--- vim.g.python_host_prog = HOME .. "/miniconda3/envs/neovim27/bin/python"

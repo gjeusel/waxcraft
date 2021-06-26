@@ -7,8 +7,8 @@ local constants = require("wax.plugins.telescope.constants")
 -- for this to work
 local custom_actions = transform_mod({
   restore_folds = function(_)
-    vim.wo.foldmethod = vim.wo.foldmethod or "nvim_treesitter#foldexpr()"
-    vim.wo.foldmethod = "expr"
+    vim.wo.foldmethod = vim.wo.foldmethod or "expr"
+    vim.wo.foldexpr = vim.wo.foldexpr or "nvim_treesitter#foldexpr()"
     vim.cmd(":normal! zx")
     -- vim.cmd(":normal! zz")
   end,

@@ -1,10 +1,12 @@
 local ts = require("nvim-treesitter.configs")
 local parsers = require("nvim-treesitter.parsers")
 
+-- NOTE: M1 apple: https://github.com/nvim-treesitter/nvim-treesitter/issues/791
+
 ts.setup({
   highlight = {
     enable = true,
-    -- disable = {"python"},
+    -- disable = { "python" },
     -- custom_captures = {}
     -- additional_vim_regex_highlighting = false, -- also activate vim syntax
     use_languagetree = true, -- enable language injection
@@ -43,7 +45,7 @@ ts.setup({
     -- Backend:
     "go",
     "rust",
-    -- 'python', --  commented as too many habits on current settings
+    -- "python", --  commented as too many habits on current settings
   },
 
   -- Plugins config:
