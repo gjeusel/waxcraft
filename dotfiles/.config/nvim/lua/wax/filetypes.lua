@@ -34,8 +34,7 @@ augroup end
 
 augroup python
   au FileType python setlocal shiftwidth=4 tabstop=4 softtabstop=4 textwidth=100 colorcolumn=100
-  au FileType python setlocal foldenable foldlevel=20 foldmethod=expr foldexpr=SimpylFold#FoldExpr(v:lnum)
-  au BufNewFile,BufRead *.py setlocal foldenable foldmethod=expr foldexpr=SimpylFold#FoldExpr(v:lnum)
+  au FileType python setlocal foldenable foldmethod=expr foldexpr=nvim_treesitter#foldexpr()
 augroup end
 "
 
@@ -49,13 +48,6 @@ augroup frontend
   autocmd FileType json setlocal foldmethod=syntax foldlevel=20
 
   " JS / TS / Vue
-  " avoid syntax highlighting stops working randomly in vue:
-  " autocmd FileType vue,typescript setlocal shiftwidth=2 tabstop=2 softtabstop=2 expandtab
-  " autocmd FileType vue syntax sync fromstart
-
-  " until https://github.com/nvim-treesitter/nvim-treesitter/issues/1100
-  " is fixed, disable viewdir on vue files -> too slow
-  " autocmd FileType vue setlocal viewoptions=
   autocmd FileType vue,typescript setlocal foldmethod=expr foldexpr=nvim_treesitter#foldexpr()
 augroup end
 "

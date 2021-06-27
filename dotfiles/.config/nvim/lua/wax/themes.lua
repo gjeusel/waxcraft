@@ -13,6 +13,9 @@ vim.g.nord_disable_background = true
 
 -- Highlight API is still a wip in nvim: https://github.com/nanotee/nvim-lua-guide#defining-syntaxhighlights
 
+-- TreeSitter list of highlights:
+-- https://github.com/nvim-treesitter/nvim-treesitter/blob/8adb2e0352858d1b12c0b4ee3617c9f38ed8c53b/lua/nvim-treesitter/highlight.lua
+
 -- Gruvbox Specific
 local apply_gruvbox_theme = function()
   vim.api.nvim_exec(
@@ -51,7 +54,15 @@ hi! link GitSignsDelete GruvboxRed
 hi! link GitSignsChange GruvboxYellow
 hi! link GitSignsAdd GruvboxAqua
 
+]],
+    false
+  )
+end
 
+-- TreeSitter + Gruvbox
+local apply_treesitter_frontend_theme = function()
+  vim.api.nvim_exec(
+    [[
 " TreeSitter for TypeScript and Vue
 hi! link TSProperty white
 hi! link TSParameter white
@@ -76,9 +87,47 @@ hi! link TSPunctDelimiter white
   )
 end
 
+local apply_treesitter_python_theme = function()
+  vim.api.nvim_exec(
+    [[
+  hi! link pythonTSInclude GruvboxBlue
+
+  hi! link pythonTSKeywordOperator GruvboxRed
+  hi! link pythonTSBoolean GruvboxOrange
+
+  hi! link pythonTSNone GruvboxFg1  " fstring interpolation
+
+  hi! link pythonTSPunctDelimiter white
+  hi! link pythonTSPunctBracket white
+  hi! link pythonTSPunctSpecial GruvboxOrange  " { } of f-string
+
+  hi! link pythonTSOperator GruvboxFg1
+
+  hi! link pythonTSConstant white
+  hi! link pythonTSConstructor white
+  hi! link pythonTSField GruvboxFg1
+  hi! link pythonTSConstant white
+  hi! link pythonTSVariable white
+  hi! link pythonTSParameter white
+
+  hi! link pythonTSType GruvboxYellow
+  hi! link pythonTSMethod GruvboxAqua
+  hi! link pythonTSFunction GruvboxAqua
+  hi! link pythonTSConstructor GruvboxGreen  " used for decorators
+
+  hi! link pythonTSVariableBuiltin GruvboxBlue
+  hi! link pythonTSFuncBuiltin GruvboxYellow
+  hi! link pythonTSConstBuiltin GruvboxOrange
+]],
+    false
+  )
+end
+
 if iterm_colorscheme == "gruvbox" then
   vim.cmd("silent! colorscheme gruvbox")
   apply_gruvbox_theme()
+  apply_treesitter_frontend_theme()
+  apply_treesitter_python_theme()
 elseif iterm_colorscheme == "nord" then
   require("wax.themes.nord")
 end
@@ -100,3 +149,18 @@ highlight DiffText cterm=none ctermfg=Blue ctermbg=none
   ]],
   false
 )
+
+M = {}
+
+M.apply_treesitter_gruvbox_theme = function()
+  apply_treesitter_frontend_theme()
+  apply_treesitter_python_theme()
+end
+
+nnoremap("<leader>xc", "<cmd>TSHighlightCapturesUnderCursor<cr>")
+nnoremap(
+  "<leader>xz",
+  "<cmd>lua require('plenary.reload').reload_module('wax.themes'); require('wax.themes').apply_treesitter_gruvbox_theme()<cr>"
+)
+
+return M

@@ -8,7 +8,7 @@ ts.setup({
     enable = true,
     -- disable = { "python" },
     -- custom_captures = {}
-    -- additional_vim_regex_highlighting = false, -- also activate vim syntax
+    additional_vim_regex_highlighting = false, -- also activate vim syntax
     use_languagetree = true, -- enable language injection
   },
   incremental_selection = {
@@ -45,7 +45,7 @@ ts.setup({
     -- Backend:
     "go",
     "rust",
-    -- "python", --  commented as too many habits on current settings
+    "python",
   },
 
   -- Plugins config:

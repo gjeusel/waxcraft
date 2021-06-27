@@ -66,11 +66,21 @@ if vim.fn.has("persistent_undo") == 1 then
 end
 
 if vim.fn.has("mksession") == 1 then
-  -- vim.api.nvim_exec([[set viewoptions=cursor,folds,slash,unix]], false)
+  local viewdir = basedir .. "/view"
+  vim.fn.mkdir(viewdir, "p")
+  vim.o.viewdir = viewdir
   vim.api.nvim_exec(
-    [[set viewoptions-=options]], -- needed by vim-stay
+    [[
+    autocmd BufWrite * mkview
+    autocmd BufRead * silent! loadview
+    ]],
     false
   )
+  -- vim.api.nvim_exec([[set viewoptions=cursor,folds,slash,unix]], false)
+  -- vim.api.nvim_exec(
+  --   [[set viewoptions-=options]], -- needed by vim-stay
+  --   false
+  -- )
 end
 
 -- Searching

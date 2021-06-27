@@ -32,10 +32,8 @@ end
 -- Auto recompile packer on changes
 vim.api.nvim_exec(
   [[
-autocmd BufWritePost plugins.lua PackerCompile
-]],
-  false
-)
+  autocmd BufWritePost plugins.lua PackerCompile
+  ]], false)
 
 return require("packer").startup({
   function(use)
@@ -55,7 +53,6 @@ return require("packer").startup({
       end,
     })
 
-    use("zhimsel/vim-stay") -- automate makeview and loadview
     use("jiangmiao/auto-pairs") -- auto pair
     use("AndrewRadev/splitjoin.vim") -- easy split join on whole paragraph
     use("wellle/targets.vim") -- text object for parenthesis & more !
@@ -68,7 +65,6 @@ return require("packer").startup({
         require("wax.plugins.fixcursorhold")
       end,
     })
-    use({ "Konfekt/FastFold", branch = "master" }) -- update folds only when needed, otherwise folds slowdown vim
 
     use("justinmk/vim-sneak") -- minimalist motion with 2 keys
     use("junegunn/vim-easy-align") -- easy alignment, better than tabularize
@@ -196,9 +192,6 @@ return require("packer").startup({
     })
 
     --------- TreeSitter ---------
-    local conditional_python = function()
-      return vim.bo.filetype ~= "python" -- mess up foldmethod
-    end
     use({
       "nvim-treesitter/nvim-treesitter",
       -- commit = '006aceb574e90fdc3dc911b76ecb7fef4dd0d609',
@@ -209,30 +202,25 @@ return require("packer").startup({
       requires = {
         { -- play with queries
           "nvim-treesitter/playground",
-          cond = conditional_python,
         },
         { -- better text objects
           "nvim-treesitter/nvim-treesitter-textobjects",
-          cond = conditional_python,
         },
         { -- comment string update on context (vue -> html + typescript)
           "JoosepAlviste/nvim-ts-context-commentstring",
           -- commit = "5024c83e92c3988f6e7119bfa1b2347ae3a42c3e",
-          ft = { "html", "vue" },
-          cond = conditional_python,
+          -- ft = { "html", "vue" },
         },
         -- { "p00f/nvim-ts-rainbow", cond = conditional_python }, -- rainbow parenthesis
         { -- auto html tag
           "windwp/nvim-ts-autotag",
           branch = "main",
           ft = { "html", "vue" },
-          cond = conditional_python,
         },
       },
       config = function()
         require("wax.plugins.treesitter")
       end,
-      cond = conditional_python,
     })
 
     --------- LSP ---------
@@ -277,28 +265,6 @@ return require("packer").startup({
         vim.cmd([[
         imap <expr> <C-d> emmet#expandAbbrIntelligent('\<tab>')
       ]])
-      end,
-    })
-
-    use({
-      "luochen1990/rainbow", -- embed parenthesis colors
-      ft = { "python" },
-      config = function()
-        vim.cmd([[ RainbowToggleOn ]])
-      end,
-    })
-    use({
-      "tmhedberg/SimpylFold", -- better folds
-      ft = { "python" },
-      config = function() end,
-    })
-    use({
-      "python-mode/python-mode",
-      ft = { "python" },
-      config = function()
-        require("wax.plugins.python-mode")
-        package.loaded["wax.themes"] = nil -- remove cached module
-        require("wax.themes") -- again for 'syntax on' after new python-mode syntax
       end,
     })
   end,

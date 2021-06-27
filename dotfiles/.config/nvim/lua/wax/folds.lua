@@ -1,3 +1,5 @@
+-- vim.o.foldminlines = 2
+
 vim.g.SimpylFold_docstring_preview = 0
 vim.g.SimpylFold_fold_docstring = 1
 vim.g.SimpylFold_fold_import = 0

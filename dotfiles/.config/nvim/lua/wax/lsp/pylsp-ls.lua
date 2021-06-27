@@ -41,7 +41,7 @@ local function get_python_path(workspace)
   if workspace then
     local path_parts = vim.split(workspace, "/")
     local project_name = path_parts[#path_parts]
-    local conda_cmd = {"conda", "run", "-n", project_name, "which", "python"}
+    local conda_cmd = { "conda", "run", "-n", project_name, "which", "python" }
     local stdout, ret = get_os_command_output(conda_cmd, workspace)
     if ret == 0 and #stdout > 1 then
       return stdout[1]
@@ -65,6 +65,7 @@ local to_install = {
 }
 
 local log_file = vim.env.HOME .. "/.cache/nvim/pylsp.log"
+local log_level = "-v" -- number of v is the level
 
 local function set_lspinstall_pylsp(python_path)
   local install_script = python_path .. " -m pip install"
@@ -75,14 +76,14 @@ local function set_lspinstall_pylsp(python_path)
   end
 
   -- default python_path is the one deduced from CWD at vim startup
-  local cmd = { python_path, "-m", "pylsp", "--log-file", log_file, "-v" }
+  local cmd = { python_path, "-m", "pylsp", "--log-file", log_file, log_level }
 
   -- Make sure to use 'lspinstall/servers' in requires as its changes the behavior.
   -- If "lspinstall.servers" was used, the variable 'servers' in the module won't be updated.
   -- TODO: investigate why the fuck ?
   require("lspinstall/servers")["pylsp"] = vim.tbl_deep_extend("force", pyls_config, {
     default_config = { cmd = cmd },
-    filetypes = { "python" },
+    filetypes = { "python", "pyrex" },
     install_script = install_script,
     uninstall_script = uninstall_script,
   })
@@ -101,10 +102,19 @@ return {
         ["pyls_isort"] = { enabled = true },
         pylsp_mypy_rnx = {
           enabled = true,
-          -- live_mode = true,
-          -- live_mode = false,
-          dmypy = true, -- prevent to have live update (only on save)
-          args = { "--sqlite-cache", "--ignore-missing-imports" },
+          live_mode = true,
+          dmypy = false, -- prevent having live update (only on save)
+          -- dmypy_args = {
+          --   "--status-file",
+          --   "/tmp/dmypy.json",
+          -- },
+          dmypy_run_args = {
+            "--log-file",
+            "/tmp/dmypy.log",
+            "--verbose",
+          },
+          -- args = { "--sqlite-cache", "--ignore-missing-imports" },
+          args = { "--sqlite-cache" },
         },
       },
     },
@@ -113,6 +123,6 @@ return {
     local python_path = get_python_path(new_root_dir)
     log.info(string.format("LSP python path '%s' for new_root_dir '%s'", python_path, new_root_dir))
     set_lspinstall_pylsp(python_path)
-    new_config.cmd = { python_path, "-m", "pylsp", "--log-file", log_file, "-v" }
+    new_config.cmd = { python_path, "-m", "pylsp", "--log-file", log_file, log_level }
   end,
 }
