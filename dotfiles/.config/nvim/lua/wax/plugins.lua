@@ -33,7 +33,9 @@ end
 vim.api.nvim_exec(
   [[
   autocmd BufWritePost plugins.lua PackerCompile
-  ]], false)
+  ]],
+  false
+)
 
 return require("packer").startup({
   function(use)
@@ -269,6 +271,9 @@ return require("packer").startup({
     })
   end,
   config = {
+    auto_clean = false,
+    max_jobs = 20,
+    compile_on_sync = true,
     display = {
       open_fn = require("packer.util").float,
     },
