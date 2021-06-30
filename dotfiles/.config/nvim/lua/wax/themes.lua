@@ -105,7 +105,7 @@ local apply_treesitter_python_theme = function()
 
   hi! link pythonTSConstant white
   hi! link pythonTSConstructor white
-  hi! link pythonTSField GruvboxFg1
+  hi! link pythonTSField white
   hi! link pythonTSConstant white
   hi! link pythonTSVariable white
   hi! link pythonTSParameter white

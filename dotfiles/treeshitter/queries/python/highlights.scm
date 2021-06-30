@@ -7,7 +7,7 @@
 ; Reset highlighing in f-string interpolations
 (interpolation) @none
 
-;; Identifier naming conventions
+; ; Identifier naming conventions
 ; ((identifier) @type
 ;  (#match? @type "^[A-Z]"))
 
@@ -33,10 +33,6 @@
            "__package__"
            "__slots__"
 ))
-
-((attribute
-    attribute: (identifier) @field)
- (#vim-match? @field "^([A-Z])@!.*$"))
 
 ((identifier) @function
  (#any-of? @function
@@ -66,6 +62,14 @@
 ;; Builtin functions
 (
   [
+    (call (argument_list (identifier) @function.builtin))
+    (pair value: (identifier) @function.builtin)
+    (pair value:
+      (subscript [
+        value: (identifier)
+        subscript: (identifier)
+      ] @function.builtin)
+    )
     (keyword_argument value: (identifier) @function.builtin)
     (call function: (identifier) @function.builtin)
   ]
@@ -122,8 +126,6 @@
 
 (none) @constant.builtin
 [(true) (false)] @boolean
-((identifier) @variable.builtin
- (#match? @variable.builtin "^self$"))
 
 (integer) @number
 (float) @float
@@ -273,12 +275,23 @@
                      (identifier) @field)))))
  (#vim-match? @field "^([A-Z])@!.*$"))
 
-; First parameter of a method is self or cls.
-((class_definition
-  body: (block
-          (function_definition
-            parameters: (parameters . (identifier) @variable.builtin))))
- (#any-of? @variable.builtin "self" "obj" "class"))
+((attribute
+    attribute: (identifier) @field)
+ (#vim-match? @field "^([A-Z])@!.*$"))
+
+
+; First parameter of a method or decorated method is self or cls.
+; ((class_definition
+;   body: (block
+;   [
+;     (function_definition (parameters (identifier) @variable.builtin))
+;     (decorated_definition (function_definition (parameters (identifier) @variable.builtin)))
+;   ]
+; ))
+; (#any-of? @variable.builtin "cls" "self" "obj" "class"))
+
+((identifier) @variable.builtin
+ (#match? @variable.builtin "^(self|cls)$"))
 
 ;; Error
 (ERROR) @error

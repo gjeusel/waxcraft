@@ -67,6 +67,13 @@ return require("packer").startup({
         require("wax.plugins.fixcursorhold")
       end,
     })
+    use({ -- update folds only when needed, otherwise folds slowdown vim
+      "Konfekt/FastFold",
+      branch = "master",
+      config = function()
+        require("wax.folds")
+      end,
+    })
 
     use("justinmk/vim-sneak") -- minimalist motion with 2 keys
     use("junegunn/vim-easy-align") -- easy alignment, better than tabularize
