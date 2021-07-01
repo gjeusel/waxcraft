@@ -14,4 +14,5 @@ vim.api.nvim_set_var("test#preserve_screen", 1)
 vim.api.nvim_set_var("test#filename_modifier", ":~")
 
 -- python
+vim.api.nvim_set_var("test#python#runner", "pytest")
 vim.api.nvim_set_var("test#python#pytest#options", "--log-level=WARNING -x -s")

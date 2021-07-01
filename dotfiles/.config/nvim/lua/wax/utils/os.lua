@@ -33,16 +33,18 @@ function is_git(cwd)
   end
 end
 
-function find_root_dir_fn()
-  lspconfig = require("lspconfig")
-  return lspconfig.util.root_pattern(
+function find_root_dir_fn(patterns)
+  default_patterns = {
     ".git",
     "Dockerfile",
     "pyproject.toml",
     "setup.cfg",
     "package.json",
-    "tsconfig.json"
-  )
+    "tsconfig.json",
+  }
+  patterns = patterns or default_patterns
+  lspconfig = require("lspconfig")
+  return lspconfig.util.root_pattern(patterns)
 end
 
 function find_root_dir(path)

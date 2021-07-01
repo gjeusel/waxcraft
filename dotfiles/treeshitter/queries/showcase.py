@@ -41,9 +41,19 @@ class Config(pydantic.BaseSettings):
         return cls(id=1)
 
     def classicmethod(self, ok, nop):
+        lambda x: x
         return
 
 
 @pytest.mark.parametrize("value", [1, 2, 3])
 def test_highlight(value):
     assert True
+
+
+# Can't query it, parser is wrong
+read_sql = f"""
+    SELECT ts, {read_qry.tsmeta.column_name}::double precision as "{read_qry.tsmeta.tablename}"
+    FROM {target_tsdata}
+    {joined_conditions}
+    ORDER BY ts ASC
+"""
