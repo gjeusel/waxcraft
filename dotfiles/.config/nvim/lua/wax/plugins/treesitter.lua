@@ -99,8 +99,8 @@ ts.setup({
     lsp_interop = {
       enable = true,
       peek_definition_code = {
-        ["<leader>df"] = "@function.outer",
-        ["<leader>dF"] = "@class.outer",
+        ["<leader>fd"] = "@function.outer",
+        ["<leader>fD"] = "@class.outer",
       },
     },
   },

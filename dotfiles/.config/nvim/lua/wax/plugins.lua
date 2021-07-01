@@ -257,6 +257,7 @@ return require("packer").startup({
         vim.g.UltiSnipsJumpBackwardTrigger = "<c-k>"
         vim.api.nvim_exec(
           [[
+        au BufNewFile,BufRead * map <nowait>< <  " fix behaviour induced by nvim-compe
         au BufNewFile,BufRead *.snippets set filetype=snippets
         au BufNewFile,BufRead *.snippets highlight snipLeadingSpaces ctermbg=none
         ]],
