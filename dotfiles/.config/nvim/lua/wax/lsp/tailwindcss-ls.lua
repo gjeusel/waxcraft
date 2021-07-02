@@ -1,7 +1,6 @@
 return {
   -- the install with LspInstall fails
   -- npm i -g tailwindcss-language-server
-  cmd = { "tailwindcss-language-server", "--stdio" },
   filetypes = {
     "aspnetcorerazor",
     "astro",
