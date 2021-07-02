@@ -217,8 +217,8 @@ return require("packer").startup({
         },
         { -- comment string update on context (vue -> html + typescript)
           "JoosepAlviste/nvim-ts-context-commentstring",
-          -- commit = "5024c83e92c3988f6e7119bfa1b2347ae3a42c3e",
-          -- ft = { "html", "vue" },
+          commit = "5024c83e92c3988f6e7119bfa1b2347ae3a42c3e",
+          ft = { "html", "vue" },
         },
         -- { "p00f/nvim-ts-rainbow", cond = conditional_python }, -- rainbow parenthesis
         { -- auto html tag
@@ -257,7 +257,11 @@ return require("packer").startup({
         vim.g.UltiSnipsJumpBackwardTrigger = "<c-k>"
         vim.api.nvim_exec(
           [[
-        au BufNewFile,BufRead * map <nowait>< <  " fix behaviour induced by nvim-compe
+        " fix behaviour induced by nvim-compe
+        au BufNewFile,BufRead * imap <nowait>< <
+        au BufNewFile,BufRead * imap <nowait>> >
+        au BufNewFile,BufRead * vmap <nowait>< <
+        au BufNewFile,BufRead * vmap <nowait>> >
         au BufNewFile,BufRead *.snippets set filetype=snippets
         au BufNewFile,BufRead *.snippets highlight snipLeadingSpaces ctermbg=none
         ]],
