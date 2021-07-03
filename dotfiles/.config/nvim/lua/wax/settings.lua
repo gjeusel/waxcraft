@@ -76,6 +76,7 @@ if vim.fn.has("mksession") == 1 then
   vim.api.nvim_exec(
     [[
     set viewoptions=cursor,folds,slash,unix
+    autocmd FileType gitcommit setlocal viewdir=
     autocmd BufWrite * mkview
     autocmd BufRead * silent! loadview
     ]],
