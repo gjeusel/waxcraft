@@ -3,6 +3,7 @@ vim.g.mapleader = ","
 vim.o.mouse = "a" -- Automatically enable mouse usage
 vim.o.number = true -- display line number column
 vim.o.relativenumber = true -- relative line number
+
 vim.o.signcolumn = "yes" -- always show sign column
 vim.o.ruler = true -- Show the cursor position all the time
 -- vim.o.cursorline = true     -- Highlight the line of the cursor

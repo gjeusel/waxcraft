@@ -8,5 +8,5 @@
  (function_definition)
  (local_function)
  (function)
-;  (table)
+ (table)
 ] @fold

@@ -176,6 +176,19 @@ return require("packer").startup({
 
     use("rhysd/conflict-marker.vim") -- conflict markers for vimdiff
 
+    use({ -- non-obtrusive registers preview
+      "tversteeg/registers.nvim",
+      setup = function()
+        vim.g.registers_return_symbol = "⤶"
+        -- vim.g.registers_space_symbol = "•"
+        -- vim.g.registers_tab_symbol = "•"
+        vim.g.registers_space_symbol = " "
+        vim.g.registers_tab_symbol = " "
+        vim.g.registers_show_empty_registers = 0 -- do not show it
+        vim.g.registers_trim_whitespace = 0 -- do show spaces
+      end,
+    })
+
     --------- Fuzzy Fuzzy Fuzzy ---------
     use({
       "nvim-telescope/telescope.nvim",
@@ -217,7 +230,9 @@ return require("packer").startup({
         },
         { -- comment string update on context (vue -> html + typescript)
           "JoosepAlviste/nvim-ts-context-commentstring",
+          -- Lock on specific commit: https://github.com/wbthomason/packer.nvim/issues/211
           commit = "5024c83e92c3988f6e7119bfa1b2347ae3a42c3e",
+          lock = true,
           ft = { "html", "vue" },
         },
         -- { "p00f/nvim-ts-rainbow", cond = conditional_python }, -- rainbow parenthesis
@@ -283,8 +298,8 @@ return require("packer").startup({
     })
   end,
   config = {
-    auto_clean = false,
-    max_jobs = 20,
+    auto_clean = true,
+    max_jobs = 30,
     compile_on_sync = true,
     display = {
       open_fn = require("packer.util").float,
