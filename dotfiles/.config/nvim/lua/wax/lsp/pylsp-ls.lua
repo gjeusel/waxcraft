@@ -32,6 +32,14 @@ local function get_python_path(workspace)
   if workspace then
     local project_name = vim.fn.fnamemodify(workspace, ":t:r")
     local opts = { depth = 0, add_dirs = true, search_pattern = project_name }
+
+    -- Check for any conda env named like the project
+    local conda_venv_path = scan.scan_dir(basepath_conda_venv, opts)
+    if #conda_venv_path >= 1 then
+      return path.join(conda_venv_path[1], "bin", "python")
+    end
+
+    -- Check for any virtualenv named like the project
     if Path.new(workspace):joinpath("poetry.lock"):exists() then
       local poetry_venv_path = scan.scan_dir(basepath_poetry_venv, opts)
       if #poetry_venv_path >= 1 then
@@ -39,10 +47,6 @@ local function get_python_path(workspace)
       end
     end
 
-    local conda_venv_path = scan.scan_dir(basepath_conda_venv, opts)
-    if #conda_venv_path >= 1 then
-      return path.join(conda_venv_path[1], "bin", "python")
-    end
   end
 
   -- Fallback to system Python.
