@@ -22,7 +22,7 @@ ts.setup({
   },
   indent = {
     enable = true,
-    disable = { "yaml", "python"},
+    disable = { "yaml", "python" },
   },
   ensure_installed = { -- one of 'all', 'language' or a list of languages
     -- Generic:
@@ -66,12 +66,16 @@ ts.setup({
   textobjects = {
     select = {
       enable = true,
+      lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
       keymaps = {
         ["if"] = "@function.inner",
         ["af"] = "@function.outer",
 
-        ["ic"] = "@conditional.inner",
-        ["ac"] = "@conditional.outer",
+        ["ic"] = "@class.inner",
+        ["ac"] = "@class.outer",
+
+        ["iC"] = "@conditional.inner",
+        ["aC"] = "@conditional.outer",
 
         ["ie"] = "@block.inner",
         ["ae"] = "@block.outer",
@@ -81,19 +85,19 @@ ts.setup({
       enable = true,
       goto_next_start = {
         ["]]"] = "@function.outer",
-        ["]c"] = "@class.outer",
+        ["]l"] = "@class.outer",
       },
       goto_next_end = {
         ["]["] = "@function.outer",
-        ["]C"] = "@class.outer",
+        ["]L"] = "@class.outer",
       },
       goto_previous_start = {
         ["[["] = "@function.outer",
-        ["[c"] = "@class.outer",
+        ["[l"] = "@class.outer",
       },
       goto_previous_end = {
         ["[]"] = "@function.outer",
-        ["[C"] = "@class.outer",
+        ["[L"] = "@class.outer",
       },
     },
     lsp_interop = {
