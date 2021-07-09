@@ -52,18 +52,22 @@ local languages = {
 local log_file = vim.env.HOME .. "/.cache/nvim/efm.log"
 
 return {
-  -- cmd = {bin_path, '-c', efm_config},
+  -- cmd = { bin_path, "-c", efm_config },
   cmd = { bin_path, "-logfile", log_file, "-loglevel", "0" },
   filetypes = vim.tbl_keys(languages),
   init_options = {
     documentFormatting = true,
-    hover = true,
-    documentSymbol = true,
-    codeAction = true,
-    completion = true,
+    hover = false,
+    documentSymbol = false,
+    codeAction = false,
+    completion = false,
   },
   root_dir = function(fname)
     return root_pattern(root_markers)(fname)
   end,
-  settings = { rootMarkers = root_markers, lintDebounce = 400, languages = languages },
+  settings = {
+    rootMarkers = root_markers,
+    lintDebounce = 0, -- disable linting
+    languages = languages,
+  },
 }
