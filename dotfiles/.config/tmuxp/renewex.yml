@@ -39,10 +39,11 @@ windows:
         focus: true
       - 
 
-  - window_name: pocdagster
+  - window_name: venturi
     layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
     shell_command_before:
-      - cd ~/src/pocdagster
+      - act venturi
+      - cd ~/src/venturi
     panes:
       - shell_command:
         - neofetch
