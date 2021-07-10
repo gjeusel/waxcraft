@@ -1,9 +1,5 @@
 -- vim.o.foldminlines = 2
 
-vim.g.fastfold_savehook = 1
-vim.g.fastfold_fold_command_suffixes =  {'x','X','a','A','o','O','c','C'}
-vim.g.fastfold_fold_movement_commands = {']z', '[z', 'zj', 'zk'}
-
 -- TODO: convert it to lua function ?
 vim.cmd([[
 function! FoldText() abort

@@ -120,6 +120,9 @@ ts.setup({
   --   extended_mode = true, -- Highlight also non-parentheses delimiters, boolean or table: lang -> boolean
   -- },
 
+  -- 'windwp/nvim-autopairs'
+  autopairs = { enable = true },
+
   -- 'windwp/nvim-ts-autotag'
   autotag = {
     enable = true,

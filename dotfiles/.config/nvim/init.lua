@@ -19,3 +19,4 @@ require("wax.keymaps")
 require("wax.themes")
 
 require("wax.filetypes")
+require("wax.folds")

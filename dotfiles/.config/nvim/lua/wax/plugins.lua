@@ -55,7 +55,12 @@ return require("packer").startup({
       end,
     })
 
-    use("jiangmiao/auto-pairs") -- auto pair
+    use({ -- auto pair
+      "windwp/nvim-autopairs",
+      config = function()
+        require("wax.plugins.nvim-autopairs")
+      end,
+    }) -- auto pair written in lua
     use("AndrewRadev/splitjoin.vim") -- easy split join on whole paragraph
     use("wellle/targets.vim") -- text object for parenthesis & more !
     use("michaeljsmith/vim-indent-object") -- text object based on indentation levels.
@@ -67,13 +72,12 @@ return require("packer").startup({
         require("wax.plugins.fixcursorhold")
       end,
     })
-    use({ -- update folds only when needed, otherwise folds slowdown vim
-      "Konfekt/FastFold",
-      branch = "master",
-      config = function()
-        require("wax.folds")
-      end,
-    })
+    -- use({ -- update folds only when needed, otherwise folds slowdown vim
+    --   "Konfekt/FastFold",
+    --   config = function()
+    --     require("wax.folds")
+    --   end,
+    -- })
 
     use("justinmk/vim-sneak") -- minimalist motion with 2 keys
     use("junegunn/vim-easy-align") -- easy alignment, better than tabularize
@@ -186,6 +190,7 @@ return require("packer").startup({
         vim.g.registers_tab_symbol = " "
         vim.g.registers_show_empty_registers = 0 -- do not show it
         vim.g.registers_trim_whitespace = 0 -- do show spaces
+        vim.g.registers_show_empty_registers = 0 -- do not show empty registers
       end,
     })
 
@@ -294,6 +299,31 @@ return require("packer").startup({
         vim.cmd([[
         imap <expr> <C-d> emmet#expandAbbrIntelligent('\<tab>')
       ]])
+      end,
+    })
+    use({ -- better python folds
+      "tmhedberg/SimpylFold",
+      requires = {"Konfekt/FastFold"},
+      ft = { "python" },
+      config = function()
+        vim.g.SimpylFold_docstring_preview = 0
+        vim.g.SimpylFold_fold_docstring = 1
+        vim.g.SimpylFold_fold_import = 0
+
+        vim.g.fastfold_force = 1 -- pass by fastfold for all foldmethods
+        vim.g.fastfold_savehook = 1 -- update on save
+        vim.g.fastfold_fold_command_suffixes = { "x", "X", "a", "A", "o", "O", "c", "C" }
+        vim.g.fastfold_fold_movement_commands = { "]z", "[z", "zj", "zk" }
+
+        vim.api.nvim_exec(
+          [[
+            autocmd BufEnter *.py call SimpylFold#Recache()
+            autocmd BufEnter *.py :normal! zx<cr>
+            autocmd BufEnter *.py :normal! zz<cr>
+          ]],
+          false
+        )
+
       end,
     })
   end,
