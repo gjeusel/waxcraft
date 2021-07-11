@@ -103,17 +103,17 @@ return {
         ["pyls_isort"] = { enabled = true },
         pylsp_mypy_rnx = {
           enabled = true,
-          live_mode = true,
+          live_mode = false,
           dmypy = false, -- prevent having live update (only on save)
           -- dmypy_args = {
           --   "--status-file",
           --   "/tmp/dmypy.json",
           -- },
-          dmypy_run_args = {
-            "--log-file",
-            "/tmp/dmypy.log",
-            "--verbose",
-          },
+          -- dmypy_run_args = {
+          --   "--log-file",
+          --   "/tmp/dmypy.log",
+          --   "--verbose",
+          -- },
           -- args = { "--sqlite-cache", "--ignore-missing-imports" },
           args = { "--sqlite-cache" },
         },

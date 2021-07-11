@@ -318,8 +318,8 @@ return require("packer").startup({
         vim.api.nvim_exec(
           [[
             autocmd BufEnter *.py call SimpylFold#Recache()
-            autocmd BufEnter *.py :normal! zx<cr>
-            autocmd BufEnter *.py :normal! zz<cr>
+            "autocmd BufEnter *.py :normal! zx<cr>
+            "autocmd BufEnter *.py :normal! zz<cr>
           ]],
           false
         )

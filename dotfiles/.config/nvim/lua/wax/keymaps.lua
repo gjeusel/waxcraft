@@ -17,8 +17,8 @@ cmap("<M-f>", "<S-Right", { nowait = true }) -- move right word
 -- Avoid vim history cmd to pop up with q:
 nnoremap("q:", "<Nop>")
 
--- Avoid entering some weird mode:
-keymap("nic", "<S-Q>", "<Nop>")
+-- Avoid entering some weird ex mode: https://github.com/neovim/neovim/issues/15054
+keymap("n", "<S-q>", "<Nop>")
 
 -- Make escape work in the Neovim terminal
 tnoremap("<Esc>", "<C-\\><C-n>")
