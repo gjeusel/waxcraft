@@ -222,7 +222,7 @@ return require("packer").startup({
     use({
       "nvim-treesitter/nvim-treesitter",
       -- commit = '006aceb574e90fdc3dc911b76ecb7fef4dd0d609',
-      lock = true,
+      -- lock = true,
       run = function()
         vim.cmd([[TSUpdate]])
       end,
@@ -259,7 +259,7 @@ return require("packer").startup({
         "nvim-lua/lsp-status.nvim",
         { "kabouzeid/nvim-lspinstall", branch = "main" },
         -- { os.getenv("HOME") .. "/src/nvim-lspinstall", branch = "main" },
-        -- "ray-x/lsp_signature.nvim",  -- a bit buggy
+        "ray-x/lsp_signature.nvim",  -- a bit buggy
         lock = true,
       },
       config = function()

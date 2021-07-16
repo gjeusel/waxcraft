@@ -74,8 +74,7 @@ if vim.fn.has("mksession") == 1 then
   vim.fn.mkdir(viewdir, "p")
   vim.o.viewdir = viewdir
 
-  -- vim.o.viewoptions = "cursor,folds,slash,unix"
-  vim.o.viewoptions = "cursor,slash,unix"
+  vim.o.viewoptions = "cursor,folds,slash,unix"
   vim.api.nvim_exec(
     [[
     autocmd FileType gitcommit setlocal viewdir=

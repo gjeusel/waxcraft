@@ -37,7 +37,18 @@ vim.lsp.set_log_level("info")
 
 -- mappings
 local on_attach = function(client, bufnr)
+  -- Lsp Status Line setup
   lsp_status.on_attach(client, bufnr)
+
+  -- -- Lsp Signature setup
+  -- require("lsp_signature").on_attach({
+  --   bind = true,
+  --   floating_window = false,
+  --   hint_enable = true,
+  --   hint_prefix = "🐼 ",
+  --   extra_trigger_chars = {"(", ","},
+  -- })
+
 
   local function buf_set_keymap(...)
     vim.api.nvim_buf_set_keymap(bufnr, ...)
@@ -57,7 +68,10 @@ local on_attach = function(client, bufnr)
   buf_set_keymap("n", "<leader>d", "<Cmd>lua vim.lsp.buf.definition()<CR>", opts)
   buf_set_keymap("n", "K", "<Cmd>lua vim.lsp.buf.hover()<CR>", opts)
   buf_set_keymap("n", "<leader>i", "<cmd>lua vim.lsp.buf.implementation()<CR>", opts)
-  -- buf_set_keymap('n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+
+  -- buf_set_keymap('i', '<C-a>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+  -- buf_set_keymap('n', '<C-a>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+
   -- buf_set_keymap('n', '<space>wa', '<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>', opts)
   -- buf_set_keymap('n', '<space>wr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', opts)
   -- buf_set_keymap('n', '<space>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', opts)

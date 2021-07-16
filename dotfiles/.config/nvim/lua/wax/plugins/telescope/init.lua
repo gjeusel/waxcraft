@@ -23,24 +23,20 @@ require("telescope").setup({
     selection_caret = "❯ ",
     vimgrep_arguments = constants.grep_cmds["rg"], -- Using ripgrep
     color_devicons = true,
-    layout_strategy = "flexwax",
+    -- layout_strategy = "flexwax",
     sorting_strategy = "descending",
-    layout_defaults = {
+    layout_strategy = "horizontal",
+    layout_config = {
       horizontal = {
         width_padding = 0.1,
         height_padding = 0.1,
-        preview_width = 0.6,
+        preview_width = 0.5,
       },
       vertical = {
         width_padding = 0.1,
         height_padding = 2,
-        preview_height = 0.6,
-        -- mirror = true,
-      },
-      wax = {
-        width_padding = 0.1,
-        height_padding = 2,
-        preview_height = 0.6,
+        preview_height = 0.5,
+        mirror = true,
       },
     },
     mappings = {
@@ -99,7 +95,7 @@ nnoremap("<leader>n", basemap .. ".buffers({prompt_title='~ buffers ~'})<cr>")
 nnoremap("<leader>b", basemap .. ".builtin(require('telescope.themes').get_dropdown({}))<cr>")
 
 -- Spell Fix:
-nnoremap("z=", basemap .. ".spell_suggest(require('telescope.themes').get_dropdown({}))<cr>")
+nnoremap("z=", basemap .. ".spell_suggest(require('telescope.themes').get_cursor({}))<cr>")
 
 -- Command History: option-d
 keymap(

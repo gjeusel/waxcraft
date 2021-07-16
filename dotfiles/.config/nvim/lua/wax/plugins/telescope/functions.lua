@@ -26,7 +26,7 @@ M.fallback_grep_file = function(opts)
 
   local default_opts = {
     hidden = true,
-    attach_mappings = function(prompt_bufnr)
+    attach_mappings = function(_)
       actions.center:replace(function(_)
         vim.wo.foldmethod = vim.wo.foldmethod or "expr"
         vim.wo.foldexpr = vim.wo.foldexpr or "nvim_treesitter#foldexpr()"
@@ -39,9 +39,13 @@ M.fallback_grep_file = function(opts)
   }
 
   if is_git(opts.cwd) then
-    builtin.git_files(
-      vim.tbl_extend("keep", default_opts, { prompt_title = "~ git files ~" }, opts)
-    )
+    builtin.git_files(vim.tbl_extend(
+      "keep",
+      -- require("telescope.themes").get_ivy(),
+      default_opts,
+      { prompt_title = "~ git files ~" },
+      opts
+    ))
   else
     builtin.find_files(vim.tbl_extend("keep", default_opts, { prompt_title = "~ files ~" }, opts))
   end
@@ -77,7 +81,6 @@ local project_two_step = function(prompt_title, fn_second_step)
   local pickers = require("telescope.pickers")
   local finders = require("telescope.finders")
   local make_entry = require("telescope.make_entry")
-  local tele_path = require("telescope.path")
 
   local opts = { prompt_title = prompt_title, cwd = "~/src", depth = 1 }
 
@@ -100,7 +103,7 @@ local project_two_step = function(prompt_title, fn_second_step)
         local gen = make_entry.gen_from_file(opts)
         return function(entry)
           local tmp = gen(entry)
-          tmp.ordinal = tele_path.make_relative(entry, opts.cwd)
+          tmp.ordinal = Path:new(entry):make_relative(opts.cwd)
           return tmp
         end
       end
