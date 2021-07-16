@@ -49,7 +49,6 @@ local on_attach = function(client, bufnr)
   --   extra_trigger_chars = {"(", ","},
   -- })
 
-
   local function buf_set_keymap(...)
     vim.api.nvim_buf_set_keymap(bufnr, ...)
   end
@@ -80,8 +79,19 @@ local on_attach = function(client, bufnr)
   -- buf_set_keymap('n', '<leader>.', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
   -- buf_set_keymap('n', '<leader>R', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
   -- buf_set_keymap('n', '<space>e', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
-  buf_set_keymap("n", "å", "<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>", opts)
-  buf_set_keymap("n", "ß", "<cmd>lua vim.lsp.diagnostic.goto_next()<CR>", opts)
+
+  buf_set_keymap(
+    "n",
+    "å",
+    "<cmd>lua vim.lsp.diagnostic.goto_prev({ popup_opts = { show_header = false, focusable = false } })<CR>",
+    opts
+  )
+  buf_set_keymap(
+    "n",
+    "ß",
+    "<cmd>lua vim.lsp.diagnostic.goto_next({ popup_opts = { show_header = false, focusable = false } })<CR>",
+    opts
+  )
   -- buf_set_keymap('n', '<space>q', '<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>', opts)
 
   buf_set_keymap("n", "<leader>m", "<cmd>lua vim.lsp.buf.formatting()<CR>", opts)
