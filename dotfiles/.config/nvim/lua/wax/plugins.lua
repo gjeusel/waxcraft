@@ -55,12 +55,7 @@ return require("packer").startup({
       end,
     })
 
-    use({ -- auto pair
-      "windwp/nvim-autopairs",
-      config = function()
-        require("wax.plugins.nvim-autopairs")
-      end,
-    }) -- auto pair written in lua
+    -- use()
     use("AndrewRadev/splitjoin.vim") -- easy split join on whole paragraph
     use("wellle/targets.vim") -- text object for parenthesis & more !
     use("michaeljsmith/vim-indent-object") -- text object based on indentation levels.
@@ -72,12 +67,6 @@ return require("packer").startup({
         require("wax.plugins.fixcursorhold")
       end,
     })
-    -- use({ -- update folds only when needed, otherwise folds slowdown vim
-    --   "Konfekt/FastFold",
-    --   config = function()
-    --     require("wax.folds")
-    --   end,
-    -- })
 
     use("justinmk/vim-sneak") -- minimalist motion with 2 keys
     use("junegunn/vim-easy-align") -- easy alignment, better than tabularize
@@ -222,7 +211,7 @@ return require("packer").startup({
     use({
       "nvim-treesitter/nvim-treesitter",
       -- commit = '006aceb574e90fdc3dc911b76ecb7fef4dd0d609',
-      -- lock = true,
+      lock = true,
       run = function()
         vim.cmd([[TSUpdate]])
       end,
@@ -259,7 +248,7 @@ return require("packer").startup({
         "nvim-lua/lsp-status.nvim",
         { "kabouzeid/nvim-lspinstall", branch = "main" },
         -- { os.getenv("HOME") .. "/src/nvim-lspinstall", branch = "main" },
-        "ray-x/lsp_signature.nvim",  -- a bit buggy
+        "ray-x/lsp_signature.nvim", -- a bit buggy
         lock = true,
       },
       config = function()
@@ -268,25 +257,17 @@ return require("packer").startup({
     })
     use({
       "hrsh7th/nvim-compe",
-      requires = "SirVer/ultisnips",
       branch = "master",
+      requires = {
+        "SirVer/ultisnips",
+        { -- auto pair written in lua
+          "windwp/nvim-autopairs",
+          config = function()
+            require("wax.plugins.nvim-autopairs")
+          end,
+        },
+      },
       config = function()
-        vim.g.UltiSnipsSnippetDirectories = { "mysnippets" }
-        vim.g.UltiSnipsExpandTrigger = "<nop>"
-        vim.g.UltiSnipsJumpForwardTrigger = "<c-j>"
-        vim.g.UltiSnipsJumpBackwardTrigger = "<c-k>"
-        vim.api.nvim_exec(
-          [[
-        " fix behaviour induced by nvim-compe
-        au BufNewFile,BufRead * imap <nowait>< <
-        au BufNewFile,BufRead * imap <nowait>> >
-        au BufNewFile,BufRead * vmap <nowait>< <
-        au BufNewFile,BufRead * vmap <nowait>> >
-        au BufNewFile,BufRead *.snippets set filetype=snippets
-        au BufNewFile,BufRead *.snippets highlight snipLeadingSpaces ctermbg=none
-        ]],
-          false
-        )
         require("wax.plugins.nvim-compe")
       end,
     })
@@ -301,31 +282,30 @@ return require("packer").startup({
       ]])
       end,
     })
-    use({ -- better python folds
-      "tmhedberg/SimpylFold",
-      requires = {"Konfekt/FastFold"},
-      ft = { "python" },
-      config = function()
-        vim.g.SimpylFold_docstring_preview = 0
-        vim.g.SimpylFold_fold_docstring = 1
-        vim.g.SimpylFold_fold_import = 0
-
-        vim.g.fastfold_force = 1 -- pass by fastfold for all foldmethods
-        vim.g.fastfold_savehook = 1 -- update on save
-        vim.g.fastfold_fold_command_suffixes = { "x", "X", "a", "A", "o", "O", "c", "C" }
-        vim.g.fastfold_fold_movement_commands = { "]z", "[z", "zj", "zk" }
-
-        vim.api.nvim_exec(
-          [[
-            autocmd BufEnter *.py call SimpylFold#Recache()
-            "autocmd BufEnter *.py :normal! zx<cr>
-            "autocmd BufEnter *.py :normal! zz<cr>
-          ]],
-          false
-        )
-
-      end,
-    })
+    -- use({ -- better python folds
+    --   "tmhedberg/SimpylFold",
+    --   requires = { "Konfekt/FastFold" },
+    --   ft = { "python" },
+    --   config = function()
+    --     vim.g.SimpylFold_docstring_preview = 0
+    --     vim.g.SimpylFold_fold_docstring = 1
+    --     vim.g.SimpylFold_fold_import = 0
+    --
+    --     vim.g.fastfold_force = 1 -- pass by fastfold for all foldmethods
+    --     vim.g.fastfold_savehook = 1 -- update on save
+    --     vim.g.fastfold_fold_command_suffixes = { "x", "X", "a", "A", "o", "O", "c", "C" }
+    --     vim.g.fastfold_fold_movement_commands = { "]z", "[z", "zj", "zk" }
+    --
+    --     vim.api.nvim_exec(
+    --       [[
+    --         autocmd BufEnter *.py call SimpylFold#Recache()
+    --         "autocmd BufEnter *.py :normal! zx<cr>
+    --         "autocmd BufEnter *.py :normal! zz<cr>
+    --       ]],
+    --       false
+    --     )
+    --   end,
+    -- })
   end,
   config = {
     auto_clean = true,

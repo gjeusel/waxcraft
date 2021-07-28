@@ -40,7 +40,6 @@ require("compe").setup({
 local mapopts = { expr = true, silent = true }
 vim.api.nvim_set_keymap("i", "<C-Space>", "compe#complete()", mapopts)
 -- vim.api.nvim_set_keymap("i", "<CR>", "compe#confirm({ 'keys': '<CR>', 'select': v:true })", mapopts)
-vim.api.nvim_set_keymap("i", "<CR>", "compe#confirm(luaeval(\"require 'nvim-autopairs'.autopairs_cr()\"))", mapopts)
 -- vim.api.nvim_set_keymap("i", "<C-e>", "compe#close('<C-e'>)", mapopts) -- buggy: https://github.com/hrsh7th/nvim-compe/issues/329
 vim.api.nvim_set_keymap("i", "<C-f>", "compe#scroll({ 'delta': +4 })", mapopts)
 vim.api.nvim_set_keymap("i", "<C-d>", "compe#scroll({ 'delta': +4 })", mapopts)
@@ -88,7 +87,7 @@ vim.api.nvim_set_keymap("s", "<Tab>", "v:lua.tab_complete()", mapopts)
 vim.api.nvim_set_keymap("i", "<S-Tab>", "v:lua.s_tab_complete()", mapopts)
 vim.api.nvim_set_keymap("s", "<S-Tab>", "v:lua.s_tab_complete()", mapopts)
 
--- Fix behaviour of documentation not closing
+-- Fix behaviour of completion not closing on <C-c>
 _G.control_c_close_complete = function()
   if vim.fn.pumvisible() == 1 then
     return t("<Esc>")
@@ -97,3 +96,21 @@ _G.control_c_close_complete = function()
   end
 end
 vim.api.nvim_set_keymap("i", "<C-c>", "v:lua.control_c_close_complete()", mapopts)
+
+-- Fix Behaviours induced by nvim-compe on snippets and < >
+vim.g.UltiSnipsSnippetDirectories = { "mysnippets" }
+vim.g.UltiSnipsExpandTrigger = "<nop>"
+vim.g.UltiSnipsJumpForwardTrigger = "<c-j>"
+vim.g.UltiSnipsJumpBackwardTrigger = "<c-k>"
+vim.api.nvim_exec(
+  [[
+" fix behaviour induced by nvim-compe
+au BufNewFile,BufRead * imap <nowait>< <
+au BufNewFile,BufRead * imap <nowait>> >
+au BufNewFile,BufRead * vmap <nowait>< <
+au BufNewFile,BufRead * vmap <nowait>> >
+au BufNewFile,BufRead *.snippets set filetype=snippets
+au BufNewFile,BufRead *.snippets highlight snipLeadingSpaces ctermbg=none
+]],
+  false
+)

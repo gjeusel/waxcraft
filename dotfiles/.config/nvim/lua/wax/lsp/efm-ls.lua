@@ -35,7 +35,6 @@ local languages = {
     },
   },
 
-  -- json = { global_prettier },
   yaml = { global_prettier },
   -- Frontend
   vue = { prettier },

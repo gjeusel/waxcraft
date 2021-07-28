@@ -85,6 +85,11 @@ if vim.fn.has("mksession") == 1 then
   )
 end
 
+-- NetRW (https://shapeshed.com/vim-netrw/)
+vim.g.netrw_banner = 0 -- no need for banner
+vim.g.netrw_liststyle = 3  -- prefered style
+
+
 -- Searching
 vim.o.ignorecase = true -- searches are case insensitive...
 vim.o.smartcase = true -- ... unless they contain at least one capital letter
