@@ -68,7 +68,7 @@ local log_file = vim.env.HOME .. "/.cache/nvim/pylsp.log"
 local log_level = "-v" -- number of v is the level
 
 local function set_lspinstall_pylsp(python_path)
-  local install_script = python_path .. " -m pip install"
+  local install_script = python_path .. " -m pip install -U"
   local uninstall_script = python_path .. " -m pip uninstall --yes"
   for _, dep in ipairs(to_install) do
     install_script = install_script .. " " .. dep
