@@ -22,6 +22,9 @@ local prettier = {
   formatStdin = true,
 }
 
+local isort = { formatCommand = "isort --profile=black --quiet -", formatStdin = true }
+local black = { formatCommand = "black --quiet -", formatStdin = true }
+
 -- NOTE: Has to be a list per language
 local languages = {
   lua = {
@@ -36,6 +39,7 @@ local languages = {
   },
 
   yaml = { global_prettier },
+
   -- Frontend
   vue = { prettier },
   typescript = { prettier },
@@ -43,6 +47,9 @@ local languages = {
   javascript = { prettier },
   javascriptreact = { prettier },
   css = { prettier },
+
+  -- Backend
+  python = { isort, black },
 
   -- brew install jq
   -- json = {{formatCommand = 'jq .'}},

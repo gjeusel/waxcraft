@@ -46,7 +46,6 @@ local function get_python_path(workspace)
         return path.join(poetry_venv_path[1], "bin", "python")
       end
     end
-
   end
 
   -- Fallback to system Python.
@@ -94,29 +93,39 @@ end
 set_lspinstall_pylsp(get_python_path(find_root_dir(".")))
 
 return {
-  -- init_options = {documentFormatting = false}, -- if python format by efm
+  -- if python format by efm, disable formatting capabilities for pylsp
+  on_attach = function(client, _)
+    client.resolved_capabilities.document_formatting = false
+  end,
   settings = {
     pylsp = {
+      -- https://github.com/python-lsp/python-lsp-server/blob/develop/CONFIGURATION.md
       plugins = {
-        flake8 = { enabled = true },
-        ["pylsp_black"] = { enabled = true },
-        ["pyls_isort"] = { enabled = true },
+        -- Formatting is taken care of by efm
+        ["pylsp_black"] = { enabled = false },
+        ["pyls_isort"] = { enabled = false },
+        -- ["pylsp_black"] = { enabled = true },
+        -- ["pyls_isort"] = { enabled = true },
+        flake8 = { enabled = true, exclude = ".git,__pycache__,build,dist,.eggs" },
+        jedi_completion = {
+          eager = true,
+          cache_labels_for = { "pandas", "numpy", "pydantic", "fastapi", "flask", "sqlalchemy" },
+        },
         pylsp_mypy_rnx = {
           enabled = true,
           live_mode = false,
-          dmypy = false, -- prevent having live update (only on save)
-          -- dmypy_args = {
-          --   "--status-file",
-          --   "/tmp/dmypy.json",
-          -- },
-          -- dmypy_run_args = {
-          --   "--log-file",
-          --   "/tmp/dmypy.log",
-          --   "--verbose",
-          -- },
+          dmypy = true, -- prevent having live update (only on save), but is faster
           -- args = { "--sqlite-cache", "--ignore-missing-imports" },
           args = { "--sqlite-cache" },
         },
+        -- Disabled ones:
+        mccabe = { enabled = false },
+        preload = { enabled = false },
+        pycodestyle = { enabled = false },
+        pyflakes = { enabled = false },
+        pylint = { enabled = false },
+        rope_completion = { enabled = false },
+        yapf = { enabled = false },
       },
     },
   },
