@@ -1,56 +1,25 @@
-local lspconfig_util = require("lspconfig.util")
-local path = lspconfig_util.path
-local scan = require("plenary.scandir")
-local Path = require("plenary.path")
-
+local python_utils = require("wax.lsp.python-utils")
 local pyls_config = require("lspinstall/util").extract_config("pylsp")
 
-local find_root_dir = find_root_dir_fn({
-  ".git",
-  "Dockerfile",
-  "pyproject.toml",
-  "setup.cfg",
-})
+local flake8_ignore = {
+  "W503", -- W503: line break before binary operator
+  "W504", -- W504: line break after binary operator
 
-local basepath_poetry_venv = os.getenv("HOME") .. "/Library/Caches/pypoetry/virtualenvs"
-local basepath_conda_venv = os.getenv("HOME") .. "/opt/miniconda3/envs"
+  "A001", -- A001 "id" is a python builtin and is being shadowed, consider renaming the variable
+  "A002", -- A002 "type" is used as an argument and thus shadows a python builtin, consider renaming the argument
+  "A003", -- A003 "id" is a python builtin, consider renaming the class attribute
 
-local function get_python_path(workspace)
-  -- https://github.com/neovim/nvim-lspconfig/issues/500#issuecomment-851247107
+  "B008", -- B008 Do not perform function calls in argument defaults
 
-  -- If conda env is activated, use it
-  if vim.env.CONDA_PREFIX then
-    return path.join(vim.env.CONDA_PREFIX, "bin", "python")
-  end
+  "C901", -- C901: is too complex
 
-  -- If virtualenv is activated, use it
-  if vim.env.VIRTUAL_ENV then
-    return path.join(vim.env.VIRTUAL_ENV, "bin", "python")
-  end
+  "E203", -- E203: whitespace before ':'
+  "E266", -- E266: too many leading ' --' for block comment
+  "E402", -- E402: Module level import not at top of file
+  "E731", -- E731: Do not assign a lambda expression, use a def
 
-  -- If a conda env exists with the same name as the workspace, use it
-  if workspace then
-    local project_name = vim.fn.fnamemodify(workspace, ":t:r")
-    local opts = { depth = 0, add_dirs = true, search_pattern = project_name }
-
-    -- Check for any conda env named like the project
-    local conda_venv_path = scan.scan_dir(basepath_conda_venv, opts)
-    if #conda_venv_path >= 1 then
-      return path.join(conda_venv_path[1], "bin", "python")
-    end
-
-    -- Check for any virtualenv named like the project
-    if Path.new(workspace):joinpath("poetry.lock"):exists() then
-      local poetry_venv_path = scan.scan_dir(basepath_poetry_venv, opts)
-      if #poetry_venv_path >= 1 then
-        return path.join(poetry_venv_path[1], "bin", "python")
-      end
-    end
-  end
-
-  -- Fallback to system Python.
-  return "python"
-end
+  "W293", -- W293: blank line contains whitespace
+}
 
 local to_install = {
   "'python-lsp-server[rope]'", -- lsp
@@ -90,7 +59,7 @@ local function set_lspinstall_pylsp(python_path)
 end
 
 -- init lspinstall with CWD at first
-set_lspinstall_pylsp(get_python_path(find_root_dir(".")))
+set_lspinstall_pylsp(python_utils.get_python_path(find_root_dir(".")))
 
 return {
   -- if python format by efm, disable formatting capabilities for pylsp
@@ -106,17 +75,25 @@ return {
         ["pyls_isort"] = { enabled = false },
         -- ["pylsp_black"] = { enabled = true },
         -- ["pyls_isort"] = { enabled = true },
-        flake8 = { enabled = true, exclude = ".git,__pycache__,build,dist,.eggs" },
+        flake8 = {
+          enabled = true,
+          exclude = ".git,__pycache__,build,dist,.eggs",
+          ignore = flake8_ignore,
+        },
         jedi_completion = {
           eager = true,
           cache_labels_for = { "pandas", "numpy", "pydantic", "fastapi", "flask", "sqlalchemy" },
         },
         pylsp_mypy_rnx = {
-          enabled = true,
+          enabled = false,
           live_mode = false,
-          dmypy = true, -- prevent having live update (only on save), but is faster
+          dmypy = false,
+          -- dmypy = true, -- prevent having live update (only on save), but is faster
           -- args = { "--sqlite-cache", "--ignore-missing-imports" },
-          args = { "--sqlite-cache" },
+          args = {
+            "--sqlite-cache", -- Use an SQLite database to store the cache.
+            "--cache-fine-grained", -- Include fine-grained dependency information in the cache for the mypy daemon.
+          },
         },
         -- Disabled ones:
         mccabe = { enabled = false },
@@ -130,20 +107,9 @@ return {
     },
   },
   on_new_config = function(config, new_workspace)
-    local python_path = nil
-
-    if string.find(new_workspace, basepath_poetry_venv) then
-      -- In case of jump to definition inside dependency with poetry venv:
-      python_path = path.join(find_root_dir_fn({ "pyvenv.cfg" })(new_workspace), "bin", "python")
-    elseif string.find(new_workspace, basepath_conda_venv) then
-      -- In case of jump to definition inside dependency with conda venv:
-      python_path = path.join(find_root_dir_fn({ "conda-meta" })(new_workspace), "bin", "python")
-    else
-      python_path = get_python_path(new_workspace)
-    end
+    local python_path = M.on_new_workspace_python_path(new_workspace)
 
     if python_path == "python" then
-      local new_root_dir_path = Path.new(new_workspace)
       log.info(
         string.format(
           "LSP python - keeping previous python path '%s' for new_root_dir '%s'",
@@ -155,9 +121,14 @@ return {
     end
 
     log.info(
-      string.format("LSP python - new path '%s' for new_root_dir '%s'", python_path, new_workspace)
+      string.format(
+        "LSP python (pylsp) - new path '%s' for new_root_dir '%s'",
+        python_path,
+        new_workspace
+      )
     )
     set_lspinstall_pylsp(python_path)
     config.cmd = { python_path, "-m", "pylsp", "--log-file", log_file, log_level }
+    return config
   end,
 }
