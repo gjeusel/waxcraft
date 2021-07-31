@@ -1,7 +1,5 @@
 local root_pattern = require("lspconfig").util.root_pattern
-
--- local efm_config = os.getenv('HOME') .. '/.config/efm-langserver/config.yaml'
-local bin_path = os.getenv("HOME") .. "/go/bin/efm-langserver"
+local nvm = require("wax.lsp.nvm-utils")
 
 local root_markers = {
   ".git/", -- front
@@ -14,7 +12,7 @@ local root_markers = {
 }
 
 local global_prettier = {
-  formatCommand = "prettier --stdin-filepath ${INPUT}",
+  formatCommand = nvm.path.prettier:absolute() .. " --stdin-filepath ${INPUT}",
   formatStdin = true,
 }
 local prettier = {
@@ -58,8 +56,12 @@ local languages = {
 local log_file = vim.env.HOME .. "/.cache/nvim/efm.log"
 
 return {
-  -- cmd = { bin_path, "-c", efm_config },
-  cmd = { bin_path, "-logfile", log_file, "-loglevel", "0" },
+  -- cmd = {
+  --   os.getenv("HOME") .. "/go/bin/efm-langserver",
+  --   "-c",
+  --   os.getenv("HOME") .. "/.config/efm-langserver/config.yaml",
+  -- },
+  cmd = { os.getenv("HOME") .. "/go/bin/efm-langserver", "-logfile", log_file, "-loglevel", "0" },
   filetypes = vim.tbl_keys(languages),
   init_options = {
     documentFormatting = true,
