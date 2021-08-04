@@ -111,6 +111,7 @@ return require("packer").startup({
 
     --------- User Interface ---------
     use("morhetz/gruvbox")
+    use("mhartington/oceanic-next")
     use("shaunsingh/nord.nvim")
     use("tjdevries/colorbuddy.nvim") -- help to write its own colorscheme
     use({

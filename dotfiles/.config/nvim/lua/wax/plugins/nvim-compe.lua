@@ -10,13 +10,13 @@ require("compe").setup({
   source_timeout = 200,
   resolve_timeout = 800,
   incomplete_delay = 400,
-  max_abbr_width = 100,
-  max_kind_width = 100,
-  max_menu_width = 100,
+  max_abbr_width = 40,
+  max_kind_width = 40,
+  max_menu_width = 40,
   documentation = {
-    border = { "", "", "", " ", "", "", "", " " }, -- the border option is the same as `|help nvim_open_win|`
+    border = "rounded", -- the border option is the same as `|help nvim_open_win|`
     winhighlight = "NormalFloat:CompeDocumentation,FloatBorder:CompeDocumentationBorder",
-    max_width = 120,
+    max_width = 80,
     min_width = 60,
     max_height = math.floor(vim.o.lines * 0.3),
     min_height = 1,
@@ -96,6 +96,15 @@ _G.control_c_close_complete = function()
   end
 end
 vim.api.nvim_set_keymap("i", "<C-c>", "v:lua.control_c_close_complete()", mapopts)
+
+-- Fix behaviour of =
+_G.compe_equal_fix = function()
+  if vim.fn.pumvisible() then
+    vim.cmd([[ call timer_start(0, { -> luaeval('require"compe"._close()') }) ]])
+  end
+  return t("=")
+end
+vim.api.nvim_set_keymap("i", "=", "v:lua.compe_equal_fix()", mapopts)
 
 -- Fix Behaviours induced by nvim-compe on snippets and < >
 vim.g.UltiSnipsSnippetDirectories = { "mysnippets" }

@@ -35,6 +35,13 @@ lsp_status.config({
 -- vim.lsp.set_log_level("debug")
 vim.lsp.set_log_level("info")
 
+local float_win_opts = {
+  relative = "cursor",
+  focusable = false,
+  style = "minimal",
+  border = "rounded",
+}
+
 -- mappings
 local on_attach = function(client, bufnr)
   -- Lsp Status Line setup
@@ -48,6 +55,8 @@ local on_attach = function(client, bufnr)
   --   hint_prefix = "🐼 ",
   --   extra_trigger_chars = {"(", ","},
   -- })
+
+  -- vim.cmd([[autocmd CursorHoldI * silent! lua vim.lsp.buf.signature_help()]])
 
   local function buf_set_keymap(...)
     vim.api.nvim_buf_set_keymap(bufnr, ...)
@@ -68,35 +77,36 @@ local on_attach = function(client, bufnr)
   buf_set_keymap("n", "K", "<Cmd>lua vim.lsp.buf.hover()<CR>", opts)
   buf_set_keymap("n", "<leader>i", "<cmd>lua vim.lsp.buf.implementation()<CR>", opts)
 
-  -- buf_set_keymap('i', '<C-a>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
-  -- buf_set_keymap('n', '<C-a>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+  buf_set_keymap("i", "<C-x>", "<cmd>lua vim.lsp.buf.signature_help()<CR>", opts)
+  buf_set_keymap("n", "<C-x>", "<cmd>lua vim.lsp.buf.signature_help()<CR>", opts)
 
-  -- buf_set_keymap('n', '<space>wa', '<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>', opts)
-  -- buf_set_keymap('n', '<space>wr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', opts)
-  -- buf_set_keymap('n', '<space>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', opts)
   -- buf_set_keymap('n', '<space>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
   buf_set_keymap("n", "<leader>R", "<cmd>lua vim.lsp.buf.rename()<CR>", opts)
   -- buf_set_keymap('n', '<leader>.', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
-  -- buf_set_keymap('n', '<leader>R', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
-  -- buf_set_keymap('n', '<space>e', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
 
-  buf_set_keymap(
-    "n",
-    "å",
-    "<cmd>lua vim.lsp.diagnostic.goto_prev({ popup_opts = { show_header = false, focusable = false } })<CR>",
-    opts
-  )
-  buf_set_keymap(
-    "n",
-    "ß",
-    "<cmd>lua vim.lsp.diagnostic.goto_next({ popup_opts = { show_header = false, focusable = false } })<CR>",
-    opts
-  )
+  local goto_win_opts = {
+    popup_opts = vim.tbl_extend("keep", { show_header = false }, float_win_opts),
+  }
+  _G._lsp_goto_prev = function()
+    return vim.lsp.diagnostic.goto_prev(goto_win_opts)
+  end
+  _G._lsp_goto_next = function()
+    return vim.lsp.diagnostic.goto_next(goto_win_opts)
+  end
+  buf_set_keymap("n", "å", "<cmd>lua _lsp_goto_prev()<CR>", opts)
+  buf_set_keymap("n", "ß", "<cmd>lua _lsp_goto_next()<CR>", opts)
   -- buf_set_keymap('n', '<space>q', '<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>', opts)
 
   buf_set_keymap("n", "<leader>m", "<cmd>lua vim.lsp.buf.formatting()<CR>", opts)
   -- buf_set_keymap("n", "<leader>m", "<cmd>lua vim.lsp.buf.formatting_seq_sync()<CR>", opts)
 end
+
+-- Customize windows for Hover and Signature
+vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, float_win_opts)
+vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
+  vim.lsp.handlers.signature_help,
+  vim.tbl_extend("keep", float_win_opts, { max_height = 3 })
+)
 
 -- Diagnostic publish
 vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
@@ -110,6 +120,7 @@ vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
     signs = true,
     underline = false,
     update_in_insert = true,
+    severity_sort = true,
   }
 )
 

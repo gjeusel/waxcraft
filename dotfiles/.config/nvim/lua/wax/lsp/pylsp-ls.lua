@@ -64,6 +64,7 @@ set_lspinstall_pylsp(python_utils.get_python_path(find_root_dir(".")))
 return {
   -- if python format by efm, disable formatting capabilities for pylsp
   on_attach = function(client, _)
+    -- formatting is done by efm:
     client.resolved_capabilities.document_formatting = false
   end,
   settings = {

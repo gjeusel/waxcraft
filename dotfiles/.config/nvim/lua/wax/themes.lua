@@ -140,6 +140,7 @@ highlight Normal ctermbg=none
 highlight SignColumn ctermbg=none
 highlight VertSplit ctermbg=none
 highlight CursorLineNr ctermbg=none
+highlight EndOfBuffer ctermbg=none
 highlight ColorColumn ctermbg=236
 
 " Better diff views
@@ -147,6 +148,9 @@ highlight DiffAdd cterm=none ctermfg=Green ctermbg=none
 highlight DiffChange cterm=none ctermfg=Yellow ctermbg=none
 highlight DiffDelete cterm=bold ctermfg=Red ctermbg=none
 highlight DiffText cterm=none ctermfg=Blue ctermbg=none
+
+" Better floating windows
+highlight NormalFloat ctermbg=none
   ]],
   false
 )
