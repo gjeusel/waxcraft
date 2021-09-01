@@ -49,7 +49,7 @@ vim.api.nvim_exec([[set wildmode=list:longest,full]], false) -- Command <Tab> co
 vim.o.tabstop = 2
 vim.o.expandtab = true -- a tab is two spaces
 vim.o.shiftwidth = 2 -- an autoindent (with <<) is two spaces
-vim.o.smartindent = true
+vim.o.smartindent = false -- prevent indent on python commented line
 vim.o.list = true -- show the following:
 vim.api.nvim_exec([[set listchars=tab:›\ ,trail:•,extends:#,nbsp:.]], false) -- Highlight problematic whitespace
 

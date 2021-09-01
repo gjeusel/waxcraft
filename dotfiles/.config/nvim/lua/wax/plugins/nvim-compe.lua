@@ -115,10 +115,10 @@ vim.g.UltiSnipsJumpBackwardTrigger = "<c-k>"
 vim.api.nvim_exec(
   [[
 " fix behaviour induced by nvim-compe
-au BufNewFile,BufRead * imap <nowait>< <
-au BufNewFile,BufRead * imap <nowait>> >
-au BufNewFile,BufRead * vmap <nowait>< <
-au BufNewFile,BufRead * vmap <nowait>> >
+au BufNewFile,BufRead * inoremap <nowait>< <
+au BufNewFile,BufRead * inoremap <nowait>> >
+au BufNewFile,BufRead * vnoremap <nowait>< <
+au BufNewFile,BufRead * vnoremap <nowait>> >
 au BufNewFile,BufRead *.snippets set filetype=snippets
 au BufNewFile,BufRead *.snippets highlight snipLeadingSpaces ctermbg=none
 ]],
