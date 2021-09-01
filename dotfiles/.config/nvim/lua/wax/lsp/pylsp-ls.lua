@@ -86,9 +86,9 @@ return {
           cache_labels_for = { "pandas", "numpy", "pydantic", "fastapi", "flask", "sqlalchemy" },
         },
         pylsp_mypy_rnx = {
-          enabled = false,
+          enabled = true,
           live_mode = false,
-          dmypy = false,
+          dmypy = true,
           -- dmypy = true, -- prevent having live update (only on save), but is faster
           -- args = { "--sqlite-cache", "--ignore-missing-imports" },
           args = {

@@ -22,6 +22,7 @@ setopt share_history
 #setopt no_bg_nice no_hup no_beep
 
 fpath=("$waxCraft_PATH/dotfiles/completions" $fpath)
+fpath=("$HOME/.zfunc" $fpath)
 
 autoload -Uz compinit
 # Check compinit cache once per day

@@ -18,7 +18,7 @@ augroup ensureFileType
   au BufNewFile,BufRead *.conf set filetype=config
   au BufNewFile,BufRead *.{kubeconfig,yml,yaml} set filetype=yaml
 augroup end
-"
+
 
 " Generic:
 augroup generic
@@ -30,14 +30,18 @@ augroup generic
   au FileType markdown setlocal wrap wrapmargin=2 textwidth=140 spell
   au FileType lua setlocal foldmethod=expr foldexpr=nvim_treesitter#foldexpr()
 augroup end
-"
+
+
+" EdgeDB
+au FileType edgeql setlocal commentstring=#%s
+
 
 augroup python
   au FileType python setlocal shiftwidth=4 tabstop=4 softtabstop=4 colorcolumn=100
   au FileType python setlocal foldenable foldmethod=expr foldexpr=nvim_treesitter#foldexpr()
   "au FileType python setlocal foldenable foldmethod=expr foldexpr=SimpylFold#FoldExpr(v:lnum)
 augroup end
-"
+
 
 " Frontend:
 augroup frontend
@@ -51,7 +55,7 @@ augroup frontend
   " JS / TS / Vue
   autocmd FileType vue,typescript setlocal foldmethod=expr foldexpr=nvim_treesitter#foldexpr()
 augroup end
-"
+
 ]],
   false
 )

@@ -32,7 +32,8 @@ require("compe").setup({
     ultisnips = { priority = 1000 },
     -- sugar
     calc = { filetypes = { "markdown", "text" } },
-    spell = { filetypes = { "markdown", "text", "gitcommit" } },
+    spell = false,
+    -- spell = { filetypes = { "markdown", "text", "gitcommit" } },
     emoji = { filetypes = { "markdown", "text", "gitcommit" } },
   },
 })

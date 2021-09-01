@@ -155,7 +155,7 @@ vim.lsp.protocol.CompletionItemKind = {
 
 -- make sure to require modules with overwrite of lspinstall beforehand
 require("wax.lsp.pylsp-ls") -- define new config "pylsp"
-require("wax.lsp.pyright-ls") -- define alias "pyright"
+-- require("wax.lsp.pyright-ls") -- define alias "pyright"
 require("wax.lsp.yaml-ls") -- rewrite install setup
 
 local lspinstall = require("lspinstall")
@@ -179,7 +179,7 @@ local required_servers = {
   "graphql",
   -- backend
   "pylsp",
-  "pyright",
+  -- "pyright",
   "cmake",
   "rust",
   "go",

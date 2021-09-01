@@ -16,6 +16,7 @@ M.entirely_fuzzy_grep_string = function(opts)
     search = "", -- https://github.com/nvim-telescope/telescope.nvim/issues/564
     cwd = find_root_dir("."),
     vimgrep_arguments = constants.grep_cmds["rg"],
+    -- debouce = 100,
   }
   return builtin.grep_string(vim.tbl_extend("force", default_opts, opts))
 end

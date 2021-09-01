@@ -1,5 +1,6 @@
 local root_pattern = require("lspconfig").util.root_pattern
 local nvm = require("wax.lsp.nvm-utils")
+local Path = require("plenary.path")
 
 local root_markers = {
   ".git/", -- front
@@ -71,7 +72,10 @@ return {
     completion = false,
   },
   root_dir = function(fname)
-    return root_pattern(root_markers)(fname)
+    local root = root_pattern(root_markers)(fname)
+    -- Default to current file directory in case of root not found
+    -- (so formatters can still be applied in the case for example of a single python script)
+    return root or Path:new(fname):parent():absolute()
   end,
   settings = {
     rootMarkers = root_markers,

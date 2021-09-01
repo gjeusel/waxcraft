@@ -283,6 +283,7 @@ return require("packer").startup({
       ]])
       end,
     })
+    use({ "edgedb/edgedb-vim" })
     -- use({ -- better python folds
     --   "tmhedberg/SimpylFold",
     --   requires = { "Konfekt/FastFold" },
