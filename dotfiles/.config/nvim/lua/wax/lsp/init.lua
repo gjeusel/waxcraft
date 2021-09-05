@@ -156,7 +156,9 @@ vim.lsp.protocol.CompletionItemKind = {
 -- make sure to require modules with overwrite of lspinstall beforehand
 require("wax.lsp.pylsp-ls") -- define new config "pylsp"
 -- require("wax.lsp.pyright-ls") -- define alias "pyright"
-require("wax.lsp.yaml-ls") -- rewrite install setup
+require("wax.lsp.yaml-ls") -- rewrite install setup for yaml
+require("wax.lsp.volar-ls") -- define new config "volar"
+require("wax.lsp.tailwindcss-ls") -- rewrite install setup for tailwindcss
 
 local lspinstall = require("lspinstall")
 lspinstall.setup()
@@ -173,7 +175,8 @@ local required_servers = {
   "typescript",
   "html",
   "svelte",
-  "vue",
+  "volar",
+  -- "vue",
   "css",
   "tailwindcss",
   "graphql",

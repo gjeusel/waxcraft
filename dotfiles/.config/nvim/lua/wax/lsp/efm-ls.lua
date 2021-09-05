@@ -1,5 +1,5 @@
 local root_pattern = require("lspconfig").util.root_pattern
-local nvm = require("wax.lsp.nvm-utils")
+local node = require("wax.lsp.nodejs-utils")
 local Path = require("plenary.path")
 
 local root_markers = {
@@ -13,7 +13,7 @@ local root_markers = {
 }
 
 local global_prettier = {
-  formatCommand = nvm.path.prettier:absolute() .. " --stdin-filepath ${INPUT}",
+  formatCommand = node.global.bin.prettier .. " --stdin-filepath ${INPUT}",
   formatStdin = true,
 }
 local prettier = {
