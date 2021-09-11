@@ -16,9 +16,9 @@ end
 local cycle_forward = function(fallback)
   if vim.fn.complete_info()["selected"] == -1 and vim.fn["UltiSnips#CanExpandSnippet"]() == 1 then
     vim.fn.feedkeys(t("<C-R>=UltiSnips#ExpandSnippet()<CR>"))
-  -- if want to jump inside snippet with tab:
-  -- elseif vim.fn["UltiSnips#CanJumpForwards"]() == 1 then
-  --   vim.fn.feedkeys(t("<ESC>:call UltiSnips#JumpForwards()<CR>"))
+    -- if want to jump inside snippet with tab:
+    -- elseif vim.fn["UltiSnips#CanJumpForwards"]() == 1 then
+    --   vim.fn.feedkeys(t("<ESC>:call UltiSnips#JumpForwards()<CR>"))
   elseif vim.fn.pumvisible() == 1 then
     vim.fn.feedkeys(t("<C-n>"), "n")
   elseif check_back_space() then
@@ -133,10 +133,14 @@ cmp.setup({
 
       -- set max width with abbr
       if string.len(vim_item.abbr) > 25 then
-          vim_item.abbr = string.sub(vim_item.abbr, 1, 20) .. " ... "
+        vim_item.abbr = string.sub(vim_item.abbr, 1, 20) .. " ... "
       end
       return vim_item
     end,
   },
   -- documentation = false, -- disable doc window
+  documentation = {
+    maxwidth = 80,
+    max_height = math.floor(vim.o.lines * 0.3),
+  },
 })
