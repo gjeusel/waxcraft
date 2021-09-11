@@ -181,6 +181,8 @@ local required_servers = {
   "tailwindcss",
   "graphql",
   -- backend
+  "go",
+  "rust",
   "pylsp",
   -- "pyright",
   "cmake",
@@ -225,7 +227,8 @@ local function setup_servers()
     -- Re-construct full settings
     local settings = vim.tbl_extend("keep", custom_settings, default_settings)
 
-    -- Maybe advertise capabilities to cmp_nvim_lsp
+    -- Advertise capabilities to cmp_nvim_lsp
+    -- Altough it adds double entry for same stuff..
     if is_module_available("cmp_nvim_lsp") then
       settings.capabilities = require("cmp_nvim_lsp").update_capabilities(settings.capabilities)
     end

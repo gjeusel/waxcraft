@@ -11,16 +11,3 @@ npairs.setup({
   --     java = false,-- don't check treesitter on java
   -- },
 })
-
-require("nvim-autopairs.completion.compe").setup({
-  map_cr = true, --  map <CR> on insert mode
-  map_complete = true, -- it will auto insert `(` after select function or method item
-})
-
-local parenthesis_rule = npairs.get_rule("(")
-parenthesis_rule:with_pair(function()
-  if vim.fn.pumvisible() then
-    vim.cmd([[ call timer_start(0, { -> luaeval('require"compe"._close()') }) ]])
-  end
-  return true
-end)
