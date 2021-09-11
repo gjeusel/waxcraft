@@ -272,6 +272,26 @@ return require("packer").startup({
         require("wax.plugins.nvim-compe")
       end,
     })
+    -- use({ -- nvim-cmp
+    --   "hrsh7th/nvim-cmp",
+    --   requires = {
+    --     "SirVer/ultisnips",
+    --     "hrsh7th/cmp-buffer",
+    --     "hrsh7th/cmp-path",
+    --     "hrsh7th/cmp-nvim-lua",
+    --     "hrsh7th/cmp-nvim-lsp",
+    --     -- "ray-x/cmp-treesitter",
+    --     { -- auto pair written in lua
+    --       "windwp/nvim-autopairs",
+    --       config = function()
+    --         require("wax.plugins.nvim-autopairs")
+    --       end,
+    --     },
+    --   },
+    --   config = function()
+    --     require("wax.plugins.nvim-cmp")
+    --   end,
+    -- })
 
     --------- Language Specific ---------
     use({

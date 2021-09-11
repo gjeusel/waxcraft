@@ -60,6 +60,8 @@ alias infogpu='nvidia-smi --query-gpu=timestamp,name,pci.bus_id,driver_version,p
 ## (Avoiding the 'screen-256color': unknown terminal type.)
 #alias ssh="TERM=xterm ssh"
 
+alias meteo="curl https://v2.wttr.in/brussels"
+
 compip() {
   # Linters:
   # pip install -U flake8 pylint proselint

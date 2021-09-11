@@ -188,6 +188,7 @@ local required_servers = {
   "go",
   -- infra
   "terraform",
+  "dockerfile",
 }
 
 local function setup_servers()
@@ -221,8 +222,15 @@ local function setup_servers()
       require("lspinstall").install_server(server)
     end
 
-    -- Setup it
+    -- Re-construct full settings
     local settings = vim.tbl_extend("keep", custom_settings, default_settings)
+
+    -- Maybe advertise capabilities to cmp_nvim_lsp
+    if is_module_available("cmp_nvim_lsp") then
+      settings.capabilities = require("cmp_nvim_lsp").update_capabilities(settings.capabilities)
+    end
+
+    -- Setup it
     require("lspconfig")[server].setup(settings)
   end
 end

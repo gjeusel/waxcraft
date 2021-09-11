@@ -52,10 +52,10 @@ nmap("<C-s>", ":w<CR>")
 --------- Opiniated (re-)Maps ---------
 
 -- remap motions
-nnoremap("w", "w", { nowait = true })
-nnoremap("W", "b", { nowait = true })
-nnoremap("e", "e", { nowait = true })
-nnoremap("E", "ge", { nowait = true })
+noremap("nv", "w", "w", { nowait = true })
+noremap("nv", "W", "b", { nowait = true })
+noremap("nv", "e", "e", { nowait = true })
+noremap("nv", "E", "ge", { nowait = true })
 
 -- Y to copy until the end of the line instead of the full line like yy
 nnoremap("Y", "yg_")

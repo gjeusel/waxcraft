@@ -16,7 +16,8 @@ local global_prettier = {
   formatCommand = node.global.bin.prettier .. " --stdin-filepath ${INPUT}",
   formatStdin = true,
 }
-local prettier = {
+
+local local_prettier = {
   formatCommand = "./node_modules/.bin/prettier --stdin-filepath ${INPUT}",
   formatStdin = true,
 }
@@ -27,8 +28,7 @@ local black = { formatCommand = "black --quiet -", formatStdin = true }
 -- NOTE: Has to be a list per language
 local languages = {
   lua = {
-    -- cargo install stylua
-    {
+    { -- Stylua: > cargo install stylua
       lintCommand = "",
       lintFormats = {},
       lintSource = "",
@@ -40,12 +40,12 @@ local languages = {
   yaml = { global_prettier },
 
   -- Frontend
-  vue = { prettier },
-  typescript = { prettier },
-  typescriptreact = { prettier },
-  javascript = { prettier },
-  javascriptreact = { prettier },
-  css = { prettier },
+  vue = { local_prettier },
+  typescript = { local_prettier },
+  typescriptreact = { local_prettier },
+  javascript = { local_prettier },
+  javascriptreact = { local_prettier },
+  css = { local_prettier },
 
   -- Backend
   python = { isort, black },
@@ -57,12 +57,15 @@ local languages = {
 local log_file = vim.env.HOME .. "/.cache/nvim/efm.log"
 
 return {
-  -- cmd = {
-  --   os.getenv("HOME") .. "/go/bin/efm-langserver",
-  --   "-c",
-  --   os.getenv("HOME") .. "/.config/efm-langserver/config.yaml",
-  -- },
-  cmd = { os.getenv("HOME") .. "/go/bin/efm-langserver", "-logfile", log_file, "-loglevel", "0" },
+  cmd = {
+    os.getenv("HOME") .. "/go/bin/efm-langserver",
+    "-logfile",
+    log_file,
+    "-loglevel",
+    "0",
+    --   "-c",
+    --   os.getenv("HOME") .. "/.config/efm-langserver/config.yaml",
+  },
   filetypes = vim.tbl_keys(languages),
   init_options = {
     documentFormatting = true,
@@ -82,4 +85,39 @@ return {
     lintDebounce = 0, -- disable linting
     languages = languages,
   },
+  on_new_config = function(config, new_workspace)
+    local frontend_with_local_bin = {
+      vue = { local_prettier },
+      typescript = { local_prettier },
+      typescriptreact = { local_prettier },
+      javascript = { local_prettier },
+      javascriptreact = { local_prettier },
+      css = { local_prettier },
+    }
+
+    local frontend_with_global_bin = {
+      vue = { global_prettier },
+      typescript = { global_prettier },
+      typescriptreact = { global_prettier },
+      javascript = { global_prettier },
+      javascriptreact = { global_prettier },
+      css = { global_prettier },
+    }
+
+    if not Path:new("./node-modules/.bin/prettier"):exists() then
+      log.debug("Found no local node bin at " .. new_workspace .. ", defaulting to global.")
+      config.settings.languages = vim.tbl_deep_extend(
+        "force",
+        config.settings.languages,
+        frontend_with_global_bin
+      )
+    else
+      config.settings.languages = vim.tbl_deep_extend(
+        "force",
+        config.settings.languages,
+        frontend_with_local_bin
+      )
+    end
+    return config
+  end,
 }

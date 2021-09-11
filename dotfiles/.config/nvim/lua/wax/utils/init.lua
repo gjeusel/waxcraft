@@ -8,3 +8,32 @@ else
   local mockfn = function(_) end
   log = setmetatable({}, { __index = mockfn })
 end
+
+
+-- lsp_symbol_map = {
+--   Text = "",
+--   Method = "",
+--   Function = "",
+--   Constructor = "",
+--   Field = "ﰠ",
+--   Variable = "[]",
+--   Class = "",
+--   Interface = "",
+--   Module = "",
+--   Property = "襁",
+--   Unit = "塞",
+--   Value = "",
+--   Enum = "練",
+--   Keyword = "",
+--   Snippet = "",
+--   Color = "",
+--   File = "",
+--   Reference = "",
+--   Folder = "",
+--   EnumMember = "",
+--   Constant = "",
+--   Struct = "פּ",
+--   Event = "",
+--   Operator = "",
+--   TypeParameter = "",
+-- }

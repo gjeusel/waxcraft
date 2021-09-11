@@ -35,6 +35,7 @@ local to_install = {
 
 local log_file = vim.env.HOME .. "/.cache/nvim/pylsp.log"
 local log_level = "-v" -- number of v is the level
+-- local log_level = "-vvv" -- number of v is the level
 
 local function set_lspinstall_pylsp(python_path)
   local install_script = python_path .. " -m pip install -U"
