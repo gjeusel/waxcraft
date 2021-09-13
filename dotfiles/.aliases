@@ -27,6 +27,52 @@ alias ls='ls -G'
 
 # Kubernetes
 alias k=kubectl
+kdebug() {
+  kubectl run -i --rm --tty debug --image=${1:-busybox} --restart=Never -- sh
+}
+kvdebug() {
+  if [ $# -eq 0 ]; then
+      echo "Run a debug pods with mounted volume in /volume"
+      echo "> kvdebug <image> <claimName>"
+      return
+  fi
+
+  sanename=debug-`echo $1 | sed s:\/:\-:g`
+
+  k run -i --tty --rm $sanename \
+  --image=$1 --restart=Never \
+  --overrides='
+  {
+    "apiVersion": "v1",
+    "spec": {
+      "containers": [
+        {
+          "image": "'${1}'",
+          "name": "'${sanename}'",
+          "command": ["/bin/sh"],
+          "stdin": true,
+          "stdinOnce": true,
+          "tty": true,
+          "volumeMounts": [
+            {
+              "mountPath": "/volume",
+              "name": "my-volume"
+            }
+          ]
+        }
+      ],
+      "volumes": [
+        {
+          "name": "my-volume",
+          "persistentVolumeClaim": {
+            "claimName": "'${2}'"
+          }
+        }
+      ]
+    }
+  }
+  ' -- sh
+}
 
 function fuzzy_gco() {
   branch=`git branch -a| fzf`
