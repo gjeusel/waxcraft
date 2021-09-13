@@ -16,7 +16,7 @@ augroup ensureFileType
 
   au BufNewFile,BufRead .gitconfig set filetype=conf
   au BufNewFile,BufRead *.conf set filetype=config
-  au BufNewFile,BufRead *.{kubeconfig,yml,yaml} set filetype=yaml
+  au BufNewFile,BufRead *.{kubeconfig,yml,yaml} set filetype=yaml syntax=on
 augroup end
 
 

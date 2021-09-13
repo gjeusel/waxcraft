@@ -11,8 +11,18 @@ M.find_root_dir = find_root_dir_fn({
   "setup.cfg",
 })
 
-M.basepath_poetry_venv = os.getenv("HOME") .. "/Library/Caches/pypoetry/virtualenvs"
-M.basepath_conda_venv = os.getenv("HOME") .. "/opt/miniconda3/envs"
+M.basepath_poetry_venv = os.getenv("HOME") .. "/Library/Caches/pypoetry/virtualenvs" or ""
+
+if os.getenv("CONDA_EXE") then
+  M.basepath_conda_venv = Path
+    :new(os.getenv("CONDA_EXE"))
+    :parent()
+    :parent()
+    :joinpath("/envs")
+    :absolute()
+else
+  M.basepath_conda_venv = ""
+end
 
 M.get_python_path = function(workspace)
   -- https://github.com/neovim/nvim-lspconfig/issues/500#issuecomment-851247107

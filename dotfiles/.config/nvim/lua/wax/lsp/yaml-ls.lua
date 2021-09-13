@@ -19,6 +19,11 @@ local new_install_config = vim.tbl_deep_extend("force", yaml_config, {
 require("lspinstall/servers").yaml = new_install_config
 
 return {
+  -- disable formatting capabilities for yaml-ls as done by efm
+  on_attach = function(client, _)
+    -- formatting is done by efm:
+    client.resolved_capabilities.document_formatting = false
+  end,
   settings = {
     yaml = {
       editor = { tabSize = 2, formatOnType = false },
