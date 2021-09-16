@@ -156,47 +156,19 @@ vim.lsp.protocol.CompletionItemKind = {
 -- make sure to require modules with overwrite of lspinstall beforehand
 require("wax.lsp.pylsp-ls") -- define new config "pylsp"
 -- require("wax.lsp.pyright-ls") -- define alias "pyright"
-require("wax.lsp.yaml-ls") -- rewrite install setup for yaml
-require("wax.lsp.volar-ls") -- define new config "volar"
-require("wax.lsp.tailwindcss-ls") -- rewrite install setup for tailwindcss
+if require("wax.lsp.nodejs-utils").global.bin.npm then
+  require("wax.lsp.yaml-ls") -- rewrite install setup for yaml
+  require("wax.lsp.volar-ls") -- define new config "volar"
+  require("wax.lsp.tailwindcss-ls") -- rewrite install setup for tailwindcss
+end
 
 local lspinstall = require("lspinstall")
 lspinstall.setup()
 
-local required_servers = {
-  -- generic
-  "efm",
-  -- vim / bash / json / yaml
-  "lua",
-  "bash",
-  "yaml",
-  "json",
-  -- frontend
-  "typescript",
-  "html",
-  "svelte",
-  "volar",
-  -- "vue",
-  "css",
-  "tailwindcss",
-  "graphql",
-  -- backend
-  "go",
-  "rust",
-  "pylsp",
-  -- "pyright",
-  "cmake",
-  "rust",
-  "go",
-  -- infra
-  "terraform",
-  "dockerfile",
-}
-
 local function setup_servers()
   local default_settings = { on_attach = on_attach, capabilities = lsp_status.capabilities }
   local installed_servers = require("lspinstall").installed_servers()
-  for _, server in pairs(required_servers) do
+  for _, server in pairs(waxopts.lsp.servers) do
     -- If "wax.lsp.{server}-ls.lua" exists, then load its settings
     local server_setting_module_path = "wax.lsp." .. server .. "-ls"
     local has_setting_module = is_module_available(server_setting_module_path)

@@ -34,7 +34,7 @@ require("lspinstall/servers")["volar"] = {
         documentHighlight = true,
         documentLink = true,
         codeLens = { showReferencesNotification = false },
-        semanticTokens = false,  -- is making nvim lsp crash
+        semanticTokens = false, -- is making nvim lsp crash
         diagnostics = true,
       },
       documentFeatures = {
@@ -43,7 +43,7 @@ require("lspinstall/servers")["volar"] = {
         linkedEditingRange = true,
         documentSymbol = true,
         documentColor = true,
-        documentFormatting = false,  -- prefer prettier + eslint
+        documentFormatting = false, -- prefer prettier + eslint
       },
     },
     settings = {

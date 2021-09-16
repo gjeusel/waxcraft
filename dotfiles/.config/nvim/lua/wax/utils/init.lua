@@ -1,5 +1,6 @@
 require("wax.utils.os")
 require("wax.utils.remaps")
+require("wax.utils.waxopts")
 
 if is_module_available("plenary.log") then
   level = os.getenv("WAX_LOG_LEVEL") or "info"
@@ -8,7 +9,6 @@ else
   local mockfn = function(_) end
   log = setmetatable({}, { __index = mockfn })
 end
-
 
 -- lsp_symbol_map = {
 --   Text = "",
