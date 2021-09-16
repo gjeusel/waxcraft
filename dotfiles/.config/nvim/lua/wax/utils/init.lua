@@ -1,6 +1,5 @@
 require("wax.utils.os")
 require("wax.utils.remaps")
-require("wax.utils.waxopts")
 
 if is_module_available("plenary.log") then
   level = os.getenv("WAX_LOG_LEVEL") or "info"
@@ -37,3 +36,51 @@ end
 --   Operator = "",
 --   TypeParameter = "",
 -- }
+
+
+waxopts = {
+  python3 = "python3",
+  lsp = {
+    servers = {},
+    -- servers = {
+    --   -- generic
+    --   "efm",
+    --   -- vim / bash / json / yaml
+    --   "lua",
+    --   "bash",
+    --   "yaml",
+    --   "json",
+    --   -- frontend
+    --   "typescript",
+    --   "html",
+    --   "svelte",
+    --   "volar",
+    --   -- "vue",
+    --   "css",
+    --   "tailwindcss",
+    --   "graphql",
+    --   -- backend
+    --   "go",
+    --   "rust",
+    --   "pylsp",
+    --   -- "pyright",
+    --   "cmake",
+    --   "rust",
+    --   "go",
+    --   -- infra
+    --   "terraform",
+    --   "dockerfile",
+    -- },
+  },
+}
+
+
+function load_local_config(config_path)
+  local ok, err = pcall(vim.cmd, "luafile " .. config_path)
+  if not ok then
+    print("Invalid configuration", config_path)
+    print(err)
+    return
+  end
+end
+load_local_config(vim.env.HOME .. "/.config/nvim/config.lua")
