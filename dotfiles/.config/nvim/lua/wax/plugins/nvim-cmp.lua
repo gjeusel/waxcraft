@@ -76,8 +76,8 @@ cmp.setup({
     ["<C-e>"] = cmp.mapping.close(),
     ["<C-c>"] = cmp.mapping(control_c_close, { "i" }),
     ["<CR>"] = cmp.mapping.confirm({
-      behavior = cmp.ConfirmBehavior.Replace,
-      select = true,
+      -- behavior = cmp.ConfirmBehavior.Replace,
+      -- select = true,
     }),
     ["<C-Space>"] = cmp.mapping(expand_snippet, { "i", "s" }),
     ["<Tab>"] = cmp.mapping(cycle_forward, { "i", "s" }),
