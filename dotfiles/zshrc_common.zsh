@@ -26,7 +26,7 @@ fpath=("$HOME/.zfunc" $fpath)
 
 autoload -Uz compinit
 # Check compinit cache once per day
-if [ $(date +'%j') != $(/usr/bin/stat -f '%Sm' -t '%j' ${ZDOTDIR:-$HOME}/.zcompdump) ]; then
+if [ $(date +'%j') != $(date -r ~/.zcompdump +'%j') ]; then
   compinit
 else
   compinit -C
