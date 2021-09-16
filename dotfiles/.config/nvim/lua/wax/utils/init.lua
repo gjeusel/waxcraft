@@ -37,7 +37,6 @@ end
 --   TypeParameter = "",
 -- }
 
-
 waxopts = {
   python3 = "python3",
   lsp = {
@@ -74,8 +73,11 @@ waxopts = {
   },
 }
 
+local function load_local_config(config_path)
+  if not vim.fn.filereadable(config_path) then
+    return
+  end
 
-function load_local_config(config_path)
   local ok, err = pcall(vim.cmd, "luafile " .. config_path)
   if not ok then
     print("Invalid configuration", config_path)
