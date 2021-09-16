@@ -74,7 +74,7 @@ waxopts = {
 }
 
 local function load_local_config(config_path)
-  if not vim.fn.filereadable(config_path) then
+  if vim.fn.filereadable(config_path) == 0 then
     return
   end
 
