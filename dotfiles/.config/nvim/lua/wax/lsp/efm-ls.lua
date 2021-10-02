@@ -57,6 +57,13 @@ local languages = {
 local log_file = vim.env.HOME .. "/.cache/nvim/efm.log"
 
 return {
+  on_attach = function(client, _)
+    -- efm is only for formatting
+    client.resolved_capabilities.completion = false
+    client.resolved_capabilities.hover = false
+    client.resolved_capabilities.documentSymbol = false
+    client.resolved_capabilities.codeAction = false
+  end,
   cmd = {
     os.getenv("HOME") .. "/go/bin/efm-langserver",
     "-logfile",

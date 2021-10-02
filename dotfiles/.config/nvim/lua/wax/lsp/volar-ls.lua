@@ -42,7 +42,7 @@ require("lspinstall/servers")["volar"] = {
         foldingRange = true,
         linkedEditingRange = true,
         documentSymbol = true,
-        documentColor = true,
+        documentColor = false,
         documentFormatting = false, -- prefer prettier + eslint
       },
     },
