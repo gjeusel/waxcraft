@@ -87,9 +87,8 @@ end
 
 -- NetRW (https://shapeshed.com/vim-netrw/)
 vim.g.netrw_banner = 0 -- no need for banner
-vim.g.netrw_liststyle = 3  -- prefered style
-vim.g.loaded_netrwPlugin = 1  -- performance reasons
-
+vim.g.netrw_liststyle = 3 -- prefered style
+vim.g.loaded_netrwPlugin = 1 -- performance reasons
 
 -- Searching
 vim.o.ignorecase = true -- searches are case insensitive...
@@ -109,6 +108,9 @@ end
 -- -- activate per project settings
 -- vim.o.exrc = true  -- allows loading local EXecuting local RC files
 -- vim.o.secure = true  -- disallows the use of :autocmd, shell and write commands in local
+
+-- Performances
+vim.o.synmaxcol = 128
 
 -- Python config
 -- vim.g.python_host_prog = os.getenv("HOME") .. "/opt/miniconda3/envs/nvim27/bin/python"

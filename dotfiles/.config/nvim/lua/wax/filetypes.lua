@@ -64,3 +64,48 @@ augroup end
 -- " Switch to the current file directory when a new buffer is opened
 -- au BufEnter * if bufname("") !~ "^\[A-Za-z0-9\]*://" | lcd %:p:h | endif
 -- ]]
+
+-- Performances
+-- https://www.reddit.com/r/neovim/comments/pz3wyc/comment/heyy4qf/?utm_source=share&utm_medium=web2x&context=3
+vim.api.nvim_exec(
+  [[
+" disable syntax highlighting in big files
+function DisableSyntaxTreesitter()
+  echo("Big file, disabling syntax, treesitter and folding")
+  if exists(':TSBufDisable')
+      exec 'TSBufDisable autotag'
+      exec 'TSBufDisable highlight'
+      exec 'TSBufDisable indent'
+      exec 'TSBufDisable incremental_selection'
+      exec 'TSBufDisable context_commentstring'
+      exec 'TSBufDisable autopairs'
+  endif
+
+  setlocal eventignore+=FileType  " disable all filetype autocommands
+
+  setlocal foldmethod=manual
+  setlocal foldexpr=
+  setlocal nowrap
+  "syntax clear
+  "syntax off    " hmmm, which one to use?
+  filetype off
+
+  setlocal noundofile
+  setlocal noswapfile
+  setlocal noloadplugins
+
+  " activate some fast tooling
+  LspStart
+
+endfunction
+
+let g:large_file = 258 * 512
+
+augroup BigFileDisable
+  autocmd!
+  autocmd BufReadPre,FileReadPre * if getfsize(expand("%")) > g:large_file | exec DisableSyntaxTreesitter() | endif
+augroup END
+
+]],
+  false
+)

@@ -192,7 +192,6 @@ return require("packer").startup({
       "nvim-treesitter/nvim-treesitter",
       -- commit = '006aceb574e90fdc3dc911b76ecb7fef4dd0d609',
       lock = true,
-      -- cond = is_current_buffer_not_big,
       run = ":TSUpdate",
       requires = {
         { -- play with queries
@@ -274,7 +273,7 @@ return require("packer").startup({
   end,
   config = {
     -- Move to lua dir so impatient.nvim can cache it:
-    -- compile_path = vim.fn.stdpath("config") .. "/lua/packer_compiled.lua",
+    compile_path = vim.fn.stdpath("config") .. "/lua/packer_compiled.lua",
     auto_clean = true,
     max_jobs = 8,
     compile_on_sync = true,
