@@ -93,9 +93,12 @@ function DisableSyntaxTreesitter()
   setlocal noundofile
   setlocal noswapfile
   setlocal noloadplugins
+endfunction
 
+function EnableFastFeatures()
   " activate some fast tooling
   LspStart
+  exec 'setlocal syntax=' . &ft
 endfunction
 
 let g:large_file = 258 * 512
@@ -103,7 +106,7 @@ let g:large_file = 258 * 512
 augroup BigFileDisable
   autocmd!
   autocmd BufReadPre,FileReadPre * if getfsize(expand("%")) > g:large_file | exec DisableSyntaxTreesitter() | endif
-  autocmd BufEnter * if getfsize(expand("%")) > g:large_file | exec 'setlocal syntax=' . &ft | endif
+  autocmd BufEnter * if getfsize(expand("%")) > g:large_file | exec EnableFastFeatures() | endif
 augroup END
 
 ]],
