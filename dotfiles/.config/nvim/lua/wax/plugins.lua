@@ -1,14 +1,7 @@
--- Only required if you have packer in your `opt` pack
-local packer_exists = pcall(vim.cmd, [[packadd packer.nvim]])
-
 local download_packer = function()
-  if vim.fn.input("Download Packer? (y for yes)") ~= "y" then
-    return
-  end
-
   print("Downloading packer.nvim...")
-  local directory = string.format("%s/site/pack/packer/opt/", vim.fn.stdpath("data"))
 
+  local directory = string.format("%s/site/pack/packer/opt", vim.fn.stdpath("data"))
   vim.fn.mkdir(directory, "p")
 
   local out = vim.fn.system(
@@ -24,6 +17,7 @@ local download_packer = function()
   print("Reopen NVIM and run :PackerSync twice")
 end
 
+local packer_exists = pcall(vim.cmd, [[packadd packer.nvim]]) -- works even if packer in your `opt` pack
 if not packer_exists then
   download_packer()
   return
@@ -40,27 +34,10 @@ vim.api.nvim_exec(
 return require("packer").startup({
   function(use)
     -- Packer can manage itself as an optional plugin
-    use({
-      "wbthomason/packer.nvim",
-      opt = true,
-      commit = "a5f3d1ae5c570ac559f4b8103980d53497601d4e",
-    })
+    use({ "wbthomason/packer.nvim", opt = true })
 
-    --------- System Plugins ---------
-    use({
-      "famiu/nvim-reload", -- easy reaload
-      requires = "nvim-lua/plenary.nvim",
-      config = function()
-        require("wax.plugins.nvim-reload")
-      end,
-    })
-
-    -- use()
-    use("AndrewRadev/splitjoin.vim") -- easy split join on whole paragraph
-    use("wellle/targets.vim") -- text object for parenthesis & more !
-    use("michaeljsmith/vim-indent-object") -- text object based on indentation levels.
-    -- use 'psliwka/vim-smoothie'                     -- smoother scroll
-
+    --- Performances plugins
+    use("lewis6991/impatient.nvim") -- speed up startup TODO: remove it once merged upstream
     use({
       "antoinemadec/FixCursorHold.nvim", -- Fix CursorHold Performance
       config = function()
@@ -68,9 +45,15 @@ return require("packer").startup({
       end,
     })
 
+    --------- System Plugins ---------
+    use("AndrewRadev/splitjoin.vim") -- easy split join on whole paragraph
+    use("wellle/targets.vim") -- text object for parenthesis & more !
+    use("michaeljsmith/vim-indent-object") -- text object based on indentation levels.
+    -- use 'psliwka/vim-smoothie'                     -- smoother scroll
+
     use("justinmk/vim-sneak") -- minimalist motion with 2 keys
     use("junegunn/vim-easy-align") -- easy alignment, better than tabularize
-    use("vim-scripts/loremipsum") -- dummy text generator (:Loremipsum [number of words])
+    use({ "vim-scripts/loremipsum", cmd = "Loremipsum" }) -- dummy text generator (:Loremipsum [number of words])
 
     use({
       "tomtom/tcomment_vim", -- for contextual comment, see nvim-treesitter-textobjects
@@ -144,7 +127,11 @@ return require("packer").startup({
     use({
       "lewis6991/gitsigns.nvim",
       config = function()
-        require("gitsigns").setup()
+        require("gitsigns").setup({
+          attach_to_untracked = false,
+          update_debounce = 500,
+          max_file_length = 1000,
+        })
       end,
     }) -- git sign column
 
@@ -170,28 +157,20 @@ return require("packer").startup({
 
     use("rhysd/conflict-marker.vim") -- conflict markers for vimdiff
 
-    use({ -- non-obtrusive registers preview
-      "tversteeg/registers.nvim",
-      setup = function()
-        vim.g.registers_return_symbol = "⤶"
-        -- vim.g.registers_space_symbol = "•"
-        -- vim.g.registers_tab_symbol = "•"
-        vim.g.registers_space_symbol = " "
-        vim.g.registers_tab_symbol = " "
-        vim.g.registers_show_empty_registers = 0 -- do not show it
-        vim.g.registers_trim_whitespace = 0 -- do show spaces
-        vim.g.registers_show_empty_registers = 0 -- do not show empty registers
-      end,
-    })
-
     --------- Fuzzy Fuzzy Fuzzy ---------
     use({
       "nvim-telescope/telescope.nvim",
-      lock = true,
+      -- lock = true,
       requires = {
         "nvim-lua/popup.nvim",
         "nvim-lua/plenary.nvim",
         { "nvim-telescope/telescope-fzf-native.nvim", branch = "main", run = "make" },
+        { -- clipboard integration in telescope
+          "AckslD/nvim-neoclip.lua",
+          config = function()
+            require("neoclip").setup()
+          end,
+        },
       },
       config = function()
         require("wax.plugins.telescope")
@@ -213,24 +192,21 @@ return require("packer").startup({
       "nvim-treesitter/nvim-treesitter",
       -- commit = '006aceb574e90fdc3dc911b76ecb7fef4dd0d609',
       lock = true,
-      run = function()
-        vim.cmd([[TSUpdate]])
-      end,
+      -- cond = is_current_buffer_not_big,
+      run = ":TSUpdate",
       requires = {
         { -- play with queries
           "nvim-treesitter/playground",
+          cmd = "TSPlaygroundToggle",
         },
         { -- better text objects
           "nvim-treesitter/nvim-treesitter-textobjects",
         },
         { -- comment string update on context (vue -> html + typescript)
           "JoosepAlviste/nvim-ts-context-commentstring",
-          -- Lock on specific commit: https://github.com/wbthomason/packer.nvim/issues/211
-          commit = "5024c83e92c3988f6e7119bfa1b2347ae3a42c3e",
-          lock = true,
           ft = { "html", "vue" },
         },
-        -- { "p00f/nvim-ts-rainbow", cond = conditional_python }, -- rainbow parenthesis
+        -- { "p00f/nvim-ts-rainbow" },
         { -- auto html tag
           "windwp/nvim-ts-autotag",
           branch = "main",
@@ -297,11 +273,17 @@ return require("packer").startup({
     use({ "edgedb/edgedb-vim" })
   end,
   config = {
+    -- Move to lua dir so impatient.nvim can cache it:
+    -- compile_path = vim.fn.stdpath("config") .. "/lua/packer_compiled.lua",
     auto_clean = true,
-    max_jobs = 30,
+    max_jobs = 8,
     compile_on_sync = true,
     display = {
       open_fn = require("packer.util").float,
+    },
+    profile = {
+      enable = true,
+      threshold = 1, -- in milliseconds
     },
   },
 })

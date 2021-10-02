@@ -88,6 +88,7 @@ end
 -- NetRW (https://shapeshed.com/vim-netrw/)
 vim.g.netrw_banner = 0 -- no need for banner
 vim.g.netrw_liststyle = 3  -- prefered style
+vim.g.loaded_netrwPlugin = 1  -- performance reasons
 
 
 -- Searching

@@ -7,6 +7,7 @@ backup
 
 # Ignore all in nvim except init.vim and snippets and coc-settings.json
 dotfiles/.config/nvim/plugged
+dotfiles/.config/nvim/lua/packer_compiled.lua
 
 *.zwc
 *.DS_store

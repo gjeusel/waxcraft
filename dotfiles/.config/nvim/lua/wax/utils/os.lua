@@ -73,3 +73,11 @@ local known_colorschemes = { "gruvbox", "nord" }
 if vim.tbl_contains(known_colorschemes, os.getenv("ITERM_PROFILE")) then
   iterm_colorscheme = os.getenv("ITERM_PROFILE")
 end
+
+
+-------- Performances helpers --------
+function is_current_buffer_not_big()
+  local max_file_lines = 1000
+  local bufnr = vim.fn.bufnr('%')
+  return vim.api.nvim_buf_line_count(bufnr) < max_file_lines
+end

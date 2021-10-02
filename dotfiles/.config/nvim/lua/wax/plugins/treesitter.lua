@@ -6,7 +6,7 @@ local parsers = require("nvim-treesitter.parsers")
 ts.setup({
   highlight = {
     enable = true,
-    -- disable = { "python" },
+    -- disable = { "typescript" },
     -- custom_captures = {}
     additional_vim_regex_highlighting = false, -- also activate vim syntax
     use_languagetree = true, -- enable language injection
@@ -115,10 +115,15 @@ ts.setup({
   },
 
   -- -- 'p00f/nvim-ts-rainbow'
-  -- rainbow = {
-  --   enable = true,
-  --   extended_mode = true, -- Highlight also non-parentheses delimiters, boolean or table: lang -> boolean
-  -- },
+  rainbow = {
+    enable = false,
+    extended_mode = false, -- Also highlight non-bracket delimiters like html tags, boolean or table: lang -> boolean
+    max_file_lines = 3000, -- Do not enable for files with more than n lines, int
+    -- colors = { "#bf616a", "#d08770", "#ebcb8b", "#a3be8c", "#88c0d0", "#5e81ac", "#b48ead" },
+    colors = { "#8FBCBB", "#88C0D0", "#81A1C1" },
+    termcolors = { 109, 108, "white" },
+    -- termcolors = { "red", "green", "yellow", "blue" }, -- table of colour name strings
+  },
 
   -- 'windwp/nvim-autopairs'
   autopairs = { enable = true },

@@ -33,7 +33,8 @@ lsp_status.config({
 })
 
 -- vim.lsp.set_log_level("debug")
-vim.lsp.set_log_level("info")
+-- vim.lsp.set_log_level("info")
+vim.lsp.set_log_level("warn")
 
 local float_win_opts = {
   relative = "cursor",
