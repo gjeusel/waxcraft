@@ -84,10 +84,8 @@ return require("packer").startup({
 
     -- Tpope is awesome
     use("tpope/vim-surround") -- change surrounding easily
-    use("tpope/vim-repeat") -- better action repeat for vim-surround with .
     use("tpope/vim-eunuch") -- sugar for the UNIX shell commands
     use("tpope/vim-fugitive") -- Git wrapper for vim
-    use("tpope/vim-abolish") -- :S to replace with smartcase
     use("tpope/vim-scriptease") -- gives :Messages
 
     -- use 'airblade/vim-rooter'
@@ -240,13 +238,13 @@ return require("packer").startup({
         "hrsh7th/cmp-nvim-lua",
         "hrsh7th/cmp-nvim-lsp",
         -- "ray-x/cmp-treesitter",
-        { -- ultisnips
-          "SirVer/ultisnips",
-          "quangnguyen30192/cmp-nvim-ultisnips",
-          config = function()
-            vim.g.UltiSnipsRemoveSelectModeMappings = 0 -- else buggy
-          end,
-        },
+        -- { -- ultisnips
+        --   "SirVer/ultisnips",
+        --   "quangnguyen30192/cmp-nvim-ultisnips",
+        --   config = function()
+        --     vim.g.UltiSnipsRemoveSelectModeMappings = 0 -- else buggy
+        --   end,
+        -- },
         { -- auto pair written in lua
           "windwp/nvim-autopairs",
           config = function()

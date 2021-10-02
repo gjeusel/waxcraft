@@ -48,6 +48,7 @@ require("lspinstall/servers")["volar"] = {
     },
     settings = {
       volar = {
+        lowPowerMode = false,
         codeLens = {
           references = false,
           pugTools = false,

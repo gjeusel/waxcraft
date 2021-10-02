@@ -14,12 +14,15 @@ local check_back_space = function()
 end
 
 local cycle_forward = function(fallback)
-  if vim.fn.complete_info()["selected"] == -1 and vim.fn["UltiSnips#CanExpandSnippet"]() == 1 then
-    vim.fn.feedkeys(t("<C-R>=UltiSnips#ExpandSnippet()<CR>"))
-    -- if want to jump inside snippet with tab:
-    -- elseif vim.fn["UltiSnips#CanJumpForwards"]() == 1 then
-    --   vim.fn.feedkeys(t("<ESC>:call UltiSnips#JumpForwards()<CR>"))
-  elseif vim.fn.pumvisible() == 1 then
+  -- if vim.fn.complete_info()["selected"] == -1 then
+  --   -- if vim.fn["UltiSnips#CanExpandSnippet"]() == 1 then
+  --   --   vim.fn.feedkeys(t("<C-R>=UltiSnips#ExpandSnippet()<CR>"))
+  --   -- end
+  --   -- if want to jump inside snippet with tab:
+  --   -- elseif vim.fn["UltiSnips#CanJumpForwards"]() == 1 then
+  --   --   vim.fn.feedkeys(t("<ESC>:call UltiSnips#JumpForwards()<CR>"))
+
+  if vim.fn.pumvisible() == 1 then
     vim.fn.feedkeys(t("<C-n>"), "n")
   elseif check_back_space() then
     vim.fn.feedkeys(t("<tab>"), "n")
@@ -41,9 +44,9 @@ end
 
 local expand_snippet = function(fallback)
   if vim.fn.pumvisible() == 1 then
-    if vim.fn["UltiSnips#CanExpandSnippet"]() == 1 then
-      return vim.fn.feedkeys(t("<C-R>=UltiSnips#ExpandSnippet()<CR>"))
-    end
+    -- if vim.fn["UltiSnips#CanExpandSnippet"]() == 1 then
+    --   return vim.fn.feedkeys(t("<C-R>=UltiSnips#ExpandSnippet()<CR>"))
+    -- end
     vim.fn.feedkeys(t("<C-n>"), "n")
   elseif check_back_space() then
     vim.fn.feedkeys(t("<cr>"), "n")
@@ -64,11 +67,11 @@ cmp.setup({
   completion = {
     keyword_length = 1,
   },
-  snippet = {
-    expand = function(args)
-      vim.fn["UltiSnips#Anon"](args.body)
-    end,
-  },
+  -- snippet = {
+  --   expand = function(args)
+  --     vim.fn["UltiSnips#Anon"](args.body)
+  --   end,
+  -- },
   mapping = {
     ["<C-y>"] = cmp.mapping.confirm({ select = true }),
     ["<C-d>"] = cmp.mapping.scroll_docs(-4),
@@ -84,7 +87,7 @@ cmp.setup({
     ["<S-Tab>"] = cmp.mapping(cycle_backward, { "i", "s" }),
   },
   sources = {
-    { name = "ultisnips" },
+    -- { name = "ultisnips" },
     { name = "nvim_lua" },
     { name = "nvim_lsp" },
     { -- buffer
@@ -121,7 +124,7 @@ cmp.setup({
 
       -- set a name for each source
       vim_item.menu = ({
-        ultisnips = "[Snippet]",
+        -- ultisnips = "[Snippet]",
         nvim_lua = "[Lua]",
         buffer = "[Buffer]",
         nvim_lsp = "[LSP]",
