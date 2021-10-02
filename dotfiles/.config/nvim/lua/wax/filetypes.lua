@@ -88,7 +88,7 @@ function DisableSyntaxTreesitter()
   setlocal nowrap
   "syntax clear
   "syntax off    " hmmm, which one to use?
-  filetype off
+  "filetype off
 
   setlocal noundofile
   setlocal noswapfile
@@ -96,7 +96,6 @@ function DisableSyntaxTreesitter()
 
   " activate some fast tooling
   LspStart
-
 endfunction
 
 let g:large_file = 258 * 512
@@ -104,6 +103,7 @@ let g:large_file = 258 * 512
 augroup BigFileDisable
   autocmd!
   autocmd BufReadPre,FileReadPre * if getfsize(expand("%")) > g:large_file | exec DisableSyntaxTreesitter() | endif
+  autocmd BufEnter * if getfsize(expand("%")) > g:large_file | exec 'setlocal syntax=' . &ft | endif
 augroup END
 
 ]],
