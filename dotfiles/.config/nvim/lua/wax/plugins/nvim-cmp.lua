@@ -14,14 +14,6 @@ local check_back_space = function()
 end
 
 local cycle_forward = function(fallback)
-  -- if vim.fn.complete_info()["selected"] == -1 then
-  --   -- if vim.fn["UltiSnips#CanExpandSnippet"]() == 1 then
-  --   --   vim.fn.feedkeys(t("<C-R>=UltiSnips#ExpandSnippet()<CR>"))
-  --   -- end
-  --   -- if want to jump inside snippet with tab:
-  --   -- elseif vim.fn["UltiSnips#CanJumpForwards"]() == 1 then
-  --   --   vim.fn.feedkeys(t("<ESC>:call UltiSnips#JumpForwards()<CR>"))
-
   if vim.fn.pumvisible() == 1 then
     vim.fn.feedkeys(t("<C-n>"), "n")
   elseif check_back_space() then
@@ -32,11 +24,10 @@ local cycle_forward = function(fallback)
 end
 
 local cycle_backward = function(fallback)
-  -- if want to jump inside snippet with tab:
-  -- if vim.fn["UltiSnips#CanJumpBackwards"]() == 1 then
-  --   return vim.fn.feedkeys(t("<C-R>=UltiSnips#JumpBackwards()<CR>"))
   if vim.fn.pumvisible() == 1 then
     vim.fn.feedkeys(t("<C-p>"), "n")
+  -- elseif luasnip and luasnip.jumpable(-1) then
+  --   return vim.fn.feedkeys(t("<Plug>luasnip-jump-prev"))
   else
     fallback()
   end
@@ -44,9 +35,6 @@ end
 
 local expand_snippet = function(fallback)
   if vim.fn.pumvisible() == 1 then
-    -- if vim.fn["UltiSnips#CanExpandSnippet"]() == 1 then
-    --   return vim.fn.feedkeys(t("<C-R>=UltiSnips#ExpandSnippet()<CR>"))
-    -- end
     vim.fn.feedkeys(t("<C-n>"), "n")
   elseif check_back_space() then
     vim.fn.feedkeys(t("<cr>"), "n")
@@ -67,11 +55,11 @@ cmp.setup({
   completion = {
     keyword_length = 1,
   },
-  -- snippet = {
-  --   expand = function(args)
-  --     vim.fn["UltiSnips#Anon"](args.body)
-  --   end,
-  -- },
+  snippet = {
+    expand = function(args)
+      require("luasnip").lsp_expand(args.body)
+    end,
+  },
   mapping = {
     ["<C-y>"] = cmp.mapping.confirm({ select = true }),
     ["<C-d>"] = cmp.mapping.scroll_docs(-4),
@@ -87,7 +75,7 @@ cmp.setup({
     ["<S-Tab>"] = cmp.mapping(cycle_backward, { "i", "s" }),
   },
   sources = {
-    -- { name = "ultisnips" },
+    { name = "luasnip" },
     { name = "nvim_lua" },
     { name = "nvim_lsp" },
     { -- buffer
@@ -124,7 +112,6 @@ cmp.setup({
 
       -- set a name for each source
       vim_item.menu = ({
-        -- ultisnips = "[Snippet]",
         nvim_lua = "[Lua]",
         buffer = "[Buffer]",
         nvim_lsp = "[LSP]",

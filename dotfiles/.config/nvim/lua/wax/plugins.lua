@@ -238,13 +238,13 @@ return require("packer").startup({
         "hrsh7th/cmp-nvim-lua",
         "hrsh7th/cmp-nvim-lsp",
         -- "ray-x/cmp-treesitter",
-        -- { -- ultisnips
-        --   "SirVer/ultisnips",
-        --   "quangnguyen30192/cmp-nvim-ultisnips",
-        --   config = function()
-        --     vim.g.UltiSnipsRemoveSelectModeMappings = 0 -- else buggy
-        --   end,
-        -- },
+        "saadparwaiz1/cmp_luasnip",
+        { -- snippet engine in lua
+          "L3MON4D3/LuaSnip",
+          config = function()
+            require("wax.plugins.luasnip")
+          end,
+        },
         { -- auto pair written in lua
           "windwp/nvim-autopairs",
           config = function()
