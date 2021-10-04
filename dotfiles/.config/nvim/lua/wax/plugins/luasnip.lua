@@ -25,15 +25,6 @@ ls.config.set_config({
   enable_autosnippets = false,
 })
 
-local frontend_console = {
-  s("cl", { t("console.log("), i(1), t(")") }),
-  s("ct", { t("console.trace("), i(1), t(")") }),
-  s("cd", { t("console.debug("), i(1), t(")") }),
-  s("ci", { t("console.info("), i(1), t(")") }),
-  s("cw", { t("console.warn("), i(1), t(")") }),
-  s("ce", { t("console.error("), i(1), t(")") }),
-}
-
 ls.snippets = {
   all = {},
   python = {
@@ -41,7 +32,17 @@ ls.snippets = {
     s("inumpy", { t("import numpy as np") }),
     s("iannot", { t("from __future__ import annotations") }),
   },
-  typescript = frontend_console,
+  typescript = {
+    -- Console snippets
+    s("cl", { t("console.log("), i(1), t(")") }),
+    s("ct", { t("console.trace("), i(1), t(")") }),
+    s("cd", { t("console.debug("), i(1), t(")") }),
+    s("ci", { t("console.info("), i(1), t(")") }),
+    s("cw", { t("console.warn("), i(1), t(")") }),
+    s("ce", { t("console.error("), i(1), t(")") }),
+    -- Import snippets
+    s("ilodash", { t('import ld from "lodash"') }),
+  },
   vue = {},
 }
 

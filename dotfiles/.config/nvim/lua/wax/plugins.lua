@@ -38,12 +38,17 @@ return require("packer").startup({
 
     --- Performances plugins
     use("lewis6991/impatient.nvim") -- speed up startup TODO: remove it once merged upstream
-    use({
-      "antoinemadec/FixCursorHold.nvim", -- Fix CursorHold Performance
-      config = function()
-        require("wax.plugins.fixcursorhold")
-      end,
-    })
+    -- use({
+    --   "antoinemadec/FixCursorHold.nvim", -- Fix CursorHold Performance
+    --   config = function()
+    --     -- WARNING: Does not work well with nvim-ts-context-commentstring
+    --     --
+    --     -- in millisecond, used for both CursorHold and CursorHoldI,
+    --     -- use updatetime instead if not defined
+    --     vim.g.cursorhold_updatetime = 100
+    --   end,
+    --   ft = { "python" },
+    -- })
 
     --------- System Plugins ---------
     use("AndrewRadev/splitjoin.vim") -- easy split join on whole paragraph
@@ -85,7 +90,12 @@ return require("packer").startup({
     -- Tpope is awesome
     use("tpope/vim-surround") -- change surrounding easily
     use("tpope/vim-eunuch") -- sugar for the UNIX shell commands
-    use("tpope/vim-fugitive") -- Git wrapper for vim
+    use({
+      "tpope/vim-fugitive",
+      config = function()
+        vim.cmd([[command Gdiff Gvdiffsplit ]])
+      end,
+    }) -- Git wrapper for vim
     use("tpope/vim-scriptease") -- gives :Messages
 
     -- use 'airblade/vim-rooter'
@@ -201,6 +211,7 @@ return require("packer").startup({
         },
         { -- comment string update on context (vue -> html + typescript)
           "JoosepAlviste/nvim-ts-context-commentstring",
+          commit = "5024c83e92c3988f6e7119bfa1b2347ae3a42c3e", -- after it works no more
           ft = { "html", "vue" },
         },
         -- { "p00f/nvim-ts-rainbow" },
@@ -271,7 +282,7 @@ return require("packer").startup({
   end,
   config = {
     -- Move to lua dir so impatient.nvim can cache it:
-    compile_path = vim.fn.stdpath("config") .. "/lua/packer_compiled.lua",
+    -- compile_path = vim.fn.stdpath("config") .. "/lua/packer_compiled.lua",
     auto_clean = true,
     max_jobs = 8,
     compile_on_sync = true,

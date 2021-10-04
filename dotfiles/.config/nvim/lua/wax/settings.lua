@@ -22,7 +22,7 @@ vim.o.textwidth = 200 -- avoid auto line return while typing
 
 vim.o.backup = true -- Backups are nice ...
 
-vim.o.updatetime = 200 -- frequency to apply Autocmd events -> low for nvim-ts-context-commentstring
+vim.o.updatetime = 50 -- frequency to apply Autocmd events -> low for nvim-ts-context-commentstring
 vim.api.nvim_exec([[set shortmess+=c]], false) -- don't pass messages to ins-completion-menu
 vim.o.completeopt = "menuone,noselect"
 
