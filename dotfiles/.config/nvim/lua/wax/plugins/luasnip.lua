@@ -42,6 +42,7 @@ ls.snippets = {
     s("ce", { t("console.error("), i(1), t(")") }),
     -- Import snippets
     s("ilodash", { t('import ld from "lodash"') }),
+    s("pprint", { t("console.log(JSON.stringify(", i(1), t(", undefined, 4)")) }),
   },
   vue = {},
 }

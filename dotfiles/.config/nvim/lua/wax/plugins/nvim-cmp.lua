@@ -14,37 +14,33 @@ local check_back_space = function()
 end
 
 local cycle_forward = function(fallback)
-  if vim.fn.pumvisible() == 1 then
-    vim.fn.feedkeys(t("<C-n>"), "n")
-  elseif check_back_space() then
-    vim.fn.feedkeys(t("<tab>"), "n")
+  if cmp.visible() then
+    cmp.select_next_item()
   else
     fallback()
   end
 end
 
 local cycle_backward = function(fallback)
-  if vim.fn.pumvisible() == 1 then
-    vim.fn.feedkeys(t("<C-p>"), "n")
-  -- elseif luasnip and luasnip.jumpable(-1) then
-  --   return vim.fn.feedkeys(t("<Plug>luasnip-jump-prev"))
+  if cmp.visible() then
+    cmp.select_prev_item()
   else
     fallback()
   end
 end
 
-local expand_snippet = function(fallback)
-  if vim.fn.pumvisible() == 1 then
-    vim.fn.feedkeys(t("<C-n>"), "n")
-  elseif check_back_space() then
-    vim.fn.feedkeys(t("<cr>"), "n")
-  else
-    fallback()
-  end
-end
+-- local expand_snippet = function(fallback)
+--   if cmp.visible() then
+--     vim.fn.feedkeys(t("<C-n>"), "n")
+--   elseif check_back_space() then
+--     vim.fn.feedkeys(t("<cr>"), "n")
+--   else
+--     fallback()
+--   end
+-- end
 
 local control_c_close = function(fallback)
-  if vim.fn.pumvisible() == 1 then
+  if cmp.visible() then
     vim.fn.feedkeys(t("<Esc>"))
   else
     fallback()
@@ -61,18 +57,20 @@ cmp.setup({
     end,
   },
   mapping = {
-    ["<C-y>"] = cmp.mapping.confirm({ select = true }),
-    ["<C-d>"] = cmp.mapping.scroll_docs(-4),
-    ["<C-f>"] = cmp.mapping.scroll_docs(4),
-    ["<C-e>"] = cmp.mapping.close(),
-    ["<C-c>"] = cmp.mapping(control_c_close, { "i" }),
-    ["<CR>"] = cmp.mapping.confirm({
-      -- behavior = cmp.ConfirmBehavior.Replace,
-      -- select = true,
-    }),
-    ["<C-Space>"] = cmp.mapping(expand_snippet, { "i", "s" }),
     ["<Tab>"] = cmp.mapping(cycle_forward, { "i", "s" }),
     ["<S-Tab>"] = cmp.mapping(cycle_backward, { "i", "s" }),
+    ["<C-n>"] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Insert }),
+    ["<C-p>"] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Insert }),
+    ["<C-y>"] = cmp.mapping.confirm({ select = true }),
+    ["<CR>"] = cmp.mapping.confirm({
+      behavior = cmp.ConfirmBehavior.Replace,
+      select = true,
+    }),
+    ["<C-d>"] = cmp.mapping.scroll_docs(4),
+    ["<C-u>"] = cmp.mapping.scroll_docs(-4),
+    ["<C-e>"] = cmp.mapping.close(),
+    ["<C-c>"] = cmp.mapping(control_c_close, { "i" }),
+    -- ["<C-Space>"] = cmp.mapping(expand_snippet, { "i", "s" }),
   },
   sources = {
     { name = "luasnip" },
@@ -132,5 +130,9 @@ cmp.setup({
   documentation = {
     maxwidth = 80,
     max_height = math.floor(vim.o.lines * 0.3),
+    border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
+  },
+  experimental = {
+    native_menu = false,
   },
 })

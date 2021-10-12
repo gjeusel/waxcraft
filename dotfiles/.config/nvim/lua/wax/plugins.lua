@@ -38,17 +38,20 @@ return require("packer").startup({
 
     --- Performances plugins
     use("lewis6991/impatient.nvim") -- speed up startup TODO: remove it once merged upstream
-    -- use({
-    --   "antoinemadec/FixCursorHold.nvim", -- Fix CursorHold Performance
-    --   config = function()
-    --     -- WARNING: Does not work well with nvim-ts-context-commentstring
-    --     --
-    --     -- in millisecond, used for both CursorHold and CursorHoldI,
-    --     -- use updatetime instead if not defined
-    --     vim.g.cursorhold_updatetime = 100
-    --   end,
-    --   ft = { "python" },
-    -- })
+    use({ -- combine all autocmds on filetype into one
+      "nathom/filetype.nvim",
+      config = function()
+        vim.g.did_load_filetypes = 1
+      end,
+    })
+    use({
+      "antoinemadec/FixCursorHold.nvim", -- Fix CursorHold Performance
+      config = function()
+        -- in millisecond, used for both CursorHold and CursorHoldI,
+        -- use updatetime instead if not defined
+        vim.g.cursorhold_updatetime = 100
+      end,
+    })
 
     --------- System Plugins ---------
     use("AndrewRadev/splitjoin.vim") -- easy split join on whole paragraph
@@ -93,7 +96,7 @@ return require("packer").startup({
     use({
       "tpope/vim-fugitive",
       config = function()
-        vim.cmd([[command Gdiff Gvdiffsplit ]])
+        vim.cmd([[command! -nargs=1 Gdiff Gvdiffsplit <f-args>]])
       end,
     }) -- Git wrapper for vim
     use("tpope/vim-scriptease") -- gives :Messages
@@ -242,6 +245,7 @@ return require("packer").startup({
     })
     use({ -- nvim-cmp
       "hrsh7th/nvim-cmp",
+      -- commit = "a63a1a23e9a7e62b21a5c151c771ed6ca21a0990",
       requires = {
         "onsails/lspkind-nvim",
         "hrsh7th/cmp-buffer",

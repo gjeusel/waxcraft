@@ -44,6 +44,13 @@ hi! link LspDiagnosticsDefaultWarning GruvboxYellow
 hi! link LspDiagnosticsDefaultInformation GruvboxFg3
 hi! link LspDiagnosticsDefaultHint GruvboxBlue
 
+" nvim-cmp
+hi! link CmpItemAbbrMatch GruvboxFg3
+hi! link CmpItemAbbrMatchFuzzy GruvboxFg3
+hi! link CmpItemKind GruvboxFg4
+hi! link CmpItemMenu GruvboxBg4
+hi! CmpItemAbbrDeprecated cterm=strikethrough
+
 "" LSP colors
 "highlight LspReferenceRead cterm=bold ctermbg=red guibg=#464646
 "highlight LspReferenceText cterm=bold ctermbg=red guibg=#464646
