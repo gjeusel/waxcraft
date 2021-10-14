@@ -15,7 +15,7 @@ end
 
 local cycle_forward = function(fallback)
   if cmp.visible() then
-    cmp.select_next_item()
+    cmp.select_next_item({ behavior = cmp.SelectBehavior.Inserts })
   else
     fallback()
   end
@@ -23,7 +23,7 @@ end
 
 local cycle_backward = function(fallback)
   if cmp.visible() then
-    cmp.select_prev_item()
+    cmp.select_prev_item({ behavior = cmp.SelectBehavior.Inserts })
   else
     fallback()
   end
@@ -59,8 +59,8 @@ cmp.setup({
   mapping = {
     ["<Tab>"] = cmp.mapping(cycle_forward, { "i", "s" }),
     ["<S-Tab>"] = cmp.mapping(cycle_backward, { "i", "s" }),
-    ["<C-n>"] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Insert }),
-    ["<C-p>"] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Insert }),
+    ["<C-n>"] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Inserts }),
+    ["<C-p>"] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Inserts }),
     ["<C-y>"] = cmp.mapping.confirm({ select = true }),
     ["<CR>"] = cmp.mapping.confirm({
       behavior = cmp.ConfirmBehavior.Replace,
@@ -133,6 +133,6 @@ cmp.setup({
     border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
   },
   experimental = {
-    native_menu = false,
+    -- native_menu = false,
   },
 })

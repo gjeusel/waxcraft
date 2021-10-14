@@ -114,7 +114,7 @@ ts.setup({
     enable = true,
   },
 
-  -- -- 'p00f/nvim-ts-rainbow'
+  -- 'p00f/nvim-ts-rainbow'
   rainbow = {
     enable = false,
     extended_mode = false, -- Also highlight non-bracket delimiters like html tags, boolean or table: lang -> boolean
@@ -127,6 +127,11 @@ ts.setup({
 
   -- 'windwp/nvim-autopairs'
   autopairs = { enable = true },
+
+  -- 'andymass/vim-matchup'
+  matchup = {
+    enable = true,
+  },
 
   -- 'windwp/nvim-ts-autotag'
   autotag = {

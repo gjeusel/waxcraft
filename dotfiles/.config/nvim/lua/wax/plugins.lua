@@ -96,7 +96,16 @@ return require("packer").startup({
     use({
       "tpope/vim-fugitive",
       config = function()
-        vim.cmd([[command! -nargs=1 Gdiff Gvdiffsplit <f-args>]])
+        vim.api.nvim_exec(
+          [[
+          command! -nargs=* Gdiff Gvdiffsplit <args>
+          augroup remapTpopeFugitive
+            autocmd User FugitiveObject nunmap <buffer> -
+            autocmd User FugitiveObject nunmap <buffer> <CR>
+          augroup end
+          ]],
+          false
+        )
       end,
     }) -- Git wrapper for vim
     use("tpope/vim-scriptease") -- gives :Messages
@@ -218,6 +227,20 @@ return require("packer").startup({
           ft = { "html", "vue" },
         },
         -- { "p00f/nvim-ts-rainbow" },
+        { -- add better behavior for '%'
+          "andymass/vim-matchup",
+          config = function()
+            vim.cmd([[
+              hi MatchBackground cterm=none ctermbg=none
+
+              hi MatchParenCur cterm=none ctermbg=none
+              hi MatchParen cterm=none ctermbg=none
+
+              hi MatchWord cterm=underline ctermbg=none
+              hi MatchWordCur cterm=underline ctermbg=none
+            ]])
+          end,
+        },
         { -- auto html tag
           "windwp/nvim-ts-autotag",
           branch = "main",
