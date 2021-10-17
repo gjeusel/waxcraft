@@ -60,6 +60,7 @@ return require("packer").startup({
     -- use 'psliwka/vim-smoothie'                     -- smoother scroll
 
     use("justinmk/vim-sneak") -- minimalist motion with 2 keys
+    -- use("ggandor/lightspeed.nvim") -- better vim-sneak ?
     use("junegunn/vim-easy-align") -- easy alignment, better than tabularize
     use({ "vim-scripts/loremipsum", cmd = "Loremipsum" }) -- dummy text generator (:Loremipsum [number of words])
 
@@ -112,7 +113,7 @@ return require("packer").startup({
     use("morhetz/gruvbox")
     use("mhartington/oceanic-next")
     use("shaunsingh/nord.nvim")
-    use("tjdevries/colorbuddy.nvim") -- help to write its own colorscheme
+    -- use("tjdevries/colorbuddy.nvim") -- help to write its own colorscheme
     use({
       "itchyny/lightline.vim", -- light status line
       config = function()
@@ -120,12 +121,6 @@ return require("packer").startup({
       end,
       -- after="lspconfig",  -- use lsp-status
     })
-    -- use { 'hoob3rt/lualine.nvim',
-    --   -- requires = {'kyazdani42/nvim-web-devicons', opt = true},
-    --   after="nvim-web-devicons",
-    --   config = function() require("wax.plugins.lualine") end,
-    -- }
-    -- use("ap/vim-buftabline", require("numtostr/BufOnly.nvim")) -- buffer line
     use({
       "romgrk/barbar.nvim",
       config = function()
@@ -219,7 +214,6 @@ return require("packer").startup({
         },
         { -- comment string update on context (vue -> html + typescript)
           "JoosepAlviste/nvim-ts-context-commentstring",
-          -- commit = "5024c83e92c3988f6e7119bfa1b2347ae3a42c3e", -- after it works no more
           ft = { "html", "vue" },
           config = function()
             require("nvim-treesitter.configs").setup({

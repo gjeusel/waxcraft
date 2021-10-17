@@ -1,6 +1,7 @@
 local comment_utils = require("Comment.utils")
 
 require("Comment").setup({
+  ignore = "^$",
   toggler = {
     ---line-comment keymap
     line = "<leader>cc",
