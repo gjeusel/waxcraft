@@ -38,6 +38,7 @@ local log_level = "-v" -- number of v is the level
 -- local log_level = "-vvv" -- number of v is the level
 
 local function set_lspinstall_pylsp(python_path)
+  log.info(string.format("LSP python (pylsp) - using path '%s'", python_path))
   local install_script = python_path .. " -m pip install -U"
   local uninstall_script = python_path .. " -m pip uninstall --yes"
   for _, dep in ipairs(to_install) do

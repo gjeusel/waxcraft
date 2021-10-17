@@ -33,7 +33,11 @@ augroup end
 
 
 " EdgeDB
-au FileType edgeql setlocal commentstring=#%s
+augroup edgeql
+  au BufNewFile,BufRead *.edgeql setf edgeql
+  au BufNewFile,BufRead *.esdl setf edgeql
+  au FileType edgeql setlocal commentstring=#%s
+augroup end
 
 
 augroup python

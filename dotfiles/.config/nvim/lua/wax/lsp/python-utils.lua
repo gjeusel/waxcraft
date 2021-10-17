@@ -18,7 +18,7 @@ if os.getenv("CONDA_EXE") then
     :new(os.getenv("CONDA_EXE"))
     :parent()
     :parent()
-    :joinpath("/envs")
+    :joinpath("envs")
     :absolute()
 else
   M.basepath_conda_venv = ""
@@ -39,8 +39,15 @@ M.get_python_path = function(workspace)
 
   -- If a conda env exists with the same name as the workspace, use it
   if workspace then
-    local project_name = vim.fn.fnamemodify(workspace, ":t:r")
-    local opts = { depth = 0, add_dirs = true, search_pattern = project_name }
+    local project_name = vim.fn.fnamemodify(Path:new(workspace):absolute(), ":t:r")
+    local search_pattern_regex = vim.regex(".*" .. project_name .. ".*")
+    local opts = {
+      depth = 0,
+      add_dirs = true,
+      search_pattern = function(entry)
+        return search_pattern_regex:match_str(entry)
+      end,
+    }
 
     -- Check for any conda env named like the project
     local conda_venv_path = scan.scan_dir(M.basepath_conda_venv, opts)
@@ -51,6 +58,9 @@ M.get_python_path = function(workspace)
     -- Check for any virtualenv named like the project
     if Path.new(workspace):joinpath("poetry.lock"):exists() then
       local poetry_venv_path = scan.scan_dir(M.basepath_poetry_venv, opts)
+      log.info("project_name", project_name)
+      log.info("basepath_poetry_venv: ", M.basepath_poetry_venv)
+      log.info("poetry_venv_path: ", poetry_venv_path)
       if #poetry_venv_path >= 1 then
         return path.join(poetry_venv_path[1], "bin", "python")
       end
