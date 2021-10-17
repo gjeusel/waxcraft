@@ -64,13 +64,9 @@ return require("packer").startup({
     use({ "vim-scripts/loremipsum", cmd = "Loremipsum" }) -- dummy text generator (:Loremipsum [number of words])
 
     use({
-      "tomtom/tcomment_vim", -- for contextual comment, see nvim-treesitter-textobjects
+      "numToStr/Comment.nvim",
       config = function()
-        vim.cmd([[
-          let g:tcomment_opleader1 = '<leader>c'
-          " https://github.com/tomtom/tcomment_vim/issues/284#issuecomment-809956888
-          let g:tcomment#filetype#guess_vue = 0
-        ]])
+        require("wax.plugins.comment")
       end,
     })
     use({
@@ -223,8 +219,16 @@ return require("packer").startup({
         },
         { -- comment string update on context (vue -> html + typescript)
           "JoosepAlviste/nvim-ts-context-commentstring",
-          commit = "5024c83e92c3988f6e7119bfa1b2347ae3a42c3e", -- after it works no more
+          -- commit = "5024c83e92c3988f6e7119bfa1b2347ae3a42c3e", -- after it works no more
           ft = { "html", "vue" },
+          config = function()
+            require("nvim-treesitter.configs").setup({
+              context_commentstring = {
+                enable = true,
+                enable_autocmd = false,
+              },
+            })
+          end,
         },
         -- { "p00f/nvim-ts-rainbow" },
         { -- add better behavior for '%'
