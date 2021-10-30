@@ -31,6 +31,7 @@ ls.snippets = {
     s("ipandas", { t("import pandas as pd") }),
     s("inumpy", { t("import numpy as np") }),
     s("iannot", { t("from __future__ import annotations") }),
+    s("iforkedpdb", { t('__import__("dagster").utils.forked_pdb.ForkedPdb().set_trace()') }),
   },
   typescript = {
     -- Console snippets

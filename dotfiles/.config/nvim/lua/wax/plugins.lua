@@ -44,7 +44,7 @@ return require("packer").startup({
         vim.g.did_load_filetypes = 1
       end,
     })
-    use({
+    use({ -- FixCursorHold
       "antoinemadec/FixCursorHold.nvim", -- Fix CursorHold Performance
       config = function()
         -- in millisecond, used for both CursorHold and CursorHoldI,
@@ -64,19 +64,19 @@ return require("packer").startup({
     use("junegunn/vim-easy-align") -- easy alignment, better than tabularize
     use({ "vim-scripts/loremipsum", cmd = "Loremipsum" }) -- dummy text generator (:Loremipsum [number of words])
 
-    use({
+    use({ -- easy comment/uncomment
       "numToStr/Comment.nvim",
       config = function()
         require("wax.plugins.comment")
       end,
     })
-    use({
+    use({ -- vim-tmux-navigator
       "christoomey/vim-tmux-navigator", -- tmux navigation in love with vim
       config = function()
         require("wax.plugins.vim-tmux-navigator")
       end,
     })
-    use({
+    use({ -- vim-test
       "janko/vim-test", -- test at the speed of light
       requires = {
         "jgdavey/tslime.vim", -- send command from vim to a running tmux session
@@ -90,7 +90,7 @@ return require("packer").startup({
     -- Tpope is awesome
     use("tpope/vim-surround") -- change surrounding easily
     use("tpope/vim-eunuch") -- sugar for the UNIX shell commands
-    use({
+    use({ -- vim fugitive
       "tpope/vim-fugitive",
       config = function()
         vim.api.nvim_exec(
@@ -114,28 +114,28 @@ return require("packer").startup({
     use("mhartington/oceanic-next")
     use("shaunsingh/nord.nvim")
     -- use("tjdevries/colorbuddy.nvim") -- help to write its own colorscheme
-    use({
+    use({ -- lightline
       "itchyny/lightline.vim", -- light status line
       config = function()
         require("wax.plugins.lightline")
       end,
       -- after="lspconfig",  -- use lsp-status
     })
-    use({
+    use({ -- barbar
       "romgrk/barbar.nvim",
       config = function()
         require("wax.plugins.barbar")
       end,
     })
 
-    use({
+    use({ -- nvim-web-devicons
       "kyazdani42/nvim-web-devicons",
       config = function()
         require("nvim-web-devicons").setup()
       end,
     }) -- icons
     use("mhinz/vim-startify") -- fancy start screen
-    use({
+    use({ -- gitsigns
       "lewis6991/gitsigns.nvim",
       config = function()
         require("gitsigns").setup({
@@ -150,7 +150,7 @@ return require("packer").startup({
     -- use {'glepnir/indent-guides.nvim', -- indent guide
     --   config = function() require('wax.plugins.indent-guides') end,
     -- }
-    use({
+    use({ -- indentLine
       "Yggdroot/indentLine", -- indent line
       config = function()
         require("wax.plugins.indent-line")
@@ -158,7 +158,7 @@ return require("packer").startup({
     })
 
     -- use 'kshenoy/vim-signature'        -- toggle display marks
-    use({
+    use({ -- loupe
       "wincent/loupe", -- better focus on current highlight search
       config = function()
         vim.g.LoupeClearHighlightMap = 0
@@ -169,7 +169,7 @@ return require("packer").startup({
     use("rhysd/conflict-marker.vim") -- conflict markers for vimdiff
 
     --------- Fuzzy Fuzzy Fuzzy ---------
-    use({
+    use({ -- telescope
       "nvim-telescope/telescope.nvim",
       -- lock = true,
       requires = {
@@ -187,7 +187,7 @@ return require("packer").startup({
         require("wax.plugins.telescope")
       end,
     })
-    use({
+    use({ -- fzf.vim
       "junegunn/fzf.vim",
       requires = {
         "junegunn/fzf",
@@ -199,7 +199,7 @@ return require("packer").startup({
     })
 
     --------- TreeSitter ---------
-    use({
+    use({ -- treesitter
       "nvim-treesitter/nvim-treesitter",
       -- commit = '006aceb574e90fdc3dc911b76ecb7fef4dd0d609',
       lock = true,
@@ -234,9 +234,14 @@ return require("packer").startup({
               hi MatchParenCur cterm=none ctermbg=none
               hi MatchParen cterm=none ctermbg=none
 
-              hi MatchWord cterm=underline ctermbg=none
-              hi MatchWordCur cterm=underline ctermbg=none
+              hi MatchWord cterm=none ctermbg=none
+              hi MatchWordCur cterm=none ctermbg=none
             ]])
+            vim.g.matchup_enabled = 1
+            vim.g.matchup_mouse_enabled = 0
+            vim.g.matchup_text_obj_enabled = 0
+            vim.g.matchup_transmute_enabled = 0
+            vim.g.matchup_matchparen_offscreen = {}
           end,
         },
         { -- auto html tag

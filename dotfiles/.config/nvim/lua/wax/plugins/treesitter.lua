@@ -130,7 +130,7 @@ ts.setup({
 
   -- 'andymass/vim-matchup'
   matchup = {
-    enable = true,
+    enable = false,  -- add clunky virtual text
   },
 
   -- 'windwp/nvim-ts-autotag'
