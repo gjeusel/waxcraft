@@ -3,6 +3,7 @@ waxopts = {
   python3 = "python3",
   lsp = {
     loglevel = "warn",
+    lspinstall = { loglevel = "warn" },
     servers = {},
     -- servers = {
     --   -- ________ generic ________
