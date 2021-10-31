@@ -185,14 +185,6 @@ local function setup_servers()
 
   local map_server_settings = {}
   for _, server_name in pairs(waxopts.lsp.servers) do
-    -- Install if not yet installed
-    local ok, server = lsp_installer_servers.get_server(server_name)
-    if ok then
-      if not server:is_installed() then
-        server:install()
-      end
-    end
-
     -- Re-construct full settings
     local custom_settings = get_custom_settings_for_server(server_name)
     local settings = vim.tbl_extend("keep", custom_settings, base_settings)
@@ -202,7 +194,17 @@ local function setup_servers()
       settings.capabilities = require("cmp_nvim_lsp").update_capabilities(settings.capabilities)
     end
 
-    map_server_settings[server_name] = settings
+    -- Install if not yet installed
+    local ok, server = lsp_installer_servers.get_server(server_name)
+    if ok then
+      if not server:is_installed() then
+        server:install()
+      end
+      map_server_settings[server_name] = settings
+    else
+      -- Servers without any nvim-lsp-installer defined installer:
+      require("lspconfig")[server_name].setup(settings)
+    end
   end
 
   lsp_installer.on_server_ready(function(server)
