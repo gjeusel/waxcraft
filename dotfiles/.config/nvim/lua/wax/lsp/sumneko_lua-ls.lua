@@ -1,5 +1,5 @@
 return {
-  init_options = { documentFormatting = false }, -- efm ?
+  init_options = { documentFormatting = false },
   settings = {
     Lua = {
       runtime = {

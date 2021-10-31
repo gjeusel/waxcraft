@@ -260,8 +260,14 @@ return require("packer").startup({
       "neovim/nvim-lspconfig",
       requires = {
         "nvim-lua/lsp-status.nvim",
-        { "kabouzeid/nvim-lspinstall", branch = "main" },
-        -- { os.getenv("HOME") .. "/src/nvim-lspinstall", branch = "main" },
+        { -- nvim-lsp-installer
+          "williamboman/nvim-lsp-installer",
+          -- os.getenv("HOME") .. "/src/nvim-lsp-installer",
+          branch = "main",
+          config = function()
+            require("wax.plugins.nvim-lsp-installer")
+          end,
+        },
         "ray-x/lsp_signature.nvim", -- a bit buggy
         lock = true,
       },

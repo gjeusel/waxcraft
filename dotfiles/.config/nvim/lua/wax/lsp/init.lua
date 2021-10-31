@@ -32,9 +32,7 @@ lsp_status.config({
   status_symbol = "",
 })
 
--- vim.lsp.set_log_level("debug")
--- vim.lsp.set_log_level("info")
-vim.lsp.set_log_level("warn")
+vim.lsp.set_log_level(waxopts.lsp.loglevel)
 
 local float_win_opts = {
   relative = "cursor",
@@ -154,67 +152,64 @@ vim.lsp.protocol.CompletionItemKind = {
   "   (TypeParameter)",
 }
 
--- make sure to require modules with overwrite of lspinstall beforehand
-require("wax.lsp.pylsp-ls") -- define new config "pylsp"
--- require("wax.lsp.pyright-ls") -- define alias "pyright"
-if require("wax.lsp.nodejs-utils").global.bin.npm then
-  require("wax.lsp.yaml-ls") -- rewrite install setup for yaml
-  require("wax.lsp.volar-ls") -- define new config "volar"
-  require("wax.lsp.tailwindcss-ls") -- rewrite install setup for tailwindcss
+local lsp_installer = require("nvim-lsp-installer")
+local lsp_installer_servers = require("nvim-lsp-installer.servers")
+
+local function get_custom_settings_for_server(server_name)
+  -- If "wax.lsp.{server}-ls.lua" exists, then load its settings
+  local server_setting_module_path = "wax.lsp." .. server_name .. "-ls"
+  local has_setting_module = is_module_available(server_setting_module_path)
+
+  local custom_settings = {}
+  if has_setting_module then
+    log.debug(string.format("Configuring LSP '%s' with custom settings", server_name))
+    custom_settings = require(server_setting_module_path) or {}
+  else
+    log.debug(string.format("Configuring LSP '%s'", server_name))
+  end
+
+  -- Chain potential on_attach
+  if custom_settings.on_attach then
+    local custom_on_attach = vim.deepcopy(custom_settings.on_attach)
+    custom_settings.on_attach = function(client, bufnr)
+      on_attach(client, bufnr)
+      custom_on_attach(client, bufnr)
+    end
+  end
+
+  return custom_settings
 end
 
-local lspinstall = require("lspinstall")
-lspinstall.setup()
-
 local function setup_servers()
-  local default_settings = { on_attach = on_attach, capabilities = lsp_status.capabilities }
-  local installed_servers = require("lspinstall").installed_servers()
-  for _, server in pairs(waxopts.lsp.servers) do
-    -- If "wax.lsp.{server}-ls.lua" exists, then load its settings
-    local server_setting_module_path = "wax.lsp." .. server .. "-ls"
-    local has_setting_module = is_module_available(server_setting_module_path)
+  local base_settings = { on_attach = on_attach, capabilities = lsp_status.capabilities }
 
-    local custom_settings = {}
-    if has_setting_module then
-      log.debug(string.format("Configuring LSP '%s' with custom settings", server))
-      custom_settings = require(server_setting_module_path) or {}
-    else
-      log.debug(string.format("Configuring LSP '%s'", server))
-    end
-
-    -- Chain potential on_attach
-    if custom_settings.on_attach then
-      local custom_on_attach = vim.deepcopy(custom_settings.on_attach)
-      custom_settings.on_attach = function(client, bufnr)
-        on_attach(client, bufnr)
-        custom_on_attach(client, bufnr)
+  local map_server_settings = {}
+  for _, server_name in pairs(waxopts.lsp.servers) do
+    -- Install if not yet installed
+    local ok, server = lsp_installer_servers.get_server(server_name)
+    if ok then
+      if not server:is_installed() then
+        server:install()
       end
     end
 
-    -- Install if not yet installed
-    if not vim.tbl_contains(installed_servers, server) then
-      log.info(string.format("Installing LSP '%s' ...", server))
-      require("lspinstall").install_server(server)
-    end
-
     -- Re-construct full settings
-    local settings = vim.tbl_extend("keep", custom_settings, default_settings)
+    local custom_settings = get_custom_settings_for_server(server_name)
+    local settings = vim.tbl_extend("keep", custom_settings, base_settings)
 
     -- Advertise capabilities to cmp_nvim_lsp
-    -- Altough it adds double entry for same stuff..
     if is_module_available("cmp_nvim_lsp") then
       settings.capabilities = require("cmp_nvim_lsp").update_capabilities(settings.capabilities)
     end
 
-    -- Setup it
-    require("lspconfig")[server].setup(settings)
+    map_server_settings[server_name] = settings
   end
+
+  lsp_installer.on_server_ready(function(server)
+    local opts = map_server_settings[server.name] or {}
+    server:setup(opts)
+    vim.cmd([[ do User LspAttachBuffers ]])
+  end)
 end
 
 setup_servers()
-
--- Automatically reload after `:LspInstall <server>` so we don't have to restart neovim
-require("lspinstall").post_install_hook = function()
-  setup_servers() -- reload installed servers
-  vim.cmd("bufdo e") -- this triggers the FileType autocmd that starts the server
-end

@@ -2,6 +2,11 @@ local scan = require("plenary.scandir")
 local Path = require("plenary.path")
 local path = require("lspconfig.util").path
 
+local installers = require("nvim-lsp-installer.installers")
+local std = require("nvim-lsp-installer.installers.std")
+local Data = require("nvim-lsp-installer.data")
+local process = require("nvim-lsp-installer.process")
+
 local M = {}
 
 M.find_root_dir = find_root_dir_fn({
@@ -24,7 +29,17 @@ else
   M.basepath_conda_venv = ""
 end
 
-M.get_python_path = function(workspace)
+M.workspace_to_project = function(workspace)
+  local workspace_abs = Path:new(workspace):absolute()
+  local project = vim.fn.fnamemodify(workspace_abs, ":t:r")
+  if project == "" then
+    return nil
+  else
+    return project
+  end
+end
+
+local function get_python_path(workspace)
   -- https://github.com/neovim/nvim-lspconfig/issues/500#issuecomment-851247107
 
   -- If conda env is activated, use it
@@ -38,8 +53,8 @@ M.get_python_path = function(workspace)
   end
 
   -- If a conda env exists with the same name as the workspace, use it
-  if workspace then
-    local project_name = vim.fn.fnamemodify(Path:new(workspace):absolute(), ":t:r")
+  local project_name = M.workspace_to_project(workspace)
+  if workspace and project_name then
     local search_pattern_regex = vim.regex(".*" .. project_name .. ".*")
     local opts = {
       depth = 0,
@@ -69,22 +84,52 @@ M.get_python_path = function(workspace)
 
   -- Fallback to system Python.
   return "python"
+  -- return os.getenv("CONDA_PYTHON_EXE")
 end
 
-M.on_new_workspace_python_path = function(new_workspace)
+M.get_python_path = function(workspace)
+  workspace = workspace or ""
   local python_path = nil
 
-  if string.find(new_workspace, M.basepath_poetry_venv) then
+  if string.find(workspace, M.basepath_poetry_venv) then
     -- In case of jump to definition inside dependency with poetry venv:
-    python_path = path.join(find_root_dir_fn({ "pyvenv.cfg" })(new_workspace), "bin", "python")
-  elseif string.find(new_workspace, M.basepath_conda_venv) then
+    python_path = path.join(find_root_dir_fn({ "pyvenv.cfg" })(workspace), "bin", "python")
+  elseif string.find(workspace, M.basepath_conda_venv) then
     -- In case of jump to definition inside dependency with conda venv:
-    python_path = path.join(find_root_dir_fn({ "conda-meta" })(new_workspace), "bin", "python")
+    python_path = path.join(find_root_dir_fn({ "conda-meta" })(workspace), "bin", "python")
   else
-    python_path = M.get_python_path(new_workspace)
+    python_path = get_python_path(workspace)
   end
 
   return python_path
+end
+
+M.create_installer = function(python_executable, packages)
+  return installers.pipe({
+    -- check healthy
+    std.ensure_executables({
+      { python_executable, ("%s was not found in path"):format(python_executable) },
+    }),
+
+    --@type ServerInstallerFunction
+    function(_, callback, context)
+      local pkgs = Data.list_copy(packages or {})
+
+      local c = process.chain({
+        cwd = context.install_dir,
+        stdio_sink = context.stdio_sink,
+      })
+
+      if context.requested_server_version then
+        -- The "head" package is the recipient for the requested version. It's.. by design... don't ask.
+        pkgs[1] = ("%s==%s"):format(pkgs[1], context.requested_server_version)
+      end
+
+      c.run(python_executable, vim.list_extend({ "-m", "pip", "install", "-U" }, pkgs))
+      -- c.run(python_executable, {"--version"})
+      c.spawn(callback)
+    end,
+  })
 end
 
 return M

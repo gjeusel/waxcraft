@@ -1,5 +1,7 @@
 local python_utils = require("wax.lsp.python-utils")
-local pyls_config = require("lspinstall/util").extract_config("pylsp")
+
+local servers = require("nvim-lsp-installer.servers")
+local server = require("nvim-lsp-installer.server")
 
 local flake8_ignore = {
   "W503", -- W503: line break before binary operator
@@ -21,8 +23,8 @@ local flake8_ignore = {
   "W293", -- W293: blank line contains whitespace
 }
 
-local to_install = {
-  "'python-lsp-server[rope]'", -- lsp
+local pip_pkgs = {
+  "python-lsp-server[rope]", -- lsp
   "pyls-flake8", -- plugin for flake8
   -- 'flake8==3.9.2', 'flake8-bugbear==21.4.3', 'flake8-builtins==1.5.3',
   "pylsp-mypy-rnx", -- plugin for mypy | do not use 'mypy-ls' the official
@@ -37,31 +39,30 @@ local log_file = vim.env.HOME .. "/.cache/nvim/pylsp.log"
 local log_level = "-v" -- number of v is the level
 -- local log_level = "-vvv" -- number of v is the level
 
-local function set_lspinstall_pylsp(python_path)
-  log.info(string.format("LSP python (pylsp) - using path '%s'", python_path))
-  local install_script = python_path .. " -m pip install -U"
-  local uninstall_script = python_path .. " -m pip uninstall --yes"
-  for _, dep in ipairs(to_install) do
-    install_script = install_script .. " " .. dep
-    uninstall_script = uninstall_script .. " " .. dep
-  end
+local function register_pylsp_custom(python_path, project)
+  project = project or "default"
+
+  local msg = "LSP python (pylsp) - '%s' using path %s"
+  log.info(msg:format(project, python_path))
 
   -- default python_path is the one deduced from CWD at vim startup
   local cmd = { python_path, "-m", "pylsp", "--log-file", log_file, log_level }
 
-  -- Make sure to use 'lspinstall/servers' in requires as its changes the behavior.
-  -- If "lspinstall.servers" was used, the variable 'servers' in the module won't be updated.
-  -- TODO: investigate why the fuck ?
-  require("lspinstall/servers")["pylsp"] = vim.tbl_deep_extend("force", pyls_config, {
-    default_config = { cmd = cmd },
-    filetypes = { "python", "pyrex" },
-    install_script = install_script,
-    uninstall_script = uninstall_script,
+  local pylsp_server = server.Server:new({
+    name = "pylsp",
+    root_dir = server.get_server_root_path("pylsp-" .. project),
+    installer = python_utils.create_installer(python_path, pip_pkgs),
+    default_options = { cmd = cmd },
   })
+  servers.register(pylsp_server)
 end
 
--- init lspinstall with CWD at first
-set_lspinstall_pylsp(python_utils.get_python_path(find_root_dir(".")))
+-- init nvim-lsp-installer with CWD at first
+local initial_workspace = find_root_dir(".")
+register_pylsp_custom(
+  python_utils.get_python_path(initial_workspace),
+  python_utils.workspace_to_project(initial_workspace)
+)
 
 return {
   -- if python format by efm, disable formatting capabilities for pylsp
@@ -110,28 +111,25 @@ return {
     },
   },
   on_new_config = function(config, new_workspace)
-    local python_path = M.on_new_workspace_python_path(new_workspace)
+    local python_path = python_utils.get_python_path(new_workspace)
+
+    local msg = "LSP python (pylsp) - '%s' using path %s"
+    log.info(msg:format(python_utils.workspace_to_project(new_workspace), python_path))
 
     if python_path == "python" then
-      log.info(
-        string.format(
-          "LSP python - keeping previous python path '%s' for new_root_dir '%s'",
-          config.cmd[1],
-          new_workspace
-        )
-      )
+      msg = "LSP python - keeping previous python path '%s' for new_root_dir '%s'"
+      log.info(msg:format(config.cmd[1], new_workspace))
       return config
     end
 
-    log.info(
-      string.format(
-        "LSP python (pylsp) - new path '%s' for new_root_dir '%s'",
-        python_path,
-        new_workspace
-      )
-    )
-    set_lspinstall_pylsp(python_path)
-    config.cmd = { python_path, "-m", "pylsp", "--log-file", log_file, log_level }
+    msg = "LSP python (pylsp) - new path '%s' for new_root_dir '%s'"
+    log.info(msg:format(python_path, new_workspace))
+
+    -- Update nvim-lsp-installer pylsp server by re-creating it
+    local project = python_utils.workspace_to_project(new_workspace)
+    register_pylsp_custom(python_path, project)
+    local cmd = { python_path, "-m", "pylsp", "--log-file", log_file, log_level }
+    config.cmd = cmd
     return config
   end,
 }

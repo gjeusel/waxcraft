@@ -11,10 +11,12 @@
 -- - mvllow: https://github.com/mvllow/nvim/                                                        ( frontend lsp master -> keep an eye for volar vue3 setup )
 
 require("wax.utils")
+
 if is_module_available("impatient") then
   require("impatient") -- optim lua
   -- require'impatient'.enable_profile()
 end
+
 require("wax.plugins")
 
 require("wax.settings")
