@@ -154,6 +154,13 @@ def neovim():
         from_dir=wax_dotfile_dir,
         to_dir=Path.home())
 
+    stylua = "./config/nvim/lua/wax/.stylua.toml"
+    create_symlinks_robust(
+        relative_paths=stylua,
+        from_dir=wax_dotfile_dir,
+        to_dir=Path.home
+    )
+
 
 def alacritty():
     """install Alacritty."""
