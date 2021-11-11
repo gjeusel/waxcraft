@@ -5,3 +5,5 @@ alias dpp __import__("devtools").debug(%1)
 alias sqlfmt print(__import__("sqlparse").format(%1, reindent=True, keyword_case="upper"))
 
 alias t type(%1)
+
+alias osexit __import__("os")._exit(0)

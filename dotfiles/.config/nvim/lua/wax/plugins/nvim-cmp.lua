@@ -75,10 +75,10 @@ cmp.setup({
   sources = {
     { name = "luasnip" },
     { name = "nvim_lua" },
-    { name = "nvim_lsp", priority = 10 },
+    { name = "nvim_lsp", priority = 100 },
     { -- buffer
       name = "buffer",
-      keyword_length = 5,
+      keyword_length = 3,
       max_item_count = 5,
       opts = {
         get_bufnrs = function()

@@ -32,6 +32,12 @@ augroup generic
 augroup end
 
 
+" Infra:
+augroup infra
+  au FileType terraform setlocal foldmethod=expr foldexpr=nvim_treesitter#foldexpr()
+augroup end
+
+
 " EdgeDB
 augroup edgeql
   au BufNewFile,BufRead *.edgeql setf edgeql

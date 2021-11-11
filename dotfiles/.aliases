@@ -8,6 +8,12 @@ alias wax="cd $waxCraft_PATH"
 alias vim="nvim"
 alias vimdiff="nvim -d"
 
+# Brew
+alias bs="brew services"
+
+# Terraform
+alias tf="terraform"
+
 # Fancy
 alias tac=gtac
 
