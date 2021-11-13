@@ -38,7 +38,7 @@ local pip_pkgs = {
 local log_dir = vim.env.HOME .. "/.cache/nvim"
 local log_file = log_dir .. "/pylsp.log"
 
-local map_loglevel = { trace = "-vvv", debug = "-vvv", info = "-vv", warn = "-v", error = "-v" }
+local map_loglevel = { trace = "-vvv", debug = "-vv", info = "-v", warn = "-v", error = "-v" }
 local log_level = map_loglevel[waxopts.lsp.loglevel]
 
 local function register_pylsp_custom(python_path, project)
