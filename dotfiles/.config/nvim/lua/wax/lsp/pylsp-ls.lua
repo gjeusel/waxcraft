@@ -35,9 +35,11 @@ local pip_pkgs = {
   -- 'isort==5.7.0',
 }
 
-local log_file = vim.env.HOME .. "/.cache/nvim/pylsp.log"
-local log_level = "-v" -- number of v is the level
--- local log_level = "-vvv" -- number of v is the level
+local log_dir = vim.env.HOME .. "/.cache/nvim"
+local log_file = log_dir .. "/pylsp.log"
+
+local map_loglevel = { trace = "-vvv", debug = "-vvv", info = "-vv", warn = "-v", error = "-v" }
+local log_level = map_loglevel[waxopts.lsp.loglevel]
 
 local function register_pylsp_custom(python_path, project)
   project = project or "default"
@@ -89,11 +91,14 @@ return {
           cache_labels_for = { "pandas", "numpy", "pydantic", "fastapi", "flask", "sqlalchemy" },
         },
         pylsp_mypy_rnx = {
+          log = { file = log_dir .. "/pylsp-mypy-rnx.log", level = "DEBUG" },
           enabled = true,
           live_mode = false,
           dmypy = true,
-          -- dmypy = true, -- prevent having live update (only on save), but is faster
-          -- args = { "--sqlite-cache", "--ignore-missing-imports" },
+          daemon_args = {
+            start = { "--log-file", log_dir .. "/dmypy.log" },
+            check = { "--perf-stats-file", log_dir .. "/dmypy-check-perfs.json" },
+          },
           args = {
             "--sqlite-cache", -- Use an SQLite database to store the cache.
             "--cache-fine-grained", -- Include fine-grained dependency information in the cache for the mypy daemon.

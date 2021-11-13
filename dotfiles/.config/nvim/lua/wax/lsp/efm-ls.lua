@@ -62,17 +62,6 @@ local languages = {
 
 local log_file = vim.env.HOME .. "/.cache/nvim/efm.log"
 
--- local root_dir = server.get_server_root_path("efm")
--- local efm_server = server.Server:new({
---   name = "efm",
---   root_dir = root_dir,
---   installer = go.packages({ "github.com/mattn/efm-langserver" }),
---   default_options = {
---     cmd = { go.executable(root_dir, "efm-langserver"), "-logfile", log_file, "-loglevel" },
---   },
--- })
--- servers.register(efm_server)
-
 local map_loglevel = { trace = "5", debug = "4", info = "3", warn = "2", error = "1" }
 
 return {
@@ -90,15 +79,6 @@ return {
     "-loglevel",
     map_loglevel[waxopts.lsp.loglevel],
   },
-  -- cmd = {
-  --   os.getenv("HOME") .. "/go/bin/efm-langserver",
-  --   "-logfile",
-  --   log_file,
-  --   "-loglevel",
-  --   "0",
-  --   --   "-c",
-  --   --   os.getenv("HOME") .. "/.config/efm-langserver/config.yaml",
-  -- },
   filetypes = vim.tbl_keys(languages),
   init_options = {
     documentFormatting = true,
