@@ -117,7 +117,7 @@ return {
       css = { global_prettier },
     }
 
-    if not Path:new("./node-modules/.bin/prettier"):exists() then
+    if not Path:new(new_workspace):append("./node-modules/.bin/prettier"):exists() then
       local msg = "LSP efm - using global node binaries for workspace '%s'"
       log.debug(msg:format(new_workspace))
       config.settings.languages = vim.tbl_deep_extend(

@@ -122,7 +122,7 @@ return {
     log.info(msg:format(python_utils.workspace_to_project(new_workspace), python_path))
 
     if python_path == "python" then
-      msg = "LSP python - keeping previous python path '%s' for new_root_dir '%s'"
+      msg = "LSP python (pylsp) - keeping previous python path '%s' for new_root_dir '%s'"
       log.info(msg:format(config.cmd[1], new_workspace))
       return config
     end

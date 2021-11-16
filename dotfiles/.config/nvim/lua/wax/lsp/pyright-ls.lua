@@ -1,5 +1,3 @@
-require("lspinstall/servers")["pyright"] = require("lspinstall/servers")["python"] -- pyright is named 'python' in lspinstall
-
 local python_utils = require("wax.lsp.python-utils")
 
 -- pyright_resolved_capabilities = {
@@ -69,10 +67,10 @@ return {
   on_attach = function(client, _)
     -- disable capabilities that are better handled by pylsp
     client.resolved_capabilities.rename = false -- rope is ok
-    client.resolved_capabilities.hover = false  -- pylsp includes also docstrings
-    client.resolved_capabilities.signature_help = false  -- pyright typing of signature is weird
+    client.resolved_capabilities.hover = false -- pylsp includes also docstrings
+    client.resolved_capabilities.signature_help = false -- pyright typing of signature is weird
     client.resolved_capabilities.goto_definition = false -- pyright does not follow imports correctly
-    client.resolved_capabilities.completion = false  -- pyright does not add parameters in signature
+    client.resolved_capabilities.completion = false -- pyright does not add parameters in signature
   end,
   settings = {
     python = {
@@ -88,26 +86,19 @@ return {
     },
   },
   on_new_config = function(config, new_workspace)
-    local python_path = python_utils.on_new_workspace_python_path(new_workspace)
+    local python_path = python_utils.get_python_path(new_workspace)
+
+    local msg = "LSP python (pyright) - '%s' using path %s"
+    log.info(msg:format(python_utils.workspace_to_project(new_workspace), python_path))
 
     if python_path == "python" then
-      log.info(
-        string.format(
-          "LSP python - keeping previous python path '%s' for new_root_dir '%s'",
-          config.pythonPath,
-          new_workspace
-        )
-      )
+      msg = "LSP python (pyright) - keeping previous python path '%s' for new_root_dir '%s'"
+      log.info(msg:format(config.cmd[1], new_workspace))
       return config
     end
 
-    log.info(
-      string.format(
-        "LSP python (pyright) - new path '%s' for new_root_dir '%s'",
-        python_path,
-        new_workspace
-      )
-    )
+    msg = "LSP python (pyright) - new path '%s' for new_root_dir '%s'"
+    log.info(msg:format(python_path, new_workspace))
     config.pythonPath = python_path
     return config
   end,
