@@ -32,16 +32,26 @@ local control_c_close = function(fallback)
   end
 end
 
--- Using ")" completes with select and add ()
+-- Using ")" completes with select and add () for Method and Function
 local close_parenth_cursor_right = function(fallback)
+  local kinds = { cmp.lsp.CompletionItemKind.Method, cmp.lsp.CompletionItemKind.Function }
+
   if cmp.visible() then
-    cmp.confirm({ behavior = cmp.ConfirmBehavior.Insert, select = true }, function()
-      utils_autopairs.feed("(")
-      utils_autopairs.feed(")")
-    end)
-  else
-    fallback()
+    local entry = cmp.get_active_entry()
+    local item = entry:get_completion_item()
+    if utils_autopairs.is_in_table(kinds, item.kind) then
+      cmp.confirm({ behavior = cmp.ConfirmBehavior.Insert, select = true }, function()
+        utils_autopairs.feed("(")
+        utils_autopairs.feed(")")
+      end)
+    else
+      cmp.close()
+      fallback()
+    end
+    return
   end
+
+  fallback()
 end
 
 cmp.setup({
@@ -92,7 +102,7 @@ cmp.setup({
     -- { name = "treesitter" },
   },
   sorting = {
-    priority_weight = 1,
+    priority_weight = 1.1,
     comparators = {
       compare.offset,
       compare.exact,
