@@ -3,7 +3,7 @@ local s = ls.snippet
 local t = ls.text_node
 local i = ls.insert_node
 
-local types = require("luasnip.util.types")
+-- local types = require("luasnip.util.types")
 -- local conds = require("luasnip.extras.conditions")
 
 -- Every unspecified option will be set to the default.
@@ -49,3 +49,8 @@ ls.snippets = {
 }
 
 ls.filetype_extend("vue", { "typescript" })
+
+vim.cmd [[
+  inoremap <silent> <c-j> <cmd>lua require('luasnip').jump(1)<CR>
+  inoremap <silent> <c-k> <cmd>lua require('luasnip').jump(-1)<CR>
+]]

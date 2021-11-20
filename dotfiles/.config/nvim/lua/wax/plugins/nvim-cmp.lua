@@ -2,15 +2,10 @@ local cmp = require("cmp")
 local compare = require("cmp.config.compare")
 local lspkind = require("lspkind")
 
+local utils_autopairs = require("nvim-autopairs.utils")
+
 local t = function(str)
   return vim.api.nvim_replace_termcodes(str, true, true, true)
-end
-
-local check_back_space = function()
-  local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-  return col == 0 or vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]
-    :sub(col, col)
-    :match("%s") ~= nil
 end
 
 local cycle_forward = function(fallback)
@@ -29,19 +24,21 @@ local cycle_backward = function(fallback)
   end
 end
 
--- local expand_snippet = function(fallback)
---   if cmp.visible() then
---     vim.fn.feedkeys(t("<C-n>"), "n")
---   elseif check_back_space() then
---     vim.fn.feedkeys(t("<cr>"), "n")
---   else
---     fallback()
---   end
--- end
-
 local control_c_close = function(fallback)
   if cmp.visible() then
     vim.fn.feedkeys(t("<Esc>"))
+  else
+    fallback()
+  end
+end
+
+-- Using ")" completes with select and add ()
+local close_parenth_cursor_right = function(fallback)
+  if cmp.visible() then
+    cmp.confirm({ behavior = cmp.ConfirmBehavior.Insert, select = true }, function()
+      utils_autopairs.feed("(")
+      utils_autopairs.feed(")")
+    end)
   else
     fallback()
   end
@@ -62,6 +59,7 @@ cmp.setup({
     ["<C-n>"] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Inserts }),
     ["<C-p>"] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Inserts }),
     ["<C-y>"] = cmp.mapping.confirm({ select = true }),
+    [")"] = cmp.mapping(close_parenth_cursor_right, { "i", "s" }),
     ["<CR>"] = cmp.mapping.confirm({
       behavior = cmp.ConfirmBehavior.Replace,
       select = true,

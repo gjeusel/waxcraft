@@ -264,7 +264,6 @@ return require("packer").startup({
     })
     use({ -- nvim-cmp
       "hrsh7th/nvim-cmp",
-      -- commit = "a63a1a23e9a7e62b21a5c151c771ed6ca21a0990",
       requires = {
         "onsails/lspkind-nvim",
         "hrsh7th/cmp-buffer",
