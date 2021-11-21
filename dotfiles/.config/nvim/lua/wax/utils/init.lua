@@ -1,3 +1,5 @@
+-- ________ waxopts handle ________
+
 waxopts = {
   loglevel = "info",
   python3 = "python3",
@@ -23,12 +25,21 @@ waxopts = {
     --   "tailwindcss",
     --   -- ________ backend ________
     --   "pylsp",
+    -- { name = "pyright", on_projects = { "projectname" } },
     --   -- ________ infra ________
     --   "terraformls",
     --   "dockerls",
     -- },
   },
 }
+
+local function _to_lsp_server_opts(opts)
+  if type(opts) == "string" then
+    return { name = opts, on_projects = nil }
+  else
+    return opts
+  end
+end
 
 local function load_local_config(config_path)
   if vim.fn.filereadable(config_path) == 0 then
@@ -43,7 +54,21 @@ local function load_local_config(config_path)
   end
 end
 
+local function sanitize_config()
+  -- Ensure type of waxopts.lsp._servers being { [name] = {name = string, on_projects = nil | array } }
+  waxopts.lsp._servers = {}
+  for _, server_opts in pairs(waxopts.lsp.servers) do
+    local opts = _to_lsp_server_opts(server_opts)
+    waxopts.lsp._servers[opts.name] = opts
+  end
+end
+
 load_local_config(vim.env.HOME .. "/.config/nvim/config.lua")
+
+sanitize_config()
+
+
+-- ________ global utilities ________
 
 require("wax.utils.os")
 require("wax.utils.remaps")
@@ -58,31 +83,3 @@ else
   local mockfn = function(_) end
   log = setmetatable({}, { __index = mockfn })
 end
-
--- lsp_symbol_map = {
---   Text = "",
---   Method = "",
---   Function = "",
---   Constructor = "",
---   Field = "ﰠ",
---   Variable = "[]",
---   Class = "",
---   Interface = "",
---   Module = "",
---   Property = "襁",
---   Unit = "塞",
---   Value = "",
---   Enum = "練",
---   Keyword = "",
---   Snippet = "",
---   Color = "",
---   File = "",
---   Reference = "",
---   Folder = "",
---   EnumMember = "",
---   Constant = "",
---   Struct = "פּ",
---   Event = "",
---   Operator = "",
---   TypeParameter = "",
--- }

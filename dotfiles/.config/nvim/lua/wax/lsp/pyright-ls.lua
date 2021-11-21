@@ -86,10 +86,18 @@ return {
     },
   },
   on_new_config = function(config, new_workspace)
+    local project = python_utils.workspace_to_project(new_workspace)
+    local pyright_opts = waxopts.lsp._servers["pyright"]
+    if pyright_opts and not vim.tbl_contains(pyright_opts.on_projects, project) then
+      config.settings = {}
+      log.warn("LSP python (pyright) - disabling for project", project)
+      return config
+    end
+
     local python_path = python_utils.get_python_path(new_workspace)
 
     local msg = "LSP python (pyright) - '%s' using path %s"
-    log.info(msg:format(python_utils.workspace_to_project(new_workspace), python_path))
+    log.info(msg:format(project, python_path))
 
     if python_path == "python" then
       msg = "LSP python (pyright) - keeping previous python path '%s' for new_root_dir '%s'"

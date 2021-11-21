@@ -184,7 +184,7 @@ local function setup_servers()
   local base_settings = { on_attach = on_attach, capabilities = lsp_status.capabilities }
 
   local map_server_settings = {}
-  for _, server_name in pairs(waxopts.lsp.servers) do
+  for server_name, _ in pairs(waxopts.lsp._servers) do
     -- Re-construct full settings
     local custom_settings = get_custom_settings_for_server(server_name)
     local settings = vim.tbl_extend("keep", custom_settings, base_settings)

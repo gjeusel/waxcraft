@@ -38,12 +38,14 @@ local close_parenth_cursor_right = function(fallback)
 
   if cmp.visible() then
     local entry = cmp.get_active_entry()
-    local item = entry:get_completion_item()
-    if utils_autopairs.is_in_table(kinds, item.kind) then
-      cmp.confirm({ behavior = cmp.ConfirmBehavior.Insert, select = true }, function()
-        utils_autopairs.feed("(")
-        utils_autopairs.feed(")")
-      end)
+    if entry then
+      local item = entry:get_completion_item()
+      if utils_autopairs.is_in_table(kinds, item.kind) then
+        cmp.confirm({ behavior = cmp.ConfirmBehavior.Insert, select = true }, function()
+          utils_autopairs.feed("(")
+          utils_autopairs.feed(")")
+        end)
+      end
     else
       cmp.close()
       fallback()
