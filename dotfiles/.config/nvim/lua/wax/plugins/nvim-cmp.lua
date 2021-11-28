@@ -90,7 +90,7 @@ cmp.setup({
       name = "buffer",
       keyword_length = 3,
       max_item_count = 5,
-      opts = {
+      options = {
         get_bufnrs = function()
           local bufs = {}
           for _, win in ipairs(vim.api.nvim_list_wins()) do

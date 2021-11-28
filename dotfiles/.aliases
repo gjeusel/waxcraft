@@ -269,3 +269,7 @@ function generate_fernet_key() {
   # https://stackoverflow.com/questions/44432945/generating-own-key-with-python-fernet
   dd if=/dev/urandom bs=32 count=1 2>/dev/null | openssl base64
 }
+
+function realpath() {
+  [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
+}
