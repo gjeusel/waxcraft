@@ -45,6 +45,9 @@ local close_parenth_cursor_right = function(fallback)
           utils_autopairs.feed("(")
           utils_autopairs.feed(")")
         end)
+      else
+        cmp.close()
+        fallback()
       end
     else
       cmp.close()
