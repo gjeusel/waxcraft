@@ -51,6 +51,13 @@ hi! link CmpItemKind GruvboxFg4
 hi! link CmpItemMenu GruvboxBg4
 hi! CmpItemAbbrDeprecated cterm=strikethrough
 
+" LightSpeed
+hi! link LightspeedShortcut GruvboxRedSign
+hi! link LightspeedShortcutOverlapped GruvboxRedSign
+hi! link LightspeedOneCharMatch GruvboxRedSign
+hi! link LightspeedPendingOpArea GruvboxRedSign
+hi! link LightspeedLabel GruvboxRedSign
+
 "" LSP colors
 "highlight LspReferenceRead cterm=bold ctermbg=red guibg=#464646
 "highlight LspReferenceText cterm=bold ctermbg=red guibg=#464646

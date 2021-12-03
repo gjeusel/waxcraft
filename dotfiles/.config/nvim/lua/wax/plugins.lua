@@ -59,8 +59,12 @@ return require("packer").startup({
     use("michaeljsmith/vim-indent-object") -- text object based on indentation levels.
     -- use 'psliwka/vim-smoothie'                     -- smoother scroll
 
-    use("justinmk/vim-sneak") -- minimalist motion with 2 keys
-    -- use("ggandor/lightspeed.nvim") -- better vim-sneak ?
+    use({ -- the next vim-sneak
+      "ggandor/lightspeed.nvim",
+      config = function()
+        require("wax.plugins.lightspeed")
+      end,
+    })
     use("junegunn/vim-easy-align") -- easy alignment, better than tabularize
     use({ "vim-scripts/loremipsum", cmd = "Loremipsum" }) -- dummy text generator (:Loremipsum [number of words])
 
@@ -243,7 +247,7 @@ return require("packer").startup({
     })
 
     --------- LSP ---------
-    use({
+    use({ -- lspconfig
       "neovim/nvim-lspconfig",
       requires = {
         "nvim-lua/lsp-status.nvim",
@@ -256,7 +260,6 @@ return require("packer").startup({
           end,
         },
         "ray-x/lsp_signature.nvim", -- a bit buggy
-        lock = true,
       },
       config = function()
         require("wax.lsp")
