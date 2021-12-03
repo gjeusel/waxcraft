@@ -1,4 +1,4 @@
-vim.cmd("syntax on")
+-- vim.cmd("syntax on")
 
 -- vim.o.termguicolors = true
 vim.o.colorcolumn = "100" -- Show vertical bar at column 100
@@ -39,10 +39,10 @@ highlight Folded cterm=bold ctermbg=none
 hi! link Folded GruvboxFg3
 
 " Lsp
-hi! link LspDiagnosticsDefaultError GruvboxRed
-hi! link LspDiagnosticsDefaultWarning GruvboxYellow
-hi! link LspDiagnosticsDefaultInformation GruvboxFg3
-hi! link LspDiagnosticsDefaultHint GruvboxBlue
+hi! link DiagnosticError GruvboxRed
+hi! link DiagnosticWarn GruvboxYellow
+hi! link DiagnosticInfo GruvboxFg3
+hi! link DiagnosticHint GruvboxBlue
 
 " nvim-cmp
 hi! link CmpItemAbbrMatch GruvboxFg3
