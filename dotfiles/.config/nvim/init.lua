@@ -12,11 +12,6 @@
 
 require("wax.utils")
 
-if is_module_available("impatient") then
-  require("impatient") -- optim lua
-  -- require'impatient'.enable_profile()
-end
-
 require("wax.plugins")
 
 require("wax.settings")
