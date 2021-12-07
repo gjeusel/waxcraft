@@ -28,10 +28,16 @@ ls.config.set_config({
 ls.snippets = {
   all = {},
   python = {
+    -- libraries often used
     s("ipandas", { t("import pandas as pd") }),
     s("inumpy", { t("import numpy as np") }),
-    s("iannot", { t("from __future__ import annotations") }),
     s("ipath", { t("from pathlib import Path") }),
+    -- annotations
+    s("iannot", { t("from __future__ import annotations") }),
+    s("itype", { t("from typing import TYPE_CHECKING, Any, Optional") }),
+    s("iany", { t("from typing import Any") }),
+    s("iopt", { t("from typing import Optional") }),
+    -- debugger
     s("iforkedpdb", { t('__import__("dagster").utils.forked_pdb.ForkedPdb().set_trace()') }),
   },
   typescript = {
@@ -51,7 +57,8 @@ ls.snippets = {
 
 ls.filetype_extend("vue", { "typescript" })
 
-vim.cmd [[
+vim.cmd([[
   inoremap <silent> <c-j> <cmd>lua require('luasnip').jump(1)<CR>
   inoremap <silent> <c-k> <cmd>lua require('luasnip').jump(-1)<CR>
-]]
+
+]])

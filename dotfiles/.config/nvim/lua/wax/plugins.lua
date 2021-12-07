@@ -59,12 +59,12 @@ return require("packer").startup({
     use("michaeljsmith/vim-indent-object") -- text object based on indentation levels.
     -- use 'psliwka/vim-smoothie'                     -- smoother scroll
 
-    use({ -- the next vim-sneak
-      "ggandor/lightspeed.nvim",
-      config = function()
-        require("wax.plugins.lightspeed")
-      end,
-    })
+    -- use({ -- the next vim-sneak
+    --   "ggandor/lightspeed.nvim",
+    --   config = function()
+    --     require("wax.plugins.lightspeed")
+    --   end,
+    -- })
     use("junegunn/vim-easy-align") -- easy alignment, better than tabularize
     use({ "vim-scripts/loremipsum", cmd = "Loremipsum" }) -- dummy text generator (:Loremipsum [number of words])
 

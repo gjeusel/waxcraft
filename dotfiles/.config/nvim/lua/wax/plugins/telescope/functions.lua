@@ -22,11 +22,13 @@ M.entirely_fuzzy_grep_string = function(opts)
 end
 
 -- Custom find file (defaulting to git files if is git)
-M.fallback_grep_file = function(opts)
+M.wax_find_file = function(opts)
   opts = opts or {}
 
   local default_opts = {
+    -- require("telescope.themes").get_ivy(),
     hidden = true,
+    cwd = find_root_dir(vim.fn.getcwd()),
     attach_mappings = function(_)
       actions.center:replace(function(_)
         vim.wo.foldmethod = vim.wo.foldmethod or "expr"
@@ -39,16 +41,19 @@ M.fallback_grep_file = function(opts)
     end,
   }
 
-  if is_git(opts.cwd) then
-    builtin.git_files(vim.tbl_extend(
-      "keep",
-      -- require("telescope.themes").get_ivy(),
-      default_opts,
-      { prompt_title = "~ git files ~" },
-      opts
-    ))
+  local git = opts.git_files
+  if git == nil then
+    git = true
+  end
+
+  if git and is_git(opts.cwd) then
+    local git_opts = { prompt_title = "~ git files ~" }
+    local all_opts = vim.tbl_extend("keep", default_opts, git_opts, opts)
+    builtin.git_files(all_opts)
   else
-    builtin.find_files(vim.tbl_extend("keep", default_opts, { prompt_title = "~ files ~" }, opts))
+    local nogit_opts = { prompt_title = "~ files ~", no_ignore = true }
+    local all_opts = vim.tbl_extend("keep", default_opts, nogit_opts, opts)
+    builtin.find_files(all_opts)
   end
 end
 
@@ -136,7 +141,7 @@ local project_two_step = function(prompt_title, fn_second_step)
 end
 
 M.projects_grep_files = function()
-  return project_two_step("~ projects files ~", M.fallback_grep_file)
+  return project_two_step("~ projects files ~", M.wax_find_file)
 end
 
 M.projects_grep_string = function()

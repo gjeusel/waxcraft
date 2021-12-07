@@ -22,7 +22,7 @@ require("telescope").setup({
     prompt_prefix = "❯ ",
     selection_caret = "❯ ",
     vimgrep_arguments = constants.grep_cmds["rg"], -- Using ripgrep
-    color_devicons = true,
+    color_devicons = false,
     -- layout_strategy = "flexwax",
     sorting_strategy = "descending",
     layout_strategy = "horizontal",
@@ -52,14 +52,22 @@ require("telescope").setup({
       },
     },
     file_ignore_patterns = {
-      "node_modules/.*",
-      "dist/.*",
-      "__pycache__/.*",
-      "package-lock.json",
+      -- Should be LUA pattern matching:
+      -- https://riptutorial.com/lua/example/20315/lua-pattern-matching
+      -- '%' is the escape char in lua
+      -- global
+      ".git/",
+      -- python
+      "%.egg%-info/",
+      "__pycache__/",
       "%.ipynb",
-      ".git/.*",
-      "static/appbuilder/.*",
-      "%.min.js",
+      "%.mypy_cache/",
+      "%.pytest_cache/",
+      -- frontend
+      "node_modules/",
+      "dist/",
+      "static/appbuilder/",
+      "%.min%.js",
     },
   },
   extensions = {
@@ -81,8 +89,8 @@ local basemap = "<cmd>lua require('wax.plugins.telescope')"
 nnoremap("<leader>A", basemap .. ".entirely_fuzzy_grep_string()<cr>")
 
 -- Telescope file
-nnoremap("<leader>p", basemap .. ".fallback_grep_file()<cr>")
-nnoremap("<leader>P", basemap .. ".find_files({prompt_title='~ files ~', hidden=true})<cr>")
+nnoremap("<leader>p", basemap .. ".wax_find_file()<cr>")
+nnoremap("<leader>P", basemap .. ".wax_find_file({git_files=false})<cr>")
 
 -- Telescope project then file on ~/src
 nnoremap("<leader>q", basemap .. ".projects_grep_files()<cr>")
