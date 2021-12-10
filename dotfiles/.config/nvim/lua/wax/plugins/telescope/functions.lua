@@ -28,7 +28,6 @@ M.wax_find_file = function(opts)
   local default_opts = {
     -- require("telescope.themes").get_ivy(),
     hidden = true,
-    cwd = find_root_dir(vim.fn.getcwd()),
     attach_mappings = function(_)
       actions.center:replace(function(_)
         vim.wo.foldmethod = vim.wo.foldmethod or "expr"
@@ -51,7 +50,11 @@ M.wax_find_file = function(opts)
     local all_opts = vim.tbl_extend("keep", default_opts, git_opts, opts)
     builtin.git_files(all_opts)
   else
-    local nogit_opts = { prompt_title = "~ files ~", no_ignore = true }
+    local nogit_opts = {
+      prompt_title = "~ files ~",
+      no_ignore = true,
+      cwd = find_root_dir(vim.fn.getcwd()),
+    }
     local all_opts = vim.tbl_extend("keep", default_opts, nogit_opts, opts)
     builtin.find_files(all_opts)
   end

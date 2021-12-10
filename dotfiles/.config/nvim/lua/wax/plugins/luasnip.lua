@@ -38,6 +38,7 @@ ls.snippets = {
     s("iany", { t("from typing import Any") }),
     s("iopt", { t("from typing import Optional") }),
     -- debugger
+    -- s("iforkedpdb", { t('__import__("venturi").utils.forked_pdb.ForkedPdb().set_trace()') }),
     s("iforkedpdb", { t('__import__("dagster").utils.forked_pdb.ForkedPdb().set_trace()') }),
   },
   typescript = {
