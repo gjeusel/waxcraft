@@ -1,54 +1,45 @@
 import pdb
-from pathlib import Path
 
-
-def enter_shell():
-    try:
-        from ptpython.repl import embed, run_config
-    except ImportError:
-        pass
-    else:
-        confdir = Path.home() / ".ptpython"
-
-        # Apply config file
-        def configure(repl):
-            path = confdir / "config.py"
-            if path.exists():
-                run_config(repl, path.as_posix())
-
-        history_path = confdir / "pdb_history"
-        new = embed(
-            history_filename=history_path,
-            configure=configure,
-            locals=locals(),
-            globals=globals(),
-            title="Python REPL (ptpython)",
-        )
+try:
+    from pygments import token
+    from pygments.formatters import terminal
+except ImportError:
+    HAS_PYGMENTS = False
+else:
+    HAS_PYGMENTS = True
 
 
 class Config(pdb.DefaultConfig):
     highlight = True
-    filename_color = pdb.Color.lightgray
+    filename_color = pdb.Color.blue
     use_terminal256formatter = False
     current_line_color = 10
+    prompt = "pdb> "
 
     def __init__(self):
-        # readline.parse_and_bind('set convert-meta on')
-        # readline.parse_and_bind('Meta-/: complete')
+        # readline.parse_and_bind("set convert-meta on")
+        # readline.parse_and_bind("Meta-/: complete")
+        # bindkey '^[[1;5D' backward-word
+        # bindkey '^[[1;5C' forward-word
 
-        try:
-            from pygments.formatters import terminal
-        except ImportError:
-            pass
-        else:
+        if HAS_PYGMENTS:
+
             self.colorscheme = terminal.TERMINAL_COLORS.copy()
             self.colorscheme.update(
                 {
-                    terminal.Keyword: ("darkred", "red"),
-                    terminal.Number: ("darkyellow", "yellow"),
-                    terminal.String: ("brown", "green"),
-                    terminal.Name.Function: ("darkgreen", "blue"),
-                    # terminal.Name.Namespace: ('teal', 'turquoise'),
+                    terminal.Keyword: ("red", "red"),
+                    terminal.Keyword.Type: ("yellow", "yellow"),
+                    #
+                    terminal.Number: ("magenta", "magenta"),
+                    #
+                    terminal.Name.Namespace: None,
+                    terminal.Name.Decorator: ("green", "green"),
+                    terminal.Name.Class: ("yellow", "yellow"),
+                    terminal.Name.Function: ("cyan", "cyan"),
+                    terminal.Name.Builtin: ("brightblue", "brightblue"),
+                    #
+                    token.String: ("green", "green"),
+                    token.String.Doc: ("gray", "brightblack"),
                 }
             )
 
@@ -57,5 +48,3 @@ class Config(pdb.DefaultConfig):
         Pdb = pdb.__class__
         Pdb.do_l = Pdb.do_longlist
         Pdb.do_st = Pdb.do_sticky
-
-        globals()["psh"] = enter_shell
