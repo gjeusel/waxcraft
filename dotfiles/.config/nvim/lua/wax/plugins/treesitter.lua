@@ -1,5 +1,4 @@
 local ts = require("nvim-treesitter.configs")
-local parsers = require("nvim-treesitter.parsers")
 
 -- NOTE: M1 apple: https://github.com/nvim-treesitter/nvim-treesitter/issues/791
 
@@ -140,3 +139,35 @@ ts.setup({
     enable = true,
   },
 })
+
+-- Set my own queries:
+local Path = require("plenary.path")
+local scan = require("plenary.scandir")
+
+local wax_ts_queries = Path:new(vim.env.waxCraft_PATH):joinpath("dotfiles/treeshitter/queries")
+
+local function load_wax_ts_queries()
+  if not wax_ts_queries:exists() then
+    return
+  end
+
+  local qry_dirs = scan.scan_dir(wax_ts_queries:absolute(), { depth = 1, only_dirs = true })
+
+  for _, qry_dir in pairs(qry_dirs) do
+    qry_dir = Path:new(qry_dir)
+
+    local language = vim.fn.fnamemodify(qry_dir.filename, ":t")
+
+    local qry_paths = scan.scan_dir(qry_dir:absolute(), { depth = 1 })
+    for _, qry_path in pairs(qry_paths) do
+      qry_path = Path:new(qry_path)
+      local qry_type = vim.fn.fnamemodify(qry_path.filename, ":t:r")
+
+      log.debug("Overwritting TreeSitter", qry_type, "queries for", language)
+
+      pcall(vim.treesitter.query.set_query, language, qry_type, qry_path:read())
+    end
+  end
+end
+
+load_wax_ts_queries()

@@ -205,8 +205,6 @@ return require("packer").startup({
     --------- TreeSitter ---------
     use({ -- treesitter
       "nvim-treesitter/nvim-treesitter",
-      -- commit = '006aceb574e90fdc3dc911b76ecb7fef4dd0d609',
-      lock = true,
       run = ":TSUpdate",
       requires = {
         { -- play with queries
