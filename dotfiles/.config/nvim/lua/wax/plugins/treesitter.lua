@@ -34,6 +34,7 @@ ts.setup({
     "regex",
     "toml",
     "yaml",
+    "markdown",
     -- Frontend:
     "graphql",
     "html",

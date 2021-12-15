@@ -75,6 +75,7 @@ end
 
 -- TreeSitter + Gruvbox
 local apply_treesitter_frontend_theme = function()
+  -- https://github.com/nvim-treesitter/nvim-treesitter/blob/e473630fe0872cb0ed97cd7085e724aa58bc1c84/lua/nvim-treesitter/highlight.lua
   vim.api.nvim_exec(
     [[
 " TreeSitter for TypeScript and Vue
@@ -96,6 +97,8 @@ hi! link TSTypeBuiltin GruvboxYellow
 hi! link TSPunctSpecial GruvboxFg3
 hi! link TSPunctBracket GruvboxFg3
 hi! link TSPunctDelimiter white
+
+hi! link TSTitle GruvboxYellow
 ]],
     false
   )
