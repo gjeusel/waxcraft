@@ -7,3 +7,5 @@ alias sqlfmt print(__import__("sqlparse").format(str(%1), reindent=True, keyword
 alias t type(%1)
 
 alias osexit __import__("os")._exit(0)
+
+alias timeit __import__("fohn").timeit(%1)
