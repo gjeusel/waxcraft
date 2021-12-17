@@ -4,7 +4,7 @@ vim.api.nvim_exec(
 
 augroup ensureFileType
   " Make sure all markdown files have the correct filetype set
-  au BufRead,BufNewFile *.{md,md.erb,markdown,mdown,mkd,mkdn,txt} set filetype=markdown
+  au BufRead,BufNewFile *.{md,md.erb,markdown,mdown,mkd,mkdn} set filetype=markdown
 
   au BufNewFile,BufRead .flake8 set filetype=ini
 

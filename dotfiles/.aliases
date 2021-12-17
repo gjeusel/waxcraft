@@ -26,7 +26,7 @@ alias gco='git checkout'
 alias gb='git branch'
 alias gs='git status'
 alias ga='git add'
-alias glog='git log --oneline --graph --decorate --all'
+alias glog="git log --graph --no-merges --abbrev-commit --pretty='%C(dim red)%h%C(reset) - %s %C(yellow)%d%C(reset) %C(dim green)(%cr) %C(dim blue)<%aN>%C(reset)'"
 
 # ls colorized output
 alias ls='ls -G'
