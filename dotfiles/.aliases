@@ -31,11 +31,21 @@ alias glog="git log --graph --no-merges --abbrev-commit --pretty='%C(dim red)%h%
 # ls colorized output
 alias ls='ls -G'
 
-# Kubernetes
+# ------ Kubernetes -----
+kubectl () {
+  command kubectl $*
+  if [[ -z $KUBECTL_COMPLETE ]]; then
+    source <(command kubectl completion zsh)
+    compdef __start_kubectl k
+    KUBECTL_COMPLETE=1
+  fi
+}
 alias k=kubectl
+
 kdebug() {
   kubectl run -i --rm --tty debug --image=${1:-busybox} --restart=Never -- sh
 }
+
 kvdebug() {
   if [ $# -eq 0 ]; then
       echo "Run a debug pods with mounted volume in /volume"

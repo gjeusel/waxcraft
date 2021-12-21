@@ -14,9 +14,11 @@ import __main__
 
 try:
     import pytz
+
     TZ = pytz.timezone("Europe/Brussels")
 except ImportError:
     pass
+
 
 def setup_repl_logs():
     logging.basicConfig(
@@ -34,6 +36,10 @@ def setup_repl_logs():
     warning_libs = ("requests", "urllib3", "parso", "diff", "pickle", "cache")
     for lib in warning_libs:
         logging.getLogger(lib).setLevel(logging.WARNING)
+
+    # error_libs = ("pint",)
+    # for lib in error_libs:
+    #     logging.getLogger(lib).setLevel(logging.ERROR)
 
 
 setup_repl_logs()

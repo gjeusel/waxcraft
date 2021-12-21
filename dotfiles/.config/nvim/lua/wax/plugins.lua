@@ -205,7 +205,7 @@ return require("packer").startup({
     --------- TreeSitter ---------
     use({ -- treesitter
       "nvim-treesitter/nvim-treesitter",
-      run = ":TSUpdate",
+      -- run = ":TSUpdate",
       requires = {
         { -- play with queries
           "nvim-treesitter/playground",

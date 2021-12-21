@@ -25,12 +25,12 @@ return {
     documentFeatures = { documentSymbol = true },
     languageFeatures = {
       callHierarchy = true,
-      completion = {
-        defaultAttrNameCase = "kebabCase",
-        defaultTagNameCase = "kebabCase",
-        getDocumentNameCasesRequest = true,
-        getDocumentSelectionRequest = true,
-      },
+      -- completion = {
+      --   defaultAttrNameCase = "kebabCase",
+      --   defaultTagNameCase = "kebabCase",
+      --   getDocumentNameCasesRequest = true,
+      --   getDocumentSelectionRequest = true,
+      -- },
       definition = true,
       diagnostics = true,
       hover = true,

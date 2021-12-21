@@ -15,7 +15,7 @@ zsh-users/zsh-completions
 gantsign/zsh-plugins path:bat
 
 # Vim mode with text objects
-softmoth/zsh-vim-mode
+# softmoth/zsh-vim-mode
 
 # Syntax
 #zdharma/fast-syntax-highlighting  # not that beautiful
@@ -32,8 +32,9 @@ akarzim/zsh-docker-aliases
 ohmyzsh/ohmyzsh path:plugins/docker/_docker kind:fpath
 ohmyzsh/ohmyzsh path:plugins/docker-compose
 
-
-# NodeJS
+# NodeJS:
+#  note: even if lazy load, still slow, see:
+#        https://github.com/lukechilds/zsh-nvm/pull/76
 lukechilds/zsh-nvm
 
 # Python

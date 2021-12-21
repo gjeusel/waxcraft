@@ -16,11 +16,11 @@
   ; (try_statement)
   ; (catch_clause)
   ; (object)
+  (generator_function)
+  (generator_function_declaration)
 
   ; ----------- TypeScript Specific -----------
 
-  (generator_function)
-  (generator_function_declaration)
   (interface_declaration)
   (enum_declaration)
   (internal_module)

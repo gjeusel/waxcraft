@@ -15,6 +15,11 @@ local filetypes = {
 }
 
 return {
+  on_attach = function(client, _)
+    -- Disable symbols for tailwindcss
+    client.resolved_capabilities.document_symbol = false
+    client.resolved_capabilities.workspace_symbol = false
+  end,
   init_options = {
     userLanguages = {
       eelixir = "html-eex",
