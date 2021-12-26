@@ -4,6 +4,7 @@ source "$waxCraft_PATH/dotfiles/envvar.sh"
 source "$waxCraft_PATH/dotfiles/fzf-extras.zsh"
 
 autoload -U edit-command-line
+zle -N edit-command-line
 
 # Some options settings:
 # History

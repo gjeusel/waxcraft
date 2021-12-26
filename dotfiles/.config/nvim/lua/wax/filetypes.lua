@@ -46,10 +46,17 @@ augroup edgeql
 augroup end
 
 
+" Python
 augroup python
   au FileType python setlocal shiftwidth=4 tabstop=4 softtabstop=4 colorcolumn=100
   au FileType python setlocal foldenable foldmethod=expr foldexpr=nvim_treesitter#foldexpr()
   "au FileType python setlocal foldenable foldmethod=expr foldexpr=SimpylFold#FoldExpr(v:lnum)
+augroup end
+
+
+" rust
+augroup rust
+  au FileType rust setlocal foldenable foldmethod=expr foldexpr=nvim_treesitter#foldexpr()
 augroup end
 
 

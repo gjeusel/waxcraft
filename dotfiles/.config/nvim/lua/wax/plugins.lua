@@ -37,7 +37,10 @@ return require("packer").startup({
     use({ "wbthomason/packer.nvim", opt = true })
 
     --- Performances plugins
-    use("lewis6991/impatient.nvim") -- speed up startup TODO: remove it once merged upstream
+    use({ -- speed up startup TODO: remove it once merged upstream
+      "lewis6991/impatient.nvim",
+      commit = "282b99b817d61e6c6860addf5629b641925a937a",
+    })
     use({ -- combine all autocmds on filetype into one
       "nathom/filetype.nvim",
       config = function()
