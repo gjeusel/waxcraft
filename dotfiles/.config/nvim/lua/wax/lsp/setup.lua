@@ -2,7 +2,9 @@ local M = {}
 local lsp_installer = require("nvim-lsp-installer")
 lsp_installer.servers = require("nvim-lsp-installer.servers")
 
-local function get_custom_settings_for_server(server_name)
+---@param global_on_attach function @The generic on_attach function.
+---@return table @The lspconfig server configuration.
+local function get_custom_settings_for_server(server_name, global_on_attach)
   -- If "wax.lsp.{server}-ls.lua" exists, then load its settings
   local server_setting_module_path = "wax.lsp." .. server_name .. "-ls"
   local has_setting_module = is_module_available(server_setting_module_path)
@@ -19,7 +21,7 @@ local function get_custom_settings_for_server(server_name)
   if custom_settings.on_attach then
     local custom_on_attach = vim.deepcopy(custom_settings.on_attach)
     custom_settings.on_attach = function(client, bufnr)
-      on_attach(client, bufnr)
+      global_on_attach(client, bufnr)
       custom_on_attach(client, bufnr)
     end
   end
@@ -27,14 +29,15 @@ local function get_custom_settings_for_server(server_name)
   return custom_settings
 end
 
-function M.setup_servers(opts)
-  opts = opts or {}
+---@param global_lsp_settings table @The global lspconfig server configuration.
+function M.setup_servers(global_lsp_settings)
+  global_lsp_settings = global_lsp_settings or {}
 
   local map_server_settings = {}
   for server_name, _ in pairs(waxopts.lsp._servers) do
     -- Re-construct full settings
-    local custom_settings = get_custom_settings_for_server(server_name)
-    local settings = vim.tbl_extend("keep", custom_settings, opts)
+    local custom_settings = get_custom_settings_for_server(server_name, global_lsp_settings.on_attach)
+    local settings = vim.tbl_extend("keep", custom_settings, global_lsp_settings)
 
     -- Advertise capabilities to cmp_nvim_lsp
     if is_module_available("cmp_nvim_lsp") then
