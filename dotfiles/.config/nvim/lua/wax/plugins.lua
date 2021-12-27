@@ -144,11 +144,7 @@ return require("packer").startup({
     use({ -- gitsigns
       "lewis6991/gitsigns.nvim",
       config = function()
-        require("gitsigns").setup({
-          attach_to_untracked = false,
-          update_debounce = 500,
-          max_file_length = 1000,
-        })
+        require("wax.plugins.gitsigns")
       end,
     }) -- git sign column
 
