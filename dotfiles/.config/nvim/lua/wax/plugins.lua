@@ -39,7 +39,6 @@ return require("packer").startup({
     --- Performances plugins
     use({ -- speed up startup TODO: remove it once merged upstream
       "lewis6991/impatient.nvim",
-      commit = "282b99b817d61e6c6860addf5629b641925a937a",
     })
     use({ -- combine all autocmds on filetype into one
       "nathom/filetype.nvim",
@@ -308,7 +307,7 @@ return require("packer").startup({
   end,
   config = {
     -- Move to lua dir so impatient.nvim can cache it:
-    compile_path = vim.fn.stdpath("config") .. "/lua/packer_compiled.lua",
+    -- compile_path = vim.fn.stdpath("config") .. "/lua/packer_compiled.lua",
     auto_clean = true,
     max_jobs = 8,
     compile_on_sync = true,
