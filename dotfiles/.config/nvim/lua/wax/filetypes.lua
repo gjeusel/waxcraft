@@ -118,7 +118,7 @@ function EnableFastFeatures()
   exec 'setlocal syntax=' . &ft
 endfunction
 
-let g:large_file = 258 * 512
+let g:large_file = 512 * 1024
 
 augroup BigFileDisable
   autocmd!
