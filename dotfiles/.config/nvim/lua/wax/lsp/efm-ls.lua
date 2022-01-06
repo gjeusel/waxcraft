@@ -2,9 +2,7 @@ local root_pattern = require("lspconfig").util.root_pattern
 local node = require("wax.lsp.nodejs-utils")
 local Path = require("plenary.path")
 
--- local servers = require("nvim-lsp-installer.servers")
 local server = require("nvim-lsp-installer.server")
-local go = require("nvim-lsp-installer.installers.go")
 
 local root_markers = {
   ".git/", -- front
@@ -73,7 +71,7 @@ return {
     client.resolved_capabilities.codeAction = false
   end,
   cmd = {
-    go.executable(server.get_server_root_path("efm"), "efm-langserver"),
+    server.get_server_root_path("efm") .. "/efm-langserver",
     "-logfile",
     log_file,
     "-loglevel",

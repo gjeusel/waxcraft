@@ -1,5 +1,5 @@
 return {
-  filetypes = { "html" },
+  filetypes = { "html", "markdown" },
   settings = { documentFormatting = false },
   init_options = { provideFormatter = false },
 }

@@ -70,10 +70,10 @@ local on_attach = function(client, bufnr)
     },
   }
   _G._lsp_goto_prev = function()
-    return vim.lsp.diagnostic.goto_prev(goto_win_opts)
+    return vim.diagnostic.goto_prev(goto_win_opts)
   end
   _G._lsp_goto_next = function()
-    return vim.lsp.diagnostic.goto_next(goto_win_opts)
+    return vim.diagnostic.goto_next(goto_win_opts)
   end
   buf_set_keymap("n", "å", "<cmd>lua _lsp_goto_prev()<CR>", opts)
   buf_set_keymap("n", "ß", "<cmd>lua _lsp_goto_next()<CR>", opts)

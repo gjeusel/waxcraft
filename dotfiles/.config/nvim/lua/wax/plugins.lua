@@ -292,7 +292,7 @@ return require("packer").startup({
     --------- Language Specific ---------
     use({
       "mattn/emmet-vim",
-      ft = { "html", "vue" },
+      ft = { "html", "vue", "markdown" },
       config = function()
         vim.cmd([[
         imap <expr> <C-d> emmet#expandAbbrIntelligent('\<tab>')
