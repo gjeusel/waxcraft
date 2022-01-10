@@ -15,6 +15,7 @@ vim.o.scrolloff = 3 -- Have some context around the current line always on scree
 vim.o.virtualedit = "onemore" -- Allow for cursor beyond last character
 vim.o.hidden = true -- Allow backgrounding buffers without writin them, and remember marks/undo for backgrounded buffers
 vim.o.foldenable = true -- Open all folds while not set.
+-- vim.o.foldminlines = 4 -- Min lines before fold.
 vim.o.splitright = true -- split at the right of current buffer (left default behaviour)
 vim.o.splitbelow = true -- split at the below of current buffer (top default behaviour)
 vim.o.autochdir = true -- working directory is always the same as the file you are editing
@@ -74,7 +75,7 @@ if vim.fn.has("mksession") == 1 then
   vim.fn.mkdir(viewdir, "p")
   vim.o.viewdir = viewdir
 
-  vim.o.viewoptions = "cursor,folds,slash,unix"
+  vim.o.viewoptions = "cursor,folds,localoptions,slash,unix"
   vim.api.nvim_exec(
     [[
     autocmd FileType gitcommit setlocal viewdir=

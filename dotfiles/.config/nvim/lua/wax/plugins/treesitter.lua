@@ -5,7 +5,7 @@ local ts = require("nvim-treesitter.configs")
 ts.setup({
   highlight = {
     enable = true,
-    -- disable = { "typescript" },
+    disable = { "vim" },
     -- custom_captures = {}
     additional_vim_regex_highlighting = false, -- also activate vim syntax
     use_languagetree = true, -- enable language injection
@@ -21,7 +21,7 @@ ts.setup({
   },
   indent = {
     enable = true,
-    disable = { "yaml", "python", "lua", "vue" },
+    disable = { "yaml", "python", "lua", "vue", "vim"},
     -- disable = { "yaml", "lua" },
   },
   ensure_installed = { -- one of 'all', 'language' or a list of languages
