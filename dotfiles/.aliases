@@ -32,14 +32,21 @@ alias glog="git log --graph --no-merges --abbrev-commit --pretty='%C(dim red)%h%
 alias ls='ls -G'
 
 # ------ Kubernetes -----
-kubectl () {
-  command kubectl $*
-  if [[ -z $KUBECTL_COMPLETE ]]; then
-    source <(command kubectl completion zsh)
-    compdef __start_kubectl k
-    KUBECTL_COMPLETE=1
-  fi
-}
+if [ $commands[kubectl] ]; then
+  kubectl() {
+    unfunction "$0"
+    source <(kubectl completion zsh)
+    $0 "$@"
+  }
+fi
+# kubectl () {
+#   command kubectl $*
+#   if [[ -z $KUBECTL_COMPLETE ]]; then
+#     source <(command kubectl completion zsh)
+#     compdef __start_kubectl k
+#     KUBECTL_COMPLETE=1
+#   fi
+# }
 alias k=kubectl
 
 kdebug() {
