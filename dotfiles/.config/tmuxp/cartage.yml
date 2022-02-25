@@ -1,0 +1,15 @@
+session_name: cartage
+
+windows:
+
+  - window_name: cartage
+    focus: true
+    layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
+    shell_command_before:
+      - cd ~/src/cartage
+    panes:
+      - shell_command:
+        - neofetch
+        focus: true
+      - 
+
