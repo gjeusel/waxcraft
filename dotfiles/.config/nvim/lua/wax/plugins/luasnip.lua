@@ -1,23 +1,23 @@
 local ls = require("luasnip")
-local s = ls.snippet
-local t = ls.text_node
-local i = ls.insert_node
-
--- local types = require("luasnip.util.types")
--- local conds = require("luasnip.extras.conditions")
+local types = require("luasnip.util.types")
 
 -- Every unspecified option will be set to the default.
 ls.config.set_config({
   history = true,
   -- Update more often, :h events for more info.
   updateevents = "TextChanged,TextChangedI",
-  -- ext_opts = {
-  --   [types.choiceNode] = {
-  --     active = {
-  --       virt_text = { { "choiceNode", "Comment" } },
-  --     },
-  --   },
-  -- },
+  ext_opts = {
+    [types.choiceNode] = {
+      active = {
+        virt_text = { { "●", "GruvboxOrange" } },
+      },
+    },
+    [types.insertNode] = {
+      active = {
+        virt_text = { { "●", "GruvboxBlue" } },
+      },
+    },
+  },
   -- treesitter-hl has 100, use something higher (default is 200).
   ext_base_prio = 300,
   -- minimal increase in priority.
@@ -25,41 +25,111 @@ ls.config.set_config({
   enable_autosnippets = false,
 })
 
-ls.snippets = {
-  all = {},
-  python = {
-    -- libraries often used
-    s("ipandas", { t("import pandas as pd") }),
-    s("inumpy", { t("import numpy as np") }),
-    s("ipath", { t("from pathlib import Path") }),
-    -- annotations
-    s("iannot", { t("from __future__ import annotations") }),
-    s("itype", { t("from typing import TYPE_CHECKING, Any, Optional") }),
-    s("iany", { t("from typing import Any") }),
-    s("iopt", { t("from typing import Optional") }),
-    -- debugger
-    -- s("iforkedpdb", { t('__import__("venturi").utils.forked_pdb.ForkedPdb().set_trace()') }),
-    s("iforkedpdb", { t('__import__("dagster").utils.forked_pdb.ForkedPdb().set_trace()') }),
-  },
-  typescript = {
-    -- Console snippets
-    s("cl", { t("console.log("), i(1), t(")") }),
-    s("ct", { t("console.trace("), i(1), t(")") }),
-    s("cd", { t("console.debug("), i(1), t(")") }),
-    s("ci", { t("console.info("), i(1), t(")") }),
-    s("cw", { t("console.warn("), i(1), t(")") }),
-    s("ce", { t("console.error("), i(1), t(")") }),
-    -- Import snippets
-    s("ilodash", { t('import ld from "lodash"') }),
-    s("pprint", { t("console.log(JSON.stringify(", i(1), t(", undefined, 4)")) }),
-  },
-  vue = {},
-}
+ls.snippets = require("wax.plugins.snippets")
 
 ls.filetype_extend("vue", { "typescript" })
+ls.filetype_extend("typescript", { "typescriptreact" })
 
 vim.cmd([[
   inoremap <silent> <c-j> <cmd>lua require('luasnip').jump(1)<CR>
   inoremap <silent> <c-k> <cmd>lua require('luasnip').jump(-1)<CR>
+]])
 
+-- From Wiki: Popup window on choiceNode
+
+local WIKI = {}
+
+local current_nsid = vim.api.nvim_create_namespace("LuaSnipChoiceListSelections")
+local current_win = nil
+
+local function window_for_choiceNode(choiceNode)
+  local buf = vim.api.nvim_create_buf(false, true)
+  local buf_text = {}
+  local row_selection = 0
+  local row_offset = 0
+  local text
+  for _, node in ipairs(choiceNode.choices) do
+    text = node:get_docstring()
+    -- find one that is currently showing
+    if node == choiceNode.active_choice then
+      -- current line is starter from buffer list which is length usually
+      row_selection = #buf_text
+      -- finding how many lines total within a choice selection
+      row_offset = #text
+    end
+    vim.list_extend(buf_text, text)
+  end
+
+  vim.api.nvim_buf_set_text(buf, 0, 0, 0, 0, buf_text)
+  local w, h = vim.lsp.util._make_floating_popup_size(buf_text)
+
+  -- adding highlight so we can see which one is been selected.
+  local extmark = vim.api.nvim_buf_set_extmark(
+    buf,
+    current_nsid,
+    row_selection,
+    0,
+    { hl_group = "incsearch", end_line = row_selection + row_offset }
+  )
+
+  -- shows window at a beginning of choiceNode.
+  local win = vim.api.nvim_open_win(buf, false, {
+    relative = "win",
+    width = w,
+    height = h,
+    bufpos = choiceNode.mark:pos_begin_end(),
+    style = "minimal",
+    border = "rounded",
+  })
+
+  -- return with 3 main important so we can use them again
+  return { win_id = win, extmark = extmark, buf = buf }
+end
+
+WIKI.choice_popup = function(choiceNode)
+  -- build stack for nested choiceNodes.
+  if current_win then
+    vim.api.nvim_win_close(current_win.win_id, true)
+    vim.api.nvim_buf_del_extmark(current_win.buf, current_nsid, current_win.extmark)
+  end
+  local create_win = window_for_choiceNode(choiceNode)
+  current_win = {
+    win_id = create_win.win_id,
+    prev = current_win,
+    node = choiceNode,
+    extmark = create_win.extmark,
+    buf = create_win.buf,
+  }
+end
+
+WIKI.update_choice_popup = function(choiceNode)
+  vim.api.nvim_win_close(current_win.win_id, true)
+  vim.api.nvim_buf_del_extmark(current_win.buf, current_nsid, current_win.extmark)
+  local create_win = window_for_choiceNode(choiceNode)
+  current_win.win_id = create_win.win_id
+  current_win.extmark = create_win.extmark
+  current_win.buf = create_win.buf
+end
+
+WIKI.choice_popup_close = function()
+  vim.api.nvim_win_close(current_win.win_id, true)
+  vim.api.nvim_buf_del_extmark(current_win.buf, current_nsid, current_win.extmark)
+  -- now we are checking if we still have previous choice we were in after exit nested choice
+  current_win = current_win.prev
+  if current_win then
+    -- reopen window further down in the stack.
+    local create_win = window_for_choiceNode(current_win.node)
+    current_win.win_id = create_win.win_id
+    current_win.extmark = create_win.extmark
+    current_win.buf = create_win.buf
+  end
+end
+
+vim.cmd([[
+augroup choice_popup
+au!
+au User LuasnipChoiceNodeEnter lua require("wax.plugins.luasnip.WIKI").choice_popup(require("luasnip").session.event_node)
+au User LuasnipChoiceNodeLeave lua require("wax.plugins.luasnip.WIKI").choice_popup_close()
+au User LuasnipChangeChoice lua require("wax.plugins.luasnip.WIKI").update_choice_popup(require("luasnip").session.event_node)
+augroup END
 ]])

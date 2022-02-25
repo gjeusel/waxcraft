@@ -214,7 +214,7 @@ return require("packer").startup({
         },
         { -- comment string update on context (vue -> html + typescript)
           "JoosepAlviste/nvim-ts-context-commentstring",
-          ft = { "html", "vue" },
+          ft = { "html", "vue", "typescriptreact" },
           config = function()
             require("nvim-treesitter.configs").setup({
               context_commentstring = {
@@ -234,7 +234,7 @@ return require("packer").startup({
         { -- auto html tag
           "windwp/nvim-ts-autotag",
           branch = "main",
-          ft = { "html", "vue" },
+          ft = { "html", "vue", "typescriptreact" },
         },
       },
       config = function()
@@ -292,13 +292,20 @@ return require("packer").startup({
     --------- Language Specific ---------
     use({
       "mattn/emmet-vim",
-      ft = { "html", "vue", "markdown" },
+      ft = { "html", "vue", "markdown", "typescriptreact" },
       config = function()
         vim.cmd([[
         imap <expr> <C-d> emmet#expandAbbrIntelligent('\<tab>')
       ]])
       end,
     })
+    -- use({
+    --   "norcalli/nvim-colorizer.lua",
+    --   config = function()
+    --     -- vim.o.termguicolors = "yes"
+    --     require("colorizer").setup({ "html", "css", "javascript", "typescript", "vue" })
+    --   end,
+    -- })
     use({ "edgedb/edgedb-vim" })
   end,
   config = {

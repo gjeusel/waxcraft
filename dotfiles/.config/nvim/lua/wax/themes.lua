@@ -91,6 +91,8 @@ hi! link TSVariableBuiltin GruvboxOrange
 hi! link TSFunction GruvboxBlue
 hi! link TSMethod GruvboxBlue
 
+hi! link TSTagAttribute GruvboxFg3
+
 hi! link TSType GruvboxYellow
 hi! link TSTypeBuiltin GruvboxYellow
 

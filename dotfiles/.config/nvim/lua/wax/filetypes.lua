@@ -24,6 +24,7 @@ augroup end
 augroup generic
   au Filetype gitcommit setlocal spell textwidth=72
   au FileType git setlocal foldlevel=20  " open all unfolded
+  au FileType git setlocal syntax=on
   au Filetype vim setlocal tabstop=2 foldmethod=marker
   au FileType *.ya?ml setlocal shiftwidth=2 tabstop=2 softtabstop=2
   au FileType sh,zsh setlocal foldmethod=marker foldlevel=10
