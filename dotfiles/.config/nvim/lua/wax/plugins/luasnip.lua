@@ -30,14 +30,44 @@ ls.snippets = require("wax.plugins.snippets")
 ls.filetype_extend("vue", { "typescript" })
 ls.filetype_extend("typescript", { "typescriptreact" })
 
-vim.cmd([[
-  inoremap <silent> <c-j> <cmd>lua require('luasnip').jump(1)<CR>
-  inoremap <silent> <c-k> <cmd>lua require('luasnip').jump(-1)<CR>
-]])
+-- vim.cmd([[
+--   inoremap <silent> <c-j> <cmd>lua require('luasnip').jump(1)<CR>
+--   inoremap <silent> <c-k> <cmd>lua require('luasnip').jump(-1)<CR>
+-- ]])
 
+-- mappings for navigating nodes
+vim.keymap.set({ "i", "s" }, "<c-j>", function()
+  if ls.expand_or_jumpable() then
+    ls.expand_or_jump()
+  end
+end, {
+  silent = true,
+})
+vim.keymap.set({ "i", "s" }, "<c-k>", function()
+  if ls.jumpable(-1) then
+    ls.jump(-1)
+  end
+end, {
+  silent = true,
+})
+
+-- mappings for navigating node options
+vim.keymap.set("i", "<c-l>", function()
+  if ls.choice_active() then
+    ls.change_choice(1)
+  end
+end)
+vim.keymap.set("i", "<c-h>", function()
+  if ls.choice_active() then
+    ls.change_choice(-1)
+  end
+end)
+
+-- shorcut to source my luasnips file again, which will reload my snippets
+vim.keymap.set("n", "<leader><leader>s", "<cmd>source ~/.config/nvim/after/plugin/luasnip.lua<CR>")
 -- From Wiki: Popup window on choiceNode
 
-local WIKI = {}
+local M = {}
 
 local current_nsid = vim.api.nvim_create_namespace("LuaSnipChoiceListSelections")
 local current_win = nil
@@ -86,7 +116,7 @@ local function window_for_choiceNode(choiceNode)
   return { win_id = win, extmark = extmark, buf = buf }
 end
 
-WIKI.choice_popup = function(choiceNode)
+M.choice_popup = function(choiceNode)
   -- build stack for nested choiceNodes.
   if current_win then
     vim.api.nvim_win_close(current_win.win_id, true)
@@ -102,7 +132,7 @@ WIKI.choice_popup = function(choiceNode)
   }
 end
 
-WIKI.update_choice_popup = function(choiceNode)
+M.update_choice_popup = function(choiceNode)
   vim.api.nvim_win_close(current_win.win_id, true)
   vim.api.nvim_buf_del_extmark(current_win.buf, current_nsid, current_win.extmark)
   local create_win = window_for_choiceNode(choiceNode)
@@ -111,7 +141,7 @@ WIKI.update_choice_popup = function(choiceNode)
   current_win.buf = create_win.buf
 end
 
-WIKI.choice_popup_close = function()
+M.choice_popup_close = function()
   vim.api.nvim_win_close(current_win.win_id, true)
   vim.api.nvim_buf_del_extmark(current_win.buf, current_nsid, current_win.extmark)
   -- now we are checking if we still have previous choice we were in after exit nested choice
@@ -125,11 +155,13 @@ WIKI.choice_popup_close = function()
   end
 end
 
-vim.cmd([[
-augroup choice_popup
-au!
-au User LuasnipChoiceNodeEnter lua require("wax.plugins.luasnip.WIKI").choice_popup(require("luasnip").session.event_node)
-au User LuasnipChoiceNodeLeave lua require("wax.plugins.luasnip.WIKI").choice_popup_close()
-au User LuasnipChangeChoice lua require("wax.plugins.luasnip.WIKI").update_choice_popup(require("luasnip").session.event_node)
-augroup END
-]])
+-- vim.cmd([[
+-- augroup choice_popup
+-- au!
+-- au User LuasnipChoiceNodeEnter lua require("wax.plugins.luasnip").choice_popup(require("luasnip").session.event_node)
+-- au User LuasnipChoiceNodeLeave lua require("wax.plugins.luasnip").choice_popup_close()
+-- au User LuasnipChangeChoice lua require("wax.plugins.luasnip").update_choice_popup(require("luasnip").session.event_node)
+-- augroup END
+-- ]])
+
+return M
