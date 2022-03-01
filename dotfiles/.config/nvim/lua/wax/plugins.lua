@@ -92,6 +92,13 @@ return require("packer").startup({
         require("wax.plugins.vim-test")
       end,
     })
+    use({ -- nvim-dap
+      "mfussenegger/nvim-dap",
+      requires = { "theHamsta/nvim-dap-virtual-text", "rcarriga/nvim-dap-ui" },
+      config = function()
+        require("wax.plugins.nvim-dap")
+      end,
+    })
 
     -- Tpope is awesome
     use("tpope/vim-surround") -- change surrounding easily
