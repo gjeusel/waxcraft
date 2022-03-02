@@ -94,7 +94,11 @@ return require("packer").startup({
     })
     use({ -- nvim-dap
       "mfussenegger/nvim-dap",
-      requires = { "theHamsta/nvim-dap-virtual-text", "rcarriga/nvim-dap-ui" },
+      requires = {
+        "theHamsta/nvim-dap-virtual-text",
+        "rcarriga/nvim-dap-ui",
+        "mfussenegger/nvim-dap-python",
+      },
       config = function()
         require("wax.plugins.nvim-dap")
       end,
