@@ -28,7 +28,7 @@ ls.config.set_config({
 ls.snippets = require("wax.plugins.snippets")
 
 ls.filetype_extend("vue", { "typescript" })
-ls.filetype_extend("typescript", { "typescriptreact" })
+ls.filetype_extend("typescriptreact", { "typescript" })
 
 -- vim.cmd([[
 --   inoremap <silent> <c-j> <cmd>lua require('luasnip').jump(1)<CR>
@@ -63,8 +63,15 @@ vim.keymap.set("i", "<c-h>", function()
   end
 end)
 
--- shorcut to source my luasnips file again, which will reload my snippets
-vim.keymap.set("n", "<leader><leader>s", "<cmd>source ~/.config/nvim/after/plugin/luasnip.lua<CR>")
+-- -- shorcut to source my luasnips file again, which will reload my snippets
+-- vim.keymap.set(
+--   "n",
+--   "<leader><leader>s",
+--   -- "<cmd>source "
+--   --   .. vim.env.waxCraft_PATH
+--   --   .. "/dotfiles/.config/nvim/lua/wax/plugins/luasnip.lua<CR>"
+-- )
+
 -- From Wiki: Popup window on choiceNode
 
 local M = {}

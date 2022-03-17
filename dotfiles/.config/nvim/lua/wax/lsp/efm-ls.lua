@@ -31,28 +31,28 @@ local black = { formatCommand = "black --quiet -", formatStdin = true }
 
 -- NOTE: Has to be a list per language
 local languages = {
-  lua = {
-    { -- Stylua: > cargo install stylua
-      lintCommand = "",
-      lintFormats = {},
-      lintSource = "",
-      formatCommand = "stylua --search-parent-directories --color Never --stdin-filepath ${INPUT} -",
-      formatStdin = true,
-    },
-  },
+  -- lua = {
+  --   { -- Stylua: > cargo install stylua
+  --     lintCommand = "",
+  --     lintFormats = {},
+  --     lintSource = "",
+  --     formatCommand = "stylua --search-parent-directories --color Never --stdin-filepath ${INPUT} -",
+  --     formatStdin = true,
+  --   },
+  -- },
 
-  yaml = { global_prettier },
+  -- yaml = { global_prettier },
 
-  -- Frontend
-  vue = { local_prettier },
-  typescript = { local_prettier },
-  typescriptreact = { local_prettier },
-  javascript = { local_prettier },
-  javascriptreact = { local_prettier },
-  css = { local_prettier },
+  -- -- Frontend
+  -- vue = { local_prettier },
+  -- typescript = { local_prettier },
+  -- typescriptreact = { local_prettier },
+  -- javascript = { local_prettier },
+  -- javascriptreact = { local_prettier },
+  -- css = { local_prettier },
 
   -- Backend
-  python = { isort, black },
+  -- python = { isort, black },
 
   -- brew install jq
   -- json = {{formatCommand = 'jq .'}},

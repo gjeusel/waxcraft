@@ -1,5 +1,6 @@
 vim.lsp.set_log_level(waxopts.lsp.loglevel)
 
+-- Define custom ui settings
 require("wax.lsp.ui")
 
 -- https://github.com/nvim-lua/lsp-status.nvim#all-together-now
@@ -17,48 +18,22 @@ lsp_status.config({
   status_symbol = "",
 })
 
--- mappings
-local on_attach = function(client, bufnr)
-  -- Lsp Status Line setup
-  lsp_status.on_attach(client, bufnr)
-
-  -- -- Lsp Signature setup
-  -- require("lsp_signature").on_attach({
-  --   bind = true,
-  --   floating_window = false,
-  --   hint_enable = true,
-  --   hint_prefix = "🐼 ",
-  --   extra_trigger_chars = {"(", ","},
-  -- })
-
-  -- vim.cmd([[autocmd CursorHoldI * silent! lua vim.lsp.buf.signature_help()]])
-
-  local function buf_set_keymap(...)
-    vim.api.nvim_buf_set_keymap(bufnr, ...)
-  end
-  local function buf_set_option(...)
-    vim.api.nvim_buf_set_option(bufnr, ...)
-  end
-
-  --Enable completion triggered by <c-x><c-o>
-  buf_set_option("omnifunc", "v:lua.vim.lsp.omnifunc")
-
-  -- Mappings.
+-- Mappings
+local function lsp_keymaps()
   local opts = { noremap = true, silent = true }
 
   -- See `:help vim.lsp.*` for documentation on any of the below functions
-  buf_set_keymap("n", "<leader>D", "<Cmd>lua vim.lsp.buf.type_definition()<CR>", opts)
-  buf_set_keymap("n", "<leader>d", "<Cmd>lua vim.lsp.buf.definition()<CR>", opts)
+  vim.keymap.set("n", "<leader>D", vim.lsp.buf.type_definition, opts)
+  vim.keymap.set("n", "<leader>d", vim.lsp.buf.definition, opts)
 
-  buf_set_keymap("n", "K", "<Cmd>lua vim.lsp.buf.hover()<CR>", opts)
+  vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
 
-  buf_set_keymap("n", "<leader>i", "<cmd>lua vim.lsp.buf.implementation()<CR>", opts)
-  buf_set_keymap("n", "<leader>I", "<cmd>lua vim.lsp.buf.declaration()<CR>", opts)
+  vim.keymap.set("n", "<leader>i", vim.lsp.buf.implementation, opts)
+  vim.keymap.set("n", "<leader>I", vim.lsp.buf.declaration, opts)
 
-  buf_set_keymap("i", "<C-x>", "<cmd>lua vim.lsp.buf.signature_help()<CR>", opts)
-  buf_set_keymap("n", "<C-x>", "<cmd>lua vim.lsp.buf.signature_help()<CR>", opts)
+  vim.keymap.set({ "i", "n" }, "<C-x>", vim.lsp.buf.signature_help, opts)
 
-  buf_set_keymap("n", "<leader>R", "<cmd>lua vim.lsp.buf.rename()<CR>", opts)
+  vim.keymap.set("n", "<leader>R", vim.lsp.buf.rename, opts)
 
   local goto_win_opts = {
     popup_opts = {
@@ -69,25 +44,36 @@ local on_attach = function(client, bufnr)
       show_header = false,
     },
   }
-  _G._lsp_goto_prev = function()
-    return vim.diagnostic.goto_prev(goto_win_opts)
-  end
-  _G._lsp_goto_next = function()
-    return vim.diagnostic.goto_next(goto_win_opts)
-  end
-  buf_set_keymap("n", "å", "<cmd>lua _lsp_goto_prev()<CR>", opts)
-  buf_set_keymap("n", "ß", "<cmd>lua _lsp_goto_next()<CR>", opts)
-  -- buf_set_keymap('n', '<space>q', '<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>', opts)
+  vim.keymap.set("n", "å", function()
+    vim.diagnostic.goto_prev(goto_win_opts)
+  end, opts)
+  vim.keymap.set("n", "ß", function()
+    vim.diagnostic.goto_next(goto_win_opts)
+  end, opts)
 
-  buf_set_keymap("n", "<leader>m", "<cmd>lua vim.lsp.buf.formatting()<CR>", opts)
-  -- buf_set_keymap("n", "<leader>m", "<cmd>lua vim.lsp.buf.formatting_seq_sync()<CR>", opts)
+  vim.keymap.set("n", "<leader>m", vim.lsp.buf.formatting, opts)
+  -- vim.keymap.set("n", "<leader>m", vim.lsp.buf.formatting_seq_sync, opts)
 
   -- -- Custom ones:
-  -- buf_set_keymap("n", "<leader>E", "<Cmd>lua require('wax.lsp.lsp-functions').PeekTypeDefinition()<CR>", opts)
-  -- buf_set_keymap("n", "<leader>e", "<Cmd>lua require('wax.lsp.lsp-functions').PeekDefinition()<CR>", opts)
+  -- vim.keymap.set("n", "<leader>E", require('wax.lsp.lsp-functions').PeekTypeDefinition(), opts)
+  -- vim.keymap.set("n", "<leader>e", require('wax.lsp.lsp-functions').PeekDefinition(), opts)
+end
+lsp_keymaps()
+
+--Enable completion triggered by <c-x><c-o>
+vim.api.nvim_set_option("omnifunc", "v:lua.vim.lsp.omnifunc")
+
+-- Generate capabilities
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+capabilities = vim.tbl_extend("force", capabilities, lsp_status.capabilities)
+if is_module_available("cmp_nvim_lsp") then
+  capabilities = require("cmp_nvim_lsp").update_capabilities(capabilities)
 end
 
 require("wax.lsp.setup").setup_servers({
-  on_attach = on_attach,
-  capabilities = lsp_status.capabilities,
+  on_attach = lsp_status.on_attach,
+  capabilities = capabilities,
 })
+
+-- setup null-ls
+require("wax.lsp.null-ls")

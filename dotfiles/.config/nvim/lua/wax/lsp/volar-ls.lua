@@ -24,6 +24,7 @@ return {
   init_options = {
     documentFeatures = { documentSymbol = true },
     languageFeatures = {
+      implementation = true,
       callHierarchy = true,
       -- completion = {
       --   defaultAttrNameCase = "kebabCase",

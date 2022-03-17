@@ -36,9 +36,9 @@ vim.lsp.protocol.CompletionItemKind = {
 
 -- Customize windows for Hover and Signature
 local float_win_opts = {
+  border = "rounded",
   relative = "cursor",
   style = "minimal",
-  border = "rounded",
 }
 
 vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
@@ -51,17 +51,14 @@ vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
   vim.tbl_extend("keep", float_win_opts, { max_height = 3, focusable = false })
 )
 
-vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
-  vim.lsp.diagnostic.on_publish_diagnostics,
-  {
-    -- virtual_text = {
-    --   prefix = "‣",
-    --   spacing = 4,
-    -- },
-    virtual_text = false,
-    signs = true,
-    underline = false,
-    update_in_insert = true,
-    severity_sort = true,
-  }
-)
+vim.diagnostic.config({
+  -- virtual_text = {
+  --   prefix = "‣",
+  --   spacing = 4,
+  -- },
+  virtual_text = false,
+  signs = true,
+  underline = false,
+  update_in_insert = true,
+  severity_sort = true,
+})

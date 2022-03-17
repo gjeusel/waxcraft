@@ -267,6 +267,7 @@ return require("packer").startup({
           end,
         },
         "ray-x/lsp_signature.nvim", -- a bit buggy
+        { "jose-elias-alvarez/null-ls.nvim", branch = "main" },
       },
       config = function()
         require("wax.lsp")

@@ -1,5 +1,3 @@
-local ls = require("luasnip")
-
 return {
   all = {
     -- ls.parser.parse_snippet("$file$", "$TM_FILENAME"),
