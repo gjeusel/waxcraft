@@ -5,9 +5,12 @@ vim.g.bufferline = {
   closable = false,
   clickable = false,
   maximum_padding = 1,
-  icon_separator_active = '▎',
+  icon_separator_active = "▎",
   icon_separator_inactive = "▎",
-  no_name_title = "[ New buffer ]",
+  -- https://github.com/jose-elias-alvarez/null-ls.nvim/blob/13c2f1b8a4172408146439e7447c4c7519da4f53/lua/null-ls/formatting.lua#L30
+  -- avoid scratch buffer display from null-ls
+  no_name_title = "",
+  exclude_name = { "" },
 }
 
 local opts = { noremap = true, nowait = true, silent = true }
