@@ -42,12 +42,12 @@ require("telescope").setup({
     mappings = {
       i = {
         ["<C-f>"] = actions.smart_send_to_qflist, -- + actions.open_qflist, -- + my_cool_custom_action.x,
-        ["<CR>"] = actions.select_default + actions.center,
+        -- ["<CR>"] = actions.select_default + actions.center,
         -- ["<CR>"] = actions.select_default + actions.center + custom_actions.restore_view,
       },
       n = {
         ["<C-f>"] = actions.smart_send_to_qflist, -- + actions.open_qflist, -- + my_cool_custom_action.x,
-        ["<CR>"] = actions.select_default + actions.center,
+        -- ["<CR>"] = actions.select_default + actions.center,
         -- ["<CR>"] = actions.select_default + actions.center + custom_actions.restore_view,
       },
     },
@@ -82,47 +82,52 @@ require("telescope").setup({
 -- Extensions
 require("telescope").load_extension("fzf")
 
-local basemap = "<cmd>lua require('wax.plugins.telescope')"
+-- Mappings
+local function telescope_keymaps()
+  local themes = require("telescope.themes")
+  local functions = require("wax.plugins.telescope.functions")
+  local opts = { noremap = true, silent = true, nowait = true }
 
--- Telescope live grep
--- nnoremap("<leader>A", basemap .. ".entirely_fuzzy_grep_string()<cr>")
-nnoremap("<leader>A", basemap .. ".entirely_fuzzy_grep_string()<cr>")
+  -- Telescope live grep
+  vim.keymap.set("n", "<leader>A", functions.entirely_fuzzy_grep_string, opts)
 
--- Telescope file
-nnoremap("<leader>p", basemap .. ".wax_find_file()<cr>")
-nnoremap("<leader>P", basemap .. ".wax_find_file({git_files=false})<cr>")
+  -- Telescope file
+  vim.keymap.set("n", "<leader>p", functions.wax_find_file, opts)
+  vim.keymap.set("n", "<leader>P", function()
+    functions.wax_find_file({ git_files = false })
+  end, opts)
 
--- Telescope project then file on ~/src
-nnoremap("<leader>q", basemap .. ".projects_grep_files()<cr>")
-nnoremap("<leader>Q", basemap .. ".projects_grep_string()<cr>")
+  -- Telescope project then file on ~/src
+  vim.keymap.set("n", "<leader>q", functions.projects_grep_files, opts)
+  vim.keymap.set("n", "<leader>Q", functions.projects_grep_string, opts)
 
--- Telescope opened buffers
-nnoremap("<leader>n", basemap .. ".buffers({prompt_title='~ buffers ~'})<cr>")
+  -- Telescope opened buffers
+  vim.keymap.set("n", "<leader>n", function()
+    functions.buffers({ prompt_title = "~ buffers ~" })
+  end, opts)
 
--- Telescope Builtin:
-nnoremap("<leader>b", basemap .. ".builtin(require('telescope.themes').get_dropdown({}))<cr>")
+  -- Telescope Builtin:
+  vim.keymap.set("n", "<leader>b", functions.builtin, opts)
 
--- Spell Fix:
-nnoremap("z=", basemap .. ".spell_suggest(require('telescope.themes').get_cursor({}))<cr>")
+  -- Spell Fix:
+  vim.keymap.set("n", "z=", function()
+    functions.spell_suggest(themes.get_cursor({}))
+  end)
 
--- Command History: option-d
-keymap(
-  "nic",
-  "∂",
-  basemap .. ".command_history(require('telescope.themes').get_dropdown({}))<cr>",
-  { nowait = true }
-)
+  -- Command History: option-d
+  vim.keymap.set({ "n", "i", "c" }, "∂", function()
+    functions.command_history(themes.get_dropdown({}))
+  end, opts)
 
--- LSP
-nnoremap("<leader>ff", basemap .. ".lsp_dynamic_workspace_symbols()<cr>")
-nnoremap("<leader>fF", basemap .. ".lsp_document_symbols()<cr>")
-nnoremap("<leader>r", basemap .. ".lsp_references()<cr>")
+  -- LSP
+  vim.keymap.set("n", "<leader>ff", functions.lsp_dynamic_workspace_symbols, opts)
+  vim.keymap.set("n", "<leader>fF", functions.lsp_document_symbols, opts)
+  vim.keymap.set("n", "<leader>r", functions.lsp_references, opts)
 
--- dotfiles
-nnoremap("<leader>fn", basemap .. ".wax_file()<cr>")
-
--- vim help
-nnoremap("<leader>fh", basemap .. ".wax_file()<cr>")
+  -- dotfiles
+  vim.keymap.set("n", "<leader>fn", functions.wax_file, opts)
+end
+telescope_keymaps()
 
 local telescope_functions = require("wax.plugins.telescope.functions")
 return telescope_functions
