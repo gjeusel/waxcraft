@@ -3,36 +3,8 @@ local python_utils = require("wax.lsp.python-utils")
 local servers = require("nvim-lsp-installer.servers")
 local server = require("nvim-lsp-installer.server")
 
--- local flake8_ignore = {
---   "W503", -- W503: line break before binary operator
---   "W504", -- W504: line break after binary operator
-
---   "A001", -- A001 "id" is a python builtin and is being shadowed, consider renaming the variable
---   "A002", -- A002 "type" is used as an argument and thus shadows a python builtin, consider renaming the argument
---   "A003", -- A003 "id" is a python builtin, consider renaming the class attribute
-
---   "B008", -- B008 Do not perform function calls in argument defaults
-
---   "C901", -- C901: is too complex
-
---   "E203", -- E203: whitespace before ':'
---   "E266", -- E266: too many leading ' --' for block comment
---   "E402", -- E402: Module level import not at top of file
---   "E731", -- E731: Do not assign a lambda expression, use a def
-
---   "W293", -- W293: blank line contains whitespace
--- }
-
 local pip_pkgs = {
   "python-lsp-server[rope]", -- lsp
-  -- "pyls-flake8", -- plugin for flake8
-  -- -- 'flake8==3.9.2', 'flake8-bugbear==21.4.3', 'flake8-builtins==1.5.3',
-  -- "pylsp-mypy-rnx", -- plugin for mypy | do not use 'mypy-ls' the official
-  -- -- 'mypy==0.902',
-  -- "python-lsp-black", -- plugin for black
-  -- -- 'black==21.6b0',
-  -- "pyls-isort", -- plugin for isort
-  -- -- 'isort==5.7.0',
 }
 
 local log_dir = vim.env.HOME .. "/.cache/nvim"
