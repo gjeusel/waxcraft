@@ -73,7 +73,10 @@ cmp.setup({
     ["<S-Tab>"] = cmp.mapping(cycle_backward, { "i", "s" }),
     ["<C-n>"] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Inserts }),
     ["<C-p>"] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Inserts }),
-    ["<C-y>"] = cmp.mapping.confirm({ select = true }),
+    -- ["<C-y>"] = cmp.mapping.confirm({ select = true }),
+    ["C-y"] = cmp.mapping(function(fallback)
+      fallback()
+    end),
     [")"] = cmp.mapping(close_parenth_cursor_right, { "i", "s" }),
     ["<CR>"] = cmp.mapping.confirm({
       behavior = cmp.ConfirmBehavior.Replace,

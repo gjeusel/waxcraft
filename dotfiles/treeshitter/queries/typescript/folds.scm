@@ -2,7 +2,7 @@
   ; (for_in_statement)
   ; (for_statement)
   ; (while_statement)
-  ; (arrow_function)
+  (arrow_function)
   (function)
   (function_declaration)
   (class_declaration)

@@ -305,11 +305,6 @@ return require("packer").startup({
     use({
       "mattn/emmet-vim",
       ft = { "html", "vue", "markdown", "typescriptreact" },
-      config = function()
-        vim.cmd([[
-        imap <expr> <C-d> emmet#expandAbbrIntelligent('\<tab>')
-      ]])
-      end,
     })
     -- use({
     --   "norcalli/nvim-colorizer.lua",

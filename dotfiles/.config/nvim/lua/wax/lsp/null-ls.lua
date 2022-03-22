@@ -30,7 +30,7 @@ local function from_python_env(params)
 end
 
 require("null-ls").setup({
-  -- debug = true,
+  debug = true,
   log = {
     enable = true,
     level = waxopts.loglevel,
@@ -41,7 +41,7 @@ require("null-ls").setup({
 
     -- python
     builtins.diagnostics.flake8.with({
-      -- method = methods.internal.DIAGNOSTICS_ON_SAVE,
+      method = methods.internal.DIAGNOSTICS_ON_SAVE,
       command = "flake8",
       dynamic_command = from_python_env,
     }),
@@ -127,8 +127,8 @@ require("null-ls").setup({
     -- frontend
     -- builtins.formatting.rustywind, -- reorder tailwindcss classes
     -- builtins.diagnostics.tsc,
-    builtins.formatting.prettierd,
-    -- builtins.formatting.prettier,
+    -- builtins.formatting.prettierd,
+    builtins.formatting.prettier,
     -- builtins.code_actions.eslint_d,
     -- builtins.formatting.eslint,
   },

@@ -1,6 +1,10 @@
+local ls = require("luasnip")
+local s = ls.snippet
+
 return {
   all = {
     -- ls.parser.parse_snippet("$file$", "$TM_FILENAME"),
+    ls.parser.parse_snippet("$uuid$", '"$UUID"'),
   },
 
   -- backend
