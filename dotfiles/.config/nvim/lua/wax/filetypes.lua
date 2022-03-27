@@ -71,7 +71,7 @@ augroup frontend
   autocmd FileType json setlocal foldmethod=syntax foldlevel=20
 
   " JS / TS / Vue
-  autocmd FileType vue,typescript,typescriptreact setlocal foldmethod=expr foldexpr=nvim_treesitter#foldexpr()
+  autocmd FileType vue,typescript,typescriptreact setlocal foldmethod=expr foldexpr=nvim_treesitter#foldexpr() foldminlines=3
 augroup end
 
 ]],
