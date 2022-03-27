@@ -35,5 +35,10 @@ export VIM_MODE_TRACK_KEYMAP=no  # else it makes the terminal bug
 export ENHANCD_DISABLE_HYPHEN=1  # disable enhancd for "cd -"
 
 # Lazy NVM (NodeJS)
-export NVM_COMPLETION=false
-export NVM_LAZY_LOAD=true
+if [ $TERM_PROGRAM = vscode ]; then
+  export NVM_COMPLETION=false
+  export NVM_LAZY_LOAD=false
+else
+  export NVM_COMPLETION=false
+  export NVM_LAZY_LOAD=true
+fi
