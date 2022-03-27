@@ -74,9 +74,9 @@ cmp.setup({
     ["<C-n>"] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Inserts }),
     ["<C-p>"] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Inserts }),
     -- ["<C-y>"] = cmp.mapping.confirm({ select = true }),
-    ["C-y"] = cmp.mapping(function(fallback)
-      fallback()
-    end),
+    -- ["C-y"] = cmp.mapping(function(fallback)
+    --   fallback()
+    -- end),
     [")"] = cmp.mapping(close_parenth_cursor_right, { "i", "s" }),
     ["<CR>"] = cmp.mapping.confirm({
       behavior = cmp.ConfirmBehavior.Replace,
@@ -89,9 +89,9 @@ cmp.setup({
     -- ["<C-Space>"] = cmp.mapping(expand_snippet, { "i", "s" }),
   },
   sources = {
-    { name = "luasnip" },
     { name = "nvim_lua" },
-    { name = "nvim_lsp", priority = 100 },
+    { name = "luasnip", max_item_count = 2 },
+    { name = "nvim_lsp", max_item_count = 30 },
     { -- buffer
       name = "buffer",
       keyword_length = 3,
