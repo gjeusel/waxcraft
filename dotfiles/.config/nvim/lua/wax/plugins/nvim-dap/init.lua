@@ -4,7 +4,7 @@ if not has_dap then
 end
 
 dap.set_log_level("TRACE")
-dap.defaults.fallback.terminal_win_cmd = "10vsplit new"
+dap.defaults.fallback.terminal_win_cmd = "10split new"
 
 -- imports specific configurations for languages
 require("wax.plugins.nvim-dap.dap-python")
@@ -56,6 +56,7 @@ map("<leader>dd", require("dap").toggle_breakpoint, "toggle_breakpoint")
 
 map("<leader>dr", require("dap").repl.toggle, "repl")
 map("<leader>de", require("dapui").eval, "dapui_eval")
+map("<leader>dD", require("dapui").toggle, "dapui_eval")
 
 map("<leader>d2", require("dap").run_last, "run_last")
 
@@ -89,7 +90,7 @@ require("dapui").setup({
     size = 50,
     position = "left", -- Can be "left" or "right"
   },
-
+  --
   tray = {
     elements = {},
     size = 15,
@@ -97,8 +98,15 @@ require("dapui").setup({
   },
 })
 
---   call Send_to_Tmux(s:pretty_command(a:cmd)."\n")
+-- Tmux commands:
+-- tmux send-keys -t <session:win.pane> '<command>' Enter
+-- tmux capture-pane -t <session:win.pane>
+-- tmux show-buffer
+-- vim.g.tslime == { pane = "2", session = "cartage", window = "2" }
+
+-- local target_pane = vim.g.tslime.session .. ":" .. vim.g.tslime.window .. "." .. vim.g.tslime.pane
+
 -- dap.defaults.fallback.external_terminal = {
---   command = '/usr/bin/alacritty';
---   args = {'-e'};
+--   command = "/opt/homebrew/bin/tmux",
+--   args = {"send-keys", "-t", "renewex:2.2"},
 -- }

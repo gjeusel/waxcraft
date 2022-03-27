@@ -94,6 +94,7 @@ return require("packer").startup({
     })
     use({ -- nvim-dap
       "mfussenegger/nvim-dap",
+      -- "~/src/nvim-dap",
       requires = {
         "theHamsta/nvim-dap-virtual-text",
         "rcarriga/nvim-dap-ui",
