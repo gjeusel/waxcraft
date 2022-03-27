@@ -30,7 +30,7 @@ local function from_python_env(params)
 end
 
 require("null-ls").setup({
-  debug = true,
+  -- debug = true,
   log = {
     enable = true,
     level = waxopts.loglevel,
@@ -122,7 +122,7 @@ require("null-ls").setup({
     builtins.formatting.stylua,
 
     -- prisma filetypes
-    builtins.formatting.prismaFmt,
+    -- builtins.formatting.prismaFmt,
 
     -- frontend
     -- builtins.formatting.rustywind, -- reorder tailwindcss classes
