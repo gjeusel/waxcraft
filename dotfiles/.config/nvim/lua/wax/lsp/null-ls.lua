@@ -128,7 +128,26 @@ require("null-ls").setup({
     -- builtins.formatting.rustywind, -- reorder tailwindcss classes
     -- builtins.diagnostics.tsc,
     -- builtins.formatting.prettierd,
-    builtins.formatting.prettier,
+    builtins.formatting.prettier.with({
+      filetypes = {
+        "javascript",
+        "javascriptreact",
+        "typescript",
+        "typescriptreact",
+        "vue",
+        "css",
+        "scss",
+        "less",
+        "html",
+        -- -- done by json-ls
+        -- "json",
+        -- "jsonc",
+        "yaml",
+        "markdown",
+        "graphql",
+        "handlebars",
+    },
+    }),
     -- builtins.code_actions.eslint_d,
     -- builtins.formatting.eslint,
   },
