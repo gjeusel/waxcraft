@@ -139,9 +139,9 @@ require("null-ls").setup({
         "scss",
         "less",
         "html",
-        -- -- done by json-ls
-        -- "json",
-        -- "jsonc",
+        -- done by json-ls
+        "json",
+        "jsonc",
         "yaml",
         "markdown",
         "graphql",

@@ -196,6 +196,7 @@ return require("packer").startup({
             require("neoclip").setup()
           end,
         },
+        "nvim-telescope/telescope-ui-select.nvim",
       },
       config = function()
         require("wax.plugins.telescope")
@@ -295,6 +296,17 @@ return require("packer").startup({
           config = function()
             require("wax.plugins.nvim-autopairs")
           end,
+        },
+        { -- copilot
+          "github/copilot.vim",
+          branch = "release",
+          config = function()
+            require("wax.plugins.gh-copilot")
+          end,
+        },
+        { -- cmp-copilot
+          "hrsh7th/cmp-copilot",
+          branch = "main",
         },
       },
       config = function()

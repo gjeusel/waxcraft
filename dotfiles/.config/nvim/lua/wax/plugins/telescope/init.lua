@@ -76,11 +76,16 @@ require("telescope").setup({
       override_file_sorter = true, -- override the file sorter
       case_mode = "smart_case", -- or "ignore_case" or "respect_case"
     },
+    ["ui-select"] = {
+      require("telescope.themes").get_dropdown({}),
+    },
   },
 })
 
 -- Extensions
-require("telescope").load_extension("fzf")
+for _, ext in pairs({ "fzf", "ui-select" }) do
+  pcall(require("telescope").load_extension, ext)
+end
 
 -- Mappings
 local function telescope_keymaps()
