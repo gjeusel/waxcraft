@@ -1,4 +1,5 @@
 local langutils = require("wax.langutils")
+local tmux = require("wax.tmux")
 local dap = require("dap")
 
 -- Some Links:
@@ -58,6 +59,45 @@ local function get_vitest_launch_with_pattern(pattern)
   })
 end
 
+local function run_vitest_in_tmux(filepath, pattern)
+  local workspace = langutils.node.find_root_dir(vim.fn.getcwd())
+
+  local node_run_cmd = {
+    "node",
+    "--enable-source-maps",
+    "--inspect-brk",
+    workspace .. "/node_modules/vitest/vitest.mjs",
+    "run",
+    -- "--threads",
+    -- "false",
+    "--run",
+    -- "--update",
+    "--globals",
+    "--dom",
+  }
+
+  if filepath then
+    vim.list_extend(node_run_cmd, { filepath })
+  end
+  if pattern then
+    vim.list_extend(node_run_cmd, { "--testNamePattern", pattern })
+  end
+
+  local is_running = tmux.run_in_pane(node_run_cmd)
+  if not is_running then
+    return
+  end
+
+  local dap_run_opts = {
+    type = "node2",
+    request = "attach",
+    name = "vitest-attach",
+    stopOnEntry = false,
+    cwd = root_dir,
+  }
+  dap.run(dap_run_opts)
+end
+
 dap.configurations.javascript = { vitest_node2_launch_file }
 -- dap.configurations.javascriptreact = {node2_attach}
 dap.configurations.typescript = { vitest_node2_launch_file }
@@ -68,3 +108,7 @@ dap.configurations.typescript = { vitest_node2_launch_file }
 --   nil,
 --   { ["pwa-node"] = { "typescript", "javascript" } }
 -- )
+
+return {
+  run_vitest_in_tmux = run_vitest_in_tmux,
+}

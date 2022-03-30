@@ -3,12 +3,20 @@ if not has_dap then
   return
 end
 
-dap.set_log_level("TRACE")
+dap.set_log_level(waxopts.loglevel)
 dap.defaults.fallback.terminal_win_cmd = "10split new"
 
 -- imports specific configurations for languages
 require("wax.plugins.nvim-dap.dap-python")
-require("wax.plugins.nvim-dap.dap-node")
+dap_node = require("wax.plugins.nvim-dap.dap-node")
+
+local function dap_run_or_continue()
+  if dap.session() then
+    return dap.continue()
+  end
+
+  dap_node.run_vitest_in_tmux(vim.fn.expand("%:p"), nil)
+end
 
 vim.fn.sign_define(
   "DapBreakpoint",
@@ -49,7 +57,8 @@ map("<leader>dS", require("dap").step_out, "step_out")
 -- map("<leader>ds", require("dap").up, "up_in_stack")
 -- map("<leader>dS", require("dap").down, "down_in_stack")
 
-map("<leader>dc", require("dap").continue, "continue")
+-- map("<leader>dc", require("dap").continue, "continue")
+map("<leader>dc", dap_run_or_continue, "continue")
 map("<leader>df", require("dap").run_to_cursor, "run_to_cursor")
 
 map("<leader>dd", require("dap").toggle_breakpoint, "toggle_breakpoint")
@@ -97,16 +106,3 @@ require("dapui").setup({
     position = "bottom", -- Can be "bottom" or "top"
   },
 })
-
--- Tmux commands:
--- tmux send-keys -t <session:win.pane> '<command>' Enter
--- tmux capture-pane -t <session:win.pane>
--- tmux show-buffer
--- vim.g.tslime == { pane = "2", session = "cartage", window = "2" }
-
--- local target_pane = vim.g.tslime.session .. ":" .. vim.g.tslime.window .. "." .. vim.g.tslime.pane
-
--- dap.defaults.fallback.external_terminal = {
---   command = "/opt/homebrew/bin/tmux",
---   args = {"send-keys", "-t", "renewex:2.2"},
--- }
