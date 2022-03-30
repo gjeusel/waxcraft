@@ -90,7 +90,7 @@ cmp.setup({
   },
   sources = {
     { name = "nvim_lua" },
-    { name = "copilot" },
+    -- { name = "copilot" },
     { name = "luasnip", max_item_count = 2 },
     { name = "nvim_lsp", max_item_count = 30 },
     { -- buffer
