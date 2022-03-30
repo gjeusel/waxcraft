@@ -25,7 +25,7 @@ ls.config.set_config({
   enable_autosnippets = false,
 })
 
-ls.snippets = require("wax.plugins.snippets")
+ls.add_snippets(nil, require("wax.plugins.snippets"))
 
 ls.filetype_extend("vue", { "typescript" })
 ls.filetype_extend("typescriptreact", { "typescript" })
