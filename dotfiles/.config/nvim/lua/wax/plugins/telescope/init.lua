@@ -17,6 +17,16 @@ local custom_actions = transform_mod({
   end,
 })
 
+-- https://github.com/nvim-telescope/telescope.nvim/issues/1277
+vim.api.nvim_create_autocmd("BufRead", {
+  callback = function()
+    vim.api.nvim_create_autocmd("BufWinEnter", {
+      once = true,
+      command = "normal! zx",
+    })
+  end,
+})
+
 require("telescope").setup({
   defaults = {
     prompt_prefix = "❯ ",
