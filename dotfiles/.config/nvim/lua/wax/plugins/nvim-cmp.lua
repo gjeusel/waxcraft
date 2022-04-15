@@ -90,7 +90,6 @@ cmp.setup({
   },
   sources = {
     { name = "nvim_lua" },
-    -- { name = "copilot" },
     { name = "luasnip", max_item_count = 2 },
     { name = "nvim_lsp", max_item_count = 30 },
     { -- buffer
@@ -99,14 +98,16 @@ cmp.setup({
       max_item_count = 5,
       options = {
         get_bufnrs = function()
-          local bufs = {}
-          for _, win in ipairs(vim.api.nvim_list_wins()) do
-            bufs[vim.api.nvim_win_get_buf(win)] = true
-          end
-          return vim.tbl_keys(bufs)
+          return vim.api.nvim_list_bufs()
+          -- local bufs = {}
+          -- for _, win in ipairs(vim.api.nvim_list_wins()) do
+          --   bufs[vim.api.nvim_win_get_buf(win)] = true
+          -- end
+          -- return vim.tbl_keys(bufs)
         end,
       },
     },
+    { name = "copilot", max_item_count = 3 },
     { name = "path" },
     -- { name = "treesitter" },
   },
@@ -145,13 +146,12 @@ cmp.setup({
       return vim_item
     end,
   },
-  -- documentation = false, -- disable doc window
-  documentation = {
-    maxwidth = 80,
-    max_height = math.floor(vim.o.lines * 0.3),
-    border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
-  },
-  experimental = {
-    -- native_menu = false,
+  window = {
+    -- documentation = false, -- disable doc window
+    documentation = {
+      maxwidth = 80,
+      max_height = math.floor(vim.o.lines * 0.3),
+      border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
+    },
   },
 })
