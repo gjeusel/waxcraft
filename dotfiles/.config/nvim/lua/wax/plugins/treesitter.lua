@@ -39,7 +39,7 @@ ts.setup({
     "graphql",
     "html",
     "css",
-    "jsdoc",
+    -- "jsdoc",
     "javascript",
     "typescript",
     "vue",

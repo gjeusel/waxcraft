@@ -1,17 +1,11 @@
-((style_element
-  (raw_text) @css))
-
 (
   (style_element
     (start_tag
       (attribute
         (quoted_attribute_value (attribute_value) @_lang)))
     (raw_text) @scss)
-  (#match? @_lang "(scss|postcss|less)")
+  (#any-of? @_lang "scss" "postcss" "less")
 )
-
-((script_element
-  (raw_text) @javascript))
 
 (
   (script_element
@@ -19,15 +13,23 @@
       (attribute
         (quoted_attribute_value (attribute_value) @_lang)))
     (raw_text) @typescript)
-  (#match? @_lang "(ts|typescript)")
+  (#any-of? @_lang "ts" "typescript")
 )
 
-(interpolation
-  (raw_text) @typescript)
+((interpolation
+  (raw_text) @javascript))
 
-; (directive_attribute
-;   (quoted_attribute_value
-;     (attribute_value) @typescript))
+((directive_attribute
+    (quoted_attribute_value
+      (attribute_value) @javascript)))
 
+(
+  (template_element
+    (start_tag
+      (attribute
+        (quoted_attribute_value (attribute_value) @_lang)))
+    (text) @pug)
+  (#eq? @_lang "pug")
+)
 
 (comment) @comment

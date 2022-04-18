@@ -348,9 +348,9 @@ return require("packer").startup({
     display = {
       open_fn = require("packer.util").float,
     },
-    profile = {
-      enable = true,
-      threshold = 1, -- in milliseconds
-    },
+    -- profile = {
+    --   enable = true,
+    --   threshold = 1, -- in milliseconds
+    -- },
   },
 })

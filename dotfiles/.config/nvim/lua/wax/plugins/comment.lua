@@ -1,5 +1,5 @@
 require("Comment").setup({
-  ignore = "^$",
+  ignore = "^$",  -- ignore empty lines
   sticky = true,
   toggler = {
     -- line-comment keymap
