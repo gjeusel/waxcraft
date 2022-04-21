@@ -113,15 +113,15 @@ cmp.setup({
   },
   sorting = {
     priority_weight = 1.1,
-    comparators = {
-      compare.offset,
-      compare.exact,
-      compare.score,
-      compare.kind,
-      compare.sort_text,
-      compare.length,
-      compare.order,
-    },
+    -- comparators = {
+    --   compare.offset,
+    --   compare.exact,
+    --   compare.score,
+    --   compare.kind,
+    --   compare.sort_text,
+    --   compare.length,
+    --   compare.order,
+    -- },
   },
   formatting = {
     format = function(entry, vim_item)
@@ -134,10 +134,16 @@ cmp.setup({
         buffer = "[Buffer]",
         nvim_lsp = "[LSP]",
         path = "[Path]",
+        luasnip = "[Snip]",
+        copilot = "[AI]",
       })[entry.source.name]
 
-      -- disable duplicate keys
-      vim_item.dup = 0
+      -- disable duplicate keys: https://github.com/hrsh7th/nvim-cmp/issues/32
+      vim_item.dup = ({
+        buffer = 1,
+        path = 1,
+        nvim_lsp = 0,
+      })[entry.source.name] or 0
 
       -- set max width with abbr
       if string.len(vim_item.abbr) > 25 then
