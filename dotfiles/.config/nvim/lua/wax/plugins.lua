@@ -264,6 +264,7 @@ return require("packer").startup({
           "williamboman/nvim-lsp-installer",
           -- os.getenv("HOME") .. "/src/nvim-lsp-installer",
           branch = "main",
+          commit = "b68fcc6bb2c770495ff8e2508c06dfdd49abcc80",
           config = function()
             require("wax.plugins.nvim-lsp-installer")
           end,
