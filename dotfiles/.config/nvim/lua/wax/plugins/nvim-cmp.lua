@@ -107,7 +107,7 @@ cmp.setup({
         end,
       },
     },
-    { name = "copilot", max_item_count = 3 },
+    { name = "copilot", max_item_count = 3, group_index = 2 },
     { name = "path" },
     -- { name = "treesitter" },
   },
