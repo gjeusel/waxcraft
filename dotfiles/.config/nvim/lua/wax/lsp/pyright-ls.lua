@@ -66,11 +66,11 @@ local python_utils = require("wax.lsp.python-utils")
 return {
   on_attach = function(client, _)
     -- disable capabilities that are better handled by pylsp
-    client.resolved_capabilities.rename = false -- rope is ok
-    client.resolved_capabilities.hover = false -- pylsp includes also docstrings
-    client.resolved_capabilities.signature_help = false -- pyright typing of signature is weird
-    client.resolved_capabilities.goto_definition = false -- pyright does not follow imports correctly
-    client.resolved_capabilities.completion = false -- pyright does not add parameters in signature
+    client.server_capabilities.rename = false -- rope is ok
+    client.server_capabilities.hover = false -- pylsp includes also docstrings
+    client.server_capabilities.signature_help = false -- pyright typing of signature is weird
+    client.server_capabilities.goto_definition = false -- pyright does not follow imports correctly
+    client.server_capabilities.completion = false -- pyright does not add parameters in signature
   end,
   settings = {
     python = {

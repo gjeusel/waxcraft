@@ -1,6 +1,7 @@
 local M = {}
 local lsp_installer = require("nvim-lsp-installer")
 lsp_installer.servers = require("nvim-lsp-installer.servers")
+local lspconfig = require("lspconfig")
 
 ---@param global_on_attach function @The generic on_attach function.
 ---@return table @The lspconfig server configuration.
@@ -33,10 +34,12 @@ end
 function M.setup_servers(global_lsp_settings)
   global_lsp_settings = global_lsp_settings or {}
 
-  local map_server_settings = {}
   for server_name, _ in pairs(waxopts.lsp._servers) do
     -- Re-construct full settings
-    local custom_settings = get_custom_settings_for_server(server_name, global_lsp_settings.on_attach)
+    local custom_settings = get_custom_settings_for_server(
+      server_name,
+      global_lsp_settings.on_attach
+    )
     local settings = vim.tbl_extend("keep", custom_settings, global_lsp_settings)
 
     -- Advertise capabilities to cmp_nvim_lsp
@@ -50,18 +53,11 @@ function M.setup_servers(global_lsp_settings)
       if not server:is_installed() then
         server:install()
       end
-      map_server_settings[server_name] = settings
-    else
-      -- Servers without any nvim-lsp-installer defined installer:
-      require("lspconfig")[server_name].setup(settings)
     end
-  end
 
-  lsp_installer.on_server_ready(function(server)
-    local opts = map_server_settings[server.name] or {}
-    server:setup(opts)
-    vim.cmd([[ do User LspAttachBuffers ]])
-  end)
+    -- Finally, setup our settings in lspconfig
+    lspconfig[server_name].setup(settings)
+  end
 end
 
 return M

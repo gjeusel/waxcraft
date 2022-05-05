@@ -42,7 +42,7 @@ return {
   -- if python format by efm, disable formatting capabilities for pylsp
   on_attach = function(client, _)
     -- formatting is done by null-ls
-    client.resolved_capabilities.document_formatting = false
+    client.server_capabilities.document_formatting = false
   end,
   settings = {
     pylsp = {

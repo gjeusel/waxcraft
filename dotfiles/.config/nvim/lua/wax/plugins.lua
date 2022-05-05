@@ -256,25 +256,23 @@ return require("packer").startup({
     })
 
     --------- LSP ---------
-    use({ -- lspconfig
-      "neovim/nvim-lspconfig",
+    use({ -- lspconfig + lsp-installer
+      "williamboman/nvim-lsp-installer",
+      branch = "main",
+      -- os.getenv("HOME") .. "/src/nvim-lsp-installer",
+      -- commit = "b68fcc6bb2c770495ff8e2508c06dfdd49abcc80",
       requires = {
         "nvim-lua/lsp-status.nvim",
-        { -- nvim-lsp-installer
-          "williamboman/nvim-lsp-installer",
-          -- os.getenv("HOME") .. "/src/nvim-lsp-installer",
-          branch = "main",
-          commit = "b68fcc6bb2c770495ff8e2508c06dfdd49abcc80",
+        {
+          "neovim/nvim-lspconfig",
           config = function()
             require("wax.plugins.nvim-lsp-installer")
+            require("wax.lsp")
           end,
         },
         "ray-x/lsp_signature.nvim", -- a bit buggy
         { "jose-elias-alvarez/null-ls.nvim", branch = "main" },
       },
-      config = function()
-        require("wax.lsp")
-      end,
     })
     use({ -- nvim-cmp
       "hrsh7th/nvim-cmp",

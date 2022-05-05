@@ -3,7 +3,7 @@ local Path = require("plenary.path")
 local path = require("lspconfig.util").path
 
 local installers = require("nvim-lsp-installer.installers")
-local std = require("nvim-lsp-installer.installers.std")
+local std = require "nvim-lsp-installer.core.managers.std"
 local Data = require("nvim-lsp-installer.data")
 local process = require("nvim-lsp-installer.process")
 
@@ -108,9 +108,7 @@ end
 M.create_installer = function(python_executable, packages)
   return installers.pipe({
     -- check healthy
-    std.ensure_executables({
-      { python_executable, ("%s was not found in path"):format(python_executable) },
-    }),
+    -- std.ensure_executable( python_executable ),
 
     --@type ServerInstallerFunction
     function(_, callback, context)

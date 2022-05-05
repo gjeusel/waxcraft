@@ -51,7 +51,7 @@ local function lsp_keymaps()
     vim.diagnostic.goto_next(goto_win_opts)
   end, opts)
 
-  vim.keymap.set("n", "<leader>m", vim.lsp.buf.formatting, opts)
+  vim.keymap.set("n", "<leader>m", vim.lsp.buf.format, opts)
   -- vim.keymap.set("n", "<leader>m", vim.lsp.buf.formatting_seq_sync, opts)
 
   -- -- Custom ones:
