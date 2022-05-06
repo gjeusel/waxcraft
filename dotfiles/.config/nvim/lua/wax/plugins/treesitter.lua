@@ -47,6 +47,8 @@ ts.setup({
     "go",
     "rust",
     "python",
+    -- Infra:
+    "hcl", -- terraform
   },
 
   -- Plugins config:

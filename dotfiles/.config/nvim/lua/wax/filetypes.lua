@@ -35,6 +35,7 @@ augroup end
 
 " Infra:
 augroup infra
+  au BufRead,BufNewFile *.{tf,tfvars} set filetype=terraform
   au FileType terraform setlocal foldmethod=expr foldexpr=nvim_treesitter#foldexpr()
 augroup end
 
