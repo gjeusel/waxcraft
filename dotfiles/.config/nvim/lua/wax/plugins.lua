@@ -296,18 +296,20 @@ return require("packer").startup({
             require("wax.plugins.nvim-autopairs")
           end,
         },
-        {
+        { -- GH copilot setup
           "zbirenbaum/copilot-cmp",
           -- after = "itchyny/lightline.vim",
           config = function()
-            -- require("wax.plugins.gh-copilot")
-            vim.g.copilot_no_tab_map = true
-            vim.defer_fn(function()
-              require("copilot").setup({
-                server_opts_overrides = { trace = waxopts.loglevel, name = "AI" },
-                ft_disable = { "markdown", "terraform" },
-              })
-            end, 100)
+            if vim.fn.executable("node") == 1 then
+              -- require("wax.plugins.gh-copilot")
+              vim.g.copilot_no_tab_map = true
+              vim.defer_fn(function()
+                require("copilot").setup({
+                  server_opts_overrides = { trace = waxopts.loglevel, name = "AI" },
+                  ft_disable = { "markdown", "terraform" },
+                })
+              end, 100)
+            end
           end,
           requires = {
             { "github/copilot.vim", branch = "release" },
