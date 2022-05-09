@@ -1,8 +1,8 @@
 [
   ; (component)
   ; (template_element)
-  (end_tag)
-  (start_tag)
+  ;; (end_tag)
+  ;; (start_tag)
   (tag_name)
 ] @tag
 
@@ -36,8 +36,9 @@
 (comment) @comment
 
 (text) @none
-(element) @string
-(interpolation) @punctuation.special
+;; (element) @string
+
+;; (interpolation) @punctuation.special
 (interpolation
   (raw_text) @none)
 
