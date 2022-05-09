@@ -51,13 +51,22 @@ local function lsp_keymaps()
     vim.diagnostic.goto_next(goto_win_opts)
   end, opts)
 
-  vim.keymap.set("n", "<leader>m", vim.lsp.buf.format, opts)
+  local filteredFormattters = { "tsserver", "volar" }
+  vim.keymap.set("n", "<leader>m", function()
+    local filter = function(clients)
+      return vim.tbl_filter(function(client)
+        return not vim.tbl_contains(filteredFormattters, client.name)
+      end, clients)
+    end
+    vim.lsp.buf.format({ filter = filter, async = true })
+  end, opts)
   -- vim.keymap.set("n", "<leader>m", vim.lsp.buf.formatting_seq_sync, opts)
 
   -- -- Custom ones:
   -- vim.keymap.set("n", "<leader>E", require('wax.lsp.lsp-functions').PeekTypeDefinition(), opts)
   -- vim.keymap.set("n", "<leader>e", require('wax.lsp.lsp-functions').PeekDefinition(), opts)
 end
+
 lsp_keymaps()
 
 --Enable completion triggered by <c-x><c-o>
