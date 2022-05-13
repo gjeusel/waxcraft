@@ -2,10 +2,10 @@ local scan = require("plenary.scandir")
 local Path = require("plenary.path")
 local path = require("lspconfig.util").path
 
-local installers = require("nvim-lsp-installer.installers")
-local std = require "nvim-lsp-installer.core.managers.std"
-local Data = require("nvim-lsp-installer.data")
-local process = require("nvim-lsp-installer.process")
+local functional = require("nvim-lsp-installer.core.functional")
+local installer = require("nvim-lsp-installer.core.installer")
+local settings = require("nvim-lsp-installer.settings")
+local Optional = require("nvim-lsp-installer.core.optional")
 
 local M = {}
 
@@ -106,29 +106,37 @@ M.get_python_path = function(workspace, cmd)
 end
 
 M.create_installer = function(python_executable, packages)
-  return installers.pipe({
-    -- check healthy
-    -- std.ensure_executable( python_executable ),
+  return function()
+    local ctx = installer.context()
+    local pkgs = functional.list_copy(packages)
 
-    --@type ServerInstallerFunction
-    function(_, callback, context)
-      local pkgs = Data.list_copy(packages or {})
+    ctx.requested_version:if_present(function(version)
+      pkgs[1] = ("%s==%s"):format(pkgs[1], version)
+    end)
 
-      local c = process.chain({
-        cwd = context.install_dir,
-        stdio_sink = context.stdio_sink,
-      })
+    Optional.of_nilable(python_executable)
+      :if_present(function()
+        ctx.spawn.python({
+          "-m",
+          "pip",
+          "install",
+          "-U",
+          settings.current.pip.install_args,
+          pkgs,
+        })
+      end)
+      :or_else_throw("Unable to install packages using %s")
+      :format(python_executable)
 
-      if context.requested_server_version then
-        -- The "head" package is the recipient for the requested version. It's.. by design... don't ask.
-        pkgs[1] = ("%s==%s"):format(pkgs[1], context.requested_server_version)
+    local with_receipt = function()
+      ctx.receipt:with_primary_source(ctx.receipt.pip3(packages[1]))
+      for i = 2, #packages do
+        ctx.receipt:with_secondary_source(ctx.receipt.pip3(packages[i]))
       end
+    end
 
-      c.run(python_executable, vim.list_extend({ "-m", "pip", "install", "-U" }, pkgs))
-      -- c.run(python_executable, {"--version"})
-      c.spawn(callback)
-    end,
-  })
+    return with_receipt
+  end
 end
 
 return M
