@@ -3,7 +3,7 @@
     (start_tag
       (attribute
         (quoted_attribute_value (attribute_value) @_lang)))
-    (raw_text) @scss)
+    (raw_text) @css)
   (#any-of? @_lang "scss" "postcss" "less")
 )
 

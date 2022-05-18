@@ -4,7 +4,7 @@ vim.o.mouse = "a" -- Automatically enable mouse usage
 vim.o.number = true -- display line number column
 vim.o.relativenumber = true -- relative line number
 
-vim.o.laststatus = 3  -- global statusline
+-- vim.o.laststatus = 3  -- global statusline
 
 vim.o.signcolumn = "yes" -- always show sign column
 vim.o.ruler = true -- Show the cursor position all the time

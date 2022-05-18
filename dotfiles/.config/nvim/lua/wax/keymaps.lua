@@ -111,4 +111,4 @@ augroup end
 -- quick fix list
 nnoremap("]q", "<cmd>cnext<cr>")
 nnoremap("[q", "<cmd>cprev<cr>")
-nnoremap("[w", "<cmd>ccl<cr>")
+nnoremap("[w", "<cmd>ccl<cr>") -- quite quick fix list
