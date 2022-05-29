@@ -8,7 +8,40 @@ local rep = require("luasnip.extras").rep
 
 local fmt = require("luasnip.extras.fmt").fmt
 
+local opts = { delimiters = "[]" }
+
+local tags = { t("div"), t("p"), t("span") }
+
 return {
+  -- Setup
+  s(
+    "vsetup",
+    fmt(
+      [[
+        <template>
+          <div />
+        </template>
+
+        <script setup lang="ts">
+        const props = defineProps<{[1]}>()
+        </script>
+      ]],
+      { i(1, "") },
+      opts
+    )
+  ),
+
+  s(
+    "demits",
+    fmt(
+      [[
+        const emits = defineEmits(["{0}"])
+      ]],
+      { [0] = i(0, "") }
+    )
+  ),
+
+  -- Loops
   s(
     "vfor",
     fmt(
@@ -18,7 +51,7 @@ return {
         </{tag_rep}>
       ]],
       {
-        tag = c(1, { t("div "), t("span ") }),
+        tag = c(1, tags),
         tag_rep = rep(1),
         iter = i(2, ""),
         key = i(3, "i"),
@@ -26,19 +59,57 @@ return {
       }
     )
   ),
+
+  -- Conditional
   s(
-    "vsetup",
+    "velse",
     fmt(
       [[
-        <template>
-        </template>
-
-        <script setup lang="ts">
-        const props = defineProps<{[1]}>()
-        </script>
+        <div v-else>
+          {0}
+        </div>
       ]],
-      { i(1, "") },
-      { delimiters = "[]" }
+      { [0] = i(0, "") }
+    )
+  ),
+  s(
+    "vif",
+    fmt(
+      [[
+        <div v-if="{condition}">
+          {0}
+        </div>
+      ]],
+      {
+        condition = i(1, ""),
+        [0] = i(0, ""),
+      }
+    )
+  ),
+  s(
+    "velif",
+    fmt(
+      [[
+      <div v-else-if="{condition}">
+        {0}
+      </div>
+      ]],
+      {
+        condition = i(1, ""),
+        [0] = i(0, ""),
+      }
+    )
+  ),
+  s(
+    "velse",
+    fmt(
+      [[
+        <div v-else>
+          [0]
+        </div>
+      ]],
+      { [0] = i(0, "") },
+      opts
     )
   ),
 }
