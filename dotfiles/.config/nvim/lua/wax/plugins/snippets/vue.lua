@@ -23,11 +23,22 @@ return {
         </template>
 
         <script setup lang="ts">
-        const props = defineProps<{[1]}>()
+        const props = defineProps<{[0]}>()
         </script>
       ]],
-      { i(1, "") },
+      { [0] = i(0, "") },
       opts
+    )
+  ),
+  s(
+    "vstyle",
+    fmt(
+      [[
+        <style lang="postcss">
+          {0}
+        </style>
+      ]],
+      { [0] = i(0, "") }
     )
   ),
 

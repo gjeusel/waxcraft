@@ -26,10 +26,15 @@ hi! link Statusline GruvboxFg3
 " barbar
 hi! link BufferCurrent GruvboxFg1
 hi! link BufferCurrentSign GruvboxAqua
+hi! link BufferCurrentMod GruvboxAqua
+
 hi! link BufferVisible GruvboxFg2
 hi! link BufferVisibleSign GruvboxBlue
+hi! link BufferVisibleMod GruvboxBlue
+
 hi! link BufferInactive GruvboxFg4
 hi! link BufferInactiveSign GruvboxFg4
+hi! link BufferInactiveMod GruvboxFg4
 
 hi! link BufferTabpages GruvboxBg0
 hi! link BufferTabpageFill GruvboxBg0

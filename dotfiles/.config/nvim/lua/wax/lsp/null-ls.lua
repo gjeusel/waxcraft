@@ -29,6 +29,14 @@ local function from_python_env(params)
   return resolved.command
 end
 
+local mypy_overrides = {
+  severities = {
+    error = h.diagnostics.severities["error"],
+    warning = h.diagnostics.severities["warning"],
+    note = h.diagnostics.severities["information"],
+  },
+}
+
 require("null-ls").setup({
   -- debug = true,
   log = {
@@ -51,8 +59,8 @@ require("null-ls").setup({
       dynamic_command = from_python_env,
       args = function(params)
         return {
-          -- "--sqlite-cache",
-          -- "--cache-fine-grained",
+          "--sqlite-cache",
+          "--cache-fine-grained",
           --
           "--no-color-output",
           "--show-column-numbers",
@@ -61,9 +69,9 @@ require("null-ls").setup({
           "--no-error-summary",
           "--show-absolute-path",
           "--no-pretty",
-          "--shadow-file",
-          params.bufname,
-          params.temp_path,
+          -- "--shadow-file",
+          -- params.bufname,
+          -- params.temp_path,
           params.bufname,
         }
       end,
@@ -71,24 +79,12 @@ require("null-ls").setup({
         { -- case with column given
           pattern = "([^:]+):(%d+):(%d+): (%a+): (.*)  %[([%a-]+)%]",
           groups = { "filename", "row", "col", "severity", "message", "code" },
-          overrides = {
-            severities = {
-              error = h.diagnostics.severities["error"],
-              warning = h.diagnostics.severities["warning"],
-              note = h.diagnostics.severities["information"],
-            },
-          },
+          overrides = mypy_overrides,
         },
         { -- case with missing column
           pattern = "([^:]+):(%d+): (%a+): (.*)  %[([%a-]+)%]",
           groups = { "filename", "row", "severity", "message", "code" },
-          overrides = {
-            severities = {
-              error = h.diagnostics.severities["error"],
-              warning = h.diagnostics.severities["warning"],
-              note = h.diagnostics.severities["information"],
-            },
-          },
+          overrides = mypy_overrides,
         },
       }),
       timeout = 1 * 60 * 1000, -- 5 min
@@ -146,7 +142,7 @@ require("null-ls").setup({
         "markdown",
         "graphql",
         "handlebars",
-    },
+      },
     }),
     -- builtins.code_actions.eslint_d,
     -- builtins.formatting.eslint,
