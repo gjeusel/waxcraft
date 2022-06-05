@@ -77,7 +77,7 @@ cmp.setup({
     -- ["C-y"] = cmp.mapping(function(fallback)
     --   fallback()
     -- end),
-    [")"] = cmp.mapping(close_parenth_cursor_right, { "i", "s" }),
+    -- [")"] = cmp.mapping(close_parenth_cursor_right, { "i", "s" }),
     ["<CR>"] = cmp.mapping.confirm({
       behavior = cmp.ConfirmBehavior.Replace,
       select = false,

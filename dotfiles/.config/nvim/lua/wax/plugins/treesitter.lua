@@ -21,7 +21,7 @@ ts.setup({
   },
   indent = {
     enable = true,
-    disable = { "yaml", "python", "lua", "vue", "vim", "typescript"},
+    disable = { "yaml", "python", "lua", "vue", "vim", "typescript" },
     -- disable = { "yaml", "lua" },
   },
   ensure_installed = { -- one of 'all', 'language' or a list of languages
@@ -42,6 +42,7 @@ ts.setup({
     -- "jsdoc",
     "javascript",
     "typescript",
+    "tsx",
     "vue",
     -- Backend:
     "go",

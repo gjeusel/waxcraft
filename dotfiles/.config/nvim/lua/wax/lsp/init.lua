@@ -35,6 +35,9 @@ local function lsp_keymaps()
 
   vim.keymap.set("n", "<leader>R", vim.lsp.buf.rename, opts)
 
+  -- Mapping with selectors:
+  vim.keymap.set("n", "<leader>fa", vim.lsp.buf.code_action, opts)
+
   local goto_win_opts = {
     popup_opts = {
       relative = "cursor",
@@ -51,11 +54,11 @@ local function lsp_keymaps()
     vim.diagnostic.goto_next(goto_win_opts)
   end, opts)
 
-  local filteredFormattters = { "tsserver", "volar" }
+  local filteredFormatters = { "tsserver", "volar" }
   vim.keymap.set("n", "<leader>m", function()
     local filter = function(clients)
       return vim.tbl_filter(function(client)
-        return not vim.tbl_contains(filteredFormattters, client.name)
+        return not vim.tbl_contains(filteredFormatters, client.name)
       end, clients)
     end
     vim.lsp.buf.format({ filter = filter, async = true })

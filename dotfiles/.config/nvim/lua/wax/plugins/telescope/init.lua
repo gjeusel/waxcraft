@@ -138,9 +138,6 @@ local function telescope_keymaps()
   vim.keymap.set("n", "<leader>ff", functions.lsp_dynamic_workspace_symbols, opts)
   vim.keymap.set("n", "<leader>fF", functions.lsp_document_symbols, opts)
   vim.keymap.set("n", "<leader>r", functions.lsp_references, opts)
-  vim.keymap.set("n", "<leader>fa", function()
-    functions.lsp_code_actions(themes.get_cursor())
-  end, opts)
 
   -- dotfiles
   vim.keymap.set("n", "<leader>fn", functions.wax_file, opts)

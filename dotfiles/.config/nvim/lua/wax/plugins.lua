@@ -247,7 +247,6 @@ return require("packer").startup({
         { -- auto html tag
           "windwp/nvim-ts-autotag",
           branch = "main",
-          ft = { "html", "vue", "typescriptreact" },
         },
       },
       config = function()
