@@ -33,13 +33,3 @@ export VIM_MODE_TRACK_KEYMAP=no  # else it makes the terminal bug
 
 # Enhancd
 export ENHANCD_DISABLE_HYPHEN=1  # disable enhancd for "cd -"
-
-# Lazy NVM (NodeJS)
-export NVM_COMPLETION=false
-if [ $TERM_PROGRAM = vscode ]; then
-  export NVM_LAZY_LOAD=false
-else
-  # too slow, maybe depending on the directory ?
-  # export NVM_LAZY_LOAD_EXTRA_COMMANDS=("neovim", "vim", "nvim")
-  export NVM_LAZY_LOAD=true
-fi
