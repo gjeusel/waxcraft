@@ -104,7 +104,7 @@ function! SetFrontendMappings()
   map <buffer> <Leader>O Odebugger  // BREAKPOINT<C-c>
 endfunction
 augroup frontend_mappings
-  au Filetype vue,typescript,javascript call SetFrontendMappings()
+  au Filetype vue,typescript,javascript,typescriptreact,javascriptreact call SetFrontendMappings()
 augroup end
 ]])
 
