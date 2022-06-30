@@ -297,28 +297,19 @@ return require("packer").startup({
         },
         { -- GH copilot setup
           "zbirenbaum/copilot-cmp",
-          -- after = "itchyny/lightline.vim",
-          config = function()
-            if vim.fn.executable("node") == 1 then
-              -- require("wax.plugins.gh-copilot")
-              vim.g.copilot_no_tab_map = true
-              vim.defer_fn(function()
-                require("copilot").setup({
-                  server_opts_overrides = { trace = waxopts.loglevel, name = "AI" },
-                  ft_disable = { "markdown", "terraform" },
-                })
-              end, 100)
-            end
-          end,
+          module = "copilot_cmp",
           requires = {
-            { "github/copilot.vim", branch = "release" },
+            -- { "github/copilot.vim", branch = "release" },
             { "zbirenbaum/copilot.lua" },
           },
+          -- event = { "VimEnter" },
+          event = { "InsertEnter" },
+          config = function()
+            vim.schedule(function()
+              require("wax.plugins.gh-copilot")
+            end)
+          end,
         },
-        -- { -- cmp-copilot
-        --   "hrsh7th/cmp-copilot",
-        --   branch = "main",
-        -- },
       },
       config = function()
         require("wax.plugins.nvim-cmp")
@@ -326,10 +317,10 @@ return require("packer").startup({
     })
 
     --------- Language Specific ---------
-    use({
-      "mattn/emmet-vim",
-      ft = { "html", "vue", "markdown", "typescriptreact" },
-    })
+    -- use({
+    --   "mattn/emmet-vim",
+    --   ft = { "html", "vue", "markdown", "typescriptreact" },
+    -- })
     -- use({
     --   "norcalli/nvim-colorizer.lua",
     --   config = function()

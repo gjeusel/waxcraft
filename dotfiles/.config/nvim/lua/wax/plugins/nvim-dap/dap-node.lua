@@ -70,7 +70,6 @@ local function run_vitest_in_tmux(filepath, pattern)
     "run",
     "--no-threads",
     "--run",
-    -- "--update",
     "--globals",
     "--dom",
   }

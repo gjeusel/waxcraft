@@ -1,11 +1,8 @@
--- vim.defer_fn(function()
---   require("copilot").setup({
---     server_opts_overrides = { trace = waxopts.loglevel, name = "AI" },
---     ft_disable = { "markdown", "terraform" },
---   })
--- end, 100)
+if vim.fn.executable("node") ~= 1 then
+  return
+end
 
--- vim.g.copilot_enabled = true
+vim.g.copilot_enabled = false
 -- vim.g.copilot_filetypes = {
 --   ["*"] = false,
 --   python = true,
@@ -14,7 +11,22 @@
 --   typescript = true,
 --   vue = true,
 -- }
--- vim.g.copilot_no_tab_map = true
+vim.g.copilot_no_tab_map = true
+
+require("copilot").setup({
+  -- panel = { enabled = false },
+  server_opts_overrides = {
+    trace = waxopts.loglevel,
+    -- name = "AI",
+    -- settings = {
+    --   advanced = {
+    --     listCount = 10, -- #completions for panel
+    --     inlineSuggestCount = 3, -- #completions for getCompletions
+    --   },
+    -- },
+  },
+  ft_disable = { "markdown", "terraform" },
+})
 
 -- -- https://vi.stackexchange.com/questions/21457/how-to-remap-autocomplete-on-controln-to-controlspace
 -- vim.cmd([[

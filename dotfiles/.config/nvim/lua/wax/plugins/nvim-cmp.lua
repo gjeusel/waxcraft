@@ -91,7 +91,7 @@ cmp.setup({
   sources = {
     { name = "nvim_lua" },
     { name = "luasnip", max_item_count = 2 },
-    { name = "nvim_lsp", max_item_count = 30 },
+    { name = "nvim_lsp", max_item_count = 5 },
     { -- buffer
       name = "buffer",
       keyword_length = 3,
@@ -107,24 +107,37 @@ cmp.setup({
         end,
       },
     },
-    { name = "copilot", max_item_count = 3, group_index = 2 },
+    { name = "copilot", max_item_count = 3, keyword_length = 5 },
     { name = "path" },
     -- { name = "treesitter" },
   },
   sorting = {
-    priority_weight = 1.1,
-    -- comparators = {
-    --   compare.offset,
-    --   compare.exact,
-    --   compare.score,
-    --   compare.kind,
-    --   compare.sort_text,
-    --   compare.length,
-    --   compare.order,
-    -- },
+    priority_weight = 2,
+    comparators = {
+      require("copilot_cmp.comparators").prioritize,
+      require("copilot_cmp.comparators").score,
+
+      -- Below is the default comparitor list and order for nvim-cmp
+      cmp.config.compare.offset,
+      -- cmp.config.compare.scopes, --this is commented in nvim-cmp too
+      cmp.config.compare.exact,
+      cmp.config.compare.score,
+      cmp.config.compare.recently_used,
+      cmp.config.compare.locality,
+      cmp.config.compare.kind,
+      cmp.config.compare.sort_text,
+      cmp.config.compare.length,
+      cmp.config.compare.order,
+    },
   },
   formatting = {
     format = function(entry, vim_item)
+      -- Special case of copilot
+      if entry.source.name == "copilot" then
+        vim_item.kind = "    AI"
+        return vim_item
+      end
+
       -- fancy icons and a name of kind
       vim_item.kind = lspkind.presets.default[vim_item.kind] .. " " .. vim_item.kind
 
