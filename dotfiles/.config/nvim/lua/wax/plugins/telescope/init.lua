@@ -42,12 +42,12 @@ require("telescope").setup({
         height_padding = 0.1,
         preview_width = 0.5,
       },
-      vertical = {
-        width_padding = 0.1,
-        height_padding = 2,
-        preview_height = 0.5,
-        mirror = true,
-      },
+      -- vertical = {
+      --   width_padding = 0.1,
+      --   height_padding = 2,
+      --   preview_height = 0.5,
+      --   mirror = true,
+      -- },
     },
     mappings = {
       i = {
@@ -135,13 +135,17 @@ local function telescope_keymaps()
   end, opts)
 
   -- LSP
+  local vertical_opts = { sorting_strategy = "ascending", layout_strategy = "vertical" }
   vim.keymap.set("n", "<leader>ff", functions.lsp_dynamic_workspace_symbols, opts)
   vim.keymap.set("n", "<leader>fF", functions.lsp_document_symbols, opts)
-  vim.keymap.set("n", "<leader>r", functions.lsp_references, opts)
+  vim.keymap.set("n", "<leader>r", function()
+    functions.lsp_references(vertical_opts)
+  end, opts)
 
   -- dotfiles
   vim.keymap.set("n", "<leader>fn", functions.wax_file, opts)
 end
+
 telescope_keymaps()
 
 local telescope_functions = require("wax.plugins.telescope.functions")

@@ -61,6 +61,15 @@ return {
           eager = true,
           cache_labels_for = { "pandas", "numpy", "pydantic", "fastapi", "flask", "sqlalchemy" },
         },
+        pylsp_mypy = {
+          enabled = true,
+          live_mode = false,
+          -- dmypy = true,
+          args = {
+            "--sqlite-cache", -- Use an SQLite database to store the cache.
+            "--cache-fine-grained", -- Include fine-grained dependency information in the cache for the mypy daemon.
+          },
+        },
         pylsp_mypy_rnx = { enabled = false },
         -- pylsp_mypy_rnx = {
         --   log = { file = log_dir .. "/pylsp-mypy-rnx.log", level = "DEBUG" },

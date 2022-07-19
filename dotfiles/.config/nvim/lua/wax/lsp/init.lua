@@ -56,10 +56,8 @@ local function lsp_keymaps()
 
   local filteredFormatters = { "tsserver", "volar" }
   vim.keymap.set("n", "<leader>m", function()
-    local filter = function(clients)
-      return vim.tbl_filter(function(client)
-        return not vim.tbl_contains(filteredFormatters, client.name)
-      end, clients)
+    local filter = function(client)
+      return not vim.tbl_contains(filteredFormatters, client.name)
     end
     vim.lsp.buf.format({ filter = filter, async = true })
   end, opts)

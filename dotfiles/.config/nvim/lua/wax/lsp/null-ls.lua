@@ -53,42 +53,42 @@ require("null-ls").setup({
       command = "flake8",
       dynamic_command = from_python_env,
     }),
-    builtins.diagnostics.mypy.with({
-      method = methods.internal.DIAGNOSTICS_ON_SAVE,
-      command = "mypy",
-      dynamic_command = from_python_env,
-      args = function(params)
-        return {
-          "--sqlite-cache",
-          "--cache-fine-grained",
-          --
-          "--no-color-output",
-          "--show-column-numbers",
-          "--show-error-codes",
-          "--hide-error-context",
-          "--no-error-summary",
-          "--show-absolute-path",
-          "--no-pretty",
-          -- "--shadow-file",
-          -- params.bufname,
-          -- params.temp_path,
-          params.bufname,
-        }
-      end,
-      on_output = h.diagnostics.from_patterns({
-        { -- case with column given
-          pattern = "([^:]+):(%d+):(%d+): (%a+): (.*)  %[([%a-]+)%]",
-          groups = { "filename", "row", "col", "severity", "message", "code" },
-          overrides = mypy_overrides,
-        },
-        { -- case with missing column
-          pattern = "([^:]+):(%d+): (%a+): (.*)  %[([%a-]+)%]",
-          groups = { "filename", "row", "severity", "message", "code" },
-          overrides = mypy_overrides,
-        },
-      }),
-      timeout = 1 * 60 * 1000, -- 5 min
-    }),
+    -- builtins.diagnostics.mypy.with({
+    --   method = methods.internal.DIAGNOSTICS_ON_SAVE,
+    --   command = "mypy",
+    --   dynamic_command = from_python_env,
+    --   args = function(params)
+    --     return {
+    --       "--sqlite-cache",
+    --       "--cache-fine-grained",
+    --       --
+    --       "--no-color-output",
+    --       "--show-column-numbers",
+    --       "--show-error-codes",
+    --       "--hide-error-context",
+    --       "--no-error-summary",
+    --       "--show-absolute-path",
+    --       "--no-pretty",
+    --       -- "--shadow-file",
+    --       -- params.bufname,
+    --       -- params.temp_path,
+    --       params.bufname,
+    --     }
+    --   end,
+    --   on_output = h.diagnostics.from_patterns({
+    --     { -- case with column given
+    --       pattern = "([^:]+):(%d+):(%d+): (%a+): (.*)  %[([%a-]+)%]",
+    --       groups = { "filename", "row", "col", "severity", "message", "code" },
+    --       overrides = mypy_overrides,
+    --     },
+    --     { -- case with missing column
+    --       pattern = "([^:]+):(%d+): (%a+): (.*)  %[([%a-]+)%]",
+    --       groups = { "filename", "row", "severity", "message", "code" },
+    --       overrides = mypy_overrides,
+    --     },
+    --   }),
+    --   timeout = 1 * 60 * 1000, -- 5 min
+    -- }),
     builtins.formatting.black.with({
       command = "black",
       dynamic_command = from_python_env,

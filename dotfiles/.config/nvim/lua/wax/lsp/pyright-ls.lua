@@ -79,7 +79,6 @@ return {
       analysis = {
         autoSearchPaths = true,
         -- useLibraryCodeForTypes = true,  -- pandas analysis is wrong
-        useLibraryCodeForTypes = false,
         typeCheckingMode = "basic",
         diagnosticMode = "workspace",
       },
@@ -107,7 +106,7 @@ return {
 
     msg = "LSP python (pyright) - new path '%s' for new_root_dir '%s'"
     log.info(msg:format(python_path, new_workspace))
-    config.pythonPath = python_path
+    config.settings.python.pythonPath = python_path
     return config
   end,
 }
