@@ -5,6 +5,7 @@ local server = require("nvim-lsp-installer.server")
 
 local pip_pkgs = {
   "python-lsp-server[rope]", -- lsp
+  "pylsp-mypy",
 }
 
 local log_dir = vim.env.HOME .. "/.cache/nvim"
@@ -25,6 +26,8 @@ local function register_pylsp_custom(python_path, project)
   local pylsp_server = server.Server:new({
     name = "pylsp",
     root_dir = server.get_server_root_path("pylsp-" .. project),
+    languages = { "python" },
+    homepage = "https://github.com/python-lsp/python-lsp-server",
     installer = python_utils.create_installer(python_path, pip_pkgs),
     default_options = { cmd = cmd },
   })
