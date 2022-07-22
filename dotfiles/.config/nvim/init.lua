@@ -22,5 +22,5 @@ require("wax.keymaps")
 
 require("wax.themes")
 
-require("wax.filetypes")
+require("wax.autocmds")
 require("wax.folds")

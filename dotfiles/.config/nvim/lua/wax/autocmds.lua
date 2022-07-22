@@ -1,3 +1,9 @@
+-- Handle Views
+local group_view = "Views"
+vim.api.nvim_create_augroup(group_view, { clear = true })
+vim.api.nvim_create_autocmd("BufRead", { pattern = "*", command = "silent! loadview" })
+vim.api.nvim_create_autocmd("BufWrite", { pattern = "*", command = "silent! mkview" })
+
 -- Ensure FileType for specific file pattern
 local group_ensure_ft = "Ensure FileType"
 vim.api.nvim_create_augroup(group_ensure_ft, { clear = true })
@@ -28,7 +34,7 @@ vim.api.nvim_create_augroup(group_ft_settings, { clear = true })
 
 local map_ft_local_settings = {
   yaml = "shiftwidth=2 tabstop=2 softtabstop=2",
-  gitcommit = "spell",
+  gitcommit = "spell viewdir=",
   git = "syntax=on nofoldenable",
   vim = "tabstop=2 foldlevel=99 foldmethod=marker",
   ["*sh"] = "nofoldenable",

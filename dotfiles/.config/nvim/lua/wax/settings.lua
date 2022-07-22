@@ -58,6 +58,9 @@ vim.api.nvim_exec([[set listchars=tab:›\ ,trail:•,extends:#,nbsp:.]], false)
 -- Backup, swap, undo & sessions
 local basedir = vim.fn.expand("$HOME") .. "/.local/share/nvim"
 
+-- swapfile
+vim.o.directory = basedir .. "/swap"
+
 local backupdir = basedir .. "/backup"
 vim.fn.mkdir(backupdir, "p")
 vim.o.backupdir = backupdir
@@ -75,16 +78,7 @@ if vim.fn.has("mksession") == 1 then
   local viewdir = basedir .. "/view"
   vim.fn.mkdir(viewdir, "p")
   vim.o.viewdir = viewdir
-
   vim.o.viewoptions = "cursor,folds,slash,unix"
-  vim.api.nvim_exec(
-    [[
-    autocmd FileType gitcommit setlocal viewdir=
-    autocmd BufWrite * silent! mkview
-    autocmd BufRead * silent! loadview
-    ]],
-    false
-  )
 end
 
 -- NetRW (https://shapeshed.com/vim-netrw/)
@@ -98,9 +92,9 @@ vim.o.smartcase = true -- ... unless they contain at least one capital letter
 
 -- edit file search path ignore
 local ignore_file_patterns = { ".egg-info/", "__pycache__/", "node_modules/" }
--- for _, pattern  in ipairs(ignore_file_patterns) do
---   vim.o.wildignore = vim.o.wildignore .. "," .. "**" .. pattern .. "**"
--- end
+for _, pattern in ipairs(ignore_file_patterns) do
+  vim.o.wildignore = vim.o.wildignore .. "," .. "**" .. pattern .. "**"
+end
 
 -- Clipboard
 if vim.fn.has("clipboard") == 1 and vim.fn.has("unnamedplus") == 1 then
