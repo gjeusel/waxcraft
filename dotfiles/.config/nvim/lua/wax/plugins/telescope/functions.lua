@@ -1,4 +1,3 @@
-require("wax.plugins.telescope.layout")
 local constants = require("wax.plugins.telescope.constants")
 
 local builtin = require("telescope.builtin")
@@ -16,7 +15,6 @@ M.entirely_fuzzy_grep_string = function(opts)
     search = "", -- https://github.com/nvim-telescope/telescope.nvim/issues/564
     cwd = find_root_dir("."),
     vimgrep_arguments = constants.grep_cmds["rg"],
-    -- debouce = 100,
   }
   return builtin.grep_string(vim.tbl_extend("force", default_opts, opts))
 end
@@ -25,20 +23,7 @@ end
 M.wax_find_file = function(opts)
   opts = opts or {}
 
-  local default_opts = {
-    -- require("telescope.themes").get_ivy(),
-    hidden = true,
-    attach_mappings = function(_)
-      actions.center:replace(function(_)
-        vim.wo.foldmethod = vim.wo.foldmethod or "expr"
-        vim.wo.foldexpr = vim.wo.foldexpr or "nvim_treesitter#foldexpr()"
-        vim.cmd(":normal! zx")
-        vim.cmd(":normal! zz")
-        pcall(vim.cmd, ":loadview") -- silent load view
-      end)
-      return true
-    end,
-  }
+  local default_opts = { hidden = true }
 
   local git = opts.git_files
   if git == nil then
@@ -65,17 +50,15 @@ M.wax_file = function()
   local opts = {
     prompt_title = "~ dotfiles waxdir ~",
     hidden = true,
-    -- find_command="find",
     search_dirs = {
       "~/src/waxcraft",
       "~/.config/nvim",
-      "~/.local/share/nvim/site/pack/packer",
+      -- "~/.local/share/nvim/site/pack/packer",
       -- Local not versioned in dotfiles:
       "~/.gitconfig",
       "~/.python_startup_local.py",
       "~/.zshrc",
     },
-    layout_strategy = "vertical",
   }
   builtin.find_files(opts)
 end

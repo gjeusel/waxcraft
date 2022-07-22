@@ -105,6 +105,14 @@ return require("packer").startup({
       end,
     })
 
+    -- use({ -- ultra fold
+    --   "kevinhwang91/nvim-ufo",
+    --   requires = "kevinhwang91/promise-async",
+    --   config = function()
+    --     require("wax.plugins.folds-ufo")
+    --   end,
+    -- })
+
     -- Tpope is awesome
     use("tpope/vim-surround") -- change surrounding easily
     use("tpope/vim-eunuch") -- sugar for the UNIX shell commands
@@ -185,6 +193,7 @@ return require("packer").startup({
     --------- Fuzzy Fuzzy Fuzzy ---------
     use({ -- telescope
       "nvim-telescope/telescope.nvim",
+      branch = "0.1.x",
       -- lock = true,
       requires = {
         "nvim-lua/popup.nvim",
@@ -262,7 +271,7 @@ return require("packer").startup({
       -- commit = "b68fcc6bb2c770495ff8e2508c06dfdd49abcc80",
       requires = {
         "nvim-lua/lsp-status.nvim",
-        {
+        { -- nvim-lspconfig
           "neovim/nvim-lspconfig",
           config = function()
             require("wax.plugins.nvim-lsp-installer")

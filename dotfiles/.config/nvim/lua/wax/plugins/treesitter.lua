@@ -21,8 +21,7 @@ ts.setup({
   },
   indent = {
     enable = true,
-    disable = { "yaml", "python", "lua", "vue", "vim", "typescript" },
-    -- disable = { "yaml", "lua" },
+    disable = { "python", "lua", "vue", "vim", "typescript" },
   },
   ensure_installed = { -- one of 'all', 'language' or a list of languages
     -- Generic:
@@ -33,7 +32,6 @@ ts.setup({
     "query",
     "regex",
     "toml",
-    "yaml",
     "markdown",
     -- Frontend:
     "graphql",

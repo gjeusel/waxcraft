@@ -1,88 +1,54 @@
-vim.api.nvim_exec(
-  [[
-" Setting FileType:
+-- Ensure FileType for specific file pattern
+local group_ensure_ft = "Ensure FileType"
+vim.api.nvim_create_augroup(group_ensure_ft, { clear = true })
 
-augroup ensureFileType
-  " Make sure all markdown files have the correct filetype set
-  au BufRead,BufNewFile *.{md,md.erb,markdown,mdown,mkd,mkdn} set filetype=markdown
+local map_ft_pattern = {
+  markdown = { "*.md", "*.md.erb", "*.markdown", "*.mdown", "*.mkd", "*.mkdn" },
+  ini = { ".flake8" },
+  sh = { "cronfile", "*.txt", "*.env*", "*.flaskenv" },
+  zsh = { "*aliases" },
+  nix = { "*.nix" },
+  config = { ".gitconfig", ".gitignore", "*.conf" },
+  yaml = { "*.kubeconfig", "*.yaml", "*.yml" },
+  terraform = { "*.tf", "*.tfvars", "*.tfstate" },
+  edgeql = { "*.edgeql", "*.esdl" },
+}
 
-  au BufNewFile,BufRead .flake8 set filetype=ini
+for filetype, pattern in pairs(map_ft_pattern) do
+  vim.api.nvim_create_autocmd({ "BufNewFile", "BufRead" }, {
+    group = group_ensure_ft,
+    pattern = pattern,
+    command = ("set filetype=%s"):format(filetype),
+  })
+end
 
-  au BufNewFile,BufRead cronfile set filetype=sh
-  au BufNewFile,BufRead *.{sh,txt,env*,flaskenv} set filetype=sh
-  au BufNewFile,BufRead *aliases set filetype=zsh
+-- Local Settings depending on FileType
+local group_ft_settings = "FileType Local Settings"
+vim.api.nvim_create_augroup(group_ft_settings, { clear = true })
 
-  au BufNewFile,BufRead *.nix set filetype=nix
+local map_ft_local_settings = {
+  yaml = "shiftwidth=2 tabstop=2 softtabstop=2",
+  gitcommit = "spell",
+  git = "syntax=on nofoldenable",
+  vim = "tabstop=2 foldlevel=99 foldmethod=marker",
+  ["*sh"] = "nofoldenable",
+  markdown = "spell textwidth=140", -- "wrap wrapmargin=2"
+  json = "foldmethod=syntax foldlevel=99",
+  edgeql = "commentstring=#%s",
+  --
+  python = "shiftwidth=4 tabstop=4 softtabstop=4",
+  --
+  html = "foldmethod=syntax foldlevel=4 nowrap shiftwidth=2 tabstop=2 softtabstop=2",
+  [{ "vue", "typescript", "typescriptreact", "javascript", "javascriptreact" }] = "foldminlines=3",
+}
 
-  au BufNewFile,BufRead .gitconfig set filetype=conf
-  au BufNewFile,BufRead *.conf set filetype=config
-  au BufNewFile,BufRead *.{kubeconfig,yml,yaml} set filetype=yaml syntax=on
-augroup end
-
-
-" Generic:
-augroup generic
-  au Filetype gitcommit setlocal spell textwidth=72
-  au FileType git setlocal foldlevel=20  " open all unfolded
-  au FileType git setlocal syntax=on
-  au Filetype vim setlocal tabstop=2 foldmethod=marker
-  au FileType *.ya?ml setlocal shiftwidth=2 tabstop=2 softtabstop=2
-  au FileType sh,zsh setlocal foldmethod=marker foldlevel=10
-  au FileType markdown setlocal wrap wrapmargin=2 textwidth=140 spell
-  au FileType lua setlocal foldmethod=expr foldexpr=nvim_treesitter#foldexpr()
-augroup end
-
-
-" Infra:
-augroup infra
-  au BufRead,BufNewFile *.{tf,tfvars} set filetype=terraform
-  au FileType terraform setlocal foldmethod=expr foldexpr=nvim_treesitter#foldexpr()
-augroup end
-
-
-" EdgeDB
-augroup edgeql
-  au BufNewFile,BufRead *.edgeql setf edgeql
-  au BufNewFile,BufRead *.esdl setf edgeql
-  au FileType edgeql setlocal commentstring=#%s
-augroup end
-
-
-" Python
-augroup python
-  au FileType python setlocal shiftwidth=4 tabstop=4 softtabstop=4 colorcolumn=100
-  au FileType python setlocal foldenable foldmethod=expr foldexpr=nvim_treesitter#foldexpr()
-  "au FileType python setlocal foldenable foldmethod=expr foldexpr=SimpylFold#FoldExpr(v:lnum)
-augroup end
-
-
-" rust
-augroup rust
-  au FileType rust setlocal foldenable foldmethod=expr foldexpr=nvim_treesitter#foldexpr()
-augroup end
-
-
-" Frontend:
-augroup frontend
-  " HTML
-  autocmd FileType html setlocal shiftwidth=2 tabstop=2 softtabstop=2 expandtab
-  autocmd FileType html setlocal foldmethod=syntax nowrap foldlevel=4
-
-  " JSON
-  autocmd FileType json setlocal foldmethod=syntax foldlevel=20
-
-  " JS / TS / Vue
-  autocmd FileType vue,typescript,typescriptreact setlocal foldmethod=expr foldexpr=nvim_treesitter#foldexpr() foldminlines=3
-augroup end
-
-]],
-  false
-)
-
--- vim.cmd [[
--- " Switch to the current file directory when a new buffer is opened
--- au BufEnter * if bufname("") !~ "^\[A-Za-z0-9\]*://" | lcd %:p:h | endif
--- ]]
+for filetype, settings in pairs(map_ft_local_settings) do
+  vim.api.nvim_create_autocmd("FileType", {
+    group = group_ft_settings,
+    pattern = filetype,
+    command = ("setlocal %s"):format(settings),
+  })
+end
 
 -- Performances
 -- https://www.reddit.com/r/neovim/comments/pz3wyc/comment/heyy4qf/?utm_source=share&utm_medium=web2x&context=3

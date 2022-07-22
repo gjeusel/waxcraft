@@ -1,39 +1,28 @@
-local transform_mod = require("telescope.actions.mt").transform_mod
 local actions = require("telescope.actions")
-
 local constants = require("wax.plugins.telescope.constants")
 
--- Waiting for: https://github.com/nvim-telescope/telescope.nvim/issues/684
--- for this to work
-local custom_actions = transform_mod({
-  restore_folds = function(_)
-    vim.wo.foldmethod = vim.wo.foldmethod or "expr"
-    vim.wo.foldexpr = vim.wo.foldexpr or "nvim_treesitter#foldexpr()"
-    vim.cmd(":normal! zx")
-    -- vim.cmd(":normal! zz")
-  end,
-  restore_view = function(_)
-    pcall(vim.cmd, ":loadview") -- suppress error in case of no view stored
-  end,
-})
-
--- https://github.com/nvim-telescope/telescope.nvim/issues/1277
-vim.api.nvim_create_autocmd("BufRead", {
-  callback = function()
-    vim.api.nvim_create_autocmd("BufWinEnter", {
-      once = true,
-      command = "normal! zx",
-    })
-  end,
-})
+-- -- https://github.com/nvim-telescope/telescope.nvim/issues/559
+-- vim.api.nvim_create_autocmd("BufRead", {
+--   callback = function()
+--     vim.api.nvim_create_autocmd("BufWinEnter", {
+--       once = true,
+--       callback = function()
+--         vim.defer_fn(function()
+--           -- local str = vim.api.nvim_replace_termcodes(":silent! loadview<cr>", true, false, true)
+--           -- vim.api.nvim_feedkeys(str, "m", false)
+--           vim.cmd([[:silent! loadview]])
+--         end, 0)
+--       end,
+--     })
+--   end,
+-- })
 
 require("telescope").setup({
   defaults = {
     prompt_prefix = "❯ ",
     selection_caret = "❯ ",
-    vimgrep_arguments = constants.grep_cmds["rg"], -- Using ripgrep
+    vimgrep_arguments = constants.grep_cmds["rg"],
     color_devicons = false,
-    -- layout_strategy = "flexwax",
     sorting_strategy = "descending",
     layout_strategy = "horizontal",
     layout_config = {
@@ -42,23 +31,19 @@ require("telescope").setup({
         height_padding = 0.1,
         preview_width = 0.5,
       },
-      -- vertical = {
-      --   width_padding = 0.1,
-      --   height_padding = 2,
-      --   preview_height = 0.5,
-      --   mirror = true,
-      -- },
+      vertical = {
+        width_padding = 0.1,
+        height_padding = 2,
+        preview_height = 0.5,
+        -- mirror = true,
+      },
     },
     mappings = {
       i = {
         ["<C-f>"] = actions.smart_send_to_qflist, -- + actions.open_qflist, -- + my_cool_custom_action.x,
-        -- ["<CR>"] = actions.select_default + actions.center,
-        -- ["<CR>"] = actions.select_default + actions.center + custom_actions.restore_view,
       },
       n = {
         ["<C-f>"] = actions.smart_send_to_qflist, -- + actions.open_qflist, -- + my_cool_custom_action.x,
-        -- ["<CR>"] = actions.select_default + actions.center,
-        -- ["<CR>"] = actions.select_default + actions.center + custom_actions.restore_view,
       },
     },
     file_ignore_patterns = {

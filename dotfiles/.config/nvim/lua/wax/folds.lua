@@ -1,4 +1,9 @@
--- vim.o.foldminlines = 2
+vim.o.foldenable = true -- Open all folds while not set.
+-- vim.o.foldminlines = 3 -- Min lines before fold.
+
+-- By default, use treesitter:
+vim.o.foldmethod = "expr"
+vim.o.foldexpr = "nvim_treesitter#foldexpr()"
 
 -- TODO: convert it to lua function ?
 vim.cmd([[

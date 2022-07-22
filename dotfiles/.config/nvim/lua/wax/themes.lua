@@ -1,10 +1,6 @@
 -- vim.cmd("syntax on")
 
 -- vim.o.termguicolors = true
-vim.o.colorcolumn = "100" -- Show vertical bar at column 100
-vim.o.signcolumn = "yes"
-
--- vim.o.termguicolors = true
 vim.o.background = "dark"
 vim.g.gruvbox_invert_selection = 0
 vim.g.gruvbox_improved_warnings = 1

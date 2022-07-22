@@ -6,6 +6,7 @@ vim.o.relativenumber = true -- relative line number
 
 -- vim.o.laststatus = 3  -- global statusline
 
+vim.o.colorcolumn = "100" -- Show vertical bar at column 100
 vim.o.signcolumn = "yes" -- always show sign column
 vim.o.ruler = true -- Show the cursor position all the time
 -- vim.o.cursorline = true     -- Highlight the line of the cursor
@@ -16,8 +17,6 @@ vim.o.scrolljump = 5 -- Lines to scroll when cursor leaves screen
 vim.o.scrolloff = 3 -- Have some context around the current line always on screen
 vim.o.virtualedit = "onemore" -- Allow for cursor beyond last character
 vim.o.hidden = true -- Allow backgrounding buffers without writin them, and remember marks/undo for backgrounded buffers
-vim.o.foldenable = true -- Open all folds while not set.
--- vim.o.foldminlines = 3 -- Min lines before fold.
 vim.o.splitright = true -- split at the right of current buffer (left default behaviour)
 vim.o.splitbelow = true -- split at the below of current buffer (top default behaviour)
 vim.o.autochdir = true -- working directory is always the same as the file you are editing
