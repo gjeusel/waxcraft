@@ -34,7 +34,7 @@ vim.api.nvim_create_augroup(group_ft_settings, { clear = true })
 
 local map_ft_local_settings = {
   yaml = "shiftwidth=2 tabstop=2 softtabstop=2",
-  gitcommit = "spell viewdir=",
+  gitcommit = "spell viewoptions= viewdir=",
   git = "syntax=on nofoldenable",
   vim = "tabstop=2 foldlevel=99 foldmethod=marker",
   ["*sh"] = "nofoldenable",
@@ -42,7 +42,7 @@ local map_ft_local_settings = {
   json = "foldmethod=syntax foldlevel=99",
   edgeql = "commentstring=#%s",
   --
-  python = "shiftwidth=4 tabstop=4 softtabstop=4",
+  python = "shiftwidth=4 tabstop=4 softtabstop=4 foldlevel=0",
   --
   html = "foldmethod=syntax foldlevel=4 nowrap shiftwidth=2 tabstop=2 softtabstop=2",
   [{ "vue", "typescript", "typescriptreact", "javascript", "javascriptreact" }] = "foldminlines=3",

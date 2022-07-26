@@ -90,11 +90,10 @@ vim.g.loaded_netrwPlugin = 1 -- performance reasons
 vim.o.ignorecase = true -- searches are case insensitive...
 vim.o.smartcase = true -- ... unless they contain at least one capital letter
 
--- edit file search path ignore
-local ignore_file_patterns = { ".egg-info/", "__pycache__/", "node_modules/" }
-for _, pattern in ipairs(ignore_file_patterns) do
-  vim.o.wildignore = vim.o.wildignore .. "," .. "**" .. pattern .. "**"
-end
+vim.o.wildignore = "**/*.egg-info,**/__pycache__,**/node_modules" -- ignore those pattern in :e autocomplete
+vim.o.wildignorecase = true -- ignore case on :e
+vim.o.wildmenu = false
+vim.o.wildmode = "list"
 
 -- Clipboard
 if vim.fn.has("clipboard") == 1 and vim.fn.has("unnamedplus") == 1 then

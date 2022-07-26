@@ -1,21 +1,22 @@
 local actions = require("telescope.actions")
 local constants = require("wax.plugins.telescope.constants")
 
--- -- https://github.com/nvim-telescope/telescope.nvim/issues/559
--- vim.api.nvim_create_autocmd("BufRead", {
---   callback = function()
---     vim.api.nvim_create_autocmd("BufWinEnter", {
---       once = true,
---       callback = function()
---         vim.defer_fn(function()
---           -- local str = vim.api.nvim_replace_termcodes(":silent! loadview<cr>", true, false, true)
---           -- vim.api.nvim_feedkeys(str, "m", false)
---           vim.cmd([[:silent! loadview]])
---         end, 0)
---       end,
---     })
---   end,
--- })
+-- https://github.com/nvim-telescope/telescope.nvim/issues/559
+vim.api.nvim_create_autocmd("BufRead", {
+  callback = function()
+    vim.api.nvim_create_autocmd("BufWinEnter", {
+      once = true,
+      pattern = { "*.py", "*.ts", "*.vue" },
+      callback = function()
+        vim.defer_fn(function()
+          -- local str = vim.api.nvim_replace_termcodes(":silent! loadview<cr>", true, false, true)
+          -- vim.api.nvim_feedkeys(str, "m", false)
+          vim.cmd([[:silent! loadview]])
+        end, 0)
+      end,
+    })
+  end,
+})
 
 require("telescope").setup({
   defaults = {

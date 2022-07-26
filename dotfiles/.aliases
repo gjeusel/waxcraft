@@ -217,6 +217,8 @@ vfzf() {
   fi
 }
 
+alias vfind='nvim $(find . -path ".*$*")'
+
 # Bind ctrl + p  to fuzzy finder
 # -s simulate keyboard entry
 # (^U) to delete the whole line
