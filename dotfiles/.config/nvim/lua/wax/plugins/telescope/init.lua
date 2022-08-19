@@ -6,12 +6,13 @@ vim.api.nvim_create_autocmd("BufRead", {
   callback = function()
     vim.api.nvim_create_autocmd("BufWinEnter", {
       once = true,
-      pattern = { "*.py", "*.ts", "*.vue" },
+      pattern = { "*.py", "*.ts", "*.vue", ".lua" },
       callback = function()
         vim.defer_fn(function()
           -- local str = vim.api.nvim_replace_termcodes(":silent! loadview<cr>", true, false, true)
           -- vim.api.nvim_feedkeys(str, "m", false)
-          vim.cmd([[:silent! loadview]])
+          -- vim.cmd([[:silent! loadview]])
+          vim.cmd([[:normal! zx]])
         end, 0)
       end,
     })

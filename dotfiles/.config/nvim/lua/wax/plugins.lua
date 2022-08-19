@@ -112,6 +112,26 @@ return require("packer").startup({
     --     require("wax.plugins.folds-ufo")
     --   end,
     -- })
+    use({
+      "Konfekt/FastFold",
+      config = function()
+        -- FastFold:
+        vim.g.fastfold_savehook = 0
+      end,
+    })
+    -- use({
+    --   "tmhedberg/SimpylFold",
+    --   requires = "Konfekt/FastFold",
+    --   config = function()
+    --     -- SimpylFold:
+    --     vim.g.SimpylFold_docstring_preview = 0
+    --     vim.g.SimpylFold_fold_docstring = 1
+    --     vim.g.SimpylFold_fold_import = 0
+    --     -- FastFold:
+    --     vim.g.fastfold_savehook = 0
+    --   end,
+    --   -- ft = { "python" },
+    -- })
 
     -- Tpope is awesome
     use("tpope/vim-surround") -- change surrounding easily
