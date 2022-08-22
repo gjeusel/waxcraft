@@ -22,3 +22,61 @@ endfunction
 ]])
 
 vim.cmd("set foldtext=FoldText()")
+
+-- Taken from https://github.com/kevinhwang91/nvim-ufo
+
+local function goPreviousStartFold()
+  local function getCurLnum()
+    return vim.api.nvim_win_get_cursor(0)[1]
+  end
+
+  local cnt = vim.v.count1
+  local winView = vim.fn.winsaveview()
+  local curLnum = getCurLnum()
+  vim.cmd("norm! m`")
+  local previousLnum
+  local previousLnumList = {}
+  while cnt > 0 do
+    vim.cmd([[keepj norm! zk]])
+    local tLnum = getCurLnum()
+    vim.cmd([[keepj norm! [z]])
+    if tLnum == getCurLnum() then
+      local foldStartLnum = vim.fn.foldclosed(tLnum)
+      if foldStartLnum > 0 then
+        vim.cmd(("keepj norm! %dgg"):format(foldStartLnum))
+      end
+    end
+    local nextLnum = getCurLnum()
+    while curLnum > nextLnum do
+      tLnum = nextLnum
+      table.insert(previousLnumList, nextLnum)
+      vim.cmd([[keepj norm! zj]])
+      nextLnum = getCurLnum()
+      if nextLnum == tLnum then
+        break
+      end
+    end
+    if #previousLnumList == 0 then
+      break
+    end
+    if #previousLnumList < cnt then
+      cnt = cnt - #previousLnumList
+      curLnum = previousLnumList[1]
+      previousLnum = curLnum
+      vim.cmd(("keepj norm! %dgg"):format(curLnum))
+      previousLnumList = {}
+    else
+      while cnt > 0 do
+        previousLnum = table.remove(previousLnumList)
+        cnt = cnt - 1
+      end
+    end
+  end
+  vim.fn.winrestview(winView)
+  if previousLnum then
+    vim.cmd(("norm! %dgg_"):format(previousLnum))
+  end
+end
+
+vim.keymap.set("n", "zK", "zk", { noremap = true })
+vim.keymap.set("n", "zk", goPreviousStartFold)

@@ -107,15 +107,15 @@ cmp.setup({
         end,
       },
     },
-    { name = "copilot", max_item_count = 3, keyword_length = 5 },
+    -- { name = "copilot", max_item_count = 3, keyword_length = 5 },
     { name = "path" },
     -- { name = "treesitter" },
   },
   sorting = {
     priority_weight = 2,
     comparators = {
-      require("copilot_cmp.comparators").prioritize,
-      require("copilot_cmp.comparators").score,
+      -- require("copilot_cmp.comparators").prioritize,
+      -- require("copilot_cmp.comparators").score,
 
       -- Below is the default comparitor list and order for nvim-cmp
       cmp.config.compare.offset,

@@ -105,20 +105,21 @@ return require("packer").startup({
       end,
     })
 
-    -- use({ -- ultra fold
-    --   "kevinhwang91/nvim-ufo",
-    --   requires = "kevinhwang91/promise-async",
+    -- -- use({ -- ultra fold
+    -- --   "kevinhwang91/nvim-ufo",
+    -- --   requires = "kevinhwang91/promise-async",
+    -- --   config = function()
+    -- --     require("wax.plugins.folds-ufo")
+    -- --   end,
+    -- -- })
+    -- use({
+    --   "Konfekt/FastFold",
     --   config = function()
-    --     require("wax.plugins.folds-ufo")
+    --     -- FastFold:
+    --     vim.g.fastfold_savehook = 0
     --   end,
     -- })
-    use({
-      "Konfekt/FastFold",
-      config = function()
-        -- FastFold:
-        vim.g.fastfold_savehook = 0
-      end,
-    })
+
     -- use({
     --   "tmhedberg/SimpylFold",
     --   requires = "Konfekt/FastFold",
@@ -324,21 +325,21 @@ return require("packer").startup({
             require("wax.plugins.nvim-autopairs")
           end,
         },
-        { -- GH copilot setup
-          "zbirenbaum/copilot-cmp",
-          module = "copilot_cmp",
-          requires = {
-            -- { "github/copilot.vim", branch = "release" },
-            { "zbirenbaum/copilot.lua" },
-          },
-          -- event = { "VimEnter" },
-          event = { "InsertEnter" },
-          config = function()
-            vim.schedule(function()
-              require("wax.plugins.gh-copilot")
-            end)
-          end,
-        },
+        -- { -- GH copilot setup
+        --   "zbirenbaum/copilot-cmp",
+        --   module = "copilot_cmp",
+        --   requires = {
+        --     -- { "github/copilot.vim", branch = "release" },
+        --     { "zbirenbaum/copilot.lua" },
+        --   },
+        --   -- event = { "VimEnter" },
+        --   event = { "InsertEnter" },
+        --   config = function()
+        --     vim.schedule(function()
+        --       require("wax.plugins.gh-copilot")
+        --     end)
+        --   end,
+        -- },
       },
       config = function()
         require("wax.plugins.nvim-cmp")
