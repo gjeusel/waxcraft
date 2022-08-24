@@ -39,12 +39,16 @@ local function lsp_keymaps()
   vim.keymap.set("n", "<leader>fa", vim.lsp.buf.code_action, opts)
 
   local goto_win_opts = {
-    popup_opts = {
+    float = {
+      -- nvim_open_win generic:
       relative = "cursor",
-      focusable = false,
       style = "minimal",
       border = "rounded",
-      show_header = false,
+      -- open_floating_preview generic:
+      focusable = true,
+      -- lsp win specific:
+      scope = "cursor",
+      header = "",
     },
   }
   vim.keymap.set("n", "å", function()
