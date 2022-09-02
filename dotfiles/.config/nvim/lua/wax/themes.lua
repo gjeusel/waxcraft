@@ -13,133 +13,180 @@ vim.g.nord_disable_background = true
 -- https://github.com/nvim-treesitter/nvim-treesitter/blob/8adb2e0352858d1b12c0b4ee3617c9f38ed8c53b/lua/nvim-treesitter/highlight.lua
 
 -- Gruvbox Specific
+local base_gruvbox_hls = {
+  -- Base interface
+  Normal = { ctermbg = nil },
+  NormalFloat = { ctermbg = nil },
+  SignColumn = { ctermbg = nil },
+  VertSplit = { ctermbg = nil },
+  CursorLineNr = { ctermbg = nil },
+  EndOfBuffer = { ctermbg = nil },
+  ColorColumn = { ctermbg = 236 },
+
+  -- Better diff views
+  DiffAdd = { cterm = nil, ctermfg = "Green", ctermbg = nil },
+  DiffChange = { cterm = nil, ctermfg = "Yellow", ctermbg = nil },
+  DiffDelete = { cterm = nil, ctermfg = "Red", ctermbg = nil },
+  DiffText = { cterm = nil, ctermfg = "Blue", ctermbg = nil },
+
+  -- statusline
+  Statusline = { link = "GruvboxFg3" },
+
+  -- barbar
+  BufferCurrent = { link = "GruvboxFg1" },
+  BufferCurrentSign = { link = "GruvboxAqua" },
+  BufferCurrentMod = { link = "GruvboxAqua" },
+
+  BufferVisible = { link = "GruvboxFg2" },
+  BufferVisibleSign = { link = "GruvboxBlue" },
+  BufferVisibleMod = { link = "GruvboxBlue" },
+
+  BufferInactive = { link = "GruvboxFg4" },
+  BufferInactiveSign = { link = "GruvboxFg4" },
+  BufferInactiveMod = { link = "GruvboxFg4" },
+
+  BufferTabpages = { link = "GruvboxBg0" },
+  BufferTabpageFill = { link = "GruvboxBg0" },
+
+  -- fold
+  Folded = { bold = true, ctermbg = nil, ctermfg = 248 },
+
+  -- lsp
+  DiagnosticError = { link = "GruvboxRed" },
+  DiagnosticWarn = { link = "GruvboxYellow" },
+  DiagnosticInfo = { link = "GruvboxFg3" },
+  DiagnosticHint = { link = "GruvboxBlue" },
+
+  -- nvim-cmp
+  CmpItemAbbrMatch = { link = "GruvboxFg3" },
+  CmpItemAbbrMatchFuzzy = { link = "GruvboxFg3" },
+  CmpItemKind = { link = "GruvboxFg4" },
+  CmpItemMenu = { link = "GruvboxBg4" },
+  CmpItemAbbrDeprecated = { strikethrough = true },
+}
+
+local base_gruvbox_ts_hls = {
+  TSProperty = { link = "white" },
+  TSParameter = { link = "white" },
+  TSConstant = { link = "white" },
+  TSVariable = { link = "white" },
+  TSField = { link = "white" },
+  TSConstructor = { link = "white" },
+
+  TSPunctSpecial = { link = "GruvboxFg3" },
+  TSPunctBracket = { link = "GruvboxFg3" },
+  TSPunctDelimiter = { link = "white" },
+}
+
+local frontend_gruvbox_ts_hls = {
+  TSVariableBuiltin = { link = "GruvboxOrange" },
+
+  TSFunction = { link = "GruvboxBlue" },
+  TSMethod = { link = "GruvboxBlue" },
+
+  TSTagAttribute = { link = "GruvboxFg3" },
+
+  TSType = { link = "GruvboxYellow" },
+  TSTypeBuiltin = { link = "GruvboxYellow" },
+
+  TSTitle = { link = "GruvboxYellow" },
+}
+
+local python_gruvbox_ts_hls = {
+  TSInclude = { link = "GruvboxBlue" },
+
+  TSKeywordOperator = { link = "GruvboxRed" },
+  TSBoolean = { link = "GruvboxOrange" },
+
+  TSNone = { link = "GruvboxFg1" }, -- fstring interpolation
+
+  TSPunctDelimiter = { link = "white" },
+  TSPunctBracket = { link = "white" },
+  TSPunctSpecial = { link = "GruvboxOrange" }, -- { } of f-string
+
+  TSOperator = { link = "GruvboxFg1" },
+
+  TSField = { link = "white" },
+
+  TSConstant = { link = "white" },
+  TSVariable = { link = "white" },
+  TSParameter = { link = "white" },
+
+  TSType = { link = "GruvboxYellow" },
+
+  TSMethod = { link = "GruvboxAqua" },
+  TSFunction = { link = "GruvboxAqua" },
+  TSConstructor = { link = "GruvboxGreen" }, -- used for decorators
+
+  TSVariableBuiltin = { link = "GruvboxBlue" },
+  TSFuncBuiltin = { link = "GruvboxYellow" },
+  TSConstBuiltin = { link = "GruvboxOrange" },
+}
+
 local apply_gruvbox_theme = function()
-  vim.api.nvim_exec(
-    [[
-" Statusline
-hi! link Statusline GruvboxFg3
+  local apply_highlights = function(tbl)
+    for k, v in pairs(tbl) do
+      vim.api.nvim_set_hl(0, k, vim.tbl_extend("keep", v, { default = false }))
+    end
+  end
 
-" barbar
-hi! link BufferCurrent GruvboxFg1
-hi! link BufferCurrentSign GruvboxAqua
-hi! link BufferCurrentMod GruvboxAqua
+  local highlights = vim.tbl_extend("keep", base_gruvbox_hls, base_gruvbox_ts_hls)
+  apply_highlights(highlights)
 
-hi! link BufferVisible GruvboxFg2
-hi! link BufferVisibleSign GruvboxBlue
-hi! link BufferVisibleMod GruvboxBlue
+  local python_ts_hl_group = "python-ts-hl"
+  vim.api.nvim_create_augroup(python_ts_hl_group, { clear = true })
+  vim.api.nvim_create_autocmd("FileType", {
+    group = python_ts_hl_group,
+    pattern = "python",
+    callback = function()
+      apply_highlights(python_gruvbox_ts_hls)
+    end,
+  })
 
-hi! link BufferInactive GruvboxFg4
-hi! link BufferInactiveSign GruvboxFg4
-hi! link BufferInactiveMod GruvboxFg4
-
-hi! link BufferTabpages GruvboxBg0
-hi! link BufferTabpageFill GruvboxBg0
-
-" Better Fold
-highlight Folded cterm=bold ctermbg=none
-hi! link Folded GruvboxFg3
-
-" Lsp
-hi! link DiagnosticError GruvboxRed
-hi! link DiagnosticWarn GruvboxYellow
-hi! link DiagnosticInfo GruvboxFg3
-hi! link DiagnosticHint GruvboxBlue
-
-" nvim-cmp
-hi! link CmpItemAbbrMatch GruvboxFg3
-hi! link CmpItemAbbrMatchFuzzy GruvboxFg3
-hi! link CmpItemKind GruvboxFg4
-hi! link CmpItemMenu GruvboxBg4
-hi! CmpItemAbbrDeprecated cterm=strikethrough
-
-" LightSpeed
-hi! link LightspeedShortcut GruvboxRedSign
-hi! link LightspeedShortcutOverlapped GruvboxRedSign
-hi! link LightspeedOneCharMatch GruvboxRedSign
-hi! link LightspeedPendingOpArea GruvboxRedSign
-hi! link LightspeedLabel GruvboxRedSign
-
-"" LSP colors
-"highlight LspReferenceRead cterm=bold ctermbg=red guibg=#464646
-"highlight LspReferenceText cterm=bold ctermbg=red guibg=#464646
-"highlight LspReferenceWrite cterm=bold ctermbg=red guibg=#464646
-
-" gitsigns
-hi! link GitSignsDelete GruvboxRed
-hi! link GitSignsChange GruvboxYellow
-hi! link GitSignsAdd GruvboxAqua
-
-]],
-    false
-  )
-end
-
--- TreeSitter + Gruvbox
-local apply_treesitter_frontend_theme = function()
-  -- https://github.com/nvim-treesitter/nvim-treesitter/blob/e473630fe0872cb0ed97cd7085e724aa58bc1c84/lua/nvim-treesitter/highlight.lua
-  vim.api.nvim_exec(
-    [[
-" TreeSitter for TypeScript and Vue
-hi! link TSProperty white
-hi! link TSParameter white
-hi! link TSConstant white
-hi! link TSVariable white
-hi! link TSField white
-hi! link TSConstructor white
-
-hi! link TSVariableBuiltin GruvboxOrange
-
-hi! link TSFunction GruvboxBlue
-hi! link TSMethod GruvboxBlue
-
-hi! link TSTagAttribute GruvboxFg3
-
-hi! link TSType GruvboxYellow
-hi! link TSTypeBuiltin GruvboxYellow
-
-hi! link TSPunctSpecial GruvboxFg3
-hi! link TSPunctBracket GruvboxFg3
-hi! link TSPunctDelimiter white
-
-hi! link TSTitle GruvboxYellow
-]],
-    false
-  )
+  local frontend_ts_hl_group = "frontend-ts-hl"
+  vim.api.nvim_create_augroup(frontend_ts_hl_group, { clear = true })
+  vim.api.nvim_create_autocmd("FileType", {
+    group = frontend_ts_hl_group,
+    pattern = { "vue", "typescript", "javascript", "typescriptreact", "javascriptreact" },
+    callback = function()
+      apply_highlights(frontend_gruvbox_ts_hls)
+    end,
+  })
 end
 
 local apply_treesitter_python_theme = function()
   vim.api.nvim_exec(
     [[
-  hi! link pythonTSInclude GruvboxBlue
+    hi! link pythonInclude GruvboxBlue
 
-  hi! link pythonTSKeywordOperator GruvboxRed
-  hi! link pythonTSBoolean GruvboxOrange
+    hi! link pythonKeywordOperator GruvboxRed
+    hi! link pythonBoolean GruvboxOrange
 
-  hi! link pythonTSNone GruvboxFg1  " fstring interpolation
+    hi! link pythonNone GruvboxFg1  " fstring interpolation
 
-  hi! link pythonTSPunctDelimiter white
-  hi! link pythonTSPunctBracket white
-  hi! link pythonTSPunctSpecial GruvboxOrange  " { } of f-string
+    hi! link pythonPunctDelimiter white
+    hi! link pythonPunctBracket white
+    hi! link pythonPunctSpecial GruvboxOrange  " { } of f-string
 
-  hi! link pythonTSOperator GruvboxFg1
+    hi! link pythonOperator GruvboxFg1
 
-  hi! link pythonTSConstant white
-  hi! link pythonTSConstructor white
-  hi! link pythonTSField white
+    hi! link pythonConstant white
+    hi! link pythonConstructor white
+    hi! link pythonField white
 
-  hi! link pythonTSConstant white
-  hi! link pythonTSVariable white
-  hi! link pythonTSParameter white
+    hi! link pythonConstant white
+    hi! link pythonVariable white
+    hi! link pythonParameter white
 
-  hi! link pythonTSType GruvboxYellow
-  hi! link pythonTSMethod GruvboxAqua
-  hi! link pythonTSFunction GruvboxAqua
-  hi! link pythonTSConstructor GruvboxGreen  " used for decorators
+    hi! link pythonType GruvboxYellow
+    hi! link pythonMethod GruvboxAqua
+    hi! link pythonFunction GruvboxAqua
+    hi! link pythonConstructor GruvboxGreen  " used for decorators
 
-  hi! link pythonTSVariableBuiltin GruvboxBlue
-  hi! link pythonTSFuncBuiltin GruvboxYellow
-  hi! link pythonTSConstBuiltin GruvboxOrange
-]],
+    hi! link pythonVariableBuiltin GruvboxBlue
+    hi! link pythonFuncBuiltin GruvboxYellow
+    hi! link pythonConstBuiltin GruvboxOrange
+  ]],
     false
   )
 end
@@ -147,39 +194,8 @@ end
 if iterm_colorscheme == "gruvbox" then
   vim.cmd("silent! colorscheme gruvbox")
   apply_gruvbox_theme()
-  apply_treesitter_frontend_theme()
-  apply_treesitter_python_theme()
 elseif iterm_colorscheme == "nord" then
   require("wax.themes.nord")
-end
-
-vim.api.nvim_exec(
-  [[
-" Base interface
-highlight Normal ctermbg=none
-highlight SignColumn ctermbg=none
-highlight VertSplit ctermbg=none
-highlight CursorLineNr ctermbg=none
-highlight EndOfBuffer ctermbg=none
-highlight ColorColumn ctermbg=236
-
-" Better diff views
-highlight DiffAdd cterm=none ctermfg=Green ctermbg=none
-highlight DiffChange cterm=none ctermfg=Yellow ctermbg=none
-highlight DiffDelete cterm=bold ctermfg=Red ctermbg=none
-highlight DiffText cterm=none ctermfg=Blue ctermbg=none
-
-" Better floating windows
-highlight NormalFloat ctermbg=none
-  ]],
-  false
-)
-
-M = {}
-
-M.apply_treesitter_gruvbox_theme = function()
-  apply_treesitter_frontend_theme()
-  apply_treesitter_python_theme()
 end
 
 nnoremap("<leader>xc", "<cmd>TSHighlightCapturesUnderCursor<cr>")
@@ -187,5 +203,3 @@ nnoremap(
   "<leader>xz",
   "<cmd>lua require('plenary.reload').reload_module('wax.themes'); require('wax.themes').apply_treesitter_gruvbox_theme()<cr>"
 )
-
-return M

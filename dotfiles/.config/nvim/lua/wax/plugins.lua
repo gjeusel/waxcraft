@@ -254,6 +254,7 @@ return require("packer").startup({
         },
         { -- better text objects
           "nvim-treesitter/nvim-treesitter-textobjects",
+          branch = "E13_keymap_failure", -- https://github.com/nvim-treesitter/nvim-treesitter-textobjects/issues/273
         },
         { -- comment string update on context (vue -> html + typescript)
           "JoosepAlviste/nvim-ts-context-commentstring",

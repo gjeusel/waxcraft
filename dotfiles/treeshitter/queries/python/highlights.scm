@@ -1,8 +1,8 @@
 ;; From tree-sitter-python licensed under MIT License
 ; Copyright (c) 2016 Max Brunsfeld
 
-; Variables
-(identifier) @variable
+;; ; Variables
+;; (identifier) @variable
 
 ; Reset highlighing in f-string interpolations
 (interpolation) @none
