@@ -1,6 +1,5 @@
 local python_utils = require("wax.lsp.python-utils")
 
-
 local function to_pylsp_cmd(python_path)
   local log_dir = vim.env.HOME .. "/.cache/nvim"
   local log_file = log_dir .. "/pylsp.log"
@@ -12,9 +11,6 @@ local function to_pylsp_cmd(python_path)
 
   return cmd
 end
-
--- init nvim-lsp-installer with CWD at first
-local initial_workspace = find_root_dir(".")
 
 return {
   -- if python format by efm, disable formatting capabilities for pylsp
@@ -40,9 +36,9 @@ return {
           cache_labels_for = { "pandas", "numpy", "pydantic", "fastapi", "flask", "sqlalchemy" },
         },
         pylsp_mypy = {
-          enabled = false,
+          enabled = true,
           live_mode = false,
-          -- dmypy = true,
+          dmypy = true,
           args = {
             "--sqlite-cache", -- Use an SQLite database to store the cache.
             "--cache-fine-grained", -- Include fine-grained dependency information in the cache for the mypy daemon.
@@ -92,8 +88,7 @@ return {
     -- Update nvim-lsp-installer pylsp server by re-creating it
     local project = python_utils.workspace_to_project(new_workspace)
 
-    local msg = "LSP python (pylsp) - '%s' using path %s"
-    log.info(msg:format(project, python_path))
+    log.info(("LSP python (pylsp) - '%s' using path %s"):format(project, python_path))
 
     local cmd = to_pylsp_cmd(python_path)
     config.cmd = cmd

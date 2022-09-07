@@ -38,7 +38,7 @@ local mypy_overrides = {
 }
 
 require("null-ls").setup({
-  -- debug = true,
+  debug = waxopts.loglevel == "debug",
   log = {
     enable = true,
     level = waxopts.loglevel,
