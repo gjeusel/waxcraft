@@ -1,12 +1,5 @@
 local python_utils = require("wax.lsp.python-utils")
-local Pkg = require("mason-core.package")
 
-local mason_pip = require("mason-core.managers.pip3")
-local mason_index = require("mason-registry.index")
-
-
--- local servers = require("nvim-lsp-installer.servers")
--- local server = require("nvim-lsp-installer.server")
 
 local function to_pylsp_cmd(python_path)
   local log_dir = vim.env.HOME .. "/.cache/nvim"
@@ -20,31 +13,8 @@ local function to_pylsp_cmd(python_path)
   return cmd
 end
 
-local function register_pylsp_custom(python_path, project)
-  project = project or "default"
-
-  local msg = "LSP python (pylsp) - '%s' using path %s"
-  log.info(msg:format(project, python_path))
-
-  -- mason_index["python-lsp-server"] = Pkg.new({
-  --   name = "pylsp",
-  --   desc = [[What else ?]],
-  --   homepage = "https://github.com/python-lsp/python-lsp-server",
-  --   languages = { Pkg.Lang.Python },
-  --   categories = { Pkg.Cat.LSP },
-  --   install = mason_pip.packages(
-  --     "python-lsp-server[rope]", -- lsp
-  --     "pylsp-mypy",
-  --     { bin = to_pylsp_cmd(python_path) }),
-  -- })
-end
-
 -- init nvim-lsp-installer with CWD at first
 local initial_workspace = find_root_dir(".")
-register_pylsp_custom(
-  python_utils.get_python_path(initial_workspace, "python"),
-  python_utils.workspace_to_project(initial_workspace)
-)
 
 return {
   -- if python format by efm, disable formatting capabilities for pylsp
@@ -121,7 +91,10 @@ return {
 
     -- Update nvim-lsp-installer pylsp server by re-creating it
     local project = python_utils.workspace_to_project(new_workspace)
-    register_pylsp_custom(python_path, project)
+
+    local msg = "LSP python (pylsp) - '%s' using path %s"
+    log.info(msg:format(project, python_path))
+
     local cmd = to_pylsp_cmd(python_path)
     config.cmd = cmd
     return config

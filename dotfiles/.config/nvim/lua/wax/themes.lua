@@ -29,6 +29,15 @@ local base_gruvbox_hls = {
   DiffDelete = { cterm = nil, ctermfg = "Red", ctermbg = nil },
   DiffText = { cterm = nil, ctermfg = "Blue", ctermbg = nil },
 
+  -- Imp gruvbox signs
+  GruvboxGreenSign = { link = "GruvboxGreen" },
+  GruvboxRedSign = { link = "GruvboxRed" },
+  GruvboxAquaSign = { link = "GruvboxAqua" },
+  GruvboxBlueSign = { link = "GruvboxBlue" },
+  GruvboxYellowSign = { link = "GruvboxYellow" },
+  GruvboxPurpleSign = { link = "GruvboxPurple" },
+  GruvboxOrangeSign = { link = "GruvboxOrange" },
+
   -- statusline
   Statusline = { link = "GruvboxFg3" },
 
