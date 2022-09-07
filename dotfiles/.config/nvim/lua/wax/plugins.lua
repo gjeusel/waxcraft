@@ -254,7 +254,6 @@ return require("packer").startup({
         },
         { -- better text objects
           "nvim-treesitter/nvim-treesitter-textobjects",
-          branch = "E13_keymap_failure", -- https://github.com/nvim-treesitter/nvim-treesitter-textobjects/issues/273
         },
         { -- comment string update on context (vue -> html + typescript)
           "JoosepAlviste/nvim-ts-context-commentstring",
@@ -286,23 +285,20 @@ return require("packer").startup({
     })
 
     --------- LSP ---------
-    use({ -- lspconfig + lsp-installer
-      "williamboman/nvim-lsp-installer",
+    use({ -- lspconfig + mason
+      "williamboman/mason.nvim",
       branch = "main",
-      -- os.getenv("HOME") .. "/src/nvim-lsp-installer",
-      -- commit = "b68fcc6bb2c770495ff8e2508c06dfdd49abcc80",
       requires = {
+        { "williamboman/mason-lspconfig.nvim", branch = "main" },
         "nvim-lua/lsp-status.nvim",
-        { -- nvim-lspconfig
-          "neovim/nvim-lspconfig",
-          config = function()
-            require("wax.plugins.nvim-lsp-installer")
-            require("wax.lsp")
-          end,
-        },
-        "ray-x/lsp_signature.nvim", -- a bit buggy
+        "neovim/nvim-lspconfig",
+        -- "ray-x/lsp_signature.nvim", -- a bit buggy
         { "jose-elias-alvarez/null-ls.nvim", branch = "main" },
       },
+      config = function()
+        require("wax.plugins.mason")
+        require("wax.lsp")
+      end,
     })
     use({ -- nvim-cmp
       "hrsh7th/nvim-cmp",

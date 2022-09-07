@@ -1,7 +1,9 @@
 local M = {}
-local lsp_installer = require("nvim-lsp-installer")
-lsp_installer.servers = require("nvim-lsp-installer.servers")
+
 local lspconfig = require("lspconfig")
+local lspmason = require("mason-lspconfig")
+local Package = require "mason-core.package"
+-- lspmason.servers = require("mason-lspconfig.servers")
 
 ---@param global_on_attach function @The generic on_attach function.
 ---@return table @The lspconfig server configuration.
@@ -30,16 +32,28 @@ local function get_custom_settings_for_server(server_name, global_on_attach)
   return custom_settings
 end
 
+---@param lspconfig_server_name string
+local function resolve_package(lspconfig_server_name)
+  local registry = require "mason-registry"
+  local Optional = require "mason-core.optional"
+  local server_mapping = require "mason-lspconfig.mappings.server"
+
+  return Optional.of_nilable(server_mapping.lspconfig_to_package[lspconfig_server_name]):map(function(package_name)
+    local ok, pkg = pcall(registry.get_package, package_name)
+    if ok then
+      return pkg
+    end
+  end)
+end
+
 ---@param global_lsp_settings table @The global lspconfig server configuration.
 function M.setup_servers(global_lsp_settings)
   global_lsp_settings = global_lsp_settings or {}
 
   for server_name, _ in pairs(waxopts.lsp._servers) do
     -- Re-construct full settings
-    local custom_settings = get_custom_settings_for_server(
-      server_name,
-      global_lsp_settings.on_attach
-    )
+    local custom_settings =
+    get_custom_settings_for_server(server_name, global_lsp_settings.on_attach)
     local settings = vim.tbl_extend("keep", custom_settings, global_lsp_settings)
 
     -- Advertise capabilities to cmp_nvim_lsp
@@ -48,16 +62,23 @@ function M.setup_servers(global_lsp_settings)
     end
 
     -- Install if not yet installed
-    local ok, server = lsp_installer.servers.get_server(server_name)
-    if ok then
-      if not server:is_installed() then
-        server:install()
+    local server_identifier, version = Package.Parse(server_name)
+    resolve_package(server_identifier):if_present(
+    ---@param pkg Package
+      function(pkg)
+        if not pkg:is_installed() then
+          pkg:install {
+            version = version,
+          }
+        end
       end
-    end
+    )
 
     -- Finally, setup our settings in lspconfig
     lspconfig[server_name].setup(settings)
   end
+
+  lspmason.setup()
 end
 
 return M

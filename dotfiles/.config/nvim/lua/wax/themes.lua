@@ -18,7 +18,7 @@ local base_gruvbox_hls = {
   Normal = { ctermbg = nil },
   NormalFloat = { ctermbg = nil },
   SignColumn = { ctermbg = nil },
-  VertSplit = { ctermbg = nil },
+  VertSplit = { ctermbg = nil, ctermfg = 248 },
   CursorLineNr = { ctermbg = nil },
   EndOfBuffer = { ctermbg = nil },
   ColorColumn = { ctermbg = 236 },

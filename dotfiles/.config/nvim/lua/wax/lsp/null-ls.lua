@@ -7,7 +7,7 @@ local methods = require("null-ls.methods")
 local python_utils = require("wax.lsp.python-utils")
 
 local function from_python_env(params)
-  local resolved = s.get_resolved_command(params.bufnr, params.command)
+  local resolved = s.get_cache(params.bufnr, params.command)
   if resolved then
     if resolved.command then
       log:debug(
@@ -25,7 +25,7 @@ local function from_python_env(params)
   local cmd_for_env = python_utils.get_python_path(workspace, params.command)
   resolved = { command = cmd_for_env, cwd = workspace }
 
-  s.set_resolved_command(params.bufnr, params.command, resolved)
+  s.set_cache(params.bufnr, params.command, resolved)
   return resolved.command
 end
 
