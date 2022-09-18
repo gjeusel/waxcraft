@@ -122,7 +122,13 @@ local function telescope_keymaps()
   end, opts)
 
   -- LSP
-  local vertical_opts = { sorting_strategy = "ascending", layout_strategy = "vertical" }
+  local vertical_opts = {
+    sorting_strategy = "ascending",
+    layout_strategy = "vertical",
+    fname_width = 90,
+    -- include_current_line=false,
+    -- time_text = true,
+  }
   vim.keymap.set("n", "<leader>ff", functions.lsp_dynamic_workspace_symbols, opts)
   vim.keymap.set("n", "<leader>fF", functions.lsp_document_symbols, opts)
   vim.keymap.set("n", "<leader>r", function()
