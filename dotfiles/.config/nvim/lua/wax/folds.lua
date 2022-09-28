@@ -80,3 +80,30 @@ end
 
 vim.keymap.set("n", "zK", "zk", { noremap = true })
 vim.keymap.set("n", "zk", goPreviousStartFold)
+
+local fold_augroup = "fold-update"
+vim.api.nvim_create_augroup(fold_augroup, { clear = true })
+
+-- -- Auto-update folds on insert leave, and auto-disable folds update while inserting
+-- local map_foldmethod_bufnr = {}
+-- vim.api.nvim_create_autocmd("InsertEnter", {
+--   group = fold_augroup,
+--   pattern = "*",
+--   callback = function()
+--     local bufnr = vim.api.nvim_get_current_buf()
+--     map_foldmethod_bufnr[bufnr] = vim.b.foldmethod
+--     vim.opt_local.foldmethod = "manual"
+--   end,
+-- })
+-- vim.api.nvim_create_autocmd("InsertLeave", {
+--   group = fold_augroup,
+--   pattern = "*",
+--   callback = function()
+--     local bufnr = vim.api.nvim_get_current_buf()
+--     if vim.tbl_contains(vim.tbl_keys(map_foldmethod_bufnr), bufnr) then
+--       vim.opt_local.foldmethod = map_foldmethod_bufnr[bufnr]
+--     else
+--       vim.opt_local.foldmethod = "expr"
+--     end
+--   end,
+-- })

@@ -63,6 +63,9 @@ nnoremap("Y", "yg_")
 -- I never use the s in normal mode, so let substitue on pattern:
 vnoremap("s", ":s/")
 
+-- paste without losing what's in register
+xnoremap("<leader>p", "\"_dP")
+
 -- -- Buffers switch
 -- keymap("in", "œ", "<cmd>bp<cr>", { nowait = true }) -- option + q
 -- keymap("in", "∑", "<cmd>bn<cr>", { nowait = true }) -- option + w

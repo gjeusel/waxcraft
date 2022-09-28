@@ -38,7 +38,8 @@ local map_ft_local_settings = {
   git = "syntax=on nofoldenable",
   vim = "tabstop=2 foldlevel=99 foldmethod=marker",
   ["*sh"] = "nofoldenable",
-  markdown = "spell textwidth=140", -- "wrap wrapmargin=2"
+  markdown = "spell textwidth=140 nofoldenable", -- "wrap wrapmargin=2"
+  toml = "textwidth=140 nofoldenable",
   json = "foldmethod=syntax foldlevel=99",
   edgeql = "commentstring=#%s",
   --
