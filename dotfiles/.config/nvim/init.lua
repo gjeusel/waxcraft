@@ -18,6 +18,7 @@ require("wax.utils")
 require("wax.plugins")
 
 require("wax.settings")
+require("wax.filetypes")
 require("wax.keymaps")
 
 require("wax.themes")

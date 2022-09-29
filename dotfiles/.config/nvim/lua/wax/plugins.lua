@@ -37,14 +37,8 @@ return require("packer").startup({
     use({ "wbthomason/packer.nvim", opt = true })
 
     --- Performances plugins
-    use({ -- speed up startup TODO: remove it once merged upstream
+    use({ -- impatient
       "lewis6991/impatient.nvim",
-    })
-    use({ -- combine all autocmds on filetype into one
-      "nathom/filetype.nvim",
-      config = function()
-        vim.g.did_load_filetypes = 1
-      end,
     })
     use({ -- FixCursorHold
       "antoinemadec/FixCursorHold.nvim", -- Fix CursorHold Performance
@@ -119,7 +113,6 @@ return require("packer").startup({
     --     vim.g.fastfold_savehook = 0
     --   end,
     -- })
-
     -- use({
     --   "tmhedberg/SimpylFold",
     --   requires = "Konfekt/FastFold",

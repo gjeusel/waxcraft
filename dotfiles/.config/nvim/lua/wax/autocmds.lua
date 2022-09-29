@@ -4,30 +4,6 @@ vim.api.nvim_create_augroup(group_view, { clear = true })
 vim.api.nvim_create_autocmd("BufRead", { pattern = "*", command = "silent! loadview" })
 vim.api.nvim_create_autocmd("BufWrite", { pattern = "*", command = "silent! mkview" })
 
--- Ensure FileType for specific file pattern
-local group_ensure_ft = "Ensure FileType"
-vim.api.nvim_create_augroup(group_ensure_ft, { clear = true })
-
-local map_ft_pattern = {
-  markdown = { "*.md", "*.md.erb", "*.markdown", "*.mdown", "*.mkd", "*.mkdn" },
-  ini = { ".flake8" },
-  sh = { "cronfile", "*.txt", "*.env*", "*.flaskenv" },
-  zsh = { "*aliases" },
-  nix = { "*.nix" },
-  config = { ".gitconfig", ".gitignore", "*.conf" },
-  yaml = { "*.kubeconfig", "*.yaml", "*.yml" },
-  terraform = { "*.tf", "*.tfvars", "*.tfstate" },
-  edgeql = { "*.edgeql", "*.esdl" },
-}
-
-for filetype, pattern in pairs(map_ft_pattern) do
-  vim.api.nvim_create_autocmd({ "BufNewFile", "BufRead" }, {
-    group = group_ensure_ft,
-    pattern = pattern,
-    command = ("set filetype=%s"):format(filetype),
-  })
-end
-
 -- Local Settings depending on FileType
 local group_ft_settings = "FileType Local Settings"
 vim.api.nvim_create_augroup(group_ft_settings, { clear = true })
