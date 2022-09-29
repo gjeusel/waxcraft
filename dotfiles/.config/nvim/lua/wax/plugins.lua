@@ -99,13 +99,13 @@ return require("packer").startup({
       end,
     })
 
-    -- -- use({ -- ultra fold
-    -- --   "kevinhwang91/nvim-ufo",
-    -- --   requires = "kevinhwang91/promise-async",
-    -- --   config = function()
-    -- --     require("wax.plugins.folds-ufo")
-    -- --   end,
-    -- -- })
+    -- use({ -- ultra fold
+    --   "kevinhwang91/nvim-ufo",
+    --   requires = "kevinhwang91/promise-async",
+    --   config = function()
+    --     require("wax.plugins.folds-ufo")
+    --   end,
+    -- })
     -- use({
     --   "Konfekt/FastFold",
     --   config = function()

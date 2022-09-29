@@ -18,4 +18,4 @@ local opts = { noremap = true, nowait = true, silent = true }
 keymap("in", "œ", "<cmd>BufferPrevious<cr>", opts) -- option + q
 keymap("in", "∑", "<cmd>BufferNext<cr>", opts) -- option + w
 keymap("in", "®", "<cmd>BufferClose<cr>", opts) -- option + r
-keymap("in", "‰", "<cmd>BufferCloseAllButCurrent<cr>", opts) -- option + r
+keymap("in", "∂", "<cmd>BufferCloseAllButCurrent<cr>", opts) -- option + r

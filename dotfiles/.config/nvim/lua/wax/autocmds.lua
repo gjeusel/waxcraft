@@ -4,7 +4,8 @@ vim.api.nvim_create_augroup(group_view, { clear = true })
 vim.api.nvim_create_autocmd("BufRead", { pattern = "*", command = "silent! loadview" })
 vim.api.nvim_create_autocmd("BufWrite", { pattern = "*", command = "silent! mkview" })
 
--- Local Settings depending on FileType
+------------- Local Settings depending on FileType -------------
+--
 local group_ft_settings = "FileType Local Settings"
 vim.api.nvim_create_augroup(group_ft_settings, { clear = true })
 
@@ -22,7 +23,7 @@ local map_ft_local_settings = {
   python = "shiftwidth=4 tabstop=4 softtabstop=4 foldlevel=0",
   --
   html = "foldmethod=syntax foldlevel=4 nowrap shiftwidth=2 tabstop=2 softtabstop=2",
-  [{ "vue", "typescript", "typescriptreact", "javascript", "javascriptreact" }] = "foldminlines=3",
+  [{ "vue", "typescript", "typescriptreact", "javascript", "javascriptreact" }] = "foldminlines=3 foldlevel=4",
 }
 
 for filetype, settings in pairs(map_ft_local_settings) do
@@ -33,7 +34,66 @@ for filetype, settings in pairs(map_ft_local_settings) do
   })
 end
 
--- Performances
+local function insert_new_line_in_current_buffer(str, opts)
+  local default_opts = { delta = 1 }
+  opts = vim.tbl_deep_extend("keep", opts or {}, default_opts)
+
+  local pos = vim.api.nvim_win_get_cursor(0)
+  local n_line = pos[1]
+  local buf_content = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+
+  local n_insert_line = n_line + opts.delta
+
+  -- deduce indent for line:
+  local space
+  if is_module_available("nvim-treesitter.indent") then
+    local ts_indent = require("nvim-treesitter.indent")
+    local n_space = ts_indent.get_indent(n_insert_line)
+    space = string.rep(" ", n_space)
+  else
+    local cur_line_content = buf_content[n_insert_line]
+    space = string.match(cur_line_content, "%s*")
+  end
+
+  local str_added = ("%s%s"):format(space, str)
+  table.insert(buf_content, n_insert_line, str_added)
+
+  vim.api.nvim_buf_set_lines(0, 0, -1, false, buf_content)
+  vim.api.nvim_win_set_cursor(0, { n_insert_line, pos[2] })
+end
+
+-- Python
+vim.api.nvim_create_autocmd("FileType", {
+  group = group_ft_settings,
+  pattern = "python",
+  callback = function()
+    vim.keymap.set("n", "<leader>o", function()
+      insert_new_line_in_current_buffer('__import__("pdb").set_trace()  # BREAKPOINT')
+    end)
+    vim.keymap.set("n", "<leader>O", function()
+      insert_new_line_in_current_buffer(
+        '__import__("pdb").set_trace()  # BREAKPOINT',
+        { delta = 0 }
+      )
+    end)
+  end,
+})
+
+-- Frontend
+vim.api.nvim_create_autocmd("FileType", {
+  group = group_ft_settings,
+  pattern = { "vue", "typescript", "javascript", "typescriptreact", "javascriptreact" },
+  callback = function()
+    vim.keymap.set("n", "<leader>o", function()
+      insert_new_line_in_current_buffer("debugger  // BREAKPOINT")
+    end)
+    vim.keymap.set("n", "<leader>O", function()
+      insert_new_line_in_current_buffer("debugger  // BREAKPOINT", { delta = 0 })
+    end)
+  end,
+})
+
+------------- Performances -------------
 -- https://www.reddit.com/r/neovim/comments/pz3wyc/comment/heyy4qf/?utm_source=share&utm_medium=web2x&context=3
 vim.api.nvim_exec(
   [[

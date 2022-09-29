@@ -143,10 +143,12 @@ def neovim():
     nvim_init = ".config/nvim/init.lua"
     lua = ".config/nvim/lua"
     nvim_snippets = ".config/nvim/mysnippets"
+    nvim_autoload = ".config/nvim/autoload"
 
     relative_paths = [
         nvim_init,
         nvim_snippets,
+        nvim_autoload,
         lua,
     ]
     create_symlinks_robust(

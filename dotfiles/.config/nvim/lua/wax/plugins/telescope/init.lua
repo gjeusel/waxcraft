@@ -117,7 +117,7 @@ local function telescope_keymaps()
   end)
 
   -- Command History: option-d
-  vim.keymap.set({ "n", "i", "c" }, "∂", function()
+  vim.keymap.set({ "n", "i", "c" }, "ƒ", function()
     functions.command_history(themes.get_dropdown({}))
   end, opts)
 

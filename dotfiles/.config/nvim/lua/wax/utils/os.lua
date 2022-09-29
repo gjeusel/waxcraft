@@ -15,6 +15,12 @@ function is_module_available(name)
   end
 end
 
+function safe_require(name)
+  if is_module_available(name) then
+    return require(name)
+  end
+end
+
 -------- OS Operations --------
 
 function get_os_command_output(cmd, cwd)

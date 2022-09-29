@@ -64,7 +64,7 @@ nnoremap("Y", "yg_")
 vnoremap("s", ":s/")
 
 -- paste without losing what's in register
-xnoremap("<leader>p", "\"_dP")
+xnoremap("<leader>p", '"_dP')
 
 -- -- Buffers switch
 -- keymap("in", "œ", "<cmd>bp<cr>", { nowait = true }) -- option + q
@@ -85,33 +85,10 @@ nnoremap("<leader>'", "<cmd>sp<cr>", { nowait = true })
 nnoremap("<Space>", "za")
 vnoremap("<Space>", "za")
 
---------- Language Specific Mapping ---------
--- Python
-vim.cmd([[
-function! SetPyModeMappings()
-  map <buffer> <Leader>o o__import__("pdb").set_trace()  # BREAKPOINT<C-c>
-  map <buffer> <Leader>O O__import__("pdb").set_trace()  # BREAKPOINT<C-c>
-  "import pdb; pdb.break_on_setattr('session_id')(container._sa_instance_state.__class__)
-  "map <Leader>i ofrom ptpython.repl import embed; embed()  # Enter ptpython<C-c>
-endfunction
-
-augroup python_pymode_mappings
-  au Filetype python call SetPyModeMappings()
-augroup end
-]])
-
--- Front
-vim.cmd([[
-function! SetFrontendMappings()
-  map <buffer> <Leader>o odebugger  // BREAKPOINT<C-c>
-  map <buffer> <Leader>O Odebugger  // BREAKPOINT<C-c>
-endfunction
-augroup frontend_mappings
-  au Filetype vue,typescript,javascript,typescriptreact,javascriptreact call SetFrontendMappings()
-augroup end
-]])
-
 -- quick fix list
 nnoremap("]q", "<cmd>cnext<cr>")
 nnoremap("[q", "<cmd>cprev<cr>")
 nnoremap("[w", "<cmd>ccl<cr>") -- quite quick fix list
+
+--------- Language Specific Mapping ---------
+---------       See autocmds        ---------

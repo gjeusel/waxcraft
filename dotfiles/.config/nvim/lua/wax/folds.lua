@@ -1,9 +1,142 @@
+-- Folds in NeoVim are not receiving the love they deserve.
+--
+-- issue fold API: https://github.com/neovim/neovim/issues/19226
+--
+-- issue fold update before treesitter: https://github.com/neovim/neovim/issues/14977
+-- but not sure about this one, as removing 
+
 vim.o.foldenable = true -- Open all folds while not set.
 -- vim.o.foldminlines = 3 -- Min lines before fold.
 
 -- By default, use treesitter:
 vim.o.foldmethod = "expr"
-vim.o.foldexpr = "nvim_treesitter#foldexpr()"
+-- vim.o.foldexpr = "nvim_treesitter#foldexpr()"
+
+-- vim.cmd([[
+-- function! wax#foldexpr() abort
+-- 	return luaeval(printf('require("wax.folds").get_fold_level(%d)', v:lnum))
+-- endfunction
+-- ]])
+
+vim.o.foldexpr = "wax#foldexpr()"
+
+local query = safe_require("nvim-treesitter.query")
+local parsers = safe_require("nvim-treesitter.parsers")
+
+local find_fold_nodes = function(lang)
+  if query.has_folds(lang) then
+    return "@fold", "folds"
+  elseif query.has_locals(lang) then
+    return "@scope", "locals"
+  end
+end
+
+local gen_fold_match_ranges = function(matches)
+  -- start..stop is an inclusive range
+  local start_counts = {}
+  local stop_counts = {}
+
+  local prev_start = -1
+  local prev_stop = -1
+
+  local min_fold_lines = vim.api.nvim_win_get_option(0, "foldminlines")
+
+  for _, match in ipairs(matches) do
+    local start, stop, stop_col
+    if match.metadata and match.metadata.range then
+      start, _, stop, stop_col = unpack(match.metadata.range)
+    else
+      start, _, stop, stop_col = match.node:range()
+    end
+
+    if stop_col == 0 then
+      stop = stop - 1
+    end
+
+    local fold_length = stop - start + 1
+    local should_fold = fold_length > min_fold_lines
+
+    -- Fold only multiline nodes that are not exactly the same as previously met folds
+    -- Checking against just the previously found fold is sufficient if nodes
+    -- are returned in preorder or postorder when traversing tree
+    if should_fold and not (start == prev_start and stop == prev_stop) then
+      start_counts[start] = (start_counts[start] or 0) + 1
+      stop_counts[stop] = (stop_counts[stop] or 0) + 1
+      prev_start = start
+      prev_stop = stop
+    end
+  end
+
+  return { start = start_counts, stop = stop_counts }
+end
+
+local get_fold_indic_by_line = function(bufnr)
+  local max_fold_level = vim.api.nvim_win_get_option(0, "foldnestmax")
+  local trim_level = function(level)
+    return math.min(level, max_fold_level)
+  end
+
+  local parser = parsers.get_parser(bufnr)
+
+  if not parser then
+    return {}
+  end
+
+  local matches = query.get_capture_matches_recursively(bufnr, find_fold_nodes)
+
+  local ranges = gen_fold_match_ranges(matches)
+
+  local levels = {}
+  local current_level = 0
+
+  -- We now have the list of fold opening and closing, fill the gaps and mark where fold start
+  for lnum = 0, vim.api.nvim_buf_line_count(bufnr) do
+    local prefix = ""
+
+    local last_trimmed_level = trim_level(current_level)
+    current_level = current_level + (ranges.start[lnum] or 0)
+    local trimmed_level = trim_level(current_level)
+    current_level = current_level - (ranges.stop[lnum] or 0)
+    local next_trimmed_level = trim_level(current_level)
+
+    -- Determine if it's the start/end of a fold
+    -- NB: vim's fold-expr interface does not have a mechanism to indicate that
+    -- two (or more) folds start at this line, so it cannot distinguish between
+    --  ( \n ( \n )) \n (( \n ) \n )
+    -- versus
+    --  ( \n ( \n ) \n ( \n ) \n )
+    -- If it did have such a mechanism, (trimmed_level - last_trimmed_level)
+    -- would be the correct number of starts to pass on.
+    if trimmed_level - last_trimmed_level > 0 then
+      prefix = ">"
+    elseif trimmed_level - next_trimmed_level > 0 then
+      -- Ending marks tend to confuse vim more than it helps, particularly when
+      -- the fold level changes by at least 2; we can uncomment this if
+      -- vim's behavior gets fixed.
+      -- prefix = "<"
+      prefix = ""
+    end
+
+    levels[lnum + 1] = prefix .. tostring(trimmed_level)
+  end
+
+  return levels
+end
+
+local M = {}
+
+function M.get_fold_indic(lnum)
+  if not parsers.has_parser() or not lnum then
+    return "0"
+  end
+
+  local buf = vim.api.nvim_get_current_buf()
+
+  local levels = get_fold_indic_by_line(buf) or {}
+
+  local level = levels[lnum] or "0"
+  return level
+end
 
 -- TODO: convert it to lua function ?
 vim.cmd([[
@@ -84,26 +217,55 @@ vim.keymap.set("n", "zk", goPreviousStartFold)
 local fold_augroup = "fold-update"
 vim.api.nvim_create_augroup(fold_augroup, { clear = true })
 
--- -- Auto-update folds on insert leave, and auto-disable folds update while inserting
--- local map_foldmethod_bufnr = {}
--- vim.api.nvim_create_autocmd("InsertEnter", {
---   group = fold_augroup,
---   pattern = "*",
---   callback = function()
---     local bufnr = vim.api.nvim_get_current_buf()
---     map_foldmethod_bufnr[bufnr] = vim.b.foldmethod
---     vim.opt_local.foldmethod = "manual"
---   end,
+-- Auto-update folds on insert leave, and auto-disable folds update while inserting
+local map_foldmethod_bufnr = {}
+vim.api.nvim_create_autocmd({ "InsertEnter" }, {
+  group = fold_augroup,
+  pattern = "*",
+  callback = function()
+    local bufnr = vim.api.nvim_get_current_buf()
+    map_foldmethod_bufnr[bufnr] = vim.b.foldmethod -- store buf foldmethod
+    vim.opt_local.foldmethod = "manual"
+  end,
+})
+vim.api.nvim_create_autocmd({ "InsertLeave", "CursorHold", "User LspRequest" }, {
+  group = fold_augroup,
+  pattern = "*",
+  callback = function()
+    -- maybe apply stored buf foldmethod:
+    local bufnr = vim.api.nvim_get_current_buf()
+    if vim.tbl_contains(vim.tbl_keys(map_foldmethod_bufnr), bufnr) then
+      vim.opt_local.foldmethod = map_foldmethod_bufnr[bufnr]
+    else
+      vim.opt_local.foldmethod = "expr"
+    end
+  end,
+})
+
+vim.api.nvim_create_autocmd("TextChanged", {
+  group = fold_augroup,
+  pattern = "*",
+  callback = function()
+    -- vim.opt_local.foldlevel = 99
+    print("Text changed")
+    -- vim.cmd("doautocmd")
+    -- -- maybe apply stored buf foldmethod:
+    -- local bufnr = vim.api.nvim_get_current_buf()
+    -- if vim.tbl_contains(vim.tbl_keys(map_foldmethod_bufnr), bufnr) then
+    --   vim.opt_local.foldmethod = map_foldmethod_bufnr[bufnr]
+    -- else
+    --   vim.opt_local.foldmethod = "expr"
+    -- end
+  end,
+})
+
+-- vim.keymap.set("n", "zx", function()
+--   vim.cmd("startinsert")
+--   vim.cmd("stopinsert")
+--   print("Updated folds")
+-- end, {
+--   noremap = true,
+--   silent = true,
 -- })
--- vim.api.nvim_create_autocmd("InsertLeave", {
---   group = fold_augroup,
---   pattern = "*",
---   callback = function()
---     local bufnr = vim.api.nvim_get_current_buf()
---     if vim.tbl_contains(vim.tbl_keys(map_foldmethod_bufnr), bufnr) then
---       vim.opt_local.foldmethod = map_foldmethod_bufnr[bufnr]
---     else
---       vim.opt_local.foldmethod = "expr"
---     end
---   end,
--- })
+
+return M
