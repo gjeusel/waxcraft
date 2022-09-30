@@ -19,7 +19,7 @@ local map_cache_bufnr_tsmatches = {}
 local memoize_by_bufnr = function(fn)
   return function(bufnr)
     if map_cache_bufnr_tsmatches[bufnr] == nil then
-      log.trace(("Storing TS fold results of %s"):format(bufnr))
+      log.debug(("Storing TS fold results of %s"):format(bufnr))
       map_cache_bufnr_tsmatches[bufnr] = fn(bufnr)
     end
     return map_cache_bufnr_tsmatches[bufnr]
@@ -77,7 +77,7 @@ local gen_fold_match_ranges = function(matches)
 end
 
 local get_fold_indic_by_line = memoize_by_bufnr(function(bufnr)
-  log.trace(("Generating TS fold results of %s"):format(bufnr))
+  log.debug(("Generating TS fold results of %s"):format(bufnr))
   local max_fold_level = vim.api.nvim_win_get_option(0, "foldnestmax")
   local trim_level = function(level)
     return math.min(level, max_fold_level)
@@ -257,7 +257,7 @@ vim.api.nvim_create_autocmd({ "TextChanged", "InsertLeave", "User LspRequest" },
   callback = function()
     local bufnr = vim.api.nvim_get_current_buf()
     if map_cache_bufnr_tsmatches[bufnr] ~= nil then
-      log.trace(("Clearing TS fold cache for %s"):format(bufnr))
+      log.debug(("Clearing TS fold cache for %s"):format(bufnr))
       table.remove(map_cache_bufnr_tsmatches, bufnr)
     end
     -- vim.opt_local.foldlevel = 99

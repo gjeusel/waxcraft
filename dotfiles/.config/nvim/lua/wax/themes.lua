@@ -38,6 +38,7 @@ local base_gruvbox_hls = {
 
   -- statusline
   Statusline = { link = "GruvboxFg3" },
+  StatuslineNC = { link = "GruvboxFg4" },
 
   -- barbar
   BufferCurrent = { link = "GruvboxFg1" },
@@ -161,11 +162,12 @@ local apply_gruvbox_theme = function()
   })
 end
 
-local iterm_colorscheme = os.getenv("ITERM_PROFILE") or "gruvbox"
-if iterm_colorscheme == "gruvbox" then
+-- is required to be a global var as it is used in other places
+-- to configure plugins
+if waxopts.colorscheme == "gruvbox" then
   vim.cmd("silent! colorscheme gruvbox")
   apply_gruvbox_theme()
-elseif iterm_colorscheme == "nord" then
+elseif waxopts.colorscheme == "nord" then
   require("wax.themes.nord")
 end
 

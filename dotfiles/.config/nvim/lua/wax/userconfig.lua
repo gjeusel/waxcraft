@@ -3,6 +3,7 @@
 waxopts = {
   loglevel = "info",
   python3 = "python3",
+  colorscheme = os.getenv("ITERM_PROFILE") or "gruvbox",
   lsp = {
     loglevel = "warn",
     lspinstall = { loglevel = "warn" },

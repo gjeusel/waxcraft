@@ -1,23 +1,17 @@
-vim.api.nvim_exec(
-  [[
-" Statusline
-function! LspStatus() abort
-  if luaeval('#vim.lsp.buf_get_clients() > 0')
-    return luaeval("require('lsp-status').status()")
-  endif
-
-  return ''
-endfunction
-]],
-  false
-)
-
--- dump(vim.api.nvim_exec("LspStatus()", true))
+vim.api.nvim_create_user_command("LspStatus", function ()
+  if vim.lsp.buf_get_clients() > 0 then
+    return safe_require("lsp-status").status()
+  else
+    return ""
+  end
+end, {
+  desc = "Return current lsp status."
+})
 
 local ligthline_layout = {
   left = {
-    { "mode", "paste" },
-    { "readonly", "modified", "lspstatus" },
+    { "mode" },
+    { "spell", "readonly", "modified", "lspstatus" },
   },
   right = {
     {},
@@ -27,7 +21,7 @@ local ligthline_layout = {
 }
 
 vim.g.lightline = {
-  colorscheme = iterm_colorscheme,
+  colorscheme = waxopts.colorscheme,
   component_function = { gitbranch = "FugitiveHead", lspstatus = "LspStatus" },
   -- component_expand = {  -- custom components
   -- },
