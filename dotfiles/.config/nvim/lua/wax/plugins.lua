@@ -27,7 +27,7 @@ end
 vim.api.nvim_create_autocmd("BufWritePost", {
   pattern = "plugins.lua",
   command = "PackerCompile",
-  desc = "Auto recompile packer on changes"
+  desc = "Auto recompile packer on changes",
 })
 
 return require("packer").startup({
@@ -188,7 +188,10 @@ return require("packer").startup({
     use({ -- indentLine
       "Yggdroot/indentLine", -- indent line
       config = function()
-        require("wax.plugins.indent-line")
+        vim.g.indentLine_char = "│"
+        vim.g.indentLine_color_gui = "#343d46" -- indent line color got indentLine plugin
+        vim.g.indentLine_fileTypeExclude =
+          { "startify", "markdown", "vim", "tex", "help", "TelescopePrompt" }
       end,
     })
 
