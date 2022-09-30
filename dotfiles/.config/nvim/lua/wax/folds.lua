@@ -237,7 +237,7 @@ vim.api.nvim_create_autocmd({ "InsertEnter" }, {
   end,
 })
 
-vim.api.nvim_create_autocmd({ "InsertLeave", "CursorHold", "User LspRequest" }, {
+vim.api.nvim_create_autocmd({ "InsertLeave", "CursorHold" }, {
   group = fold_augroup,
   pattern = "*",
   callback = function()
@@ -251,25 +251,22 @@ vim.api.nvim_create_autocmd({ "InsertLeave", "CursorHold", "User LspRequest" }, 
   end,
 })
 
+-- autocmds of interest: { "TextChanged", "InsertLeave", "User LspRequest" }
 vim.api.nvim_create_autocmd({ "TextChanged", "InsertLeave", "User LspRequest" }, {
   group = fold_augroup,
   pattern = "*",
   callback = function()
     local bufnr = vim.api.nvim_get_current_buf()
-    if map_cache_bufnr_tsmatches[bufnr] ~= nil then
+    local should_invalidate = (map_cache_bufnr_tsmatches[bufnr] ~= nil)
+      and (vim.api.nvim_get_mode()["mode"] == "n")
+
+    if should_invalidate then
       log.debug("[TS Fold] Clearing cache for bufnr ", bufnr)
       table.remove(map_cache_bufnr_tsmatches, bufnr)
+
+      -- log.debug("[TS Fold] Force re-compute for bufnr ", bufnr)
+      -- get_fold_indic_by_line(vim.api.nvim_get_current_buf())
     end
-    -- vim.opt_local.foldlevel = 99
-    -- print("Text changed")
-    -- vim.cmd("doautocmd")
-    -- -- maybe apply stored buf foldmethod:
-    -- local bufnr = vim.api.nvim_get_current_buf()
-    -- if vim.tbl_contains(vim.tbl_keys(map_foldmethod_bufnr), bufnr) then
-    --   vim.opt_local.foldmethod = map_foldmethod_bufnr[bufnr]
-    -- else
-    --   vim.opt_local.foldmethod = "expr"
-    -- end
   end,
 })
 
