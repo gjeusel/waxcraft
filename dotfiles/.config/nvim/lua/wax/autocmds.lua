@@ -40,7 +40,6 @@ local function insert_new_line_in_current_buffer(str, opts)
 
   local pos = vim.api.nvim_win_get_cursor(0)
   local n_line = pos[1]
-  local buf_content = vim.api.nvim_buf_get_lines(0, 0, -1, false)
 
   local n_insert_line = n_line + opts.delta
 
@@ -51,14 +50,14 @@ local function insert_new_line_in_current_buffer(str, opts)
     local n_space = ts_indent.get_indent(n_insert_line)
     space = string.rep(" ", n_space)
   else
-    local cur_line_content = buf_content[n_insert_line]
+    local buf_content = vim.api.nvim_buf_get_lines(0, n_insert_line - 1, n_insert_line - 1, false)
+    local cur_line_content = buf_content[1]
     space = string.match(cur_line_content, "%s*")
   end
 
   local str_added = ("%s%s"):format(space, str)
-  table.insert(buf_content, n_insert_line, str_added)
 
-  vim.api.nvim_buf_set_lines(0, 0, -1, false, buf_content)
+  vim.api.nvim_buf_set_lines(0, n_insert_line - 1, n_insert_line - 1, false, { str_added })
   vim.api.nvim_win_set_cursor(0, { n_insert_line, pos[2] })
 end
 
