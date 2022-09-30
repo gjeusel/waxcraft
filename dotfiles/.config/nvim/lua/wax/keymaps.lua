@@ -85,5 +85,12 @@ kmap("n", "<leader>fp", function()
   vim.fn.setreg("+", fpath)
 end)
 
+-- set foldlevel
+for i = 0, 10, 1 do
+  kmap("n", ("<leader>zl%s"):format(i), function()
+    vim.cmd(("set foldlevel=%s"):format(i))
+  end)
+end
+
 --------- Language Specific Mapping ---------
 -- See autocmds

@@ -24,12 +24,11 @@ if not packer_exists then
 end
 
 -- Auto recompile packer on changes
-vim.api.nvim_exec(
-  [[
-  autocmd BufWritePost plugins.lua PackerCompile
-  ]],
-  false
-)
+vim.api.nvim_create_autocmd("BufWritePost", {
+  pattern = "plugins.lua",
+  command = "PackerCompile",
+  desc = "Auto recompile packer on changes"
+})
 
 return require("packer").startup({
   function(use)
