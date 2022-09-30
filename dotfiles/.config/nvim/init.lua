@@ -12,12 +12,11 @@
 
 pcall(require, "impatient") -- speed up startup with lua modules cache
 
-require("wax.disable_builtin")
 require("wax.utils")
+require("wax.settings")
 
 require("wax.plugins")
 
-require("wax.settings")
 require("wax.filetypes")
 require("wax.keymaps")
 

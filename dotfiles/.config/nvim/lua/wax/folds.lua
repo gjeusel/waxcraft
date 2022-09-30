@@ -3,22 +3,28 @@
 -- issue fold API: https://github.com/neovim/neovim/issues/19226
 --
 -- issue fold update before treesitter: https://github.com/neovim/neovim/issues/14977
--- but not sure about this one, as removing 
+-- but not sure about this one, as removing
 
+vim.o.foldlevel = 99 -- always open all folds on open
 vim.o.foldenable = true -- Open all folds while not set.
 -- vim.o.foldminlines = 3 -- Min lines before fold.
 
--- By default, use treesitter:
 vim.o.foldmethod = "expr"
--- vim.o.foldexpr = "nvim_treesitter#foldexpr()"
+-- vim.o.foldexpr = "nvim_treesitter#foldexpr()"  -- replaced by custom
 
--- vim.cmd([[
--- function! wax#foldexpr() abort
--- 	return luaeval(printf('require("wax.folds").get_fold_level(%d)', v:lnum))
--- endfunction
--- ]])
-
+-- this method needs to be defined in the autoload directory:
 vim.o.foldexpr = "wax#foldexpr()"
+
+local map_cache_bufnr_tsmatches = {}
+local memoize_by_bufnr = function(fn)
+  return function(bufnr)
+    if map_cache_bufnr_tsmatches[bufnr] == nil then
+      log.trace(("Storing TS fold results of %s"):format(bufnr))
+      map_cache_bufnr_tsmatches[bufnr] = fn(bufnr)
+    end
+    return map_cache_bufnr_tsmatches[bufnr]
+  end
+end
 
 local query = safe_require("nvim-treesitter.query")
 local parsers = safe_require("nvim-treesitter.parsers")
@@ -70,7 +76,8 @@ local gen_fold_match_ranges = function(matches)
   return { start = start_counts, stop = stop_counts }
 end
 
-local get_fold_indic_by_line = function(bufnr)
+local get_fold_indic_by_line = memoize_by_bufnr(function(bufnr)
+  log.trace(("Generating TS fold results of %s"):format(bufnr))
   local max_fold_level = vim.api.nvim_win_get_option(0, "foldnestmax")
   local trim_level = function(level)
     return math.min(level, max_fold_level)
@@ -121,7 +128,7 @@ local get_fold_indic_by_line = function(bufnr)
   end
 
   return levels
-end
+end)
 
 local M = {}
 
@@ -219,6 +226,7 @@ vim.api.nvim_create_augroup(fold_augroup, { clear = true })
 
 -- Auto-update folds on insert leave, and auto-disable folds update while inserting
 local map_foldmethod_bufnr = {}
+
 vim.api.nvim_create_autocmd({ "InsertEnter" }, {
   group = fold_augroup,
   pattern = "*",
@@ -228,6 +236,7 @@ vim.api.nvim_create_autocmd({ "InsertEnter" }, {
     vim.opt_local.foldmethod = "manual"
   end,
 })
+
 vim.api.nvim_create_autocmd({ "InsertLeave", "CursorHold", "User LspRequest" }, {
   group = fold_augroup,
   pattern = "*",
@@ -242,12 +251,17 @@ vim.api.nvim_create_autocmd({ "InsertLeave", "CursorHold", "User LspRequest" }, 
   end,
 })
 
-vim.api.nvim_create_autocmd("TextChanged", {
+vim.api.nvim_create_autocmd({ "TextChanged", "InsertLeave", "User LspRequest" }, {
   group = fold_augroup,
   pattern = "*",
   callback = function()
+    local bufnr = vim.api.nvim_get_current_buf()
+    if map_cache_bufnr_tsmatches[bufnr] ~= nil then
+      log.trace(("Clearing TS fold cache for %s"):format(bufnr))
+      table.remove(map_cache_bufnr_tsmatches, bufnr)
+    end
     -- vim.opt_local.foldlevel = 99
-    print("Text changed")
+    -- print("Text changed")
     -- vim.cmd("doautocmd")
     -- -- maybe apply stored buf foldmethod:
     -- local bufnr = vim.api.nvim_get_current_buf()

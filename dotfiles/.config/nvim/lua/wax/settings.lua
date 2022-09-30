@@ -85,6 +85,7 @@ end
 vim.g.netrw_banner = 0 -- no need for banner
 vim.g.netrw_liststyle = 3 -- prefered style
 vim.g.loaded_netrwPlugin = 1 -- performance reasons
+vim.g.loaded_netrwSettings = 1 -- performance reasons
 
 -- Searching
 vim.o.ignorecase = true -- searches are case insensitive...
@@ -109,3 +110,23 @@ vim.o.synmaxcol = 128
 -- Python config
 -- vim.g.python_host_prog = os.getenv("HOME") .. "/opt/miniconda3/envs/nvim27/bin/python"
 vim.g.python3_host_prog = waxopts.python3
+
+--
+------- Disable Some Builtins -------
+
+vim.g.loaded_gzip = 1
+vim.g.loaded_zip = 1
+vim.g.loaded_zipPlugin = 1
+vim.g.loaded_tar = 1
+vim.g.loaded_tarPlugin = 1
+
+vim.g.loaded_getscript = 1
+vim.g.loaded_getscriptPlugin = 1
+vim.g.loaded_vimball = 1
+vim.g.loaded_vimballPlugin = 1
+vim.g.loaded_2html_plugin = 1
+
+vim.g.loaded_matchit = 1
+vim.g.loaded_matchparen = 1
+vim.g.loaded_logiPat = 1
+vim.g.loaded_rrhelper = 1
