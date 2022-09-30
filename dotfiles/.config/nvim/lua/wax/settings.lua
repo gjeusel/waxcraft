@@ -130,3 +130,11 @@ vim.g.loaded_matchit = 1
 vim.g.loaded_matchparen = 1
 vim.g.loaded_logiPat = 1
 vim.g.loaded_rrhelper = 1
+
+--
+------- Behaviour fixes -------
+
+-- While editing sql files, by default ctrl-c is for insert.
+-- The Fuck vim ?!
+-- https://www.reddit.com/r/vim/comments/2om1ib/how_to_disable_sql_dynamic_completion/
+vim.g.omni_sql_no_default_maps = 1

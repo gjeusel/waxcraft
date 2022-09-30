@@ -1,10 +1,12 @@
+local kmap = vim.keymap.set
+
 local opts = { silent = true }
 
-nmap("<leader>1", ":Tmux <CR>:TestNearest<CR>", opts)
-nmap("<leader>2", ":Tmux <CR>:TestLast<CR>", opts)
-nmap("<leader>3", ":Tmux <CR>:TestFile<CR>", opts)
+kmap("n", "<leader>1", ":Tmux <CR>:TestNearest<CR>", opts)
+kmap("n", "<leader>2", ":Tmux <CR>:TestLast<CR>", opts)
+kmap("n", "<leader>3", ":Tmux <CR>:TestFile<CR>", opts)
 
-nmap("<leader>v", "<Plug>SetTmuxVars")
+kmap("n", "<leader>v", "<Plug>SetTmuxVars")
 
 vim.g.tslime_always_current_session = 1
 vim.g.tslime_always_current_window = 1

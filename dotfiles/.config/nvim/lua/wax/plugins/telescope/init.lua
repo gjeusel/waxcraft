@@ -19,6 +19,8 @@ vim.api.nvim_create_autocmd("BufRead", {
   end,
 })
 
+local kmap = vim.keymap.set
+
 require("telescope").setup({
   defaults = {
     prompt_prefix = "❯ ",
@@ -91,35 +93,40 @@ local function telescope_keymaps()
   local opts = { noremap = true, silent = true, nowait = true }
 
   -- Telescope live grep
-  vim.keymap.set("n", "<leader>A", functions.entirely_fuzzy_grep_string, opts)
+  kmap("n", "<leader>A", functions.entirely_fuzzy_grep_string, opts)
 
   -- Telescope file
-  vim.keymap.set("n", "<leader>p", functions.wax_find_file, opts)
-  vim.keymap.set("n", "<leader>P", function()
+  kmap("n", "<leader>p", functions.wax_find_file, opts)
+  kmap("n", "<leader>P", function()
     functions.wax_find_file({ git_files = false })
   end, opts)
 
   -- Telescope project then file on ~/src
-  vim.keymap.set("n", "<leader>q", functions.projects_grep_files, opts)
-  vim.keymap.set("n", "<leader>Q", functions.projects_grep_string, opts)
+  kmap("n", "<leader>q", functions.projects_grep_files, opts)
+  kmap("n", "<leader>Q", functions.projects_grep_string, opts)
 
   -- Telescope opened buffers
-  vim.keymap.set("n", "<leader>n", function()
+  kmap("n", "<leader>n", function()
     functions.buffers({ prompt_title = "~ buffers ~" })
   end, opts)
 
   -- Telescope Builtin:
-  vim.keymap.set("n", "<leader>b", functions.builtin, opts)
+  kmap("n", "<leader>b", functions.builtin, opts)
 
   -- Spell Fix:
-  vim.keymap.set("n", "z=", function()
+  kmap("n", "z=", function()
     functions.spell_suggest(themes.get_cursor({}))
   end)
 
   -- Command History: option-d
-  vim.keymap.set({ "n", "i", "c" }, "ƒ", function()
-    functions.command_history(themes.get_dropdown({}))
-  end, opts)
+  kmap(
+    { "n", "i", "c" },
+    "∂", -- option + d
+    function()
+      functions.command_history(themes.get_dropdown({}))
+    end,
+    opts
+  )
 
   -- LSP
   local vertical_opts = {
@@ -129,14 +136,14 @@ local function telescope_keymaps()
     -- include_current_line=false,
     -- time_text = true,
   }
-  vim.keymap.set("n", "<leader>ff", functions.lsp_dynamic_workspace_symbols, opts)
-  vim.keymap.set("n", "<leader>fF", functions.lsp_document_symbols, opts)
-  vim.keymap.set("n", "<leader>r", function()
+  kmap("n", "<leader>ff", functions.lsp_dynamic_workspace_symbols, opts)
+  kmap("n", "<leader>fF", functions.lsp_document_symbols, opts)
+  kmap("n", "<leader>r", function()
     functions.lsp_references(vertical_opts)
   end, opts)
 
   -- dotfiles
-  vim.keymap.set("n", "<leader>fn", functions.wax_file, opts)
+  kmap("n", "<leader>fn", functions.wax_file, opts)
 end
 
 telescope_keymaps()

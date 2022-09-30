@@ -5,8 +5,6 @@ vim.o.background = "dark"
 vim.g.gruvbox_invert_selection = 0
 vim.g.gruvbox_improved_warnings = 1
 
-vim.g.nord_disable_background = true
-
 -- Highlight API is still a wip in nvim: https://github.com/nanotee/nvim-lua-guide#defining-syntaxhighlights
 
 -- TreeSitter list of highlights:
@@ -163,43 +161,7 @@ local apply_gruvbox_theme = function()
   })
 end
 
-local apply_treesitter_python_theme = function()
-  vim.api.nvim_exec(
-    [[
-    hi! link pythonInclude GruvboxBlue
-
-    hi! link pythonKeywordOperator GruvboxRed
-    hi! link pythonBoolean GruvboxOrange
-
-    hi! link pythonNone GruvboxFg1  " fstring interpolation
-
-    hi! link pythonPunctDelimiter white
-    hi! link pythonPunctBracket white
-    hi! link pythonPunctSpecial GruvboxOrange  " { } of f-string
-
-    hi! link pythonOperator GruvboxFg1
-
-    hi! link pythonConstant white
-    hi! link pythonConstructor white
-    hi! link pythonField white
-
-    hi! link pythonConstant white
-    hi! link pythonVariable white
-    hi! link pythonParameter white
-
-    hi! link pythonType GruvboxYellow
-    hi! link pythonMethod GruvboxAqua
-    hi! link pythonFunction GruvboxAqua
-    hi! link pythonConstructor GruvboxGreen  " used for decorators
-
-    hi! link pythonVariableBuiltin GruvboxBlue
-    hi! link pythonFuncBuiltin GruvboxYellow
-    hi! link pythonConstBuiltin GruvboxOrange
-  ]],
-    false
-  )
-end
-
+local iterm_colorscheme = os.getenv("ITERM_PROFILE") or "gruvbox"
 if iterm_colorscheme == "gruvbox" then
   vim.cmd("silent! colorscheme gruvbox")
   apply_gruvbox_theme()
@@ -207,8 +169,11 @@ elseif iterm_colorscheme == "nord" then
   require("wax.themes.nord")
 end
 
-nnoremap("<leader>xc", "<cmd>TSHighlightCapturesUnderCursor<cr>")
-nnoremap(
-  "<leader>xz",
-  "<cmd>lua require('plenary.reload').reload_module('wax.themes'); require('wax.themes').apply_treesitter_gruvbox_theme()<cr>"
-)
+vim.keymap.set("n", "<leader>xc", function()
+  vim.cmd("TSHighlightCapturesUnderCursor")
+end)
+
+vim.keymap.set("n", "<leader>xz", function()
+  require("plenary.reload").reload_module("wax.themes")
+  apply_gruvbox_theme()
+end)

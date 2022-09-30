@@ -13,9 +13,9 @@ vim.g.bufferline = {
   exclude_name = { "" },
 }
 
-local opts = { noremap = true, nowait = true, silent = true }
-
-keymap("in", "œ", "<cmd>BufferPrevious<cr>", opts) -- option + q
-keymap("in", "∑", "<cmd>BufferNext<cr>", opts) -- option + w
-keymap("in", "®", "<cmd>BufferClose<cr>", opts) -- option + r
-keymap("in", "∂", "<cmd>BufferCloseAllButCurrent<cr>", opts) -- option + r
+local kmap = vim.keymap.set
+local opts = { nowait = true, silent = true }
+kmap({ "n", "i" }, "œ", "<cmd>BufferPrevious<cr>", opts) -- option + q
+kmap({ "n", "i" }, "∑", "<cmd>BufferNext<cr>", opts) -- option + w
+kmap({ "n", "i" }, "®", "<cmd>BufferClose<cr>", opts) -- option + r
+kmap({ "n" }, "©", "<cmd>BufferCloseAllButCurrent<cr>", opts) -- option + g

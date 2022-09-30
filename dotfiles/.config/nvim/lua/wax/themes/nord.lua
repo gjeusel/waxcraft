@@ -164,3 +164,5 @@ Group.new("TelescopeNormal", groups.Pmenu, groups.Pmenu)
 
 -- Markdown
 Group.new("markdownError", colors.nord_4, colors.none)
+
+vim.g.nord_disable_background = true

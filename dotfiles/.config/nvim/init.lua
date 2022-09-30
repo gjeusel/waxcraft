@@ -12,6 +12,7 @@
 
 pcall(require, "impatient") -- speed up startup with lua modules cache
 
+require("wax.userconfig") -- first, define user configs (waxopts)
 require("wax.utils")
 require("wax.settings")
 
