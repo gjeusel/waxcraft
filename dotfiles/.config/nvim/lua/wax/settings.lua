@@ -111,6 +111,9 @@ vim.o.synmaxcol = 128
 -- vim.g.python_host_prog = os.getenv("HOME") .. "/opt/miniconda3/envs/nvim27/bin/python"
 vim.g.python3_host_prog = waxopts.python3
 
+-- enable debug maybe
+vim.g.debug = waxopts.loglevel == "debug"
+
 --
 ------- Disable Some Builtins -------
 
