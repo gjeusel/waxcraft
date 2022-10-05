@@ -24,11 +24,5 @@ kmap("n", "<leader>;", ":noh<CR>", kopts)
 require("hlslens").setup({
   nearest_only = true,
   nearest_float_when = "never",
+  override_lens = function(...) end, -- disable virtual text
 })
-
-vim.api.nvim_set_hl(0, "HlSearchLensNear", { link = "Comment" })
-
--- hi default link HlSearchNear IncSearch
--- hi default link HlSearchLens WildMenu
--- hi default link HlSearchLensNear IncSearch
--- hi default link HlSearchFloat IncSearch
