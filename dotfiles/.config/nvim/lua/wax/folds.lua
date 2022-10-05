@@ -10,10 +10,10 @@ vim.o.foldenable = true -- Open all folds while not set.
 -- vim.o.foldminlines = 3 -- Min lines before fold.
 
 vim.o.foldmethod = "expr"
--- vim.o.foldexpr = "nvim_treesitter#foldexpr()"  -- replaced by custom
+vim.o.foldexpr = "nvim_treesitter#foldexpr()"  -- replaced by custom
 
 -- this method needs to be defined in the autoload directory:
-vim.o.foldexpr = "wax#foldexpr()"
+-- vim.o.foldexpr = "wax#foldexpr()"
 
 local map_cache_bufnr_tsmatches = {}
 local memoize_by_bufnr = function(fn)

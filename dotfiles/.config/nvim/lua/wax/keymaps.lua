@@ -38,7 +38,7 @@ kmap("n", "<leader>sf", ":luafile %<CR>")
 kmap("n", "<leader>ss", ":setlocal spell!<CR>")
 
 -- set no highlight
-kmap("n", "<leader>;", ":nohl<cr>")
+-- kmap("n", "<leader>;", ":nohl<cr>") -- done in hlslens plugin
 
 -- copy to clipboard :
 kmap("v", "<leader>y", '"+y')

@@ -196,11 +196,10 @@ return require("packer").startup({
     })
 
     -- use 'kshenoy/vim-signature'        -- toggle display marks
-    use({ -- loupe
-      "wincent/loupe", -- better focus on current highlight search
+    use({ -- better hl search
+      "kevinhwang91/nvim-hlslens",
       config = function()
-        vim.g.LoupeClearHighlightMap = 0
-        vim.g.LoupeVeryMagic = 0
+        require("wax.plugins.hlslens")
       end,
     })
 
