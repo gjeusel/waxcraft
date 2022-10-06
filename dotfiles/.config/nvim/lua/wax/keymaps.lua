@@ -86,9 +86,10 @@ kmap("n", "<leader>fp", function()
 end)
 
 -- set foldlevel
-for i = 0, 10, 1 do
-  kmap("n", ("<leader>zl%s"):format(i), function()
+for i = 0, 5, 1 do
+  kmap("n", ("<leader>f%s"):format(i), function()
     vim.cmd(("set foldlevel=%s"):format(i))
+    vim.cmd("normal zO")
   end)
 end
 

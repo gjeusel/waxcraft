@@ -13,17 +13,17 @@ local map_ft_local_settings = {
   yaml = "shiftwidth=2 tabstop=2 softtabstop=2",
   gitcommit = "spell viewoptions= viewdir=",
   git = "syntax=on nofoldenable",
-  vim = "tabstop=2 foldlevel=99 foldmethod=marker",
+  vim = "tabstop=2 foldmethod=marker",
   ["*sh"] = "nofoldenable",
   markdown = "spell textwidth=140 nofoldenable", -- "wrap wrapmargin=2"
   toml = "textwidth=140 nofoldenable",
-  json = "foldmethod=syntax foldlevel=99",
+  json = "foldmethod=syntax",
   edgeql = "commentstring=#%s",
   --
-  python = "shiftwidth=4 tabstop=4 softtabstop=4 foldlevel=0",
+  python = "shiftwidth=4 tabstop=4 softtabstop=4",
   --
-  html = "foldmethod=syntax foldlevel=4 nowrap shiftwidth=2 tabstop=2 softtabstop=2",
-  [{ "vue", "typescript", "typescriptreact", "javascript", "javascriptreact" }] = "foldminlines=3 foldlevel=4",
+  html = "foldmethod=syntax nowrap shiftwidth=2 tabstop=2 softtabstop=2",
+  [{ "vue", "typescript", "typescriptreact", "javascript", "javascriptreact" }] = "foldminlines=3",
 }
 
 for filetype, settings in pairs(map_ft_local_settings) do
