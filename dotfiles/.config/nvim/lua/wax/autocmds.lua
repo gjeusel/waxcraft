@@ -2,7 +2,7 @@
 local group_view = "Views"
 vim.api.nvim_create_augroup(group_view, { clear = true })
 vim.api.nvim_create_autocmd("BufRead", { pattern = "*", command = "silent! loadview" })
-vim.api.nvim_create_autocmd("BufWrite", { pattern = "*", command = "silent! mkview" })
+vim.api.nvim_create_autocmd({"BufWrite", "BufLeave"}, { pattern = "*", command = "silent! mkview" })
 
 ------------- Local Settings depending on FileType -------------
 --

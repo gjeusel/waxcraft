@@ -5,6 +5,7 @@
 -- issue fold update before treesitter: https://github.com/neovim/neovim/issues/14977
 -- but not sure about this one, as removing
 
+vim.o.foldlevelstart = 99 -- always open all folds on open
 vim.o.foldlevel = 99 -- always open all folds on open
 vim.o.foldenable = true -- Open all folds while not set.
 -- vim.o.foldminlines = 3 -- Min lines before fold.

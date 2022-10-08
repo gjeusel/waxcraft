@@ -13,6 +13,9 @@ vim.o.ruler = true -- Show the cursor position all the time
 -- vim.o.guicursor=nil         -- disable cursor-styling
 -- vim.o.noshowmode = true     -- do not put a message on the cmdline for the mode ('insert', 'normal', ...)
 
+-- vim.o.laststatus = false  -- hide status bar
+-- vim.o.cmdheight = 0  -- hide cmdline  -- waiting for https://github.com/neovim/neovim/issues/20380
+
 vim.o.scrolljump = 5 -- Lines to scroll when cursor leaves screen
 vim.o.scrolloff = 3 -- Have some context around the current line always on screen
 vim.o.virtualedit = "onemore" -- Allow for cursor beyond last character

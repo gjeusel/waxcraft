@@ -220,7 +220,7 @@ return require("packer").startup({
             require("neoclip").setup()
           end,
         },
-        "nvim-telescope/telescope-ui-select.nvim",
+        -- "nvim-telescope/telescope-ui-select.nvim", -- replaced by dressing
       },
       config = function()
         require("wax.plugins.telescope")
@@ -279,6 +279,7 @@ return require("packer").startup({
     })
 
     --------- LSP ---------
+    use({ "stevearc/dressing.nvim" }) -- better UI for select and input
     use({ -- lspconfig + mason
       "williamboman/mason.nvim",
       branch = "main",

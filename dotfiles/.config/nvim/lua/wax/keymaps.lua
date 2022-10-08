@@ -81,6 +81,10 @@ kmap("n", "[w", "<cmd>ccl<cr>") -- quite quick fix list
 
 -- copy in register current buffer absolute filepath
 kmap("n", "<leader>fp", function()
+  local fname = vim.fn.expand('%:t')
+  vim.fn.setreg("+", fname)
+end)
+kmap("n", "<leader>fP", function()
   local fpath = vim.api.nvim_buf_get_name(0)
   vim.fn.setreg("+", fpath)
 end)
