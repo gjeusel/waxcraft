@@ -155,6 +155,13 @@ return require("packer").startup({
       end,
     })
 
+    -- use({ -- Just Another Quickrun
+    --   "is0n/jaq-nvim",
+    --   config = function()
+    --     require("wax.plugins.jaq-nvim")
+    --   end,
+    -- })
+
     -- use 'airblade/vim-rooter'
 
     --------- User Interface ---------

@@ -1,13 +1,13 @@
 -------- Debug utils --------
 
-function dump(...)
+function _G.dump(...)
   local objects = vim.tbl_map(vim.inspect, { ... })
   print(unpack(objects))
 end
 
 -------- Mocks --------
 
-function mock()
+function _G.mock()
   local Mock = {}
 
   setmetatable(Mock, {
@@ -34,7 +34,10 @@ end
 
 -------- Module Operations --------
 
-function is_module_available(name)
+---Return truthy if module is available
+---@param name string
+---@return boolean
+function _G.is_module_available(name)
   if package.loaded[name] then
     return true
   else
@@ -49,7 +52,10 @@ function is_module_available(name)
   end
 end
 
-function safe_require(name)
+---Try to require. If module is not available, returns a mock.
+---@param name string
+---@return unknown
+function _G.safe_require(name)
   if is_module_available(name) then
     return require(name)
   else
@@ -59,7 +65,7 @@ end
 
 -------- Logs --------
 
-log = safe_require("plenary.log").new({
+_G.log = safe_require("plenary.log").new({
   plugin = "wax",
   level = waxopts.loglevel,
   use_console = false,
@@ -67,14 +73,14 @@ log = safe_require("plenary.log").new({
 
 -------- WorkSpace --------
 
-function is_git(cwd)
+function _G.is_git(cwd)
   local cmd = { "git", "rev-parse", "--show-toplevel" }
   local git_root, ret = require("telescope.utils").get_os_command_output(cmd, cwd)
   return not (ret ~= 0 or #git_root <= 0)
 end
 
-function find_root_dir_fn(patterns)
-  default_patterns = {
+function _G.find_root_dir_fn(patterns)
+  local default_patterns = {
     ".git",
     "Dockerfile",
     "pyproject.toml",
@@ -86,6 +92,6 @@ function find_root_dir_fn(patterns)
   return require("lspconfig").util.root_pattern(patterns)
 end
 
-function find_root_dir(path)
+function _G.find_root_dir(path)
   return find_root_dir_fn()(path)
 end
