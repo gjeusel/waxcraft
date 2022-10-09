@@ -23,7 +23,8 @@ endfunction
 local ligthline_layout = {
   left = {
     { "mode" },
-    { "spell", "readonly", "modified", "lspstatus" },
+    { "spell", "readonly", "modified" },
+    { "lspstatus" },
   },
   right = {
     {},

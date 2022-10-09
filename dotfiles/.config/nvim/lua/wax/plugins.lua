@@ -146,6 +146,15 @@ return require("packer").startup({
     }) -- Git wrapper for vim
     use("tpope/vim-scriptease") -- gives :Messages
 
+    --
+    use({ -- help dev in lua
+      "folke/lua-dev.nvim",
+      before = "lspconfig",
+      config = function()
+        require("lua-dev").setup({})
+      end,
+    })
+
     -- use 'airblade/vim-rooter'
 
     --------- User Interface ---------
