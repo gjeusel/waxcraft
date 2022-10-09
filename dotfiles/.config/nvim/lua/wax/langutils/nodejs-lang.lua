@@ -24,8 +24,7 @@ if opts.nvm.bin then
   node_path = Path:new(opts.nvm.bin):joinpath("node"):absolute()
 elseif opts.nvm.dir then
   -- Fallback when nvm not yet loaded
-  node_path = Path
-    :new(opts.nvm.dir)
+  node_path = Path:new(opts.nvm.dir)
     :joinpath("/versions/node/")
     :joinpath(opts.fallback_version)
     :joinpath("node")

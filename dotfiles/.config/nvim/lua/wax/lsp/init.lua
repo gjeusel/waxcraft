@@ -58,13 +58,8 @@ local function lsp_keymaps()
     vim.diagnostic.goto_next(goto_win_opts)
   end, opts)
 
-  local filteredFormatters = { "tsserver", "volar" }
   vim.keymap.set("n", "<leader>m", function()
-    local filter = function(client)
-      return not vim.tbl_contains(filteredFormatters, client.name)
-    end
-    -- vim.lsp.buf.format({ filter = filter, async = true })
-    vim.lsp.buf.format({ filter = filter, async = false, timeout_ms = 2000 })
+    vim.lsp.buf.format({ async = false, timeout_ms = 2000 })
   end, opts)
   -- vim.keymap.set("n", "<leader>m", vim.lsp.buf.formatting_seq_sync, opts)
 

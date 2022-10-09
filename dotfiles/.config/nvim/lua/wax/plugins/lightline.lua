@@ -1,12 +1,24 @@
-vim.api.nvim_create_user_command("LspStatus", function ()
-  if vim.lsp.buf_get_clients() > 0 then
-    return safe_require("lsp-status").status()
-  else
-    return ""
-  end
-end, {
-  desc = "Return current lsp status."
-})
+-- It is not creating a vimscript "function", but a "command"
+-- vim.api.nvim_create_user_command("LspStatus", function ()
+--   if #vim.lsp.buf_get_clients() > 0 then
+--     dump("Passing there")
+--     return safe_require("lsp-status").status()
+--   else
+--     return ""
+--   end
+-- end, {
+--   desc = "Return current lsp status."
+-- })
+
+vim.cmd([[
+" Statusline
+function! LspStatus() abort
+  if luaeval('#vim.lsp.buf_get_clients() > 0')
+    return luaeval("require('lsp-status').status()")
+  endif
+  return ''
+endfunction
+]])
 
 local ligthline_layout = {
   left = {

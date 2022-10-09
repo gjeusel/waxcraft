@@ -153,6 +153,7 @@ return require("packer").startup({
     use("mhartington/oceanic-next")
     use("shaunsingh/nord.nvim")
     -- use("tjdevries/colorbuddy.nvim") -- help to write its own colorscheme
+
     use({ -- lightline
       "itchyny/lightline.vim", -- light status line
       config = function()
@@ -165,6 +166,9 @@ return require("packer").startup({
       config = function()
         require("wax.plugins.barbar")
       end,
+    })
+    use({ -- dressing
+      "stevearc/dressing.nvim",
     })
 
     use({ -- nvim-web-devicons
@@ -220,7 +224,6 @@ return require("packer").startup({
             require("neoclip").setup()
           end,
         },
-        -- "nvim-telescope/telescope-ui-select.nvim", -- replaced by dressing
       },
       config = function()
         require("wax.plugins.telescope")
@@ -279,7 +282,6 @@ return require("packer").startup({
     })
 
     --------- LSP ---------
-    use({ "stevearc/dressing.nvim" }) -- better UI for select and input
     use({ -- lspconfig + mason
       "williamboman/mason.nvim",
       branch = "main",
@@ -289,6 +291,7 @@ return require("packer").startup({
         "neovim/nvim-lspconfig",
         -- "ray-x/lsp_signature.nvim", -- a bit buggy
         { "jose-elias-alvarez/null-ls.nvim", branch = "main" },
+        "b0o/schemastore.nvim", -- json schemas for jsonls
       },
       config = function()
         require("wax.plugins.mason")
