@@ -255,6 +255,7 @@ return require("packer").startup({
         require("wax.plugins.fzf")
       end,
     })
+    use({ "ibhagwan/fzf-lua" })
 
     --------- TreeSitter ---------
     use({ -- treesitter

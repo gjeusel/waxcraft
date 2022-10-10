@@ -74,92 +74,105 @@ local base_gruvbox_hls = {
 }
 
 local base_gruvbox_ts_hls = {
-  TSProperty = { link = "white" },
-  TSParameter = { link = "white" },
-  TSConstant = { link = "white" },
-  TSVariable = { link = "white" },
-  TSField = { link = "white" },
-  TSConstructor = { link = "white" },
+  ['@property'] = { link = "white" },
+  ['@parameter'] = { link = "white" },
+  ['@constant'] = { link = "white" },
+  ['@variable'] = { link = "white" },
+  ['@field'] = { link = "white" },
+  ['@constructor'] = { link = "white" },
 
-  TSPunctSpecial = { link = "GruvboxFg3" },
-  TSPunctBracket = { link = "GruvboxFg3" },
-  TSPunctDelimiter = { link = "white" },
+  ['@punctuation.special'] = { link = "GruvboxFg3" },
+  ['@punctuation.bracket'] = { link = "GruvboxFg3" },
+  ['@punctuation.delimiter'] = { link = "white" },
 }
 
 local frontend_gruvbox_ts_hls = {
-  TSVariableBuiltin = { link = "GruvboxOrange" },
+  ['@variable.builtin'] = { link = "GruvboxOrange" },
 
-  TSFunction = { link = "GruvboxBlue" },
-  TSMethod = { link = "GruvboxBlue" },
+  ['@function'] = { link = "GruvboxBlue" },
+  ['@method'] = { link = "GruvboxBlue" },
 
-  TSTagAttribute = { link = "GruvboxFg3" },
+  ['@tag.attribute'] = { link = "GruvboxFg3" },
 
-  TSType = { link = "GruvboxYellow" },
-  TSTypeBuiltin = { link = "GruvboxYellow" },
-
-  TSTitle = { link = "GruvboxYellow" },
+  ['@type'] = { link = "GruvboxYellow" },
+  ['@type.builtin'] = { link = "GruvboxYellow" },
 }
 
 local python_gruvbox_ts_hls = {
-  TSInclude = { link = "GruvboxBlue" },
+  ['@include'] = { link = "GruvboxBlue" },
 
-  TSKeywordOperator = { link = "GruvboxRed" },
-  TSBoolean = { link = "GruvboxOrange" },
+  ['@keyword.operator'] = { link = "GruvboxRed" },
+  ['@boolean'] = { link = "GruvboxOrange" },
 
-  TSNone = { link = "GruvboxFg1" }, -- fstring interpolation
+  ['@none'] = { link = "GruvboxFg1" }, -- fstring interpolation
 
-  TSPunctDelimiter = { link = "white" },
-  TSPunctBracket = { link = "white" },
-  TSPunctSpecial = { link = "GruvboxOrange" }, -- { } of f-string
+  ['@punctuation.special'] = { link = "GruvboxOrange" }, -- { } of f-string
+  ['@punctuation.bracket'] = { link = "white" },
+  ['@punctuation.delimiter'] = { link = "white" },
 
-  TSOperator = { link = "GruvboxFg1" },
+  ['@operator'] = { link = "GruvboxFg1" },
 
-  TSField = { link = "white" },
+  ['@field'] = { link = "white" },
 
-  TSConstant = { link = "white" },
-  TSVariable = { link = "white" },
-  TSParameter = { link = "white" },
+  ['@constant'] = { link = "white" },
+  ['@variable'] = { link = "white" },
+  ['@parameter'] = { link = "white" },
 
-  TSType = { link = "GruvboxYellow" },
+  ['@type'] = { link = "GruvboxYellow" },
 
-  TSMethod = { link = "GruvboxAqua" },
-  TSFunction = { link = "GruvboxAqua" },
-  TSConstructor = { link = "GruvboxGreen" }, -- used for decorators
+  ['@method'] = { link = "GruvboxAqua" },
+  ['@function'] = { link = "GruvboxAqua" },
+  ['@constructor'] = { link = "GruvboxGreen" }, -- used for decorators
 
-  TSVariableBuiltin = { link = "GruvboxBlue" },
-  TSFuncBuiltin = { link = "GruvboxYellow" },
-  TSConstBuiltin = { link = "GruvboxOrange" },
+  ['@variable.builtin'] = { link = "GruvboxBlue" },
+  ['@function.builtin'] = { link = "GruvboxYellow" },
+  ['@constant.builtin'] = { link = "GruvboxOrange" },
 }
 
 local apply_gruvbox_theme = function()
-  local apply_highlights = function(tbl)
+
+  local apply_highlights = function(tbl, lang)
+    local ns_id = 0
+    if lang then
+      ns_id = vim.api.nvim_create_namespace("treesitter/highlighter")
+    end
     for k, v in pairs(tbl) do
-      vim.api.nvim_set_hl(0, k, vim.tbl_extend("keep", v, { default = false }))
+      vim.api.nvim_set_hl(ns_id, k, vim.tbl_extend("keep", v, { default = false }))
     end
   end
 
-  local highlights = vim.tbl_extend("keep", base_gruvbox_hls, base_gruvbox_ts_hls)
-  apply_highlights(highlights)
+  apply_highlights(base_gruvbox_hls) -- base highlights
+  apply_highlights(base_gruvbox_ts_hls) -- treesitter highlights
 
-  local python_ts_hl_group = "python-ts-hl"
-  vim.api.nvim_create_augroup(python_ts_hl_group, { clear = true })
+  local group = "lang-ts-hl-custom"
+  vim.api.nvim_create_augroup(group, { clear = true })
+
   vim.api.nvim_create_autocmd("FileType", {
-    group = python_ts_hl_group,
+    group = group,
     pattern = "python",
     callback = function()
       apply_highlights(python_gruvbox_ts_hls)
     end,
   })
 
-  local frontend_ts_hl_group = "frontend-ts-hl"
-  vim.api.nvim_create_augroup(frontend_ts_hl_group, { clear = true })
   vim.api.nvim_create_autocmd("FileType", {
-    group = frontend_ts_hl_group,
+    group = group,
     pattern = { "vue", "typescript", "javascript", "typescriptreact", "javascriptreact" },
     callback = function()
       apply_highlights(frontend_gruvbox_ts_hls)
     end,
   })
+
+  vim.api.nvim_create_autocmd("FileType", {
+    group = group,
+    pattern = "yaml",
+    callback = function()
+      apply_highlights({
+        ["@field"] = { link = "GruvboxBlue" },
+      })
+    end,
+  })
+
 end
 
 -- is required to be a global var as it is used in other places

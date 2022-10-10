@@ -27,6 +27,7 @@ ts.setup({
     -- Generic:
     "bash",
     "json",
+    "yaml",
     "lua",
     "ql",
     "query",
