@@ -74,6 +74,7 @@ _G.log = safe_require("plenary.log").new({
 -------- WorkSpace --------
 
 function _G.is_git(cwd)
+  cwd = cwd or vim.fn.getcwd()
   local cmd = { "git", "rev-parse", "--show-toplevel" }
   local git_root, ret = require("telescope.utils").get_os_command_output(cmd, cwd)
   return not (ret ~= 0 or #git_root <= 0)

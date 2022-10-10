@@ -245,17 +245,12 @@ return require("packer").startup({
         require("wax.plugins.telescope")
       end,
     })
-    use({ -- fzf.vim
-      "junegunn/fzf.vim",
-      requires = {
-        "junegunn/fzf",
-        run = "./install --all",
-      },
+    use({
+      "ibhagwan/fzf-lua",
       config = function()
         require("wax.plugins.fzf")
       end,
     })
-    use({ "ibhagwan/fzf-lua" })
 
     --------- TreeSitter ---------
     use({ -- treesitter

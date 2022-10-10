@@ -44,10 +44,10 @@ require("telescope").setup({
     },
     mappings = {
       i = {
-        ["<C-f>"] = actions.smart_send_to_qflist, -- + actions.open_qflist, -- + my_cool_custom_action.x,
+        ["<C-r>"] = actions.smart_send_to_qflist,
       },
       n = {
-        ["<C-f>"] = actions.smart_send_to_qflist, -- + actions.open_qflist, -- + my_cool_custom_action.x,
+        ["<C-r>"] = actions.smart_send_to_qflist,
       },
     },
     file_ignore_patterns = {
@@ -93,7 +93,7 @@ local function telescope_keymaps()
   local opts = { noremap = true, silent = true, nowait = true }
 
   -- Telescope live grep
-  kmap("n", "<leader>A", functions.entirely_fuzzy_grep_string, opts)
+  -- kmap("n", "<leader>A", functions.entirely_fuzzy_grep_string, opts)
 
   -- Telescope file
   kmap("n", "<leader>p", functions.wax_find_file, opts)
