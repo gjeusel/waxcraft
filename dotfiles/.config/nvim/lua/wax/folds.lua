@@ -222,53 +222,53 @@ end
 vim.keymap.set("n", "zK", "zk", { noremap = true })
 vim.keymap.set("n", "zk", goPreviousStartFold)
 
-local fold_augroup = "fold-update"
-vim.api.nvim_create_augroup(fold_augroup, { clear = true })
+-- local fold_augroup = "fold-update"
+-- vim.api.nvim_create_augroup(fold_augroup, { clear = true })
 
--- Auto-update folds on insert leave, and auto-disable folds update while inserting
-local map_foldmethod_bufnr = {}
+-- -- Auto-update folds on insert leave, and auto-disable folds update while inserting
+-- local map_foldmethod_bufnr = {}
 
-vim.api.nvim_create_autocmd({ "InsertEnter" }, {
-  group = fold_augroup,
-  pattern = "*",
-  callback = function()
-    local bufnr = vim.api.nvim_get_current_buf()
-    map_foldmethod_bufnr[bufnr] = vim.b.foldmethod -- store buf foldmethod
-    vim.opt_local.foldmethod = "manual"
-  end,
-})
+-- vim.api.nvim_create_autocmd({ "InsertEnter" }, {
+--   group = fold_augroup,
+--   pattern = "*",
+--   callback = function()
+--     local bufnr = vim.api.nvim_get_current_buf()
+--     map_foldmethod_bufnr[bufnr] = vim.b.foldmethod -- store buf foldmethod
+--     vim.opt_local.foldmethod = "manual"
+--   end,
+-- })
 
-vim.api.nvim_create_autocmd({ "InsertLeave", "CursorHold" }, {
-  group = fold_augroup,
-  pattern = "*",
-  callback = function()
-    -- maybe apply stored buf foldmethod:
-    local bufnr = vim.api.nvim_get_current_buf()
-    if vim.tbl_contains(vim.tbl_keys(map_foldmethod_bufnr), bufnr) then
-      vim.opt_local.foldmethod = map_foldmethod_bufnr[bufnr]
-    else
-      vim.opt_local.foldmethod = "expr"
-    end
-  end,
-})
+-- vim.api.nvim_create_autocmd({ "InsertLeave", "CursorHold" }, {
+--   group = fold_augroup,
+--   pattern = "*",
+--   callback = function()
+--     -- maybe apply stored buf foldmethod:
+--     local bufnr = vim.api.nvim_get_current_buf()
+--     if vim.tbl_contains(vim.tbl_keys(map_foldmethod_bufnr), bufnr) then
+--       vim.opt_local.foldmethod = map_foldmethod_bufnr[bufnr]
+--     else
+--       vim.opt_local.foldmethod = "expr"
+--     end
+--   end,
+-- })
 
--- autocmds of interest: { "TextChanged", "InsertLeave", "User LspRequest" }
-vim.api.nvim_create_autocmd({ "TextChanged", "InsertLeave", "User LspRequest" }, {
-  group = fold_augroup,
-  pattern = "*",
-  callback = function()
-    local bufnr = vim.api.nvim_get_current_buf()
-    local should_invalidate = (map_cache_bufnr_tsmatches[bufnr] ~= nil)
-      and (vim.api.nvim_get_mode()["mode"] == "n")
+-- -- autocmds of interest: { "TextChanged", "InsertLeave", "User LspRequest" }
+-- vim.api.nvim_create_autocmd({ "TextChanged", "InsertLeave", "User LspRequest" }, {
+--   group = fold_augroup,
+--   pattern = "*",
+--   callback = function()
+--     local bufnr = vim.api.nvim_get_current_buf()
+--     local should_invalidate = (map_cache_bufnr_tsmatches[bufnr] ~= nil)
+--       and (vim.api.nvim_get_mode()["mode"] == "n")
 
-    if should_invalidate then
-      log.debug("[TS Fold] Clearing cache for bufnr ", bufnr)
-      table.remove(map_cache_bufnr_tsmatches, bufnr)
+--     if should_invalidate then
+--       log.debug("[TS Fold] Clearing cache for bufnr ", bufnr)
+--       table.remove(map_cache_bufnr_tsmatches, bufnr)
 
-      -- log.debug("[TS Fold] Force re-compute for bufnr ", bufnr)
-      -- get_fold_indic_by_line(vim.api.nvim_get_current_buf())
-    end
-  end,
-})
+--       -- log.debug("[TS Fold] Force re-compute for bufnr ", bufnr)
+--       -- get_fold_indic_by_line(vim.api.nvim_get_current_buf())
+--     end
+--   end,
+-- })
 
 return M

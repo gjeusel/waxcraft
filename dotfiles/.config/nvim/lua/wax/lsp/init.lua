@@ -59,9 +59,9 @@ local function lsp_keymaps()
   end, opts)
 
   vim.keymap.set("n", "<leader>m", function()
-    vim.lsp.buf.format({ async = false, timeout_ms = 2000 })
+    -- vim.lsp.buf.format({ async = false, timeout_ms = 2000 })
+    vim.lsp.buf.format({ async = true })
   end, opts)
-  -- vim.keymap.set("n", "<leader>m", vim.lsp.buf.formatting_seq_sync, opts)
 
   -- -- Custom ones:
   -- vim.keymap.set("n", "<leader>E", require('wax.lsp.lsp-functions').PeekTypeDefinition(), opts)

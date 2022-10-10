@@ -126,11 +126,11 @@ require("null-ls").setup({
     -- builtins.formatting.prettierd,
     builtins.formatting.prettier.with({
       filetypes = {
-        "javascript",
-        "javascriptreact",
-        "typescript",
-        "typescriptreact",
-        "vue",
+        -- "javascript",
+        -- "javascriptreact",
+        -- "typescript",
+        -- "typescriptreact",
+        -- "vue",
         "css",
         "scss",
         "less",
@@ -145,6 +145,7 @@ require("null-ls").setup({
       },
     }),
     -- builtins.code_actions.eslint_d,
-    -- builtins.formatting.eslint,
+    builtins.diagnostics.eslint_d,
+    builtins.formatting.eslint_d,
   },
 })
