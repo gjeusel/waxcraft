@@ -6,6 +6,7 @@ vim.o.relativenumber = true -- relative line number
 
 -- vim.o.laststatus = 3  -- global statusline
 
+vim.o.conceallevel = 0 -- don't conceal anything
 vim.o.colorcolumn = "100" -- Show vertical bar at column 100
 vim.o.signcolumn = "yes" -- always show sign column
 vim.o.ruler = true -- Show the cursor position all the time
@@ -59,7 +60,7 @@ vim.o.list = true -- show the following:
 vim.api.nvim_exec([[set listchars=tab:›\ ,trail:•,extends:#,nbsp:.]], false) -- Highlight problematic whitespace
 
 -- Backup, swap, undo & sessions
-local basedir = vim.fn.expand("$HOME") .. "/.local/share/nvim"
+local basedir = vim.fn.stdpath("data")
 
 -- swapfile
 vim.o.directory = basedir .. "/swap"

@@ -1,5 +1,3 @@
-local constants = require("wax.plugins.telescope.constants")
-
 local builtin = require("telescope.builtin")
 local actions = require("telescope.actions")
 local action_set = require("telescope.actions.set")
@@ -7,53 +5,32 @@ local action_state = require("telescope.actions.state")
 
 local M = {}
 
--- Custom Grep to be fuzzy
-M.entirely_fuzzy_grep_string = function(opts)
-  opts = opts or {}
-  local default_opts = {
-    prompt_title = "~ fuzzy grep string ~",
-    search = "", -- https://github.com/nvim-telescope/telescope.nvim/issues/564
-    cwd = find_root_dir("."),
-    vimgrep_arguments = constants.grep_cmds["rg"],
-  }
-  return builtin.grep_string(vim.tbl_extend("force", default_opts, opts))
-end
+---Find Files with git files first.
+---@param opts table
+M.ffile = function(opts)
+  opts = vim.tbl_extend("force", { hidden = true, path_display = { truncate = 3 } }, opts)
 
--- Custom find file (defaulting to git files if is git)
-M.wax_find_file = function(opts)
-  opts = opts or {}
-
-  local default_opts = { hidden = true }
-
-  local git = opts.git_files
-  if git == nil then
-    git = true
-  end
-
-  if git and is_git(opts.cwd) then
-    local git_opts = { prompt_title = "~ git files ~" }
-    local all_opts = vim.tbl_extend("keep", default_opts, git_opts, opts)
-    builtin.git_files(all_opts)
+  if opts.git_files and is_git(opts.cwd or vim.loop.cwd()) then
+    opts = vim.tbl_extend("force", { prompt_title = "~ git files ~" }, opts)
+    builtin.git_files(opts)
   else
-    local nogit_opts = {
+    opts = vim.tbl_extend("force", {
       prompt_title = "~ files ~",
       no_ignore = true,
       cwd = find_root_dir(vim.fn.getcwd()),
-    }
-    local all_opts = vim.tbl_extend("keep", default_opts, nogit_opts, opts)
-    builtin.find_files(all_opts)
+    }, opts)
+    builtin.find_files(opts)
   end
 end
 
--- Dotfiles find file
+---Dotfiles find file
 M.wax_file = function()
   local opts = {
     prompt_title = "~ dotfiles waxdir ~",
-    hidden = true,
     search_dirs = {
       "~/src/waxcraft",
       "~/.config/nvim",
-      -- "~/.local/share/nvim/site/pack/packer",
+      "~/.local/share/nvim/site/pack/packer",
       -- Local not versioned in dotfiles:
       "~/.gitconfig",
       "~/.python_startup_local.py",
@@ -106,32 +83,36 @@ local project_two_step = function(prompt_title, fn_second_step)
       })
     end
 
-  pickers.new(opts, {
-    prompt_title = "File Browser",
-    finder = opts.new_finder(opts.cwd),
-    previewer = conf.file_previewer(opts),
-    sorter = conf.file_sorter(opts),
-    attach_mappings = function(prompt_bufnr)
-      action_set.select:replace(function()
-        local entry = action_state.get_selected_entry()
-        local project = entry[1]
-        actions.close(prompt_bufnr)
-        fn_second_step({ cwd = project })
-        vim.cmd(":normal! A") -- small fix to be in insert mode
-        return true
-      end)
+  pickers
+    .new(opts, {
+      prompt_title = "File Browser",
+      finder = opts.new_finder(opts.cwd),
+      previewer = conf.file_previewer(opts),
+      sorter = conf.file_sorter(opts),
+      attach_mappings = function(prompt_bufnr)
+        action_set.select:replace(function()
+          local entry = action_state.get_selected_entry()
+          local project = entry[1]
+          actions.close(prompt_bufnr)
+          fn_second_step({ cwd = project })
+          vim.cmd(":normal! A") -- small fix to be in insert mode
+          return true
+        end)
 
-      return true
-    end,
-  }):find()
+        return true
+      end,
+    })
+    :find()
 end
 
 M.projects_grep_files = function()
-  return project_two_step("~ projects files ~", M.wax_find_file)
+  return project_two_step("~ projects files ~", M.ffile)
 end
 
 M.projects_grep_string = function()
-  return project_two_step("~ projects grep string ~", M.entirely_fuzzy_grep_string)
+  return project_two_step("~ projects grep string ~", function(cwd)
+    return require("fzf-lua").grep({ cwd = cwd, search = "" })
+  end)
 end
 
 -- Projects grep string

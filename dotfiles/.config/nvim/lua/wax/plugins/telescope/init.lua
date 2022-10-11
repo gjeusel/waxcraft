@@ -1,5 +1,7 @@
 local actions = require("telescope.actions")
 local constants = require("wax.plugins.telescope.constants")
+local themes = require("telescope.themes")
+local functions = require("wax.plugins.telescope.functions")
 
 -- https://github.com/nvim-telescope/telescope.nvim/issues/559
 vim.api.nvim_create_autocmd("BufRead", {
@@ -13,13 +15,12 @@ vim.api.nvim_create_autocmd("BufRead", {
           -- vim.api.nvim_feedkeys(str, "m", false)
           -- vim.cmd([[:silent! loadview]])
           vim.cmd([[:normal! zx]])
+          vim.cmd([[:normal! zO]])
         end, 0)
       end,
     })
   end,
 })
-
-local kmap = vim.keymap.set
 
 require("telescope").setup({
   defaults = {
@@ -75,78 +76,57 @@ require("telescope").setup({
       override_file_sorter = true, -- override the file sorter
       case_mode = "smart_case", -- or "ignore_case" or "respect_case"
     },
-    ["ui-select"] = {
-      require("telescope.themes").get_dropdown({}),
-    },
   },
 })
 
--- Extensions
-for _, ext in pairs({ "fzf", "ui-select" }) do
+-- Load Extensions
+for _, ext in pairs({ "fzf" }) do
   pcall(require("telescope").load_extension, ext)
 end
 
 -- Mappings
-local function telescope_keymaps()
-  local themes = require("telescope.themes")
-  local functions = require("wax.plugins.telescope.functions")
-  local opts = { noremap = true, silent = true, nowait = true }
+local kmap = vim.keymap.set
 
-  -- Telescope live grep
-  -- kmap("n", "<leader>A", functions.entirely_fuzzy_grep_string, opts)
+local kopts = { noremap = true, silent = true, nowait = true }
 
-  -- Telescope file
-  kmap("n", "<leader>p", functions.wax_find_file, opts)
-  kmap("n", "<leader>P", function()
-    functions.wax_find_file({ git_files = false })
-  end, opts)
+-- Telescope file
+kmap("n", "<leader>p", functions.ffile, kopts)
+kmap("n", "<leader>P", function()
+  functions.ffile({ git_files = false })
+end, kopts)
 
-  -- Telescope project then file on ~/src
-  kmap("n", "<leader>q", functions.projects_grep_files, opts)
-  kmap("n", "<leader>Q", functions.projects_grep_string, opts)
+-- Telescope project then file on ~/src
+kmap("n", "<leader>q", functions.projects_grep_files, kopts)
+kmap("n", "<leader>Q", functions.projects_grep_string, kopts)
 
-  -- Telescope opened buffers
-  kmap("n", "<leader>n", function()
-    functions.buffers({ prompt_title = "~ buffers ~" })
-  end, opts)
+-- Telescope opened buffers
+kmap("n", "<leader>n", function()
+  functions.buffers({ prompt_title = "~ buffers ~" })
+end, kopts)
 
-  -- Telescope Builtin:
-  kmap("n", "<leader>b", functions.builtin, opts)
+-- Telescope Builtin:
+kmap("n", "<leader>fr", functions.builtin, kopts)
 
-  -- Spell Fix:
-  kmap("n", "z=", function()
-    functions.spell_suggest(themes.get_cursor({}))
-  end)
+-- Spell Fix:
+kmap("n", "z=", function()
+  functions.spell_suggest(themes.get_cursor({}))
+end)
 
-  -- Command History: option-d
-  kmap(
-    { "n", "i", "c" },
-    "∂", -- option + d
-    function()
-      functions.command_history(themes.get_dropdown({}))
-    end,
-    opts
-  )
+-- LSP
+local vertical_opts = {
+  sorting_strategy = "ascending",
+  layout_strategy = "vertical",
+  fname_width = 90,
+  -- include_current_line=false,
+  -- time_text = true,
+}
+kmap("n", "<leader>ff", functions.lsp_dynamic_workspace_symbols, kopts)
+kmap("n", "<leader>fF", functions.lsp_document_symbols, kopts)
+kmap("n", "<leader>r", function()
+  functions.lsp_references(vertical_opts)
+end, kopts)
 
-  -- LSP
-  local vertical_opts = {
-    sorting_strategy = "ascending",
-    layout_strategy = "vertical",
-    fname_width = 90,
-    -- include_current_line=false,
-    -- time_text = true,
-  }
-  kmap("n", "<leader>ff", functions.lsp_dynamic_workspace_symbols, opts)
-  kmap("n", "<leader>fF", functions.lsp_document_symbols, opts)
-  kmap("n", "<leader>r", function()
-    functions.lsp_references(vertical_opts)
-  end, opts)
+-- dotfiles
+kmap("n", "<leader>fw", functions.wax_file, kopts)
 
-  -- dotfiles
-  kmap("n", "<leader>fn", functions.wax_file, opts)
-end
-
-telescope_keymaps()
-
-local telescope_functions = require("wax.plugins.telescope.functions")
-return telescope_functions
+return functions

@@ -10,14 +10,15 @@ local group_ft_settings = "FileType Local Settings"
 vim.api.nvim_create_augroup(group_ft_settings, { clear = true })
 
 local map_ft_local_settings = {
-  yaml = "shiftwidth=2 tabstop=2 softtabstop=2 foldminlines=3",
+  help = "conceallevel=0",
+  yaml = "shiftwidth=2 tabstop=2 softtabstop=2 conceallevel=0 foldminlines=3",
   gitcommit = "spell viewoptions= viewdir=",
   git = "syntax=on nofoldenable",
   vim = "tabstop=2 foldmethod=marker",
   ["*sh"] = "nofoldenable",
   markdown = "spell textwidth=140 nofoldenable", -- "wrap wrapmargin=2"
   toml = "textwidth=140 nofoldenable",
-  json = "foldmethod=syntax",
+  json = "foldmethod=syntax conceallevel=0",
   edgeql = "commentstring=#%s",
   --
   python = "shiftwidth=4 tabstop=4 softtabstop=4",
