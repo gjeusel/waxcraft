@@ -17,7 +17,7 @@ vim.api.nvim_set_var("test#filename_modifier", ":~")
 
 -- python
 vim.api.nvim_set_var("test#python#runner", "pytest")
-vim.api.nvim_set_var("test#python#pytest#options", "--log-cli-level=INFO --log-level=INFO -x -s")
+vim.api.nvim_set_var("test#python#pytest#options", "--log-cli-level=INFO --log-level=INFO -x -s --pdb")
 
 -- vue
 -- vim.api.nvim_set_var("test#javascript#runner", "npm run test")
