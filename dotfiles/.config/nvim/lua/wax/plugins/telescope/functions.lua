@@ -8,7 +8,7 @@ local M = {}
 ---Find Files with git files first.
 ---@param opts table
 M.ffile = function(opts)
-  opts = vim.tbl_extend("force", { hidden = true, path_display = { truncate = 3 } }, opts)
+  opts = vim.tbl_extend("force", { hidden = true, path_display = { truncate = 3 } }, opts or {})
 
   if opts.git_files and is_git(opts.cwd or vim.loop.cwd()) then
     opts = vim.tbl_extend("force", { prompt_title = "~ git files ~" }, opts)
