@@ -8,16 +8,23 @@ local M = {}
 ---Find Files with git files first.
 ---@param opts table
 M.ffile = function(opts)
-  opts = vim.tbl_extend("force", { hidden = true, path_display = { truncate = 3 } }, opts or {})
+  opts = vim.tbl_extend("force", {
+    hidden = true,
+    path_display = {
+      truncate = 3,
+      -- smart = true, -- slow
+    },
+    cwd = vim.loop.cwd(),
+  }, opts or {})
 
-  if opts.git_files and is_git(opts.cwd or vim.loop.cwd()) then
+  if opts.git_files and is_git(opts.cwd) then
     opts = vim.tbl_extend("force", { prompt_title = "~ git files ~" }, opts)
     builtin.git_files(opts)
   else
     opts = vim.tbl_extend("force", {
       prompt_title = "~ files ~",
       no_ignore = true,
-      cwd = find_root_dir(vim.fn.getcwd()),
+      cwd = find_root_dir(opts.cwd),
     }, opts)
     builtin.find_files(opts)
   end
@@ -36,8 +43,9 @@ M.wax_file = function()
       "~/.python_startup_local.py",
       "~/.zshrc",
     },
+    git_files = false,
   }
-  builtin.find_files(opts)
+  M.ffile(opts)
 end
 
 -- Projects find file
@@ -111,7 +119,7 @@ end
 
 M.projects_grep_string = function()
   return project_two_step("~ projects grep string ~", function(cwd)
-    return require("fzf-lua").grep({ cwd = cwd, search = "" })
+    return safe_require("fzf-lua").grep({ cwd = cwd, search = "" })
   end)
 end
 
