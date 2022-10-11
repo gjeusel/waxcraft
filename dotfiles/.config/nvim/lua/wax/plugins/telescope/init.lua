@@ -95,9 +95,9 @@ kmap("n", "<leader>P", function()
   functions.ffile({ git_files = false })
 end, kopts)
 
--- Telescope project then file on ~/src
-kmap("n", "<leader>q", functions.projects_grep_files, kopts)
-kmap("n", "<leader>Q", functions.projects_grep_string, kopts)
+-- -- Telescope project then file on ~/src
+-- kmap("n", "<leader>q", functions.projects_grep_files, kopts)
+-- kmap("n", "<leader>Q", functions.projects_grep_string, kopts)
 
 -- Telescope opened buffers
 kmap("n", "<leader>n", function()

@@ -1,5 +1,8 @@
 local fzf_lua = require("fzf-lua")
 
+local scan = safe_require("plenary.scandir")
+local Path = safe_require("plenary.path")
+
 -- Example command launched by fzf-lua:
 
 -- ```bash
@@ -50,16 +53,38 @@ local git_or_cwd = function()
   return cwd
 end
 
-kmap = vim.keymap.set
+local pick_project = function(fn)
+  local base_path = vim.env.HOME .. "/src"
+  local projects = scan.scan_dir(base_path, {
+    hidden = false,
+    add_dirs = true,
+    only_dirs = true,
+    depth = 1,
+  })
 
+  projects = vim.tbl_map(function(entry)
+    return Path:new(entry):make_relative(base_path)
+  end, projects)
+
+  vim.ui.select(projects, { prompt = "Select project" }, function(choice, _)
+    local project = Path:new(base_path):joinpath(choice):absolute()
+    fn(project)
+  end)
+end
+
+local kmap = vim.keymap.set
+
+-- Fzf Grep
 kmap("n", "<leader>a", function()
   return fzf_lua.grep({ cwd = git_or_cwd(), search = "" })
 end)
 
+-- Live Grep
 kmap("n", "<leader>A", function()
   return fzf_lua.live_grep({ cwd = git_or_cwd() })
 end)
 
+-- Fzf Lua Builtin
 kmap("n", "<leader>fe", function()
   return fzf_lua.builtin()
 end)
@@ -72,3 +97,15 @@ kmap(
     return fzf_lua.command_history()
   end
 )
+
+-- Project select then find file
+kmap("n", "<leader>q", function()
+  pick_project(function(path)
+    safe_require("wax.plugins.telescope.functions").ffile({ cwd = path })
+  end)
+end)
+kmap("n", "<leader>Q", function()
+  pick_project(function(path)
+    fzf_lua.grep({ cwd = path, search = "" })
+  end)
+end)
