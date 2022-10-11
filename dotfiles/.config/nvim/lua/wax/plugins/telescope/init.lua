@@ -15,7 +15,6 @@ vim.api.nvim_create_autocmd("BufRead", {
           -- vim.api.nvim_feedkeys(str, "m", false)
           -- vim.cmd([[:silent! loadview]])
           vim.cmd([[:normal! zx]])
-          vim.cmd([[:normal! zO]])
         end, 0)
       end,
     })

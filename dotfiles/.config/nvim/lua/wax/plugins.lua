@@ -163,7 +163,6 @@ return require("packer").startup({
       "is0n/jaq-nvim",
       config = function()
         require("wax.plugins.jaq-nvim")
-        vim.keymap.set("n", "<leader>fq", "<cmd>Jaq<cr>")
       end,
     })
 

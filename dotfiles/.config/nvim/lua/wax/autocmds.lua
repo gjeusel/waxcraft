@@ -20,6 +20,7 @@ local map_ft_local_settings = {
   toml = "textwidth=140 nofoldenable",
   json = "foldmethod=syntax conceallevel=0",
   edgeql = "commentstring=#%s",
+  lua = "foldlevel=99",
   --
   python = "shiftwidth=4 tabstop=4 softtabstop=4",
   --

@@ -135,7 +135,9 @@ local apply_gruvbox_theme = function()
   local apply_highlights = function(tbl, lang)
     local ns_id = 0
     if lang then
-      ns_id = vim.api.nvim_create_namespace("treesitter/highlighter")
+      ns_id = vim.api.nvim_create_namespace(("treesitter/%s"):format(lang))
+      local win = vim.api.nvim_get_current_win()
+      vim.api.nvim_win_set_hl_ns(win, ns_id)
     end
     for k, v in pairs(tbl) do
       vim.api.nvim_set_hl(ns_id, k, vim.tbl_extend("keep", v, { default = false }))
@@ -151,7 +153,7 @@ local apply_gruvbox_theme = function()
     group = ts_augroup,
     pattern = "python",
     callback = function()
-      apply_highlights(python_gruvbox_ts_hls)
+      apply_highlights(python_gruvbox_ts_hls, "python")
     end,
   })
 
@@ -159,7 +161,7 @@ local apply_gruvbox_theme = function()
     group = ts_augroup,
     pattern = { "vue", "typescript", "javascript", "typescriptreact", "javascriptreact" },
     callback = function()
-      apply_highlights(frontend_gruvbox_ts_hls)
+      apply_highlights(frontend_gruvbox_ts_hls, "frontend")
     end,
   })
 
@@ -169,9 +171,22 @@ local apply_gruvbox_theme = function()
     callback = function()
       apply_highlights({
         ["@field"] = { link = "GruvboxBlue" },
-      })
+      }, "yaml")
     end,
   })
+
+  vim.api.nvim_create_autocmd("FileType", {
+    group = ts_augroup,
+    pattern = "lua",
+    callback = function()
+      apply_highlights({
+        ["@function"] = {link = "GruvboxBlueBold"},
+        ["@function.call"] = {link = "GruvboxBlue"},
+        ["@function.builtin"] = { link = "GruvboxYellow" },
+      }, "lua")
+    end,
+  })
+
 end
 
 -- is required to be a global var as it is used in other places

@@ -68,3 +68,5 @@ require("jaq-nvim").setup({
     },
   },
 })
+
+vim.keymap.set("n", "<leader>fq", "<cmd>Jaq<cr>")
