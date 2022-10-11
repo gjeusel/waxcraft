@@ -32,14 +32,14 @@ require("jaq-nvim").setup({
   ui = {
     float = {
       -- See ':h nvim_open_win'
-      border = "none",
+      border = "rounded",
 
       -- See ':h winhl'
       winhl = "Normal",
       borderhl = "FloatBorder",
 
       -- See ':h winblend'
-      winblend = 0,
+      winblend = 100,
 
       -- Num from `0-1` for measurements
       height = 0.8,

@@ -1,8 +1,53 @@
 -------- Debug utils --------
 
+---Dump the args in vim messages
+---@param ... unknown
 function _G.dump(...)
   local objects = vim.tbl_map(vim.inspect, { ... })
   print(unpack(objects))
+end
+
+---Dump the args inside a floating window scratch buffer
+---@param ... unknown
+function _G.dumpf(...)
+  local bufnr = vim.api.nvim_create_buf(false, true)
+  local ui = vim.api.nvim_list_uis()[1]
+  local opts = {
+    relative = "editor",
+    anchor = "NW",
+    style = "minimal",
+    width = math.floor(0.4 * ui.width),
+    height = math.floor(0.4 * ui.height),
+    col = math.floor(0.3 * ui.width),
+    row = math.floor(0.3 * ui.height),
+    border = "rounded",
+    noautocmd = true,
+  }
+  local win = vim.api.nvim_open_win(bufnr, true, opts)
+
+  local close = function()
+    vim.api.nvim_win_close(win, true)
+    vim.api.nvim_buf_delete(bufnr, { force = true })
+  end
+  local mappings = {
+    q = close,
+  }
+  vim.api.nvim_create_autocmd("WinLeave", { callback = close, buffer = bufnr })
+
+  for k, v in pairs(mappings) do
+    if type(v) == "string" then
+      vim.api.nvim_buf_set_keymap(bufnr, "n", k, v, { nowait = true })
+    else
+      vim.api.nvim_buf_set_keymap(bufnr, "n", k, "", { callback = v, nowait = true })
+    end
+  end
+
+  local content = vim.tbl_map(vim.inspect, { ... })
+  local split_line_return = function(entry)
+    return vim.fn.split(entry, "\\n")
+  end
+  content = vim.tbl_map(split_line_return, content)
+  vim.api.nvim_buf_set_lines(bufnr, 0, 0, false, vim.tbl_flatten(content))
 end
 
 -------- Mocks --------
