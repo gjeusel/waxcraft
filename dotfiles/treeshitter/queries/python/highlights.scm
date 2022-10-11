@@ -4,7 +4,7 @@
 ;; ; Variables
 ;; (identifier) @variable
 
-; Reset highlighing in f-string interpolations
+; Reset highlighting in f-string interpolations
 (interpolation) @none
 
 ; ; Identifier naming conventions
@@ -13,6 +13,9 @@
 
 ((identifier) @constant
  (#match? @constant "^[A-Z][A-Z_0-9]*$"))
+
+((identifier) @constant.builtin
+ (#lua-match? @constant.builtin "^__[a-zA-Z0-9_]*__$"))
 
 ((identifier) @constant.builtin
  (#any-of? @constant.builtin
@@ -24,14 +27,6 @@
            "copyright"
            "credits"
            "license"
-           "__name__"
-           "__file__"
-           "__module__"
-           "__import__"
-           "__doc__"
-           "__dict__"
-           "__package__"
-           "__slots__"
 ))
 
 ((identifier) @function

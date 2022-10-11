@@ -26,6 +26,10 @@ end
 -- Auto recompile packer on changes
 vim.api.nvim_create_autocmd("BufWritePost", {
   pattern = "plugins.lua",
+  -- callback = function()
+  --   vim.api.nvim_exec([[LuaCacheClear]], false)
+  --   vim.cmd([[PackerCompile]])
+  -- end,
   command = "PackerCompile",
   desc = "Auto recompile packer on changes",
 })
@@ -185,6 +189,13 @@ return require("packer").startup({
     })
     use({ -- dressing
       "stevearc/dressing.nvim",
+      config = function()
+        require("dressing").setup({
+          builtin = { enabled = false },
+          select = { enabled = false },
+          input = { enabled = true, winblend = 0 },
+        })
+      end,
     })
 
     use({ -- nvim-web-devicons
@@ -245,6 +256,7 @@ return require("packer").startup({
         require("wax.plugins.telescope")
       end,
     })
+
     use({
       "ibhagwan/fzf-lua",
       config = function()
@@ -259,7 +271,7 @@ return require("packer").startup({
       requires = {
         { -- play with queries
           "nvim-treesitter/playground",
-          cmd = "TSPlaygroundToggle",
+          -- cmd = "TSPlaygroundToggle",
         },
         { -- better text objects
           "nvim-treesitter/nvim-treesitter-textobjects",
