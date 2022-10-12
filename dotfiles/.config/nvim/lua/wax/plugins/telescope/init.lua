@@ -99,9 +99,9 @@ end, kopts)
 -- kmap("n", "<leader>Q", functions.projects_grep_string, kopts)
 
 -- Telescope opened buffers
-kmap("n", "<leader>n", function()
-  functions.buffers({ prompt_title = "~ buffers ~" })
-end, kopts)
+-- kmap("n", "<leader>n", function()
+--   functions.buffers({ prompt_title = "~ buffers ~" })
+-- end, kopts)
 
 -- Telescope Builtin:
 kmap("n", "<leader>fr", functions.builtin, kopts)
@@ -121,9 +121,9 @@ local vertical_opts = {
 }
 kmap("n", "<leader>ff", functions.lsp_dynamic_workspace_symbols, kopts)
 kmap("n", "<leader>fF", functions.lsp_document_symbols, kopts)
-kmap("n", "<leader>r", function()
-  functions.lsp_references(vertical_opts)
-end, kopts)
+-- kmap("n", "<leader>r", function()
+--   functions.lsp_references(vertical_opts)
+-- end, kopts)
 
 -- dotfiles
 kmap("n", "<leader>fw", functions.wax_file, kopts)

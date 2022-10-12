@@ -17,16 +17,17 @@ local fzf_actions = {
 }
 
 fzf_lua.setup({
-  winopts = { height = 0.8, width = 0.9 },
+  winopts = {
+    height = 0.8,
+    width = 0.9,
+  },
   actions = { files = fzf_actions },
   keymap = {
     builtin = {
-      ["<ctrl-d>"] = "preview-page-down",
-      ["<ctrl-u>"] = "preview-page-up",
+      ["<c-d>"] = "preview-page-down",
+      ["<c-u>"] = "preview-page-up",
     },
     fzf = {
-      -- fzf '--bind=' options
-      -- -- NOTE: not working
       ["ctrl-d"] = "preview-page-down",
       ["ctrl-u"] = "preview-page-up",
     },
@@ -45,7 +46,7 @@ fzf_lua.setup({
   },
 })
 
-local git_or_cwd = function()
+local function git_or_cwd()
   local cwd = vim.loop.cwd()
   if is_git() then
     cwd = find_root_dir(cwd)
@@ -53,7 +54,7 @@ local git_or_cwd = function()
   return cwd
 end
 
-local pick_project = function(fn)
+local function pick_project(fn)
   local base_path = vim.env.HOME .. "/src"
   local projects = scan.scan_dir(base_path, {
     hidden = false,
@@ -70,6 +71,29 @@ local pick_project = function(fn)
     local project = Path:new(base_path):joinpath(choice):absolute()
     fn(project)
   end)
+end
+
+local function list_wax_files()
+  local paths = {
+    "~/src/waxcraft",
+    "~/.config/nvim/config.lua",
+    "~/.local/share/nvim/site/pack/packer",
+    "~/.gitconfig",
+    "~/.python_startup_local.py",
+    "~/.zshrc",
+  }
+
+  local function file_exists(name)
+     local f = io.open(name, "r")
+     return f ~= nil and io.close(f)
+  end
+
+  -- local files = {}
+  -- for _, path in pairs(paths) do
+  --   require("lsf")
+  --   if file_exists()
+  -- end
+
 end
 
 local kmap = vim.keymap.set
@@ -97,6 +121,12 @@ kmap(
     return fzf_lua.command_history()
   end
 )
+
+-- Opened Buffers
+kmap("n", "<leader>n", fzf_lua.buffers)
+
+-- LSP
+kmap("n", "<leader>r", fzf_lua.lsp_references)
 
 -- Project select then find file
 kmap("n", "<leader>q", function()

@@ -1,29 +1,25 @@
 -------- Debug utils --------
 
----Dump the args in vim messages
----@param ... unknown
-function _G.dump(...)
-  local objects = vim.tbl_map(vim.inspect, { ... })
-  print(unpack(objects))
-end
+local function open_scratch_win(content, opts)
+  opts = opts or {}
+  opts = vim.tbl_deep_extend("keep", opts or {}, { width = 0.6, height = 0.6 })
 
----Dump the args inside a floating window scratch buffer
----@param ... unknown
-function _G.dumpf(...)
   local bufnr = vim.api.nvim_create_buf(false, true)
   local ui = vim.api.nvim_list_uis()[1]
-  local opts = {
+
+  local win_opts = {
     relative = "editor",
     anchor = "NW",
     style = "minimal",
-    width = math.floor(0.4 * ui.width),
-    height = math.floor(0.4 * ui.height),
-    col = math.floor(0.3 * ui.width),
-    row = math.floor(0.3 * ui.height),
+    width = math.floor(opts.width * ui.width),
+    height = math.floor(opts.height * ui.height),
+    col = math.floor((0.5 - opts.width / 2) * ui.width),
+    row = math.floor((0.4 - opts.height / 2) * ui.height),
     border = "rounded",
     noautocmd = true,
   }
-  local win = vim.api.nvim_open_win(bufnr, true, opts)
+
+  local win = vim.api.nvim_open_win(bufnr, true, win_opts)
 
   local close = function()
     vim.api.nvim_win_close(win, true)
@@ -42,13 +38,59 @@ function _G.dumpf(...)
     end
   end
 
-  local content = vim.tbl_map(vim.inspect, { ... })
-  local split_line_return = function(entry)
+  -- format content
+  local function sanitize_input(e)
+    if type(e) == "string" then
+      return e
+    else
+      return vim.inspect(e)
+    end
+  end
+
+  content = vim.tbl_map(sanitize_input, content)
+
+  local function split_line_return(entry)
     return vim.fn.split(entry, "\\n")
   end
+
   content = vim.tbl_map(split_line_return, content)
-  vim.api.nvim_buf_set_lines(bufnr, 0, 0, false, vim.tbl_flatten(content))
+  content = vim.tbl_flatten(content)
+
+  vim.api.nvim_buf_set_lines(bufnr, 0, 0, false, content)
 end
+
+---Dump the args in vim messages
+---@param ... unknown
+function _G.dump(...)
+  local objects = vim.tbl_map(vim.inspect, { ... })
+  print(unpack(objects))
+end
+
+---Dump the args inside a floating window scratch buffer
+---@param ... unknown
+function _G.dumpf(...)
+  local content = vim.tbl_map(vim.inspect, { ... })
+  open_scratch_win(content)
+end
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "lua",
+  callback = function()
+    vim.keymap.set("v", "<c-a>", function()
+      -- waiting for lua "get_visual_selection"
+      -- https://github.com/neovim/neovim/pull/13896
+      vim.cmd([[normal! "fy]])
+      local selection = vim.fn.getreg('"f')
+
+      -- Pulled from luaeval function
+      local chunkheader = "local _A = select(1, ...) return "
+      local result = loadstring(chunkheader .. selection, "debug")()
+
+      local content = { selection, "", result }
+      open_scratch_win(content)
+    end)
+  end,
+})
 
 -------- Mocks --------
 
