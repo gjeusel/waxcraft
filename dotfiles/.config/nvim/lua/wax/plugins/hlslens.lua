@@ -24,5 +24,6 @@ kmap("n", "<leader>;", ":noh<CR>", kopts)
 require("hlslens").setup({
   nearest_only = true,
   nearest_float_when = "never",
+  calm_down = true,
   override_lens = function(...) end, -- disable virtual text
 })

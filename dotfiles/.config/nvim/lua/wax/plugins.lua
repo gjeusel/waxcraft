@@ -51,17 +51,19 @@ return require("packer").startup({
 
     --------- System Plugins ---------
     use("AndrewRadev/splitjoin.vim") -- easy split join on whole paragraph
-    use("wellle/targets.vim") -- text object for parenthesis & more !
     use("michaeljsmith/vim-indent-object") -- text object based on indentation levels.
     -- use 'psliwka/vim-smoothie'                     -- smoother scroll
 
-    -- use({ -- the next vim-sneak
-    --   "ggandor/lightspeed.nvim",
-    --   config = function()
-    --     require("wax.plugins.lightspeed")
-    --   end,
-    -- })
-    use("junegunn/vim-easy-align") -- easy alignment, better than tabularize
+    use({ -- the next vim-sneak
+      "ggandor/lightspeed.nvim",
+      config = function()
+        require("wax.plugins.lightspeed")
+      end,
+    })
+    -- use( -- easy alignment, better than tabularize
+    --   -- To replace with: echasnovski/mini.nvim
+    --   { "junegunn/vim-easy-align" }
+    -- )
     use({ "vim-scripts/loremipsum", cmd = "Loremipsum" }) -- dummy text generator (:Loremipsum [number of words])
 
     use({ -- easy comment/uncomment
@@ -130,24 +132,16 @@ return require("packer").startup({
     -- Tpope is awesome
     use("tpope/vim-surround") -- change surrounding easily
     use("tpope/vim-eunuch") -- sugar for the UNIX shell commands
-    use({ -- vim fugitive
-      "tpope/vim-fugitive",
-      config = function()
-        vim.api.nvim_exec(
-          [[
-          command! -nargs=* Gdiff Gvdiffsplit <args>
-          augroup remapTpopeFugitive
-            autocmd User FugitiveObject nunmap <buffer> -
-            autocmd User FugitiveObject nunmap <buffer> <CR>
-          augroup end
-          ]],
-          false
-        )
-      end,
-    }) -- Git wrapper for vim
-    use("tpope/vim-scriptease") -- gives :Messages
+    use({ "tpope/vim-scriptease", cmd = "Messages" }) -- gives :Messages
 
-    --
+    use({
+      -- diffview: git integration for nvim
+      "sindrets/diffview.nvim",
+      config = function()
+        require("wax.plugins.diffview")
+      end,
+    })
+
     use({ -- help dev in lua
       "folke/lua-dev.nvim",
       before = "lspconfig",
@@ -163,13 +157,10 @@ return require("packer").startup({
       end,
     })
 
-    -- use 'airblade/vim-rooter'
-
     --------- User Interface ---------
     use("morhetz/gruvbox")
     use("mhartington/oceanic-next")
     use("shaunsingh/nord.nvim")
-    -- use("tjdevries/colorbuddy.nvim") -- help to write its own colorscheme
 
     use({ -- lightline
       "itchyny/lightline.vim", -- light status line
@@ -200,19 +191,15 @@ return require("packer").startup({
       config = function()
         require("nvim-web-devicons").setup()
       end,
-    }) -- icons
+    })
     use("mhinz/vim-startify") -- fancy start screen
     use({ -- gitsigns
       "lewis6991/gitsigns.nvim",
       config = function()
         require("wax.plugins.gitsigns")
       end,
-    }) -- git sign column
+    })
 
-    -- Waiting for https://github.com/nanotee/nvim-lua-guide
-    -- use {'glepnir/indent-guides.nvim', -- indent guide
-    --   config = function() require('wax.plugins.indent-guides') end,
-    -- }
     use({ -- indentLine
       "Yggdroot/indentLine", -- indent line
       config = function()
@@ -223,7 +210,6 @@ return require("packer").startup({
       end,
     })
 
-    -- use 'kshenoy/vim-signature'        -- toggle display marks
     use({ -- better hl search
       "kevinhwang91/nvim-hlslens",
       config = function()
@@ -231,7 +217,7 @@ return require("packer").startup({
       end,
     })
 
-    use("rhysd/conflict-marker.vim") -- conflict markers for vimdiff
+    -- use("rhysd/conflict-marker.vim") -- conflict markers for vimdiff
 
     --------- Fuzzy Fuzzy Fuzzy ---------
     use({ -- telescope

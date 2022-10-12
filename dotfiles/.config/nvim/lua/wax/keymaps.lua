@@ -93,7 +93,7 @@ end)
 for i = 0, 5, 1 do
   kmap("n", ("<leader>f%s"):format(i), function()
     vim.cmd(("set foldlevel=%s"):format(i))
-    vim.cmd("normal zO")
+    vim.cmd("silent! zO")
   end)
 end
 
