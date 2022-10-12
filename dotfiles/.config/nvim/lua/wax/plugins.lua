@@ -180,7 +180,11 @@ return require("packer").startup({
       config = function()
         require("dressing").setup({
           builtin = { enabled = false },
-          select = { enabled = true, winblend = 0 },
+          select = {
+            -- enabled = false, -- replaced by fzf-lua
+            enabled = true,
+            winblend = 0,
+          },
           input = { enabled = true, winblend = 0 },
         })
       end,

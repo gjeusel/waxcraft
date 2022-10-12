@@ -46,6 +46,9 @@ fzf_lua.setup({
   },
 })
 
+-- -- Register fzf-lua for vim.ui.select
+-- fzf_lua.register_ui_select({}, true)
+
 local function git_or_cwd()
   local cwd = vim.loop.cwd()
   if is_git() then
@@ -102,7 +105,9 @@ kmap("n", "z=", fzf_lua.spell_suggest, { desc = "Fzf Spell Suggest" })
 kmap("n", "<leader>n", fzf_lua.buffers, { desc = "Fzf Opened Buffers" })
 
 -- LSP
-kmap("n", "<leader>r", fzf_lua.lsp_references, { desc = "Fzf Lsp References" })
+kmap("n", "<leader>r", function()
+  fzf_lua.lsp_references({ async = true })
+end, { desc = "Fzf Lsp References" })
 
 --
 ------- Wax files -------
@@ -125,7 +130,7 @@ local function list_wax_files()
       table.insert(files, path:make_relative(home))
     else
       local files_in_path = scan.scan_dir(path:absolute(), {
-        hidden = false,
+        hidden = true,
         add_dirs = false,
         only_dirs = false,
         respect_gitignore = true,
