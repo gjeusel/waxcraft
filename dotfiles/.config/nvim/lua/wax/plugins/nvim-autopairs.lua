@@ -1,7 +1,7 @@
 local npairs = require("nvim-autopairs")
 
 npairs.setup({
-  disable_filetype = { "TelescopePrompt", "vim" },
+  disable_filetype = { "TelescopePrompt", "vim", "fzf" },
   close_triple_quotes = true,
   enable_check_bracket_line = true, --- check bracket in same line
   -- check_ts = false,

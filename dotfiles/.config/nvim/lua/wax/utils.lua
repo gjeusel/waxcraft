@@ -86,7 +86,7 @@ vim.api.nvim_create_autocmd("FileType", {
       local chunkheader = "local _A = select(1, ...) return "
       local result = loadstring(chunkheader .. selection, "debug")()
 
-      local content = { selection, "", result }
+      local content = { selection, "", vim.inspect(result) }
       open_scratch_win(content)
     end)
   end,
@@ -160,10 +160,30 @@ _G.log = safe_require("plenary.log").new({
 
 -------- WorkSpace --------
 
+function _G.get_os_command_output(cmd, cwd)
+  if type(cmd) ~= "table" then
+    return {}
+  end
+
+  local Job = require("plenary.job")
+
+  local command = table.remove(cmd, 1)
+  local stderr = {}
+  local stdout, ret = Job:new({
+    command = command,
+    args = cmd,
+    cwd = cwd,
+    on_stderr = function(_, data)
+      table.insert(stderr, data)
+    end,
+  }):sync()
+  return stdout, ret, stderr
+end
+
 function _G.is_git(cwd)
   cwd = cwd or vim.fn.getcwd()
   local cmd = { "git", "rev-parse", "--show-toplevel" }
-  local git_root, ret = require("telescope.utils").get_os_command_output(cmd, cwd)
+  local git_root, ret = _G.get_os_command_output(cmd, cwd)
   return not (ret ~= 0 or #git_root <= 0)
 end
 
@@ -183,3 +203,5 @@ end
 function _G.find_root_dir(path)
   return find_root_dir_fn()(path)
 end
+
+-- vim.keymap.set("t", "<c-g>", "<cmd>stopinsert<cr>")

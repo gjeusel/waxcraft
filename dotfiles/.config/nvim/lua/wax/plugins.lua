@@ -205,8 +205,17 @@ return require("packer").startup({
       config = function()
         vim.g.indentLine_char = "│"
         vim.g.indentLine_color_gui = "#343d46" -- indent line color got indentLine plugin
-        vim.g.indentLine_fileTypeExclude =
-          { "startify", "markdown", "vim", "tex", "help", "man", "fzf", "TelescopePrompt" }
+        vim.g.indentLine_fileTypeExclude = {
+          "startify",
+          "markdown",
+          "vim",
+          "tex",
+          "help",
+          "man",
+          "fzf",
+          "packer",
+          "TelescopePrompt",
+        }
       end,
     })
 
@@ -220,26 +229,7 @@ return require("packer").startup({
     -- use("rhysd/conflict-marker.vim") -- conflict markers for vimdiff
 
     --------- Fuzzy Fuzzy Fuzzy ---------
-    use({ -- telescope
-      "nvim-telescope/telescope.nvim",
-      branch = "0.1.x",
-      -- lock = true,
-      requires = {
-        "nvim-lua/popup.nvim",
-        "nvim-lua/plenary.nvim",
-        { "nvim-telescope/telescope-fzf-native.nvim", branch = "main", run = "make" },
-        { -- clipboard integration in telescope
-          "AckslD/nvim-neoclip.lua",
-          config = function()
-            require("neoclip").setup()
-          end,
-        },
-      },
-      config = function()
-        require("wax.plugins.telescope")
-      end,
-    })
-
+    use({ "nvim-lua/plenary.nvim" }) -- used in utils
     use({
       "ibhagwan/fzf-lua",
       config = function()

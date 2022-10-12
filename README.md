@@ -11,6 +11,6 @@
 
 - [packer](https://github.com/wbthomason/packer.nvim): plugin manager
 - [treesitter](https://github.com/nvim-treesitter/nvim-treesitter): instant code parsing for syntax highlight and more
-- [telescope](https://github.com/nvim-telescope/telescope.nvim): fuzzy find everything
+- [fzf-lua](https://github.com/ibhagwan/fzf-lua): fuzzy find everything
 - [lspconfig](https://github.com/neovim/nvim-lspconfig): builtin nvim LSP
 - [tslime](https://github.com/jgdavey/tslime.vim): send anything to tmux pane from vim

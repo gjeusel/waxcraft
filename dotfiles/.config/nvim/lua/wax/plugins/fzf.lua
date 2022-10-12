@@ -33,7 +33,7 @@ fzf_lua.setup({
     },
   },
   grep = {
-    fzf_opts = { ["--bind"] = "" },
+    -- fzf_opts = { ["--bind"] = "" },
     actions = fzf_actions,
     prompt = "❯ ",
     git_icons = false,
@@ -54,6 +54,110 @@ local function git_or_cwd()
   return cwd
 end
 
+local kmap = vim.keymap.set
+
+-- Fzf Grep
+kmap("n", "<leader>a", function()
+  return fzf_lua.grep({ cwd = git_or_cwd(), search = "" })
+end)
+
+-- Live Grep
+kmap("n", "<leader>A", function()
+  return fzf_lua.live_grep({ cwd = git_or_cwd() })
+end)
+
+-- Find Files
+kmap("n", "<leader>p", function()
+  return fzf_lua.fzf_exec("rg --files --hidden --glob '!.git/'", {
+    prompt = "Files > ",
+    previewer = "builtin",
+    cwd = git_or_cwd(),
+    actions = fzf_actions,
+    fn_transform = function(x)
+      return fzf_lua.make_entry.file(x, { file_icons = true, color_icons = true })
+    end,
+  })
+end)
+
+-- Find Git Files
+kmap("n", "<leader>P", function()
+  return fzf_lua.git_files({ cwd = git_or_cwd() })
+end)
+
+-- Fzf Lua Builtin
+kmap("n", "<leader>fe", fzf_lua.builtin, { desc = "Fzf Lua Builtin" })
+
+-- Command History: option-d
+kmap(
+  { "n", "i", "c" },
+  "∂", -- option + d
+  fzf_lua.command_history,
+  { desc = "Fzf Command History" }
+)
+
+-- Spell Suggest:
+kmap("n", "z=", fzf_lua.spell_suggest, { desc = "Fzf Spell Suggest" })
+
+-- Opened Buffers
+kmap("n", "<leader>n", fzf_lua.buffers, { desc = "Fzf Opened Buffers" })
+
+-- LSP
+kmap("n", "<leader>r", fzf_lua.lsp_references, { desc = "Fzf Lsp References" })
+
+--
+------- Wax files -------
+
+local function list_wax_files()
+  local paths = {
+    "src/waxcraft/dotfiles",
+    ".config/nvim/config.lua",
+    ".local/share/nvim/site/pack/packer",
+    ".gitconfig",
+    ".python_startup_local.py",
+    ".zshrc",
+  }
+  local home = vim.env.HOME
+
+  local files = {}
+  for _, path in pairs(paths) do
+    path = Path:new(home .. "/" .. path)
+    if path:is_file() then
+      table.insert(files, path:make_relative(home))
+    else
+      local files_in_path = scan.scan_dir(path:absolute(), {
+        hidden = false,
+        add_dirs = false,
+        only_dirs = false,
+        respect_gitignore = true,
+      })
+      vim.list_extend(
+        files,
+        vim.tbl_map(function(e)
+          return Path:new(e):make_relative(home)
+        end, files_in_path)
+      )
+    end
+  end
+
+  return files
+end
+
+kmap("n", "<leader>fw", function()
+  local files = list_wax_files()
+  return fzf_lua.fzf_exec(files, {
+    prompt = "WaxFiles > ",
+    previewer = "builtin",
+    cwd = vim.env.HOME,
+    actions = fzf_actions,
+    fn_transform = function(x)
+      return fzf_lua.make_entry.file(x, { file_icons = true, color_icons = true })
+    end,
+  })
+end)
+
+--
+------- Project Select first -------
+
 local function pick_project(fn)
   local base_path = vim.env.HOME .. "/src"
   local projects = scan.scan_dir(base_path, {
@@ -68,70 +172,16 @@ local function pick_project(fn)
   end, projects)
 
   vim.ui.select(projects, { prompt = "Select project" }, function(choice, _)
-    local project = Path:new(base_path):joinpath(choice):absolute()
-    fn(project)
+    if choice then
+      local project = Path:new(base_path):joinpath(choice):absolute()
+      fn(project)
+    end
   end)
 end
 
-local function list_wax_files()
-  local paths = {
-    "~/src/waxcraft",
-    "~/.config/nvim/config.lua",
-    "~/.local/share/nvim/site/pack/packer",
-    "~/.gitconfig",
-    "~/.python_startup_local.py",
-    "~/.zshrc",
-  }
-
-  local function file_exists(name)
-     local f = io.open(name, "r")
-     return f ~= nil and io.close(f)
-  end
-
-  -- local files = {}
-  -- for _, path in pairs(paths) do
-  --   require("lsf")
-  --   if file_exists()
-  -- end
-
-end
-
-local kmap = vim.keymap.set
-
--- Fzf Grep
-kmap("n", "<leader>a", function()
-  return fzf_lua.grep({ cwd = git_or_cwd(), search = "" })
-end)
-
--- Live Grep
-kmap("n", "<leader>A", function()
-  return fzf_lua.live_grep({ cwd = git_or_cwd() })
-end)
-
--- Fzf Lua Builtin
-kmap("n", "<leader>fe", function()
-  return fzf_lua.builtin()
-end)
-
--- Command History: option-d
-kmap(
-  { "n", "i", "c" },
-  "∂", -- option + d
-  function()
-    return fzf_lua.command_history()
-  end
-)
-
--- Opened Buffers
-kmap("n", "<leader>n", fzf_lua.buffers)
-
--- LSP
-kmap("n", "<leader>r", fzf_lua.lsp_references)
-
--- Project select then find file
 kmap("n", "<leader>q", function()
   pick_project(function(path)
-    safe_require("wax.plugins.telescope.functions").ffile({ cwd = path })
+    fzf_lua.files({ cwd = path })
   end)
 end, { desc = "Pick project then find file" })
 
