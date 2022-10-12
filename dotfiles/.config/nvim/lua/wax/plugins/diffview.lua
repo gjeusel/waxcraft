@@ -103,8 +103,7 @@ require("diffview").setup({
     },
     diff1 = { --[[ Mappings in single window diff layouts ]]
     },
-    diff2 = { --[[ Mappings in 2-way diff layouts ]]
-    },
+    diff2 = { --[[ Mappings in 2-way diff layouts ]] },
     diff3 = {
       -- Mappings in 3-way diff layouts
       { { "n", "x" }, "2do", actions.diffget("ours") }, -- Obtain the diff hunk from the OURS version of the file
@@ -148,6 +147,7 @@ require("diffview").setup({
     file_history_panel = {
       ["g!"] = actions.options, -- Open the option panel
       ["<C-A-d>"] = actions.open_in_diffview, -- Open the entry under the cursor in a diffview
+      ["<leader>gf>"] = actions.open_in_diffview, -- Open the entry under the cursor in a diffview
       ["y"] = actions.copy_hash, -- Copy the commit hash of the entry under the cursor
       ["L"] = actions.open_commit_log,
       ["zR"] = actions.open_all_folds,
