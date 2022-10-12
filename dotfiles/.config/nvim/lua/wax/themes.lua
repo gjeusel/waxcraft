@@ -181,7 +181,7 @@ local apply_gruvbox_theme = function()
     callback = function()
       apply_highlights({
         ["@function"] = {link = "GruvboxBlueBold"},
-        ["@function.call"] = {link = "GruvboxBlue"},
+        ["@function.call"] = {link = "white"},
         ["@function.builtin"] = { link = "GruvboxYellow" },
       }, "lua")
     end,

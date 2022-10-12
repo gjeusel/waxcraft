@@ -1,43 +1,40 @@
-local download_packer = function()
-  print("Downloading packer.nvim...")
-
-  local directory = string.format("%s/site/pack/packer/opt", vim.fn.stdpath("data"))
+local ensure_packer = function()
+  local directory = vim.fn.stdpath("data") .. "/site/pack/packer/start"
   vim.fn.mkdir(directory, "p")
 
+  local install_path = directory .. "/packer.nvim"
+  if vim.fn.empty(vim.fn.glob(install_path)) == 0 then
+    return false
+  end
+
+  print("Downloading packer.nvim...")
   local out = vim.fn.system(
     string.format(
-      "git clone %s %s",
+      "git clone --depth 1 %s %s",
       "https://github.com/wbthomason/packer.nvim",
       directory .. "/packer.nvim"
     )
   )
 
-  print(out)
-  print("Downloaded packer.nvim")
-  print("Reopen NVIM and run :PackerSync twice")
+  print("Downloaded packer at " .. out)
+  vim.cmd([[packadd packer.nvim]])
+  return true
 end
 
-local packer_exists = pcall(vim.cmd, [[packadd packer.nvim]]) -- works even if packer in your `opt` pack
-if not packer_exists then
-  download_packer()
-  return
-end
+local packer_bootstrap = ensure_packer()
 
 -- Auto recompile packer on changes
-vim.api.nvim_create_autocmd("BufWritePost", {
-  pattern = "plugins.lua",
-  -- callback = function()
-  --   vim.api.nvim_exec([[LuaCacheClear]], false)
-  --   vim.cmd([[PackerCompile]])
-  -- end,
-  command = "PackerCompile",
-  desc = "Auto recompile packer on changes",
-})
+vim.cmd([[
+  augroup packer_user_config
+    autocmd!
+    autocmd BufWritePost plugins.lua source <afile> | PackerCompile
+  augroup end
+]])
 
 return require("packer").startup({
   function(use)
     -- Packer can manage itself as an optional plugin
-    use({ "wbthomason/packer.nvim", opt = true })
+    use({ "wbthomason/packer.nvim" })
 
     --- Performances plugins
     use({ -- impatient
@@ -378,6 +375,13 @@ return require("packer").startup({
     --   end,
     -- })
     use({ "edgedb/edgedb-vim" })
+
+    --------- Packer ---------
+    -- Automatically set up your configuration after cloning packer.nvim
+    -- Put this at the end after all plugins
+    if packer_bootstrap then
+      require("packer").sync()
+    end
   end,
   config = {
     -- Move to lua dir so impatient.nvim can cache it:
