@@ -47,7 +47,8 @@ fzf_lua.setup({
 })
 
 -- -- Register fzf-lua for vim.ui.select
--- fzf_lua.register_ui_select({}, true)
+fzf_lua.register_ui_select({}, true)
+-- fzf_lua.deregister_ui_select({}, true)
 
 local function git_or_cwd()
   local cwd = vim.loop.cwd()
@@ -104,9 +105,16 @@ kmap("n", "z=", fzf_lua.spell_suggest, { desc = "Fzf Spell Suggest" })
 -- Opened Buffers
 kmap("n", "<leader>n", fzf_lua.buffers, { desc = "Fzf Opened Buffers" })
 
--- LSP
+--
+---------- LSP ----------
+--
+-- lsp issue with tips and tricks: https://github.com/ibhagwan/fzf-lua/issues/441
+--
 kmap("n", "<leader>r", function()
-  fzf_lua.lsp_references({ async = true })
+  fzf_lua.lsp_references({
+    async = true,
+    file_ignore_patterns = { "miniconda3" }, -- ignore references in env libs
+  })
 end, { desc = "Fzf Lsp References" })
 
 --
@@ -176,7 +184,7 @@ local function pick_project(fn)
     return Path:new(entry):make_relative(base_path)
   end, projects)
 
-  vim.ui.select(projects, { prompt = "Select project" }, function(choice, _)
+  vim.ui.select(projects, { prompt = "Select project> " }, function(choice, _)
     if choice then
       local project = Path:new(base_path):joinpath(choice):absolute()
       fn(project)

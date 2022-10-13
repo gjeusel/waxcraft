@@ -181,9 +181,12 @@ return require("packer").startup({
         require("dressing").setup({
           builtin = { enabled = false },
           select = {
-            -- enabled = false, -- replaced by fzf-lua
-            enabled = true,
+            enabled = false, -- replaced by fzf-lua
+            -- enabled = true,
             winblend = 0,
+            -- priority list for backends:
+            -- backend = { "telescope", "fzf_lua", "fzf", "builtin", "nui" },
+            -- fzf_lua = { winopts = { width = 0.4, height = 0.4 } },
           },
           input = { enabled = true, winblend = 0 },
         })
