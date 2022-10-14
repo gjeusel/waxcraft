@@ -106,9 +106,9 @@ kmap("n", "<leader>A", function()
   return fzf_lua.live_grep({ cwd = git_or_cwd(), fn_selected = fn_selected_multi })
 end)
 
--- Find Files
-kmap("n", "<leader>p", function()
-  return fzf_lua.fzf_exec("rg --files --hidden --glob '!.git/'", {
+local function rg_grep(rg_opts)
+  local rg_cmd = ("rg %s --files --hidden --glob '!.git/'"):format(rg_opts or "")
+  return fzf_lua.fzf_exec(rg_cmd, {
     prompt = "Files > ",
     previewer = "builtin",
     cwd = git_or_cwd(),
@@ -117,11 +117,14 @@ kmap("n", "<leader>p", function()
       return fzf_lua.make_entry.file(x, { file_icons = true, color_icons = true })
     end,
   })
-end)
+end
+
+-- Find Files
+kmap("n", "<leader>p", rg_grep)
 
 -- Find Git Files
 kmap("n", "<leader>P", function()
-  return fzf_lua.git_files({ cwd = git_or_cwd() })
+  return rg_grep("--no-ignore-vcs")
 end)
 
 -- Fzf Lua Builtin
