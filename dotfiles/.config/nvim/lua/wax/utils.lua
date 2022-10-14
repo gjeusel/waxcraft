@@ -79,8 +79,8 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.keymap.set("v", "<c-a>", function()
       -- waiting for lua "get_visual_selection"
       -- https://github.com/neovim/neovim/pull/13896
-      vim.cmd([[normal! "fy]])
-      local selection = vim.fn.getreg('"f')
+      vim.cmd([[normal! "y]])
+      local selection = vim.fn.getreg('"')
 
       -- Pulled from luaeval function
       local chunkheader = "local _A = select(1, ...) return "

@@ -9,36 +9,6 @@ local Path = safe_require("plenary.path")
 --  fzf --expect=ctrl-v,ctrl-g,ctrl-s,alt-l,alt-q,ctrl-r,ctrl-t --multi --header=':: <^[[0;33mctrl-g^[[0m> to ^[[0;31mRegex Search^[[0m' --bind='alt-a:toggle-all,ctrl-a:beginning-of-line,ctrl-b:preview-page-up,ctrl-f:preview-page-down,shift-down:preview-page-down,ctrl-z:abort,ctrl-d:preview-page-down,shift-up:preview-page-up,f4:toggle-preview,ctrl-u:preview-page-up,f3:toggle-preview-wrap,ctrl-e:end-of-line' --preview=''\''/usr/local/bin/nvim'\'' -n --headless --clean --cmd '\''lua loadfile([[/Users/gjeusel/.local/share/nvim/site/pack/packer/start/fzf-lua/lua/fzf-lua/shell_helper.lua]])().rpc_nvim_exec_lua({fzf_lua_server=[[/var/folders/9_/mc8yjnyn1j3_15_wmktz0g6m0000gn/T/nvim.gjeusel/1RZQDr/nvim.31754.1]], fnc_id=1 , debug=true})'\'' {}' --border=none --print-query --height=100% --prompt='❯ ' --info=inline --layout=reverse --ansi --preview-window=nohidden:right:0
 -- ```
 
-local function grep_sel_to_qf(selected, opts)
-  local qf_list = {}
-  for i = 1, #selected do
-    local file = fzf_lua.path.entry_to_file(selected[i], opts)
-    local text = selected[i]:match(":%d+:%d?%d?%d?%d?:?(.*)$")
-    table.insert(qf_list, {
-      filename = file.bufname or file.path,
-      lnum = file.line,
-      col = file.col,
-      text = text,
-    })
-  end
-  log.warn("qf list:", qf_list)
-  vim.fn.setqflist(qf_list, "r")
-end
-
-local function fn_selected_multi(selected, opts)
-  if not selected then
-    return
-  end
-  -- first element of "selected" is the keybind pressed
-  if #selected < 2 then
-    return fzf_lua.actions.act(opts.actions, selected, opts)
-  else -- here we multi-selected
-    local _, entries = fzf_lua.actions.normalize_selected(opts.actions, selected)
-    grep_sel_to_qf(entries, opts)
-    vim.cmd("cfirst")
-  end
-end
-
 local fzf_actions = {
   ["default"] = fzf_lua.actions.file_edit,
   ["ctrl-s"] = fzf_lua.actions.file_split,
@@ -82,6 +52,10 @@ fzf_lua.setup({
 fzf_lua.register_ui_select({}, true)
 -- fzf_lua.deregister_ui_select({}, true)
 
+--
+------- utils funcs -------
+--
+
 local function git_or_cwd()
   local cwd = vim.loop.cwd()
   if is_git() then
@@ -90,8 +64,40 @@ local function git_or_cwd()
   return cwd
 end
 
+local function grep_sel_to_qf(selected, opts)
+  local qf_list = {}
+  for i = 1, #selected do
+    local file = fzf_lua.path.entry_to_file(selected[i], opts)
+    local text = selected[i]:match(":%d+:%d?%d?%d?%d?:?(.*)$")
+    table.insert(qf_list, {
+      filename = file.bufname or file.path,
+      lnum = file.line,
+      col = file.col,
+      text = text,
+    })
+  end
+  vim.fn.setqflist(qf_list, "r")
+end
+
+local function fn_selected_multi(selected, opts)
+  if not selected then
+    return
+  end
+  -- first element of "selected" is the keybind pressed
+  if #selected <= 2 then
+    fzf_lua.actions.act(opts.actions, selected, opts)
+  else -- here we multi-selected
+    local _, entries = fzf_lua.actions.normalize_selected(opts.actions, selected)
+    grep_sel_to_qf(entries, opts)
+    vim.cmd("cfirst")
+  end
+end
+
 local kmap = vim.keymap.set
 
+--
+---------- Grep ----------
+--
 -- Fzf Grep
 kmap("n", "<leader>a", function()
   return fzf_lua.grep({
@@ -106,7 +112,18 @@ kmap("n", "<leader>A", function()
   return fzf_lua.live_grep({ cwd = git_or_cwd(), fn_selected = fn_selected_multi })
 end)
 
-local function rg_grep(rg_opts)
+-- Fzf Grep word under cursor
+kmap("n", "<leader>ff", function()
+  vim.cmd([[normal! "wyiw]])
+  local word = vim.fn.getreg('"')
+  fzf_lua.grep({ cwd = git_or_cwd(), search = word, fn_selected = fn_selected_multi })
+end)
+
+--
+---------- Files ----------
+--
+
+local function rg_files(rg_opts)
   local rg_cmd = ("rg %s --files --hidden --glob '!.git/'"):format(rg_opts or "")
   return fzf_lua.fzf_exec(rg_cmd, {
     prompt = "Files > ",
@@ -119,14 +136,17 @@ local function rg_grep(rg_opts)
   })
 end
 
--- Find Files
-kmap("n", "<leader>p", rg_grep)
+-- Find Files restricted
+kmap("n", "<leader>p", rg_files)
 
--- Find Git Files
+-- Find Files
 kmap("n", "<leader>P", function()
-  return rg_grep("--no-ignore-vcs")
+  return rg_files("--no-ignore-vcs")
 end)
 
+--
+---------- Misc ----------
+--
 -- Fzf Lua Builtin
 kmap("n", "<leader>fe", fzf_lua.builtin, { desc = "Fzf Lua Builtin" })
 
