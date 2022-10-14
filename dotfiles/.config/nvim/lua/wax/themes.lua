@@ -131,7 +131,12 @@ local python_gruvbox_ts_hls = {
 
 local map_gruvbox_filetype_hls = {
   python = python_gruvbox_ts_hls,
-  [{ "vue", "typescript", "javascript", "typescriptreact", "javascriptreact" }] = frontend_gruvbox_ts_hls,
+  -- frontend:
+  vue = frontend_gruvbox_ts_hls,
+  typescript = frontend_gruvbox_ts_hls,
+  javascript = frontend_gruvbox_ts_hls,
+  typescriptreact = frontend_gruvbox_ts_hls,
+  javascriptreact = frontend_gruvbox_ts_hls,
   lua = {
     ["@function"] = { link = "GruvboxBlueBold" },
     ["@function.call"] = { link = "white" },
@@ -160,6 +165,7 @@ local function apply_gruvbox_theme()
 
     if filetype then
       ns_id = filetype_to_ts_namespace(filetype)
+      log.debug(("[TS] Generated highlight namespace for filetype %s"):format(filetype))
 
       -- apply the namespace highlights to the current FileType window
       local win = vim.api.nvim_get_current_win()
@@ -179,8 +185,6 @@ local function apply_gruvbox_theme()
   local function create_filetype_hl_autocmd(filetype)
     vim.api.nvim_create_autocmd("FileType", {
       group = ts_augroup,
-      -- once = true,
-      -- nested = true,
       pattern = filetype,
       callback = function()
         apply_highlights(map_gruvbox_filetype_hls[filetype], filetype)
@@ -208,8 +212,9 @@ local function apply_gruvbox_theme()
         return -- do nothing
       end
 
-      if vim.tbl_contains(vim.tbl_keys(map_gruvbox_filetype_hls), filetype) then
-        log.debug(("[TS] applying highlight namespace for filetype %s "):format(filetype))
+      local filetypes = vim.tbl_keys(map_gruvbox_filetype_hls)
+      if vim.tbl_contains(filetypes, filetype) then
+        log.debug(("[TS] applying highlight namespace for filetype %s"):format(filetype))
         local ns_id = filetype_to_ts_namespace(filetype)
         vim.api.nvim_win_set_hl_ns(win, ns_id)
       end
