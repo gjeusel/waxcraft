@@ -1,7 +1,8 @@
 local ls = require("luasnip")
 local s = ls.snippet
 local t = ls.text_node
--- local i = ls.insert_node
+local fmt = require("luasnip.extras.fmt").fmt
+local i = ls.insert_node
 
 return {
   -- libraries often used
@@ -17,4 +18,17 @@ return {
   -- debugger
   -- s("iforkedpdb", { t('__import__("venturi").utils.forked_pdb.ForkedPdb().set_trace()') }),
   s("iforkedpdb", { t('__import__("dagster").utils.forked_pdb.ForkedPdb().set_trace()') }),
+  -- tests
+  s("pyraises", {
+    fmt(
+      [[
+        with pytest.raises({exc}, match=match):
+            {0}
+      ]],
+      {
+        exc = i(1, ""),
+        [0] = i(0, ""),
+      }
+    ),
+  }),
 }

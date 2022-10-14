@@ -39,7 +39,7 @@ require("jaq-nvim").setup({
       borderhl = "FloatBorder",
 
       -- See ':h winblend'
-      winblend = 100,
+      winblend = 0,
 
       -- Num from `0-1` for measurements
       height = 0.8,

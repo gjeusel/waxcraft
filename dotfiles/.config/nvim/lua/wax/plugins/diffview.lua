@@ -87,8 +87,8 @@ require("diffview").setup({
       ["<C-n>"] = actions.select_next_entry, -- Open the diff for the next file
       ["<s-tab>"] = actions.select_prev_entry, -- Open the diff for the previous file
       ["<C-p>"] = actions.select_prev_entry, -- Open the diff for the previous file
-      ["gf"] = actions.goto_file, -- Open the file in a new split in the previous tabpage
-      ["<C-w><C-f>"] = actions.goto_file_split, -- Open the file in a new split
+      -- ["gf"] = actions.goto_file, -- Open the file in a new split in the previous tabpage
+      -- ["<C-w><C-f>"] = actions.goto_file, -- Open the file in a new split
       -- ["<C-w>gf"] = actions.goto_file_tab, -- Open the file in a new tabpage
       ["<leader>e"] = actions.focus_files, -- Bring focus to the file panel
       ["<leader>b"] = actions.toggle_files, -- Toggle the file panel.
@@ -132,9 +132,9 @@ require("diffview").setup({
       ["<c-f>"] = actions.scroll_view(0.25), -- Scroll the view down
       ["<tab>"] = actions.select_next_entry,
       ["<s-tab>"] = actions.select_prev_entry,
-      ["gf"] = actions.goto_file,
-      ["<C-w><C-f>"] = actions.goto_file_split,
-      ["<C-w>gf"] = actions.goto_file_tab,
+      -- ["gf"] = actions.goto_file,
+      -- ["<C-w><C-f>"] = actions.goto_file_split,
+      -- ["<C-w>gf"] = actions.goto_file_tab,
       ["i"] = actions.listing_style, -- Toggle between 'list' and 'tree' views
       ["f"] = actions.toggle_flatten_dirs, -- Flatten empty subdirectories in tree listing style.
       ["R"] = actions.refresh_files, -- Update stats and entries in the file list.
@@ -147,7 +147,7 @@ require("diffview").setup({
     file_history_panel = {
       ["g!"] = actions.options, -- Open the option panel
       ["<C-A-d>"] = actions.open_in_diffview, -- Open the entry under the cursor in a diffview
-      ["<leader>gf>"] = actions.open_in_diffview, -- Open the entry under the cursor in a diffview
+      ["gf>"] = actions.open_in_diffview, -- Open the entry under the cursor in a diffview
       ["y"] = actions.copy_hash, -- Copy the commit hash of the entry under the cursor
       ["L"] = actions.open_commit_log,
       ["zR"] = actions.open_all_folds,
@@ -163,9 +163,9 @@ require("diffview").setup({
       ["<c-f>"] = actions.scroll_view(0.25),
       ["<tab>"] = actions.select_next_entry,
       ["<s-tab>"] = actions.select_prev_entry,
-      ["gf"] = actions.goto_file,
-      ["<C-w><C-f>"] = actions.goto_file_split,
-      ["<C-w>gf"] = actions.goto_file_tab,
+      -- ["gf"] = actions.goto_file,
+      -- ["<C-w><C-f>"] = actions.goto_file_split,
+      -- ["<C-w>gf"] = actions.goto_file,
       ["<leader>e"] = actions.focus_files,
       ["<leader>b"] = actions.toggle_files,
       ["g<C-x>"] = actions.cycle_layout,

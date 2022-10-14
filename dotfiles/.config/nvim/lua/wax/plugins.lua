@@ -133,6 +133,21 @@ return require("packer").startup({
     use("tpope/vim-surround") -- change surrounding easily
     use("tpope/vim-eunuch") -- sugar for the UNIX shell commands
     use({ "tpope/vim-scriptease", cmd = "Messages" }) -- gives :Messages
+    use({ -- vim fugitive
+      "tpope/vim-fugitive",
+      config = function()
+        vim.api.nvim_exec(
+          [[
+          command! -nargs=* Gdiff Gvdiffsplit <args>
+          augroup remapTpopeFugitive
+            autocmd User FugitiveObject nunmap <buffer> -
+            autocmd User FugitiveObject nunmap <buffer> <CR>
+          augroup end
+          ]],
+          false
+        )
+      end,
+    }) -- Git wrapper for vim
 
     use({
       -- diffview: git integration for nvim

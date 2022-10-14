@@ -24,14 +24,21 @@ local function lsp_keymaps()
 
   -- See `:help vim.lsp.*` for documentation on any of the below functions
   vim.keymap.set("n", "<leader>D", vim.lsp.buf.type_definition, opts)
-  vim.keymap.set("n", "<leader>d", vim.lsp.buf.definition, opts)
+  vim.keymap.set("n", "<leader>d", function()
+    vim.lsp.buf.definition({
+      on_list = function(options)
+        vim.fn.setqflist({}, " ", options)
+        vim.api.nvim_command("cfirst")
+      end,
+    })
+  end, opts)
 
   vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
 
   vim.keymap.set("n", "<leader>i", vim.lsp.buf.implementation, opts)
   vim.keymap.set("n", "<leader>I", vim.lsp.buf.declaration, opts)
 
-  vim.keymap.set({ "i", "n" }, "<C-x>", vim.lsp.buf.signature_help, opts)
+  vim.keymap.set("i", "<C-s>", vim.lsp.buf.signature_help)
 
   vim.keymap.set("n", "<leader>R", vim.lsp.buf.rename, opts)
 

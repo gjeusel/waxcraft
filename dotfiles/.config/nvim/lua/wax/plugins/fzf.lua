@@ -9,11 +9,40 @@ local Path = safe_require("plenary.path")
 --  fzf --expect=ctrl-v,ctrl-g,ctrl-s,alt-l,alt-q,ctrl-r,ctrl-t --multi --header=':: <^[[0;33mctrl-g^[[0m> to ^[[0;31mRegex Search^[[0m' --bind='alt-a:toggle-all,ctrl-a:beginning-of-line,ctrl-b:preview-page-up,ctrl-f:preview-page-down,shift-down:preview-page-down,ctrl-z:abort,ctrl-d:preview-page-down,shift-up:preview-page-up,f4:toggle-preview,ctrl-u:preview-page-up,f3:toggle-preview-wrap,ctrl-e:end-of-line' --preview=''\''/usr/local/bin/nvim'\'' -n --headless --clean --cmd '\''lua loadfile([[/Users/gjeusel/.local/share/nvim/site/pack/packer/start/fzf-lua/lua/fzf-lua/shell_helper.lua]])().rpc_nvim_exec_lua({fzf_lua_server=[[/var/folders/9_/mc8yjnyn1j3_15_wmktz0g6m0000gn/T/nvim.gjeusel/1RZQDr/nvim.31754.1]], fnc_id=1 , debug=true})'\'' {}' --border=none --print-query --height=100% --prompt='❯ ' --info=inline --layout=reverse --ansi --preview-window=nohidden:right:0
 -- ```
 
+local function grep_sel_to_qf(selected, opts)
+  local qf_list = {}
+  for i = 1, #selected do
+    local file = fzf_lua.path.entry_to_file(selected[i], opts)
+    local text = selected[i]:match(":%d+:%d?%d?%d?%d?:?(.*)$")
+    table.insert(qf_list, {
+      filename = file.bufname or file.path,
+      lnum = file.line,
+      col = file.col,
+      text = text,
+    })
+  end
+  log.warn("qf list:", qf_list)
+  vim.fn.setqflist(qf_list, "r")
+end
+
+local function fn_selected_multi(selected, opts)
+  if not selected then
+    return
+  end
+  -- first element of "selected" is the keybind pressed
+  if #selected < 2 then
+    return fzf_lua.actions.act(opts.actions, selected, opts)
+  else -- here we multi-selected
+    local _, entries = fzf_lua.actions.normalize_selected(opts.actions, selected)
+    grep_sel_to_qf(entries, opts)
+    vim.cmd("cfirst")
+  end
+end
+
 local fzf_actions = {
   ["default"] = fzf_lua.actions.file_edit,
   ["ctrl-s"] = fzf_lua.actions.file_split,
   ["ctrl-v"] = fzf_lua.actions.file_vsplit,
-  ["ctrl-r"] = fzf_lua.actions.file_sel_to_qf, -- not working neither
 }
 
 fzf_lua.setup({
@@ -30,6 +59,7 @@ fzf_lua.setup({
     fzf = {
       ["ctrl-d"] = "preview-page-down",
       ["ctrl-u"] = "preview-page-up",
+      ["ctrl-r"] = "select-all+accept", -- https://github.com/ibhagwan/fzf-lua/issues/324
     },
   },
   grep = {
@@ -41,8 +71,10 @@ fzf_lua.setup({
     multiprocess = true,
     debug = true,
     show_cwd_header = false,
-    rg_opts = "--hidden --column --line-number --no-heading --color=always --smart-case "
-      .. "-g '!{.git,.vscode}/*' -g '!{package-lock.json}'",
+    rg_opts = table.concat({
+      "--hidden --column --line-number --no-heading --color=always --smart-case",
+      "-g '!{.git,.vscode}/*' -g '!{package-lock.json}'",
+    }, " "),
   },
 })
 
@@ -62,12 +94,16 @@ local kmap = vim.keymap.set
 
 -- Fzf Grep
 kmap("n", "<leader>a", function()
-  return fzf_lua.grep({ cwd = git_or_cwd(), search = "" })
+  return fzf_lua.grep({
+    cwd = git_or_cwd(),
+    search = "",
+    fn_selected = fn_selected_multi,
+  })
 end)
 
 -- Live Grep
 kmap("n", "<leader>A", function()
-  return fzf_lua.live_grep({ cwd = git_or_cwd() })
+  return fzf_lua.live_grep({ cwd = git_or_cwd(), fn_selected = fn_selected_multi })
 end)
 
 -- Find Files
