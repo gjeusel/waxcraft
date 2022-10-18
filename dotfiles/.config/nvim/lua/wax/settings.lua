@@ -35,6 +35,7 @@ vim.o.completeopt = "menuone,noselect"
 vim.o.pyxversion = 3
 
 vim.o.spelllang = "en_us" -- activate vim spell checking
+vim.o.spelloptions = "camel,noplainbuffer"
 -- vim.o.nospell = true
 vim.api.nvim_exec([[set fillchars=vert:│]], false) -- box drawings heavy vertical (U+2503, UTF-8: E2 94 83)
 vim.api.nvim_exec(

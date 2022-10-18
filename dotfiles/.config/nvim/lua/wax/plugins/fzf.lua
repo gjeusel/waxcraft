@@ -43,7 +43,7 @@ fzf_lua.setup({
     show_cwd_header = false,
     rg_opts = table.concat({
       "--hidden --column --line-number --no-heading --color=always --smart-case",
-      "-g '!{.git,.vscode}/*' -g '!{package-lock.json}'",
+      "-g '!{.git,.vscode}/*' -g '!{package-lock.json,*.svg}'",
     }, " "),
   },
 })

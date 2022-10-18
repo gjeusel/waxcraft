@@ -7,7 +7,7 @@ ts.setup({
     enable = true,
     disable = { "vim" },
     -- custom_captures = {}
-    additional_vim_regex_highlighting = false, -- also activate vim syntax
+    additional_vim_regex_highlighting = false, -- for spell check
     use_languagetree = true, -- enable language injection
   },
   incremental_selection = {

@@ -99,8 +99,8 @@
 (integer) @number
 (float) @float
 
-(comment) @comment
-(string) @string
+(comment) @comment @spell
+(string) @string @spell
 (escape_sequence) @string.escape
 
 ((module . (comment) @preproc)
