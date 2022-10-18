@@ -58,11 +58,7 @@
 ;; Function definitions
 
 (function_definition
-  name: (identifier) @definition.function
-)
-
-(call
-  function: (identifier) @function.call)
+  name: (identifier) @function)
 
 ((call
   function: (identifier) @_isinstance
@@ -220,9 +216,9 @@
   body: (block
     [
       (decorated_definition
-        (function_definition (identifier) @definition.method)
+        (function_definition (identifier) @method)
       )
-      (function_definition name: (identifier) @definition.method)
+      (function_definition name: (identifier) @method)
     ]
   )
 )

@@ -59,7 +59,7 @@ fzf_lua.register_ui_select({}, true)
 local function git_or_cwd()
   local cwd = vim.loop.cwd()
   if is_git() then
-    cwd = find_root_dir(cwd)
+    cwd = find_root_dir_fn({".git"})(cwd)
   end
   return cwd
 end
@@ -172,7 +172,7 @@ kmap("n", "<leader>n", fzf_lua.buffers, { desc = "Fzf Opened Buffers" })
 kmap("n", "<leader>r", function()
   fzf_lua.lsp_references({
     async = true,
-    file_ignore_patterns = { "miniconda3" }, -- ignore references in env libs
+    file_ignore_patterns = { "miniconda3", "node_modules" }, -- ignore references in env libs
   })
 end, { desc = "Fzf Lsp References" })
 
@@ -182,6 +182,7 @@ end, { desc = "Fzf Lsp References" })
 local function list_wax_files()
   local paths = {
     "src/waxcraft/dotfiles",
+    "src/nvim-treesitter",
     ".config/nvim/config.lua",
     ".local/share/nvim/site/pack/packer",
     ".gitconfig",

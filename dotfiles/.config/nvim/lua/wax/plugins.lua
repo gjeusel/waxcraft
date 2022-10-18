@@ -158,10 +158,10 @@ return require("packer").startup({
     })
 
     use({ -- help dev in lua
-      "folke/lua-dev.nvim",
+      "folke/neodev.nvim",
       before = "lspconfig",
       config = function()
-        require("lua-dev").setup({})
+        require("neodev").setup({})
       end,
     })
 
@@ -261,7 +261,10 @@ return require("packer").startup({
 
     --------- TreeSitter ---------
     use({ -- treesitter
-      "nvim-treesitter/nvim-treesitter",
+      -- "nvim-treesitter/nvim-treesitter",
+      "~/src/nvim-treesitter",
+      lock = true,
+      -- commit = "aebc6cf6bd4675ac86629f516d612ad5288f7868",
       -- run = ":TSUpdate",
       requires = {
         { -- play with queries

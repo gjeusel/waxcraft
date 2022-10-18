@@ -5,6 +5,9 @@ vim.filetype.add({
     ["conf"] = "config",
     ["nix"] = "nix",
 
+    -- frontend
+    ["ts"] = "typescript",
+
     -- yamls
     ["kubeconfig"] = "yaml",
     ["yml"] = "yaml",

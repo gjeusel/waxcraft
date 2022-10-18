@@ -58,7 +58,7 @@ function M.setup_servers(global_lsp_settings)
 
     -- Advertise capabilities to cmp_nvim_lsp
     if is_module_available("cmp_nvim_lsp") then
-      settings.capabilities = require("cmp_nvim_lsp").update_capabilities(settings.capabilities)
+      settings.capabilities = require("cmp_nvim_lsp").default_capabilities(settings.capabilities)
     end
 
     -- Install if not yet installed

@@ -47,15 +47,8 @@ class Config(pydantic.BaseSettings):
 
 @pytest.mark.parametrize("value", [1, 2, 3])
 def test_highlight(value):
-    """Docstring really
-
-    Note:
-        ..longer
-    """
     assert True
 
-
-Config().classicmethod()
 
 # Can't query it, parser is wrong
 read_sql = f"""
@@ -64,5 +57,3 @@ read_sql = f"""
     {joined_conditions}
     ORDER BY ts ASC
 """
-
-interp = f"{test_highlight()}"

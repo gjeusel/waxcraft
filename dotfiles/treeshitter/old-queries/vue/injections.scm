@@ -1,3 +1,7 @@
+; (
+;   (template_element) @html
+; )
+
 (
   (style_element
     (start_tag

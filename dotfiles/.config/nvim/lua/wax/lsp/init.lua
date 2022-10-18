@@ -84,7 +84,7 @@ vim.api.nvim_set_option("omnifunc", "v:lua.vim.lsp.omnifunc")
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = vim.tbl_extend("force", capabilities, lsp_status.capabilities)
 if is_module_available("cmp_nvim_lsp") then
-  capabilities = require("cmp_nvim_lsp").update_capabilities(capabilities)
+  capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
 end
 
 require("wax.lsp.setup").setup_servers({
