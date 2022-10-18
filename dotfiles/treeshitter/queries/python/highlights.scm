@@ -24,14 +24,6 @@
            "__slots__"
 ))
 
-; Exceptions
-(raise_statement
-  [
-    (call (identifier) @exception)
-  ]
-)
-
-
 ; Decorators
 (decorator
   [
@@ -255,6 +247,14 @@
 
 ((identifier) @variable.builtin
  (#match? @variable.builtin "^(self|cls)$"))
+
+; Exceptions
+(raise_statement
+  [
+    (call (identifier) @exception)
+  ]
+)
+
 
 ;; Error
 (ERROR) @error

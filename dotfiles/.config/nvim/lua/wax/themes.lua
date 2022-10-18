@@ -108,6 +108,7 @@ local python_gruvbox_ts_hls = {
   ["@boolean"] = { link = "GruvboxOrange" },
 
   ["@include"] = { link = "GruvboxBlue" },
+  ["@exception"] = { link = "GruvboxAqua" },
 
   ["@punctuation.special"] = { link = "GruvboxOrange" }, -- { } of f-string
   ["@punctuation.bracket"] = { link = "white" },
