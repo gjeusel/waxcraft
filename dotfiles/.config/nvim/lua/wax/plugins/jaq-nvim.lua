@@ -17,7 +17,8 @@ require("jaq-nvim").setup({
 
   behavior = {
     -- Default type
-    default = "float",
+    default = nil,
+    -- default = "float",
 
     -- Start in insert mode
     startinsert = false,
@@ -69,4 +70,9 @@ require("jaq-nvim").setup({
   },
 })
 
-vim.keymap.set("n", "<leader>fq", "<cmd>Jaq<cr>")
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "python", "lua" },
+  callback = function()
+    vim.keymap.set("n", "<leader>fq", "<cmd>Jaq<cr>", { buffer = 0 })
+  end,
+})

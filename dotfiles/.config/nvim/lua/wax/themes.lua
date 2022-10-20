@@ -90,10 +90,15 @@ local base_gruvbox_ts_hls = {
 
   ["@method.call"] = { link = "white" },
   ["@function.call"] = { link = "white" },
+
+  -- html
+  ["@tag"] = { link = "GruvboxRed" },
+  ["@tag.delimiter"] = { link = "GruvboxFg4" },
+  ["@tag.attribute"] = { link = "GruvboxAqua" },
 }
 
 local frontend_gruvbox_ts_hls = {
-  -- ["@function.call"] = { link = "GruvboxBlue" },
+  ["@function.call"] = { link = "white" },
   ["@definition.function"] = { link = "GruvboxBlue" },
 
   -- ["@method.call"] = { link = "GruvboxBlue" },
@@ -141,9 +146,6 @@ local map_gruvbox_filetype_hls = {
   -- frontend:
   [{ "typescript", "javascript", "typescriptreact", "javascriptreact" }] = frontend_gruvbox_ts_hls,
   vue = vim.tbl_extend("force", frontend_gruvbox_ts_hls, {
-    ["@tag"] = { link = "GruvboxRed" },
-    ["@tag.delimiter"] = { link = "GruvboxFg4" },
-    ["@tag.attribute"] = { link = "GruvboxAqua" },
     ["@function.macro"] = { link = "GruvboxBlueBold" },
     ["@field"] = { link = "GruvboxBlue" },
     -- ["@method"] = { link = "GruvboxBlue" }, -- tag binded attribute
@@ -157,6 +159,9 @@ local map_gruvbox_filetype_hls = {
   },
   yaml = {
     ["@field"] = { link = "GruvboxBlue" },
+  },
+  md = {
+    ["@function.call"] = { link = "GruvboxGreen" },
   },
 }
 

@@ -202,6 +202,7 @@ local function list_wax_files()
         add_dirs = false,
         only_dirs = false,
         respect_gitignore = true,
+        -- search_pattern='^(.git)',
       })
       vim.list_extend(
         files,

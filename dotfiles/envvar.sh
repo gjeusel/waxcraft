@@ -33,3 +33,8 @@ export VIM_MODE_TRACK_KEYMAP=no  # else it makes the terminal bug
 
 # Enhancd
 export ENHANCD_DISABLE_HYPHEN=1  # disable enhancd for "cd -"
+
+# Disable homebrew auto update on install
+export HOMEBREW_NO_AUTO_UPDATE=1
+export HOMEBREW_NO_INSTALL_CLEANUP=1
+export HOMEBREW_NO_ENV_HINTS=1
