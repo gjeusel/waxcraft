@@ -29,6 +29,89 @@ local function from_python_env(params)
   return resolved.command
 end
 
+-- https://github.com/jose-elias-alvarez/null-ls.nvim/pull/1068
+local ruff_custom_end_col = {
+  end_col = function(entries, line)
+    if not line then
+      return
+    end
+
+    local start_col = entries["col"]
+    local message = entries["message"]
+    local code = entries["code"]
+    local default_position = start_col + 1
+
+    local pattern = nil
+    local trimmed_line = line:sub(start_col, -1)
+
+    if code == "F841" or code == "F823" then
+      pattern = [[Local variable %`(.*)%`]]
+    elseif code == "F821" or code == "F822" then
+      pattern = [[Undefined name %`(.*)%`]]
+    elseif code == "F401" then
+      pattern = [[%`(.*)%` imported but unused]]
+    elseif code == "F841" then
+      pattern = [[Local variable %`(.*)%` is assigned to but never used]]
+    elseif code == "R001" then
+      pattern = [[Class %`(.*)%` inherits from object]]
+    end
+    if not pattern then
+      return default_position
+    end
+
+    local results = message:match(pattern)
+    local _, end_col = trimmed_line:find(results, 1, true)
+
+    if not end_col then
+      return default_position
+    end
+
+    end_col = end_col + start_col
+    if end_col > tonumber(start_col) then
+      return end_col
+    end
+
+    return default_position
+  end,
+}
+
+local ruff = h.make_builtin({
+  name = "ruff",
+  meta = {
+    url = "https://github.com/charliermarsh/ruff/",
+    description = "An extremely fast Python linter, written in Rust.",
+  },
+  method = methods.internal.DIAGNOSTICS,
+  filetypes = { "python" },
+  generator_opts = {
+    command = "ruff",
+    args = {
+      "-n",
+      "$FILENAME",
+    },
+    format = "line",
+    check_exit_code = function(code)
+      return code == 0
+    end,
+    to_stdin = false,
+    from_stderr = true,
+    to_temp_file = true,
+    on_output = h.diagnostics.from_pattern(
+      [[(%d+):(%d+): ((%u)%w+) (.*)]],
+      { "row", "col", "code", "severity", "message" },
+      {
+        adapters = { ruff_custom_end_col },
+        severities = {
+          E = h.diagnostics.severities["error"],
+          F = h.diagnostics.severities["warning"],
+          R = h.diagnostics.severities["error"],
+        },
+      }
+    ),
+  },
+  factory = h.generator_factory,
+})
+
 local mypy_overrides = {
   severities = {
     error = h.diagnostics.severities["error"],
@@ -39,6 +122,7 @@ local mypy_overrides = {
 
 require("null-ls").setup({
   debug = waxopts.loglevel == "debug",
+  diagnostics_format = "(#{s}) #{c}: #{m}",
   log = {
     enable = true,
     level = waxopts.loglevel,
@@ -48,9 +132,14 @@ require("null-ls").setup({
     -- builtins.completion.spell,
 
     -- python
-    builtins.diagnostics.flake8.with({
-      method = methods.internal.DIAGNOSTICS_ON_SAVE,
-      command = "flake8",
+    -- builtins.diagnostics.flake8.with({
+    --   method = methods.internal.DIAGNOSTICS_ON_SAVE,
+    --   command = "flake8",
+    --   dynamic_command = from_python_env,
+    -- }),
+    ruff.with({
+      method = methods.internal.DIAGNOSTICS,
+      command = "ruff",
       dynamic_command = from_python_env,
     }),
     -- builtins.diagnostics.mypy.with({

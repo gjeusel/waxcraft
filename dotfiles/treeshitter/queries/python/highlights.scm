@@ -199,6 +199,7 @@
     (identifier) @type
     (subscript (identifier) @type)
     (subscript (subscript (identifier) @type))
+    (binary_operator (identifier) @type)
   ]
 )
 

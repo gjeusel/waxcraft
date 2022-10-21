@@ -51,12 +51,21 @@ endif
 vim.o.wildmenu = true -- Show list instead of just completing
 vim.api.nvim_exec([[set wildmode=list:longest,full]], false) -- Command <Tab> completion, list matches, then longest common part, then all.
 
--- Whitespace
+-- Whitespace & Indent settings
 -- vim.o.nowrap = nil                                          -- don't wrap lines
 vim.o.tabstop = 2
 vim.o.expandtab = true -- a tab is two spaces
 vim.o.shiftwidth = 2 -- an autoindent (with <<) is two spaces
-vim.o.smartindent = false -- prevent indent on python commented line
+vim.o.smartindent = true -- prevent indent on python commented line
+-- vim.o.autoindent = true -- use previous line indent
+
+vim.g.python_indent = {
+  open_paren = "&sw",
+  nested_paren = "&sw",
+  continue = "&sw",
+  closed_paren_align_last_line = false,
+}
+
 vim.o.list = true -- show the following:
 vim.api.nvim_exec([[set listchars=tab:›\ ,trail:•,extends:#,nbsp:.]], false) -- Highlight problematic whitespace
 
