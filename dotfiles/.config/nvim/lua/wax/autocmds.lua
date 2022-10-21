@@ -2,7 +2,10 @@
 local group_view = "Views"
 vim.api.nvim_create_augroup(group_view, { clear = true })
 vim.api.nvim_create_autocmd("BufRead", { pattern = "*", command = "silent! loadview" })
-vim.api.nvim_create_autocmd({"BufWrite", "BufLeave"}, { pattern = "*", command = "silent! mkview" })
+vim.api.nvim_create_autocmd(
+  { "BufWrite", "BufLeave" },
+  { pattern = "*", command = "silent! mkview" }
+)
 
 ------------- Local Settings depending on FileType -------------
 --
@@ -46,15 +49,18 @@ local function insert_new_line_in_current_buffer(str, opts)
   local n_insert_line = n_line + opts.delta
 
   -- deduce indent for line:
+  local filetype = vim.api.nvim_buf_get_option(0, "filetype")
+  local use_treesitter = is_module_available("nvim-treesitter.indent")
+    and not vim.tbl_contains({ "python" }, filetype)
+
   local space
-  if is_module_available("nvim-treesitter.indent") then
+  if use_treesitter then
     local ts_indent = require("nvim-treesitter.indent")
     local n_space = ts_indent.get_indent(n_insert_line)
     space = string.rep(" ", n_space)
   else
-    local buf_content = vim.api.nvim_buf_get_lines(0, n_insert_line - 1, n_insert_line - 1, false)
-    local cur_line_content = buf_content[1]
-    space = string.match(cur_line_content, "%s*")
+    local n_space = vim.fn.indent(n_insert_line - 1)
+    space = string.rep(" ", n_space)
   end
 
   local str_added = ("%s%s"):format(space, str)
