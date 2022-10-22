@@ -24,7 +24,7 @@ local map_ft_local_settings = {
   edgeql = "commentstring=#%s",
   lua = "foldlevel=99",
   --
-  python = "shiftwidth=4 tabstop=4 softtabstop=4 smartindent=false autoindent=true",
+  python = "shiftwidth=4 tabstop=4 softtabstop=4",
   --
   html = "foldmethod=syntax nowrap shiftwidth=2 tabstop=2 softtabstop=2",
   [{ "vue", "typescript", "typescriptreact", "javascript", "javascriptreact" }] = "foldminlines=3",
