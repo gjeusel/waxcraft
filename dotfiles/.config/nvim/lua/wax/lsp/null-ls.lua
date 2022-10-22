@@ -120,121 +120,136 @@ local mypy_overrides = {
   },
 }
 
+local mypy_diagnostics = builtins.diagnostics.mypy.with({
+  method = methods.internal.DIAGNOSTICS_ON_SAVE,
+  command = "mypy",
+  dynamic_command = from_python_env,
+  args = function(params)
+    return {
+      "--sqlite-cache",
+      "--cache-fine-grained",
+      --
+      "--no-color-output",
+      "--show-column-numbers",
+      "--show-error-codes",
+      "--hide-error-context",
+      "--no-error-summary",
+      "--show-absolute-path",
+      "--no-pretty",
+      -- "--shadow-file",
+      -- params.bufname,
+      -- params.temp_path,
+      params.bufname,
+    }
+  end,
+  on_output = h.diagnostics.from_patterns({
+    { -- case with column given
+      pattern = "([^:]+):(%d+):(%d+): (%a+): (.*)  %[([%a-]+)%]",
+      groups = { "filename", "row", "col", "severity", "message", "code" },
+      overrides = mypy_overrides,
+    },
+    { -- case with missing column
+      pattern = "([^:]+):(%d+): (%a+): (.*)  %[([%a-]+)%]",
+      groups = { "filename", "row", "severity", "message", "code" },
+      overrides = mypy_overrides,
+    },
+  }),
+  timeout = 1 * 60 * 1000, -- 5 min
+})
+
+local flake8_diagnostics = builtins.diagnostics.flake8.with({
+  method = methods.internal.DIAGNOSTICS_ON_SAVE,
+  command = "flake8",
+  dynamic_command = from_python_env,
+})
+
+local ruff_diagnostics = ruff.with({
+  method = methods.internal.DIAGNOSTICS,
+  command = "ruff",
+  dynamic_command = from_python_env,
+})
+
+local sources = {
+  -- builtins.completion.spell,
+
+  -- python
+  builtins.formatting.black.with({
+    command = "black",
+    dynamic_command = from_python_env,
+    args = {
+      "--fast",
+      "--quiet",
+      -- only available since black 21.5b0
+      -- https://github.com/jose-elias-alvarez/null-ls.nvim/commit/a31cafefaf25a0125d063f2a1ee315953c00d796
+      -- "--stdin-filename",
+      -- "$FILENAME",
+      "-",
+    },
+  }),
+  builtins.formatting.isort.with({
+    command = "isort",
+    dynamic_command = from_python_env,
+    args = {
+      "--profile=black",
+      "--stdout",
+      "--filename",
+      "$FILENAME",
+      "-",
+    },
+  }),
+
+  -- lua filetypes
+  builtins.formatting.stylua,
+
+  -- prisma filetypes
+  -- builtins.formatting.prismaFmt,
+
+  -- frontend
+  -- builtins.formatting.rustywind, -- reorder tailwindcss classes
+  -- builtins.diagnostics.tsc,
+  -- builtins.formatting.prettierd,
+  builtins.formatting.prettier.with({
+    filetypes = {
+      -- "javascript",
+      -- "javascriptreact",
+      -- "typescript",
+      -- "typescriptreact",
+      -- "vue",
+      "css",
+      "scss",
+      "less",
+      "html",
+      -- done by json-ls
+      "json",
+      "jsonc",
+      "yaml",
+      "markdown",
+      "graphql",
+      "handlebars",
+    },
+  }),
+  -- builtins.code_actions.eslint_d,
+  builtins.diagnostics.eslint_d,
+  builtins.formatting.eslint_d,
+}
+
+if vim.fn.executable("ruff") == 1 then
+  table.insert(sources, ruff_diagnostics)
+else
+  table.insert(sources, flake8_diagnostics)
+end
+
 require("null-ls").setup({
   debug = waxopts.loglevel == "debug",
   diagnostics_format = "(#{s}) #{c}: #{m}",
+  should_attach = function(bufnr)
+    return not is_big_file(bufnr)
+    -- return not vim.api.nvim_buf_get_name(bufnr):match("^diffview://")
+  end,
   log = {
     enable = true,
     level = waxopts.loglevel,
     use_console = "async",
   },
-  sources = {
-    -- builtins.completion.spell,
-
-    -- python
-    -- builtins.diagnostics.flake8.with({
-    --   method = methods.internal.DIAGNOSTICS_ON_SAVE,
-    --   command = "flake8",
-    --   dynamic_command = from_python_env,
-    -- }),
-    ruff.with({
-      method = methods.internal.DIAGNOSTICS,
-      command = "ruff",
-      dynamic_command = from_python_env,
-    }),
-    -- builtins.diagnostics.mypy.with({
-    --   method = methods.internal.DIAGNOSTICS_ON_SAVE,
-    --   command = "mypy",
-    --   dynamic_command = from_python_env,
-    --   args = function(params)
-    --     return {
-    --       "--sqlite-cache",
-    --       "--cache-fine-grained",
-    --       --
-    --       "--no-color-output",
-    --       "--show-column-numbers",
-    --       "--show-error-codes",
-    --       "--hide-error-context",
-    --       "--no-error-summary",
-    --       "--show-absolute-path",
-    --       "--no-pretty",
-    --       -- "--shadow-file",
-    --       -- params.bufname,
-    --       -- params.temp_path,
-    --       params.bufname,
-    --     }
-    --   end,
-    --   on_output = h.diagnostics.from_patterns({
-    --     { -- case with column given
-    --       pattern = "([^:]+):(%d+):(%d+): (%a+): (.*)  %[([%a-]+)%]",
-    --       groups = { "filename", "row", "col", "severity", "message", "code" },
-    --       overrides = mypy_overrides,
-    --     },
-    --     { -- case with missing column
-    --       pattern = "([^:]+):(%d+): (%a+): (.*)  %[([%a-]+)%]",
-    --       groups = { "filename", "row", "severity", "message", "code" },
-    --       overrides = mypy_overrides,
-    --     },
-    --   }),
-    --   timeout = 1 * 60 * 1000, -- 5 min
-    -- }),
-    builtins.formatting.black.with({
-      command = "black",
-      dynamic_command = from_python_env,
-      args = {
-        "--fast",
-        "--quiet",
-        -- only available since black 21.5b0
-        -- https://github.com/jose-elias-alvarez/null-ls.nvim/commit/a31cafefaf25a0125d063f2a1ee315953c00d796
-        -- "--stdin-filename",
-        -- "$FILENAME",
-        "-",
-      },
-    }),
-    builtins.formatting.isort.with({
-      command = "isort",
-      dynamic_command = from_python_env,
-      args = {
-        "--profile=black",
-        "--stdout",
-        "--filename",
-        "$FILENAME",
-        "-",
-      },
-    }),
-
-    -- lua filetypes
-    builtins.formatting.stylua,
-
-    -- prisma filetypes
-    -- builtins.formatting.prismaFmt,
-
-    -- frontend
-    -- builtins.formatting.rustywind, -- reorder tailwindcss classes
-    -- builtins.diagnostics.tsc,
-    -- builtins.formatting.prettierd,
-    builtins.formatting.prettier.with({
-      filetypes = {
-        -- "javascript",
-        -- "javascriptreact",
-        -- "typescript",
-        -- "typescriptreact",
-        -- "vue",
-        "css",
-        "scss",
-        "less",
-        "html",
-        -- done by json-ls
-        "json",
-        "jsonc",
-        "yaml",
-        "markdown",
-        "graphql",
-        "handlebars",
-      },
-    }),
-    -- builtins.code_actions.eslint_d,
-    builtins.diagnostics.eslint_d,
-    builtins.formatting.eslint_d,
-  },
+  sources = sources,
 })

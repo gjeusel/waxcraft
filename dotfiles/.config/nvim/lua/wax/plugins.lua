@@ -225,6 +225,7 @@ return require("packer").startup({
     use({ -- indentLine
       "Yggdroot/indentLine", -- indent line
       config = function()
+        vim.g.indentLine_conceallevel = 0 -- else it overwrite conceallevel on certain filetypes
         vim.g.indentLine_char = "│"
         vim.g.indentLine_color_gui = "#343d46" -- indent line color got indentLine plugin
         vim.g.indentLine_fileTypeExclude = {

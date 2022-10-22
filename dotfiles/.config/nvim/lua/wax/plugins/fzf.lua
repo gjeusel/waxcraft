@@ -20,6 +20,9 @@ fzf_lua.setup({
     height = 0.8,
     width = 0.9,
   },
+  fzf_opts = {
+    ["--cycle"] = "", -- enable cycling
+  },
   actions = { files = fzf_actions },
   keymap = {
     builtin = {
@@ -33,7 +36,9 @@ fzf_lua.setup({
     },
   },
   grep = {
-    -- fzf_opts = { ["--bind"] = "" },
+    fzf_opts = {
+      -- ["--bind"] = "", -- disable all binds
+    },
     actions = fzf_actions,
     prompt = "❯ ",
     git_icons = false,
@@ -43,7 +48,7 @@ fzf_lua.setup({
     show_cwd_header = false,
     rg_opts = table.concat({
       "--hidden --column --line-number --no-heading --color=always --smart-case",
-      "-g '!{.git,.vscode}/*' -g '!{package-lock.json,*.svg}'",
+      "--glob '!{.git,.vscode}/*' --glob '!{package-lock.json,*.svg}'",
     }, " "),
   },
 })
@@ -59,7 +64,7 @@ fzf_lua.register_ui_select({}, true)
 local function git_or_cwd()
   local cwd = vim.loop.cwd()
   if is_git() then
-    cwd = find_root_dir_fn({".git"})(cwd)
+    cwd = find_root_dir_fn({ ".git" })(cwd)
   end
   return cwd
 end
@@ -124,7 +129,15 @@ end)
 --
 
 local function rg_files(rg_opts)
-  local rg_cmd = ("rg %s --files --hidden --glob '!.git/'"):format(rg_opts or "")
+  local ignore_dirs = { ".git", ".*_cache", "postgres-data", "edgedb-data", "__pycache__" }
+  local ignore_files = {}
+
+  local ignore_arg = ("--glob '!{%s}' --glob '!{%s}'"):format(
+    table.concat(ignore_dirs, ","),
+    table.concat(ignore_files, ",")
+  )
+
+  local rg_cmd = ("rg %s --files --hidden %s"):format(rg_opts or "", ignore_arg)
   return fzf_lua.fzf_exec(rg_cmd, {
     prompt = "Files > ",
     previewer = "builtin",

@@ -14,6 +14,7 @@ vim.g.tslime_always_current_window = 1
 vim.api.nvim_set_var("test#strategy", "tslime")
 vim.api.nvim_set_var("test#preserve_screen", 1)
 vim.api.nvim_set_var("test#filename_modifier", ":~")
+vim.api.nvim_set_var("test#echo_command", 0)
 
 -- python
 vim.api.nvim_set_var("test#python#runner", "pytest")

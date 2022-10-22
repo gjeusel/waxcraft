@@ -21,7 +21,15 @@ ts.setup({
   },
   indent = {
     enable = true,
-    disable = { "python", "lua", "vue", "vim", "typescript" },
+    disable = {
+      "lua",
+      "vim",
+      "python",
+      -- frontend
+      "json",
+      "vue",
+      "typescript",
+    },
   },
   ensure_installed = { -- one of 'all', 'language' or a list of languages
     -- Generic:

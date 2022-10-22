@@ -4,6 +4,7 @@ waxopts = {
   loglevel = "info",
   python3 = "python3",
   colorscheme = os.getenv("ITERM_PROFILE") or "gruvbox",
+  big_file_threshold = 1024 * 1024,  -- 1 Megabyte
   lsp = {
     loglevel = "warn",
     lspinstall = { loglevel = "warn" },

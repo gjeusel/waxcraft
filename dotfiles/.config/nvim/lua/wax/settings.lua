@@ -56,8 +56,8 @@ vim.api.nvim_exec([[set wildmode=list:longest,full]], false) -- Command <Tab> co
 vim.o.tabstop = 2
 vim.o.expandtab = true -- a tab is two spaces
 vim.o.shiftwidth = 2 -- an autoindent (with <<) is two spaces
-vim.o.smartindent = true -- prevent indent on python commented line
--- vim.o.autoindent = true -- use previous line indent
+-- vim.o.smartindent = false -- prevent indent on python commented line
+vim.o.autoindent = false -- do not use previous line indent
 
 vim.g.python_indent = {
   open_paren = "&sw",

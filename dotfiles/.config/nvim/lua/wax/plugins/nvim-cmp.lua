@@ -1,8 +1,5 @@
 local cmp = require("cmp")
-local compare = require("cmp.config.compare")
 local lspkind = require("lspkind")
-
-local utils_autopairs = require("nvim-autopairs.utils")
 
 local t = function(str)
   return vim.api.nvim_replace_termcodes(str, true, true, true)
@@ -32,33 +29,6 @@ local control_c_close = function(fallback)
   end
 end
 
--- Using ")" completes with select and add () for Method and Function
-local close_parenth_cursor_right = function(fallback)
-  local kinds = { cmp.lsp.CompletionItemKind.Method, cmp.lsp.CompletionItemKind.Function }
-
-  if cmp.visible() then
-    local entry = cmp.get_active_entry()
-    if entry then
-      local item = entry:get_completion_item()
-      if utils_autopairs.is_in_table(kinds, item.kind) then
-        cmp.confirm({ behavior = cmp.ConfirmBehavior.Insert, select = true }, function()
-          utils_autopairs.feed("(")
-          utils_autopairs.feed(")")
-        end)
-      else
-        cmp.close()
-        fallback()
-      end
-    else
-      cmp.close()
-      fallback()
-    end
-    return
-  end
-
-  fallback()
-end
-
 cmp.setup({
   completion = {
     keyword_length = 1,
@@ -77,7 +47,6 @@ cmp.setup({
     -- ["C-y"] = cmp.mapping(function(fallback)
     --   fallback()
     -- end),
-    -- [")"] = cmp.mapping(close_parenth_cursor_right, { "i", "s" }),
     ["<CR>"] = cmp.mapping.confirm({
       behavior = cmp.ConfirmBehavior.Replace,
       select = false,
@@ -97,14 +66,18 @@ cmp.setup({
       keyword_length = 3,
       max_item_count = 5,
       options = {
+        -- Complete with all visible buffers:
         get_bufnrs = function()
-          return vim.api.nvim_list_bufs()
-          -- local bufs = {}
-          -- for _, win in ipairs(vim.api.nvim_list_wins()) do
-          --   bufs[vim.api.nvim_win_get_buf(win)] = true
-          -- end
-          -- return vim.tbl_keys(bufs)
+          local bufs = {}
+          for _, win in ipairs(vim.api.nvim_list_wins()) do
+            bufs[vim.api.nvim_win_get_buf(win)] = true
+          end
+          return vim.tbl_keys(bufs)
         end,
+        -- -- Complete from all buffers:
+        -- get_bufnrs = function()
+        --   return vim.api.nvim_list_bufs()
+        -- end,
       },
     },
     -- { name = "copilot", max_item_count = 3, keyword_length = 5 },

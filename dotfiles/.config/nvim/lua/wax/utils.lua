@@ -204,4 +204,25 @@ function _G.find_root_dir(path)
   return find_root_dir_fn()(path)
 end
 
+-------- Utilities --------
+
+---Check if the bufnr should be considered a big file
+---@param fpath string
+---@return boolean
+function _G.is_big_file(fpath)
+  local byte_size = vim.fn.getfsize(fpath)
+
+  if byte_size == 0 then
+    log.debug(("Path given is a directory: "):format(fpath))
+    return false
+  elseif byte_size == -1 then
+    log.debug(("Could not find file with path being: %s"):format(fpath))
+    return false
+  elseif byte_size == -2 then
+    return true -- size too big to fit in a Number
+  else
+    return byte_size > waxopts.big_file_threshold
+  end
+end
+
 -- vim.keymap.set("t", "<c-g>", "<cmd>stopinsert<cr>")

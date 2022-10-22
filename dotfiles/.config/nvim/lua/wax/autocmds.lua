@@ -13,19 +13,18 @@ local group_ft_settings = "FileType Local Settings"
 vim.api.nvim_create_augroup(group_ft_settings, { clear = true })
 
 local map_ft_local_settings = {
-  help = "conceallevel=0",
-  yaml = "shiftwidth=2 tabstop=2 softtabstop=2 conceallevel=0 foldminlines=3",
+  yaml = "shiftwidth=2 tabstop=2 softtabstop=2 foldminlines=3",
   gitcommit = "spell viewoptions= viewdir=",
   git = "syntax=on nofoldenable",
   vim = "tabstop=2 foldmethod=marker",
   ["*sh"] = "nofoldenable",
   markdown = "spell textwidth=140 nofoldenable", -- "wrap wrapmargin=2"
   toml = "textwidth=140 nofoldenable",
-  json = "foldmethod=syntax conceallevel=0",
+  json = "foldmethod=syntax",
   edgeql = "commentstring=#%s",
   lua = "foldlevel=99",
   --
-  python = "shiftwidth=4 tabstop=4 softtabstop=4",
+  python = "shiftwidth=4 tabstop=4 softtabstop=4 smartindent=false autoindent=true",
   --
   html = "foldmethod=syntax nowrap shiftwidth=2 tabstop=2 softtabstop=2",
   [{ "vue", "typescript", "typescriptreact", "javascript", "javascriptreact" }] = "foldminlines=3",
@@ -49,9 +48,9 @@ local function insert_new_line_in_current_buffer(str, opts)
   local n_insert_line = n_line + opts.delta
 
   -- deduce indent for line:
-  local filetype = vim.api.nvim_buf_get_option(0, "filetype")
+  -- local filetype = vim.api.nvim_buf_get_option(0, "filetype")
   local use_treesitter = is_module_available("nvim-treesitter.indent")
-    and not vim.tbl_contains({ "python" }, filetype)
+    -- and not vim.tbl_contains({ "python" }, filetype)
 
   local space
   if use_treesitter then
@@ -59,7 +58,7 @@ local function insert_new_line_in_current_buffer(str, opts)
     local n_space = ts_indent.get_indent(n_insert_line)
     space = string.rep(" ", n_space)
   else
-    local n_space = vim.fn.indent(n_insert_line - 1)
+    local n_space = vim.fn.indent(n_line - opts.delta + 1)
     space = string.rep(" ", n_space)
   end
 
@@ -102,48 +101,59 @@ vim.api.nvim_create_autocmd("FileType", {
 
 ------------- Performances -------------
 -- https://www.reddit.com/r/neovim/comments/pz3wyc/comment/heyy4qf/?utm_source=share&utm_medium=web2x&context=3
-vim.api.nvim_exec(
-  [[
-" disable syntax highlighting in big files
-function DisableSyntaxTreesitter()
-  echo("Big file, disabling syntax, treesitter and folding")
-  if exists(':TSBufDisable')
-      exec 'TSBufDisable autotag'
-      exec 'TSBufDisable highlight'
-      exec 'TSBufDisable indent'
-      exec 'TSBufDisable incremental_selection'
-      exec 'TSBufDisable context_commentstring'
-      exec 'TSBufDisable autopairs'
-  endif
 
-  setlocal eventignore+=FileType  " disable all filetype autocommands
+vim.api.nvim_create_autocmd({ "BufReadPre", "FileReadPre" }, {
+  pattern = "*",
+  callback = function(opts)
+    local bufnr = opts.buf
+    local fpath = vim.api.nvim_buf_get_name(bufnr)
+    if not is_big_file(fpath) then
+      return
+    end
 
-  setlocal foldmethod=manual
-  setlocal foldexpr=
-  setlocal nowrap
-  "syntax clear
-  "syntax off    " hmmm, which one to use?
-  "filetype off
+    local fname = vim.fn.expand("%:t")
+    print(("Big file '%s', disabling features for performance reasons."):format(fname))
 
-  setlocal noundofile
-  setlocal noswapfile
-  setlocal noloadplugins
-endfunction
+    -- Ensure syntax is disable
+    vim.opt_local.syntax = nil
 
-function EnableFastFeatures()
-  " activate some fast tooling
-  LspStart
-  exec 'setlocal syntax=' . &ft
-endfunction
+    -- disable folding
+    vim.opt_local.foldmethod = "manual"
+    vim.opt_local.foldexpr = nil
 
-let g:large_file = 512 * 1024
+    -- disable view backup and swap
+    vim.opt_local.backupdir = nil
+    vim.opt_local.viewdir = nil
+    vim.opt_local.viewoptions = nil
+    vim.opt_local.directory = nil
 
-augroup BigFileDisable
-  autocmd!
-  autocmd BufReadPre,FileReadPre * if getfsize(expand("%")) > g:large_file | exec DisableSyntaxTreesitter() | endif
-  autocmd BufEnter * if getfsize(expand("%")) > g:large_file | exec EnableFastFeatures() | endif
-augroup END
+    -- disable wrap
+    vim.opt_local.wrap = nil
 
-]],
-  false
-)
+    -- vim.cmd([[setlocal noloadplugins]])
+    -- vim.opt_local.noloadplugins = true
+
+    -- disable all autocmds
+    vim.opt_local.eventignore = "all"
+
+    -- -- disable treesitter capabilities
+    -- if is_module_available("nvim-treesitter") then
+    --   local tsconfig = require("nvim-treesitter.configs")
+    --   local ts_module_names = {
+    --     "autotag",
+    --     "indent",
+    --     "incremental_selection",
+    --     "context_commentstring",
+    --     "autopairs",
+    --     -- "highlight",
+    --   }
+    --   for _, module_name in ipairs(ts_module_names) do
+    --     local module = tsconfig.get_module(module_name)
+    --     if module and module.enabled_buffers then
+    --       module.enabled_buffers[opts.buf] = false
+    --     end
+    --     tsconfig.detach_module(module_name, opts.buf)
+    --   end
+    -- end
+  end,
+})
