@@ -48,20 +48,16 @@ local function insert_new_line_in_current_buffer(str, opts)
   local n_insert_line = n_line + opts.delta
 
   -- deduce indent for line:
-  -- local filetype = vim.api.nvim_buf_get_option(0, "filetype")
-  local use_treesitter = is_module_available("nvim-treesitter.indent")
-    -- and not vim.tbl_contains({ "python" }, filetype)
+  local n_space = vim.fn.indent(n_line)
 
-  local space
-  if use_treesitter then
+  -- if treesitter available, might use it to correct corner cases:
+  local has_treesitter = is_module_available("nvim-treesitter.indent")
+  if has_treesitter and n_space == 0 then
     local ts_indent = require("nvim-treesitter.indent")
-    local n_space = ts_indent.get_indent(n_insert_line)
-    space = string.rep(" ", n_space)
-  else
-    local n_space = vim.fn.indent(n_line - opts.delta + 1)
-    space = string.rep(" ", n_space)
+    n_space = ts_indent.get_indent(n_insert_line)
   end
 
+  local space = string.rep(" ", n_space)
   local str_added = ("%s%s"):format(space, str)
 
   vim.api.nvim_buf_set_lines(0, n_insert_line - 1, n_insert_line - 1, false, { str_added })
