@@ -127,6 +127,7 @@ local function fn_selected_multi(selected, opts)
   if not selected then
     return
   end
+
   -- first element of "selected" is the keybind pressed
   if #selected <= 2 then
     fzf_lua.actions.act(opts.actions, selected, opts)
@@ -147,7 +148,7 @@ kmap("n", "<leader>a", function()
   return fzf_lua.grep({
     cwd = git_or_cwd(),
     search = "",
-    -- fn_selected = fn_selected_multi,
+    fn_selected = fn_selected_multi,
   })
 end)
 
@@ -163,8 +164,7 @@ kmap("n", "<leader>ff", function()
   fzf_lua.grep({
     cwd = git_or_cwd(),
     search = word,
-    --
-    -- fn_selected = fn_selected_multi,
+    fn_selected = fn_selected_multi,
   })
 end)
 

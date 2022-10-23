@@ -34,6 +34,7 @@ kmap("n", "<leader>5", function()
     { name = "pdb-info", options = { "--pdb", "--exitfirst", "--log-cli-level=INFO", "-vv" } },
     { name = "pdb-debug", options = { "--pdb", "--exitfirst", "--log-cli-level=DEBUG", "-vv" } },
     { name = "verbose-info", options = { "--log-cli-level=INFO" } },
+    { name = "pdb-snapshot", options = { "--pdb", "--snapshot-update" } },
     { name = "none", options = {} },
   }
 

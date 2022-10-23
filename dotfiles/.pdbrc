@@ -2,6 +2,8 @@ alias sh from ptpython.repl import embed, run_config; embed(history_filename="/t
 
 alias dpp __import__("devtools").debug(%1)
 
+alias p from pathlib import Path;from rich.console import Console;from rich.theme import Theme;Console(theme=Theme.read(Path("~/.config/rich/rich.ini").expanduser().as_posix())).print(%1)
+
 alias sqlfmt print(__import__("sqlparse").format(str(%1), reindent=True, keyword_case="upper"))
 
 alias t type(%1)
