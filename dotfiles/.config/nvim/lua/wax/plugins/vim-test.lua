@@ -1,3 +1,5 @@
+local tmux = require("wax.tmux")
+
 local kmap = vim.keymap.set
 
 local opts = { silent = true }
@@ -5,8 +7,12 @@ local opts = { silent = true }
 kmap("n", "<leader>1", ":Tmux <CR>:TestNearest<CR>", opts)
 kmap("n", "<leader>2", ":Tmux <CR>:TestLast<CR>", opts)
 kmap("n", "<leader>3", ":Tmux <CR>:TestFile<CR>", opts)
+kmap("n", "<leader>4", tmux.tslime_select_target_pane)
 
-kmap("n", "<leader>v", "<Plug>SetTmuxVars")
+vim.api.nvim_create_autocmd("BufEnter", {
+  pattern = "*",
+  callback = tmux.tslime_auto_select_bottom_pane,
+})
 
 vim.g.tslime_always_current_session = 1
 vim.g.tslime_always_current_window = 1

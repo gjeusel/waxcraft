@@ -160,11 +160,18 @@ _G.log = safe_require("plenary.log").new({
 
 -------- WorkSpace --------
 
+---Get stringified result of sh command
+---@param cmd string[] command to run
+---@param cwd? string current working directory
+---@return string[] stdout
+---@return number command status
+---@return string[] stderr
 function _G.get_os_command_output(cmd, cwd)
   if type(cmd) ~= "table" then
-    return {}
+    return {}, 0, {}
   end
 
+  cwd = cwd or vim.loop.cwd()
   local Job = require("plenary.job")
 
   local command = table.remove(cmd, 1)
