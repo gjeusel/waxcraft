@@ -59,13 +59,6 @@ vim.o.shiftwidth = 2 -- an autoindent (with <<) is two spaces
 -- vim.o.smartindent = false -- prevent indent on python commented line
 vim.o.autoindent = false -- do not use previous line indent
 
-vim.g.python_indent = {
-  open_paren = "&sw",
-  nested_paren = "&sw",
-  continue = "&sw",
-  closed_paren_align_last_line = false,
-}
-
 vim.o.list = true -- show the following:
 vim.api.nvim_exec([[set listchars=tab:›\ ,trail:•,extends:#,nbsp:.]], false) -- Highlight problematic whitespace
 

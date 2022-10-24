@@ -141,16 +141,12 @@ def neovim():
     """Install neovim config files."""
     assert shutil.which("nvim") is not None  # check in PATH
 
-    nvim_init = ".config/nvim/init.lua"
-    lua = ".config/nvim/lua"
-    nvim_snippets = ".config/nvim/mysnippets"
-    nvim_autoload = ".config/nvim/autoload"
-
     relative_paths = [
-        nvim_init,
-        nvim_snippets,
-        # nvim_autoload,
-        lua,
+        ".config/nvim/init.lua",
+        ".config/nvim/lua",
+        ".config/nvim/after",
+        ".config/nvim/mysnippets",
+        ".config/nvim/.stylua.toml",
     ]
     create_symlinks_robust(
         relative_paths=relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home()
