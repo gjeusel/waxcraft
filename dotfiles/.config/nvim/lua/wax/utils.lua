@@ -133,10 +133,12 @@ end
 ---@param name string
 ---@return unknown
 function _G.safe_require(name)
-  if is_module_available(name) then
-    return require(name)
-  else
+  local res, mod = pcall(require, name)
+  if not res then
+    log.error(mod)
     return mock()
+  else
+    return mod
   end
 end
 
@@ -167,15 +169,15 @@ function _G.get_os_command_output(cmd, cwd)
   local command = table.remove(cmd, 1)
   local stderr = {}
   local stdout, ret = Job
-    :new({
-      command = command,
-      args = cmd,
-      cwd = cwd,
-      on_stderr = function(_, data)
-        table.insert(stderr, data)
-      end,
-    })
-    :sync()
+      :new({
+        command = command,
+        args = cmd,
+        cwd = cwd,
+        on_stderr = function(_, data)
+          table.insert(stderr, data)
+        end,
+      })
+      :sync()
   return stdout, ret, stderr
 end
 
