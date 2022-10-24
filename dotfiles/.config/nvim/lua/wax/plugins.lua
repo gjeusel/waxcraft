@@ -36,18 +36,11 @@ return require("packer").startup({
     -- Packer can manage itself as an optional plugin
     use({ "wbthomason/packer.nvim" })
 
-    --- Performances plugins
-    use({ -- impatient
-      "lewis6991/impatient.nvim",
-    })
-    use({ -- FixCursorHold
-      "antoinemadec/FixCursorHold.nvim", -- Fix CursorHold Performance
-      config = function()
-        -- in millisecond, used for both CursorHold and CursorHoldI,
-        -- use updatetime instead if not defined
-        vim.g.cursorhold_updatetime = 100
-      end,
-    })
+    -- Analyze startuptime
+    use({ "dstein64/vim-startuptime", cmd = "StartupTime" })
+
+    -- plenary is used everywhere - even in utils
+    use({ "nvim-lua/plenary.nvim" })
 
     --------- System Plugins ---------
     use("AndrewRadev/splitjoin.vim") -- easy split join on whole paragraph
@@ -182,7 +175,7 @@ return require("packer").startup({
       config = function()
         require("wax.plugins.lightline")
       end,
-      -- after="lspconfig",  -- use lsp-status
+      -- after = {"lsp-status.nvim"},
     })
     use({ -- barbar
       "romgrk/barbar.nvim",
@@ -217,6 +210,7 @@ return require("packer").startup({
     use("mhinz/vim-startify") -- fancy start screen
     use({ -- gitsigns
       "lewis6991/gitsigns.nvim",
+      after = { "plenary.nvim" },
       config = function()
         require("wax.plugins.gitsigns")
       end,
@@ -252,7 +246,6 @@ return require("packer").startup({
     -- use("rhysd/conflict-marker.vim") -- conflict markers for vimdiff
 
     --------- Fuzzy Fuzzy Fuzzy ---------
-    use({ "nvim-lua/plenary.nvim" }) -- used in utils
     use({
       "ibhagwan/fzf-lua",
       config = function()
@@ -270,10 +263,12 @@ return require("packer").startup({
       requires = {
         { -- play with queries
           "nvim-treesitter/playground",
+          after = { "nvim-treesitter" },
           -- cmd = "TSPlaygroundToggle",
         },
         { -- better text objects
           "nvim-treesitter/nvim-treesitter-textobjects",
+          after = { "nvim-treesitter" },
         },
         { -- comment string update on context (vue -> html + typescript)
           "JoosepAlviste/nvim-ts-context-commentstring",
@@ -286,6 +281,7 @@ return require("packer").startup({
               },
             })
           end,
+          after = { "nvim-treesitter" },
         },
         -- { "p00f/nvim-ts-rainbow" },
         { -- add better behavior for '%'
@@ -293,10 +289,12 @@ return require("packer").startup({
           config = function()
             require("wax.plugins.vim-matchup")
           end,
+          after = { "nvim-treesitter" },
         },
         { -- auto html tag
           "windwp/nvim-ts-autotag",
           branch = "main",
+          after = { "nvim-treesitter" },
         },
       },
       config = function()
@@ -321,6 +319,7 @@ return require("packer").startup({
         require("wax.lsp")
       end,
     })
+
     use({ -- nvim-cmp
       "hrsh7th/nvim-cmp",
       requires = {
@@ -365,17 +364,6 @@ return require("packer").startup({
     })
 
     --------- Language Specific ---------
-    -- use({
-    --   "mattn/emmet-vim",
-    --   ft = { "html", "vue", "markdown", "typescriptreact" },
-    -- })
-    -- use({
-    --   "norcalli/nvim-colorizer.lua",
-    --   config = function()
-    --     -- vim.o.termguicolors = "yes"
-    --     require("colorizer").setup({ "html", "css", "javascript", "typescript", "vue" })
-    --   end,
-    -- })
     use({ "edgedb/edgedb-vim" })
 
     --------- Packer ---------

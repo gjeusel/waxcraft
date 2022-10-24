@@ -94,28 +94,19 @@ vim.api.nvim_create_autocmd("FileType", {
 
 -------- Mocks --------
 
-function _G.mock()
+function _G.mock(opts)
+  local opts = opts or {}
   local Mock = {}
-
   setmetatable(Mock, {
-    __call = function(cls, ...)
-      return cls.new(...)
+    __call = function(...)
+      -- print(("called __call with args=%s"):format(...))
+      return Mock
     end,
-  })
-  local mock_mt = {
-    __call = function(self, ...)
-      local args = { n = select("#", ...), ... }
-      self._calls[#self._calls + 1] = args
+    __index = function(...)
+      -- print(("called __index with args=%s"):format(...))
+      return Mock
     end,
-    __index = Mock,
-  }
-  function Mock.new()
-    local self = setmetatable({
-      _calls = {},
-    }, mock_mt)
-    return self
-  end
-
+  }, opts)
   return Mock
 end
 

@@ -124,7 +124,7 @@ alias libclean="find . | grep -E '(__pycache__|\.pyc|\.pyo|\.orig$)' | xargs rm 
 function pwhere() {
   python -c "import $1; print($1.__file__)"
 }
-alias ipylsp="pip install -U python-lsp-server[rope,flake8] pylsp-mypy python-lsp-black pyls-isort"
+alias ipylsp="pip install -U python-lsp-server[rope,flake8] ~/src/pylsp-mypy python-lsp-black pyls-isort"
 
 
 # frontend

@@ -27,7 +27,9 @@ def pcall(cmd, args, env=None):
     except subprocess.CalledProcessError as e:
         raise RuntimeError(
             "command '{}' return with error (code {}): {}".format(
-                e.cmd, e.returncode, e.output))
+                e.cmd, e.returncode, e.output
+            )
+        )
 
 
 def query_yes_no(question, default="yes"):
@@ -58,8 +60,7 @@ def query_yes_no(question, default="yes"):
         elif choice in valid:
             return valid[choice]
         else:
-            sys.stdout.write("Please respond with 'yes' or 'no' "
-                             "(or 'y' or 'n').\n")
+            sys.stdout.write("Please respond with 'yes' or 'no' " "(or 'y' or 'n').\n")
 
 
 # Low level conveniant functions:
@@ -148,40 +149,34 @@ def neovim():
     relative_paths = [
         nvim_init,
         nvim_snippets,
-        nvim_autoload,
+        # nvim_autoload,
         lua,
     ]
     create_symlinks_robust(
-        relative_paths=relative_paths,
-        from_dir=wax_dotfile_dir,
-        to_dir=Path.home())
-
-    stylua = "./config/nvim/lua/wax/.stylua.toml"
-    create_symlinks_robust(
-        relative_paths=stylua,
-        from_dir=wax_dotfile_dir,
-        to_dir=Path.home
+        relative_paths=relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home()
     )
+
+    # stylua = "./config/nvim/lua/wax/.stylua.toml"
+    # create_symlinks_robust(
+    #    relative_paths=stylua, from_dir=wax_dotfile_dir, to_dir=Path.home
+    # )
 
 
 def alacritty():
     """install Alacritty."""
     relative_paths = [".config/alacritty"]
-    create_symlinks_robust(
-        relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home())
+    create_symlinks_robust(relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home())
 
 
 def tmux():
     """Install tmux config files."""
     relative_paths = [".tmux.conf", ".config/tmuxp"]
-    create_symlinks_robust(
-        relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home())
+    create_symlinks_robust(relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home())
 
 
 def _common_bash_zsh():
     relative_paths = [".inputrc", ".aliases", ".zlogin"]
-    create_symlinks_robust(
-        relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home())
+    create_symlinks_robust(relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home())
 
 
 def zsh():
@@ -194,8 +189,7 @@ def zsh():
         "fi",
         "",
         "# Specific config here",
-        ""
-        "# waxCraft zshrc_common.zsh file sourcing :",
+        "" "# waxCraft zshrc_common.zsh file sourcing :",
         "source {}".format((wax_dotfile_dir / "zshrc_common.zsh").as_posix()),
     )
 
@@ -221,8 +215,7 @@ def plasma():
     quest = "Session need to restart, are your sure you want to quite?"
     if not query_yes_no(quest):  # if answered no, quit
         return
-    copy_robust(
-        relative_paths, from_dir=wax_config_dir, to_dir=Path.home / ".config")
+    copy_robust(relative_paths, from_dir=wax_config_dir, to_dir=Path.home / ".config")
     pcall("loginctl", ["terminate-user", str(os.environ["USER"])])
 
 
@@ -232,12 +225,14 @@ def python():
     ptpythonhome = Path.home() / ".ptpython"
     profilehome = ipythonhome / "profile_default"
     startuppath = profilehome / "startup"
-    if not any([
+    if not any(
+        [
             ipythonhome.exists(),
             ptpythonhome.exists(),
             profilehome.exists(),
-            startuppath.exists()
-    ]):
+            startuppath.exists(),
+        ]
+    ):
         startuppath.mkdir(parents=True)
 
     relative_paths = [
@@ -249,12 +244,11 @@ def python():
         ".ipython/profile_default/startup/common.py",
         ".ptpython/config.py",
     ]
-    create_symlinks_robust(
-        relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home())
+    create_symlinks_robust(relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home())
 
 
 def setup_argparser():
-    """ Define and return the command argument parser. """
+    """Define and return the command argument parser."""
     parser = argparse.ArgumentParser(description="""waxCraft config setup.""")
 
     help_str = "Config to install among ['zsh', 'vim', 'python', 'tmux', 'plasma']"
