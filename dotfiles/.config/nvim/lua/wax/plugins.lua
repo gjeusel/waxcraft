@@ -36,46 +36,58 @@ return require("packer").startup({
     -- Packer can manage itself as an optional plugin
     use({ "wbthomason/packer.nvim" })
 
-    --- Performances plugins
-    use({ -- impatient
-      "lewis6991/impatient.nvim",
-    })
-    use({ -- FixCursorHold
-      "antoinemadec/FixCursorHold.nvim", -- Fix CursorHold Performance
-      config = function()
-        -- in millisecond, used for both CursorHold and CursorHoldI,
-        -- use updatetime instead if not defined
-        vim.g.cursorhold_updatetime = 100
-      end,
-    })
+    -- Analyze startuptime
+    use({ "dstein64/vim-startuptime", cmd = "StartupTime" })
+
+    -- plenary is used everywhere - even in utils
+    use({ "nvim-lua/plenary.nvim" })
 
     --------- System Plugins ---------
     use("AndrewRadev/splitjoin.vim") -- easy split join on whole paragraph
     use("michaeljsmith/vim-indent-object") -- text object based on indentation levels.
-    -- use 'psliwka/vim-smoothie'                     -- smoother scroll
+    use({ "vim-scripts/loremipsum", cmd = "Loremipsum" }) -- dummy text generator (:Loremipsum [number of words])
 
     use({ -- the next vim-sneak
       "ggandor/lightspeed.nvim",
       config = function()
-        require("wax.plugins.lightspeed")
+        safe_require("wax.plugins.lightspeed")
       end,
     })
-    -- use( -- easy alignment, better than tabularize
-    --   -- To replace with: echasnovski/mini.nvim
-    --   { "junegunn/vim-easy-align" }
-    -- )
-    use({ "vim-scripts/loremipsum", cmd = "Loremipsum" }) -- dummy text generator (:Loremipsum [number of words])
+
+    use({ -- mini for lot of small life quality improvements
+      "echasnovski/mini.nvim",
+      config = function()
+        safe_require("mini.ai").setup()
+      end,
+    })
+
+    -- key bindings cheatsheet
+    use({
+      "folke/which-key.nvim",
+      config = function()
+        safe_require("which-key")
+      end,
+      cmd = "WhichKey",
+    })
+
+    use({ -- nvim-surround
+      "kylechui/nvim-surround",
+      tag = "main",
+      config = function()
+        safe_require("nvim-surround").setup({})
+      end,
+    })
 
     use({ -- easy comment/uncomment
       "numToStr/Comment.nvim",
       config = function()
-        require("wax.plugins.comment")
+        safe_require("wax.plugins.comment")
       end,
     })
     use({ -- vim-tmux-navigator
       "christoomey/vim-tmux-navigator", -- tmux navigation in love with vim
       config = function()
-        require("wax.plugins.vim-tmux-navigator")
+        safe_require("wax.plugins.vim-tmux-navigator")
       end,
     })
     use({ -- vim-test
@@ -85,7 +97,7 @@ return require("packer").startup({
         branch = "main",
       },
       config = function()
-        require("wax.plugins.vim-test")
+        safe_require("wax.plugins.vim-test")
       end,
     })
     use({ -- nvim-dap
@@ -97,7 +109,7 @@ return require("packer").startup({
         "mfussenegger/nvim-dap-python",
       },
       config = function()
-        require("wax.plugins.nvim-dap")
+        safe_require("wax.plugins.nvim-dap")
       end,
     })
 
@@ -105,7 +117,7 @@ return require("packer").startup({
     --   "kevinhwang91/nvim-ufo",
     --   requires = "kevinhwang91/promise-async",
     --   config = function()
-    --     require("wax.plugins.folds-ufo")
+    --     safe_require("wax.plugins.folds-ufo")
     --   end,
     -- })
     -- use({
@@ -130,7 +142,6 @@ return require("packer").startup({
     -- })
 
     -- Tpope is awesome
-    use("tpope/vim-surround") -- change surrounding easily
     use("tpope/vim-eunuch") -- sugar for the UNIX shell commands
     use({ "tpope/vim-scriptease", cmd = "Messages" }) -- gives :Messages
     use({ -- vim fugitive
@@ -153,7 +164,7 @@ return require("packer").startup({
       -- diffview: git integration for nvim
       "sindrets/diffview.nvim",
       config = function()
-        require("wax.plugins.diffview")
+        safe_require("wax.plugins.diffview")
       end,
     })
 
@@ -161,14 +172,14 @@ return require("packer").startup({
       "folke/neodev.nvim",
       before = "lspconfig",
       config = function()
-        require("neodev").setup({})
+        safe_require("neodev").setup({})
       end,
     })
 
     use({ -- Just Another Quickrun
       "is0n/jaq-nvim",
       config = function()
-        require("wax.plugins.jaq-nvim")
+        safe_require("wax.plugins.jaq-nvim")
       end,
     })
 
@@ -180,20 +191,20 @@ return require("packer").startup({
     use({ -- lightline
       "itchyny/lightline.vim", -- light status line
       config = function()
-        require("wax.plugins.lightline")
+        safe_require("wax.plugins.lightline")
       end,
-      -- after="lspconfig",  -- use lsp-status
+      -- after = {"lsp-status.nvim"},
     })
     use({ -- barbar
       "romgrk/barbar.nvim",
       config = function()
-        require("wax.plugins.barbar")
+        safe_require("wax.plugins.barbar")
       end,
     })
     use({ -- dressing
       "stevearc/dressing.nvim",
       config = function()
-        require("dressing").setup({
+        safe_require("dressing").setup({
           builtin = { enabled = false },
           select = {
             enabled = false, -- replaced by fzf-lua
@@ -211,14 +222,15 @@ return require("packer").startup({
     use({ -- nvim-web-devicons
       "kyazdani42/nvim-web-devicons",
       config = function()
-        require("nvim-web-devicons").setup()
+        safe_require("nvim-web-devicons").setup()
       end,
     })
     use("mhinz/vim-startify") -- fancy start screen
     use({ -- gitsigns
       "lewis6991/gitsigns.nvim",
+      after = { "plenary.nvim" },
       config = function()
-        require("wax.plugins.gitsigns")
+        safe_require("wax.plugins.gitsigns")
       end,
     })
 
@@ -245,18 +257,17 @@ return require("packer").startup({
     use({ -- better hl search
       "kevinhwang91/nvim-hlslens",
       config = function()
-        require("wax.plugins.hlslens")
+        safe_require("wax.plugins.hlslens")
       end,
     })
 
     -- use("rhysd/conflict-marker.vim") -- conflict markers for vimdiff
 
     --------- Fuzzy Fuzzy Fuzzy ---------
-    use({ "nvim-lua/plenary.nvim" }) -- used in utils
     use({
       "ibhagwan/fzf-lua",
       config = function()
-        require("wax.plugins.fzf")
+        safe_require("wax.plugins.fzf")
       end,
     })
 
@@ -270,37 +281,42 @@ return require("packer").startup({
       requires = {
         { -- play with queries
           "nvim-treesitter/playground",
+          after = { "nvim-treesitter" },
           -- cmd = "TSPlaygroundToggle",
         },
         { -- better text objects
           "nvim-treesitter/nvim-treesitter-textobjects",
+          after = { "nvim-treesitter" },
         },
         { -- comment string update on context (vue -> html + typescript)
           "JoosepAlviste/nvim-ts-context-commentstring",
           ft = { "html", "vue", "typescriptreact" },
           config = function()
-            require("nvim-treesitter.configs").setup({
+            safe_require("nvim-treesitter.configs").setup({
               context_commentstring = {
                 enable = true,
                 enable_autocmd = false,
               },
             })
           end,
+          after = { "nvim-treesitter" },
         },
         -- { "p00f/nvim-ts-rainbow" },
-        { -- add better behavior for '%'
-          "andymass/vim-matchup",
-          config = function()
-            require("wax.plugins.vim-matchup")
-          end,
-        },
+        -- { -- add better behavior for '%'
+        --   "andymass/vim-matchup",
+        --   config = function()
+        --     safe_require("wax.plugins.vim-matchup")
+        --   end,
+        --   after = { "nvim-treesitter" },
+        -- },
         { -- auto html tag
           "windwp/nvim-ts-autotag",
           branch = "main",
+          after = { "nvim-treesitter" },
         },
       },
       config = function()
-        require("wax.plugins.treesitter")
+        safe_require("wax.plugins.treesitter")
       end,
     })
 
@@ -317,10 +333,11 @@ return require("packer").startup({
         "b0o/schemastore.nvim", -- json schemas for jsonls
       },
       config = function()
-        require("wax.plugins.mason")
-        require("wax.lsp")
+        safe_require("wax.plugins.mason")
+        safe_require("wax.lsp")
       end,
     })
+
     use({ -- nvim-cmp
       "hrsh7th/nvim-cmp",
       requires = {
@@ -334,13 +351,13 @@ return require("packer").startup({
         { -- snippet engine in lua
           "L3MON4D3/LuaSnip",
           config = function()
-            require("wax.plugins.luasnip")
+            safe_require("wax.plugins.luasnip")
           end,
         },
         { -- auto pair written in lua
           "windwp/nvim-autopairs",
           config = function()
-            require("wax.plugins.nvim-autopairs")
+            safe_require("wax.plugins.nvim-autopairs")
           end,
         },
         -- { -- GH copilot setup
@@ -354,28 +371,17 @@ return require("packer").startup({
         --   event = { "InsertEnter" },
         --   config = function()
         --     vim.schedule(function()
-        --       require("wax.plugins.gh-copilot")
+        --       safe_require("wax.plugins.gh-copilot")
         --     end)
         --   end,
         -- },
       },
       config = function()
-        require("wax.plugins.nvim-cmp")
+        safe_require("wax.plugins.nvim-cmp")
       end,
     })
 
     --------- Language Specific ---------
-    -- use({
-    --   "mattn/emmet-vim",
-    --   ft = { "html", "vue", "markdown", "typescriptreact" },
-    -- })
-    -- use({
-    --   "norcalli/nvim-colorizer.lua",
-    --   config = function()
-    --     -- vim.o.termguicolors = "yes"
-    --     require("colorizer").setup({ "html", "css", "javascript", "typescript", "vue" })
-    --   end,
-    -- })
     use({ "edgedb/edgedb-vim" })
 
     --------- Packer ---------

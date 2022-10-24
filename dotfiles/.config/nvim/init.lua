@@ -10,11 +10,9 @@
 -- - ChristianChiarulli: https://github.com/ChristianChiarulli/LunarVim                             ( the ambitious )
 -- - mvllow: https://github.com/mvllow/nvim/                                                        ( frontend lsp master -> keep an eye for volar vue3 setup )
 
-pcall(require, "impatient") -- speed up startup with lua modules cache
-
-require("wax.userconfig") -- first, define user configs (waxopts)
-require("wax.utils")
-require("wax.settings")
+require("wax.userconfig") -- comes first, define user configs (waxopts)
+require("wax.utils") -- utils with globals
+require("wax.settings") -- vim.o
 
 require("wax.plugins")
 

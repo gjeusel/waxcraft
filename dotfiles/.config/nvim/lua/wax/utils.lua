@@ -94,28 +94,18 @@ vim.api.nvim_create_autocmd("FileType", {
 
 -------- Mocks --------
 
-function _G.mock()
-  local Mock = {}
-
+function _G.mock(opts)
+  local Mock = opts or {}
   setmetatable(Mock, {
-    __call = function(cls, ...)
-      return cls.new(...)
+    __call = function(...)
+      -- print(("called __call with args=%s"):format(...))
+      return Mock
+    end,
+    __index = function(...)
+      -- print(("called __index with args=%s"):format(...))
+      return Mock
     end,
   })
-  local mock_mt = {
-    __call = function(self, ...)
-      local args = { n = select("#", ...), ... }
-      self._calls[#self._calls + 1] = args
-    end,
-    __index = Mock,
-  }
-  function Mock.new()
-    local self = setmetatable({
-      _calls = {},
-    }, mock_mt)
-    return self
-  end
-
   return Mock
 end
 
@@ -143,10 +133,12 @@ end
 ---@param name string
 ---@return unknown
 function _G.safe_require(name)
-  if is_module_available(name) then
-    return require(name)
-  else
+  local res, mod = pcall(require, name)
+  if not res then
+    log.error(mod)
     return mock()
+  else
+    return mod
   end
 end
 
@@ -176,14 +168,16 @@ function _G.get_os_command_output(cmd, cwd)
 
   local command = table.remove(cmd, 1)
   local stderr = {}
-  local stdout, ret = Job:new({
-    command = command,
-    args = cmd,
-    cwd = cwd,
-    on_stderr = function(_, data)
-      table.insert(stderr, data)
-    end,
-  }):sync()
+  local stdout, ret = Job
+      :new({
+        command = command,
+        args = cmd,
+        cwd = cwd,
+        on_stderr = function(_, data)
+          table.insert(stderr, data)
+        end,
+      })
+      :sync()
   return stdout, ret, stderr
 end
 
@@ -233,3 +227,33 @@ function _G.is_big_file(fpath)
 end
 
 -- vim.keymap.set("t", "<c-g>", "<cmd>stopinsert<cr>")
+
+local M = {}
+
+function M.insert_new_line_in_current_buffer(str, opts)
+  local default_opts = { delta = 1 }
+  opts = vim.tbl_deep_extend("keep", opts or {}, default_opts)
+
+  local pos = vim.api.nvim_win_get_cursor(0)
+  local n_line = pos[1]
+
+  local n_insert_line = n_line + opts.delta
+
+  -- deduce indent for line:
+  local n_space = vim.fn.indent(n_line)
+
+  -- if treesitter available, might use it to correct corner cases:
+  local has_treesitter = is_module_available("nvim-treesitter.indent")
+  if has_treesitter and n_space == 0 then
+    local ts_indent = require("nvim-treesitter.indent")
+    n_space = ts_indent.get_indent(n_insert_line)
+  end
+
+  local space = string.rep(" ", n_space)
+  local str_added = ("%s%s"):format(space, str)
+
+  vim.api.nvim_buf_set_lines(0, n_insert_line - 1, n_insert_line - 1, false, { str_added })
+  vim.api.nvim_win_set_cursor(0, { n_insert_line, pos[2] })
+end
+
+return M

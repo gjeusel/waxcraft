@@ -1,10 +1,11 @@
+-- Set log level for LSP
 vim.lsp.set_log_level(waxopts.lsp.loglevel)
 
 -- Define custom ui settings
 require("wax.lsp.ui")
 
 -- https://github.com/nvim-lua/lsp-status.nvim#all-together-now
-local lsp_status = require("lsp-status")
+local lsp_status = safe_require("lsp-status")
 lsp_status.register_progress()
 lsp_status.config({
   current_function = false,

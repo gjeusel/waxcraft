@@ -1,3 +1,5 @@
+local utils = require("wax.utils")
+
 -- Handle Views
 local group_view = "Views"
 vim.api.nvim_create_augroup(group_view, { clear = true })
@@ -7,97 +9,46 @@ vim.api.nvim_create_autocmd(
   { pattern = "*", command = "silent! mkview" }
 )
 
-------------- Local Settings depending on FileType -------------
---
-local group_ft_settings = "FileType Local Settings"
-vim.api.nvim_create_augroup(group_ft_settings, { clear = true })
-
-local map_ft_local_settings = {
-  yaml = "shiftwidth=2 tabstop=2 softtabstop=2 foldminlines=3",
-  gitcommit = "spell viewoptions= viewdir=",
-  git = "syntax=on nofoldenable",
-  vim = "tabstop=2 foldmethod=marker",
-  ["*sh"] = "nofoldenable",
-  markdown = "spell textwidth=140 nofoldenable", -- "wrap wrapmargin=2"
-  toml = "textwidth=140 nofoldenable",
-  json = "foldmethod=syntax",
-  edgeql = "commentstring=#%s",
-  lua = "foldlevel=99",
-  --
-  python = "shiftwidth=4 tabstop=4 softtabstop=4",
-  --
-  html = "foldmethod=syntax nowrap shiftwidth=2 tabstop=2 softtabstop=2",
-  [{ "vue", "typescript", "typescriptreact", "javascript", "javascriptreact" }] = "foldminlines=3",
-}
-
-for filetype, settings in pairs(map_ft_local_settings) do
-  vim.api.nvim_create_autocmd("FileType", {
-    group = group_ft_settings,
-    pattern = filetype,
-    command = ("setlocal %s"):format(settings),
-  })
-end
-
-local function insert_new_line_in_current_buffer(str, opts)
-  local default_opts = { delta = 1 }
-  opts = vim.tbl_deep_extend("keep", opts or {}, default_opts)
-
-  local pos = vim.api.nvim_win_get_cursor(0)
-  local n_line = pos[1]
-
-  local n_insert_line = n_line + opts.delta
-
-  -- deduce indent for line:
-  local n_space = vim.fn.indent(n_line)
-
-  -- if treesitter available, might use it to correct corner cases:
-  local has_treesitter = is_module_available("nvim-treesitter.indent")
-  if has_treesitter and n_space == 0 then
-    local ts_indent = require("nvim-treesitter.indent")
-    n_space = ts_indent.get_indent(n_insert_line)
-  end
-
-  local space = string.rep(" ", n_space)
-  local str_added = ("%s%s"):format(space, str)
-
-  vim.api.nvim_buf_set_lines(0, n_insert_line - 1, n_insert_line - 1, false, { str_added })
-  vim.api.nvim_win_set_cursor(0, { n_insert_line, pos[2] })
-end
-
 -- Python
 vim.api.nvim_create_autocmd("FileType", {
-  group = group_ft_settings,
   pattern = "python",
   callback = function()
     vim.keymap.set("n", "<leader>o", function()
-      insert_new_line_in_current_buffer('__import__("pdb").set_trace()  # BREAKPOINT')
-    end)
+      utils.insert_new_line_in_current_buffer('__import__("pdb").set_trace()  # BREAKPOINT')
+    end, {
+      desc = "Insert pdb breakpoint below.",
+    })
     vim.keymap.set("n", "<leader>O", function()
-      insert_new_line_in_current_buffer(
+      utils.insert_new_line_in_current_buffer(
         '__import__("pdb").set_trace()  # BREAKPOINT',
         { delta = 0 }
       )
-    end)
+    end, {
+      desc = "Insert pdb breakpoint above.",
+    })
   end,
 })
 
 -- Frontend
 vim.api.nvim_create_autocmd("FileType", {
-  group = group_ft_settings,
   pattern = { "vue", "typescript", "javascript", "typescriptreact", "javascriptreact" },
   callback = function()
     vim.keymap.set("n", "<leader>o", function()
-      insert_new_line_in_current_buffer("debugger  // BREAKPOINT")
-    end)
+      utils.insert_new_line_in_current_buffer("debugger  // BREAKPOINT")
+    end, {
+      desc = "Insert debugger breakpoint below.",
+    })
     vim.keymap.set("n", "<leader>O", function()
-      insert_new_line_in_current_buffer("debugger  // BREAKPOINT", { delta = 0 })
-    end)
+      utils.insert_new_line_in_current_buffer("debugger  // BREAKPOINT", { delta = 0 })
+    end, {
+      desc = "Insert debugger breakpoint above.",
+    })
   end,
 })
 
-------------- Performances -------------
+-- Performances
+--
 -- https://www.reddit.com/r/neovim/comments/pz3wyc/comment/heyy4qf/?utm_source=share&utm_medium=web2x&context=3
-
 vim.api.nvim_create_autocmd({ "BufReadPre", "FileReadPre" }, {
   pattern = "*",
   callback = function(opts)
