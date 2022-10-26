@@ -231,51 +231,31 @@ kmap("n", "<leader>r", function()
     async = true,
     file_ignore_patterns = { "miniconda3", "node_modules" }, -- ignore references in env libs
   })
-end, { desc = "Fzf Lsp References" })
+end, {
+  desc = "Fzf Lsp References",
+})
 
 --
 ------- Wax files -------
 
-local function list_wax_files()
+kmap("n", "<leader>fw", function()
   local paths = {
-    "src/waxcraft/dotfiles",
-    "src/nvim-treesitter",
     ".config/nvim/config.lua",
-    ".local/share/nvim/site/pack/packer",
     ".gitconfig",
     ".python_startup_local.py",
     ".zshrc",
+    "src/waxcraft/dotfiles",
+    "src/nvim-treesitter",
+    ".local/share/nvim/site/pack/packer",
   }
   local home = vim.env.HOME
+  local abs_paths = vim.tbl_map(function(path)
+    return home .. "/" .. path
+  end, paths)
 
-  local files = {}
-  for _, path in pairs(paths) do
-    path = Path:new(home .. "/" .. path)
-    if path:is_file() then
-      table.insert(files, path:make_relative(home))
-    else
-      local files_in_path = scan.scan_dir(path:absolute(), {
-        hidden = true,
-        add_dirs = false,
-        only_dirs = false,
-        respect_gitignore = true,
-        -- search_pattern='^(.git)',
-      })
-      vim.list_extend(
-        files,
-        vim.tbl_map(function(e)
-          return Path:new(e):make_relative(home)
-        end, files_in_path)
-      )
-    end
-  end
+  local cmd = ("rg --glob '!{.git,}/' --files %s"):format(table.concat(abs_paths, " "))
 
-  return files
-end
-
-kmap("n", "<leader>fw", function()
-  local files = list_wax_files()
-  return fzf_lua.fzf_exec(files, {
+  return fzf_lua.fzf_exec(cmd, {
     prompt = "WaxFiles > ",
     previewer = "builtin",
     cwd = vim.env.HOME,
@@ -314,10 +294,14 @@ kmap("n", "<leader>q", function()
   pick_project(function(path)
     fzf_lua.files({ cwd = path })
   end)
-end, { desc = "Pick project then find file" })
+end, {
+  desc = "Pick project then find file",
+})
 
 kmap("n", "<leader>Q", function()
   pick_project(function(path)
     fzf_lua.grep({ cwd = path, search = "" })
   end)
-end, { desc = "Pick project then grep" })
+end, {
+  desc = "Pick project then grep",
+})

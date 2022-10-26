@@ -1,3 +1,4 @@
+vim.keymap.set({ "n", "x", "v" }, ",,", ",", { remap = false })
 vim.g.mapleader = ","
 
 vim.o.mouse = "a" -- Automatically enable mouse usage
