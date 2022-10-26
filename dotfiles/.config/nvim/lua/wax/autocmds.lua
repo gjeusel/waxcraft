@@ -16,6 +16,7 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.keymap.set("n", "<leader>o", function()
       utils.insert_new_line_in_current_buffer('__import__("pdb").set_trace()  # BREAKPOINT')
     end, {
+      buffer = 0,
       desc = "Insert pdb breakpoint below.",
     })
     vim.keymap.set("n", "<leader>O", function()
@@ -24,6 +25,7 @@ vim.api.nvim_create_autocmd("FileType", {
         { delta = 0 }
       )
     end, {
+      buffer = 0,
       desc = "Insert pdb breakpoint above.",
     })
   end,
@@ -36,11 +38,13 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.keymap.set("n", "<leader>o", function()
       utils.insert_new_line_in_current_buffer("debugger  // BREAKPOINT")
     end, {
+      buffer = 0,
       desc = "Insert debugger breakpoint below.",
     })
     vim.keymap.set("n", "<leader>O", function()
       utils.insert_new_line_in_current_buffer("debugger  // BREAKPOINT", { delta = 0 })
     end, {
+      buffer = 0,
       desc = "Insert debugger breakpoint above.",
     })
   end,

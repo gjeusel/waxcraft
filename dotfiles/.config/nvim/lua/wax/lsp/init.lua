@@ -15,7 +15,7 @@ lsp_status.config({
   indicator_info = "כֿ",
   indicator_warnings = "",
   indicator_hint = "",
-  indicator_ok = "",
+  indicator_ok = "", -- "",
   status_symbol = "",
 })
 

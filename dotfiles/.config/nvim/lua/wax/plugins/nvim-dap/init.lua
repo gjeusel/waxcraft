@@ -49,25 +49,25 @@ local map = function(lhs, rhs, desc)
   vim.keymap.set("n", lhs, rhs, { silent = true, desc = desc })
 end
 
-map("<leader>dW", require("dap").step_back, "step_back")
-map("<leader>dw", require("dap").step_over, "step_over")
+-- map("<leader>dW", require("dap").step_back, "step_back")
+-- map("<leader>dw", require("dap").step_over, "step_over")
 
-map("<leader>ds", require("dap").step_into, "step_into")
-map("<leader>dS", require("dap").step_out, "step_out")
--- map("<leader>ds", require("dap").up, "up_in_stack")
--- map("<leader>dS", require("dap").down, "down_in_stack")
+-- map("<leader>ds", require("dap").step_into, "step_into")
+-- map("<leader>dS", require("dap").step_out, "step_out")
+-- -- map("<leader>ds", require("dap").up, "up_in_stack")
+-- -- map("<leader>dS", require("dap").down, "down_in_stack")
 
--- map("<leader>dc", require("dap").continue, "continue")
-map("<leader>dc", dap_run_or_continue, "continue")
-map("<leader>df", require("dap").run_to_cursor, "run_to_cursor")
+-- -- map("<leader>dc", require("dap").continue, "continue")
+-- map("<leader>dc", dap_run_or_continue, "continue")
+-- map("<leader>df", require("dap").run_to_cursor, "run_to_cursor")
 
-map("<leader>dd", require("dap").toggle_breakpoint, "toggle_breakpoint")
+-- map("<leader>dd", require("dap").toggle_breakpoint, "toggle_breakpoint")
 
-map("<leader>dr", require("dap").repl.toggle, "repl")
-map("<leader>de", require("dapui").eval, "dapui_eval")
-map("<leader>dD", require("dapui").toggle, "dapui_eval")
+-- map("<leader>dr", require("dap").repl.toggle, "repl")
+-- map("<leader>de", require("dapui").eval, "dapui_eval")
+-- map("<leader>dD", require("dapui").toggle, "dapui_eval")
 
-map("<leader>d2", require("dap").run_last, "run_last")
+-- map("<leader>d2", require("dap").run_last, "run_last")
 
 -- map("<leader>dB", function()
 --   require("dap").set_breakpoint(vim.fn.input("[DAP] Condition > "))

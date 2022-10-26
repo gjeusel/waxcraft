@@ -33,7 +33,13 @@ function M.tslime_select_target_pane()
     "#{pane_index} - #{pane_title}",
   }
 
-  vim.ui.select(get_os_command_output(cmd), {
+  local panes = get_os_command_output(cmd)
+  if #panes == 2 then
+    M.tslime_auto_select_bottom_pane()
+    return
+  end
+
+  vim.ui.select(panes, {
     prompt = "Select tmux pane> ",
   }, function(_, i)
     vim.g.tslime = tmux_get_panes()[i]

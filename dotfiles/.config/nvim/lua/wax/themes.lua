@@ -68,6 +68,7 @@ local base_gruvbox_hls = {
 
   -- fidget
   FidgetTitle = { link = "GruvboxFg3" },
+  FidgetTask = { link = "GruvboxFg4" },
 
   -- nvim-cmp
   CmpItemAbbrMatch = { link = "GruvboxFg3" },
