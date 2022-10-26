@@ -66,6 +66,9 @@ local base_gruvbox_hls = {
   DiagnosticInfo = { link = "GruvboxFg3" },
   DiagnosticHint = { link = "GruvboxBlue" },
 
+  -- fidget
+  FidgetTitle = { link = "GruvboxFg3" },
+
   -- nvim-cmp
   CmpItemAbbrMatch = { link = "GruvboxFg3" },
   CmpItemAbbrMatchFuzzy = { link = "GruvboxFg3" },

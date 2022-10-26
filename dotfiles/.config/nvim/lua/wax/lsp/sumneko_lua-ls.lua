@@ -7,7 +7,7 @@ return {
         version = "LuaJIT",
       },
       diagnostics = {
-        globals = { "vim" },
+        globals = { "vim", "waxopts" },
         disable = {
           -- Need check nil
           "need-check-nil",

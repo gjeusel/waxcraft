@@ -54,10 +54,10 @@ return require("packer").startup({
       end,
     })
 
-    use({ -- mini for lot of small life quality improvements
+    use({ -- mini - (arround/inside improved)
       "echasnovski/mini.nvim",
       config = function()
-        safe_require("mini.ai").setup()
+        safe_require("mini.ai").setup({ search_method = "cover_or_nearest" })
       end,
     })
 
@@ -193,7 +193,7 @@ return require("packer").startup({
       config = function()
         safe_require("wax.plugins.lightline")
       end,
-      -- after = {"lsp-status.nvim"},
+      after = { "lsp-status.nvim" },
     })
     use({ -- barbar
       "romgrk/barbar.nvim",
@@ -327,6 +327,12 @@ return require("packer").startup({
       requires = {
         { "williamboman/mason-lspconfig.nvim", branch = "main" },
         "nvim-lua/lsp-status.nvim",
+        { -- fidget - lsp progress notifs
+          "j-hui/fidget.nvim",
+          config = function()
+            safe_require("wax.plugins.fidget")
+          end,
+        },
         "neovim/nvim-lspconfig",
         -- "ray-x/lsp_signature.nvim", -- a bit buggy
         { "jose-elias-alvarez/null-ls.nvim", branch = "main" },

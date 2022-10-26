@@ -98,11 +98,11 @@ function _G.mock(opts)
   local Mock = opts or {}
   setmetatable(Mock, {
     __call = function(...)
-      -- print(("called __call with args=%s"):format(...))
+      -- log.warn(("called __call with args=%s"):format(...))
       return Mock
     end,
     __index = function(...)
-      -- print(("called __index with args=%s"):format(...))
+      -- log.warn(("called __index with args=%s"):format(...))
       return Mock
     end,
   })
