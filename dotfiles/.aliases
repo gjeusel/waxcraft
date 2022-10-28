@@ -124,7 +124,6 @@ alias libclean="find . | grep -E '(__pycache__|\.pyc|\.pyo|\.orig$)' | xargs rm 
 function pwhere() {
   python -c "import $1; print($1.__file__)"
 }
-alias ipylsp="pip install -U python-lsp-server[rope,flake8] ~/src/pylsp-mypy python-lsp-black pyls-isort"
 
 
 # frontend
@@ -139,14 +138,9 @@ alias infogpu='nvidia-smi --query-gpu=timestamp,name,pci.bus_id,driver_version,p
 alias meteo="curl https://v2.wttr.in/brussels"
 
 compip() {
-  # Linters:
-  # pip install -U flake8 pylint proselint
-  pip install -U flake8
-
-  # Fixers:
-  #pip install -U isort yapf==0.25.0 autoflake black
-  # AutoComplete
-  pip install -U jedi==v0.17.2 black==19.10b0 isort mypy
+  # LSP
+  pip install -U python-lsp-server[rope,flake8] python-lsp-black pyls-isort
+  pip install --editable ~/src/pylsp-mypy
 
   # pytest:
   pip install -U pdbpp # pytest pytest-xdist pytest-cov pytest-flakes

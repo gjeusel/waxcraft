@@ -38,7 +38,7 @@ return {
         pylsp_mypy = {
           enabled = true,
           live_mode = false,
-          dmypy = true,
+          dmypy = false,
           args = {
             "--sqlite-cache", -- Use an SQLite database to store the cache.
             "--cache-fine-grained", -- Include fine-grained dependency information in the cache for the mypy daemon.

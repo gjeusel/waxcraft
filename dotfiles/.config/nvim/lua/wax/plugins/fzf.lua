@@ -253,7 +253,7 @@ kmap("n", "<leader>fw", function()
     return home .. "/" .. path
   end, paths)
 
-  local cmd = ("rg --glob '!{.git,}/' --files %s"):format(table.concat(abs_paths, " "))
+  local cmd = ("rg --hidden --glob '!{.git,}/' --files %s"):format(table.concat(abs_paths, " "))
 
   return fzf_lua.fzf_exec(cmd, {
     prompt = "WaxFiles > ",

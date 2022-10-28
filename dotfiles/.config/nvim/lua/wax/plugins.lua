@@ -74,7 +74,10 @@ return require("packer").startup({
       "kylechui/nvim-surround",
       tag = "main",
       config = function()
-        safe_require("nvim-surround").setup({})
+        safe_require("nvim-surround").setup({
+          move_cursor = "begin",
+          indent_lines = function(start, stop) end,
+        })
       end,
     })
 
@@ -302,13 +305,13 @@ return require("packer").startup({
           after = { "nvim-treesitter" },
         },
         -- { "p00f/nvim-ts-rainbow" },
-        -- { -- add better behavior for '%'
-        --   "andymass/vim-matchup",
-        --   config = function()
-        --     safe_require("wax.plugins.vim-matchup")
-        --   end,
-        --   after = { "nvim-treesitter" },
-        -- },
+        { -- add better behavior for '%' (see matchpairs)
+          "andymass/vim-matchup",
+          config = function()
+            safe_require("wax.plugins.vim-matchup")
+          end,
+          after = { "nvim-treesitter" },
+        },
         { -- auto html tag
           "windwp/nvim-ts-autotag",
           branch = "main",

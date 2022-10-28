@@ -189,20 +189,6 @@ fo() {
   fi
 }
 
-# v - open files in ~/.viminfo
-v() {
-  local files
-  files="$(
-    grep '^>' "$HOME/.viminfo" \
-      | cut -c3- \
-      | while read -r line; do
-          [[ -f "${line/\~/$HOME}" ]] && echo "$line"
-        done \
-      | fzf -m -0 -1 -q "$*"
-  )"
-  "${EDITOR:-vim}" "${files/\~/$HOME}"
-}
-
 # fzf-locate-widget - paste selected entry from locate output into cmdline
 fzf-locate-widget() {
   local selected

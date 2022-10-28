@@ -34,9 +34,12 @@ vim.o.updatetime = 50 -- frequency to apply Autocmd events -> low for nvim-ts-co
 vim.api.nvim_exec([[set shortmess+=cs]], false) -- don't pass messages to ins-completion-menu
 vim.o.completeopt = "menuone,noselect"
 
+vim.o.matchpairs = "(:),{:},[:],<:>,':',\":\""
+-- vim.o.matchpairs = { "(:)", "{:}", "[:]", "<:>", "':'", '":"' } -- behavior of '%'
+
 vim.o.pyxversion = 3
 
-vim.o.spelllang = "en_us" -- activate vim spell checking
+vim.o.spellang = "en_us" -- activate vim spell checking
 vim.o.spelloptions = "camel,noplainbuffer"
 -- vim.o.nospell = true
 vim.api.nvim_exec([[set fillchars=vert:│]], false) -- box drawings heavy vertical (U+2503, UTF-8: E2 94 83)

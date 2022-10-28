@@ -25,6 +25,7 @@ ts.setup({
       "lua",
       "vim",
       "python",
+      "yaml",
       -- frontend
       "json",
       "vue",

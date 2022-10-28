@@ -12,4 +12,4 @@ alias t type(%*)
 
 alias osexit __import__("os")._exit(0)
 
-alias timeit __import__("fohn").timeit(%*)
+alias timeit __import__("fohn.timer").timeit(%*)
