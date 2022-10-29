@@ -96,7 +96,6 @@ function M.float_win()
 
   -- Handle auto-resize
   vim.api.nvim_create_autocmd("VimResized", {
-    pattern = "*",
     callback = resize,
     buffer = bufnr,
     desc = "Auto resize floating window",
