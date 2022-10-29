@@ -76,7 +76,8 @@ return require("packer").startup({
       config = function()
         safe_require("nvim-surround").setup({
           move_cursor = "begin",
-          indent_lines = function(start, stop) end,
+          -- move_cursor = "end",
+          -- indent_lines = function(start, stop) end,
         })
       end,
     })
@@ -176,13 +177,6 @@ return require("packer").startup({
       before = "lspconfig",
       config = function()
         safe_require("neodev").setup({})
-      end,
-    })
-
-    use({ -- Just Another Quickrun
-      "is0n/jaq-nvim",
-      config = function()
-        safe_require("wax.plugins.jaq-nvim")
       end,
     })
 

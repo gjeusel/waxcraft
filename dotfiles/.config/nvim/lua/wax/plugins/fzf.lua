@@ -207,6 +207,14 @@ end)
 -- Fzf Lua Builtin
 kmap("n", "<leader>fe", fzf_lua.builtin, { desc = "Fzf Lua Builtin" })
 
+kmap("n", "<leader>fh", function()
+  vim.cmd([[normal! "wyiw]])
+  local word = vim.fn.getreg('"')
+  vim.cmd("vert h " .. word)
+end, {
+  desc = "Vertical split help for word under cursor",
+})
+
 -- Command History: option-d
 kmap(
   { "n", "i", "c" },

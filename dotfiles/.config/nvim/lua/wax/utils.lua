@@ -1,42 +1,12 @@
+-------- Register Scratchpad --------
+
+local scratch = require("wax.scratch")
+
 -------- Debug utils --------
 
-local function open_scratch_win(content, opts)
-  opts = opts or {}
-  opts = vim.tbl_deep_extend("keep", opts or {}, { width = 0.6, height = 0.6 })
-
-  local bufnr = vim.api.nvim_create_buf(false, true)
-  local ui = vim.api.nvim_list_uis()[1]
-
-  local win_opts = {
-    relative = "editor",
-    anchor = "NW",
-    style = "minimal",
-    width = math.floor(opts.width * ui.width),
-    height = math.floor(opts.height * ui.height),
-    col = math.floor((0.5 - opts.width / 2) * ui.width),
-    row = math.floor((0.4 - opts.height / 2) * ui.height),
-    border = "rounded",
-    noautocmd = true,
-  }
-
-  local win = vim.api.nvim_open_win(bufnr, true, win_opts)
-
-  local close = function()
-    vim.api.nvim_win_close(win, true)
-    vim.api.nvim_buf_delete(bufnr, { force = true })
-  end
-  local mappings = {
-    q = close,
-  }
-  vim.api.nvim_create_autocmd("WinLeave", { callback = close, buffer = bufnr })
-
-  for k, v in pairs(mappings) do
-    if type(v) == "string" then
-      vim.api.nvim_buf_set_keymap(bufnr, "n", k, v, { nowait = true })
-    else
-      vim.api.nvim_buf_set_keymap(bufnr, "n", k, "", { callback = v, nowait = true })
-    end
-  end
+local function open_scratch_win(content)
+  local floatopts = scratch.float_win()
+  local bufnr = floatopts.bufnr
 
   -- format content
   local function sanitize_input(e)
@@ -72,25 +42,6 @@ function _G.dumpf(...)
   local content = vim.tbl_map(vim.inspect, { ... })
   open_scratch_win(content)
 end
-
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = "lua",
-  callback = function()
-    vim.keymap.set("v", "<c-a>", function()
-      -- waiting for lua "get_visual_selection"
-      -- https://github.com/neovim/neovim/pull/13896
-      vim.cmd([[normal! "y]])
-      local selection = vim.fn.getreg('"')
-
-      -- Pulled from luaeval function
-      local chunkheader = "local _A = select(1, ...) return "
-      local result = loadstring(chunkheader .. selection, "debug")()
-
-      local content = { selection, "", vim.inspect(result) }
-      open_scratch_win(content)
-    end)
-  end,
-})
 
 -------- Mocks --------
 
@@ -169,15 +120,15 @@ function _G.get_os_command_output(cmd, cwd)
   local command = table.remove(cmd, 1)
   local stderr = {}
   local stdout, ret = Job
-      :new({
-        command = command,
-        args = cmd,
-        cwd = cwd,
-        on_stderr = function(_, data)
-          table.insert(stderr, data)
-        end,
-      })
-      :sync()
+    :new({
+      command = command,
+      args = cmd,
+      cwd = cwd,
+      on_stderr = function(_, data)
+        table.insert(stderr, data)
+      end,
+    })
+    :sync()
   return stdout, ret, stderr
 end
 
