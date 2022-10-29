@@ -29,8 +29,8 @@ local config = {
       border = "rounded",
       winhl = "Normal",
       borderhl = "FloatBorder",
-      height = 0.7,
-      width = 0.7,
+      height = 0.8,
+      width = 0.8,
       x = 0.5,
       y = 0.5,
       winblend = 0,
@@ -104,7 +104,9 @@ function M.float_win()
   -- Handle auto closing on WinLeave
   local close = function()
     vim.api.nvim_win_close(win, true)
-    vim.api.nvim_buf_delete(bufnr, { force = true })
+    pcall(function()
+      vim.api.nvim_buf_delete(bufnr, { force = true })
+    end)
   end
   vim.api.nvim_create_autocmd("WinLeave", { callback = close, buffer = bufnr })
 
@@ -142,9 +144,9 @@ local function float(cmd)
 
   vim.fn.termopen(cmd, {
     detach = false,
-    on_exit = function()
-      log.warn("leaving this shit out")
-    end,
+    -- on_exit = function()
+    --   log.warn("leaving this shit out")
+    -- end,
   })
 
   if config.behavior.startinsert then
@@ -297,7 +299,7 @@ vim.api.nvim_create_autocmd("FileType", {
       -- waiting for lua "get_visual_selection"
       -- https://github.com/neovim/neovim/pull/13896
       vim.cmd([[normal! "ty]])
-      local selection = vim.fn.getreg('t')
+      local selection = vim.fn.getreg("t")
 
       -- -- Pulled from luaeval function
       -- local chunkheader = "local _A = select(1, ...) return "
