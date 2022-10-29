@@ -82,7 +82,7 @@ function M.float_win()
   local dim = dimensions(config)
 
   local bufnr = vim.api.nvim_create_buf(false, true)
-  local win = vim.api.nvim_open_win(M.buf, true, {
+  local win = vim.api.nvim_open_win(bufnr, true, {
     relative = "editor",
     anchor = "NW",
     style = "minimal",
@@ -283,14 +283,12 @@ function M.Jaq(type)
   run(type)
 end
 
-vim.api.nvim_create_user_command("Jaq", M.Jaq, { desc = "Run Jaq" })
-
 --------- Mapping ---------
 --
 vim.api.nvim_create_autocmd("FileType", {
   pattern = { "python", "lua" },
   callback = function()
-    vim.keymap.set("n", "<leader>fq", "<cmd>Jaq<cr>", { buffer = 0 })
+    vim.keymap.set("n", "<leader>fq", M.Jaq, { buffer = 0 })
   end,
 })
 vim.api.nvim_create_autocmd("FileType", {
