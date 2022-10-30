@@ -55,6 +55,9 @@ kmap({ "n", "v" }, "E", "ge", { nowait = true })
 -- Y to copy until the end of the line instead of the full line like yy
 kmap({ "n", "v" }, "Y", "yg_")
 
+-- dD to delete without putting in register
+kmap({ "n" }, "dD", '"_dd')
+
 -- I never use the substitute mode, so let's use it for search & replace on range:
 kmap("v", "s", ":s/")
 
@@ -81,7 +84,7 @@ kmap("n", "[w", "<cmd>ccl<cr>") -- quite quick fix list
 
 -- copy in register current buffer absolute filepath
 kmap("n", "<leader>fp", function()
-  local fname = vim.fn.expand('%:t')
+  local fname = vim.fn.expand("%:t")
   vim.fn.setreg("+", fname)
 end)
 kmap("n", "<leader>fP", function()

@@ -139,16 +139,16 @@ alias meteo="curl https://v2.wttr.in/brussels"
 
 compip() {
   # LSP
-  pip install -U python-lsp-server[rope,flake8] python-lsp-black pyls-isort
+  pip install -U python-lsp-server[rope] python-lsp-black pyls-isort ruff
   pip install --editable ~/src/pylsp-mypy
 
-  # pytest:
-  pip install -U pdbpp # pytest pytest-xdist pytest-cov pytest-flakes
+  # # pytest:
+  # pip install -U pdbpp # pytest pytest-xdist pytest-cov pytest-flakes
 
-  # Others
-  pip install -U pip
-  pip install -U pgcli tmuxp
-  pip install -U ptpython
+  # # Others
+  # pip install -U pip
+  # pip install -U pgcli tmuxp
+  # pip install -U ptpython
 }
 
 # https://docs.npmjs.com/getting-started/fixing-npm-permissions

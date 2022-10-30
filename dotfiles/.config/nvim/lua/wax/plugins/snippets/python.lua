@@ -9,26 +9,34 @@ return {
   s("ipandas", { t("import pandas as pd") }),
   s("inumpy", { t("import numpy as np") }),
   s("ipath", { t("from pathlib import Path") }),
-  s("isa", { t("import sqlalchemy as sa") }),
+  -- s("isa", { t("import sqlalchemy as sa") }),
+  s(
+    "istruct",
+    fmt(
+      [[
+        import structlog
+        logger = structlog.getLogger(__name__)
+      ]],
+      {}
+    )
+  ),
   -- annotations
   s("iannot", { t("from __future__ import annotations") }),
-  s("itype", { t("from typing import TYPE_CHECKING, Any, Optional") }),
-  s("iany", { t("from typing import Any") }),
-  s("iopt", { t("from typing import Optional") }),
   -- debugger
   -- s("iforkedpdb", { t('__import__("venturi").utils.forked_pdb.ForkedPdb().set_trace()') }),
   s("iforkedpdb", { t('__import__("dagster").utils.forked_pdb.ForkedPdb().set_trace()') }),
   -- tests
-  s("pyraises", {
+  s(
+    "pyraises",
     fmt(
       [[
         with pytest.raises({exc}, match=match):
-            {0}
+          {0}
       ]],
       {
         exc = i(1, ""),
         [0] = i(0, ""),
       }
-    ),
-  }),
+    )
+  ),
 }
