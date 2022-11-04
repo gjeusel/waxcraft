@@ -29,6 +29,7 @@ return {
   filtypes = filetypes,
   settings = {
     tailwindCSS = {
+      validate = true,
       emmetCompletions = true,
     },
   },

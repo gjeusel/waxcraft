@@ -48,9 +48,12 @@ kmap("n", "<C-s>", ":w<CR>")
 
 -- remap motions
 kmap({ "n", "v" }, "w", "w", { nowait = true })
-kmap({ "n", "v" }, "W", "b", { nowait = true })
+kmap({ "n", "v" }, "W", "b", { nowait = true, remap = false })
+kmap({ "n", "v" }, "gw", "W", { nowait = true, remap = false})
+
 kmap({ "n", "v" }, "e", "e", { nowait = true })
-kmap({ "n", "v" }, "E", "ge", { nowait = true })
+kmap({ "n", "v" }, "E", "ge", { nowait = true, remap = false })
+kmap({ "n", "v" }, "ge", "E", { nowait = true, remap = false })
 
 -- Y to copy until the end of the line instead of the full line like yy
 kmap({ "n", "v" }, "Y", "yg_")

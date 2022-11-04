@@ -10,7 +10,7 @@ local function from_python_env(params)
   local resolved = s.get_cache(params.bufnr, params.command)
   if resolved then
     if resolved.command then
-      log:debug(
+      log.debug(
         string.format(
           "Using cached value [%s] as the resolved command for [%s]",
           resolved.command,
@@ -86,25 +86,34 @@ local ruff = h.make_builtin({
   generator_opts = {
     command = "ruff",
     args = {
-      "-n",
+      "--exit-zero",
+      "--no-cache",
+      "--stdin-filename",
       "$FILENAME",
+      "-",
     },
     format = "line",
     check_exit_code = function(code)
       return code == 0
     end,
-    to_stdin = false,
-    from_stderr = true,
-    to_temp_file = true,
+    to_stdin = true,
+    ignore_stderr = true,
     on_output = h.diagnostics.from_pattern(
       [[(%d+):(%d+): ((%u)%w+) (.*)]],
       { "row", "col", "code", "severity", "message" },
       {
         adapters = { ruff_custom_end_col },
         severities = {
-          E = h.diagnostics.severities["error"],
-          F = h.diagnostics.severities["warning"],
-          R = h.diagnostics.severities["error"],
+          E = h.diagnostics.severities["error"], -- pycodestyle errors
+          W = h.diagnostics.severities["warning"], -- pycodestyle warnings
+          F = h.diagnostics.severities["information"], -- pyflakes
+          A = h.diagnostics.severities["information"], -- flake8-builtins
+          B = h.diagnostics.severities["warning"], -- flake8-bugbear
+          C = h.diagnostics.severities["warning"], -- flake8-comprehensions
+          T = h.diagnostics.severities["information"], -- flake8-print
+          U = h.diagnostics.severities["information"], -- pyupgrade
+          D = h.diagnostics.severities["information"], -- pydocstyle
+          M = h.diagnostics.severities["information"], -- Meta
         },
       }
     ),
@@ -120,48 +129,11 @@ local mypy_overrides = {
   },
 }
 
-local mypy_diagnostics = builtins.diagnostics.mypy.with({
-  method = methods.internal.DIAGNOSTICS_ON_SAVE,
-  command = "mypy",
-  dynamic_command = from_python_env,
-  args = function(params)
-    return {
-      "--sqlite-cache",
-      "--cache-fine-grained",
-      --
-      "--no-color-output",
-      "--show-column-numbers",
-      "--show-error-codes",
-      "--hide-error-context",
-      "--no-error-summary",
-      "--show-absolute-path",
-      "--no-pretty",
-      -- "--shadow-file",
-      -- params.bufname,
-      -- params.temp_path,
-      params.bufname,
-    }
-  end,
-  on_output = h.diagnostics.from_patterns({
-    { -- case with column given
-      pattern = "([^:]+):(%d+):(%d+): (%a+): (.*)  %[([%a-]+)%]",
-      groups = { "filename", "row", "col", "severity", "message", "code" },
-      overrides = mypy_overrides,
-    },
-    { -- case with missing column
-      pattern = "([^:]+):(%d+): (%a+): (.*)  %[([%a-]+)%]",
-      groups = { "filename", "row", "severity", "message", "code" },
-      overrides = mypy_overrides,
-    },
-  }),
-  timeout = 1 * 60 * 1000, -- 5 min
-})
-
-local flake8_diagnostics = builtins.diagnostics.flake8.with({
-  method = methods.internal.DIAGNOSTICS_ON_SAVE,
-  command = "flake8",
-  dynamic_command = from_python_env,
-})
+-- local flake8_diagnostics = builtins.diagnostics.flake8.with({
+--   method = methods.internal.DIAGNOSTICS_ON_SAVE,
+--   command = "flake8",
+--   dynamic_command = from_python_env,
+-- })
 
 local ruff_diagnostics = ruff.with({
   method = methods.internal.DIAGNOSTICS,
@@ -179,10 +151,8 @@ local sources = {
     args = {
       "--fast",
       "--quiet",
-      -- only available since black 21.5b0
-      -- https://github.com/jose-elias-alvarez/null-ls.nvim/commit/a31cafefaf25a0125d063f2a1ee315953c00d796
-      -- "--stdin-filename",
-      -- "$FILENAME",
+      "--stdin-filename",
+      "$FILENAME",
       "-",
     },
   }),
@@ -235,13 +205,15 @@ local sources = {
 
 if vim.fn.executable("ruff") == 1 then
   table.insert(sources, ruff_diagnostics)
-else
-  table.insert(sources, flake8_diagnostics)
+  -- elseif vim.fn.executable("flake8") == 1 then
+  --   table.insert(sources, flake8_diagnostics)
 end
 
 require("null-ls").setup({
   debug = waxopts.loglevel == "debug",
   diagnostics_format = "(#{s}) #{c}: #{m}",
+  root_dir = find_root_dir,
+  update_in_insert = false,
   should_attach = function(bufnr)
     return not is_big_file(bufnr)
     -- return not vim.api.nvim_buf_get_name(bufnr):match("^diffview://")

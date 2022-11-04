@@ -25,7 +25,7 @@ ts.setup({
       "lua",
       "vim",
       "python",
-      "yaml",
+      -- "yaml",
       -- frontend
       "json",
       "vue",
@@ -36,7 +36,7 @@ ts.setup({
     -- Generic:
     "bash",
     "json",
-    "yaml",
+    -- "yaml",
     "lua",
     "ql",
     "query",

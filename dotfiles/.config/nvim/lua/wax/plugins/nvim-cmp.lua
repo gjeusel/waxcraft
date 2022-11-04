@@ -1,13 +1,23 @@
 local cmp = require("cmp")
 local lspkind = require("lspkind")
 
+local luasnip = safe_require("luasnip")
+
 local t = function(str)
   return vim.api.nvim_replace_termcodes(str, true, true, true)
 end
 
+local has_words_before = function()
+  local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+  return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]
+    :sub(col, col)
+    :match("%s") == nil
+end
 local cycle_forward = function(fallback)
   if cmp.visible() then
     cmp.select_next_item({ behavior = cmp.SelectBehavior.Inserts })
+  elseif has_words_before() then
+    cmp.complete()
   else
     fallback()
   end
@@ -35,7 +45,7 @@ cmp.setup({
   },
   snippet = {
     expand = function(args)
-      require("luasnip").lsp_expand(args.body)
+      luasnip.lsp_expand(args.body)
     end,
   },
   mapping = {
@@ -61,6 +71,7 @@ cmp.setup({
     { name = "nvim_lua" },
     { name = "luasnip", max_item_count = 2 },
     { name = "nvim_lsp", max_item_count = 5 },
+    { name = "rg", keyword_length = 3, max_item_count = 5 },
     -- { name = "nvim_lsp_signature_help" },
     { -- buffer
       name = "buffer",
@@ -81,30 +92,29 @@ cmp.setup({
         -- end,
       },
     },
-    { name = "rg", keyword_length = 5, max_item_count = 5 },
     -- { name = "copilot", max_item_count = 3, keyword_length = 5 },
     { name = "path" },
     -- { name = "treesitter" },
   },
-  -- sorting = {
-  --   priority_weight = 10,
-  --   comparators = {
-  --     -- require("copilot_cmp.comparators").prioritize,
-  --     -- require("copilot_cmp.comparators").score,
+  sorting = {
+    priority_weight = 5,
+    comparators = {
+      -- require("copilot_cmp.comparators").prioritize,
+      -- require("copilot_cmp.comparators").score,
 
-  --     -- Below is the default comparitor list and order for nvim-cmp
-  --     cmp.config.compare.offset,
-  --     -- cmp.config.compare.scopes, --this is commented in nvim-cmp too
-  --     cmp.config.compare.exact,
-  --     cmp.config.compare.score,
-  --     cmp.config.compare.recently_used,
-  --     cmp.config.compare.locality,
-  --     cmp.config.compare.kind,
-  --     cmp.config.compare.sort_text,
-  --     cmp.config.compare.length,
-  --     cmp.config.compare.order,
-  --   },
-  -- },
+      -- Below is the default comparitor list and order for nvim-cmp
+      cmp.config.compare.offset,
+      -- cmp.config.compare.scopes, --this is commented in nvim-cmp too
+      cmp.config.compare.exact,
+      cmp.config.compare.score,
+      cmp.config.compare.recently_used,
+      cmp.config.compare.locality,
+      cmp.config.compare.kind,
+      cmp.config.compare.sort_text,
+      cmp.config.compare.length,
+      cmp.config.compare.order,
+    },
+  },
   formatting = {
     format = function(entry, vim_item)
       -- Special case of copilot

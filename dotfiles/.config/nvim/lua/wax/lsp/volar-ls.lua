@@ -11,10 +11,10 @@ local init_options = {
 
 return {
   -- https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md#volar
-  on_attach = function(client, _)
-    -- formatting is done by prettier and eslint
-    client.server_capabilities.document_formatting = false
-  end,
+  -- on_attach = function(client, _)
+  --   -- formatting is done by prettier and eslint
+  --   client.server_capabilities.document_formatting = false
+  -- end,
   docs = {
     package_json = "https://github.com/johnsoncodehk/volar/blob/5496c1ecc0ae6207d6fa7da745f047c44c32db81/extensions/vscode-vue-language-features/package.json",
   },
@@ -22,7 +22,7 @@ return {
     volar = {
       autoCompleteRefs = true,
       codelens = {},
-      format = {},
+      -- format = {},
       completion = {
         preferredTagNameCase = "auto-pascal",
         preferredAttrNameCase = "auto-pascal",
