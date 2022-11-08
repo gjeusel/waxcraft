@@ -1,12 +1,6 @@
-import asyncio
 import importlib
-import json
 import logging
-import os
-import os.path as osp
 import sys
-from collections import defaultdict
-from datetime import datetime, timedelta
 from pathlib import Path
 from pprint import pprint
 
@@ -20,29 +14,23 @@ except ImportError:
     pass
 
 
-def setup_repl_logs():
-    logging.basicConfig(
-        format="%(asctime)s %(levelname)s:%(message)s",
-        level=logging.INFO,
-        datefmt="%I:%M:%S",
-    )
+# Setup logs for prompt
 
-    logroot = logging.getLogger("")
-    logroot.setLevel(logging.INFO)
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s:%(message)s",
+    level=logging.INFO,
+    datefmt="%I:%M:%S",
+)
 
-    for lib in ("parso.python.diff", "parso.cache", "parso.cache.pickle"):
-        logging.getLogger(lib).disabled = True
+logroot = logging.getLogger("")
+logroot.setLevel(logging.INFO)
 
-    warning_libs = ("requests", "urllib3", "parso", "diff", "pickle", "cache")
-    for lib in warning_libs:
-        logging.getLogger(lib).setLevel(logging.WARNING)
+for lib in ("parso.python.diff", "parso.cache", "parso.cache.pickle"):
+    logging.getLogger(lib).disabled = True
 
-    # error_libs = ("pint",)
-    # for lib in error_libs:
-    #     logging.getLogger(lib).setLevel(logging.ERROR)
-
-
-setup_repl_logs()
+warning_libs = ("requests", "urllib3", "parso", "diff", "pickle", "cache")
+for lib in warning_libs:
+    logging.getLogger(lib).setLevel(logging.WARNING)
 
 
 try:
@@ -122,10 +110,8 @@ except Exception:
 imports = (
     "requests",
     "flask",
-    # ("pdops", "arkolor.pdops"),
     # ("sa", "sqlalchemy"),
-    # "sqlalchemy.orm",  # else sa.orm not available
-    # ("m", "zefire.models"),
+    ("debug", "devtools.debug"),
 )
 for pkg in imports:
     if isinstance(pkg, (tuple, list)):

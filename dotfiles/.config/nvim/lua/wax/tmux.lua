@@ -56,6 +56,11 @@ function M.tslime_auto_select_bottom_pane()
     end
   end)
 
+  if #panes == 0 then
+    -- not in tmux
+    return
+  end
+
   local pane = panes[1]
 
   if pane["current_cmd"] == "zsh" then

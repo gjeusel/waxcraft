@@ -97,17 +97,16 @@ cmp.setup({
     -- { name = "treesitter" },
   },
   sorting = {
-    priority_weight = 5,
+    priority_weight = 1000,
     comparators = {
       -- require("copilot_cmp.comparators").prioritize,
       -- require("copilot_cmp.comparators").score,
 
-      -- Below is the default comparitor list and order for nvim-cmp
       cmp.config.compare.offset,
+      cmp.config.compare.recently_used,
+      cmp.config.compare.score,
       -- cmp.config.compare.scopes, --this is commented in nvim-cmp too
       cmp.config.compare.exact,
-      cmp.config.compare.score,
-      cmp.config.compare.recently_used,
       cmp.config.compare.locality,
       cmp.config.compare.kind,
       cmp.config.compare.sort_text,

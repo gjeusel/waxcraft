@@ -26,7 +26,7 @@ vim.o.hidden = true -- Allow backgrounding buffers without writin them, and reme
 vim.o.splitright = true -- split at the right of current buffer (left default behaviour)
 vim.o.splitbelow = true -- split at the below of current buffer (top default behaviour)
 vim.o.autochdir = true -- working directory is always the same as the file you are editing
-vim.o.textwidth = 200 -- avoid auto line return while typing
+vim.o.textwidth = 0 -- avoid auto line return while typing
 
 vim.o.backup = true -- Backups are nice ...
 
