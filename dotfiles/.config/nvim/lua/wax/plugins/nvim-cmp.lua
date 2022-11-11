@@ -9,9 +9,8 @@ end
 
 local has_words_before = function()
   local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-  return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]
-    :sub(col, col)
-    :match("%s") == nil
+  return col ~= 0
+    and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
 end
 local cycle_forward = function(fallback)
   if cmp.visible() then
@@ -37,6 +36,14 @@ local control_c_close = function(fallback)
   else
     fallback()
   end
+end
+
+local function get_visible_buffers()
+  local bufs = {}
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    bufs[vim.api.nvim_win_get_buf(win)] = true
+  end
+  return vim.tbl_keys(bufs)
 end
 
 cmp.setup({
@@ -71,27 +78,22 @@ cmp.setup({
     { name = "nvim_lua" },
     { name = "luasnip", max_item_count = 2 },
     { name = "nvim_lsp", max_item_count = 5 },
-    { name = "rg", keyword_length = 3, max_item_count = 5 },
-    -- { name = "nvim_lsp_signature_help" },
+    {
+      name = "rg",
+      keyword_length = 3,
+      max_item_count = 5,
+      options = {
+        -- only trigger rg if find a git workspace
+        cwd = find_root_dir,
+      },
+    },
     { -- buffer
       name = "buffer",
       keyword_length = 3,
       max_item_count = 5,
-      options = {
-        -- Complete with all visible buffers:
-        get_bufnrs = function()
-          local bufs = {}
-          for _, win in ipairs(vim.api.nvim_list_wins()) do
-            bufs[vim.api.nvim_win_get_buf(win)] = true
-          end
-          return vim.tbl_keys(bufs)
-        end,
-        -- -- Complete from all buffers:
-        -- get_bufnrs = function()
-        --   return vim.api.nvim_list_bufs()
-        -- end,
-      },
+      options = { get_bufnrs = get_visible_buffers },
     },
+    -- { name = "nvim_lsp_signature_help" },
     -- { name = "copilot", max_item_count = 3, keyword_length = 5 },
     { name = "path" },
     -- { name = "treesitter" },
