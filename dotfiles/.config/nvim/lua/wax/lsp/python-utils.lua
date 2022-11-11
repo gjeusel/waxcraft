@@ -19,12 +19,8 @@ M.find_root_dir = find_root_dir_fn({
 M.basepath_poetry_venv = os.getenv("HOME") .. "/Library/Caches/pypoetry/virtualenvs" or ""
 
 if os.getenv("CONDA_EXE") then
-  M.basepath_conda_venv = Path
-    :new(os.getenv("CONDA_EXE"))
-    :parent()
-    :parent()
-    :joinpath("envs")
-    :absolute()
+  M.basepath_conda_venv =
+    Path:new(os.getenv("CONDA_EXE")):parent():parent():joinpath("envs"):absolute()
 else
   M.basepath_conda_venv = ""
 end

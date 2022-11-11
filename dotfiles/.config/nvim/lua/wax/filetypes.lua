@@ -5,7 +5,7 @@ vim.filetype.add({
     ["conf"] = "config",
     ["nix"] = "nix",
 
-    ["plist"] = "xml",  -- macos PropertyList files
+    ["plist"] = "xml", -- macos PropertyList files
 
     -- frontend
     ["ts"] = "typescript",

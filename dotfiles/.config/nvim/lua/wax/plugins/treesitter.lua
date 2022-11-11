@@ -143,7 +143,7 @@ ts.setup({
 
   -- 'yioneko/nvim-yati'
   yati = {
-    disable = { "python" },  -- this disable nvim-treesitter builtin 'indent' for python
+    disable = { "python" }, -- this disable nvim-treesitter builtin 'indent' for python
     enable = true,
     default_lazy = true,
     default_fallback = "auto",

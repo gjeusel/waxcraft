@@ -22,7 +22,7 @@ local fold_fmt_handler = function(virtText, lnum, endLnum, width, truncate)
     local chunkText = chunk[1]
     local chunkWidth = vim.fn.strdisplaywidth(chunkText)
     if targetWidth > curWidth + chunkWidth then
-      table.insert(newVirtText, {chunkText, hlGroup})
+      table.insert(newVirtText, { chunkText, hlGroup })
       -- table.insert(newVirtText, chunk)
     else
       chunkText = truncate(chunkText, targetWidth - curWidth)

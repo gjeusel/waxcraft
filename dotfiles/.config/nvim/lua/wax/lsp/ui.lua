@@ -41,10 +41,8 @@ local float_win_opts = {
   style = "minimal",
 }
 
-vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
-  vim.lsp.handlers.hover,
-  vim.tbl_extend("keep", float_win_opts, { focusable = true })
-)
+vim.lsp.handlers["textDocument/hover"] =
+  vim.lsp.with(vim.lsp.handlers.hover, vim.tbl_extend("keep", float_win_opts, { focusable = true }))
 
 vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
   vim.lsp.handlers.signature_help,

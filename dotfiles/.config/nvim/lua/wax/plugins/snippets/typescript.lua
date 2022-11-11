@@ -14,7 +14,7 @@ return {
   s("cw", { t("console.warn("), i(1), t(")") }),
   s("ce", { t("console.error("), i(1), t(")") }),
 
-  s("cjson", { t("console.log(JSON.stringify("),i(1), t("))")}),
+  s("cjson", { t("console.log(JSON.stringify("), i(1), t("))") }),
 
   -- Import snippets
   s("import", fmt('import { [2] } from "[1]"', { i(1, ""), i(2, "") }, { delimiters = "[]" })),

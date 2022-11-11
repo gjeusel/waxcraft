@@ -40,14 +40,13 @@ local function resolve_package(lspconfig_server_name)
   local Optional = require("mason-core.optional")
   local server_mapping = require("mason-lspconfig.mappings.server")
 
-  return Optional.of_nilable(server_mapping.lspconfig_to_package[lspconfig_server_name]):map(
-    function(package_name)
+  return Optional.of_nilable(server_mapping.lspconfig_to_package[lspconfig_server_name])
+    :map(function(package_name)
       local ok, pkg = pcall(registry.get_package, package_name)
       if ok then
         return pkg
       end
-    end
-  )
+    end)
 end
 
 ---@param global_lsp_settings table @The global lspconfig server configuration.
@@ -56,10 +55,8 @@ function M.setup_servers(global_lsp_settings)
 
   for server_name, _ in pairs(waxopts.lsp._servers) do
     -- Re-construct full settings
-    local custom_settings = get_custom_settings_for_server(
-      server_name,
-      global_lsp_settings.on_attach
-    )
+    local custom_settings =
+      get_custom_settings_for_server(server_name, global_lsp_settings.on_attach)
     local settings = vim.tbl_extend("keep", custom_settings, global_lsp_settings)
 
     -- Advertise capabilities to cmp_nvim_lsp

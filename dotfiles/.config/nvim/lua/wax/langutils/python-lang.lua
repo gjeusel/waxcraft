@@ -23,7 +23,6 @@ end
 
 local opts = { poetry = poetry, conda = conda }
 
-
 -- TODO: finish it from getting logic from python-utils
 
 local find_root_dir = find_root_dir_fn({
