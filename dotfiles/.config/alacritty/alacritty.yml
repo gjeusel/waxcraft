@@ -1,101 +1,34 @@
-# Configuration for Alacritty, the GPU enhanced terminal emulator
+# Config Skeleton:
+# https://github.com/alacritty/alacritty/blob/master/alacritty.yml
 
-# Any items in the `env` entry below will be added as
-# environment variables. Some entries may override variables
-# set by alacritty it self.
-env:
-  TERM: xterm-256color
+live_config_reload: true
 
 window:
-  #dimensions:
-  #  columns: 160
-  #  lines: 48
-  padding:
-    x: 8
-    y: 2
-  decorations: 'none'
+  decorations: buttonless
+  opacity: 0.9
+  # startup_mode: SimpleFullscreen
+  # padding:
+  #   x: 10
+  #   y: 8
 
 font:
-  size: 13.0
+  size: 19.0
+  builtin_box_drawing: true
+  # offset:
+  #   x: 1
+  #   y: 2
   normal:
-    family: 'Hack Nerd Font'
-  bold:
-    family: 'Hack Nerd Font'
-    style: 'Regular'
-  italic:
-    family: 'Hack Nerd Font'
-  bold_italic:
-    family: 'Hack Nerd Font'
-    style: 'Regular'
-
-  # Offset is the extra space around each character. offset.y can be thought of
-  # as modifying the linespacing, and offset.x as modifying the letter spacing.
-  offset:
-    x: 1
-    y: 0
-
-  ### OS X only: use thin stroke font rendering. Thin strokes are suitable
-  ### for retina displays, but for non-retina you probably want this set to
-  ### false.
-  #use_thin_strokes: true
-
-scrolling:
-  # Maximum number of lines in the scrollback buffer.
-  # Specifying '0' will disable scrolling.
-  history: 100000
-
-  # Number of lines the viewport will move for every line scrolled when
-  # scrollback is enabled (history > 0).
-  multiplier: 3
-
-  # Scroll to the bottom when new text is written to the terminal.
-  #auto_scroll: true
-
-debug:
-  # Should display the render timer
-  render_timer: false
+    family: Consolas
+    style: Regular
 
 mouse:
   hide_when_typing: true
 
-tabspaces: 4
-
-selection:
-  #semantic_escape_chars: ",│`|:\"' ()[]{}<>\t"
-  save_to_clipboard: true
-
-background_opacity: 0.96
-
-# Colors (Gruvbox dark)
-colors:
-  # Default colors
-  primary:
-    #hard contrast: background = '0x1d2021'
-    background: '0x282828'
-    #soft contrast: background = '0x32302f'
-    foreground: '0xebdbb2'
-
-  # Normal colors
-  normal:
-    black:   '0x282828'
-    red:     '0xcc241d'
-    green:   '0x98971a'
-    yellow:  '0xd79921'
-    blue:    '0x458588'
-    magenta: '0xb16286'
-    cyan:    '0x689d6a'
-    white:   '0xa89984'
-
-  # Bright colors
-  bright:
-    black:   '0x928374'
-    red:     '0xfb4934'
-    green:   '0xb8bb26'
-    yellow:  '0xfabd2f'
-    blue:    '0x83a598'
-    magenta: '0xd3869b'
-    cyan:    '0x8ec07c'
-    white:   '0xebdbb2'
+cursor:
+  thickness: 0.1
+  style:
+    shape: Block
+    blinking: Never
 
 # To find escape sequences run `xxd -c1`
 # Example:
@@ -107,16 +40,69 @@ colors:
 # Which becomes `\x1b\x64`
 
 key_bindings:
-  # https://github.com/alacritty/alacritty/issues/1359  tmux prefix on Ctrl-q
-  - { key: Q, mods: Control, chars: "\x11"  }
+  - { key: N, mods: Command, action: SpawnNewInstance }
+  - { key: Space, mods: Alt, chars: " " }
+  - { key: Back, mods: Super, chars: "\x15" } # delete word/line
+  - { key: Left, mods: Alt, chars: "\x1bb" } # one word left
+  - { key: Right, mods: Alt, chars: "\x1bf" } # one word right
+  - { key: Left, mods: Command, chars: "\x1bOH", mode: AppCursor } # Home
+  - { key: Right, mods: Command, chars: "\x1bOF", mode: AppCursor } # End
 
-  # auto-suggest complete
-  - { key: Space, mods: Control, chars: "\x00" }
+# Colors (Gruvbox dark)
+colors:
+  primary:
+    foreground: "#ecdbb2"
+    background: "#252525"
+  cursor:
+    cursor: "#7f7f7f"
+    text: "#ecdbb2"
+  selection:
+    background: "#413e3d"
+    text: "#c1c1c1"
+  normal:
+    black: "#353535"
+    red: "#d73925"
+    green: "#a8a521"
+    yellow: "#dfa82a"
+    blue: "#549699"
+    magenta: "#bf7897"
+    cyan: "#79aa7d"
+    white: "#b7a996"
+  bright:
+    black: "#a39586"
+    red: "#fe6142"
+    green: "#c4c431"
+    yellow: "#fcc73c"
+    blue: "#94b3a8"
+    magenta: "#dc9aab"
+    cyan: "#9dd08e"
+    white: "#efe1bf"
+  # indexed_colors:
+  #   - { index: 66, color: "#458588" }
+  #   - { index: 72, color: "#689d6a" }
+  #   - { index: 106, color: "#98971a" }
+  #   - { index: 108, color: "#8ec07c" }
+  #   - { index: 109, color: "#83a598" }
+  #   - { index: 124, color: "#cc241d" }
+  #   - { index: 132, color: "#b16286" }
+  #   - { index: 142, color: "#b8bb26" }
+  #   - { index: 166, color: "#d65d0e" }
+  #   - { index: 167, color: "#fb4934" }
+  #   - { index: 172, color: "#d79921" }
+  #   - { index: 175, color: "#d3869b" }
+  #   - { index: 208, color: "#fe8019" }
+  #   - { index: 214, color: "#fabd2f" }
+  #   - { index: 223, color: "#ebdbb2" }
+  #   - { index: 229, color: "#fbf1c7" }
+  #   - { index: 234, color: "#1d2021" }
+  #   - { index: 235, color: "#282828" }
+  #   - { index: 236, color: "#32302f" }
+  #   - { index: 237, color: "#3c3836" }
+  #   - { index: 239, color: "#504945" }
+  #   - { index: 241, color: "#665c54" }
+  #   - { index: 243, color: "#7c6f64" }
+  #   - { index: 245, color: "#928374" }
+  #   - { index: 246, color: "#a89984" }
+  #   - { index: 248, color: "#bdae93" }
+  #   - { index: 250, color: "#d5c4a1" }
 
-  # Repare Option MacosKey (ALT)
-  - { key: F,  mods: Alt,           chars: "\x1bf" }
-  - { key: B,  mods: Alt,           chars: "\x1bb" }
-  - { key: D,  mods: Alt,           chars: "\x1bd"                        }
-
-  # Fix on Command key
-  - { key: N,        mods: Command, command: { program: "open", args: ["-nb", "io.alacritty"] } }
