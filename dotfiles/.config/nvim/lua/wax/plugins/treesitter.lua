@@ -19,19 +19,20 @@ ts.setup({
       node_decremental = "grm",
     },
   },
-  indent = {
-    enable = true,
-    disable = {
-      "lua",
-      "vim",
-      "python",
-      -- "yaml",
-      -- frontend
-      "json",
-      "vue",
-      "typescript",
-    },
-  },
+  -- indent = {
+  --   enable = true,
+  --   disable = {
+  --     "lua",
+  --     "vim",
+  --     -- "python",
+  --     -- "yaml",
+  --     -- frontend
+  --     "json",
+  --     "vue",
+  --     "typescript",
+  --   },
+  -- },
+  indent = false,
   ensure_installed = { -- one of 'all', 'language' or a list of languages
     -- Generic:
     "bash",
@@ -139,6 +140,14 @@ ts.setup({
 
   -- 'windwp/nvim-autopairs'
   autopairs = { enable = true },
+
+  -- 'yioneko/nvim-yati'
+  yati = {
+    disable = { "python" },  -- this disable nvim-treesitter builtin 'indent' for python
+    enable = true,
+    default_lazy = true,
+    default_fallback = "auto",
+  },
 
   -- 'andymass/vim-matchup'
   matchup = {

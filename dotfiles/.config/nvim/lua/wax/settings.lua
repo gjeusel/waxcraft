@@ -90,7 +90,7 @@ if vim.fn.has("mksession") == 1 then
   local viewdir = basedir .. "/view"
   vim.fn.mkdir(viewdir, "p")
   vim.o.viewdir = viewdir
-  vim.o.viewoptions = "cursor,folds,slash,unix"
+  vim.o.viewoptions = "cursor,slash,unix"
 end
 
 -- NetRW (https://shapeshed.com/vim-netrw/)

@@ -285,6 +285,7 @@ return require("packer").startup({
           "nvim-treesitter/nvim-treesitter-textobjects",
           after = { "nvim-treesitter" },
         },
+        { "yioneko/nvim-yati" }, -- fix python indent (https://github.com/nvim-treesitter/nvim-treesitter/issues/1136)
         { -- comment string update on context (vue -> html + typescript)
           "JoosepAlviste/nvim-ts-context-commentstring",
           ft = { "html", "vue", "typescriptreact" },

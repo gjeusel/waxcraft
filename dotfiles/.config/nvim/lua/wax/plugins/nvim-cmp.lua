@@ -102,10 +102,10 @@ cmp.setup({
       -- require("copilot_cmp.comparators").prioritize,
       -- require("copilot_cmp.comparators").score,
 
+      cmp.config.compare.score,
       cmp.config.compare.offset,
       cmp.config.compare.recently_used,
-      cmp.config.compare.score,
-      -- cmp.config.compare.scopes, --this is commented in nvim-cmp too
+      cmp.config.compare.scopes, --this is commented in nvim-cmp too
       cmp.config.compare.exact,
       cmp.config.compare.locality,
       cmp.config.compare.kind,

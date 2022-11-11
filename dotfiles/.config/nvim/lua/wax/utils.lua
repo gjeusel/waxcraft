@@ -195,7 +195,7 @@ function M.insert_new_line_in_current_buffer(str, opts)
 
   -- if treesitter available, might use it to correct corner cases:
   local has_treesitter = is_module_available("nvim-treesitter.indent")
-  if has_treesitter and n_space == 0 then
+  if has_treesitter then
     local ts_indent = require("nvim-treesitter.indent")
     n_space = ts_indent.get_indent(n_insert_line)
   end
