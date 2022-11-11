@@ -267,6 +267,13 @@ return require("packer").startup({
         safe_require("wax.plugins.fzf")
       end,
     })
+    use({ -- when fuzzy is boring, alternative to Harpoon
+      -- "cbochs/grapple.nvim",
+      "~/src/grapple.nvim",
+      config = function()
+        safe_require("wax.plugins.grapple")
+      end,
+    })
 
     --------- TreeSitter ---------
     use({ -- treesitter
