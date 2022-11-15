@@ -1,10 +1,10 @@
 local grapple = require("grapple")
-local scope = require("grapple.scope")
+-- local scope = require("grapple.scope")
 
 grapple.setup({
   ---@type "debug" | "info" | "warn" | "error"
-  -- log_level = waxopts.loglevel,
-  log_level = "debug",
+  log_level = waxopts.loglevel,
+  -- log_level = "debug",
 
   ---The scope used when creating, selecting, and deleting tags
   scope = function()
@@ -53,6 +53,8 @@ local map_opt_idx = {
 }
 for keymap, grapple_key in pairs(map_opt_idx) do
   vim.keymap.set({ "n", "i", "x" }, keymap, function()
-    grapple.select({ key = grapple_key })
+    if grapple.exists({ key = grapple_key }) then
+      grapple.select({ key = grapple_key })
+    end
   end)
 end
