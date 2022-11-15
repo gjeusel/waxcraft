@@ -20,7 +20,8 @@ local base_gruvbox_hls = {
   VertSplit = { ctermbg = nil, ctermfg = 248 },
   CursorLineNr = { ctermbg = nil },
   EndOfBuffer = { ctermbg = nil },
-  ColorColumn = { ctermbg = 236 },
+  -- ColorColumn = { ctermbg = 236 },
+  ColorColumn = { ctermbg = nil },
 
   -- Better diff views
   DiffAdd = { cterm = nil, ctermfg = "Green", ctermbg = nil },
