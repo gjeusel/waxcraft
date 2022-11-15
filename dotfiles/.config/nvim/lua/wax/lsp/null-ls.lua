@@ -82,6 +82,12 @@ local sources = {
   -- frontend
   -- builtins.formatting.rustywind, -- reorder tailwindcss classes
   -- builtins.diagnostics.tsc,
+  -- builtins.formatting.prettier.with({
+  --   method = methods.internal.RANGE_FORMATTING,
+  --   filetypes = {
+  --     "typescriptreact",
+  --   },
+  -- }),
   builtins.formatting.prettier.with({
     filetypes = {
       -- "javascript",
@@ -94,8 +100,8 @@ local sources = {
       "less",
       "html",
       -- done by json-ls
-      "json",
-      "jsonc",
+      -- "json",
+      -- "jsonc",
       "yaml",
       "markdown",
       "graphql",
@@ -105,6 +111,8 @@ local sources = {
   -- builtins.code_actions.eslint_d,
   builtins.diagnostics.eslint_d,
   builtins.formatting.eslint_d,
+  -- builtins.diagnostics.eslint,
+  -- builtins.formatting.eslint,
 }
 
 require("null-ls").setup({

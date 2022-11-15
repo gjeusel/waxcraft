@@ -123,8 +123,11 @@ vim.o.synmaxcol = 128
 -- vim.g.python_host_prog = os.getenv("HOME") .. "/opt/miniconda3/envs/nvim27/bin/python"
 vim.g.python3_host_prog = waxopts.python3
 
--- enable debug maybe
-vim.g.debug = waxopts.loglevel == "debug"
+-- enable debug maybe (neovim logfile is in $NVIM_LOG_FILE)
+-- vim.g.debug = waxopts.loglevel == "debug"
+vim.o.debug = "msg"
+-- vim.o.verbosefile = vim.fn.stdpath("cache") .. "/nvim-verbosefile.log"
+-- vim.o.verbose = 1
 
 --
 ------- Disable Some Builtins -------

@@ -36,7 +36,7 @@ ts.setup({
   ensure_installed = { -- one of 'all', 'language' or a list of languages
     -- Generic:
     "bash",
-    "json",
+    "jsonc",
     -- "yaml",
     "lua",
     "ql",

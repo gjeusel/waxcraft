@@ -1,5 +1,6 @@
 vim.filetype.add({
   extension = {
+    ["json"] = "jsonc",
     ["md"] = "markdown",
     ["txt"] = "sh",
     ["conf"] = "config",

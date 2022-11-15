@@ -1,12 +1,21 @@
 local grapple = require("grapple")
+local scope = require("grapple.scope")
 
 grapple.setup({
   ---@type "debug" | "info" | "warn" | "error"
-  log_level = waxopts.loglevel,
-  -- log_level = "debug",
+  -- log_level = waxopts.loglevel,
+  log_level = "debug",
 
   ---The scope used when creating, selecting, and deleting tags
   scope = function()
+    -- TODO: need ctx from scope (bufnr from which triggered)
+    -- local bufnr = vim.api.nvim_get_current_buf()
+    -- local filetype = vim.api.nvim_buf_get_option(bufnr, "filetype")
+    -- if vim.tbl_contains({ "startify" }, filetype) then
+    --   return scope.Scope.global
+    -- else
+    --   return find_root_dir(vim.fn.getcwd())
+    -- end
     return find_root_dir(vim.fn.getcwd())
   end,
 

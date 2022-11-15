@@ -8,7 +8,13 @@ if is_module_available("schemastore") then
 end
 
 return {
+  -- cmd = { "vscode-json-language-server", "--stdio" },
+  filetypes = { "json", "jsonc" },
+  init_options = { provideFormatter = true },
   settings = {
     json = json,
+    -- configure = {
+    --   allowComments = true,
+    -- },
   },
 }
