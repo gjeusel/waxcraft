@@ -69,6 +69,16 @@ function M.tslime_auto_select_bottom_pane()
   end
 end
 
+function M.get_current_window()
+  local cmd = { "tmux", "display-message", "-p", "#W" }
+  local res = get_os_command_output(cmd)
+  if #res >= 1 then
+    return { name = res[1] }
+  else
+    return { name = nil }
+  end
+end
+
 ---------- Experiment: custom run in pane ----------
 --
 

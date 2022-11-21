@@ -122,7 +122,7 @@ ts.setup({
     },
   },
 
-  -- 'JoosepAlviste/nvim-ts-context-commentstring'
+  -- 'JoosepAlviste/nvim-ts-context-commentstring' -- auto deduce comment string on context
   context_commentstring = {
     enable = true,
   },
@@ -138,10 +138,7 @@ ts.setup({
     -- termcolors = { "red", "green", "yellow", "blue" }, -- table of colour name strings
   },
 
-  -- 'windwp/nvim-autopairs'
-  autopairs = { enable = true },
-
-  -- 'yioneko/nvim-yati'
+  -- 'yioneko/nvim-yati' -- fix some indent issues
   yati = {
     disable = { "python" }, -- this disable nvim-treesitter builtin 'indent' for python
     enable = true,
@@ -149,13 +146,16 @@ ts.setup({
     default_fallback = "auto",
   },
 
-  -- 'andymass/vim-matchup'
+  -- 'windwp/nvim-autopairs'
+  autopairs = { enable = false },
+
+  -- 'andymass/vim-matchup' -- add more textobjects
   matchup = {
     enable = true,
     disable_virtual_text = true,
   },
 
-  -- 'windwp/nvim-ts-autotag'
+  -- 'windwp/nvim-ts-autotag'  -- auto close/rename html tags
   autotag = {
     enable = true,
   },

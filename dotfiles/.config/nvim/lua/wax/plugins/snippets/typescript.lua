@@ -15,9 +15,13 @@ return {
   s("ce", { t("console.error("), i(1), t(")") }),
 
   s("cjson", { t("console.log(JSON.stringify("), i(1), t("))") }),
+  s("pprint", { t("console.log(JSON.stringify(", i(1), t(", undefined, 4)")) }),
 
   -- Import snippets
   s("import", fmt('import { [2] } from "[1]"', { i(1, ""), i(2, "") }, { delimiters = "[]" })),
+
   s("ilodash", { t('import ld from "lodash"') }),
-  s("pprint", { t("console.log(JSON.stringify(", i(1), t(", undefined, 4)")) }),
+  s("iradash", { t('import * as R from "remeda"') }),
+  s("izod", { t('import { z } from "zod"') }),
+  s("idate-fns", { t('import * as dt from "date-fns"') }),
 }

@@ -52,10 +52,12 @@ return require("packer").startup({
       config = function()
         safe_require("wax.plugins.lightspeed")
       end,
+      disable = true,
     })
 
     use({ -- mini - (arround/inside improved)
       "echasnovski/mini.nvim",
+      -- disable = true, -- is buggy on html tags
       config = function()
         safe_require("mini.ai").setup({ search_method = "cover_or_nearest" })
       end,
@@ -77,7 +79,6 @@ return require("packer").startup({
         safe_require("nvim-surround").setup({
           move_cursor = "begin",
           -- move_cursor = "end",
-          -- indent_lines = function(start, stop) end,
         })
       end,
     })

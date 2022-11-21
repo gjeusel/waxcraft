@@ -16,7 +16,7 @@ local opts = { delimiters = "[]" }
 return {
   ----------- Solid -----------
   s(
-    "scomp",
+    "so-comp",
     fmt(
       [[
         import type { Component } from 'solid-js'

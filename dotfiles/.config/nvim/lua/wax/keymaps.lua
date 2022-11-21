@@ -1,5 +1,11 @@
 local kmap = vim.keymap.set
 
+-- Reload
+kmap("n", "<leader>fr", function()
+  -- reload snippets
+  require("wax.plugins.luasnip").reload()
+end)
+
 -- Fix common typos
 vim.cmd([[
     cnoreabbrev W! w!
