@@ -1,4 +1,4 @@
-vim.opt_local.foldmethod = "syntax"
+vim.opt_local.foldmethod = "indent"
 vim.opt_local.wrap = false
 
 vim.opt_local.shiftwidth = 2

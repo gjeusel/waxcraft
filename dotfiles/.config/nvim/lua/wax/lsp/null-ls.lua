@@ -80,6 +80,12 @@ local sources = {
   -- builtins.formatting.prismaFmt,
 
   -- frontend
+  builtins.formatting.djhtml.with({
+    filetypes = { "django", "jinja.html", "htmldjango" },
+    command = "djhtml",
+    args = { "--tabwidth", "2" },
+    dynamic_command = from_python_env,
+  }),
   -- builtins.formatting.rustywind, -- reorder tailwindcss classes
   -- builtins.diagnostics.tsc,
   -- builtins.formatting.prettier.with({
