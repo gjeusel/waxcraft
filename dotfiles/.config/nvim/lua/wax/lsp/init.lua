@@ -6,9 +6,10 @@ require("wax.lsp.ui")
 
 -- https://github.com/nvim-lua/lsp-status.nvim#all-together-now
 local lsp_status = safe_require("lsp-status")
--- lsp_status.register_progress() -- progress in done by fidget
+lsp_status.register_progress()
 lsp_status.config({
   current_function = false,
+  show_filename = false,
   indicator_separator = " ",
   component_separator = " | ",
   indicator_errors = "✗",
@@ -17,6 +18,7 @@ lsp_status.config({
   indicator_hint = "",
   indicator_ok = "", -- "",
   status_symbol = "",
+  update_interval = 100,
 })
 
 -- Mappings

@@ -180,10 +180,11 @@ end
 local M = {}
 
 function M.insert_new_line_in_current_buffer(str, opts)
+  local bufnr = 0 -- current buffer
   local default_opts = { delta = 1 }
   opts = vim.tbl_deep_extend("keep", opts or {}, default_opts)
 
-  local pos = vim.api.nvim_win_get_cursor(0)
+  local pos = vim.api.nvim_win_get_cursor(bufnr)
   local n_line = pos[1]
 
   local n_insert_line = n_line + opts.delta
@@ -191,11 +192,18 @@ function M.insert_new_line_in_current_buffer(str, opts)
   -- deduce indent for line:
   local n_space = vim.fn.indent(n_line)
 
-  -- if treesitter available, might use it to correct corner cases:
-  local has_treesitter = is_module_available("nvim-treesitter.indent")
-  if has_treesitter then
-    local ts_indent = require("nvim-treesitter.indent")
-    n_space = ts_indent.get_indent(n_insert_line)
+  -- special cases depending on filetype
+  local filetype = vim.api.nvim_buf_get_option(bufnr, "filetype")
+
+  if filetype == "python" then
+    n_space = vim.fn.GetPythonPEPIndent(n_insert_line)
+  else
+    -- if treesitter available, might use it to correct corner cases:
+    local has_treesitter = is_module_available("nvim-treesitter.indent")
+    if has_treesitter then
+      local ts_indent = require("nvim-treesitter.indent")
+      n_space = ts_indent.get_indent(n_insert_line)
+    end
   end
 
   local space = string.rep(" ", n_space)

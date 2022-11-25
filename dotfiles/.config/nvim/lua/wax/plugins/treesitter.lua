@@ -19,20 +19,19 @@ ts.setup({
       node_decremental = "grm",
     },
   },
-  -- indent = {
-  --   enable = true,
-  --   disable = {
-  --     "lua",
-  --     "vim",
-  --     -- "python",
-  --     -- "yaml",
-  --     -- frontend
-  --     "json",
-  --     "vue",
-  --     "typescript",
-  --   },
-  -- },
-  indent = false,
+  indent = {
+    enable = true,
+    disable = {
+      "lua",
+      "vim",
+      -- "yaml",
+      "python", -- we use "Vimjas/vim-python-pep8-indent"
+      -- frontend:
+      "json",
+      "vue",
+      "typescript",
+    },
+  },
   ensure_installed = { -- one of 'all', 'language' or a list of languages
     -- Generic:
     "bash",
@@ -137,17 +136,6 @@ ts.setup({
     termcolors = { 109, 108, "white" },
     -- termcolors = { "red", "green", "yellow", "blue" }, -- table of colour name strings
   },
-
-  -- 'yioneko/nvim-yati' -- fix some indent issues
-  yati = {
-    disable = { "python" }, -- this disable nvim-treesitter builtin 'indent' for python
-    enable = true,
-    default_lazy = true,
-    default_fallback = "auto",
-  },
-
-  -- 'windwp/nvim-autopairs'
-  autopairs = { enable = false },
 
   -- 'andymass/vim-matchup' -- add more textobjects
   matchup = {
