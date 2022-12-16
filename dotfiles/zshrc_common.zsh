@@ -1,6 +1,7 @@
 # _______ ZSH NOTES _______
 #
 # - [How to check if command exists](https://stackoverflow.com/a/39983422/17973851)
+# - [How to do conditions](https://zsh.sourceforge.io/Doc/Release/Conditional-Expressions.html)
 
 
 # Used by aliases
@@ -55,13 +56,9 @@ if type brew &>/dev/null; then
   FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
 fi
 
-# actually load compinit with optim on compilation (once per day):
+# load compinit
 autoload -Uz compinit
-if [[ -e ~/.zcompdump && ($(date +'%j') != $(stat -f '%Sm' -t '%j' ~/.zcompdump)) ]]; then
-  compinit
-else
-  compinit -C
-fi
+compinit -i -C
 
 # --- Fine tuning ---
 
@@ -117,16 +114,16 @@ source "$waxCraft_PATH/dotfiles/bindings.zsh"
 
 # _______ ZSH startup optims _______
 
-# RVM ( Ruby Versin Manager )
-rmv() {
-  if [ -f "$HOME/.rvm/scripts/rvm" ]; then
-    source /Users/jd5584/.rvm/scripts/rvm
-    rvm "$@"
-  else:
-    echo "rvm is not installed" >&2
-    return 1
-  fi
-}
+# # RVM ( Ruby Versin Manager )
+# rmv() {
+#   if [ -f "$HOME/.rvm/scripts/rvm" ]; then
+#     source $HOME/.rvm/scripts/rvm
+#     rvm "$@"
+#   else:
+#     echo "rvm is not installed" >&2
+#     return 1
+#   fi
+# }
 
 ## Only add in zsh history commnds that did not failed
 #zshaddhistory() { whence ${${(z)1}[1]} >| /dev/null || return 1 }
