@@ -31,22 +31,24 @@ setopt share_history
 
 # _______ ZSH Modules config _______
 
-# --- Edit Command Line ---
 autoload -U edit-command-line
 zle -N edit-command-line
+
+autoload -U select-word-style
+select-word-style bash
 
 # --- Autocompletion ---
 
 # versioned completions (docker + docker-compose):
-fpath=("$waxCraft_PATH/dotfiles/completions" $fpath)
+fpath+="$waxCraft_PATH/dotfiles/completions"
 
 # shell user completion:
-# fpath=("$HOME/.zfunc" $fpath)
 
 # create ~/.zfunc if missing
 if [[ ! -d $HOME/.zfunc ]]; then
   mkdir ~/.zfunc
 fi
+fpath+="$HOME/.zfunc"
 
 # auto generate kubectl completion if needed:
 if [[ (! -f $HOME/.zfunc/_kubectl) && (( $+commands[kubectl] ))]]; then
@@ -55,7 +57,7 @@ fi
 
 # brew and installed with brew completions:
 if type brew &>/dev/null; then
-  FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
+  fpath+="$(brew --prefix)/share/zsh/site-functions"
 fi
 
 # Notes:
@@ -79,6 +81,11 @@ compinit -i -C
 # compinit -C
 
 # --- Fine tuning ---
+# https://thevaluable.dev/zsh-completion-guide-examples/
+
+# enable cache:
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path "$HOME/.zcompcache"
 
 # Ignore these everywhere except for rm
 zstyle ':completion:*:*:*' ignored-patterns '(|*/)__pycache__' \
@@ -90,6 +97,8 @@ zstyle ':completion:*:rm:*' ignored-patterns '(|*/)*.egg-info'
 # https://github.com/ohmyzsh/ohmyzsh/issues/7348
 zstyle ':completion:*' accept-exact-dirs true
 
+# Ask for a menu instead of blindly cycling:
+zstyle ':completion:*' menu select
 
 # _______ Setups before plugin sourcing _______
 
@@ -129,19 +138,17 @@ fi
 # Source bindings (after source plugins so we got all widgets defined)
 source "$waxCraft_PATH/dotfiles/bindings.zsh"
 
+# _______ Fixes / Optims _______
 
-# _______ ZSH startup optims _______
+# https://github.com/b4b4r07/enhancd/issues/85
+__enhancd::filter::exists()
+{
+   local line
+   while read line
+   do
+       if [[ $line == $HOME/s3/* || -d $line ]]; then
+           echo "$line"
+       fi
+   done
+}
 
-# # RVM ( Ruby Versin Manager )
-# rmv() {
-#   if [ -f "$HOME/.rvm/scripts/rvm" ]; then
-#     source $HOME/.rvm/scripts/rvm
-#     rvm "$@"
-#   else:
-#     echo "rvm is not installed" >&2
-#     return 1
-#   fi
-# }
-
-## Only add in zsh history commnds that did not failed
-#zshaddhistory() { whence ${${(z)1}[1]} >| /dev/null || return 1 }
