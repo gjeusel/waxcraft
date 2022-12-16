@@ -1,12 +1,16 @@
+# _______ ZSH NOTES _______
+#
+# - [How to check if command exists](https://stackoverflow.com/a/39983422/17973851)
+
+
 # Used by aliases
 export waxCraft_PATH=${0:A:h:h}
+
 source "$waxCraft_PATH/dotfiles/envvar.sh"
 source "$waxCraft_PATH/dotfiles/fzf-extras.zsh"
 
-autoload -U edit-command-line
-zle -N edit-command-line
+# _______ ZSH Options _______
 
-# Some options settings:
 # History
 setopt appendhistory
 setopt inc_append_history
@@ -22,35 +26,45 @@ setopt share_history
 # don't nice background tasks
 #setopt no_bg_nice no_hup no_beep
 
+# _______ ZSH Modules config _______
+
+# --- Edit Command Line ---
+autoload -U edit-command-line
+zle -N edit-command-line
+
+# --- Autocompletion ---
+
+# versioned completions (docker + docker-compose):
 fpath=("$waxCraft_PATH/dotfiles/completions" $fpath)
+
+# shell user completion:
 fpath=("$HOME/.zfunc" $fpath)
 
+# create ~/.zfunc if missing
+if [[ ! -d $HOME/.zfunc ]]; then
+  mkdir ~/.zfunc
+fi
+
+# auto generate kubectl completion if needed:
+if [[ (! -f $HOME/.zfunc/_kubectl) && (( $+commands[kubectl] ))]]; then
+  kubectl completion zsh &> $HOME/.zfunc/_kubectl
+fi
+
+# brew and installed with brew completions:
+if type brew &>/dev/null; then
+  FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
+fi
+
+# actually load compinit with optim on compilation (once per day):
 autoload -Uz compinit
-# Check compinit cache once per day
-# if [ $(date +'%j') != $(date -r ~/.zcompdump +'%j') ]; then
-if [ $(date +'%j') != $(stat -f '%Sm' -t '%j' ~/.zcompdump) ]; then
+if [[ -e ~/.zcompdump && ($(date +'%j') != $(stat -f '%Sm' -t '%j' ~/.zcompdump)) ]]; then
   compinit
 else
   compinit -C
 fi
 
-# PLUGINS
-# Auto-download antibody binary
-if [ ! which gls >/dev/null 2>&1 ]; then
-  curl -sfL git.io/antibody | sh -s - -b /usr/local/bin
-fi
+# --- Fine tuning ---
 
-# Make sure to have binaries in PATH before sourcing antibody
-# else tmux is not yet available and it messes up iterm2 startup
-if [ -f  /opt/homebrew/bin/brew ]; then
-  eval "$(/opt/homebrew/bin/brew shellenv)"
-fi
-
-# Static load, when change of plugins run:
-# # antibody bundle < "$waxCraft_PATH/dotfiles/.zsh-plugins.txt" > ~/.zsh-plugins.sh
-source "$HOME/.zsh-plugins.sh"
-
-# AUTO COMPLETION
 # Ignore these everywhere except for rm
 zstyle ':completion:*:*:*' ignored-patterns '(|*/)__pycache__' \
     '(|*/)*.egg-info' '(*/)#lost+found'
@@ -61,6 +75,32 @@ zstyle ':completion:*:rm:*' ignored-patterns '(|*/)*.egg-info'
 # https://github.com/ohmyzsh/ohmyzsh/issues/7348
 zstyle ':completion:*' accept-exact-dirs true
 
+
+# _______ Setups before plugin sourcing _______
+
+# Make sure to have binaries in PATH before sourcing antibody
+# else tmux is not yet available and it messes up iterm2 startup
+if [ -f  /opt/homebrew/bin/brew ]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+
+# _______ ZSH Plugins _______
+#
+# https://getantidote.github.io/
+# brew install antidote
+
+if [[ (! -d ${ZDOTDIR:-~}/.antidote) && (( $+commands[git] )) ]]; then
+  git clone --depth=1 https://github.com/mattmc3/antidote.git ${ZDOTDIR:-~}/.antidote
+fi
+
+source ${ZDOTDIR:-~}/.antidote/antidote.zsh
+
+# # Static load, when change of plugins run:
+# antidote bundle < "$waxCraft_PATH/dotfiles/.zsh-plugins.txt" > ~/.zsh-plugins.zsh
+if [ -f ${ZDOTDIR:-~}/.zsh-plugins.zsh ]; then
+  source ${ZDOTDIR:-~}/.zsh-plugins.zsh
+fi
+
 # Auto install tpm (tmux plugin)
 #export TERM="tmux-256color"
 [ -n "$TMUX" ] && export TERM=screen-256color
@@ -69,10 +109,13 @@ if [ ! -e "$HOME/.tmux/plugins/tpm" ]; then
 fi
 
 
-# Source bindings
+# _______ Setups after plugin sourcing _______
+
+# Source bindings (after source plugins so we got all widgets defined)
 source "$waxCraft_PATH/dotfiles/bindings.zsh"
 
-#### ZSH STARTUP OPTIM
+
+# _______ ZSH startup optims _______
 
 # RVM ( Ruby Versin Manager )
 rmv() {

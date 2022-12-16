@@ -33,22 +33,8 @@ alias lg=lazygit
 # ls colorized output
 alias ls='ls -G'
 
-# ------ Kubernetes -----
-if [ $commands[kubectl] ]; then
-  kubectl() {
-    unfunction "$0"
-    source <(kubectl completion zsh)
-    $0 "$@"
-  }
-fi
-# kubectl () {
-#   command kubectl $*
-#   if [[ -z $KUBECTL_COMPLETE ]]; then
-#     source <(command kubectl completion zsh)
-#     compdef __start_kubectl k
-#     KUBECTL_COMPLETE=1
-#   fi
-# }
+# Docker & Kubernetes
+alias dk="docker"
 alias k=kubectl
 
 kdebug() {
@@ -139,7 +125,7 @@ alias meteo="curl https://v2.wttr.in/brussels"
 
 compip() {
   # LSP
-  pip install -U python-lsp-server[rope] python-lsp-black pyls-isort ruff
+  pip install -U python-lsp-server[rope] python-lsp-black pyls-isort ruff==0.0.146
   pip install --editable ~/src/pylsp-mypy
 
   # # pytest:

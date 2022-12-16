@@ -1,5 +1,5 @@
 # ON CHANGE:
-# antibody bundle < "$waxCraft_PATH/dotfiles/.zsh-plugins.txt" > ~/.zsh-plugins.sh
+# antidote bundle < "$waxCraft_PATH/dotfiles/.zsh-plugins.txt" > ~/.zsh-plugins.zsh
 
 # Base
 ohmyzsh/ohmyzsh path:plugins/git
@@ -12,25 +12,17 @@ ohmyzsh/ohmyzsh path:plugins/z
 b4b4r07/enhancd
 zsh-users/zsh-completions
 
-gantsign/zsh-plugins path:bat
-
 # Vim mode with text objects
 # softmoth/zsh-vim-mode
 
 # Syntax
 #zdharma/fast-syntax-highlighting  # not that beautiful
-zsh-users/zsh-syntax-highlighting
+zdharma-continuum/fast-syntax-highlighting kind:defer
+# zsh-users/zsh-syntax-highlighting
 zsh-users/zsh-autosuggestions
 
-# Docker related
-#docker/cli path:contrib/completion/zsh/_docker kind:fpath
-
-# Kubernetes:
-johanhaleby/kubetail
-
-akarzim/zsh-docker-aliases
-ohmyzsh/ohmyzsh path:plugins/docker/_docker kind:fpath
-ohmyzsh/ohmyzsh path:plugins/docker-compose
+# Docker & Kubernetes:
+# johanhaleby/kubetail  # auto added when installed with homebrew
 
 # Python
 ohmyzsh/ohmyzsh path:plugins/pip

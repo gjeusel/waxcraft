@@ -171,7 +171,7 @@ def tmux():
 
 
 def _common_bash_zsh():
-    relative_paths = [".inputrc", ".aliases", ".zlogin"]
+    relative_paths = [".inputrc", ".aliases", ".zlogin", ".config/fsh/overlay.ini"]
     create_symlinks_robust(relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home())
 
 
@@ -192,8 +192,10 @@ def zsh():
     str_source = "\n".join(str_source)
 
     fzshrc = Path.home() / ".zshrc"
+
     if not fzshrc.exists():
         fzshrc.touch()
+
     if str_source not in open(fzshrc.as_posix()).read():
         print("Appending ~/.zshrc with {}".format(str_source))
         open(fzshrc.as_posix(), "a").write("\n" + str_source)
