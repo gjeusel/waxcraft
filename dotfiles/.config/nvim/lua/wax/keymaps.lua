@@ -97,6 +97,12 @@ kmap("v", "s", ":s/")
 -- Paste without losing what's in register
 kmap("v", "p", '"_dP') -- kmap("v", "<leader>p", '"_dP')
 
+-- From the ThePrimeagen (recenter on vertical movements)
+-- kmap("n", "<C-d>", "<C-d>zz")  -- laggy
+-- kmap("n", "<C-u>", "<C-u>zz")
+-- kmap("n", "n", "nzzzv")
+-- kmap("n", "N", "Nzzzv")
+
 -- -- Buffers maps (now defined in barbar plugin)
 -- kmap({"i", "n"}, "œ", "<cmd>bp<cr>", { nowait = true }) -- option + q
 -- kmap({"i", "n"}, "∑", "<cmd>bn<cr>", { nowait = true }) -- option + w

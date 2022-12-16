@@ -96,12 +96,13 @@ end
 -- NetRW (https://shapeshed.com/vim-netrw/)
 vim.g.netrw_banner = 0 -- no need for banner
 vim.g.netrw_liststyle = 3 -- prefered style
-vim.g.loaded_netrwPlugin = 1 -- performance reasons
-vim.g.loaded_netrwSettings = 1 -- performance reasons
+vim.g.netrw_sort_by = "name"
+vim.g.netrw_sort_direction = "reverse"
 
 -- Searching
 vim.o.ignorecase = true -- searches are case insensitive...
 vim.o.smartcase = true -- ... unless they contain at least one capital letter
+vim.o.incsearch = 1 -- show the pattern matches while typing
 
 vim.o.wildignore = "**/*.egg-info,**/__pycache__,**/node_modules" -- ignore those pattern in :e autocomplete
 vim.o.wildignorecase = true -- ignore case on :e
@@ -123,11 +124,12 @@ vim.o.synmaxcol = 128
 -- vim.g.python_host_prog = os.getenv("HOME") .. "/opt/miniconda3/envs/nvim27/bin/python"
 vim.g.python3_host_prog = waxopts.python3
 
--- enable debug maybe (neovim logfile is in $NVIM_LOG_FILE)
--- vim.g.debug = waxopts.loglevel == "debug"
-vim.o.debug = "msg"
--- vim.o.verbosefile = vim.fn.stdpath("cache") .. "/nvim-verbosefile.log"
--- vim.o.verbose = 1
+-- enable debug (neovim logfile is in $NVIM_LOG_FILE)
+if waxopts.loglevel == "debug" then
+  vim.o.debug = "msg"
+  vim.o.verbosefile = vim.fn.stdpath("cache") .. "/nvim-verbosefile.log"
+  vim.o.verbose = 1 -- 16 is max
+end
 
 --
 ------- Disable Some Builtins -------
@@ -140,10 +142,10 @@ vim.g.loaded_node_provider = 0
 
 -- Disable some in built plugins completely
 local disabled_built_ins = {
-  "netrw",
-  "netrwPlugin",
-  "netrwSettings",
-  "netrwFileHandlers",
+  -- "netrw",
+  -- "netrwPlugin",
+  -- "netrwSettings",
+  -- "netrwFileHandlers",
   "gzip",
   "zip",
   "zipPlugin",

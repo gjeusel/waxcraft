@@ -50,6 +50,15 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
+-- -- Jinja Html
+-- vim.api.nvim_create_autocmd("FileType", {
+--   pattern = {"jinja.html"},
+--   callback = function ()
+--     vim.opt_local.commentstring = "{# %s #}"
+--     -- vim.opt_local.comments = "{#"
+--   end
+-- })
+
 -- Performances
 --
 -- https://www.reddit.com/r/neovim/comments/pz3wyc/comment/heyy4qf/?utm_source=share&utm_medium=web2x&context=3

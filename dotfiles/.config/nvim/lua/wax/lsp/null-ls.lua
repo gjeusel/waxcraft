@@ -104,7 +104,7 @@ local sources = {
       "css",
       "scss",
       "less",
-      "html",
+      -- "html",
       -- done by json-ls
       -- "json",
       -- "jsonc",

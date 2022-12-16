@@ -28,7 +28,7 @@ ts.setup({
       "python", -- we use "Vimjas/vim-python-pep8-indent"
       -- frontend:
       "json",
-      "vue",
+      -- "vue",
       "typescript",
     },
   },
@@ -124,6 +124,9 @@ ts.setup({
   -- 'JoosepAlviste/nvim-ts-context-commentstring' -- auto deduce comment string on context
   context_commentstring = {
     enable = true,
+    -- config = {
+    --   ["jinja.html"] = "{# %s #}",
+    -- },
   },
 
   -- 'p00f/nvim-ts-rainbow'

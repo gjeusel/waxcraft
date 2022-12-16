@@ -9,7 +9,9 @@ return {
   s("ipandas", { t("import pandas as pd") }),
   s("inumpy", { t("import numpy as np") }),
   s("ipath", { t("from pathlib import Path") }),
-  -- s("isa", { t("import sqlalchemy as sa") }),
+  s("isqla", { t("import sqlalchemy as sa") }),
+  s("ipdb", { t('__import__("pdb").set_trace()  # BREAKPOINT') }),
+  s("ipostmortem", { t('__import__("pdb").post_mortem()  # POSTMORTEM') }),
   s(
     "istruct",
     fmt(

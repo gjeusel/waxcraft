@@ -82,9 +82,16 @@ cmp.setup({
       name = "rg",
       keyword_length = 3,
       max_item_count = 5,
-      options = {
+      option = {
         -- only trigger rg if find a git workspace
-        cwd = find_root_dir,
+        cwd = function()
+          local cwd = find_root_dir()
+          if cwd == vim.env.HOME then
+            return nil
+          else
+            return cwd
+          end
+        end,
       },
     },
     { -- buffer

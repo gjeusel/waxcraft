@@ -193,6 +193,7 @@ return require("packer").startup({
       end,
       after = { "lsp-status.nvim" },
     })
+
     use({ -- barbar
       "romgrk/barbar.nvim",
       config = function()
