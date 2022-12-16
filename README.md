@@ -15,3 +15,11 @@
 - [lspconfig](https://github.com/neovim/nvim-lspconfig): configure builtin nvim LSP
 - [mason](https://github.com/williamboman/mason.nvim): LSP & else installer
 - [tslime](https://github.com/jgdavey/tslime.vim): send anything to tmux pane from vim
+
+
+### Notes:
+
+#### Profile zsh startup time:
+
+- Use [zsh/zprof](https://stevenvanbael.com/profiling-zsh-startup) module
+- Use `set -x` at top of zshrc to echo line by line

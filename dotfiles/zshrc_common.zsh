@@ -1,8 +1,10 @@
+# # To debug:
+# set -x
+
 # _______ ZSH NOTES _______
 #
 # - [How to check if command exists](https://stackoverflow.com/a/39983422/17973851)
 # - [How to do conditions](https://zsh.sourceforge.io/Doc/Release/Conditional-Expressions.html)
-
 
 # Used by aliases
 export waxCraft_PATH=${0:A:h:h}
@@ -39,7 +41,7 @@ zle -N edit-command-line
 fpath=("$waxCraft_PATH/dotfiles/completions" $fpath)
 
 # shell user completion:
-fpath=("$HOME/.zfunc" $fpath)
+# fpath=("$HOME/.zfunc" $fpath)
 
 # create ~/.zfunc if missing
 if [[ ! -d $HOME/.zfunc ]]; then
@@ -56,9 +58,25 @@ if type brew &>/dev/null; then
   FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
 fi
 
-# load compinit
+# Notes:
+#   We prefer to manually re-build the cache (instead of the known trick to auto rebuild the cache each day once)
+#   as it should be done after loading the entire ~/.zshrc
+#   Maybe split this file in two with a `before_zshrc.zsh` and `after_zshrc.zsh` ?
 autoload -Uz compinit
 compinit -i -C
+# to rebuild cache, run:
+# > compinit
+
+## PERF: rebuild cache once per day
+# if [[ (! -f ~/.zcompdump ) || $(date +'%j') != $(stat -f '%Sm' -t '%j' ~/.zcompdump) ]]; then
+#   echo "Building zsh completion cache..."
+#   # -i to ignore insecure directories and files
+#   # compinit -i
+#   compinit
+# else
+#   compinit -C
+# fi
+# compinit -C
 
 # --- Fine tuning ---
 
@@ -77,7 +95,7 @@ zstyle ':completion:*' accept-exact-dirs true
 
 # Make sure to have binaries in PATH before sourcing antibody
 # else tmux is not yet available and it messes up iterm2 startup
-if [ -f  /opt/homebrew/bin/brew ]; then
+if [ -f /opt/homebrew/bin/brew ]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
