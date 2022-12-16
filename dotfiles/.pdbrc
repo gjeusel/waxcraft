@@ -7,6 +7,7 @@ alias pp from pathlib import Path;from rich.console import Console;from rich.the
 alias pi from pathlib import Path;from rich.console import Console;from rich.theme import Theme;from rich import inspect;inspect(%*, console=Console(theme=Theme.read(Path("~/.config/rich/rich.ini").expanduser().as_posix())))
 
 alias sqlfmt print(__import__("sqlparse").format(str(%*), reindent=True, keyword_case="upper"))
+alias sqlinline from zefire.debug import render_query;print(__import__("sqlparse").format(render_query(%*), reindent=True, keyword_case="upper"))
 
 alias t type(%*)
 
