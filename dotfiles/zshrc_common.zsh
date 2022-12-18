@@ -59,11 +59,11 @@ done
 
 # --- Autocompletion ---
 
-# our own completions for docker + docker-compose:
+# our own completions for (docker + docker-compose):
 fpath+="$waxCraft_PATH/dotfiles/completions"
 
 # shell user completion:
-if [[ td ${ZDOTDIR:-~}/.zfunc ]]; then
+if [[ -d ${ZDOTDIR:-~}/.zfunc ]]; then
   fpath+="${ZDOTDIR:-~}/.zfunc"
 fi
 
