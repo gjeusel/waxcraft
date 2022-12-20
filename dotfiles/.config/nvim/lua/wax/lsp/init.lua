@@ -50,6 +50,9 @@ local function lsp_keymaps()
 
   local goto_win_opts = {
     float = {
+      format = function(diag)
+        return ("[%s] %s"):format(diag.source, diag.message)
+      end,
       -- nvim_open_win generic:
       relative = "cursor",
       style = "minimal",
@@ -96,6 +99,15 @@ require("wax.lsp.setup").setup_servers({
   on_attach = lsp_status.on_attach,
   capabilities = capabilities,
 })
+
+vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(function(_, result, ctx, config)
+  result.diagnostics = vim.tbl_filter(function(diagnostic)
+    -- Filter out all diagnostics from pyright
+    return not vim.tbl_contains({ "Pyright" }, diagnostic.source)
+  end, result.diagnostics)
+
+  vim.lsp.diagnostic.on_publish_diagnostics(_, result, ctx, config)
+end, {})
 
 -- setup null-ls
 require("wax.lsp.null-ls")

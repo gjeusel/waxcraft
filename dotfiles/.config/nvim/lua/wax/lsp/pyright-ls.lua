@@ -71,18 +71,21 @@ return {
     client.server_capabilities.signature_help = false -- pyright typing of signature is weird
     client.server_capabilities.goto_definition = false -- pyright does not follow imports correctly
     client.server_capabilities.completion = false -- pyright does not add parameters in signature
-
-    -- log.info(client.server_capabilities)
   end,
   settings = {
     python = {
       disableOrganizeImports = true,
       pythonPath = "python",
       analysis = {
-        autoSearchPaths = true,
-        -- useLibraryCodeForTypes = true,  -- pandas analysis is wrong
-        typeCheckingMode = "off",
         diagnosticMode = "workspace",
+        autoSearchPaths = true,
+        -- typeCheckingMode = "basic",
+
+        -- All disabled, keep only auto importing
+        typeCheckingMode = "off",
+        diagnosticSeverityOverrides = {
+          -- reportUnusedVariable = "error",
+        },
       },
     },
   },
