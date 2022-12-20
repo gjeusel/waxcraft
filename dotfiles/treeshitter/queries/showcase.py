@@ -66,3 +66,29 @@ read_sql = f"""
 """
 
 interp = f"{test_highlight()}"
+
+
+class TypeHintBinaryOperator:
+    def fna(self) -> list[str]:
+        return []
+
+    def fnb(self) -> list[dict[str, None]]:
+        return []
+
+    def fnc(self) -> str | None:
+        ...
+
+    def fnd(self) -> list[str] | None:
+        ...
+
+    def fne(self) -> str | int:
+        ...
+
+    def fn2(self) -> list[dict[str, str]] | None:
+        ...
+
+    def fn3(self) -> None | list[dict[str, str]] | None:
+        ...
+
+    def fn4(self) -> None | list[dict[str, str]]:
+        ...

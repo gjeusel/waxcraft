@@ -197,15 +197,15 @@
 (type
   [
     (identifier) @type
-    (subscript (identifier) @type)
-    (subscript (subscript (identifier) @type))
-    (subscript ((identifier) @type))
-    ; (subscript ((binary_operator) @type))
-    (binary_operator (subscript ((identifier) @type)))
-    (binary_operator (identifier)) @type
+    (_ (identifier) @type)
+    (_ (_ (identifier) @type))
+    (_ (_ (_ (identifier) @type)))
+    (_ (_ (_ (_ (identifier) @type))))
+    (_ (_ (_ (_ (_ (identifier) @type)))))
+    (_ (_ (_ (_ (_ (_ (identifier) @type))))))
+    (_ (_ (_ (_ (_ (_ (_ (identifier) @type)))))))
   ]
 )
-
 
 ;; Class definitions
 (class_definition
