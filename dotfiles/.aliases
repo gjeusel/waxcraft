@@ -125,7 +125,7 @@ alias meteo="curl https://v2.wttr.in/brussels"
 
 compip() {
   # LSP
-  pip install -U python-lsp-server[rope] python-lsp-black pyls-isort ruff==0.0.146
+  pip install -U python-lsp-server[rope] python-lsp-black pyls-isort
   pip install --editable ~/src/pylsp-mypy
 
   # # pytest:

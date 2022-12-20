@@ -63,14 +63,7 @@ done
 fpath+="$waxCraft_PATH/dotfiles/completions"
 
 # shell user completion:
-if [[ -d ${ZDOTDIR:-~}/.zfunc ]]; then
-  fpath+="${ZDOTDIR:-~}/.zfunc"
-fi
-
-# auto generate kubectl completion if needed:
-if [[ (! -f ${ZDOTDIR:-~}/.zfunc/_kubectl) && (( $+commands[kubectl] ))]]; then
-  kubectl completion zsh &> ${ZDOTDIR:-~}/.zfunc/_kubectl
-fi
+fpath+="${ZDOTDIR:-$HOME}/.zfunc"
 
 # brew and installed with brew completions:
 if type brew &>/dev/null; then
@@ -82,7 +75,12 @@ fi
 #   as it should be done after loading the entire ~/.zshrc
 #   Maybe split this file in two with a `before_zshrc.zsh` and `after_zshrc.zsh` ?
 autoload -Uz compinit
-compinit -i -C
+#
+# -i silently ignore all insecure files and directories
+# -D turn off generation of cache ~/.zcompdump
+# -c do not check function name changes ()
+compinit -i -D
+#
 # to rebuild cache, run:
 # > compinit
 
