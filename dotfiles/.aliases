@@ -123,18 +123,10 @@ alias infogpu='nvidia-smi --query-gpu=timestamp,name,pci.bus_id,driver_version,p
 
 alias meteo="curl https://v2.wttr.in/brussels"
 
-compip() {
+install_pylsp() {
   # LSP
-  pip install -U python-lsp-server[rope] python-lsp-black pyls-isort
-  pip install --editable ~/src/pylsp-mypy
-
-  # # pytest:
-  # pip install -U pdbpp # pytest pytest-xdist pytest-cov pytest-flakes
-
-  # # Others
-  # pip install -U pip
-  # pip install -U pgcli tmuxp
-  # pip install -U ptpython
+  pip install -U python-lsp-server git+https://github.com/gjeusel/pylsp-mypy@custom
+  # pip install --editable ~/src/pylsp-mypy
 }
 
 # https://docs.npmjs.com/getting-started/fixing-npm-permissions
