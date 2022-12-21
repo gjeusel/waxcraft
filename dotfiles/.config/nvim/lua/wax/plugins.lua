@@ -203,17 +203,18 @@ return require("packer").startup({
     use({ -- dressing
       "stevearc/dressing.nvim",
       config = function()
+        local win_options = { winblend = 0 }
         safe_require("dressing").setup({
           builtin = { enabled = false },
           select = {
             enabled = false, -- replaced by fzf-lua
             -- enabled = true,
-            winblend = 0,
+            win_options = win_options,
             -- priority list for backends:
             -- backend = { "telescope", "fzf_lua", "fzf", "builtin", "nui" },
             -- fzf_lua = { winopts = { width = 0.4, height = 0.4 } },
           },
-          input = { enabled = true, winblend = 0 },
+          input = { enabled = true, win_options = win_options },
         })
       end,
     })

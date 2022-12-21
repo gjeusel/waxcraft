@@ -13,6 +13,7 @@ vim.filetype.add({
 
     -- frontend
     ["ts"] = "typescript",
+
     ["html"] = function(_, bufnr)
       local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, true)
       local content = table.concat(lines, "\n")

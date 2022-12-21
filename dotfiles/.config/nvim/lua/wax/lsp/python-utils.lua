@@ -80,7 +80,6 @@ local function find_python_cmd(workspace, cmd)
 
   -- Fallback to system Python.
   return cmd
-  -- return os.getenv("CONDA_PYTHON_EXE")
 end
 
 M.get_python_path = function(workspace, cmd)
