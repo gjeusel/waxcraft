@@ -108,13 +108,22 @@ function M.float_win()
       vim.api.nvim_buf_delete(bufnr, { force = true })
     end)
   end
-  vim.api.nvim_create_autocmd("WinLeave", { callback = close, buffer = bufnr })
+  local aucmd_autoclose =
+    vim.api.nvim_create_autocmd("WinLeave", { callback = close, buffer = bufnr })
+
+  local open_vertical_split = function()
+    vim.api.nvim_del_autocmd(aucmd_autoclose)
+    vim.api.nvim_win_close(win, true)
+    vim.cmd([[vsplit]])
+    vim.api.nvim_win_set_buf(0, bufnr)
+  end
 
   -- Add custom mappings
   local mappings = {
     n = {
       q = close,
       ["<ESC>"] = close,
+      ["<C-v>"] = open_vertical_split,
     },
   }
 
