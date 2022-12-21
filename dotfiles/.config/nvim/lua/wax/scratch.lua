@@ -13,7 +13,13 @@ local config = {
     -- Uses shell commands
     external = {
       markdown = "glow %",
-      python = "python3 %",
+      python = function()
+        local python_utils = require("wax.lsp.python-utils")
+        local workspace = python_utils.find_root_dir(vim.fn.expand("%:p"))
+        local python_path = python_utils.get_python_path(workspace) or "python"
+        local cmd = ("%s $filePath"):format(python_path)
+        return cmd
+      end,
       go = "go run %",
       sh = "sh %",
     },
@@ -22,7 +28,7 @@ local config = {
     default = "float",
     startinsert = true,
     wincmd = false,
-    autosave = false,
+    autosave = true,
   },
   ui = {
     float = {
@@ -242,7 +248,7 @@ local function internal(cmd)
   vim.cmd(cmd)
 end
 
-local function run(type, cmd)
+local function run(run_type, cmd)
   cmd = cmd or config.cmds.external[vim.bo.filetype]
 
   if not cmd then
@@ -254,17 +260,21 @@ local function run(type, cmd)
     vim.cmd("silent write")
   end
 
+  if type(cmd) == "function" then
+    cmd = cmd()
+  end
+
   cmd = substitute(cmd)
-  if type == "float" then
+  if run_type == "float" then
     float(cmd)
     return
-  elseif type == "bang" then
+  elseif run_type == "bang" then
     vim.cmd("!" .. cmd)
     return
-  elseif type == "quickfix" then
+  elseif run_type == "quickfix" then
     quickfix(cmd)
     return
-  elseif type == "terminal" then
+  elseif run_type == "terminal" then
     term(cmd)
     return
   end
@@ -272,25 +282,25 @@ local function run(type, cmd)
   vim.cmd("echohl ErrorMsg | echo 'Error: Invalid type' | echohl None")
 end
 
-function M.Jaq(type)
+function M.Jaq(run_type)
   -- Check if the filetype is in config.cmds.internal
   if vim.tbl_contains(vim.tbl_keys(config.cmds.internal), vim.bo.filetype) then
     -- Exit if the type was passed and isn't "internal"
-    if type and type ~= "internal" then
+    if run_type and run_type ~= "internal" then
       vim.cmd("echohl ErrorMsg | echo 'Error: Invalid type for internal command' | echohl None")
       return
     end
-    type = "internal"
+    run_type = "internal"
   else
-    type = type or config.behavior.default
+    run_type = run_type or config.behavior.default
   end
 
-  if type == "internal" then
+  if run_type == "internal" then
     internal()
     return
   end
 
-  run(type)
+  run(run_type)
 end
 
 --------- Mapping ---------
