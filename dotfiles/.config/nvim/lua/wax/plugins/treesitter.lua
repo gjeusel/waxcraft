@@ -1,6 +1,11 @@
 local ts = require("nvim-treesitter.configs")
 
 -- NOTE: M1 apple: https://github.com/nvim-treesitter/nvim-treesitter/issues/791
+--
+
+-- Add parsers for some filetypes
+local ft_to_parser = require"nvim-treesitter.parsers".filetype_to_parsername
+ft_to_parser["jinja.html"] = "html" -- use html for jinja.html
 
 ts.setup({
   highlight = {
@@ -149,6 +154,25 @@ ts.setup({
   -- 'windwp/nvim-ts-autotag'  -- auto close/rename html tags
   autotag = {
     enable = true,
+    filetypes = {
+      "html",
+      "jinja.html", -- custom add
+      "javascript",
+      "typescript",
+      "javascriptreact",
+      "typescriptreact",
+      "svelte",
+      "vue",
+      "tsx",
+      "jsx",
+      "rescript",
+      "xml",
+      "php",
+      "markdown",
+      "glimmer",
+      "handlebars",
+      "hbs",
+    },
   },
 })
 
