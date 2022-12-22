@@ -10,6 +10,7 @@ return {
   s("inumpy", { t("import numpy as np") }),
   s("ipath", { t("from pathlib import Path") }),
   s("isqla", { t("import sqlalchemy as sa") }),
+  s("idataclass", { t("from dataclasses import dataclass") }),
   s("ipdb", { t('__import__("pdb").set_trace()  # BREAKPOINT') }),
   s("ipostmortem", { t('__import__("pdb").post_mortem()  # POSTMORTEM') }),
   s(
