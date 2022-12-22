@@ -34,6 +34,8 @@ vim.o.updatetime = 50 -- frequency to apply Autocmd events -> low for nvim-ts-co
 vim.api.nvim_exec([[set shortmess+=cs]], false) -- don't pass messages to ins-completion-menu
 vim.o.completeopt = "menuone,noselect"
 
+vim.o.pumheight = 5  -- max completion popup menu height
+
 vim.o.matchpairs = "(:),{:},[:],<:>,':',\":\""
 -- vim.o.matchpairs = { "(:)", "{:}", "[:]", "<:>", "':'", '":"' } -- behavior of '%'
 

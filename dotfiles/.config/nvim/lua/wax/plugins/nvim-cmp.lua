@@ -77,7 +77,13 @@ cmp.setup({
   sources = {
     { name = "nvim_lua" },
     { name = "luasnip", max_item_count = 2 },
-    { name = "nvim_lsp", max_item_count = 5 },
+    { name = "nvim_lsp", keyword_length = 3, max_item_count = 5 },
+    { -- buffer
+      name = "buffer",
+      keyword_length = 3,
+      max_item_count = 5,
+      options = { get_bufnrs = get_visible_buffers },
+    },
     {
       name = "rg",
       keyword_length = 3,
@@ -85,7 +91,7 @@ cmp.setup({
       option = {
         -- only trigger rg if find a git workspace
         cwd = function()
-          local cwd = find_root_dir()
+          local cwd = find_root_dir(vim.fn.expand("%:p"))
           if cwd == vim.env.HOME then
             return nil
           else
@@ -93,12 +99,6 @@ cmp.setup({
           end
         end,
       },
-    },
-    { -- buffer
-      name = "buffer",
-      keyword_length = 3,
-      max_item_count = 5,
-      options = { get_bufnrs = get_visible_buffers },
     },
     -- { name = "nvim_lsp_signature_help" },
     -- { name = "copilot", max_item_count = 3, keyword_length = 5 },
