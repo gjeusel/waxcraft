@@ -134,12 +134,17 @@ cmp.setup({
       -- fancy icons and a name of kind
       vim_item.kind = lspkind.presets.default[vim_item.kind] .. " " .. vim_item.kind
 
+      local lsp_client = ""
+      if entry.source.name == "nvim_lsp" then
+        lsp_client = ("[%s]"):format(entry.source.source.client.name)
+      end
+
       -- set a name for each source
       vim_item.menu = ({
         nvim_lua = "[Lua]",
         rg = "[RipG]",
         buffer = "[Buffer]",
-        nvim_lsp = "[LSP]",
+        nvim_lsp = lsp_client,
         path = "[Path]",
         luasnip = "[Snip]",
         copilot = "[AI]",
@@ -147,7 +152,7 @@ cmp.setup({
 
       -- disable duplicate keys: https://github.com/hrsh7th/nvim-cmp/issues/32
       vim_item.dup = ({
-        buffer = 1,
+        buffer = 0,
         path = 1,
         nvim_lsp = 0,
       })[entry.source.name] or 0

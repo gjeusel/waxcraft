@@ -1,87 +1,50 @@
 local python_utils = require("wax.lsp.python-utils")
 
--- pyright_resolved_capabilities = {
---   call_hierarchy = true,
---   code_action = {
---     codeActionKinds = { "quickfix", "source.organizeImports" },
---     workDoneProgress = true,
---   },
---   code_lens = false,
---   code_lens_resolve = false,
---   completion = true,
---   declaration = false,
---   document_formatting = false,
---   document_highlight = { workDoneProgress = true },
---   document_range_formatting = false,
---   document_symbol = { workDoneProgress = true },
---   execute_command = true,
---   find_references = { workDoneProgress = true },
---   goto_definition = { workDoneProgress = true },
---   hover = { workDoneProgress = true },
---   implementation = false,
---   rename = true,
---   signature_help = true,
---   signature_help_trigger_characters = { "(", ",", ")" },
---   text_document_did_change = 2,
---   text_document_open_close = true,
---   text_document_save = true,
---   text_document_save_include_text = false,
---   text_document_will_save = false,
---   text_document_will_save_wait_until = false,
---   type_definition = false,
---   workspace_folder_properties = { changeNotifications = false, supported = false },
---   workspace_symbol = { workDoneProgress = true },
--- }
-
--- pylsp_resolved_capabilities = {
---   call_hierarchy = false,
---   code_action = true,
---   code_lens = true,
---   code_lens_resolve = false,
---   completion = true,
---   declaration = false,
---   document_formatting = true,
---   document_highlight = true,
---   document_range_formatting = true,
---   document_symbol = true,
---   execute_command = true,
---   find_references = true,
---   goto_definition = true,
---   hover = true,
---   implementation = false,
---   rename = true,
---   signature_help = true,
---   signature_help_trigger_characters = { "(", ",", "=" },
---   text_document_did_change = 2,
---   text_document_open_close = true,
---   text_document_save = { includeText = true },
---   text_document_save_include_text = true,
---   text_document_will_save = false,
---   text_document_will_save_wait_until = false,
---   type_definition = false,
---   workspace_folder_properties = { changeNotifications = true, supported = true },
---   workspace_symbol = false,
--- }
+-- documentFormattingProvider
+-- documentRangeFormattingProvider
+-- callHierarchyProvider
+-- codeActionProvider
+-- codeLensProvider = {
+--   resolveProvider = false
+-- },
+-- completionProvider = {
+--   resolveProvider = true,
+--   triggerCharacters = { "." }
+-- },
+-- declarationProvider
+-- definitionProvider
+-- documentHighlightProvider
+-- documentSymbolProvider
+-- executeCommandProvider
+-- hoverProvider
+-- referencesProvider
+-- renameProvider
+-- signatureHelpProvider
+-- typeDefinitionProvider
+-- workspaceSymbolProvider
 
 return {
   on_attach = function(client, _)
     -- disable capabilities that are better handled by pylsp
-    client.server_capabilities.rename = false -- rope is ok
-    client.server_capabilities.hover = false -- pylsp includes also docstrings
-    client.server_capabilities.signature_help = false -- pyright typing of signature is weird
-    client.server_capabilities.goto_definition = false -- pyright does not follow imports correctly
-    client.server_capabilities.completion = false -- pyright does not add parameters in signature
+    client.server_capabilities.renameProvider = false -- rope is ok
+    client.server_capabilities.hoverProvider = false -- pylsp includes also docstrings
+    client.server_capabilities.signatureHelpProvider = false -- pyright typing of signature is weird
+    client.server_capabilities.definitionProvider = false -- pyright does not follow imports correctly
+    -- client.server_capabilities.completionProvider = false -- pyright does not add parameters in signature
   end,
   settings = {
     python = {
+      -- https://github.com/microsoft/pyright/blob/main/docs/settings.md
       disableOrganizeImports = true,
-      pythonPath = "python",
       analysis = {
-        diagnosticMode = "workspace",
-        autoSearchPaths = true,
+        -- diagnosticMode = "workspace",
+        -- autoSearchPaths = true,
         -- typeCheckingMode = "basic",
 
         -- All disabled, keep only auto importing
+        -- autoImportCompletions = true,  -- only thing I use pyright for
+        diagnosticMode = "openFilesOnly",
+        autoSearchPaths = false,
         typeCheckingMode = "off",
         diagnosticSeverityOverrides = {
           -- reportUnusedVariable = "error",
