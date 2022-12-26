@@ -123,7 +123,7 @@ alias infogpu='nvidia-smi --query-gpu=timestamp,name,pci.bus_id,driver_version,p
 
 alias meteo="curl https://v2.wttr.in/brussels"
 
-install_pylsp() {
+pylsp_deps() {
   # LSP
   pip install -U python-lsp-server git+https://github.com/gjeusel/pylsp-mypy@custom
   # pip install --editable ~/src/pylsp-mypy

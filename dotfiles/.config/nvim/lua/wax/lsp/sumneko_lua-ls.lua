@@ -22,6 +22,7 @@ return {
         },
       },
       workspace = {
+        checkThirdParty = false, -- https://github.com/sumneko/lua-language-server/wiki/Libraries#environment-emulation
         -- Make the server aware of Neovim runtime files
         library = vim.api.nvim_get_runtime_file("", true),
         -- library = {
