@@ -1,11 +1,11 @@
-session_name: cartage
+session_name: freetime
 
 windows:
 
-  - window_name: cartage
+  - window_name: aoc
     layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
     shell_command_before:
-      - cd ~/src/cartage
+      - cd ~/src/advent_of_code
     panes:
       - shell_command:
         - neofetch

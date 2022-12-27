@@ -79,7 +79,7 @@ autoload -Uz compinit
 # -i silently ignore all insecure files and directories
 # -D turn off generation of cache ~/.zcompdump
 # -c do not check function name changes ()
-compinit -i -D
+compinit -i -c -D
 #
 # to rebuild cache, run:
 # > compinit
