@@ -197,6 +197,9 @@ function M.insert_new_line_in_current_buffer(str, opts)
 
   if filetype == "python" then
     n_space = vim.fn.GetPythonPEPIndent(n_insert_line)
+    if n_space == -1 then -- but fix it when can't find
+      n_space = vim.fn.indent(n_line)
+    end
   else
     -- if treesitter available, might use it to correct corner cases:
     local has_treesitter = is_module_available("nvim-treesitter.indent")
@@ -210,6 +213,9 @@ function M.insert_new_line_in_current_buffer(str, opts)
   local str_added = ("%s%s"):format(space, str)
 
   vim.api.nvim_buf_set_lines(0, n_insert_line - 1, n_insert_line - 1, false, { str_added })
+
+  -- Waiting for https://github.com/neovim/neovim/issues/19832
+  -- to avoid putting this jump in the jumplist
   vim.api.nvim_win_set_cursor(0, { n_insert_line, pos[2] })
 end
 

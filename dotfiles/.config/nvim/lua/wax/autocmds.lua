@@ -50,13 +50,30 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
--- -- Jinja Html
+-- Fix Html like mini.ai
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "jinja.html", "html", "vue", "svelte" },
+  callback = function()
+    -- Solve issue on mini ai with nested html tags
+    -- https://github.com/echasnovski/mini.nvim/issues/110
+    if is_module_available("mini.ai") then
+      local spec_treesitter = require("mini.ai").gen_spec.treesitter
+      vim.b.miniai_config = {
+        custom_textobjects = {
+          t = spec_treesitter({ a = "@function.outer", i = "@function.inner" }),
+        },
+      }
+    end
+  end,
+})
+
+-- -- Can't use after file for jinja.html filetype
 -- vim.api.nvim_create_autocmd("FileType", {
---   pattern = {"jinja.html"},
---   callback = function ()
---     vim.opt_local.commentstring = "{# %s #}"
+--   pattern = { "jinja.html" },
+--   callback = function()
+--     -- vim.opt_local.commentstring = "{# %s #}"
 --     -- vim.opt_local.comments = "{#"
---   end
+--   end,
 -- })
 
 -- Performances
