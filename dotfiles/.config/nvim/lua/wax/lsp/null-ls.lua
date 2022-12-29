@@ -79,6 +79,9 @@ local sources = {
   -- prisma filetypes
   -- builtins.formatting.prismaFmt,
 
+  -- rust filetypes
+  -- builtins.formatting.rustfmt,
+
   -- frontend
   builtins.formatting.djhtml.with({
     filetypes = { "django", "jinja.html", "htmldjango" },

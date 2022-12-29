@@ -52,6 +52,10 @@ kmap("n", "<S-q>", "<Nop>")
 -- Make escape work in the Neovim terminal
 kmap("t", "<Esc>", "<C-\\><C-n>")
 
+-- ThePrimeagen is right ...
+-- Why ? Because else "<C-c>" does not trigger InsertLeave autcmd
+vim.keymap.set("i", "<C-c>", "<Esc>")
+
 --
 ----------- Opiniated KeyMaps -----------
 

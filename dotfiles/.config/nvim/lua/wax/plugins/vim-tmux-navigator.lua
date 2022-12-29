@@ -2,8 +2,6 @@
 vim.g.tmux_navigator_disable_when_zoomed = 1
 vim.g.tmux_navigator_no_mappings = 1 -- custom ones below regarding modes
 
--- local modes = { "n", "v", "c", "i", "s" }
-local modes = { "n" } -- other modes are handled in luasnip
 local map_keymaps = {
   ["<c-j>"] = "TmuxNavigateDown",
   ["<c-k>"] = "TmuxNavigateUp",
@@ -11,7 +9,12 @@ local map_keymaps = {
   ["<c-h>"] = "TmuxNavigateLeft",
 }
 
-local opts = { silent = true, nowait = true }
+local opts = { silent = true, nowait = true, remap = true }
+
 for map, cmd in pairs(map_keymaps) do
-  vim.keymap.set(modes, map, "<cmd>" .. cmd .. "<cr>", opts)
+  vim.keymap.set("n", map, "<cmd>" .. cmd .. "<cr>", opts)
 end
+
+-- for _, map in ipairs(vim.tbl_keys(map_keymaps)) do
+--   vim.keymap.set("i", map, "<nop>", opts)
+-- end

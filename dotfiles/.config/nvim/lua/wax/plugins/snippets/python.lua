@@ -33,11 +33,13 @@ return {
     "pyraises",
     fmt(
       [[
+        match = "{match}"
         with pytest.raises({exc}, match=match):
-          {0}
+            {0}
       ]],
       {
-        exc = i(1, ""),
+        match = i(1, ""),
+        exc = i(2, ""),
         [0] = i(0, ""),
       }
     )

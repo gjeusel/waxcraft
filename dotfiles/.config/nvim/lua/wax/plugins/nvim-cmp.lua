@@ -1,42 +1,6 @@
 local cmp = require("cmp")
 local lspkind = require("lspkind")
-
-local luasnip = safe_require("luasnip")
-
-local t = function(str)
-  return vim.api.nvim_replace_termcodes(str, true, true, true)
-end
-
-local has_words_before = function()
-  local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-  return col ~= 0
-    and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
-end
-local cycle_forward = function(fallback)
-  if cmp.visible() then
-    cmp.select_next_item({ behavior = cmp.SelectBehavior.Inserts })
-  elseif has_words_before() then
-    cmp.complete()
-  else
-    fallback()
-  end
-end
-
-local cycle_backward = function(fallback)
-  if cmp.visible() then
-    cmp.select_prev_item({ behavior = cmp.SelectBehavior.Inserts })
-  else
-    fallback()
-  end
-end
-
-local control_c_close = function(fallback)
-  if cmp.visible() then
-    vim.fn.feedkeys(t("<Esc>"))
-  else
-    fallback()
-  end
-end
+local ls = safe_require("luasnip")
 
 local function get_visible_buffers()
   local bufs = {}
@@ -46,64 +10,105 @@ local function get_visible_buffers()
   return vim.tbl_keys(bufs)
 end
 
+local function format(entry, vim_item)
+  -- Special case of copilot
+  if entry.source.name == "copilot" then
+    vim_item.kind = "    AI"
+    return vim_item
+  end
+
+  -- fancy icons and a name of kind
+  vim_item.kind = lspkind.presets.default[vim_item.kind] .. " " .. vim_item.kind
+
+  local lsp_client = ""
+  if entry.source.name == "nvim_lsp" then
+    lsp_client = ("[%s]"):format(entry.source.source.client.name)
+  end
+
+  -- set a name for each source
+  vim_item.menu = ({
+    nvim_lua = "[Lua]",
+    rg = "[RipG]",
+    buffer = "[Buffer]",
+    nvim_lsp = lsp_client,
+    path = "[Path]",
+    luasnip = "[Snip]",
+    copilot = "[AI]",
+  })[entry.source.name]
+
+  -- disable duplicate keys: https://github.com/hrsh7th/nvim-cmp/issues/32
+  vim_item.dup = ({
+    buffer = 0,
+    path = 1,
+    nvim_lsp = 0,
+  })[entry.source.name] or 0
+
+  -- set max width with abbr
+  if string.len(vim_item.abbr) > 25 then
+    vim_item.abbr = string.sub(vim_item.abbr, 1, 20) .. " ... "
+  end
+  return vim_item
+end
+
+local source_rg = {
+  name = "rg",
+  keyword_length = 3,
+  max_item_count = 5,
+  option = {
+    -- only trigger rg if find a git workspace
+    cwd = function()
+      local cwd = find_root_dir(vim.fn.expand("%:p"))
+      if cwd == vim.env.HOME then
+        return nil
+      else
+        return cwd
+      end
+    end,
+  },
+}
+
+local source_buffer = { -- buffer
+  name = "buffer",
+  keyword_length = 3,
+  max_item_count = 5,
+  options = { get_bufnrs = get_visible_buffers },
+}
+
+local cmp_select = { behavior = cmp.SelectBehavior.Select }
+
 cmp.setup({
   completion = {
     keyword_length = 1,
   },
   snippet = {
     expand = function(args)
-      luasnip.lsp_expand(args.body)
+      ls.lsp_expand(args.body)
     end,
   },
   mapping = {
-    ["<Tab>"] = cmp.mapping(cycle_forward, { "i", "s" }),
-    ["<S-Tab>"] = cmp.mapping(cycle_backward, { "i", "s" }),
-    ["<C-n>"] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Inserts }),
-    ["<C-p>"] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Inserts }),
-    -- ["<C-y>"] = cmp.mapping.confirm({ select = true }),
-    -- ["C-y"] = cmp.mapping(function(fallback)
-    --   fallback()
-    -- end),
-    ["<CR>"] = cmp.mapping.confirm({
-      behavior = cmp.ConfirmBehavior.Replace,
-      select = false,
-    }),
+    ["<Tab>"] = cmp.mapping.select_next_item(cmp_select),
+    ["<C-n>"] = cmp.mapping.select_next_item(cmp_select),
+    ["<C-p>"] = cmp.mapping.select_prev_item(cmp_select),
+    ["<C-y>"] = cmp.mapping.confirm({ select = true }),
+    ["<CR>"] = cmp.mapping.confirm({ select = true }),
+    ["<C-Space>"] = cmp.mapping.confirm({ select = true }),
     ["<C-d>"] = cmp.mapping.scroll_docs(4),
     ["<C-u>"] = cmp.mapping.scroll_docs(-4),
     ["<C-e>"] = cmp.mapping.close(),
-    ["<C-c>"] = cmp.mapping(control_c_close, { "i" }),
-    -- ["<C-Space>"] = cmp.mapping(expand_snippet, { "i", "s" }),
+    ["<C-c"] = cmp.mapping(function()
+      if cmp.visible() then
+        cmp.close()
+      end
+      vim.cmd.stopinsert()
+    end, { "i" }),
   },
   sources = {
     { name = "nvim_lua" },
     { name = "luasnip", max_item_count = 2 },
-    { name = "nvim_lsp", keyword_length = 1, max_item_count = 5 },
-    { -- buffer
-      name = "buffer",
-      keyword_length = 3,
-      max_item_count = 5,
-      options = { get_bufnrs = get_visible_buffers },
-    },
-    {
-      name = "rg",
-      keyword_length = 3,
-      max_item_count = 5,
-      option = {
-        -- only trigger rg if find a git workspace
-        cwd = function()
-          local cwd = find_root_dir(vim.fn.expand("%:p"))
-          if cwd == vim.env.HOME then
-            return nil
-          else
-            return cwd
-          end
-        end,
-      },
-    },
-    -- { name = "nvim_lsp_signature_help" },
-    -- { name = "copilot", max_item_count = 3, keyword_length = 5 },
+    { name = "nvim_lsp", keyword_length = 1, max_item_count = 10 },
+    source_buffer,
+    source_rg,
     { name = "path" },
-    -- { name = "treesitter" },
   },
   sorting = {
     priority_weight = 1000,
@@ -123,54 +128,8 @@ cmp.setup({
       cmp.config.compare.order,
     },
   },
-  formatting = {
-    format = function(entry, vim_item)
-      -- Special case of copilot
-      if entry.source.name == "copilot" then
-        vim_item.kind = "    AI"
-        return vim_item
-      end
-
-      -- fancy icons and a name of kind
-      vim_item.kind = lspkind.presets.default[vim_item.kind] .. " " .. vim_item.kind
-
-      local lsp_client = ""
-      if entry.source.name == "nvim_lsp" then
-        lsp_client = ("[%s]"):format(entry.source.source.client.name)
-      end
-
-      -- set a name for each source
-      vim_item.menu = ({
-        nvim_lua = "[Lua]",
-        rg = "[RipG]",
-        buffer = "[Buffer]",
-        nvim_lsp = lsp_client,
-        path = "[Path]",
-        luasnip = "[Snip]",
-        copilot = "[AI]",
-      })[entry.source.name]
-
-      -- disable duplicate keys: https://github.com/hrsh7th/nvim-cmp/issues/32
-      vim_item.dup = ({
-        buffer = 0,
-        path = 1,
-        nvim_lsp = 0,
-      })[entry.source.name] or 0
-
-      -- set max width with abbr
-      if string.len(vim_item.abbr) > 25 then
-        vim_item.abbr = string.sub(vim_item.abbr, 1, 20) .. " ... "
-      end
-      return vim_item
-    end,
-  },
+  formatting = { format = format },
   window = {
-    -- completion = vim.tbl_extend("force", cmp.config.window.bordered(), {
-    --   border = "single",
-    --   maxwidth = 100,
-    --   max_height = 3,
-    --   winblend = 0,
-    -- }),
     documentation = {
       maxwidth = 80,
       max_height = math.floor(vim.o.lines * 0.3),
