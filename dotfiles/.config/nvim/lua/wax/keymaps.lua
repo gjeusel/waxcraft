@@ -4,7 +4,7 @@ local kmap = vim.keymap.set
 kmap("n", "<leader>fr", function()
   -- reload snippets
   require("wax.plugins.luasnip").reload()
-end)
+end, { desc = "Reload Luasnip snippets" })
 
 -- Fix common typos
 vim.cmd([[
@@ -39,9 +39,9 @@ kmap("c", "<a-bs>", "<c-w>") -- ALT + backspace in cmd to delete word, like in t
 kmap("c", "<alt-bs>", "<c-w>") -- ALT + backspace in cmd to delete word, like in terminal
 -- kmap('c', '<a-left>', '<c-left>')  -- ALT + left to act like CTRL + left
 
-kmap("c", "<c-a>", "<c-b>") -- move to beginning of line
-kmap("c", "<M-b>", "<S-Left>", { nowait = true }) -- move left word
-kmap("c", "<M-f>", "<S-Right", { nowait = true }) -- move right word
+kmap("c", "<c-a>", "<c-b>", { nowait = true, desc = "Move to beginning of line" }) -- move to beginning of line
+kmap("c", "<M-b>", "<S-Left>", { nowait = true, desc = "Move left word" }) -- move left word
+kmap("c", "<M-f>", "<S-Right>", { nowait = true, desc = "Move right word" }) -- move right word
 
 -- Avoid vim history cmd to pop up with q:
 kmap("n", "q:", "<Nop>")
