@@ -40,9 +40,6 @@ setopt hist_save_no_dups       # Do not write a duplicate event to the history f
 autoload -U edit-command-line
 zle -N edit-command-line
 
-autoload -U select-word-style
-select-word-style bash
-
 # Add Vi text-objects for brackets and quotes
 autoload -Uz select-bracketed select-quoted
 zle -N select-quoted
