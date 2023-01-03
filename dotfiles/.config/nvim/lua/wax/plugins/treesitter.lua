@@ -56,6 +56,7 @@ ts.setup({
     "javascript",
     "typescript",
     "tsx",
+    "svelte",
     "vue",
     -- Backend:
     "go",
