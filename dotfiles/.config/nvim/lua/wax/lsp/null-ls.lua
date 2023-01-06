@@ -1,7 +1,7 @@
 local u = require("null-ls.utils")
 local s = require("null-ls.state")
 local builtins = require("null-ls.builtins")
-local methods = require("null-ls.methods")
+-- local methods = require("null-ls.methods")
 
 local python_utils = require("wax.lsp.python-utils")
 
@@ -54,24 +54,24 @@ local sources = {
       "-",
     },
   }),
-  builtins.diagnostics.ruff.with({
-    method = methods.internal.FORMATTING,
-    command = "ruff",
-    args = {
-      "--exit-zero",
-      "--no-cache",
-      "--fix",
-      "--stdin-filename",
-      "$FILENAME",
-      "-",
-    },
-    dynamic_command = from_python_env,
-  }),
-  builtins.diagnostics.ruff.with({
-    method = methods.internal.DIAGNOSTICS,
-    command = "ruff",
-    dynamic_command = from_python_env,
-  }),
+  -- builtins.diagnostics.ruff.with({
+  --   method = methods.internal.FORMATTING,
+  --   command = "ruff",
+  --   args = {
+  --     "--exit-zero",
+  --     "--no-cache",
+  --     "--fix",
+  --     "--stdin-filename",
+  --     "$FILENAME",
+  --     "-",
+  --   },
+  --   dynamic_command = from_python_env,
+  -- }),
+  -- builtins.diagnostics.ruff.with({
+  --   method = methods.internal.DIAGNOSTICS,
+  --   command = "ruff",
+  --   dynamic_command = from_python_env,
+  -- }),
 
   -- lua filetypes
   builtins.formatting.stylua,
