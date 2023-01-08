@@ -31,12 +31,14 @@ tcsh-backward-delete-word () {
 zle -N tcsh-backward-delete-word
 bindkey '^[^H' tcsh-backward-delete-word
 
-# delete char
+# delete char forward
 bindkey "^[[3~" delete-char
+# delete char backward
+bindkey '^?' backward-delete-char
 
 # beginning / end of line
 bindkey '^A' beginning-of-line
-bindkey '^E' end-of-line
+# bindkey '^E' end-of-line
 
 # edit command line in $EDITOR
 bindkey '^X' edit-command-line
