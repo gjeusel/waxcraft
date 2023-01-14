@@ -63,7 +63,7 @@ vim.keymap.set("i", "<C-c>", "<Esc>")
 kmap("n", "<return>", "vip")
 
 -- For when you forget to sudo.. Really Write the file.
-kmap("c", "w!!", "w !sudo tee % >/dev/null")
+-- kmap("c", "w!!", "w !sudo tee % >/dev/null")
 
 -- source current lua file
 kmap("n", "<leader>sf", ":luafile %<CR>")

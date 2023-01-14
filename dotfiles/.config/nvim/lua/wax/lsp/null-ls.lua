@@ -43,17 +43,18 @@ local sources = {
       "-",
     },
   }),
-  builtins.formatting.isort.with({
-    command = "isort",
-    dynamic_command = from_python_env,
-    args = {
-      "--profile=black",
-      "--stdout",
-      "--filename",
-      "$FILENAME",
-      "-",
-    },
-  }),
+  -- builtins.formatting.isort.with({
+  --   command = "isort",
+  --   dynamic_command = from_python_env,
+  --   args = {
+  --     "--profile=black",
+  --     "--stdout",
+  --     "--filename",
+  --     "$FILENAME",
+  --     "-",
+  --   },
+  -- }),
+
   -- builtins.diagnostics.ruff.with({
   --   method = methods.internal.FORMATTING,
   --   command = "ruff",

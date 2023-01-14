@@ -36,6 +36,20 @@ return require("packer").startup({
     -- Packer can manage itself as an optional plugin
     use({ "wbthomason/packer.nvim" })
 
+    -- this is where the fun begins
+    use({
+      "Eandrju/cellular-automaton.nvim",
+      -- cmd = "CellularAutomaton",
+      setup = function()
+        vim.keymap.set(
+          "n",
+          "<leader>fl",
+          [[<cmd>CellularAutomaton make_it_rain<cr>]],
+          { nowait = true, desc = "Make it rain", remap = false }
+        )
+      end,
+    })
+
     -- Analyze startuptime
     use({ "dstein64/vim-startuptime", cmd = "StartupTime" })
 

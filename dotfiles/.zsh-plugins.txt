@@ -17,8 +17,8 @@ zsh-users/zsh-completions
 
 # Syntax
 #zdharma/fast-syntax-highlighting  # not that beautiful
-zdharma-continuum/fast-syntax-highlighting kind:defer
-# zsh-users/zsh-syntax-highlighting
+# zdharma-continuum/fast-syntax-highlighting kind:defer
+zsh-users/zsh-syntax-highlighting
 zsh-users/zsh-autosuggestions
 
 # Docker & Kubernetes:

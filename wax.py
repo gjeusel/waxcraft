@@ -171,7 +171,12 @@ def tmux():
 
 
 def _common_bash_zsh():
-    relative_paths = [".inputrc", ".aliases", ".zlogin", ".config/fsh/overlay.ini"]
+    relative_paths = [
+        ".inputrc",
+        ".aliases",
+        ".zlogin",
+        # ".config/fsh/overlay.ini",
+    ]
     create_symlinks_robust(relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home())
 
 

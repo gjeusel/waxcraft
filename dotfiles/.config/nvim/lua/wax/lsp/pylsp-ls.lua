@@ -24,14 +24,22 @@ return {
       -- https://github.com/python-lsp/python-lsp-server/blob/develop/CONFIGURATION.md
       plugins = {
         jedi_rename = { enabled = true },
-        -- jedi_completion = {
-        --   eager = true,
-        --   cache_labels_for = { "pandas", "numpy", "pydantic", "fastapi", "flask", "sqlalchemy" },
-        -- },
+        jedi_completion = {
+          eager = true,
+          cache_labels_for = {
+            "pandas",
+            "numpy",
+            "pydantic",
+            "fastapi",
+            "flask",
+            "sqlalchemy",
+            "dagster",
+          },
+        },
         pylsp_mypy = {
-          enabled = true,
+          enabled = false,
           live_mode = false,
-          dmypy = true,
+          -- dmypy = true,
           args = {
             "--sqlite-cache", -- Use an SQLite database to store the cache.
             "--cache-fine-grained", -- Include fine-grained dependency information in the cache for the mypy daemon.
@@ -44,12 +52,12 @@ return {
         pycodestyle = { enabled = false },
         pyflakes = { enabled = false },
         pylint = { enabled = false },
-        rope = { enabled = false },
-        rope_completion = { enabled = false },
+        rope = { enabled = true },
+        rope_completion = { enabled = true },
         rope_rename = { enabled = false },
         yapf = { enabled = false },
         -- still unsure:
-        jedi_completion = { enabled = false }, -- done better by pyright ?
+        -- jedi_completion = { enabled = false }, -- done better by pyright ?
         -- Formatting is taken care of by null-ls
         ["pylsp_black"] = { enabled = false },
         ["pyls_isort"] = { enabled = false },

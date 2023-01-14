@@ -102,7 +102,7 @@ vim.g.netrw_sort_by = "name"
 vim.g.netrw_sort_direction = "reverse"
 
 -- Searching
--- vim.o.ignorecase = true -- searches are case insensitive...
+vim.o.ignorecase = true -- searches are case insensitive...
 vim.o.smartcase = true -- ... unless they contain at least one capital letter
 vim.o.incsearch = 1 -- show the pattern matches while typing
 

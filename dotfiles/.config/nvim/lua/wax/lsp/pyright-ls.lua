@@ -31,7 +31,7 @@ return {
     client.server_capabilities.signatureHelpProvider = false -- pyright typing of signature is weird
     client.server_capabilities.definitionProvider = false -- pyright does not follow imports correctly
     client.server_capabilities.referencesProvider = false -- pylsp does it
-    -- client.server_capabilities.completionProvider = false -- pyright does not add parameters in signature
+    -- client.server_capabilities.completionProvider = false -- missing when dep is untyped
   end,
   settings = {
     python = {

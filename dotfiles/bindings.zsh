@@ -38,7 +38,7 @@ bindkey '^?' backward-delete-char
 
 # beginning / end of line
 bindkey '^A' beginning-of-line
-# bindkey '^E' end-of-line
+bindkey '^E' end-of-line
 
 # edit command line in $EDITOR
 bindkey '^X' edit-command-line
