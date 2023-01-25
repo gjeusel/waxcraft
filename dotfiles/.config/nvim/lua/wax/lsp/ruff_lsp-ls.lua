@@ -1,6 +1,7 @@
 local python_utils = require("wax.lsp.python-utils")
 
 return {
+  filetypes = { "python" },
   settings = {
     -- https://github.com/charliermarsh/ruff-lsp#settings
     -- interpreter = {},

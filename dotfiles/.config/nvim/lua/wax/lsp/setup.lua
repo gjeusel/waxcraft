@@ -1,5 +1,7 @@
 local M = {}
 
+local lsputils = require("wax.lsp.lsputils")
+
 local lspconfig = require("lspconfig")
 local lspmason = require("mason-lspconfig")
 local Package = require("mason-core.package")
@@ -57,6 +59,7 @@ function M.setup_servers(global_lsp_settings)
     -- Re-construct full settings
     local custom_settings =
       get_custom_settings_for_server(server_name, global_lsp_settings.on_attach)
+
     local settings = vim.tbl_extend("keep", custom_settings, global_lsp_settings)
 
     -- Advertise capabilities to cmp_nvim_lsp
@@ -83,5 +86,25 @@ function M.setup_servers(global_lsp_settings)
 
   lspmason.setup()
 end
+
+-- vim.api.nvim_create_autocmd("LspAttach", {
+--   callback = function(args)
+--     if not args.data then
+--       return
+--     end
+--     local lsp_client = vim.lsp.get_client_by_id(args.data.client_id)
+--     local opts = vim.tbl_get(waxopts.lsp._servers, lsp_client.name)
+--     log.warn("lsp_client.name", lsp_client.name, "opts", opts)
+--     if not opts then
+--       log.warn("early return", lsp_client.name)
+--       return
+--     end
+--     local project = lsputils.workspace_to_project(lsp_client.root_dir)
+--     log.info("project=",project)
+--     if vim.tbl_contains(opts.disabled_workspace, project) then
+--       log.warn("Should disable", lsp_client.name, "for project", project)
+--     end
+--   end,
+-- })
 
 return M

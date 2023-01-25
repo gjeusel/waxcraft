@@ -42,6 +42,7 @@ local snippets_path = vim.env.waxCraft_PATH .. "/dotfiles/.config/nvim/lua/wax/p
 load_from_lua({ paths = snippets_path })
 
 ls.filetype_extend("vue", { "typescript" })
+ls.filetype_extend("svelte", { "typescript" })
 ls.filetype_extend("typescriptreact", { "typescript" })
 ls.filetype_extend("jinja.html", { "html" })
 

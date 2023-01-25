@@ -45,7 +45,7 @@ return require("packer").startup({
           "n",
           "<leader>fl",
           [[<cmd>CellularAutomaton make_it_rain<cr>]],
-          { nowait = true, desc = "Make it rain", remap = false }
+          { nowait = true, desc="Make it rain" }
         )
       end,
     })
@@ -139,6 +139,7 @@ return require("packer").startup({
     --     safe_require("wax.plugins.folds-ufo")
     --   end,
     -- })
+
     -- use({
     --   "Konfekt/FastFold",
     --   config = function()

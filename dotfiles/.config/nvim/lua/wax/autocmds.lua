@@ -33,7 +33,7 @@ vim.api.nvim_create_autocmd("FileType", {
 
 -- Frontend
 vim.api.nvim_create_autocmd("FileType", {
-  pattern = { "vue", "typescript", "javascript", "typescriptreact", "javascriptreact" },
+  pattern = { "vue", "svelte", "typescript", "javascript", "typescriptreact", "javascriptreact" },
   callback = function()
     vim.keymap.set("n", "<leader>o", function()
       utils.insert_new_line_in_current_buffer("debugger  // BREAKPOINT")

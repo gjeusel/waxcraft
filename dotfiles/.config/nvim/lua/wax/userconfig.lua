@@ -65,7 +65,7 @@ waxopts.lsp._servers = {}
 
 local function _to_lsp_server_opts(opts)
   if type(opts) == "string" then
-    return { name = opts, on_projects = nil }
+    return { name = opts, on_projects = {}, disabled_workspace = {} }
   else
     return opts
   end

@@ -32,6 +32,10 @@ return {
     client.server_capabilities.definitionProvider = false -- pyright does not follow imports correctly
     client.server_capabilities.referencesProvider = false -- pylsp does it
     -- client.server_capabilities.completionProvider = false -- missing when dep is untyped
+    client.server_capabilities.completionProvider = {
+      resolveProvider = true,
+      triggerCharacters = { "." },
+    }
   end,
   settings = {
     python = {

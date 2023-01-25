@@ -2,6 +2,8 @@ local scan = require("plenary.scandir")
 local Path = require("plenary.path")
 local path = require("lspconfig.util").path
 
+local lsputils = require("wax.lsp.lsputils")
+
 -- local functional = require("nvim-lsp-installer.core.functional")
 -- local installer = require("nvim-lsp-installer.core.installer")
 -- local settings = require("nvim-lsp-installer.settings")
@@ -25,15 +27,6 @@ else
   M.basepath_conda_venv = ""
 end
 
-M.workspace_to_project = function(workspace)
-  local workspace_abs = Path:new(workspace):absolute()
-  local project = vim.fn.fnamemodify(workspace_abs, ":t:r")
-  if project == "" then
-    return nil
-  else
-    return project
-  end
-end
 
 local function find_python_cmd(workspace, cmd)
   -- https://github.com/neovim/nvim-lspconfig/issues/500#issuecomment-851247107
@@ -49,7 +42,7 @@ local function find_python_cmd(workspace, cmd)
   end
 
   -- If a conda env exists with the same name as the workspace, use it
-  local project_name = M.workspace_to_project(workspace)
+  local project_name = lsputils.workspace_to_project(workspace)
   if workspace and project_name then
     local search_pattern_regex = vim.regex(".*" .. project_name .. ".*")
     local opts = {
