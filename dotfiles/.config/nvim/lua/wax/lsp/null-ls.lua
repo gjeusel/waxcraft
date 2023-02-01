@@ -123,6 +123,11 @@ local sources = {
   builtins.formatting.eslint_d,
   -- builtins.diagnostics.eslint,
   -- builtins.formatting.eslint,
+
+  -- sql
+  -- builtins.formatting.sql_formatter,
+  -- builtins.diagnostics.sqlfluff.with({ extra_args = { "--dialect", "postgres" } }),
+  -- builtins.formatting.sqlfluff.with({ extra_args = { "--dialect", "postgres" } }),
 }
 
 require("null-ls").setup({

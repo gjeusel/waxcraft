@@ -119,18 +119,18 @@ return require("packer").startup({
         safe_require("wax.plugins.vim-test")
       end,
     })
-    use({ -- nvim-dap
-      "mfussenegger/nvim-dap",
-      -- "~/src/nvim-dap",
-      requires = {
-        "theHamsta/nvim-dap-virtual-text",
-        "rcarriga/nvim-dap-ui",
-        "mfussenegger/nvim-dap-python",
-      },
-      config = function()
-        safe_require("wax.plugins.nvim-dap")
-      end,
-    })
+    -- use({ -- nvim-dap
+    --   "mfussenegger/nvim-dap",
+    --   -- "~/src/nvim-dap",
+    --   requires = {
+    --     "theHamsta/nvim-dap-virtual-text",
+    --     "rcarriga/nvim-dap-ui",
+    --     "mfussenegger/nvim-dap-python",
+    --   },
+    --   config = function()
+    --     safe_require("wax.plugins.nvim-dap")
+    --   end,
+    -- })
 
     -- use({ -- ultra fold
     --   "kevinhwang91/nvim-ufo",
