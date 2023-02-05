@@ -39,14 +39,8 @@ return require("packer").startup({
     -- this is where the fun begins
     use({
       "Eandrju/cellular-automaton.nvim",
-      -- cmd = "CellularAutomaton",
       setup = function()
-        vim.keymap.set(
-          "n",
-          "<leader>fl",
-          [[<cmd>CellularAutomaton make_it_rain<cr>]],
-          { nowait = true, desc="Make it rain" }
-        )
+        vim.keymap.set("n", "<leader>fl", "<cmd>CellularAutomaton make_it_rain<CR>");
       end,
     })
 
@@ -67,6 +61,13 @@ return require("packer").startup({
         safe_require("wax.plugins.lightspeed")
       end,
       disable = true,
+    })
+
+    use({
+      "mbbill/undotree",
+      config = function()
+        vim.keymap.set("n", "<leader>u", vim.cmd.UndotreeToggle)
+      end,
     })
 
     use({ -- mini - (arround/inside improved)

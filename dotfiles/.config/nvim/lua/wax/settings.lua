@@ -20,7 +20,7 @@ vim.o.ruler = true -- Show the cursor position all the time
 -- vim.o.cmdheight = 0  -- hide cmdline  -- waiting for https://github.com/neovim/neovim/issues/20380
 
 vim.o.scrolljump = 5 -- Lines to scroll when cursor leaves screen
-vim.o.scrolloff = 3 -- Have some context around the current line always on screen
+vim.o.scrolloff = 8 -- Have some context around the current line always on screen
 vim.o.virtualedit = "onemore" -- Allow for cursor beyond last character
 vim.o.hidden = true -- Allow backgrounding buffers without writin them, and remember marks/undo for backgrounded buffers
 vim.o.splitright = true -- split at the right of current buffer (left default behaviour)
@@ -34,7 +34,7 @@ vim.o.updatetime = 50 -- frequency to apply Autocmd events -> low for nvim-ts-co
 vim.api.nvim_exec([[set shortmess+=cs]], false) -- don't pass messages to ins-completion-menu
 vim.o.completeopt = "menuone,noselect"
 
-vim.o.pumheight = 5  -- max completion popup menu height
+vim.o.pumheight = 5 -- max completion popup menu height
 
 vim.o.matchpairs = "(:),{:},[:],<:>,':',\":\""
 -- vim.o.matchpairs = { "(:)", "{:}", "[:]", "<:>", "':'", '":"' } -- behavior of '%'
@@ -72,20 +72,28 @@ vim.api.nvim_exec([[set listchars=tab:›\ ,trail:•,extends:#,nbsp:.]], false)
 -- Backup, swap, undo & sessions
 local basedir = vim.fn.stdpath("data")
 
--- swapfile
-vim.o.directory = basedir .. "/swap"
-
-local backupdir = basedir .. "/backup"
-vim.fn.mkdir(backupdir, "p")
-vim.o.backupdir = backupdir
-
 if vim.fn.has("persistent_undo") == 1 then
   local undodir = basedir .. "/undo"
   vim.fn.mkdir(undodir, "p")
+  vim.o.undodir = undodir
+
   vim.o.undofile = true -- So is persistent undo ...
   vim.o.undolevels = 1000 -- Maximum number of changes that can be undone
   vim.o.undoreload = 10000 -- Maximum number lines to save for undo on a buffer reload
-  vim.o.undodir = undodir
+
+  -- useless backup & swapfile as we will use persisted undo
+  vim.o.swapfile = false
+  vim.o.backup = false
+else
+  vim.o.swapfile = true
+  vim.o.backup = true
+
+  -- swapfile
+  vim.o.directory = basedir .. "/swap"
+
+  local backupdir = basedir .. "/backup"
+  vim.fn.mkdir(backupdir, "p")
+  vim.o.backupdir = backupdir
 end
 
 if vim.fn.has("mksession") == 1 then
