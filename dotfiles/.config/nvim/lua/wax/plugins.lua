@@ -238,7 +238,7 @@ return require("packer").startup({
         safe_require("nvim-web-devicons").setup()
       end,
     })
-    use("mhinz/vim-startify") -- fancy start screen
+    use({ "mhinz/vim-startify" }) -- fancy start screen
     use({ -- gitsigns
       "lewis6991/gitsigns.nvim",
       after = { "plenary.nvim" },
@@ -277,13 +277,13 @@ return require("packer").startup({
     -- use("rhysd/conflict-marker.vim") -- conflict markers for vimdiff
 
     --------- Fuzzy Fuzzy Fuzzy ---------
-    use({
+    use({ -- fzf-lua
       "ibhagwan/fzf-lua",
       config = function()
         safe_require("wax.plugins.fzf")
       end,
     })
-    use({ -- when fuzzy is boring, alternative to Harpoon
+    use({ -- when fuzzy is boring, alternative to grapple
       "cbochs/grapple.nvim",
       config = function()
         safe_require("wax.plugins.grapple")
