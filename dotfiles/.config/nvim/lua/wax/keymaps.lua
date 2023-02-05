@@ -103,8 +103,8 @@ vim.keymap.set("n", "J", "mzJ`z")
 vim.keymap.set("v", "<leader>p", '"_dP')
 
 -- From the ThePrimeagen (recenter on vertical movements)
-vim.keymap.set("n", "<C-d>", "<C-d>zz")  -- laggy
-vim.keymap.set("n", "<C-u>", "<C-u>zz")
+-- vim.keymap.set("n", "<C-d>", "<C-d>zz")  -- laggy
+-- vim.keymap.set("n", "<C-u>", "<C-u>zz")
 vim.keymap.set("n", "n", "nzzzv")
 vim.keymap.set("n", "N", "Nzzzv")
 
