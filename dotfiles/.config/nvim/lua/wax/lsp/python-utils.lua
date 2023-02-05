@@ -6,18 +6,18 @@ local M = {}
 
 M.basepath_poetry_venv = os.getenv("HOME") .. "/Library/Caches/pypoetry/virtualenvs" or ""
 
+M.basepath_conda = nil
+M.basepath_conda_venv = nil
 if os.getenv("CONDA_EXE") then
-  M.basepath_conda_venv =
-    Path:new(os.getenv("CONDA_EXE")):parent():parent():joinpath("envs"):absolute()
-else
-  M.basepath_conda_venv = ""
+  M.basepath_conda = Path:new(os.getenv("CONDA_EXE")):parent():parent()
+  M.basepath_conda_venv = M.basepath_conda:joinpath("envs"):absolute()
 end
 
 local function find_python_cmd(workspace, cmd)
   -- https://github.com/neovim/nvim-lspconfig/issues/500#issuecomment-851247107
 
   -- If conda env is activated, use it
-  if vim.env.CONDA_PREFIX then
+  if vim.env.CONDA_PREFIX and vim.env.CONDA_PREFIX ~= M.basepath_conda.filename then
     return path.join(vim.env.CONDA_PREFIX, "bin", cmd)
   end
 

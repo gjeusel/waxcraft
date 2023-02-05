@@ -42,10 +42,8 @@ local function trunc(trunc_width, trunc_len, hide_width, no_ellipsis)
   end
 end
 
-local function rpad(size)
-  return function(str)
-    return str .. string.rep(" ", size - #str)
-  end
+local function fmt_mode(value)
+  return "  " .. string.lower(value) .. string.rep(" ", 7 - #value)
 end
 
 local colors = {
@@ -59,8 +57,10 @@ local colors = {
 }
 
 local sober_theme = {
-  a = { bg = colors.GruvboxBg1, fg = colors.green },
-  b = { bg = colors.GruvboxBg0, fg = colors.GruvboxBg3 },
+  -- a = { bg = colors.GruvboxBg1, fg = colors.green },
+  -- b = { bg = colors.GruvboxBg0, fg = colors.GruvboxBg3 },
+  a = { fg = colors.green, gui = "bold" },
+  b = { fg = colors.GruvboxBg3 },
   c = { fg = colors.GruvboxBg3 },
   x = { fg = colors.GruvboxBg3 },
   y = { fg = colors.GruvboxBg3 },
@@ -96,7 +96,7 @@ require("lualine").setup({
     },
     ignore_focus = {},
     always_divide_middle = true,
-    globalstatus = false,
+    globalstatus = vim.go.laststatus == 3,
     refresh = {
       statusline = 1000,
       tabline = 1000,
@@ -107,7 +107,7 @@ require("lualine").setup({
   -- | A | B | C                             X | Y | Z |
   -- +-------------------------------------------------+
   sections = {
-    lualine_a = { { "mode", fmt = rpad(7) } },
+    lualine_a = { { "mode", fmt = fmt_mode } },
     lualine_b = { workspace_name },
     lualine_c = { "spell", "readonly", "modified", diagnostics },
     lualine_x = { { "branch", fmt = trunc(120, 12, 60) }, relative_path },
