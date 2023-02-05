@@ -1,9 +1,9 @@
-local tsdk = vim.env.HOME .. "/.volta/tools/shared/typescript/lib"
+-- local tsdk = vim.env.HOME .. "/.volta/tools/shared/typescript/lib"
 
 local init_options = {
   petiteVue = { processHtmlFile = false },
   vitePress = { processMdFile = false },
-  typescript = { tsdk = tsdk },
+  -- typescript = { tsdk = tsdk },
   -- serverMode = 0, --
   ignoreTriggerCharacters = "",
   -- textDocumentSync = 2,
