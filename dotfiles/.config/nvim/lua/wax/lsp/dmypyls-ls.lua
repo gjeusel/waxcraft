@@ -11,13 +11,13 @@ require("lspconfig.configs")[lspname] = {
   default_config = {
     cmd = { "dmypy-ls" },
     filetypes = { "python" },
-    root_dir = lspconfig.util.root_pattern(
+    root_dir = find_root_dir_fn({
       "pyproject.toml",
       "setup.py",
       "setup.cfg",
       "requirements.txt",
-      "Pipfile"
-    ),
+      "Pipfile",
+    }),
     single_file_support = true,
   },
 }
@@ -52,30 +52,25 @@ end
 local initial_workspace = find_root_dir(".")
 register_dmypyls(
   python_utils.get_python_path(initial_workspace, "python"),
-  python_utils.workspace_to_project(initial_workspace)
+  to_workspace_name(initial_workspace)
 )
 
 return {
   on_new_config = function(config, new_workspace)
     local python_path = python_utils.get_python_path(new_workspace, "python")
-
-    local msg = "LSP python (dmypyls) - '%s' using path %s"
-    log.info(msg:format(python_utils.workspace_to_project(new_workspace), python_path))
+    local new_workspace_name = to_workspace_name(new_workspace)
 
     if python_path == "python" then
-      msg = "LSP python (dmypyls) - keeping previous python path '%s' for new_root_dir '%s'"
-      log.info(msg:format(config.cmd[1], new_workspace))
+      local msg = "LSP python (dmypyls) - keeping previous python path '%s' for new_root_dir '%s'"
+      log.debug(msg:format(config.cmd[1], new_workspace))
+      return config
+    else
+      local msg = "LSP python (dmypyls) - '%s' using path %s"
+      log.info(msg:format(new_workspace_name, python_path))
+
+      register_dmypyls(python_path, new_workspace_name) -- Update mason dmypyls server
+      config.cmd = to_dmypyls_cmd(python_path)
       return config
     end
-
-    msg = "LSP python (dmypyls) - new path '%s' for new_root_dir '%s'"
-    log.info(msg:format(python_path, new_workspace))
-
-    -- Update nvim-lsp-installer dmypyls server by re-creating it
-    local project = python_utils.workspace_to_project(new_workspace)
-    register_dmypyls(python_path, project)
-    local cmd = to_dmypyls_cmd(python_path)
-    config.cmd = cmd
-    return config
   end,
 }

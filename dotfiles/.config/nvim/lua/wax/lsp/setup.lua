@@ -1,7 +1,5 @@
 local M = {}
 
-local lsputils = require("wax.lsp.lsputils")
-
 local lspconfig = require("lspconfig")
 local lspmason = require("mason-lspconfig")
 local Package = require("mason-core.package")
@@ -99,7 +97,7 @@ end
 --       log.warn("early return", lsp_client.name)
 --       return
 --     end
---     local project = lsputils.workspace_to_project(lsp_client.root_dir)
+--     local project = to_workspace_name(lsp_client.root_dir)
 --     log.info("project=",project)
 --     if vim.tbl_contains(opts.disabled_workspace, project) then
 --       log.warn("Should disable", lsp_client.name, "for project", project)

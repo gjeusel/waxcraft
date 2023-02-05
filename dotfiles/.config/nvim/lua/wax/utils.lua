@@ -154,6 +154,18 @@ function _G.find_root_dir(path)
   return find_root_dir_fn()(path)
 end
 
+function _G.find_workspace_name(path)
+  local root_dir = find_root_dir(path or vim.api.nvim_buf_get_name(0))
+  if root_dir == nil then
+    return nil
+  end
+  return vim.fn.fnamemodify(root_dir, ":t:r") or nil
+end
+
+function _G.to_workspace_name(path)
+  return vim.fn.fnamemodify(path, ":t:r") or nil
+end
+
 -------- Utilities --------
 
 ---Check if the bufnr should be considered a big file

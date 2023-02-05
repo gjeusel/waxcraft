@@ -37,10 +37,10 @@ return require("packer").startup({
     use({ "wbthomason/packer.nvim" })
 
     -- this is where the fun begins
-    use({
+    use({ -- cellular-automaton
       "Eandrju/cellular-automaton.nvim",
       setup = function()
-        vim.keymap.set("n", "<leader>fl", "<cmd>CellularAutomaton make_it_rain<CR>");
+        vim.keymap.set("n", "<leader>fl", "<cmd>CellularAutomaton make_it_rain<CR>")
       end,
     })
 
@@ -51,8 +51,8 @@ return require("packer").startup({
     use({ "nvim-lua/plenary.nvim" })
 
     --------- System Plugins ---------
-    use("AndrewRadev/splitjoin.vim") -- easy split join on whole paragraph
-    use("michaeljsmith/vim-indent-object") -- text object based on indentation levels.
+    use({ "AndrewRadev/splitjoin.vim" }) -- easy split join on whole paragraph
+    use({ "michaeljsmith/vim-indent-object" }) -- text object based on indentation levels.
     use({ "vim-scripts/loremipsum", cmd = "Loremipsum" }) -- dummy text generator (:Loremipsum [number of words])
 
     use({ -- the next vim-sneak
@@ -60,10 +60,9 @@ return require("packer").startup({
       config = function()
         safe_require("wax.plugins.lightspeed")
       end,
-      disable = true,
     })
 
-    use({
+    use({ -- undotree
       "mbbill/undotree",
       config = function()
         vim.keymap.set("n", "<leader>u", vim.cmd.UndotreeToggle)
@@ -74,12 +73,11 @@ return require("packer").startup({
       "echasnovski/mini.nvim",
       -- disable = true, -- is buggy on html tags
       config = function()
-        safe_require("mini.ai").setup({ search_method = "cover_or_nearest" })
+        require("mini.ai").setup({ search_method = "cover_or_nearest" })
       end,
     })
 
-    -- key bindings cheatsheet
-    use({
+    use({ -- which-key (key bindings cheatsheet)
       "folke/which-key.nvim",
       config = function()
         safe_require("which-key")
@@ -104,12 +102,14 @@ return require("packer").startup({
         safe_require("wax.plugins.comment")
       end,
     })
+
     use({ -- vim-tmux-navigator
       "christoomey/vim-tmux-navigator", -- tmux navigation in love with vim
       config = function()
         safe_require("wax.plugins.vim-tmux-navigator")
       end,
     })
+
     use({ -- vim-test
       "janko/vim-test", -- test at the speed of light
       requires = {
@@ -120,6 +120,7 @@ return require("packer").startup({
         safe_require("wax.plugins.vim-test")
       end,
     })
+
     -- use({ -- nvim-dap
     --   "mfussenegger/nvim-dap",
     --   -- "~/src/nvim-dap",
@@ -163,7 +164,7 @@ return require("packer").startup({
     -- })
 
     -- Tpope is awesome
-    use("tpope/vim-eunuch") -- sugar for the UNIX shell commands
+    use({ "tpope/vim-eunuch" }) -- sugar for the UNIX shell commands
     use({ "tpope/vim-scriptease", cmd = "Messages" }) -- gives :Messages
     use({ -- vim fugitive
       "tpope/vim-fugitive",
@@ -181,8 +182,7 @@ return require("packer").startup({
       end,
     }) -- Git wrapper for vim
 
-    use({
-      -- diffview: git integration for nvim
+    use({ -- diffview: git integration for nvim
       "sindrets/diffview.nvim",
       config = function()
         safe_require("wax.plugins.diffview")
@@ -199,15 +199,12 @@ return require("packer").startup({
 
     --------- User Interface ---------
     use("morhetz/gruvbox")
-    use("mhartington/oceanic-next")
-    use("shaunsingh/nord.nvim")
 
-    use({ -- lightline
-      "itchyny/lightline.vim", -- light status line
+    use({ -- lualine
+      "nvim-lualine/lualine.nvim",
       config = function()
-        safe_require("wax.plugins.lightline")
+        safe_require("wax.plugins.lualine")
       end,
-      after = { "lsp-status.nvim" },
     })
 
     use({ -- barbar
@@ -348,7 +345,7 @@ return require("packer").startup({
       branch = "main",
       requires = {
         { "williamboman/mason-lspconfig.nvim", branch = "main" },
-        "nvim-lua/lsp-status.nvim",
+        { "nvim-lua/lsp-status.nvim" },
         { -- fidget - lsp progress notifs
           "j-hui/fidget.nvim",
           disable = true,

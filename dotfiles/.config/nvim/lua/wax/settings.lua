@@ -28,8 +28,6 @@ vim.o.splitbelow = true -- split at the below of current buffer (top default beh
 vim.o.autochdir = true -- working directory is always the same as the file you are editing
 vim.o.textwidth = 0 -- avoid auto line return while typing
 
-vim.o.backup = true -- Backups are nice ...
-
 vim.o.updatetime = 50 -- frequency to apply Autocmd events -> low for nvim-ts-context-commentstring
 vim.api.nvim_exec([[set shortmess+=cs]], false) -- don't pass messages to ins-completion-menu
 vim.o.completeopt = "menuone,noselect"

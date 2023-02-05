@@ -11,7 +11,7 @@ lsp_status.config({
   current_function = false,
   show_filename = false,
   indicator_separator = " ",
-  component_separator = " | ",
+  component_separator = " ",
   indicator_errors = "✗",
   indicator_info = "כֿ",
   indicator_warnings = "",

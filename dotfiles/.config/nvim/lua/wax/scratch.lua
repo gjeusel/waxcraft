@@ -14,9 +14,8 @@ local config = {
     external = {
       markdown = "glow %",
       python = function()
-        local python_utils = require("wax.lsp.python-utils")
-        local workspace = python_utils.find_root_dir(vim.fn.expand("%:p"))
-        local python_path = python_utils.get_python_path(workspace) or "python"
+        local workspace = find_root_dir(vim.fn.expand("%:p"))
+        local python_path = require("wax.lsp.python-utils").get_python_path(workspace) or "python"
         local cmd = ("%s $filePath"):format(python_path)
         return cmd
       end,

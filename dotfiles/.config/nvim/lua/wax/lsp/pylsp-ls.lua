@@ -66,26 +66,18 @@ return {
   },
   on_new_config = function(config, new_workspace)
     local python_path = python_utils.get_python_path(new_workspace, "python")
-
-    local msg = "LSP python (pylsp) - '%s' using path %s"
-    log.info(msg:format(python_utils.workspace_to_project(new_workspace), python_path))
+    local new_workspace_name = to_workspace_name(new_workspace)
 
     if python_path == "python" then
-      msg = "LSP python (pylsp) - keeping previous python path '%s' for new_root_dir '%s'"
-      log.info(msg:format(config.cmd[1], new_workspace))
+      local msg = "LSP python (pylsp) - keeping previous python path '%s' for new_root_dir '%s'"
+      log.debug(msg:format(config.cmd[1], new_workspace))
+      return config
+    else
+      local msg = "LSP python (pylsp) - '%s' using path %s"
+      log.info(msg:format(new_workspace_name, python_path))
+
+      config.cmd = to_pylsp_cmd(python_path)
       return config
     end
-
-    msg = "LSP python (pylsp) - new path '%s' for new_root_dir '%s'"
-    log.info(msg:format(python_path, new_workspace))
-
-    -- Update nvim-lsp-installer pylsp server by re-creating it
-    local project = python_utils.workspace_to_project(new_workspace)
-
-    log.info(("LSP python (pylsp) - '%s' using path %s"):format(project, python_path))
-
-    local cmd = to_pylsp_cmd(python_path)
-    config.cmd = cmd
-    return config
   end,
 }
