@@ -82,6 +82,8 @@ if vim.fn.has("persistent_undo") == 1 then
   -- useless backup & swapfile as we will use persisted undo
   vim.o.swapfile = false
   vim.o.backup = false
+  vim.o.writebackup = false
+  vim.o.backupdir = nil
 else
   vim.o.swapfile = true
   vim.o.backup = true

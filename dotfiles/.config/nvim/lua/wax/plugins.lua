@@ -389,21 +389,13 @@ return require("packer").startup({
             safe_require("wax.plugins.nvim-autopairs")
           end,
         },
-        -- { -- GH copilot setup
-        --   "zbirenbaum/copilot-cmp",
-        --   module = "copilot_cmp",
-        --   requires = {
-        --     -- { "github/copilot.vim", branch = "release" },
-        --     { "zbirenbaum/copilot.lua" },
-        --   },
-        --   -- event = { "VimEnter" },
-        --   event = { "InsertEnter" },
-        --   config = function()
-        --     vim.schedule(function()
-        --       safe_require("wax.plugins.gh-copilot")
-        --     end)
-        --   end,
-        -- },
+        { -- Github copilot
+          "zbirenbaum/copilot.lua",
+          event = "InsertEnter",
+          config = function()
+            safe_require("wax.plugins.copilot")
+          end,
+        },
       },
       config = function()
         safe_require("wax.plugins.nvim-cmp")
