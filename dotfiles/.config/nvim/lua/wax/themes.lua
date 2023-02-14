@@ -161,6 +161,7 @@ local map_gruvbox_filetype_hls = {
     ["@function"] = { link = "GruvboxBlueBold" },
     ["@function.call"] = { link = "white" },
     ["@function.builtin"] = { link = "GruvboxYellow" },
+    ["@comment"] = { link = "Comment" },
   },
   yaml = {
     ["@field"] = { link = "GruvboxBlue" },
@@ -224,3 +225,4 @@ vim.keymap.set("n", "<leader>xz", function()
   apply_gruvbox_theme()
   vim.api.nvim_exec_autocmds("FileType", { group = ts_augroup })
 end)
+

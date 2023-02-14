@@ -199,6 +199,13 @@ return require("packer").startup({
 
     --------- User Interface ---------
     use("morhetz/gruvbox")
+    -- use("sainnhe/gruvbox-material")
+    use({
+      "NvChad/nvim-colorizer.lua",
+      config = function()
+        require("colorizer").setup()
+      end,
+    })
 
     use({ -- lualine
       "nvim-lualine/lualine.nvim",

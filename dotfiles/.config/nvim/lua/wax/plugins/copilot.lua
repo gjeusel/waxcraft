@@ -18,4 +18,13 @@ require("copilot").setup({
     enabled = false,
     auto_trigger = false,
   },
+  server_opts_overrides = {
+    -- trace = "verbose",
+    settings = {
+      advanced = {
+        listCount = 3, -- #completions for panel
+        inlineSuggestCount = 3, -- #completions for getCompletions
+      },
+    },
+  },
 })

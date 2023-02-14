@@ -125,9 +125,9 @@ alias meteo="curl https://v2.wttr.in/brussels"
 
 pylsp_deps() {
   # LSP
-  pip install -U python-lsp-server[rope] git+https://github.com/gjeusel/pylsp-mypy@custom
+  pip install -U python-lsp-server[rope]
   pip install -U ruff ruff-lsp
-  # pip install --editable ~/src/pylsp-mypy
+  pip install --editable ~/src/mypygls/
 }
 
 # https://docs.npmjs.com/getting-started/fixing-npm-permissions

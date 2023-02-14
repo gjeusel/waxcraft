@@ -47,9 +47,6 @@ vim.keymap.set("n", "q:", "<Nop>")
 -- Avoid entering some weird ex mode: https://github.com/neovim/neovim/issues/15054
 vim.keymap.set("n", "<S-q>", "<Nop>")
 
--- Make escape work in the Neovim terminal
-vim.keymap.set("t", "<Esc>", "<C-\\><C-n>")
-
 -- ThePrimeagen is right ...
 -- Why ? Because else "<C-c>" does not trigger InsertLeave autcmd
 vim.keymap.set("i", "<C-c>", "<Esc>")

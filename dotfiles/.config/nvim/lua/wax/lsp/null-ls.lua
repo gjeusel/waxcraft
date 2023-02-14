@@ -105,6 +105,8 @@ local sources = {
       -- "typescript",
       -- "typescriptreact",
       -- "vue",  -- prettier with only range is used for vue files.
+      -- "html",
+      "svelte",
       "css",
       "scss",
       "less",

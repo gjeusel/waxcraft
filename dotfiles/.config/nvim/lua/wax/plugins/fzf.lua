@@ -22,6 +22,13 @@ local fzf_actions = {
   -- ["ctrl-r"] = fzf_lua.actions.file_sel_to_qf,  -- not working in multiselect
 }
 
+-- vim.api.nvim_create_autocmd("FileType", {
+--   pattern = "fzf",
+--   callback = function()
+--     vim.keymap.set({ "i", "t" }, "<C-c>", "<Esc>")
+--   end,
+-- })
+
 fzf_lua.setup({
   winopts = {
     height = 0.8,
@@ -65,7 +72,7 @@ fzf_lua.setup({
 -- fzf_lua.deregister_ui_select({}, true)
 
 -- custom vim.ui.select
-vim.ui.select = function(items, opts, on_choice)
+vim.ui.select = function(items, opts, on_choice) ---@diagnostic disable-line: duplicate-set-field
   -- exit visual mode if needed
   if not vim.api.nvim_get_mode() == "n" then
     fzf_lua.utils.feed_keys_termcodes("<Esc>")
@@ -101,7 +108,7 @@ end
 --
 
 local function git_or_cwd()
-  local cwd = vim.loop.cwd()
+  local cwd = vim.fn.getcwd()
   if is_git() then
     cwd = find_root_dir_fn({ ".git" })(cwd)
   end

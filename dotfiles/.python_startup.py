@@ -6,6 +6,8 @@ from pprint import pprint
 
 import __main__
 
+pdb = lambda: __import__("pdb").set_trace()  # BREAKPOINT
+
 try:
     import pytz
 

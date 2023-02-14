@@ -51,5 +51,9 @@ bindkey '^R' history-incremental-pattern-search-backward
 bindkey "^[[A" history-substring-search-up
 bindkey "^[[B" history-substring-search-down
 
+# Hist search completion of line with ctrl-p & ctr-n
+bindkey "^P" history-substring-search-up
+bindkey "^N" history-substring-search-down
+
 # Bind ctrl + space
 bindkey '^ ' autosuggest-accept
