@@ -96,7 +96,12 @@ if is_module_available("cmp_nvim_lsp") then
 end
 
 require("wax.lsp.setup").setup_servers({
-  on_attach = lsp_status.on_attach,
+  on_attach = function(client, bufnr)
+    -- disable semanticTokens for now
+    client.server_capabilities.semanticTokensProvider = nil
+
+    lsp_status.on_attach(client, bufnr)
+  end,
   capabilities = capabilities,
 })
 
