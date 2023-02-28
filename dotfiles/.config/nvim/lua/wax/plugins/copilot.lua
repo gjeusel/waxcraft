@@ -16,14 +16,30 @@ require("copilot").setup({
   },
   suggestion = {
     enabled = false,
-    auto_trigger = false,
+    -- auto_trigger = true,
+    -- debounce = 75,
+    -- keymap = {
+    --   accept = "<C-x>",
+    --   -- accept_word = false,
+    --   -- accept_line = false,
+    --   -- next = "<M-]>",
+    --   -- prev = "<M-[>",
+    --   -- dismiss = "<C-]>",
+    -- },
   },
   server_opts_overrides = {
     -- trace = "verbose",
     settings = {
+      inlineSuggest = { enabled = false },
+      editor = {
+        showEditorCompletions = false,
+        enableAutoCompletions = false,
+      },
       advanced = {
+        top_p = 0.70,
         listCount = 3, -- #completions for panel
-        inlineSuggestCount = 3, -- #completions for getCompletions
+        inlineSuggestCount = 0, -- #completions for getCompletions
+        enableAutoCompletions = false,
       },
     },
   },

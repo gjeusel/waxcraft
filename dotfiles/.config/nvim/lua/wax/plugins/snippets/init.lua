@@ -12,6 +12,7 @@ return {
 
   -- frontend
   vue = require("wax.plugins.snippets.vue"),
+  svelte = require("wax.plugins.snippets.svelte"),
   typescript = require("wax.plugins.snippets.typescript"),
 
   -- mobile

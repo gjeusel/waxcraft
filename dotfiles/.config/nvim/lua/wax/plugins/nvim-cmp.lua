@@ -67,7 +67,8 @@ local source_rg = {
   },
 }
 
-local source_buffer = { -- buffer
+local source_buffer = {
+  -- buffer
   name = "buffer",
   keyword_length = 3,
   max_item_count = 5,
@@ -79,6 +80,17 @@ local cmp_select = { behavior = cmp.SelectBehavior.Select }
 cmp.setup({
   completion = {
     keyword_length = 1,
+    -- GH issue: "Accepted completion triggers new completion"
+    -- https://github.com/hrsh7th/nvim-cmp/issues/1055
+    get_trigger_characters = function(trigger_characters)
+      local new_trigger_characters = {}
+      for _, char in ipairs(trigger_characters) do
+        if char ~= ">" then
+          table.insert(new_trigger_characters, char)
+        end
+      end
+      return new_trigger_characters
+    end,
   },
   snippet = {
     expand = function(args)
@@ -104,7 +116,7 @@ cmp.setup({
   },
   sources = {
     { name = "nvim_lua" },
-    { name = "luasnip", max_item_count = 2 },
+    { name = "luasnip", keyword_length = 2, max_item_count = 2 },
     { name = "nvim_lsp", keyword_length = 1, max_item_count = 10 },
     source_buffer,
     source_rg,

@@ -141,10 +141,9 @@ function _G.find_root_dir_fn(patterns)
   local default_patterns = {
     ".git",
     "Dockerfile",
-    "pyproject.toml",
-    "setup.cfg",
-    "package.json",
-    "tsconfig.json",
+    "LICENSE",
+    -- "src",
+    -- "pyproject.toml",
   }
   patterns = patterns or default_patterns
   return require("lspconfig").util.root_pattern(patterns)

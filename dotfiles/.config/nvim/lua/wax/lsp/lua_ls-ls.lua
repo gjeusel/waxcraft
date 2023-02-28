@@ -1,6 +1,5 @@
 return {
   on_attach = function(client, _)
-    client.server_capabilities.semanticTokensProvider = false
     client.server_capabilities.colorProvider = false
     client.server_capabilities.documentHighlightProvider = false
 

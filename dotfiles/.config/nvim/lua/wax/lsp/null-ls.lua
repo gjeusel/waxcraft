@@ -1,6 +1,8 @@
 local u = require("null-ls.utils")
 local s = require("null-ls.state")
 local builtins = require("null-ls.builtins")
+local cmd_resolver = require("null-ls.helpers.command_resolver")
+
 -- local methods = require("null-ls.methods")
 
 local python_utils = require("wax.lsp.python-utils")
@@ -28,6 +30,25 @@ local function from_python_env(params)
   return resolved.command
 end
 
+local eslint_filetypes = {
+  "javascript",
+  "javascriptreact",
+  "typescript",
+  "typescriptreact",
+  "vue",
+  "svelte",
+}
+local eslint_cfg = {
+  filetypes = eslint_filetypes,
+  dynamic_command = cmd_resolver.from_node_modules(),
+}
+
+local prettier_filetypes = { "svelte" }
+local prettier_cfg = {
+  filetypes = prettier_filetypes,
+  dynamic_command = cmd_resolver.from_node_modules(),
+}
+
 local sources = {
   -- builtins.completion.spell,
 
@@ -43,36 +64,6 @@ local sources = {
       "-",
     },
   }),
-  -- builtins.formatting.isort.with({
-  --   command = "isort",
-  --   dynamic_command = from_python_env,
-  --   args = {
-  --     "--profile=black",
-  --     "--stdout",
-  --     "--filename",
-  --     "$FILENAME",
-  --     "-",
-  --   },
-  -- }),
-
-  -- builtins.diagnostics.ruff.with({
-  --   method = methods.internal.FORMATTING,
-  --   command = "ruff",
-  --   args = {
-  --     "--exit-zero",
-  --     "--no-cache",
-  --     "--fix",
-  --     "--stdin-filename",
-  --     "$FILENAME",
-  --     "-",
-  --   },
-  --   dynamic_command = from_python_env,
-  -- }),
-  -- builtins.diagnostics.ruff.with({
-  --   method = methods.internal.DIAGNOSTICS,
-  --   command = "ruff",
-  --   dynamic_command = from_python_env,
-  -- }),
 
   -- lua filetypes
   builtins.formatting.stylua,
@@ -90,41 +81,18 @@ local sources = {
     args = { "--tabwidth", "2" },
     dynamic_command = from_python_env,
   }),
+
   -- builtins.formatting.rustywind, -- reorder tailwindcss classes
   -- builtins.diagnostics.tsc,
-  -- builtins.formatting.prettier.with({
-  --   method = methods.internal.RANGE_FORMATTING,
-  --   filetypes = {
-  --     "typescriptreact",
-  --   },
-  -- }),
-  builtins.formatting.prettier.with({
-    filetypes = {
-      -- "javascript",
-      -- "javascriptreact",
-      -- "typescript",
-      -- "typescriptreact",
-      -- "vue",  -- prettier with only range is used for vue files.
-      -- "html",
-      "svelte",
-      "css",
-      "scss",
-      "less",
-      -- "html",
-      -- done by json-ls
-      -- "json",
-      -- "jsonc",
-      "yaml",
-      "markdown",
-      "graphql",
-      "handlebars",
-    },
-  }),
+
+  -- builtins.formatting.prettier.with(prettier_cfg),
+  -- builtins.formatting.prettierd.with(prettier_cfg),
+
   -- builtins.code_actions.eslint_d,
-  builtins.diagnostics.eslint_d,
-  builtins.formatting.eslint_d,
-  -- builtins.diagnostics.eslint,
-  -- builtins.formatting.eslint,
+  builtins.diagnostics.eslint_d.with(eslint_cfg),
+  builtins.formatting.eslint_d.with(eslint_cfg),
+  -- builtins.diagnostics.eslint.with(eslint_cfg),
+  -- builtins.formatting.eslint.with(eslint_cfg),
 
   -- sql
   -- builtins.formatting.sql_formatter,

@@ -98,6 +98,7 @@ end
 require("wax.lsp.setup").setup_servers({
   on_attach = function(client, bufnr)
     -- disable semanticTokens for now
+    vim.lsp.semantic_tokens.stop(bufnr, client.id)
     client.server_capabilities.semanticTokensProvider = nil
 
     lsp_status.on_attach(client, bufnr)

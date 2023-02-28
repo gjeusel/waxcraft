@@ -52,7 +52,7 @@ vim.api.nvim_create_autocmd("FileType", {
 
 -- Fix Html like mini.ai
 vim.api.nvim_create_autocmd("FileType", {
-  pattern = { "jinja.html", "html", "vue", "svelte" },
+  pattern = { "jinja.html", "html", "vue" },
   callback = function()
     -- Solve issue on mini ai with nested html tags
     -- https://github.com/echasnovski/mini.nvim/issues/110

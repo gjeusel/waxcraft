@@ -37,7 +37,8 @@ return require("packer").startup({
     use({ "wbthomason/packer.nvim" })
 
     -- this is where the fun begins
-    use({ -- cellular-automaton
+    use({
+      -- cellular-automaton
       "Eandrju/cellular-automaton.nvim",
       setup = function()
         vim.keymap.set("n", "<leader>fl", "<cmd>CellularAutomaton make_it_rain<CR>")
@@ -55,21 +56,24 @@ return require("packer").startup({
     use({ "michaeljsmith/vim-indent-object" }) -- text object based on indentation levels.
     use({ "vim-scripts/loremipsum", cmd = "Loremipsum" }) -- dummy text generator (:Loremipsum [number of words])
 
-    use({ -- the next vim-sneak
+    use({
+      -- the next vim-sneak
       "ggandor/lightspeed.nvim",
       config = function()
         safe_require("wax.plugins.lightspeed")
       end,
     })
 
-    use({ -- undotree
+    use({
+      -- undotree
       "mbbill/undotree",
       config = function()
         vim.keymap.set("n", "<leader>u", vim.cmd.UndotreeToggle)
       end,
     })
 
-    use({ -- mini - (arround/inside improved)
+    use({
+      -- mini - (arround/inside improved)
       "echasnovski/mini.nvim",
       -- disable = true, -- is buggy on html tags
       config = function()
@@ -77,7 +81,8 @@ return require("packer").startup({
       end,
     })
 
-    use({ -- which-key (key bindings cheatsheet)
+    use({
+      -- which-key (key bindings cheatsheet)
       "folke/which-key.nvim",
       config = function()
         safe_require("which-key")
@@ -85,7 +90,8 @@ return require("packer").startup({
       cmd = "WhichKey",
     })
 
-    use({ -- nvim-surround
+    use({
+      -- nvim-surround
       "kylechui/nvim-surround",
       tag = "main",
       config = function()
@@ -96,21 +102,24 @@ return require("packer").startup({
       end,
     })
 
-    use({ -- easy comment/uncomment
+    use({
+      -- easy comment/uncomment
       "numToStr/Comment.nvim",
       config = function()
         safe_require("wax.plugins.comment")
       end,
     })
 
-    use({ -- vim-tmux-navigator
+    use({
+      -- vim-tmux-navigator
       "christoomey/vim-tmux-navigator", -- tmux navigation in love with vim
       config = function()
         safe_require("wax.plugins.vim-tmux-navigator")
       end,
     })
 
-    use({ -- vim-test
+    use({
+      -- vim-test
       "janko/vim-test", -- test at the speed of light
       requires = {
         "jgdavey/tslime.vim", -- send command from vim to a running tmux session
@@ -166,7 +175,8 @@ return require("packer").startup({
     -- Tpope is awesome
     use({ "tpope/vim-eunuch" }) -- sugar for the UNIX shell commands
     use({ "tpope/vim-scriptease", cmd = "Messages" }) -- gives :Messages
-    use({ -- vim fugitive
+    use({
+      -- vim fugitive
       "tpope/vim-fugitive",
       config = function()
         vim.api.nvim_exec(
@@ -182,14 +192,16 @@ return require("packer").startup({
       end,
     }) -- Git wrapper for vim
 
-    use({ -- diffview: git integration for nvim
+    use({
+      -- diffview: git integration for nvim
       "sindrets/diffview.nvim",
       config = function()
         safe_require("wax.plugins.diffview")
       end,
     })
 
-    use({ -- help dev in lua
+    use({
+      -- help dev in lua
       "folke/neodev.nvim",
       before = "lspconfig",
       config = function()
@@ -207,20 +219,23 @@ return require("packer").startup({
       end,
     })
 
-    use({ -- lualine
+    use({
+      -- lualine
       "nvim-lualine/lualine.nvim",
       config = function()
         safe_require("wax.plugins.lualine")
       end,
     })
 
-    use({ -- barbar
+    use({
+      -- barbar
       "romgrk/barbar.nvim",
       config = function()
         safe_require("wax.plugins.barbar")
       end,
     })
-    use({ -- dressing
+    use({
+      -- dressing
       "stevearc/dressing.nvim",
       config = function()
         local win_options = { winblend = 0 }
@@ -239,14 +254,16 @@ return require("packer").startup({
       end,
     })
 
-    use({ -- nvim-web-devicons
+    use({
+      -- nvim-web-devicons
       "kyazdani42/nvim-web-devicons",
       config = function()
         safe_require("nvim-web-devicons").setup()
       end,
     })
     use({ "mhinz/vim-startify" }) -- fancy start screen
-    use({ -- gitsigns
+    use({
+      -- gitsigns
       "lewis6991/gitsigns.nvim",
       after = { "plenary.nvim" },
       config = function()
@@ -254,7 +271,8 @@ return require("packer").startup({
       end,
     })
 
-    use({ -- indentLine
+    use({
+      -- indentLine
       "Yggdroot/indentLine", -- indent line
       config = function()
         vim.g.indentLine_conceallevel = 0 -- else it overwrite conceallevel on certain filetypes
@@ -274,7 +292,8 @@ return require("packer").startup({
       end,
     })
 
-    use({ -- better hl search
+    use({
+      -- better hl search
       "kevinhwang91/nvim-hlslens",
       config = function()
         safe_require("wax.plugins.hlslens")
@@ -284,13 +303,15 @@ return require("packer").startup({
     -- use("rhysd/conflict-marker.vim") -- conflict markers for vimdiff
 
     --------- Fuzzy Fuzzy Fuzzy ---------
-    use({ -- fzf-lua
+    use({
+      -- fzf-lua
       "ibhagwan/fzf-lua",
       config = function()
         safe_require("wax.plugins.fzf")
       end,
     })
-    use({ -- when fuzzy is boring, alternative to grapple
+    use({
+      -- when fuzzy is boring, alternative to grapple
       "cbochs/grapple.nvim",
       config = function()
         safe_require("wax.plugins.grapple")
@@ -298,7 +319,8 @@ return require("packer").startup({
     })
 
     --------- TreeSitter ---------
-    use({ -- treesitter
+    use({
+      -- treesitter
       -- "nvim-treesitter/nvim-treesitter",
       "~/src/nvim-treesitter",
       lock = true,
@@ -316,7 +338,7 @@ return require("packer").startup({
         },
         { -- comment string update on context (vue -> html + typescript)
           "JoosepAlviste/nvim-ts-context-commentstring",
-          ft = { "html", "vue", "typescriptreact" },
+          ft = { "html", "vue", "typescriptreact", "svelte" },
           config = function()
             safe_require("nvim-treesitter.configs").setup({
               context_commentstring = {
@@ -347,7 +369,8 @@ return require("packer").startup({
     })
 
     --------- LSP ---------
-    use({ -- lspconfig + mason
+    use({
+      -- lspconfig + mason
       "williamboman/mason.nvim",
       branch = "main",
       requires = {
@@ -371,7 +394,8 @@ return require("packer").startup({
       end,
     })
 
-    use({ -- nvim-cmp
+    use({
+      -- nvim-cmp
       "hrsh7th/nvim-cmp",
       requires = {
         "onsails/lspkind-nvim",
@@ -396,7 +420,7 @@ return require("packer").startup({
             safe_require("wax.plugins.nvim-autopairs")
           end,
         },
-        { -- Github copilot
+        { -- Github lua copilot
           "zbirenbaum/copilot.lua",
           event = "InsertEnter",
           config = function()

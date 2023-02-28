@@ -18,29 +18,17 @@ require("Comment").setup({
     extra = false,
     extended = false,
   },
-  pre_hook = function(ctx)
-    if vim.bo.filetype == "vue" then
+  pre_hook = function()
+    -- https://github.com/numToStr/Comment.nvim/pull/62#issuecomment-972790418
+    -- Fix builtin Comment behaviour by using ts_context_commentstring:
+    if vim.tbl_contains({ "vue", "svelte" }, vim.bo.filetype) then
       require("ts_context_commentstring.internal").update_commentstring()
+      return vim.o.commentstring
     end
-    -- Only calculate commentstring for tsx filetypes
+
     if vim.bo.filetype == "typescriptreact" then
-      local U = require("Comment.utils")
-
-      -- Detemine whether to use linewise or blockwise commentstring
-      local type = ctx.ctype == U.ctype.line and "__default" or "__multiline"
-
-      -- Determine the location where to calculate commentstring from
-      local location = nil
-      if ctx.ctype == U.ctype.block then
-        location = require("ts_context_commentstring.utils").get_cursor_location()
-      elseif ctx.cmotion == U.cmotion.v or ctx.cmotion == U.cmotion.V then
-        location = require("ts_context_commentstring.utils").get_visual_start_location()
-      end
-
-      return require("ts_context_commentstring.internal").calculate_commentstring({
-        key = type,
-        location = location,
-      })
+      local fn = require("ts_context_commentstring.integrations.comment_nvim").create_pre_hook()
+      return fn()
     end
   end,
 })

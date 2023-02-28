@@ -52,10 +52,6 @@ endif
   false
 )
 
--- cmdline
-vim.o.wildmenu = true -- Show list instead of just completing
-vim.api.nvim_exec([[set wildmode=list:longest,full]], false) -- Command <Tab> completion, list matches, then longest common part, then all.
-
 -- Whitespace & Indent settings
 -- vim.o.nowrap = nil                                          -- don't wrap lines
 vim.o.tabstop = 2
@@ -114,9 +110,12 @@ vim.o.ignorecase = true -- searches are case insensitive...
 vim.o.smartcase = true -- ... unless they contain at least one capital letter
 vim.o.incsearch = 1 -- show the pattern matches while typing
 
-vim.o.wildignore = "**/*.egg-info,**/__pycache__,**/node_modules" -- ignore those pattern in :e autocomplete
+-- cmdline autocomplete
+vim.o.wildignore = "**/*.egg-info,**/__pycache__,**/node_modules" -- ignore those pattern
 vim.o.wildignorecase = true -- ignore case on :e
 vim.o.wildmenu = false
+vim.o.wildoptions = "fuzzy"
+vim.o.wildmode = "list:longest,full" -- first list matches, then longest common part, then all.
 
 -- Clipboard
 if vim.fn.has("clipboard") == 1 and vim.fn.has("unnamedplus") == 1 then

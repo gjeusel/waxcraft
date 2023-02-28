@@ -62,7 +62,7 @@ fzf_lua.setup({
     show_cwd_header = false,
     rg_opts = table.concat({
       "--hidden --column --line-number --no-heading --color=always --smart-case",
-      "--glob '!{.git,.vscode}/*' --glob '!{package-lock.json,*.svg}'",
+      "--glob '!{.git,.vscode}/*' --glob '!{package-lock.json,*.svg,*weasytail.min.css}'",
     }, " "),
   },
 })
@@ -181,7 +181,7 @@ end)
 
 local function rg_files(rg_opts)
   local ignore_dirs = { ".git", ".*_cache", "postgres-data", "edgedb-data", "__pycache__" }
-  local ignore_files = {}
+  local ignore_files = { "weasytail.min.css" }
 
   local ignore_arg = ("--glob '!{%s}' --glob '!{%s}'"):format(
     table.concat(ignore_dirs, ","),
