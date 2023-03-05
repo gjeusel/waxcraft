@@ -97,9 +97,9 @@ end
 
 require("wax.lsp.setup").setup_servers({
   on_attach = function(client, bufnr)
-    -- disable semanticTokens for now
-    vim.lsp.semantic_tokens.stop(bufnr, client.id)
-    client.server_capabilities.semanticTokensProvider = nil
+    -- -- disable semanticTokens for now
+    -- vim.lsp.semantic_tokens.stop(bufnr, client.id)
+    -- -- client.server_capabilities.semanticTokensProvider = nil
 
     lsp_status.on_attach(client, bufnr)
   end,
@@ -117,3 +117,13 @@ end, {})
 
 -- setup null-ls
 require("wax.lsp.null-ls")
+
+vim.api.nvim_create_autocmd("LspAttach", {
+  callback = function(args)
+    -- disable semanticTokens for now
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+    local bufnr = args.buf
+    vim.lsp.semantic_tokens.stop(bufnr, client.id)
+    client.server_capabilities.semanticTokensProvider = nil
+  end,
+})

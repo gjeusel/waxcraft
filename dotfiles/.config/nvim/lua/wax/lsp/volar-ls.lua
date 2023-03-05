@@ -11,8 +11,7 @@ local init_options = {
 
 return {
   -- enable takeover
-  -- filetypes = { "typescript", "vue" },
-
+  filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue" },
   -- https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md#volar
   on_attach = function(client, _)
     -- formatting is done by prettier and eslint
@@ -25,17 +24,22 @@ return {
   settings = {
     volar = {
       autoCompleteRefs = true,
-      codelens = {},
+      codelens = {
+        references = false,
+        pugTools = false,
+      },
+      icon = { preview = false },
+      doctor = { statusBarItem = false },
       -- format = {},
       completion = {
         preferredTagNameCase = "auto-pascal",
         preferredAttrNameCase = "auto-pascal",
         autoImportComponent = false,
       },
-      diagnostics = { delay = 200 },
+      -- diagnostics = { delay = 200 },
     },
   },
-  init_options = init_options,
+  init_options = {},
   -- on_new_config = function(new_config, new_workspace)
   --   -- TODO: case of monorepo, use maybe ts path of lower node_modules relative to file
   --   -- new_config.init_options.typescript.tsdk = tsPath

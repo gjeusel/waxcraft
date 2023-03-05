@@ -85,24 +85,27 @@ function M.setup_servers(global_lsp_settings)
   lspmason.setup()
 end
 
--- vim.api.nvim_create_autocmd("LspAttach", {
---   callback = function(args)
---     if not args.data then
---       return
---     end
---     local lsp_client = vim.lsp.get_client_by_id(args.data.client_id)
---     local opts = vim.tbl_get(waxopts.lsp._servers, lsp_client.name)
---     log.warn("lsp_client.name", lsp_client.name, "opts", opts)
---     if not opts then
---       log.warn("early return", lsp_client.name)
---       return
---     end
---     local project = to_workspace_name(lsp_client.root_dir)
---     log.info("project=",project)
---     if vim.tbl_contains(opts.disabled_workspace, project) then
---       log.warn("Should disable", lsp_client.name, "for project", project)
---     end
---   end,
--- })
+vim.api.nvim_create_autocmd("LspAttach", {
+  callback = function(args)
+    if not args.data then
+      return
+    end
+
+    local lsp_client = vim.lsp.get_client_by_id(args.data.client_id)
+    local opts = vim.tbl_get(waxopts.lsp._servers, lsp_client.name)
+
+    if not opts then
+      log.debug("early return for", lsp_client.name)
+      return
+    end
+
+    local project = find_workspace_name(args.file)
+    if vim.tbl_contains(opts.disabled_workspace, project) then
+      log.info("Disabling", lsp_client.name, "for project", project)
+      -- vim.lsp.buf_detach_client(args.buf, args.data.client_id)  -- failing as not attached yet, the fuck?
+      vim.lsp.stop_client(args.data.client_id)
+    end
+  end,
+})
 
 return M

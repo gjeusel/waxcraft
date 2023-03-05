@@ -82,8 +82,7 @@ vim.api.nvim_create_autocmd("FileType", {
 vim.api.nvim_create_autocmd({ "BufReadPre", "FileReadPre" }, {
   pattern = "*",
   callback = function(opts)
-    local bufnr = opts.buf
-    local fpath = vim.api.nvim_buf_get_name(bufnr)
+    local fpath = opts.match
     if not is_big_file(fpath) then
       return
     end

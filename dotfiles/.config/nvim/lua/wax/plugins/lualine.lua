@@ -1,17 +1,33 @@
-local function workspace_name()
-  return find_workspace_name() or ""
+local function fn_cache(fn)
+  local cache = {}
+
+  local function cached_fn()
+    local abspath = vim.api.nvim_buf_get_name(0)
+    if vim.tbl_contains(vim.tbl_keys(cache), abspath) then
+      return cache[abspath]
+    end
+    local result = fn()
+    cache[abspath] = result
+  end
+
+  return cached_fn
 end
 
-local function relative_path()
+local workspace_name = fn_cache(function()
+  return find_workspace_name() or ""
+end)
+
+local relative_path = fn_cache(function()
   local abspath = vim.api.nvim_buf_get_name(0)
   local workspace = find_root_dir(abspath)
   local Path = require("plenary.path")
+
   if workspace then
     return Path:new(abspath):make_relative(workspace)
   else
     return Path:new(abspath):make_relative(vim.env.HOME)
   end
-end
+end)
 
 local function diagnostics()
   if #vim.lsp.buf_get_clients() > 0 then
@@ -48,9 +64,7 @@ end
 
 local colors = {
   green = "#a89984",
-
   GruvboxFg4 = "#a89984",
-
   GruvboxBg0 = "#282828",
   GruvboxBg1 = "#3c3836",
   GruvboxBg3 = "#665c54",

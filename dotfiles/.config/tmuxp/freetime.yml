@@ -2,10 +2,10 @@ session_name: freetime
 
 windows:
 
-  - window_name: aoc
+  - window_name: picolehub
     layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
     shell_command_before:
-      - cd ~/src/advent_of_code
+      - cd ~/src/picolehub
     panes:
       - shell_command:
         - neofetch
@@ -17,16 +17,6 @@ windows:
     layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
     shell_command_before:
       - cd ~/src/waxcraft
-    panes:
-      - shell_command:
-        - neofetch
-        focus: true
-      - 
-
-  - window_name: solidstars
-    layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
-    shell_command_before:
-      - cd ~/src/solidstars
     panes:
       - shell_command:
         - neofetch

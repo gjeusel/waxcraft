@@ -43,7 +43,7 @@ local eslint_cfg = {
   dynamic_command = cmd_resolver.from_node_modules(),
 }
 
-local prettier_filetypes = { "svelte" }
+local prettier_filetypes = eslint_filetypes
 local prettier_cfg = {
   filetypes = prettier_filetypes,
   dynamic_command = cmd_resolver.from_node_modules(),
@@ -86,7 +86,7 @@ local sources = {
   -- builtins.diagnostics.tsc,
 
   -- builtins.formatting.prettier.with(prettier_cfg),
-  -- builtins.formatting.prettierd.with(prettier_cfg),
+  builtins.formatting.prettierd.with(prettier_cfg),
 
   -- builtins.code_actions.eslint_d,
   builtins.diagnostics.eslint_d.with(eslint_cfg),
@@ -106,7 +106,8 @@ require("null-ls").setup({
   root_dir = find_root_dir,
   update_in_insert = false,
   should_attach = function(bufnr)
-    return not is_big_file(bufnr)
+    local fpath = vim.api.nvim_buf_get_name(bufnr)
+    return not is_big_file(fpath)
     -- return not vim.api.nvim_buf_get_name(bufnr):match("^diffview://")
   end,
   log = {

@@ -21,7 +21,7 @@ return {
   s("import", fmt('import { [2] } from "[1]"', { i(1, ""), i(2, "") }, { delimiters = "[]" })),
 
   s("ilodash", { t('import ld from "lodash"') }),
-  s("iradash", { t('import * as R from "remeda"') }),
+  s("iremeda", { t('import * as R from "remeda"') }),
   s("izod", { t('import { z } from "zod"') }),
   s("idate-fns", { t('import * as dt from "date-fns"') }),
 }

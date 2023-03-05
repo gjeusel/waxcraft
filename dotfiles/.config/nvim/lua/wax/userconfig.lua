@@ -64,10 +64,11 @@ load_local_config(vim.env.HOME .. "/.config/nvim/config.lua")
 waxopts.lsp._servers = {}
 
 local function _to_lsp_server_opts(opts)
+  local base_tbl = { on_projects = {}, disabled_workspace = {} }
   if type(opts) == "string" then
-    return { name = opts, on_projects = {}, disabled_workspace = {} }
+    return vim.tbl_extend("keep", { name = opts }, base_tbl)
   else
-    return opts
+    return vim.tbl_extend("keep", opts, base_tbl)
   end
 end
 

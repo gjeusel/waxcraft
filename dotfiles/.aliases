@@ -38,7 +38,7 @@ alias dk="docker"
 alias k=kubectl
 
 kdebug() {
-  kubectl run -i --rm --tty debug --image=${1:-busybox} --restart=Never -- sh
+  kubectl run -i --rm --tty debug --image=${1:-busybox} --restart=Never -- ${2:-sh}
 }
 
 kvdebug() {

@@ -95,6 +95,21 @@ end
 
 -------- Logs --------
 
+--https://github.com/LuaLS/lua-language-server/wiki/Annotations
+_G.log = {}
+
+---@param ... any
+---@overload fun(...): string
+function _G.log.debug(...) end
+
+---@param ... any
+---@overload fun(...): string
+function _G.log.info(...) end
+
+---@param ... any
+---@overload fun(...): string
+function _G.log.warn(...) end
+
 _G.log = safe_require("plenary.log").new({
   plugin = "wax",
   level = waxopts.loglevel,
@@ -140,8 +155,8 @@ end
 function _G.find_root_dir_fn(patterns)
   local default_patterns = {
     ".git",
-    "Dockerfile",
-    "LICENSE",
+    -- "Dockerfile",
+    -- "LICENSE",
     -- "src",
     -- "pyproject.toml",
   }
