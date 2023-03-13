@@ -4,13 +4,35 @@ local ts = require("nvim-treesitter.configs")
 --
 
 -- Add parsers for some filetypes
-local ft_to_parser = require"nvim-treesitter.parsers".filetype_to_parsername
-ft_to_parser["jinja.html"] = "html" -- use html for jinja.html
+vim.treesitter.language.register("jinja.html", "html")
+
+local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
+parser_config.zimbu = {
+  install_info = {
+    url = "~/src/tree-sitter-python",
+    files = {"src/parser.c"},
+    -- optional entries:
+    -- branch = "main", -- default branch in case of git repo if different from master
+    generate_requires_npm = false, -- if stand-alone parser without npm dependencies
+    requires_generate_from_grammar = false, -- if folder contains pre-generated src/parser.c
+  },
+  filetype = "python",
+}
 
 ts.setup({
   highlight = {
     enable = true,
-    disable = { "vim" },
+    disable = function(lang, buf)
+      if vim.tbl_contains({ "vim" }, lang) then
+        return true
+      end
+
+      local max_filesize = 1000 * 1024 -- 1 MB
+      local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
+      if ok and stats and stats.size > max_filesize then
+        return true
+      end
+    end,
     -- custom_captures = {}
     additional_vim_regex_highlighting = false, -- for spell check
     use_languagetree = true, -- enable language injection
@@ -65,7 +87,6 @@ ts.setup({
     -- Infra:
     "hcl", -- terraform
   },
-
   -- Plugins config:
 
   -- 'nvim-treesitter/playground'
@@ -79,7 +100,6 @@ ts.setup({
     use_virtual_text = true,
     lint_events = { "BufWrite", "CursorHold" },
   },
-
   -- 'nvim-treesitter/nvim-treesitter-textobjects'
   textobjects = {
     select = {
@@ -126,7 +146,6 @@ ts.setup({
       },
     },
   },
-
   -- 'JoosepAlviste/nvim-ts-context-commentstring' -- auto deduce comment string on context
   context_commentstring = {
     enable = true,
@@ -134,7 +153,6 @@ ts.setup({
     --   ["jinja.html"] = "{# %s #}",
     -- },
   },
-
   -- 'p00f/nvim-ts-rainbow'
   rainbow = {
     enable = false,
@@ -145,13 +163,11 @@ ts.setup({
     termcolors = { 109, 108, "white" },
     -- termcolors = { "red", "green", "yellow", "blue" }, -- table of colour name strings
   },
-
   -- 'andymass/vim-matchup' -- add more textobjects
   matchup = {
     enable = true,
     disable_virtual_text = true,
   },
-
   -- 'windwp/nvim-ts-autotag'  -- auto close/rename html tags
   autotag = {
     enable = true,
