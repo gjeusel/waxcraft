@@ -43,7 +43,7 @@ local eslint_cfg = {
   dynamic_command = cmd_resolver.from_node_modules(),
 }
 
-local prettier_filetypes = eslint_filetypes
+local prettier_filetypes = vim.list_extend(vim.deepcopy(eslint_filetypes), { "yaml" })
 local prettier_cfg = {
   filetypes = prettier_filetypes,
   dynamic_command = cmd_resolver.from_node_modules(),

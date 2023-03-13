@@ -152,6 +152,7 @@
   "in"
   "is"
   "not"
+  "not in"
   "or"
   "del"
   "@"
