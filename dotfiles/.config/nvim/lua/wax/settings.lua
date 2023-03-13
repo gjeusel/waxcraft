@@ -66,38 +66,25 @@ vim.api.nvim_exec([[set listchars=tab:›\ ,trail:•,extends:#,nbsp:.]], false)
 -- Backup, swap, undo & sessions
 local basedir = vim.fn.stdpath("data")
 
-if vim.fn.has("persistent_undo") == 1 then
-  local undodir = basedir .. "/undo"
-  vim.fn.mkdir(undodir, "p")
-  vim.o.undodir = undodir
+local undodir = basedir .. "/undo"
+vim.fn.mkdir(undodir, "p")
+vim.o.undodir = undodir
 
-  vim.o.undofile = true -- So is persistent undo ...
-  vim.o.undolevels = 1000 -- Maximum number of changes that can be undone
-  vim.o.undoreload = 10000 -- Maximum number lines to save for undo on a buffer reload
+vim.o.undofile = true -- So is persistent undo ...
+vim.o.undolevels = 1000 -- Maximum number of changes that can be undone
+vim.o.undoreload = 10000 -- Maximum number lines to save for undo on a buffer reload
 
-  -- useless backup & swapfile as we will use persisted undo
-  vim.o.swapfile = false
-  vim.o.backup = false
-  vim.o.writebackup = false
-  vim.o.backupdir = nil
-else
-  vim.o.swapfile = true
-  vim.o.backup = true
+-- useless backup & swapfile as we will use persisted undo
+vim.o.swapfile = false
+vim.o.backup = false
+vim.o.writebackup = false
+vim.o.backupdir = nil
 
-  -- swapfile
-  vim.o.directory = basedir .. "/swap"
+local viewdir = basedir .. "/view"
+vim.fn.mkdir(viewdir, "p")
+vim.o.viewdir = viewdir
 
-  local backupdir = basedir .. "/backup"
-  vim.fn.mkdir(backupdir, "p")
-  vim.o.backupdir = backupdir
-end
-
-if vim.fn.has("mksession") == 1 then
-  local viewdir = basedir .. "/view"
-  vim.fn.mkdir(viewdir, "p")
-  vim.o.viewdir = viewdir
-  vim.o.viewoptions = "cursor,slash,unix"
-end
+vim.o.viewoptions = "cursor,slash,unix"
 
 -- NetRW (https://shapeshed.com/vim-netrw/)
 vim.g.netrw_banner = 0 -- no need for banner
@@ -114,7 +101,7 @@ vim.o.incsearch = 1 -- show the pattern matches while typing
 vim.o.wildignore = "**/*.egg-info,**/__pycache__,**/node_modules" -- ignore those pattern
 vim.o.wildignorecase = true -- ignore case on :e
 vim.o.wildmenu = false
-vim.o.wildoptions = "fuzzy"
+-- vim.o.wildoptions = "fuzzy"
 vim.o.wildmode = "list:longest,full" -- first list matches, then longest common part, then all.
 
 -- Clipboard
