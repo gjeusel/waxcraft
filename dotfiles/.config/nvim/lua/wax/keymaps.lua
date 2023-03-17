@@ -1,7 +1,7 @@
 -- Reload
 vim.keymap.set("n", "<leader>fr", function()
   -- reload snippets
-  require("wax.plugins.luasnip").reload()
+  require("wax.plugcfg.luasnip").reload()
 end, { desc = "Reload Luasnip snippets" })
 
 -- Fix common typos

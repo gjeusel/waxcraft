@@ -122,9 +122,9 @@ require("lualine").setup({
   -- +-------------------------------------------------+
   sections = {
     lualine_a = { { "mode", fmt = fmt_mode } },
-    lualine_b = { workspace_name },
+    lualine_b = { workspace_name, { "branch", fmt = trunc(120, 12, 60) } },
     lualine_c = { "spell", "readonly", "modified", diagnostics },
-    lualine_x = { { "branch", fmt = trunc(120, 12, 60) }, relative_path },
+    lualine_x = { relative_path },
     lualine_y = { "location", "progress" },
     lualine_z = { filetype },
   },

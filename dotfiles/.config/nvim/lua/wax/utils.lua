@@ -6,6 +6,7 @@ local scratch = require("wax.scratch")
 
 ---Open a scratch window with given content
 ---@param content any
+---@return nil
 local function open_scratch_win(content)
   local floatopts = scratch.float_win()
   local bufnr = floatopts.bufnr
@@ -33,6 +34,7 @@ end
 
 ---Dump the args in vim messages
 ---@param ... unknown
+---@return nil
 function _G.dump(...)
   local objects = vim.tbl_map(vim.inspect, { ... })
   print(unpack(objects))
@@ -40,6 +42,7 @@ end
 
 ---Dump the args inside a floating window scratch buffer
 ---@param ... unknown
+---@return nil
 function _G.dumpf(...)
   local content = vim.tbl_map(vim.inspect, { ... })
   open_scratch_win(content)
@@ -47,14 +50,17 @@ end
 
 -------- Mocks --------
 
+---Generate a mock
+---@param opts table<string, any>
+---@return any
 function _G.mock(opts)
   local Mock = opts or {}
   setmetatable(Mock, {
-    __call = function(...)
+    __call = function(...) ---@diagnostic disable-line:unused-vararg
       -- log.warn(("called __call with args=%s"):format(...))
       return Mock
     end,
-    __index = function(...)
+    __index = function(...) ---@diagnostic disable-line:unused-vararg
       -- log.warn(("called __index with args=%s"):format(...))
       return Mock
     end,
@@ -71,7 +77,7 @@ function _G.is_module_available(name)
   if package.loaded[name] then
     return true
   else
-    for _, searcher in ipairs(package.searchers or package.loaders) do
+    for _, searcher in ipairs(package.loaders) do
       local loader = searcher(name)
       if type(loader) == "function" then
         package.preload[name] = loader
@@ -84,7 +90,7 @@ end
 
 ---Try to require. If module is not available, returns a mock.
 ---@param name string
----@return unknown
+---@return any
 function _G.safe_require(name)
   local res, mod = pcall(require, name)
   if not res then
@@ -97,22 +103,7 @@ end
 
 -------- Logs --------
 
---https://github.com/LuaLS/lua-language-server/wiki/Annotations
-_G.log = {}
-
----@param ... any
----@overload fun(...): string
-function _G.log.debug(...) end
-
----@param ... any
----@overload fun(...): string
-function _G.log.info(...) end
-
----@param ... any
----@overload fun(...): string
-function _G.log.warn(...) end
-
-_G.log = safe_require("plenary.log").new({
+_G.log = require("wax.logs").new({
   plugin = "wax",
   level = waxopts.loglevel,
   use_console = false,
@@ -149,6 +140,7 @@ end
 
 ---Check if cwd is git versioned
 ---@param cwd string | nil
+---@return boolean
 function _G.is_git(cwd)
   cwd = cwd or vim.fn.getcwd()
   local cmd = { "git", "rev-parse", "--show-toplevel" }
@@ -156,6 +148,9 @@ function _G.is_git(cwd)
   return not (ret ~= 0 or #git_root <= 0)
 end
 
+---Return a function to find the root directory based on a list of patterns
+---@param patterns table<string>
+---@return fun(path: string): string
 function _G.find_root_dir_fn(patterns)
   local default_patterns = {
     ".git",
@@ -168,20 +163,29 @@ function _G.find_root_dir_fn(patterns)
   return require("lspconfig").util.root_pattern(patterns)
 end
 
+---Return the root directory
+---@param path string
+---@return string
 function _G.find_root_dir(path)
   return find_root_dir_fn()(path)
 end
 
+---Convert the path of the workspace to its name
+---@param path string
+---@return string?
+function _G.to_workspace_name(path)
+  return vim.fn.fnamemodify(path, ":t:r") or nil
+end
+
+---Return the name of the workspace from a path
+---@param path string
+---@return string?
 function _G.find_workspace_name(path)
   local root_dir = find_root_dir(path or vim.api.nvim_buf_get_name(0))
   if root_dir == nil then
     return nil
   end
-  return vim.fn.fnamemodify(root_dir, ":t:r") or nil
-end
-
-function _G.to_workspace_name(path)
-  return vim.fn.fnamemodify(path, ":t:r") or nil
+  return to_workspace_name(root_dir)
 end
 
 -------- Utilities --------

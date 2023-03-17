@@ -116,17 +116,6 @@ end
 -- Performances
 vim.o.synmaxcol = 128
 
--- Python config
--- vim.g.python_host_prog = os.getenv("HOME") .. "/opt/miniconda3/envs/nvim27/bin/python"
-vim.g.python3_host_prog = waxopts.python3
-
--- enable debug (neovim logfile is in $NVIM_LOG_FILE)
-if waxopts.loglevel == "debug" then
-  vim.o.debug = "msg"
-  vim.o.verbosefile = vim.fn.stdpath("cache") .. "/nvim-verbosefile.log"
-  vim.o.verbose = 1 -- 16 is max
-end
-
 --
 ------- Disable Some Builtins -------
 
@@ -135,33 +124,6 @@ vim.g.loaded_python_provider = 0
 vim.g.loaded_ruby_provider = 0
 vim.g.loaded_perl_provider = 0
 vim.g.loaded_node_provider = 0
-
--- Disable some in built plugins completely
-local disabled_built_ins = {
-  -- "netrw",
-  -- "netrwPlugin",
-  -- "netrwSettings",
-  -- "netrwFileHandlers",
-  "gzip",
-  "zip",
-  "zipPlugin",
-  "tar",
-  "tarPlugin",
-  "getscript",
-  "getscriptPlugin",
-  "vimball",
-  "vimballPlugin",
-  "2html_plugin",
-  "logipat",
-  "rrhelper",
-  "spellfile_plugin",
-  "fzf",
-  "matchit",
-  "matchparen",
-}
-for _, plugin in pairs(disabled_built_ins) do
-  vim.g["loaded_" .. plugin] = 1
-end
 
 --
 ------- Behaviour fixes -------

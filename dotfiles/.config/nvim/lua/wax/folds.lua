@@ -27,8 +27,8 @@ local memoize_by_bufnr = function(fn)
   end
 end
 
-local query = safe_require("nvim-treesitter.query")
-local parsers = safe_require("nvim-treesitter.parsers")
+local query = require("nvim-treesitter.query")
+local parsers = require("nvim-treesitter.parsers")
 
 local find_fold_nodes = function(lang)
   if query.has_folds(lang) then

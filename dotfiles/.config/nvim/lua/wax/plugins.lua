@@ -1,457 +1,358 @@
-local ensure_packer = function()
-  local directory = vim.fn.stdpath("data") .. "/site/pack/packer/start"
-  vim.fn.mkdir(directory, "p")
+-- Investigate:
+-- https://github.com/cshuaimin/ssr.nvim/
+-- https://github.com/monaqa/dial.nvim
 
-  local install_path = directory .. "/packer.nvim"
-  if vim.fn.empty(vim.fn.glob(install_path)) == 0 then
-    return false
-  end
-
-  print("Downloading packer.nvim...")
-  local out = vim.fn.system(
-    string.format(
-      "git clone --depth 1 %s %s",
-      "https://github.com/wbthomason/packer.nvim",
-      directory .. "/packer.nvim"
-    )
-  )
-
-  print("Downloaded packer at " .. out)
-  vim.cmd([[packadd packer.nvim]])
-  return true
-end
-
-local packer_bootstrap = ensure_packer()
-
--- Auto recompile packer on changes
-vim.cmd([[
-  augroup packer_user_config
-    autocmd!
-    autocmd BufWritePost plugins.lua source <afile> | PackerCompile
-  augroup end
-]])
-
-return require("packer").startup({
-  function(use)
-    -- Packer can manage itself as an optional plugin
-    use({ "wbthomason/packer.nvim" })
-
-    -- this is where the fun begins
-    use({
-      -- cellular-automaton
-      "Eandrju/cellular-automaton.nvim",
-      setup = function()
-        vim.keymap.set("n", "<leader>fl", "<cmd>CellularAutomaton make_it_rain<CR>")
-      end,
-    })
-
-    -- Analyze startuptime
-    use({ "dstein64/vim-startuptime", cmd = "StartupTime" })
-
-    -- plenary is used everywhere - even in utils
-    use({ "nvim-lua/plenary.nvim" })
-
-    --------- System Plugins ---------
-    use({ "AndrewRadev/splitjoin.vim" }) -- easy split join on whole paragraph
-    use({ "michaeljsmith/vim-indent-object" }) -- text object based on indentation levels.
-    use({ "vim-scripts/loremipsum", cmd = "Loremipsum" }) -- dummy text generator (:Loremipsum [number of words])
-
-    use({
-      -- the next vim-sneak
-      "ggandor/lightspeed.nvim",
-      config = function()
-        safe_require("wax.plugins.lightspeed")
-      end,
-    })
-
-    use({
-      -- undotree
-      "mbbill/undotree",
-      config = function()
-        vim.keymap.set("n", "<leader>u", vim.cmd.UndotreeToggle)
-      end,
-    })
-
-    use({
-      -- mini - (arround/inside improved)
-      "echasnovski/mini.nvim",
-      -- disable = true, -- is buggy on html tags
-      config = function()
-        require("mini.ai").setup({ search_method = "cover_or_nearest" })
-      end,
-    })
-
-    use({
-      -- which-key (key bindings cheatsheet)
-      "folke/which-key.nvim",
-      config = function()
-        safe_require("which-key")
-      end,
-      cmd = "WhichKey",
-    })
-
-    use({
-      -- nvim-surround
-      "kylechui/nvim-surround",
-      tag = "main",
-      config = function()
-        safe_require("nvim-surround").setup({
-          move_cursor = "begin",
-          -- move_cursor = "end",
-        })
-      end,
-    })
-
-    use({
-      -- easy comment/uncomment
-      "numToStr/Comment.nvim",
-      config = function()
-        safe_require("wax.plugins.comment")
-      end,
-    })
-
-    use({
-      -- vim-tmux-navigator
-      "christoomey/vim-tmux-navigator", -- tmux navigation in love with vim
-      config = function()
-        safe_require("wax.plugins.vim-tmux-navigator")
-      end,
-    })
-
-    use({
-      -- vim-test
-      "janko/vim-test", -- test at the speed of light
-      requires = {
-        "jgdavey/tslime.vim", -- send command from vim to a running tmux session
-        branch = "main",
-      },
-      config = function()
-        safe_require("wax.plugins.vim-test")
-      end,
-    })
-
-    -- use({ -- nvim-dap
-    --   "mfussenegger/nvim-dap",
-    --   -- "~/src/nvim-dap",
-    --   requires = {
-    --     "theHamsta/nvim-dap-virtual-text",
-    --     "rcarriga/nvim-dap-ui",
-    --     "mfussenegger/nvim-dap-python",
-    --   },
-    --   config = function()
-    --     safe_require("wax.plugins.nvim-dap")
-    --   end,
-    -- })
-
-    -- use({ -- ultra fold
-    --   "kevinhwang91/nvim-ufo",
-    --   requires = "kevinhwang91/promise-async",
-    --   config = function()
-    --     safe_require("wax.plugins.folds-ufo")
-    --   end,
-    -- })
-
-    -- use({
-    --   "Konfekt/FastFold",
-    --   config = function()
-    --     -- FastFold:
-    --     vim.g.fastfold_savehook = 0
-    --   end,
-    -- })
-    -- use({
-    --   "tmhedberg/SimpylFold",
-    --   requires = "Konfekt/FastFold",
-    --   config = function()
-    --     -- SimpylFold:
-    --     vim.g.SimpylFold_docstring_preview = 0
-    --     vim.g.SimpylFold_fold_docstring = 1
-    --     vim.g.SimpylFold_fold_import = 0
-    --     -- FastFold:
-    --     vim.g.fastfold_savehook = 0
-    --   end,
-    --   -- ft = { "python" },
-    -- })
-
-    -- Tpope is awesome
-    use({ "tpope/vim-eunuch" }) -- sugar for the UNIX shell commands
-    use({ "tpope/vim-scriptease", cmd = "Messages" }) -- gives :Messages
-    use({
-      -- vim fugitive
-      "tpope/vim-fugitive",
-      config = function()
-        vim.api.nvim_exec(
-          [[
-          command! -nargs=* Gdiff Gvdiffsplit <args>
-          augroup remapTpopeFugitive
-            autocmd User FugitiveObject nunmap <buffer> -
-            autocmd User FugitiveObject nunmap <buffer> <CR>
-          augroup end
-          ]],
-          false
-        )
-      end,
-    }) -- Git wrapper for vim
-
-    use({
-      -- diffview: git integration for nvim
-      "sindrets/diffview.nvim",
-      config = function()
-        safe_require("wax.plugins.diffview")
-      end,
-    })
-
-    use({
-      -- help dev in lua
-      "folke/neodev.nvim",
-      before = "lspconfig",
-      config = function()
-        safe_require("neodev").setup({})
-      end,
-    })
-
-    --------- User Interface ---------
-    use("morhetz/gruvbox")
-    -- use("sainnhe/gruvbox-material")
-
-    use({
-      -- lualine
-      "nvim-lualine/lualine.nvim",
-      config = function()
-        safe_require("wax.plugins.lualine")
-      end,
-    })
-
-    use({
-      -- barbar
-      "romgrk/barbar.nvim",
-      config = function()
-        safe_require("wax.plugins.barbar")
-      end,
-    })
-    use({
-      -- dressing
-      "stevearc/dressing.nvim",
-      config = function()
-        -- local win_options = { winblend = 0 }
-        safe_require("dressing").setup({
-          builtin = { enabled = false },
-          select = {
-            enabled = false, -- replaced by fzf-lua
-            -- enabled = true,
-            win_options = win_options,
-            -- priority list for backends:
-            -- backend = { "telescope", "fzf_lua", "fzf", "builtin", "nui" },
-            backend = { "builtin" },
-            -- fzf_lua = { winopts = { width = 0.4, height = 0.4 } },
-          },
-          input = { enabled = true, win_options = win_options },
-        })
-      end,
-    })
-
-    use({
-      -- nvim-web-devicons
-      "kyazdani42/nvim-web-devicons",
-      config = function()
-        safe_require("nvim-web-devicons").setup()
-      end,
-    })
-    use({ "mhinz/vim-startify" }) -- fancy start screen
-    use({
-      -- gitsigns
-      "lewis6991/gitsigns.nvim",
-      after = { "plenary.nvim" },
-      config = function()
-        safe_require("wax.plugins.gitsigns")
-      end,
-    })
-
-    use({
-      -- indentLine
-      "Yggdroot/indentLine", -- indent line
-      config = function()
-        vim.g.indentLine_conceallevel = 0 -- else it overwrite conceallevel on certain filetypes
-        vim.g.indentLine_char = "│"
-        vim.g.indentLine_color_gui = "#343d46" -- indent line color got indentLine plugin
-        vim.g.indentLine_fileTypeExclude = {
-          "startify",
-          "markdown",
-          "vim",
-          "tex",
-          "help",
-          "man",
-          "fzf",
-          "packer",
-          "TelescopePrompt",
-        }
-      end,
-    })
-
-    use({
-      -- better hl search
-      "kevinhwang91/nvim-hlslens",
-      config = function()
-        safe_require("wax.plugins.hlslens")
-      end,
-    })
-
-    -- use("rhysd/conflict-marker.vim") -- conflict markers for vimdiff
-
-    --------- Fuzzy Fuzzy Fuzzy ---------
-    use({
-      -- fzf-lua
-      "ibhagwan/fzf-lua",
-      config = function()
-        safe_require("wax.plugins.fzf")
-      end,
-    })
-    use({
-      -- when fuzzy is boring, alternative to grapple
-      "cbochs/grapple.nvim",
-      config = function()
-        safe_require("wax.plugins.grapple")
-      end,
-    })
-
-    --------- TreeSitter ---------
-    use({
-      -- treesitter
-      -- "nvim-treesitter/nvim-treesitter",
-      "~/src/nvim-treesitter",
-      lock = true,
-      -- commit = "aebc6cf6bd4675ac86629f516d612ad5288f7868",
-      -- run = ":TSUpdate",
-      requires = {
-        { -- play with queries
-          "nvim-treesitter/playground",
-          after = { "nvim-treesitter" },
-          -- cmd = "TSPlaygroundToggle",
-        },
-        { -- better text objects
-          "nvim-treesitter/nvim-treesitter-textobjects",
-          after = { "nvim-treesitter" },
-        },
-        { -- comment string update on context (vue -> html + typescript)
-          "JoosepAlviste/nvim-ts-context-commentstring",
-          ft = { "html", "vue", "typescriptreact", "svelte" },
-          config = function()
-            safe_require("nvim-treesitter.configs").setup({
-              context_commentstring = {
-                enable = true,
-                enable_autocmd = false,
-              },
-            })
-          end,
-          after = { "nvim-treesitter" },
-        },
-        -- { "p00f/nvim-ts-rainbow" },
-        { -- add better behavior for '%' (see matchpairs)
-          "andymass/vim-matchup",
-          disable = true,
-          config = function()
-            safe_require("wax.plugins.vim-matchup")
-          end,
-          after = { "nvim-treesitter" },
-        },
-        { -- auto html tag
-          "windwp/nvim-ts-autotag",
-          branch = "main",
-          after = { "nvim-treesitter" },
-        },
-      },
-      config = function()
-        safe_require("wax.plugins.treesitter")
-      end,
-    })
-
-    --------- LSP ---------
-    use({
-      -- lspconfig + mason
-      "williamboman/mason.nvim",
-      branch = "main",
-      requires = {
-        { "williamboman/mason-lspconfig.nvim", branch = "main" },
-        { "nvim-lua/lsp-status.nvim" },
-        { -- fidget - lsp progress notifs
-          "j-hui/fidget.nvim",
-          disable = true,
-          config = function()
-            safe_require("wax.plugins.fidget")
-          end,
-        },
-        "neovim/nvim-lspconfig",
-        -- "ray-x/lsp_signature.nvim", -- a bit buggy
-        { "jose-elias-alvarez/null-ls.nvim", branch = "main" },
-        "b0o/schemastore.nvim", -- json schemas for jsonls
-      },
-      config = function()
-        safe_require("wax.plugins.mason")
-        safe_require("wax.lsp")
-      end,
-    })
-
-    use({
-      -- nvim-cmp
-      "hrsh7th/nvim-cmp",
-      requires = {
-        "onsails/lspkind-nvim",
-        "hrsh7th/cmp-buffer",
-        "hrsh7th/cmp-path",
-        "hrsh7th/cmp-nvim-lua",
-        "hrsh7th/cmp-nvim-lsp",
-        -- "lukas-reineke/cmp-rg",
-        "~/src/cmp-rg",
-        -- "hrsh7th/cmp-nvim-lsp-signature-help",
-        -- "ray-x/cmp-treesitter",
-        "saadparwaiz1/cmp_luasnip",
-        { -- snippet engine in lua
-          "L3MON4D3/LuaSnip",
-          config = function()
-            safe_require("wax.plugins.luasnip")
-          end,
-        },
-        { -- auto pair written in lua
-          "windwp/nvim-autopairs",
-          config = function()
-            safe_require("wax.plugins.nvim-autopairs")
-          end,
-        },
-        { -- Github lua copilot
-          "zbirenbaum/copilot.lua",
-          event = "InsertEnter",
-          config = function()
-            safe_require("wax.plugins.copilot")
-          end,
-        },
-      },
-      config = function()
-        safe_require("wax.plugins.nvim-cmp")
-      end,
-    })
-
-    --------- Language Specific ---------
-    use({ "edgedb/edgedb-vim" })
-    use({ "Vimjas/vim-python-pep8-indent", ft = "python" })
-
-    --------- Packer ---------
-    -- Automatically set up your configuration after cloning packer.nvim
-    -- Put this at the end after all plugins
-    if packer_bootstrap then
-      require("packer").sync()
-    end
-  end,
-  config = {
-    -- Move to lua dir so impatient.nvim can cache it:
-    -- compile_path = vim.fn.stdpath("config") .. "/lua/packer_compiled.lua",
-    auto_clean = true,
-    max_jobs = 8,
-    compile_on_sync = true,
-    display = {
-      open_fn = require("packer.util").float,
-    },
-    -- profile = {
-    --   enable = true,
-    --   threshold = 1, -- in milliseconds
-    -- },
+return {
+  --------- UI ---------
+  { "mhinz/vim-startify" },
+  { -- gruvbox
+    "morhetz/gruvbox",
+    lazy = false,
+    priority = 1000,
+    config = function()
+      vim.o.background = "dark"
+      vim.g.gruvbox_invert_selection = 0
+      vim.g.gruvbox_improved_warnings = 1
+      vim.cmd([[colorscheme gruvbox]])
+      require("wax.themes")
+    end,
   },
-})
+  { -- lualine
+    "nvim-lualine/lualine.nvim",
+    lazy = false,
+    config = function()
+      require("wax.plugcfg.lualine")
+    end,
+  },
+  { -- barbar
+    "romgrk/barbar.nvim",
+    lazy = false,
+    dependencies = "nvim-tree/nvim-web-devicons",
+    opts = {
+      animation = false,
+      icons = false,
+      auto_hide = false,
+      closable = false,
+      clickable = false,
+      maximum_padding = 1,
+      icon_separator_active = "▎",
+      icon_separator_inactive = "▎",
+      no_name_title = "", -- avoid scratch buffer display from null-ls
+      exclude_name = { "" },
+    },
+    init = function()
+      local kmap = vim.keymap.set
+      local opts = { nowait = true, silent = true }
+      kmap({ "n", "i" }, "œ", "<cmd>BufferPrevious<cr>", opts) -- option + q
+      kmap({ "n", "i" }, "∑", "<cmd>BufferNext<cr>", opts) -- option + w
+      kmap({ "n", "i" }, "®", "<cmd>BufferClose<cr>", opts) -- option + r
+      kmap({ "n" }, "©", "<cmd>BufferCloseAllButCurrent<cr>", opts) -- option + g
+    end,
+  },
+  { -- dressing
+    "stevearc/dressing.nvim",
+    event = "VeryLazy",
+    opts = {
+      builtin = { enabled = false },
+      select = { enabled = false },
+      input = { enabled = true },
+    },
+  },
+  { -- gitsigns
+    "lewis6991/gitsigns.nvim",
+    lazy = false,
+    dependencies = { "nvim-lua/plenary.nvim" },
+    opts = {
+      on_attach = function(bufnr)
+        local gs = package.loaded.gitsigns
+
+        local function map(mode, l, r, opts)
+          opts = opts or {}
+          opts.buffer = bufnr
+          vim.keymap.set(mode, l, r, opts)
+        end
+
+        -- Navigation
+        map("n", "]c", function()
+          if vim.wo.diff then
+            return "]c"
+          end
+          vim.schedule(function()
+            gs.next_hunk()
+          end)
+          return "<Ignore>"
+        end, { expr = true })
+
+        map("n", "[c", function()
+          if vim.wo.diff then
+            return "[c"
+          end
+          vim.schedule(function()
+            gs.prev_hunk()
+          end)
+          return "<Ignore>"
+        end, { expr = true })
+
+        -- Actions
+        map({ "n", "v" }, "<leader>hs", ":Gitsigns stage_hunk<CR>")
+        map({ "n", "v" }, "<leader>hr", ":Gitsigns reset_hunk<CR>")
+        map("n", "<leader>hS", gs.stage_buffer)
+        map("n", "<leader>hu", gs.undo_stage_hunk)
+        map("n", "<leader>hR", gs.reset_buffer)
+        map("n", "<leader>hp", gs.preview_hunk)
+        map("n", "<leader>hb", function()
+          gs.blame_line({ full = true })
+        end)
+        map("n", "<leader>tb", gs.toggle_current_line_blame)
+        map("n", "<leader>hd", gs.diffthis)
+        map("n", "<leader>hD", function()
+          gs.diffthis("~")
+        end)
+      end,
+    },
+  },
+  { -- indentline
+    "lukas-reineke/indent-blankline.nvim",
+    enabled = false,
+    lazy = false,
+    opts = {
+      char = "¦",
+      show_end_of_line = false,
+      show_trailing_blankline_indent = false,
+    },
+    init = function()
+      vim.g.indent_blankline_filetype_exclude = {
+        "lspinfo",
+        "checkhealth",
+        "help",
+        "man",
+        "startify",
+        "markdown",
+        "vim",
+        "tex",
+        "fzf",
+        "TelescopePrompt",
+      }
+    end,
+  },
+  { -- treesitter
+    -- "nvim-treesitter/nvim-treesitter",
+    dir = "~/src/nvim-treesitter",
+    pin = true,
+    -- commit = "aebc6cf6bd4675ac86629f516d612ad5288f7868",
+    -- run = ":TSUpdate",
+    dependencies = {
+      { -- playground
+        "nvim-treesitter/playground",
+        keys = {
+          {
+            "<leader>xc",
+            "<cmd>TSHighlightCapturesUnderCursor<cr>",
+            desc = "Show TS higlight under the cursor",
+            mode = "n",
+          },
+        },
+        cmd = "TSPlaygroundToggle",
+      },
+      { "nvim-treesitter/nvim-treesitter-textobjects" },
+      { -- nvim-ts-context-commentstring
+        "JoosepAlviste/nvim-ts-context-commentstring",
+        ft = { "html", "vue", "typescriptreact", "svelte" },
+      },
+      { "windwp/nvim-ts-autotag" },
+    },
+    config = function()
+      require("wax.plugcfg.treesitter")
+    end,
+  },
+
+  --------- Deemed Necessary ---------
+  { "nvim-lua/plenary.nvim", lazy = true },
+  { -- undotree
+    "mbbill/undotree",
+    keys = {
+      { "<leader>u", "<cmd>UndotreeToggle<cr>", desc = "UndotreeToggle", mode = "n" },
+    },
+  },
+  { -- vim-tmux-navigator
+    "christoomey/vim-tmux-navigator", -- tmux navigation in love with vim
+    keys = {
+      { "<c-j>", "<cmd>TmuxNavigateDown<cr>", desc = "Tmux Navigate Down", mode = "n" },
+      { "<c-k>", "<cmd>TmuxNavigateUp<cr>", desc = "Tmux Navigate Up", mode = "n" },
+      { "<c-l>", "<cmd>TmuxNavigateRight<cr>", desc = "Tmux Navigate Right", mode = "n" },
+      { "<c-h>", "<cmd>TmuxNavigateLeft<cr>", desc = "Tmux Navigate Left", mode = "n" },
+    },
+    init = function()
+      -- tmux, disable tmux navigator when zooming the Vim pane
+      vim.g.tmux_navigator_disable_when_zoomed = 1
+      vim.g.tmux_navigator_no_mappings = 1 -- custom ones below regarding modes
+    end,
+  },
+  { -- janko/vim-test
+    "janko/vim-test",
+    dependencies = {
+      "jgdavey/tslime.vim", -- send command from vim to a running tmux session
+    },
+    config = function()
+      require("wax.plugcfg.vim-test")
+    end,
+  },
+  { "tpope/vim-eunuch", event = "VeryLazy" }, -- sugar for the UNIX shell commands
+  { "tpope/vim-scriptease", cmd = "Messages" }, -- gives :Messages
+  { -- diffview: git integration for nvim
+    "sindrets/diffview.nvim",
+    config = function()
+      require("wax.plugcfg.diffview")
+    end,
+  },
+  { -- fzf-lua
+    "ibhagwan/fzf-lua",
+    event = "VeryLazy",
+    config = function()
+      require("wax.plugcfg.fzf")
+    end,
+  },
+  { -- grapple
+    "cbochs/grapple.nvim",
+    event = "VeryLazy",
+    config = function()
+      require("wax.plugcfg.grapple")
+    end,
+  },
+
+  --------- Enrich Actions ---------
+  { "AndrewRadev/splitjoin.vim", event = "VeryLazy" },
+  { "kylechui/nvim-surround", event = "VeryLazy", opts = { move_cursor = "begin" } },
+  { -- numToStr/Comment.nvim
+    "numToStr/Comment.nvim",
+    opts = {
+      ignore = "^$", -- ignore empty lines
+      sticky = true,
+      toggler = {
+        -- line-comment keymap
+        line = "<leader>cc",
+        ---block-comment keymap
+        -- block = "gbc",
+      },
+      opleader = {
+        -- line-comment keymap
+        line = "<leader>c",
+        -- block-comment keymap
+        -- block = "<leader>b",
+      },
+      mappings = {
+        basic = true,
+        extra = false,
+        extended = false,
+      },
+      pre_hook = function()
+        -- https://github.com/numToStr/Comment.nvim/pull/62#issuecomment-972790418
+        -- Fix builtin Comment behaviour by using ts_context_commentstring:
+        if vim.tbl_contains({ "vue", "svelte" }, vim.bo.filetype) then
+          require("ts_context_commentstring.internal").update_commentstring()
+          return vim.o.commentstring
+        end
+
+        if vim.bo.filetype == "typescriptreact" then
+          local fn = require("ts_context_commentstring.integrations.comment_nvim").create_pre_hook()
+          return fn()
+        end
+      end,
+    },
+  },
+
+  --------- LSP ---------
+  { -- lspconfig + mason
+    "neovim/nvim-lspconfig",
+    event = "VeryLazy",
+    dependencies = {
+      { -- null-ls
+        "jose-elias-alvarez/null-ls.nvim",
+        config = function()
+          require("wax.lsp.null-ls")
+        end,
+      },
+      { -- mason
+        "williamboman/mason.nvim",
+        init = function()
+          vim.keymap.set({ "n" }, "<leader>fm", function()
+            require("mason.ui").open()
+          end)
+        end,
+        opts = {
+          log_level = vim.log.levels[waxopts.loglevel:upper()],
+          max_concurrent_installers = 4,
+          -- automatic_installation = true, -- auto install servers which are lspconfig setuped
+          ensure_installed = waxopts.servers,
+          ui = {
+            icons = {
+              package_installed = "✓",
+              package_pending = "➜",
+              package_uninstalled = "✗",
+            },
+          },
+        },
+      },
+      { "williamboman/mason-lspconfig.nvim", config = true },
+      { "nvim-lua/lsp-status.nvim" },
+      { "b0o/schemastore.nvim", ft = "json" }, -- json schemas for jsonls
+    },
+    config = function()
+      require("wax.lsp")
+    end,
+  },
+  { -- Github lua copilot
+    "zbirenbaum/copilot.lua",
+    event = "InsertEnter",
+    config = function()
+      require("wax.plugcfg.copilot")
+    end,
+  },
+  { -- nvim-cmp
+    "hrsh7th/nvim-cmp",
+    event = "InsertEnter",
+    dependencies = {
+      "onsails/lspkind-nvim",
+      "hrsh7th/cmp-buffer",
+      "hrsh7th/cmp-path",
+      "hrsh7th/cmp-nvim-lua",
+      "hrsh7th/cmp-nvim-lsp",
+      -- "lukas-reineke/cmp-rg",
+      { dir = "~/src/cmp-rg" },
+      "saadparwaiz1/cmp_luasnip",
+      { -- snippet engine in lua
+        "L3MON4D3/LuaSnip",
+        config = function()
+          require("wax.plugcfg.luasnip")
+        end,
+      },
+      { -- auto pair written in lua
+        "windwp/nvim-autopairs",
+        opts = {
+          disable_filetype = { "TelescopePrompt", "vim", "fzf", "packer" },
+          close_triple_quotes = true,
+          enable_check_bracket_line = true, --- check bracket in same line
+          check_ts = true,
+          ts_config = {
+            lua = { "string", "source" },
+            javascript = { "string", "template_string" },
+          },
+        },
+      },
+    },
+    config = function()
+      require("wax.plugcfg.nvim-cmp")
+    end,
+  },
+
+  --------- Language Specific ---------
+  { "edgedb/edgedb-vim", ft = "edgedb" },
+  { "Vimjas/vim-python-pep8-indent", ft = "python" },
+
+  --------- NeoVim Perf / Dev ---------
+  { "dstein64/vim-startuptime", cmd = "StartupTime" }, -- analyze startup time
+  { "folke/neodev.nvim", ft = "lua" },
+
+  --------- Funky bits ---------
+  { "Eandrju/cellular-automaton.nvim", cmd = "CellularAutomaton" },
+}

@@ -26,7 +26,7 @@ local function to_dmypyls_cmd(python_path)
   -- python -c "from dmypy_ls import main; main()" --help
   local cmd = { python_path, "-c", "from dmypy_ls import main; main()" }
 
-  if waxopts.lsp.loglevel == "debug" then
+  if waxopts.loglevel == "debug" then
     vim.list_extend(cmd, { "--debug" })
   end
   return cmd

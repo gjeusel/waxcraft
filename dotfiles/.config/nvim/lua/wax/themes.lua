@@ -1,16 +1,8 @@
--- vim.cmd("syntax on")
-
--- vim.o.termguicolors = true
-vim.o.background = "dark"
-
 --
 -------- Gruvbox Specific --------
 --
 -- TreeSitter list of highlights: https://github.com/nvim-treesitter/nvim-treesitter/blob/master/CONTRIBUTING.md
 --
-
-vim.g.gruvbox_invert_selection = 0
-vim.g.gruvbox_improved_warnings = 1
 
 local base_gruvbox_hls = {
   -- Base interface
@@ -20,7 +12,6 @@ local base_gruvbox_hls = {
   VertSplit = { ctermbg = nil, ctermfg = 248 },
   CursorLineNr = { ctermbg = nil },
   EndOfBuffer = { ctermbg = nil },
-  -- ColorColumn = { ctermbg = 236 },
   ColorColumn = { ctermbg = nil },
 
   -- Better diff views
@@ -206,15 +197,9 @@ local function apply_gruvbox_theme()
 end
 
 --
--------- Apply theme --------
+-------- Apply my TS theme --------
 --
-
-if waxopts.colorscheme == "gruvbox" then
-  vim.cmd("silent! colorscheme gruvbox")
-  apply_gruvbox_theme()
-elseif waxopts.colorscheme == "nord" then
-  require("wax.themes.nord")
-end
+apply_gruvbox_theme()
 
 vim.keymap.set("n", "<leader>xc", function()
   vim.cmd("TSHighlightCapturesUnderCursor")

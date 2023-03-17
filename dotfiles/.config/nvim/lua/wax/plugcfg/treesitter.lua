@@ -6,11 +6,11 @@ local ts = require("nvim-treesitter.configs")
 -- Add parsers for some filetypes
 vim.treesitter.language.register("jinja.html", "html")
 
-local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
+local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
 parser_config.zimbu = {
   install_info = {
     url = "~/src/tree-sitter-python",
-    files = {"src/parser.c"},
+    files = { "src/parser.c" },
     -- optional entries:
     -- branch = "main", -- default branch in case of git repo if different from master
     generate_requires_npm = false, -- if stand-alone parser without npm dependencies
@@ -149,6 +149,7 @@ ts.setup({
   -- 'JoosepAlviste/nvim-ts-context-commentstring' -- auto deduce comment string on context
   context_commentstring = {
     enable = true,
+    enable_autocmd = false,
     -- config = {
     --   ["jinja.html"] = "{# %s #}",
     -- },

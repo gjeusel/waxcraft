@@ -82,3 +82,13 @@ for _, server_opts in pairs(waxopts.servers) do
   local opts = _to_lsp_server_opts(server_opts)
   waxopts._servers[opts.name] = opts
 end
+
+-- Python config
+vim.g.python3_host_prog = waxopts.python3
+
+-- -- enable debug (neovim logfile is in $NVIM_LOG_FILE)
+-- if waxopts.loglevel == "debug" then
+--   vim.o.debug = "msg"
+--   vim.o.verbosefile = vim.fn.stdpath("cache") .. "/nvim-verbosefile.log"
+--   vim.o.verbose = 1 -- 16 is max
+-- end
