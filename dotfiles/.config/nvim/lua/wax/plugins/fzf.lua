@@ -67,12 +67,11 @@ fzf_lua.setup({
   },
 })
 
--- -- Register fzf-lua for vim.ui.select
--- fzf_lua.register_ui_select({}, true)
+-- Register fzf-lua for vim.ui.select
+fzf_lua.register_ui_select({}, true)
 -- fzf_lua.deregister_ui_select({}, true)
 
--- custom vim.ui.select
-vim.ui.select = function(items, opts, on_choice) ---@diagnostic disable-line: duplicate-set-field
+local function fzf_custom_select(items, opts, on_choice) ---@diagnostic disable-line: duplicate-set-field
   -- exit visual mode if needed
   if not vim.api.nvim_get_mode() == "n" then
     fzf_lua.utils.feed_keys_termcodes("<Esc>")
@@ -103,6 +102,8 @@ vim.ui.select = function(items, opts, on_choice) ---@diagnostic disable-line: du
   fzf_lua.core.fzf_exec(entries, _opts)
 end
 
+-- vim.ui.select = fzf_custom_select
+
 --
 ------- utils funcs -------
 --
@@ -115,19 +116,26 @@ local function git_or_cwd()
   return cwd
 end
 
-local function grep_sel_to_qf(selected, opts)
-  local qf_list = {}
-  for i = 1, #selected do
-    local file = fzf_lua.path.entry_to_file(selected[i], opts)
-    local text = selected[i]:match(":%d+:%d?%d?%d?%d?:?(.*)$")
-    table.insert(qf_list, {
+---@class FzfFileEntry
+---@field filename string
+---@field lnum number
+---@field col number
+---@field text string
+
+---@param entries table<string>
+---@param opts table<any>
+---@return table<FzfFileEntry>
+local function parse_entries(entries, opts)
+  return vim.tbl_map(function(entry)
+    local file = fzf_lua.path.entry_to_file(entry, opts)
+    local text = entry:match(":%d+:%d?%d?%d?%d?:?(.*)$")
+    return {
       filename = file.bufname or file.path,
       lnum = file.line,
       col = file.col,
       text = text,
-    })
-  end
-  vim.fn.setqflist(qf_list, "r")
+    }
+  end, entries)
 end
 
 local function fn_selected_multi(selected, opts)
@@ -138,10 +146,37 @@ local function fn_selected_multi(selected, opts)
   -- first element of "selected" is the keybind pressed
   if #selected <= 2 then
     fzf_lua.actions.act(opts.actions, selected, opts)
-  else -- here we multi-selected
+  else -- here we multi-selected ("select-all+accept" on fzf lua view point)
     local _, entries = fzf_lua.actions.normalize_selected(opts.actions, selected)
-    grep_sel_to_qf(entries, opts)
-    vim.cmd("cfirst")
+    entries = parse_entries(entries, opts)
+
+    local multiselect_actions = {
+      "Open occurrences in qf list",
+      "Open unique files in qf list",
+    }
+
+    vim.ui.select(
+      multiselect_actions,
+      { prompt = "FZF Actions (multi select)> " },
+      function(choice, idx)
+        log.debug("fzf multi select: ", choice)
+
+        if idx == 2 then
+          local seen = {}
+          entries = vim.tbl_filter(function(entry)
+            if vim.tbl_contains(seen, entry.filename) then
+              return false
+            else
+              table.insert(seen, entry.filename)
+              return true
+            end
+          end, entries)
+        end
+
+        vim.fn.setqflist(entries, "r")
+        vim.cmd("cfirst")
+      end
+    )
   end
 end
 

@@ -4,6 +4,8 @@ local scratch = require("wax.scratch")
 
 -------- Debug utils --------
 
+---Open a scratch window with given content
+---@param content any
 local function open_scratch_win(content)
   local floatopts = scratch.float_win()
   local bufnr = floatopts.bufnr
@@ -145,6 +147,8 @@ function _G.get_os_command_output(cmd, cwd)
   return stdout, ret, stderr
 end
 
+---Check if cwd is git versioned
+---@param cwd string | nil
 function _G.is_git(cwd)
   cwd = cwd or vim.fn.getcwd()
   local cmd = { "git", "rev-parse", "--show-toplevel" }
@@ -200,8 +204,6 @@ function _G.is_big_file(fpath)
     return byte_size > waxopts.big_file_threshold
   end
 end
-
--- vim.keymap.set("t", "<c-g>", "<cmd>stopinsert<cr>")
 
 local M = {}
 

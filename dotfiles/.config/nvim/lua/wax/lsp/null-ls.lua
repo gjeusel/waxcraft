@@ -30,6 +30,13 @@ local function from_python_env(params)
   return resolved.command
 end
 
+local function from_node_modules(params)
+  local base_fn = cmd_resolver.from_node_modules()
+  local result = base_fn(params)
+  dumpf(result)
+  return result
+end
+
 local eslint_filetypes = {
   "javascript",
   "javascriptreact",
@@ -41,6 +48,7 @@ local eslint_filetypes = {
 local eslint_cfg = {
   filetypes = eslint_filetypes,
   dynamic_command = cmd_resolver.from_node_modules(),
+  -- dynamic_command = from_node_modules,
 }
 
 local prettier_filetypes = vim.list_extend(vim.deepcopy(eslint_filetypes), { "yaml" })

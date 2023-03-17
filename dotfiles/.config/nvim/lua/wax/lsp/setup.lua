@@ -53,7 +53,7 @@ end
 function M.setup_servers(global_lsp_settings)
   global_lsp_settings = global_lsp_settings or {}
 
-  for server_name, _ in pairs(waxopts.lsp._servers) do
+  for server_name, _ in pairs(waxopts._servers) do
     -- Re-construct full settings
     local custom_settings =
       get_custom_settings_for_server(server_name, global_lsp_settings.on_attach)
@@ -92,7 +92,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
     end
 
     local lsp_client = vim.lsp.get_client_by_id(args.data.client_id)
-    local opts = vim.tbl_get(waxopts.lsp._servers, lsp_client.name)
+    local opts = vim.tbl_get(waxopts._servers, lsp_client.name)
 
     if not opts then
       log.debug("early return for", lsp_client.name)
@@ -100,7 +100,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
     end
 
     local project = find_workspace_name(args.file)
-    if vim.tbl_contains(opts.disabled_workspace, project) then
+    if vim.tbl_contains(opts.blacklist, project) then
       log.info("Disabling", lsp_client.name, "for project", project)
       -- vim.lsp.buf_detach_client(args.buf, args.data.client_id)  -- failing as not attached yet, the fuck?
       vim.lsp.stop_client(args.data.client_id)

@@ -1,5 +1,5 @@
 -- Set log level for LSP
-vim.lsp.set_log_level(waxopts.lsp.loglevel)
+vim.lsp.set_log_level(waxopts.loglevel)
 
 -- Define custom ui settings
 require("wax.lsp.ui")

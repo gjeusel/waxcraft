@@ -212,12 +212,6 @@ return require("packer").startup({
     --------- User Interface ---------
     use("morhetz/gruvbox")
     -- use("sainnhe/gruvbox-material")
-    use({
-      "NvChad/nvim-colorizer.lua",
-      config = function()
-        require("colorizer").setup()
-      end,
-    })
 
     use({
       -- lualine
@@ -238,7 +232,7 @@ return require("packer").startup({
       -- dressing
       "stevearc/dressing.nvim",
       config = function()
-        local win_options = { winblend = 0 }
+        -- local win_options = { winblend = 0 }
         safe_require("dressing").setup({
           builtin = { enabled = false },
           select = {
@@ -247,6 +241,7 @@ return require("packer").startup({
             win_options = win_options,
             -- priority list for backends:
             -- backend = { "telescope", "fzf_lua", "fzf", "builtin", "nui" },
+            backend = { "builtin" },
             -- fzf_lua = { winopts = { width = 0.4, height = 0.4 } },
           },
           input = { enabled = true, win_options = win_options },
@@ -352,6 +347,7 @@ return require("packer").startup({
         -- { "p00f/nvim-ts-rainbow" },
         { -- add better behavior for '%' (see matchpairs)
           "andymass/vim-matchup",
+          disable = true,
           config = function()
             safe_require("wax.plugins.vim-matchup")
           end,
