@@ -1,9 +1,6 @@
 -- Set log level for LSP
 vim.lsp.set_log_level(waxopts.loglevel)
 
--- Define custom ui settings
-require("wax.lsp.ui")
-
 -- Mappings
 local function set_lsp_keymaps()
   local opts = { noremap = true, silent = true }
@@ -65,16 +62,6 @@ local function set_lsp_keymaps()
   end, opts)
 end
 
-set_lsp_keymaps()
-
---Enable completion triggered by <c-x><c-o>
-vim.api.nvim_set_option("omnifunc", "v:lua.vim.lsp.omnifunc")
-
--- Generate capabilities
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities.textDocument.completion =
-  require("cmp_nvim_lsp").default_capabilities({}).textDocument.completion
-
 -- Customization of the publishDiagnostics (remove all pyright diags)
 vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(function(_, result, ctx, config)
   result.diagnostics = vim.tbl_filter(function(diagnostic)
@@ -99,8 +86,32 @@ vim.api.nvim_create_autocmd("LspAttach", {
   end,
 })
 
-local function lspconfig_setup()
-  local scan = require("plenary.scandir")
+-- Register homemade LSP servers (mypygls):
+local lspconfig = require("lspconfig")
+local configs = require("lspconfig.configs")
+
+configs.mypygls = {
+  default_config = {
+    cmd = { "mypygls" },
+    filetypes = { "python" },
+    root_dir = function(fname)
+      return lspconfig.util.find_git_ancestor(fname)
+    end,
+    settings = {},
+  },
+}
+
+require("mason-lspconfig.mappings.server").lspconfig_to_package["mypygls"] = "mypygls"
+
+local scan = require("plenary.scandir")
+
+local function create_mason_handlers()
+  -- Generate capabilities
+  local capabilities = vim.lsp.protocol.make_client_capabilities()
+  capabilities.textDocument.completion =
+    require("cmp_nvim_lsp").default_capabilities({}).textDocument.completion
+
+  local handlers = {}
 
   local server_with_custom_config = vim.tbl_map(function(server_file)
     return vim.fn.fnamemodify(server_file, ":t:r")
@@ -109,11 +120,20 @@ local function lspconfig_setup()
   for _, server_name in ipairs(server_with_custom_config) do
     local server_opts = require(("wax.lsp.servers.%s"):format(server_name))
 
-    require("lspconfig")[server_name].setup(
-      vim.tbl_deep_extend("keep", { capabilities = capabilities }, server_opts)
-    )
+    handlers[server_name] = function()
+      require("lspconfig")[server_name].setup(
+        vim.tbl_deep_extend("keep", { capabilities = capabilities }, server_opts)
+      )
+    end
   end
+
+  return handlers
 end
 
--- call lspconfig setup with our custom servers configs
-lspconfig_setup()
+return {
+  setup_ui = function()
+    require("wax.lsp.ui")
+  end,
+  set_lsp_keymaps = set_lsp_keymaps,
+  create_mason_handlers = create_mason_handlers,
+}

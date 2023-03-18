@@ -1,21 +1,3 @@
--- Register homemade LSP servers (mypygls):
-local lspconfig = require("lspconfig")
-local configs = require("lspconfig.configs")
-
-configs.mypygls = {
-  default_config = {
-    cmd = { "mypygls" },
-    filetypes = { "python" },
-    root_dir = function(fname)
-      return lspconfig.util.find_git_ancestor(fname)
-    end,
-    settings = {},
-  },
-}
-
--- map it in mason-lspconfig
-require("mason-lspconfig.mappings.server").lspconfig_to_package["mypygls"] = "mypygls"
-
 local python_utils = require("wax.lsp.python-utils")
 
 return {
