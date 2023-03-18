@@ -113,8 +113,6 @@ _G.lua_waxdir = vim.fn.fnamemodify(debug.getinfo(1, "S").short_src, ":p:h")
 -------- Cache --------
 
 ---@class Wax.CacheFnOpts
----@field arg_table_key? string | number
----@field n_arg_key? number
 ---@field per_buffer? boolean
 
 ---@generic T : function
@@ -128,27 +126,13 @@ function _G.wax_cache_fn(fn, opts)
   -- local fn_info = debug.getinfo(foo, "u")
 
   local per_buffer = opts.per_buffer == nil or opts.per_buffer
-  local n_arg_key = opts.n_arg_key or 1
 
   local function to_cache_key(...)
-    local args = { ... }
-    local arg = args[n_arg_key]
-    local key = ""
-    if arg ~= nil then
-      if type(arg) == "table" then
-        if opts.arg_table_key then
-          key = arg[opts.arg_table_key]
-        end
-      else
-        key = arg
-      end
-    end
-
+    local key = { args = { ... } }
     if per_buffer then
-      key = ("%s_%s"):format(key, vim.api.nvim_buf_get_name(0))
+      key.buffer = vim.api.nvim_buf_get_name(0)
     end
-
-    return key
+    return vim.inspect(key, { depth = 2 })
   end
 
   local function wrap(...)

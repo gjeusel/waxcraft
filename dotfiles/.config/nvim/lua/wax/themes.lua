@@ -21,10 +21,12 @@ local base_gruvbox_hls = {
   DiffText = { cterm = nil, ctermfg = "Blue", ctermbg = nil },
 
   -- Better floating windows hl
-  FloatBorder = { link = "GruvboxAqua"},
-  LspInfoBorder = { link = "GruvboxAqua"},
-  FzfLuaBorder = { link = "GruvboxAqua"},
-  NullLsInfoBorder = { link = "GruvboxAqua"},
+  FloatTitle = { link = "GruvboxAqua" },
+  FloatBorder = { link = "GruvboxAqua" },
+  LspInfoBorder = { link = "GruvboxAqua" },
+  FzfLuaBorder = { link = "GruvboxAqua" },
+  TelescopeBorder = { link = "GruvboxAqua" },
+  NullLsInfoBorder = { link = "GruvboxAqua" },
 
   -- Imp gruvbox signs
   GruvboxGreenSign = { link = "GruvboxGreen" },

@@ -4,23 +4,6 @@ vim.lsp.set_log_level(waxopts.loglevel)
 -- Define custom ui settings
 require("wax.lsp.ui")
 
--- https://github.com/nvim-lua/lsp-status.nvim#all-together-now
-local lsp_status = require("lsp-status")
-lsp_status.register_progress()
-lsp_status.config({
-  current_function = false,
-  show_filename = false,
-  indicator_separator = " ",
-  component_separator = " ",
-  indicator_errors = "✗",
-  indicator_info = "כֿ",
-  indicator_warnings = "",
-  indicator_hint = "",
-  indicator_ok = "", -- "",
-  status_symbol = "",
-  update_interval = 100,
-})
-
 -- Mappings
 local function set_lsp_keymaps()
   local opts = { noremap = true, silent = true }
@@ -89,7 +72,6 @@ vim.api.nvim_set_option("omnifunc", "v:lua.vim.lsp.omnifunc")
 
 -- Generate capabilities
 local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities = vim.tbl_extend("force", capabilities, lsp_status.capabilities)
 capabilities.textDocument.completion =
   require("cmp_nvim_lsp").default_capabilities({}).textDocument.completion
 
@@ -117,8 +99,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
   end,
 })
 
-local default_on_attach = lsp_status.on_attach
-
 local function lspconfig_setup()
   local scan = require("plenary.scandir")
 
@@ -129,35 +109,11 @@ local function lspconfig_setup()
   for _, server_name in ipairs(server_with_custom_config) do
     local server_opts = require(("wax.lsp.servers.%s"):format(server_name))
 
-    -- Maybe combine both on_attach
-    local on_attach = default_on_attach
-    if server_opts.on_attach then
-      on_attach = function(client, bufnr)
-        default_on_attach(client)
-        server_opts.on_attach(client, bufnr)
-      end
-    end
-
-    -- log.warn("Setting up", server_name, "with", server_opts)
     require("lspconfig")[server_name].setup(
-      vim.tbl_deep_extend(
-        "keep",
-        { capabilities = capabilities, on_attach = on_attach },
-        server_opts
-      )
+      vim.tbl_deep_extend("keep", { capabilities = capabilities }, server_opts)
     )
   end
 end
 
 -- call lspconfig setup with our custom servers configs
 lspconfig_setup()
-
--- -- Don't call the setup_handlers as it messes everything
--- require("mason-lspconfig").setup_handlers({
---   function(server_name)
---     require("lspconfig")[server_name].setup({
---       capabilities = capabilities,
---       on_attach = default_on_attach,
---     })
---   end,
--- })

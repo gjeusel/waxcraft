@@ -96,6 +96,6 @@ vim.keymap.set("n", "<leader>gf", function()
   -- diffview.
   -- actions.focus_entry()
 end)
-vim.keymap.set("n", "<leader>gm", function ()
+vim.keymap.set("n", "<leader>gm", function()
   diffview.open("master", "%")
 end)

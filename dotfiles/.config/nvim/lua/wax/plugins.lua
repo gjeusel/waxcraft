@@ -51,11 +51,25 @@ return {
   },
   { -- dressing
     "stevearc/dressing.nvim",
+    dependencies = {
+      "nvim-telescope/telescope.nvim",
+      keys = {
+        {
+          "<leader>fE",
+          "<cmd>Telescope builtin<cr>",
+          desc = "Find anything with telescope",
+          mode = "n",
+        },
+      },
+    },
     event = "VeryLazy",
     opts = {
       builtin = { enabled = false },
-      select = { enabled = false },
-      input = { enabled = true },
+      select = {
+        enabled = true,
+        backend = { "telescope" },
+      },
+      input = { enabled = true, { win_options = { winblend = 0 } } },
     },
   },
   { -- gitsigns
@@ -214,7 +228,7 @@ return {
   },
   { -- fzf-lua
     "ibhagwan/fzf-lua",
-    event = "VeryLazy",
+    lazy = false,
     config = function()
       require("wax.plugcfg.fzf")
     end,
@@ -269,32 +283,74 @@ return {
   },
 
   --------- LSP ---------
+  { -- Github lua copilot
+    "zbirenbaum/copilot.lua",
+    keys = {
+      {
+        "<C-x>",
+        "<cmd>Copilot panel<cr>",
+        desc = "Open Copilot Panel",
+        mode = { "n", "i" },
+      },
+    },
+    opts = {
+      panel = {
+        enabled = true,
+        auto_refresh = false,
+        keymap = {
+          jump_prev = "[[",
+          jump_next = "]]",
+          accept = "<CR>",
+          refresh = "gr",
+          open = "<C-x>",
+        },
+        layout = {
+          position = "bottom", -- | top | left | right
+          ratio = 0.4,
+        },
+      },
+      suggestion = {
+        enabled = false,
+      },
+      server_opts_overrides = {
+        settings = {
+          inlineSuggest = { enabled = false },
+          editor = {
+            showEditorCompletions = false,
+            enableAutoCompletions = false,
+          },
+          advanced = {
+            top_p = 0.70,
+            listCount = 3, -- #completions for panel
+            inlineSuggestCount = 0, -- #completions for getCompletions
+            enableAutoCompletions = false,
+          },
+        },
+      },
+    },
+  },
+  { -- null-ls
+    "jose-elias-alvarez/null-ls.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" }, -- used for python-utils
+    config = function()
+      require("wax.lsp.null-ls")
+    end,
+  },
+
   { -- lspconfig + mason
     "neovim/nvim-lspconfig",
     lazy = false, -- (needed to register filetype autocmd autostart)
     -- event = "VeryLazy",
-    init = function()
-      vim.keymap.set("n", "<leader>fM", "<cmd>LspInfo<cr>")
-    end,
     dependencies = {
-      { -- null-ls
-        "jose-elias-alvarez/null-ls.nvim",
-        config = function()
-          require("wax.lsp.null-ls")
-        end,
-      },
       { -- mason
         "williamboman/mason.nvim",
-        config = true,
         init = function()
-          vim.keymap.set("n", "<leader>fm", function()
+          vim.keymap.set("n", "<leader>fM", function()
             require("mason.ui").open()
           end)
         end,
         opts = {
           log_level = vim.log.levels[waxopts.loglevel:upper()],
-          -- max_concurrent_installers = 4,
-          -- automatic_installation = true, -- auto install servers which are lspconfig setuped
           ui = {
             border = "rounded",
             icons = {
@@ -312,25 +368,11 @@ return {
           automatic_installation = { exclude = { "pylsp" } },
         },
       },
-      { "nvim-lua/lsp-status.nvim" },
+      -- { "nvim-lua/lsp-status.nvim" },
       { "b0o/schemastore.nvim", ft = "json" }, -- json schemas for jsonls
     },
     config = function()
       require("wax.lsp")
-    end,
-  },
-  { -- Github lua copilot
-    "zbirenbaum/copilot.lua",
-    keys = {
-      {
-        "<C-x>",
-        "<cmd>Copilot panel<cr>",
-        desc = "Open Copilot Panel",
-        mode = { "n", "i" },
-      },
-    },
-    config = function()
-      require("wax.plugcfg.copilot")
     end,
   },
   { -- nvim-cmp
@@ -347,6 +389,7 @@ return {
       "saadparwaiz1/cmp_luasnip",
       { -- snippet engine in lua
         "L3MON4D3/LuaSnip",
+        lazy = true,
         config = function()
           require("wax.plugcfg.luasnip")
         end,

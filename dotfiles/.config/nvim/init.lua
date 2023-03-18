@@ -9,6 +9,9 @@
 -- - ThePrimeagen: https://github.com/awesome-streamers/awesome-streamerrc/tree/master/ThePrimeagen ( the funny )
 -- - ChristianChiarulli: https://github.com/ChristianChiarulli/LunarVim                             ( the ambitious )
 
+vim.g.mapleader = ","
+vim.g.maplocalleader = ","
+
 require("wax.settings") -- vim.o
 require("wax.userconfig") -- define user configs (waxopts)
 require("wax.utils") -- utils with globals

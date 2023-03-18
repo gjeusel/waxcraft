@@ -1,5 +1,5 @@
 local ls = require("luasnip")
-local load_from_lua = require("luasnip.loaders.from_lua").load
+local load_from_lua = require("luasnip.loaders.from_lua").lazy_load
 local types = require("luasnip.util.types")
 
 local symbol = "  ❬●❭"

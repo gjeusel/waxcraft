@@ -70,7 +70,7 @@ return {
         ["jinja.html"] = "html",
       },
       -- experimental = {
-        --   configFile = "../../../scripts/weasytail/tailwind.config.js",
+      --   configFile = "../../../scripts/weasytail/tailwind.config.js",
       -- },
     },
   },

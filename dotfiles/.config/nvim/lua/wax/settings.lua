@@ -1,5 +1,4 @@
 vim.keymap.set({ "n", "x", "v" }, ",,", ",", { remap = false })
-vim.g.mapleader = ","
 
 vim.o.mouse = "a" -- Automatically enable mouse usage
 vim.o.number = true -- display line number column
@@ -36,6 +35,8 @@ vim.o.pumheight = 5 -- max completion popup menu height
 
 vim.o.matchpairs = "(:),{:},[:],<:>,':',\":\""
 -- vim.o.matchpairs = { "(:)", "{:}", "[:]", "<:>", "':'", '":"' } -- behavior of '%'
+
+vim.o.winblend = 0
 
 vim.o.pyxversion = 3
 

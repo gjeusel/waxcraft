@@ -3,31 +3,12 @@ local fzf_lua = require("fzf-lua")
 local scan = safe_require("plenary.scandir")
 local Path = safe_require("plenary.path")
 
--- Example command launched by fzf-lua:
-
--- ```bash
---  fzf --multi -n --headless --clean \
---    --expect=ctrl-v,ctrl-g,ctrl-s,alt-l,alt-q,ctrl-r,ctrl-t \
---    --header=':: <^[[0;33mctrl-g^[[0m> to ^[[0;31mRegex Search^[[0m' \
---    --bind='alt-a:toggle-all,ctrl-a:beginning-of-line,ctrl-b:preview-page-up,ctrl-f:preview-page-down,shift-down:preview-page-down,ctrl-z:abort,ctrl-d:preview-page-down,shift-up:preview-page-up,f4:toggle-preview,ctrl-u:preview-page-up,f3:toggle-preview-wrap,ctrl-e:end-of-line' \
---    --preview=''\''/usr/local/bin/nvim'\'' \
---    --cmd '\''lua loadfile([[/Users/gjeusel/.local/share/nvim/site/pack/packer/start/fzf-lua/lua/fzf-lua/shell_helper.lua]])().rpc_nvim_exec_lua({fzf_lua_server=[[/var/folders/9_/mc8yjnyn1j3_15_wmktz0g6m0000gn/T/nvim.gjeusel/1RZQDr/nvim.31754.1]], fnc_id=1 , debug=true})'\'' {}' \
---    --border=none --print-query --height=100% --prompt='❯ ' --info=inline --layout=reverse --ansi --preview-window=nohidden:right:0
--- ```
-
 local fzf_actions = {
   ["default"] = fzf_lua.actions.file_edit,
   ["ctrl-s"] = fzf_lua.actions.file_split,
   ["ctrl-v"] = fzf_lua.actions.file_vsplit,
   -- ["ctrl-r"] = fzf_lua.actions.file_sel_to_qf,  -- not working in multiselect
 }
-
--- vim.api.nvim_create_autocmd("FileType", {
---   pattern = "fzf",
---   callback = function()
---     vim.keymap.set({ "i", "t" }, "<C-c>", "<Esc>")
---   end,
--- })
 
 fzf_lua.setup({
   winopts = {
@@ -68,41 +49,8 @@ fzf_lua.setup({
 })
 
 -- Register fzf-lua for vim.ui.select
-fzf_lua.register_ui_select({}, true)
+-- fzf_lua.register_ui_select({ winopts = { height = 0.33, width = 0.33 } }, true)
 -- fzf_lua.deregister_ui_select({}, true)
-
-local function fzf_custom_select(items, opts, on_choice) ---@diagnostic disable-line: duplicate-set-field
-  -- exit visual mode if needed
-  if not vim.api.nvim_get_mode() == "n" then
-    fzf_lua.utils.feed_keys_termcodes("<Esc>")
-  end
-
-  local entries = vim.tbl_map(function(e)
-    return opts.format_item and opts.format_item(e) or tostring(e)
-  end, items)
-
-  local prompt = opts.prompt or "Select> "
-
-  local _opts = {
-    fzf_opts = {
-      ["--no-multi"] = "",
-      ["--prompt"] = prompt:gsub(":%s?$", "> "),
-      ["--preview-window"] = "hidden:right:0",
-    },
-    actions = {
-      ["default"] = function(selected)
-        for i, e in ipairs(entries) do
-          if e == selected[1] then
-            return on_choice(items[i], i)
-          end
-        end
-      end,
-    },
-  }
-  fzf_lua.core.fzf_exec(entries, _opts)
-end
-
--- vim.ui.select = fzf_custom_select
 
 --
 ------- utils funcs -------
@@ -236,12 +184,12 @@ local function rg_files(rg_opts)
 end
 
 -- Find Files restricted
-kmap("n", "<leader>p", rg_files)
+kmap("n", "<leader>p", rg_files, { desc = "Find git files" })
 
 -- Find Files
 kmap("n", "<leader>P", function()
   return rg_files("--no-ignore-vcs")
-end)
+end, { desc = "Find files" })
 
 --
 ---------- Misc ----------
@@ -314,7 +262,9 @@ kmap("n", "<leader>fw", function()
       return fzf_lua.make_entry.file(x, { file_icons = true, color_icons = true })
     end,
   })
-end)
+end, {
+  desc = "Find file among dotfiles",
+})
 
 --
 ------- Project Select first -------

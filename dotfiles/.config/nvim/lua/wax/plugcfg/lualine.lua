@@ -14,14 +14,6 @@ local relative_path = wax_cache_fn(function()
   end
 end)
 
-local function diagnostics()
-  if #vim.lsp.get_active_clients() > 0 then
-    return require("lsp-status").status()
-  else
-    return ""
-  end
-end
-
 local function filetype()
   return vim.api.nvim_buf_get_option(0, "filetype")
 end
@@ -56,8 +48,6 @@ local colors = {
 }
 
 local sober_theme = {
-  -- a = { bg = colors.GruvboxBg1, fg = colors.green },
-  -- b = { bg = colors.GruvboxBg0, fg = colors.GruvboxBg3 },
   a = { fg = colors.green, gui = "bold" },
   b = { fg = colors.GruvboxBg3 },
   c = { fg = colors.GruvboxBg3 },
@@ -85,10 +75,6 @@ require("lualine").setup({
     theme = theme,
     component_separators = "",
     section_separators = "",
-    -- component_separators = { left = "·", right = "·" },
-    -- section_separators = { left = "", right = "" },
-    -- component_separators = { left = "", right = "" },
-    -- section_separators = { left = "", right = "" },
     disabled_filetypes = {
       statusline = {},
       winbar = {},
@@ -107,8 +93,25 @@ require("lualine").setup({
   -- +-------------------------------------------------+
   sections = {
     lualine_a = { { "mode", fmt = fmt_mode } },
-    lualine_b = { workspace_name, { "branch", fmt = trunc(120, 12, 60) } },
-    lualine_c = { "spell", "readonly", "modified", diagnostics },
+    lualine_b = {
+      workspace_name,
+      { "branch", fmt = trunc(120, 12, 60) },
+      { -- git diff in numbers of lines
+        "diff",
+        colored = false,
+        symbols = { added = "+", modified = "~", removed = "-" }, -- Changes the symbols used by the diff.
+      },
+    },
+    lualine_c = {
+      "spell",
+      "readonly",
+      "modified",
+      { -- Displays diagnostics for the defined severity types
+        "diagnostics",
+        sections = { "error", "warn" },
+        diagnostics_color = { error = "GruvboxBg3", warn = "GruvboxBg3" },
+      },
+    },
     lualine_x = { relative_path },
     lualine_y = { "location", "progress" },
     lualine_z = { filetype },

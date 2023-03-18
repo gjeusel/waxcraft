@@ -10,7 +10,7 @@ local from_python_env = wax_cache_fn(function(params)
   local workspace = u.get_root()
   local cmd = python_utils.get_python_path(workspace, params.command)
   return cmd
-end, { arg_table_key = "command" })
+end)
 
 local eslint_filetypes = {
   "javascript",
