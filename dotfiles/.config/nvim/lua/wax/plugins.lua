@@ -272,7 +272,7 @@ return {
   { -- lspconfig + mason
     "neovim/nvim-lspconfig",
     lazy = false, -- (needed to register filetype autocmd autostart)
-    -- event = "BufEnter",
+    -- event = "VeryLazy",
     init = function()
       vim.keymap.set("n", "<leader>fM", "<cmd>LspInfo<cr>")
     end,

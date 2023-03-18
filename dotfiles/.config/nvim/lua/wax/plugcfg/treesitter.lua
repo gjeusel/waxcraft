@@ -218,8 +218,10 @@ local function load_wax_ts_queries()
       local qry_type = vim.fn.fnamemodify(qry_path.filename, ":t:r")
 
       log.debug("Overwritting TreeSitter", qry_type, "queries for", language)
-
-      pcall(vim.treesitter.query.set_query, language, qry_type, qry_path:read())
+      local ok, _ = pcall(vim.treesitter.query.set_query, language, qry_type, qry_path:read())
+      if not ok then
+        log.warn("Failed to set treesitter query for", language)
+      end
     end
   end
 end
