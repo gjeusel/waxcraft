@@ -19,6 +19,7 @@ return {
     client.server_capabilities.documentFormattingProvider = false
     client.server_capabilities.documentRangeFormattingProvider = false
   end,
+  -- cmd = to_pylsp_cmd(python_utils.get_python_path(nil, "python")),
   settings = {
     pylsp = {
       -- https://github.com/python-lsp/python-lsp-server/blob/develop/CONFIGURATION.md

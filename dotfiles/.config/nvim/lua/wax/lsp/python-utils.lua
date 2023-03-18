@@ -58,7 +58,7 @@ local function find_python_cmd(workspace, cmd)
 end
 
 M.get_python_path = function(workspace, cmd)
-  workspace = workspace or ""
+  workspace = workspace or find_workspace_name(vim.api.nvim_buf_get_name(0))
   cmd = cmd or "python"
   local python_path = nil
 

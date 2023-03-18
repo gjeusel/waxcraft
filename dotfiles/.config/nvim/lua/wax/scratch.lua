@@ -76,7 +76,7 @@ function M.float_win(opts)
     end)
   end
   local aucmd_autoclose =
-    vim.api.nvim_create_autocmd("WinLeave", { callback = close, buffer = bufnr })
+      vim.api.nvim_create_autocmd("WinLeave", { callback = close, buffer = bufnr })
 
   local open_vertical_split = function()
     vim.api.nvim_del_autocmd(aucmd_autoclose)

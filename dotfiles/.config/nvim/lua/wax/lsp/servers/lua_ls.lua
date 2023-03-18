@@ -3,7 +3,7 @@ return {
     client.server_capabilities.colorProvider = false
     client.server_capabilities.documentHighlightProvider = false
 
-    client.server_capabilities.documentFormatting = false
+    client.server_capabilities.documentFormattingProvider = false
   end,
   settings = {
     Lua = {

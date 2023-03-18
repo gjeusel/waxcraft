@@ -37,7 +37,7 @@ ls.config.set_config({
   enable_autosnippets = false,
 })
 
-local snippets_path = vim.env.waxCraft_PATH .. "/dotfiles/.config/nvim/lua/wax/snippets"
+local snippets_path = lua_waxdir .. "/snippets"
 
 load_from_lua({ paths = snippets_path })
 

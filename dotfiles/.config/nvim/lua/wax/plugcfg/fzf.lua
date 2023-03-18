@@ -296,7 +296,7 @@ kmap("n", "<leader>fw", function()
     ".zshrc",
     "src/waxcraft/dotfiles",
     "src/nvim-treesitter",
-    ".local/share/nvim/site/pack/packer",
+    ".local/share/nvim/lazy",
   }
   local home = vim.env.HOME
   local abs_paths = vim.tbl_map(function(path)

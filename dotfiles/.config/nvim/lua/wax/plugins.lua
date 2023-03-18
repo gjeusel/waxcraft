@@ -165,6 +165,13 @@ return {
       require("wax.plugcfg.treesitter")
     end,
   },
+  { -- hlslens
+    "kevinhwang91/nvim-hlslens",
+    event = "VeryLazy",
+    config = function()
+      require("wax.plugcfg.hlslens")
+    end,
+  },
 
   --------- Deemed Necessary ---------
   { "nvim-lua/plenary.nvim", lazy = true },
@@ -274,6 +281,7 @@ return {
       },
       { -- mason
         "williamboman/mason.nvim",
+        config = true,
         init = function()
           vim.keymap.set({ "n" }, "<leader>fm", function()
             require("mason.ui").open()
@@ -293,7 +301,13 @@ return {
           },
         },
       },
-      { "williamboman/mason-lspconfig.nvim", config = true },
+      { -- mason-lspconfig.nvim
+        "williamboman/mason-lspconfig.nvim",
+        opts = {
+          ensure_installed = {},
+          automatic_installation = false,
+        },
+      },
       { "nvim-lua/lsp-status.nvim" },
       { "b0o/schemastore.nvim", ft = "json" }, -- json schemas for jsonls
     },

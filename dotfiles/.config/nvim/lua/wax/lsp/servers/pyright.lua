@@ -40,6 +40,7 @@ return {
   settings = {
     python = {
       -- https://github.com/microsoft/pyright/blob/main/docs/settings.md
+      -- pythonPath = python_utils.get_python_path(),
       disableOrganizeImports = true,
       analysis = {
         -- diagnosticMode = "workspace",
