@@ -56,7 +56,7 @@ local find_python_cmd = wax_cache_fn(function(workspace, cmd)
   return cmd
 end)
 
-function M.get_python_path(workspace, cmd)
+M.get_python_path = wax_cache_fn(function(workspace, cmd)
   workspace = workspace or find_workspace_name(vim.api.nvim_buf_get_name(0))
   cmd = cmd or "python"
 
@@ -83,6 +83,6 @@ function M.get_python_path(workspace, cmd)
   end
 
   return python_path
-end
+end)
 
 return M

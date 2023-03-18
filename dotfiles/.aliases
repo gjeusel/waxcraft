@@ -125,7 +125,7 @@ alias meteo="curl https://v2.wttr.in/brussels"
 
 pylsp_deps() {
   # LSP
-  pip install -U python-lsp-server[rope]
+  pip install -U python-lsp-server[rope] jedi
   pip install -U ruff ruff-lsp
   pip install --editable ~/src/mypygls/
 }

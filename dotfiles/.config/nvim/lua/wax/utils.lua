@@ -145,7 +145,7 @@ function _G.wax_cache_fn(fn, opts)
     local value = vim.tbl_get(cache, key)
     if value == nil then
       cache[key] = fn(...)
-      log.debug("Cached returned value using cache key", key)
+      log.trace("Cached returned value using cache key", key)
     else
       log.trace("Found in cache using cache key", key)
     end

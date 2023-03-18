@@ -4,7 +4,7 @@
 
 return {
   --------- UI ---------
-  { "mhinz/vim-startify" },
+  { "mhinz/vim-startify", lazy = false },
   { -- gruvbox
     "morhetz/gruvbox",
     lazy = false,
@@ -26,6 +26,7 @@ return {
   },
   { -- barbar
     "romgrk/barbar.nvim",
+    event = "VeryLazy",
     lazy = false,
     dependencies = "nvim-tree/nvim-web-devicons",
     opts = {
@@ -40,17 +41,29 @@ return {
       no_name_title = "", -- avoid scratch buffer display from null-ls
       exclude_name = { "" },
     },
-    init = function()
-      local kmap = vim.keymap.set
-      local opts = { nowait = true, silent = true }
-      kmap({ "n", "i" }, "œ", "<cmd>BufferPrevious<cr>", opts) -- option + q
-      kmap({ "n", "i" }, "∑", "<cmd>BufferNext<cr>", opts) -- option + w
-      kmap({ "n", "i" }, "®", "<cmd>BufferClose<cr>", opts) -- option + r
-      kmap({ "n" }, "©", "<cmd>BufferCloseAllButCurrent<cr>", opts) -- option + g
-    end,
+    keys = {
+      { "œ", "<cmd>BufferPrevious<cr>", desc = "Previous buffer", mode = { "n", "i" } },
+      { "∑", "<cmd>BufferNext<cr>", desc = "Next buffer", mode = { "n", "i" } },
+      { "®", "<cmd>BufferClose<cr>", desc = "Close buffer", mode = { "n", "i" } },
+      {
+        "©",
+        "<cmd>BufferCloseAllButCurrent<cr>",
+        desc = "Close all buffer except current",
+        mode = { "n", "i" },
+      },
+    },
+    -- init = function()
+    --   local kmap = vim.keymap.set
+    --   local opts = { nowait = true, silent = true }
+    --   kmap({ "n", "i" }, "œ", "<cmd>BufferPrevious<cr>", opts) -- option + q
+    --   kmap({ "n", "i" }, "∑", "<cmd>BufferNext<cr>", opts) -- option + w
+    --   kmap({ "n", "i" }, "®", "<cmd>BufferClose<cr>", opts) -- option + r
+    --   kmap({ "n" }, "©", "<cmd>BufferCloseAllButCurrent<cr>", opts) -- option + g
+    -- end,
   },
   { -- dressing
     "stevearc/dressing.nvim",
+    lazy = true,
     dependencies = {
       "nvim-telescope/telescope.nvim",
       keys = {
@@ -62,7 +75,18 @@ return {
         },
       },
     },
-    event = "VeryLazy",
+    init = function()
+      ---@diagnostic disable-next-line: duplicate-set-field
+      vim.ui.select = function(...)
+        require("lazy").load({ plugins = { "dressing.nvim" } })
+        return vim.ui.select(...)
+      end
+      ---@diagnostic disable-next-line: duplicate-set-field
+      vim.ui.input = function(...)
+        require("lazy").load({ plugins = { "dressing.nvim" } })
+        return vim.ui.input(...)
+      end
+    end,
     opts = {
       builtin = { enabled = false },
       select = {
@@ -74,7 +98,7 @@ return {
   },
   { -- gitsigns
     "lewis6991/gitsigns.nvim",
-    lazy = false,
+    event = { "BufReadPre", "BufNewFile" },
     dependencies = { "nvim-lua/plenary.nvim" },
     opts = {
       on_attach = function(bufnr)
@@ -150,11 +174,9 @@ return {
     end,
   },
   { -- treesitter
-    -- "nvim-treesitter/nvim-treesitter",
-    dir = "~/src/nvim-treesitter",
-    pin = true,
-    -- commit = "aebc6cf6bd4675ac86629f516d612ad5288f7868",
-    -- run = ":TSUpdate",
+    "nvim-treesitter/nvim-treesitter",
+    -- dev = true, -- use "~/src/nvim-treesitter/"
+    event = { "BufReadPost", "BufNewFile" },
     dependencies = {
       { -- playground
         "nvim-treesitter/playground",
@@ -171,12 +193,173 @@ return {
       { "nvim-treesitter/nvim-treesitter-textobjects" },
       { -- nvim-ts-context-commentstring
         "JoosepAlviste/nvim-ts-context-commentstring",
+        lazy = true,
         ft = { "html", "vue", "typescriptreact", "svelte" },
       },
       { "windwp/nvim-ts-autotag" },
     },
-    config = function()
-      require("wax.plugcfg.treesitter")
+    build = ":TSUpdate",
+    init = function()
+      vim.treesitter.language.register("jinja.html", "html")
+    end,
+    opts = {
+      highlight = {
+        enable = true,
+        disable = function(lang, buf)
+          if vim.tbl_contains({ "vim" }, lang) then
+            return true
+          end
+          return is_big_file(vim.api.nvim_buf_get_name(buf))
+        end,
+        additional_vim_regex_highlighting = false, -- for spell check
+        use_languagetree = true, -- enable language injection
+      },
+      incremental_selection = {
+        enable = true,
+        keymaps = {
+          init_selection = "<C-space>",
+          node_incremental = "<C-space>",
+          scope_incremental = "<nop>",
+          node_decremental = "<bs>",
+        },
+      },
+      indent = {
+        enable = true,
+        disable = {
+          "lua",
+          "vim",
+          "python", -- we use "Vimjas/vim-python-pep8-indent"
+          "json",
+          "typescript",
+        },
+      },
+      ensure_installed = {
+        -- Generic:
+        "bash",
+        "jsonc",
+        -- "yaml",
+        "lua",
+        "ql",
+        "query",
+        "regex",
+        "toml",
+        "markdown",
+        -- Frontend:
+        "graphql",
+        "html",
+        "css",
+        -- "jsdoc",
+        "javascript",
+        "typescript",
+        "tsx",
+        "svelte",
+        "vue",
+        -- Backend:
+        "go",
+        "rust",
+        "python",
+        -- Infra:
+        "hcl", -- terraform
+      },
+      --
+      ------- Plugins config -------
+      --
+      -- 'nvim-treesitter/playground'
+      playground = {
+        enable = true,
+        updatetime = 25,
+        persist_queries = false,
+      },
+      query_linter = {
+        enable = true,
+        use_virtual_text = true,
+        lint_events = { "BufWrite", "CursorHold" },
+      },
+      -- 'nvim-treesitter/nvim-treesitter-textobjects'
+      textobjects = {
+        select = {
+          enable = true,
+          lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
+          keymaps = {
+            ["if"] = "@function.inner",
+            ["af"] = "@function.outer",
+
+            ["ic"] = "@class.inner",
+            ["ac"] = "@class.outer",
+
+            ["iC"] = "@conditional.inner",
+            ["aC"] = "@conditional.outer",
+
+            ["ie"] = "@block.inner",
+            ["ae"] = "@block.outer",
+          },
+        },
+        move = {
+          enable = true,
+          goto_next_start = {
+            ["]]"] = "@function.outer",
+            ["]l"] = "@class.outer",
+          },
+          goto_next_end = {
+            ["]["] = "@function.outer",
+            ["]L"] = "@class.outer",
+          },
+          goto_previous_start = {
+            ["[["] = "@function.outer",
+            ["[l"] = "@class.outer",
+          },
+          goto_previous_end = {
+            ["[]"] = "@function.outer",
+            ["[L"] = "@class.outer",
+          },
+        },
+        lsp_interop = {
+          enable = true,
+          peek_definition_code = {
+            ["<leader>fd"] = "@function.outer",
+            ["<leader>fD"] = "@class.outer",
+          },
+        },
+      },
+      -- 'JoosepAlviste/nvim-ts-context-commentstring' -- auto deduce comment string on context
+      context_commentstring = {
+        enable = true,
+        enable_autocmd = false,
+        -- config = {
+        --   ["jinja.html"] = "{# %s #}",
+        -- },
+      },
+      -- 'andymass/vim-matchup' -- add more textobjects
+      matchup = {
+        enable = true,
+        disable_virtual_text = true,
+      },
+      -- 'windwp/nvim-ts-autotag'  -- auto close/rename html tags
+      autotag = {
+        enable = true,
+        filetypes = {
+          "html",
+          "jinja.html", -- custom add
+          "javascript",
+          "typescript",
+          "javascriptreact",
+          "typescriptreact",
+          "svelte",
+          "vue",
+          "tsx",
+          "jsx",
+          "rescript",
+          "xml",
+          "php",
+          "markdown",
+          "glimmer",
+          "handlebars",
+          "hbs",
+        },
+      },
+    },
+    config = function(_, opts)
+      require("nvim-treesitter.configs").setup(opts)
     end,
   },
   { -- hlslens
@@ -211,6 +394,7 @@ return {
   },
   { -- janko/vim-test
     "janko/vim-test",
+    lazy = false,
     dependencies = {
       "jgdavey/tslime.vim", -- send command from vim to a running tmux session
     },
@@ -228,7 +412,7 @@ return {
   },
   { -- fzf-lua
     "ibhagwan/fzf-lua",
-    lazy = false,
+    event = "VeryLazy",
     config = function()
       require("wax.plugcfg.fzf")
     end,
@@ -243,9 +427,54 @@ return {
 
   --------- Enrich Actions ---------
   { "AndrewRadev/splitjoin.vim", event = "VeryLazy" },
-  { "kylechui/nvim-surround", event = "VeryLazy", opts = { move_cursor = "begin" } },
+  { -- nvim-surround
+    "kylechui/nvim-surround",
+    event = "VeryLazy",
+    opts = {
+      move_cursor = "begin",
+      indent_lines = false,
+      keymaps = {
+        normal = "s",
+        normal_line = "S",
+        visual = "S",
+        delete = "ds",
+        change = "cs",
+      },
+    },
+  },
+  { -- mini.pairs
+    "echasnovski/mini.pairs",
+    event = "VeryLazy",
+    config = function(_, opts)
+      require("mini.pairs").setup(opts)
+    end,
+  },
+  { -- mini - (arround/inside improved)
+    "echasnovski/mini.ai",
+    dependencies = { "echasnovski/mini.nvim", "nvim-treesitter-textobjects" },
+    event = "VeryLazy",
+    opts = function()
+      local ai = require("mini.ai")
+      return {
+        search_method = "cover_or_nearest",
+        n_lines = 500,
+        custom_textobjects = {
+          o = ai.gen_spec.treesitter({
+            a = { "@block.outer", "@conditional.outer", "@loop.outer" },
+            i = { "@block.inner", "@conditional.inner", "@loop.inner" },
+          }, {}),
+          f = ai.gen_spec.treesitter({ a = "@function.outer", i = "@function.inner" }, {}),
+          c = ai.gen_spec.treesitter({ a = "@class.outer", i = "@class.inner" }, {}),
+        },
+      }
+    end,
+    config = function(_, opts)
+      require("mini.ai").setup(opts)
+    end,
+  },
   { -- numToStr/Comment.nvim
     "numToStr/Comment.nvim",
+    lazy = false,
     opts = {
       ignore = "^$", -- ignore empty lines
       sticky = true,
@@ -337,18 +566,21 @@ return {
     end,
   },
 
+  { -- luasnip
+    "L3MON4D3/LuaSnip",
+    event = "VeryLazy",
+    config = function()
+      require("wax.plugcfg.luasnip")
+    end,
+  },
+
   { -- lspconfig + mason
     "neovim/nvim-lspconfig",
-    lazy = false, -- (needed to register filetype autocmd autostart)
-    -- event = "VeryLazy",
+    event = "VeryLazy",
     dependencies = {
       { -- mason
         "williamboman/mason.nvim",
-        init = function()
-          vim.keymap.set("n", "<leader>fM", function()
-            require("mason.ui").open()
-          end)
-        end,
+    event = "VeryLazy",
         opts = {
           log_level = vim.log.levels[waxopts.loglevel:upper()],
           ui = {
@@ -363,12 +595,12 @@ return {
       },
       { -- mason-lspconfig.nvim
         "williamboman/mason-lspconfig.nvim",
+    event = "VeryLazy",
         opts = {
           ensure_installed = {},
           automatic_installation = { exclude = { "pylsp" } },
         },
       },
-      -- { "nvim-lua/lsp-status.nvim" },
       { "b0o/schemastore.nvim", ft = "json" }, -- json schemas for jsonls
     },
     config = function()
@@ -384,29 +616,8 @@ return {
       "hrsh7th/cmp-path",
       "hrsh7th/cmp-nvim-lua",
       "hrsh7th/cmp-nvim-lsp",
-      -- "lukas-reineke/cmp-rg",
-      { dir = "~/src/cmp-rg", pin = true },
+      { "lukas-reineke/cmp-rg", dev = true, pin = true },
       "saadparwaiz1/cmp_luasnip",
-      { -- snippet engine in lua
-        "L3MON4D3/LuaSnip",
-        lazy = true,
-        config = function()
-          require("wax.plugcfg.luasnip")
-        end,
-      },
-      { -- auto pair written in lua
-        "windwp/nvim-autopairs",
-        opts = {
-          disable_filetype = { "TelescopePrompt", "vim", "fzf", "packer" },
-          close_triple_quotes = true,
-          enable_check_bracket_line = true, --- check bracket in same line
-          check_ts = true,
-          ts_config = {
-            lua = { "string", "source" },
-            javascript = { "string", "template_string" },
-          },
-        },
-      },
     },
     config = function()
       require("wax.plugcfg.nvim-cmp")
