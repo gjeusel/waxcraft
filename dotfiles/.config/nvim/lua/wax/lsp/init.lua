@@ -117,18 +117,9 @@ vim.api.nvim_create_autocmd("LspAttach", {
   end,
 })
 
-local function generate_handlers()
-  local default_on_attach = lsp_status.on_attach
+local default_on_attach = lsp_status.on_attach
 
-  local default_handler = function(server_name)
-    require("lspconfig")[server_name].setup({
-      capabilities = capabilities,
-      on_attach = default_on_attach,
-    })
-  end
-
-  local handlers = { default_handler }
-
+local function lspconfig_setup()
   local scan = require("plenary.scandir")
 
   local server_with_custom_config = vim.tbl_map(function(server_file)
@@ -136,57 +127,37 @@ local function generate_handlers()
   end, scan.scan_dir(lua_waxdir .. "/lsp/servers", { depth = 1 }))
 
   for _, server_name in ipairs(server_with_custom_config) do
-    handlers[server_name] = function()
-      local server_opts = require(("wax.lsp.servers.%s"):format(server_name))
-      local on_attach = default_on_attach
-      if server_opts.on_attach then
-        on_attach = function(client, bufnr)
-          default_on_attach(client)
-          server_opts.on_attach(client, bufnr)
-        end
-      end
-      require("lspconfig")[server_name].setup(
-        vim.tbl_deep_extend(
-          "keep",
-          { capabilities = capabilities, on_attach = on_attach },
-          server_opts
-        )
-      )
-    end
-  end
+    local server_opts = require(("wax.lsp.servers.%s"):format(server_name))
 
-  return handlers
+    -- Maybe combine both on_attach
+    local on_attach = default_on_attach
+    if server_opts.on_attach then
+      on_attach = function(client, bufnr)
+        default_on_attach(client)
+        server_opts.on_attach(client, bufnr)
+      end
+    end
+
+    -- log.warn("Setting up", server_name, "with", server_opts)
+    require("lspconfig")[server_name].setup(
+      vim.tbl_deep_extend(
+        "keep",
+        { capabilities = capabilities, on_attach = on_attach },
+        server_opts
+      )
+    )
+  end
 end
 
-local handlers = generate_handlers()
+-- call lspconfig setup with our custom servers configs
+lspconfig_setup()
 
--- -- make sure to configure lspconfig before actual setup_handlers of mason-lspconfig
--- -- so we define our custom servers, and make the on_new_config works
--- vim.tbl_map(function(handler)
---   if type(handler) == "function" then
---     handler()
---   end
--- end,
--- handlers
--- )
-
--- Register homemade LSP servers (mypygls):
-local lspconfig = require("lspconfig")
-local configs = require("lspconfig.configs")
-
-configs.mypygls = {
-  default_config = {
-    cmd = { "mypygls" },
-    filetypes = { "python" },
-    root_dir = function(fname)
-      return lspconfig.util.find_git_ancestor(fname)
-    end,
-    settings = {},
-  },
-}
-
--- map it in mason-lspconfig
-local server_mapping = require("mason-lspconfig.mappings.server")
-server_mapping.lspconfig_to_package["mypygls"] = "mypygls"
-
-require("mason-lspconfig").setup_handlers(handlers)
+-- -- Don't call the setup_handlers as it messes everything
+-- require("mason-lspconfig").setup_handlers({
+--   function(server_name)
+--     require("lspconfig")[server_name].setup({
+--       capabilities = capabilities,
+--       on_attach = default_on_attach,
+--     })
+--   end,
+-- })

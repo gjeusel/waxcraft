@@ -1,8 +1,13 @@
 local grapple = require("grapple")
 
+local loglevel = waxopts.loglevel
+if loglevel == "trace" then
+  loglevel = "debug"
+end
+
 grapple.setup({
   ---@type "debug" | "info" | "warn" | "error"
-  log_level = waxopts.loglevel,
+  log_level = loglevel,
   -- log_level = "debug",
 
   ---The scope used when creating, selecting, and deleting tags

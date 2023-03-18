@@ -1,5 +1,4 @@
 local u = require("null-ls.utils")
-local s = require("null-ls.state")
 local builtins = require("null-ls.builtins")
 local cmd_resolver = require("null-ls.helpers.command_resolver")
 
@@ -7,35 +6,11 @@ local cmd_resolver = require("null-ls.helpers.command_resolver")
 
 local python_utils = require("wax.lsp.python-utils")
 
-local function from_python_env(params)
-  local resolved = s.get_cache(params.bufnr, params.command)
-  if resolved then
-    if resolved.command then
-      log.debug(
-        string.format(
-          "Using cached value [%s] as the resolved command for [%s]",
-          resolved.command,
-          params.command
-        )
-      )
-    end
-    return resolved.command
-  end
-
+local from_python_env = wax_cache_fn(function(params)
   local workspace = u.get_root()
-  local cmd_for_env = python_utils.get_python_path(workspace, params.command)
-  resolved = { command = cmd_for_env, cwd = workspace }
-
-  s.set_cache(params.bufnr, params.command, resolved)
-  return resolved.command
-end
-
-local function from_node_modules(params)
-  local base_fn = cmd_resolver.from_node_modules()
-  local result = base_fn(params)
-  dumpf(result)
-  return result
-end
+  local cmd = python_utils.get_python_path(workspace, params.command)
+  return cmd
+end, { arg_table_key = "command" })
 
 local eslint_filetypes = {
   "javascript",
@@ -48,7 +23,6 @@ local eslint_filetypes = {
 local eslint_cfg = {
   filetypes = eslint_filetypes,
   dynamic_command = cmd_resolver.from_node_modules(),
-  -- dynamic_command = from_node_modules,
 }
 
 local prettier_filetypes = vim.list_extend(vim.deepcopy(eslint_filetypes), { "yaml" })

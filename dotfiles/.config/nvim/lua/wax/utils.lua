@@ -57,11 +57,11 @@ function _G.mock(opts)
   local Mock = opts or {}
   setmetatable(Mock, {
     __call = function(...) ---@diagnostic disable-line:unused-vararg
-      -- log.warn(("called __call with args=%s"):format(...))
+      log.trace(("called __call with args=%s"):format(...))
       return Mock
     end,
     __index = function(...) ---@diagnostic disable-line:unused-vararg
-      -- log.warn(("called __index with args=%s"):format(...))
+      log.trace(("called __index with args=%s"):format(...))
       return Mock
     end,
   })
@@ -109,6 +109,68 @@ end
 ---@type string
 _G.lua_waxdir = vim.fn.fnamemodify(debug.getinfo(1, "S").short_src, ":p:h")
 -- "$HOME/.config/nvim/lua/wax"
+
+-------- Cache --------
+
+---@class Wax.CacheFnOpts
+---@field arg_table_key? string | number
+---@field n_arg_key? number
+---@field per_buffer? boolean
+
+---@generic T : function
+---@param fn T
+---@param opts Wax.CacheFnOpts
+---@return T
+function _G.wax_cache_fn(fn, opts)
+  opts = opts or {}
+
+  local cache = {}
+  -- local fn_info = debug.getinfo(foo, "u")
+
+  local per_buffer = opts.per_buffer == nil or opts.per_buffer
+  local n_arg_key = opts.n_arg_key or 1
+
+  local function to_cache_key(...)
+    local args = { ... }
+    local arg = args[n_arg_key]
+    local key = ""
+    if arg ~= nil then
+      if type(arg) == "table" then
+        if opts.arg_table_key then
+          key = arg[opts.arg_table_key]
+        end
+      else
+        key = arg
+      end
+    end
+
+    if per_buffer then
+      key = ("%s_%s"):format(key, vim.api.nvim_buf_get_name(0))
+    end
+
+    return key
+  end
+
+  local function wrap(...)
+    local key = to_cache_key(...)
+    if string.len(key) == 0 then
+      log.trace("Could not cache call due to empty cache key.")
+      return fn(...)
+    end
+
+    local value = vim.tbl_get(cache, key)
+    if value == nil then
+      cache[key] = fn(...)
+      log.debug("Cached returned value using cache key", key)
+    else
+      log.trace("Found in cache using cache key", key)
+    end
+
+    return cache[key]
+  end
+
+  return wrap
+end
 
 -------- Logs --------
 

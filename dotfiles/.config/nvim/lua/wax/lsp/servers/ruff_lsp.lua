@@ -4,7 +4,7 @@ return {
   filetypes = { "python" },
   settings = {
     -- https://github.com/charliermarsh/ruff-lsp#settings
-    -- interpreter = {},
+    interpreter = { python_utils.get_python_path() },
     organizeImports = false,
   },
   on_new_config = function(config, new_workspace)

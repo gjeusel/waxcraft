@@ -23,3 +23,7 @@
 
 - Use [zsh/zprof](https://stevenvanbael.com/profiling-zsh-startup) module
 - Use `set -x` at top of zshrc to echo line by line
+
+#### Neovim:
+
+- [Lua Type Hint](https://github.com/LuaLS/lua-language-server/wiki/Annotations)

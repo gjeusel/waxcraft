@@ -36,6 +36,32 @@ require("lazy").setup({ import = "wax.plugins" }, {
   custom_keys = false,
   checker = { enabled = false }, -- background plugin update checker
   change_detection = { enabled = true, notify = false },
+  ui = {
+    border = "rounded",
+    icons = {
+      cmd = "❯ ",
+      config = "",
+      event = "",
+      ft = " ",
+      init = " ",
+      import = " ",
+      keys = " ",
+      lazy = "󰒲 ",
+      loaded = "●",
+      not_loaded = "○",
+      plugin = " ",
+      runtime = " ",
+      source = " ",
+      start = "➤",
+      task = "✔ ",
+      list = {
+        "●",
+        "➜",
+        "★",
+        "‒",
+      },
+    },
+  },
   performance = {
     rtp = {
       disabled_plugins = {
@@ -60,6 +86,12 @@ require("lazy").setup({ import = "wax.plugins" }, {
       },
     },
   },
+  -- custom_keys = {
+  --   -- open lazy git ui
+  --   ["<leader>fl"] = function()
+  --     require("lazy").home()
+  --   end,
+  -- },
 })
 
 safe_require("wax.folds")

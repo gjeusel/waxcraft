@@ -13,13 +13,13 @@ local function to_pylsp_cmd(python_path)
 end
 
 return {
+  -- cmd = to_pylsp_cmd(python_utils.get_python_path()),
   -- if python format by efm, disable formatting capabilities for pylsp
   on_attach = function(client, _)
     -- formatting is done by null-ls
     client.server_capabilities.documentFormattingProvider = false
     client.server_capabilities.documentRangeFormattingProvider = false
   end,
-  -- cmd = to_pylsp_cmd(python_utils.get_python_path(nil, "python")),
   settings = {
     pylsp = {
       -- https://github.com/python-lsp/python-lsp-server/blob/develop/CONFIGURATION.md

@@ -271,7 +271,11 @@ return {
   --------- LSP ---------
   { -- lspconfig + mason
     "neovim/nvim-lspconfig",
-    event = "VeryLazy",
+    lazy = false, -- (needed to register filetype autocmd autostart)
+    -- event = "BufEnter",
+    init = function()
+      vim.keymap.set("n", "<leader>fM", "<cmd>LspInfo<cr>")
+    end,
     dependencies = {
       { -- null-ls
         "jose-elias-alvarez/null-ls.nvim",
@@ -283,16 +287,16 @@ return {
         "williamboman/mason.nvim",
         config = true,
         init = function()
-          vim.keymap.set({ "n" }, "<leader>fm", function()
+          vim.keymap.set("n", "<leader>fm", function()
             require("mason.ui").open()
           end)
         end,
         opts = {
           log_level = vim.log.levels[waxopts.loglevel:upper()],
-          max_concurrent_installers = 4,
+          -- max_concurrent_installers = 4,
           -- automatic_installation = true, -- auto install servers which are lspconfig setuped
-          ensure_installed = waxopts.servers,
           ui = {
+            border = "rounded",
             icons = {
               package_installed = "✓",
               package_pending = "➜",
@@ -305,7 +309,7 @@ return {
         "williamboman/mason-lspconfig.nvim",
         opts = {
           ensure_installed = {},
-          automatic_installation = false,
+          automatic_installation = { exclude = { "pylsp" } },
         },
       },
       { "nvim-lua/lsp-status.nvim" },
@@ -317,7 +321,14 @@ return {
   },
   { -- Github lua copilot
     "zbirenbaum/copilot.lua",
-    event = "InsertEnter",
+    keys = {
+      {
+        "<C-x>",
+        "<cmd>Copilot panel<cr>",
+        desc = "Open Copilot Panel",
+        mode = { "n", "i" },
+      },
+    },
     config = function()
       require("wax.plugcfg.copilot")
     end,
@@ -332,7 +343,7 @@ return {
       "hrsh7th/cmp-nvim-lua",
       "hrsh7th/cmp-nvim-lsp",
       -- "lukas-reineke/cmp-rg",
-      { dir = "~/src/cmp-rg" },
+      { dir = "~/src/cmp-rg", pin = true },
       "saadparwaiz1/cmp_luasnip",
       { -- snippet engine in lua
         "L3MON4D3/LuaSnip",

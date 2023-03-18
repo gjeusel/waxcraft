@@ -20,6 +20,12 @@ local base_gruvbox_hls = {
   DiffDelete = { cterm = nil, ctermfg = "Red", ctermbg = nil },
   DiffText = { cterm = nil, ctermfg = "Blue", ctermbg = nil },
 
+  -- Better floating windows hl
+  FloatBorder = { link = "GruvboxAqua"},
+  LspInfoBorder = { link = "GruvboxAqua"},
+  FzfLuaBorder = { link = "GruvboxAqua"},
+  NullLsInfoBorder = { link = "GruvboxAqua"},
+
   -- Imp gruvbox signs
   GruvboxGreenSign = { link = "GruvboxGreen" },
   GruvboxRedSign = { link = "GruvboxRed" },
@@ -210,4 +216,3 @@ vim.keymap.set("n", "<leader>xz", function()
   apply_gruvbox_theme()
   vim.api.nvim_exec_autocmds("FileType", { group = ts_augroup })
 end)
-
