@@ -395,6 +395,7 @@ return {
   },
   { -- vim-tmux-navigator
     "christoomey/vim-tmux-navigator", -- tmux navigation in love with vim
+    event = "VeryLazy",
     keys = {
       { "<c-j>", "<cmd>TmuxNavigateDown<cr>", desc = "Tmux Navigate Down", mode = "n" },
       { "<c-k>", "<cmd>TmuxNavigateUp<cr>", desc = "Tmux Navigate Up", mode = "n" },
@@ -671,5 +672,16 @@ return {
   { "folke/neodev.nvim", ft = "lua" },
 
   --------- Funky bits ---------
-  { "Eandrju/cellular-automaton.nvim", cmd = "CellularAutomaton" },
+  {
+    "Eandrju/cellular-automaton.nvim",
+    keys = {
+      {
+        "<leader>fl",
+        "<cmd>CellularAutomaton make_it_rain<cr>",
+        desc = "Who will bring the rain ?",
+        nowait = true,
+      },
+    },
+    cmd = "CellularAutomaton",
+  },
 }
