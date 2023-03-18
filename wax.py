@@ -145,7 +145,7 @@ def neovim():
         ".config/nvim/init.lua",
         ".config/nvim/lua",
         ".config/nvim/after",
-        ".config/nvim/mysnippets",
+        ".config/nvim/queries",
         ".config/nvim/.stylua.toml",
     ]
     create_symlinks_robust(

@@ -1,16 +1,8 @@
--- vim.cmd("syntax on")
-
--- vim.o.termguicolors = true
-vim.o.background = "dark"
-
 --
 -------- Gruvbox Specific --------
 --
 -- TreeSitter list of highlights: https://github.com/nvim-treesitter/nvim-treesitter/blob/master/CONTRIBUTING.md
 --
-
-vim.g.gruvbox_invert_selection = 0
-vim.g.gruvbox_improved_warnings = 1
 
 local base_gruvbox_hls = {
   -- Base interface
@@ -20,7 +12,6 @@ local base_gruvbox_hls = {
   VertSplit = { ctermbg = nil, ctermfg = 248 },
   CursorLineNr = { ctermbg = nil },
   EndOfBuffer = { ctermbg = nil },
-  -- ColorColumn = { ctermbg = 236 },
   ColorColumn = { ctermbg = nil },
 
   -- Better diff views
@@ -28,6 +19,21 @@ local base_gruvbox_hls = {
   DiffChange = { cterm = nil, ctermfg = "Yellow", ctermbg = nil },
   DiffDelete = { cterm = nil, ctermfg = "Red", ctermbg = nil },
   DiffText = { cterm = nil, ctermfg = "Blue", ctermbg = nil },
+
+  -- Better floating windows hl
+  FloatTitle = { link = "GruvboxAqua" },
+  FloatBorder = { link = "GruvboxAqua" },
+  LspInfoBorder = { link = "GruvboxAqua" },
+  FzfLuaBorder = { link = "GruvboxAqua" },
+  TelescopeBorder = { link = "GruvboxAqua" },
+  NullLsInfoBorder = { link = "GruvboxAqua" },
+
+  -- Vim Matchup
+  MatchBackground = { cterm = nil, ctermfg = nil, ctermbg = nil },
+  MatchParentCur = { cterm = nil, ctermfg = nil, ctermbg = nil },
+  MatchParen = { cterm = nil, ctermfg = nil, ctermbg = nil },
+  MatchWord = { cterm = nil, ctermfg = nil, ctermbg = nil },
+  MatchWordCur = { cterm = nil, ctermfg = nil, ctermbg = nil },
 
   -- Imp gruvbox signs
   GruvboxGreenSign = { link = "GruvboxGreen" },
@@ -206,15 +212,9 @@ local function apply_gruvbox_theme()
 end
 
 --
--------- Apply theme --------
+-------- Apply my TS theme --------
 --
-
-if waxopts.colorscheme == "gruvbox" then
-  vim.cmd("silent! colorscheme gruvbox")
-  apply_gruvbox_theme()
-elseif waxopts.colorscheme == "nord" then
-  require("wax.themes.nord")
-end
+apply_gruvbox_theme()
 
 vim.keymap.set("n", "<leader>xc", function()
   vim.cmd("TSHighlightCapturesUnderCursor")
@@ -225,4 +225,3 @@ vim.keymap.set("n", "<leader>xz", function()
   apply_gruvbox_theme()
   vim.api.nvim_exec_autocmds("FileType", { group = ts_augroup })
 end)
-

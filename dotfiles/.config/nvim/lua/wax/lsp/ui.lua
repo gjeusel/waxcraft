@@ -60,3 +60,6 @@ vim.diagnostic.config({
   update_in_insert = true,
   severity_sort = true,
 })
+
+-- change border of LspInfo:
+require("lspconfig.ui.windows").default_options.border = "rounded"

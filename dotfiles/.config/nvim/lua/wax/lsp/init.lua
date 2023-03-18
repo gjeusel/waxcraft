@@ -1,40 +1,23 @@
 -- Set log level for LSP
 vim.lsp.set_log_level(waxopts.loglevel)
 
--- Define custom ui settings
-require("wax.lsp.ui")
-
--- https://github.com/nvim-lua/lsp-status.nvim#all-together-now
-local lsp_status = safe_require("lsp-status")
-lsp_status.register_progress()
-lsp_status.config({
-  current_function = false,
-  show_filename = false,
-  indicator_separator = " ",
-  component_separator = " ",
-  indicator_errors = "✗",
-  indicator_info = "כֿ",
-  indicator_warnings = "",
-  indicator_hint = "",
-  indicator_ok = "", -- "",
-  status_symbol = "",
-  update_interval = 100,
-})
-
 -- Mappings
-local function lsp_keymaps()
+local function set_lsp_keymaps()
   local opts = { noremap = true, silent = true }
 
   -- See `:help vim.lsp.*` for documentation on any of the below functions
   vim.keymap.set("n", "<leader>D", vim.lsp.buf.type_definition, opts)
-  vim.keymap.set("n", "<leader>d", function()
+
+  local function goto_first_definition()
     vim.lsp.buf.definition({
       on_list = function(options)
         vim.fn.setqflist({}, " ", options)
         vim.api.nvim_command("cfirst")
       end,
     })
-  end, opts)
+  end
+  vim.keymap.set("n", "gd", goto_first_definition, opts)
+  vim.keymap.set("n", "<leader>d", goto_first_definition, opts)
 
   vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
 
@@ -77,35 +60,9 @@ local function lsp_keymaps()
     -- vim.lsp.buf.format({ async = false, timeout_ms = 2000 })
     vim.lsp.buf.format({ async = true })
   end, opts)
-
-  -- -- Custom ones:
-  -- vim.keymap.set("n", "<leader>E", require('wax.lsp.lsp-functions').PeekTypeDefinition(), opts)
-  -- vim.keymap.set("n", "<leader>e", require('wax.lsp.lsp-functions').PeekDefinition(), opts)
 end
 
-lsp_keymaps()
-
---Enable completion triggered by <c-x><c-o>
-vim.api.nvim_set_option("omnifunc", "v:lua.vim.lsp.omnifunc")
-
--- Generate capabilities
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities = vim.tbl_extend("force", capabilities, lsp_status.capabilities)
-if is_module_available("cmp_nvim_lsp") then
-  capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
-end
-
-require("wax.lsp.setup").setup_servers({
-  on_attach = function(client, bufnr)
-    -- -- disable semanticTokens for now
-    -- vim.lsp.semantic_tokens.stop(bufnr, client.id)
-    -- -- client.server_capabilities.semanticTokensProvider = nil
-
-    lsp_status.on_attach(client, bufnr)
-  end,
-  capabilities = capabilities,
-})
-
+-- Customization of the publishDiagnostics (remove all pyright diags)
 vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(function(_, result, ctx, config)
   result.diagnostics = vim.tbl_filter(function(diagnostic)
     -- Filter out all diagnostics from pyright
@@ -115,9 +72,10 @@ vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(function(_, r
   vim.lsp.diagnostic.on_publish_diagnostics(_, result, ctx, config)
 end, {})
 
--- setup null-ls
-require("wax.lsp.null-ls")
-
+-- Disable semanticTokens on lsp attach
+--
+-- should be done in on_attach setting it to nil, but buggy right now:
+-- https://github.com/neovim/neovim/issues/21588
 vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(args)
     -- disable semanticTokens for now
@@ -127,3 +85,55 @@ vim.api.nvim_create_autocmd("LspAttach", {
     client.server_capabilities.semanticTokensProvider = nil
   end,
 })
+
+-- Register homemade LSP servers (mypygls):
+local lspconfig = require("lspconfig")
+local configs = require("lspconfig.configs")
+
+configs.mypygls = {
+  default_config = {
+    cmd = { "mypygls" },
+    filetypes = { "python" },
+    root_dir = function(fname)
+      return lspconfig.util.find_git_ancestor(fname)
+    end,
+    settings = {},
+  },
+}
+
+require("mason-lspconfig.mappings.server").lspconfig_to_package["mypygls"] = "mypygls"
+
+local scan = require("plenary.scandir")
+
+local function create_mason_handlers()
+  -- Generate capabilities
+  local capabilities = vim.lsp.protocol.make_client_capabilities()
+  capabilities.textDocument.completion =
+    require("cmp_nvim_lsp").default_capabilities({}).textDocument.completion
+
+  local handlers = {}
+
+  local server_with_custom_config = vim.tbl_map(function(server_file)
+    return vim.fn.fnamemodify(server_file, ":t:r")
+  end, scan.scan_dir(lua_waxdir .. "/lsp/servers", { depth = 1 }))
+
+  for _, server_name in ipairs(server_with_custom_config) do
+    local server_opts = require(("wax.lsp.servers.%s"):format(server_name))
+
+    handlers[server_name] = function()
+      require("lspconfig")[server_name].setup(
+        vim.tbl_deep_extend("keep", { capabilities = capabilities }, server_opts)
+      )
+    end
+  end
+
+  return handlers
+end
+
+return {
+  setup_ui = function()
+    require("wax.lsp.ui")
+  end,
+  set_lsp_keymaps = set_lsp_keymaps,
+  create_mason_handlers = create_mason_handlers,
+}

@@ -9,16 +9,18 @@
 -- - ThePrimeagen: https://github.com/awesome-streamers/awesome-streamerrc/tree/master/ThePrimeagen ( the funny )
 -- - ChristianChiarulli: https://github.com/ChristianChiarulli/LunarVim                             ( the ambitious )
 
-require("wax.userconfig") -- comes first, define user configs (waxopts)
-require("wax.utils") -- utils with globals
-require("wax.settings") -- vim.o
+vim.g.mapleader = ","
+vim.g.maplocalleader = ","
 
-require("wax.plugins")
+require("wax.settings") -- vim.o
+require("wax.userconfig") -- define user configs (waxopts)
+require("wax.utils") -- utils with globals
 
 require("wax.filetypes")
 require("wax.keymaps")
 
-require("wax.themes")
-
 require("wax.autocmds")
-require("wax.folds")
+
+require("wax.lazy") -- plugins
+
+safe_require("wax.folds")

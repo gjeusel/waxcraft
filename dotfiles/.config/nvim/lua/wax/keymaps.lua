@@ -1,7 +1,7 @@
 -- Reload
 vim.keymap.set("n", "<leader>fr", function()
   -- reload snippets
-  require("wax.plugins.luasnip").reload()
+  require("wax.plugcfg.luasnip").reload()
 end, { desc = "Reload Luasnip snippets" })
 
 -- Fix common typos
@@ -146,5 +146,37 @@ for i = 0, 5, 1 do
   end)
 end
 
---------- Language Specific Mapping ---------
--- See autocmds
+--------- Different menues ---------
+vim.keymap.set("n", "<leader>sm", function()
+  local options = {
+    ["LspInfo"] = function()
+      vim.cmd("LspInfo")
+    end,
+    ["Mason UI"] = function()
+      require("mason.ui").open()
+    end,
+    ["Lazy Home"] = function()
+      require("lazy").home()
+    end,
+    ["Lazy Profile"] = function()
+      require("lazy").profile()
+    end,
+    ["Null-ls Info"] = function()
+      vim.cmd("NullLsInfo")
+    end,
+    ["checkhealth"] = function()
+      vim.cmd("checkhealth")
+    end,
+  }
+
+  local sorted_options = vim.tbl_keys(options)
+  table.sort(sorted_options, function(left, right)
+    return left < right
+  end)
+
+  vim.ui.select(sorted_options, { prompt = "Open Menu > " }, function(selected)
+    if selected then
+      options[selected]()
+    end
+  end)
+end)

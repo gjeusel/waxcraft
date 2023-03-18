@@ -31,6 +31,14 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "python",
+  callback = function ()
+    local python = require("wax.lsp.python-utils").get_python_path()
+    vim.g.python3_host_prog = python
+  end
+})
+
 -- Frontend
 vim.api.nvim_create_autocmd("FileType", {
   pattern = { "vue", "svelte", "typescript", "javascript", "typescriptreact", "javascriptreact" },
