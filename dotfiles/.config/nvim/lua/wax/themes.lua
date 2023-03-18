@@ -28,6 +28,13 @@ local base_gruvbox_hls = {
   TelescopeBorder = { link = "GruvboxAqua" },
   NullLsInfoBorder = { link = "GruvboxAqua" },
 
+  -- Vim Matchup
+  MatchBackground = { cterm = nil, ctermfg = nil, ctermbg = nil },
+  MatchParentCur = { cterm = nil, ctermfg = nil, ctermbg = nil },
+  MatchParen = { cterm = nil, ctermfg = nil, ctermbg = nil },
+  MatchWord = { cterm = nil, ctermfg = nil, ctermbg = nil },
+  MatchWordCur = { cterm = nil, ctermfg = nil, ctermbg = nil },
+
   -- Imp gruvbox signs
   GruvboxGreenSign = { link = "GruvboxGreen" },
   GruvboxRedSign = { link = "GruvboxRed" },

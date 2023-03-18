@@ -197,6 +197,21 @@ return {
         ft = { "html", "vue", "typescriptreact", "svelte" },
       },
       { "windwp/nvim-ts-autotag" },
+      {
+        "andymass/vim-matchup",
+        event = "VeryLazy",
+        init = function()
+          vim.g.matchup_enabled = 1
+          vim.g.matchup_mouse_enabled = 0
+          vim.g.matchup_text_obj_enabled = 0
+          vim.g.matchup_transmute_enabled = 0
+          vim.g.matchup_matchparen_offscreen = {}
+
+          -- Wrong matching (HTML)
+          -- https://github.com/andymass/vim-matchup/issues/19
+          vim.g.matchup_matchpref = { html = { nolists = 1 } }
+        end,
+      },
     },
     build = ":TSUpdate",
     init = function()
@@ -329,7 +344,7 @@ return {
         --   ["jinja.html"] = "{# %s #}",
         -- },
       },
-      -- 'andymass/vim-matchup' -- add more textobjects
+      -- 'andymass/vim-matchup' -- better the '%'
       matchup = {
         enable = true,
         disable_virtual_text = true,
@@ -395,6 +410,7 @@ return {
   { -- janko/vim-test
     "janko/vim-test",
     lazy = false,
+    event = "VeryLazy",
     dependencies = {
       "jgdavey/tslime.vim", -- send command from vim to a running tmux session
     },
