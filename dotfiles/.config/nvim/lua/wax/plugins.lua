@@ -623,9 +623,6 @@ return {
       if have_mason then
         local handlers = waxlsp.create_mason_handlers()
         local ensure_installed = vim.tbl_keys(handlers)
-        ensure_installed = vim.tbl_filter(function(server)
-          return server ~= "mypygls"
-        end, ensure_installed)
         mlsp.setup({
           ensure_installed = ensure_installed,
           automatic_installation = { exclude = { "pylsp" } },

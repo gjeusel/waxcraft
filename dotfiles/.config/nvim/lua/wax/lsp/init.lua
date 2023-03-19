@@ -86,6 +86,31 @@ vim.api.nvim_create_autocmd("LspAttach", {
   end,
 })
 
+-- Add auto disable client following waxopts.servers defs
+vim.api.nvim_create_autocmd("LspAttach", {
+  callback = function(args)
+    if not args.data then
+      return
+    end
+
+    local lsp_client = vim.lsp.get_client_by_id(args.data.client_id)
+    local opts = vim.tbl_get(waxopts.servers, lsp_client.name)
+
+    if not opts then
+      return
+    end
+
+    local project = find_workspace_name(args.file)
+    if vim.tbl_contains(opts.blacklist, project) then
+      log.info("Disabling", lsp_client.name, "for project", project)
+      -- failing as not attached yet when not using defer_fn, the fuck?
+      vim.defer_fn(function()
+        vim.lsp.buf_detach_client(args.buf, args.data.client_id)
+      end, 3000)
+    end
+  end,
+})
+
 -- Register homemade LSP servers (mypygls):
 local lspconfig = require("lspconfig")
 local configs = require("lspconfig.configs")
@@ -103,6 +128,8 @@ configs.mypygls = {
 
 require("mason-lspconfig.mappings.server").lspconfig_to_package["mypygls"] = "mypygls"
 
+local custom_lsps = { "mypygls" }
+
 local scan = require("plenary.scandir")
 
 local function create_mason_handlers()
@@ -118,12 +145,17 @@ local function create_mason_handlers()
   end, scan.scan_dir(lua_waxdir .. "/lsp/servers", { depth = 1 }))
 
   for _, server_name in ipairs(server_with_custom_config) do
-    local server_opts = require(("wax.lsp.servers.%s"):format(server_name))
+    local function to_server_opts()
+      local server_module = ("wax.lsp.servers.%s"):format(server_name)
+      return vim.tbl_deep_extend("keep", { capabilities = capabilities }, require(server_module))
+    end
 
-    handlers[server_name] = function()
-      require("lspconfig")[server_name].setup(
-        vim.tbl_deep_extend("keep", { capabilities = capabilities }, server_opts)
-      )
+    if vim.tbl_contains(custom_lsps, server_name) then
+      require("lspconfig")[server_name].setup(to_server_opts())
+    else
+      handlers[server_name] = function()
+        require("lspconfig")[server_name].setup(to_server_opts())
+      end
     end
   end
 
