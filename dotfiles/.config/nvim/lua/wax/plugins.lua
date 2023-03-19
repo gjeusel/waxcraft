@@ -26,8 +26,7 @@ return {
   },
   { -- barbar
     "romgrk/barbar.nvim",
-    event = "VeryLazy",
-    lazy = false,
+    event = { "BufReadPre", "BufNewFile" },
     dependencies = "nvim-tree/nvim-web-devicons",
     opts = {
       animation = false,
@@ -101,35 +100,15 @@ return {
     event = { "BufReadPre", "BufNewFile" },
     dependencies = { "nvim-lua/plenary.nvim" },
     opts = {
-      on_attach = function(bufnr)
+      on_attach = function(buffer)
         local gs = package.loaded.gitsigns
 
-        local function map(mode, l, r, opts)
-          opts = opts or {}
-          opts.buffer = bufnr
-          vim.keymap.set(mode, l, r, opts)
+        local function map(mode, l, r, desc)
+          vim.keymap.set(mode, l, r, { buffer = buffer, desc = desc })
         end
 
-        -- Navigation
-        map("n", "]c", function()
-          if vim.wo.diff then
-            return "]c"
-          end
-          vim.schedule(function()
-            gs.next_hunk()
-          end)
-          return "<Ignore>"
-        end, { expr = true })
-
-        map("n", "[c", function()
-          if vim.wo.diff then
-            return "[c"
-          end
-          vim.schedule(function()
-            gs.prev_hunk()
-          end)
-          return "<Ignore>"
-        end, { expr = true })
+        map("n", "]h", gs.next_hunk, "Next Hunk")
+        map("n", "[h", gs.prev_hunk, "Prev Hunk")
 
         -- Actions
         map({ "n", "v" }, "<leader>hs", ":Gitsigns stage_hunk<CR>")
@@ -419,8 +398,11 @@ return {
       require("wax.plugcfg.vim-test")
     end,
   },
-  { "tpope/vim-eunuch", event = "VeryLazy" }, -- sugar for the UNIX shell commands
-  { "tpope/vim-scriptease", cmd = "Messages" }, -- gives :Messages
+  { -- tpope/vim-eunuch - sugar for shell commands
+    "tpope/vim-eunuch",
+    cmd = { "Move", "Copy", "Rename", "Delete" },
+  },
+  { "tpope/vim-scriptease", cmd = "Messages" },
   { -- diffview: git integration for nvim
     "sindrets/diffview.nvim",
     config = function()
@@ -596,6 +578,14 @@ return {
     "neovim/nvim-lspconfig",
     event = { "BufReadPre", "BufNewFile" },
     dependencies = {
+      { "folke/neodev.nvim", opts = { experimental = { pathStrict = true } } },
+      { -- fidget
+        "j-hui/fidget.nvim",
+        opts = {
+          align = { bottom = false, right = true },
+          window = { blend = 0, relative = "editor" },
+        },
+      },
       { -- mason
         "williamboman/mason.nvim",
         lazy = true,
@@ -642,8 +632,6 @@ return {
         })
         mlsp.setup_handlers(handlers)
       end
-
-      -- require("wax.lsp")
     end,
   },
   { -- nvim-cmp
@@ -669,7 +657,40 @@ return {
 
   --------- NeoVim Perf / Dev ---------
   { "dstein64/vim-startuptime", cmd = "StartupTime" }, -- analyze startup time
-  { "folke/neodev.nvim", ft = "lua" },
+  { -- profiler with flamegraph
+    "stevearc/profile.nvim",
+    lazy = false,
+    config = function()
+      local should_profile = os.getenv("NVIM_PROFILE")
+      if should_profile then
+        require("profile").instrument_autocmds()
+        if should_profile:lower():match("^start") then
+          require("profile").start("*")
+        else
+          require("profile").instrument("*")
+        end
+      end
+
+      function _G.toggle_profile()
+        local prof = require("profile")
+        if prof.is_recording() then
+          prof.stop()
+          vim.ui.input(
+            { prompt = "Save profile to:", completion = "file", default = "profile.json" },
+            function(filename)
+              if filename then
+                prof.export(filename)
+                vim.notify(string.format("Wrote %s", filename))
+              end
+            end
+          )
+        else
+          prof.start("*")
+        end
+      end
+      -- vim.keymap.set("", "<leader>fP", _G.toggle_profile)
+    end,
+  },
 
   --------- Funky bits ---------
   {
