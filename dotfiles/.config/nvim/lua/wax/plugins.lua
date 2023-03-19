@@ -405,6 +405,33 @@ return {
     config = function()
       require("wax.plugcfg.diffview")
     end,
+    keys = {
+      {
+        "<leader>gg",
+        "<cmd>DiffviewClose<cr>",
+        desc = "Close diffview",
+        mode = "n",
+      },
+      {
+        "<leader>gh",
+        "<cmd>DiffviewFileHistory %<cr>",
+        desc = "Open diffview history on current file",
+        mode = "n",
+      },
+      {
+        "<leader>gH",
+        "<cmd>DiffviewFileHistory<cr>",
+        desc = "Open diffview history on repository",
+        mode = "n",
+      },
+      {
+        "<leader>gf",
+        function()
+          require("diffview").open("HEAD", "%")
+        end,
+        desc = "Open diffview merge on current file against HEAD",
+      },
+    },
   },
   { -- fzf-lua
     "ibhagwan/fzf-lua",

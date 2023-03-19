@@ -106,24 +106,6 @@ diffview.setup({
   },
 })
 
-vim.keymap.set("n", "<leader>gg", "<cmd>DiffviewClose<cr>", { desc = "Close diffview" })
-vim.keymap.set(
-  "n",
-  "<leader>gh",
-  "<cmd>DiffviewFileHistory %<cr>",
-  { desc = "Open diffview history on current file" }
-)
-vim.keymap.set(
-  "n",
-  "<leader>gH",
-  "<cmd>DiffviewFileHistory<cr>",
-  { desc = "Open diffview history on repository" }
-)
-
-vim.keymap.set("n", "<leader>gf", function()
-  diffview.open("HEAD", "%")
-end, { desc = "Open diffview merge on current file against HEAD" })
-
 -- Define our custom user command
 vim.api.nvim_create_user_command("Gdiff", function(ctx)
   local arg_parser = require("diffview.arg_parser")
