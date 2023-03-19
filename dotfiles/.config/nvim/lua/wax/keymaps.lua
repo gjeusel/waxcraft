@@ -116,6 +116,11 @@ vim.keymap.set("v", "<leader>p", '"_dP')
 -- vim.api.nvim_exec("nnoremap <silent>® :bp!\\|bd! #<CR>", false) -- delete buffer without closing pane (option + r )
 -- vim.keymap.set("n", "‰", "<cmd>BufOnly<cr>", { silent = true }) -- delete all buffers except current (option + d)
 
+-- To debug, map the possibility to exit insert mode without trigger of events
+-- vim.keymap.set("i", "<C-z>", function ()
+--   vim.cmd("stopinsert")
+-- end)
+
 -- Split panes
 vim.keymap.set("n", "<leader>l", "<cmd>vs<cr>", { nowait = true })
 vim.keymap.set("n", "<leader>'", "<cmd>sp<cr>", { nowait = true })

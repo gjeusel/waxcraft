@@ -88,11 +88,8 @@ return {
     end,
     opts = {
       builtin = { enabled = false },
-      select = {
-        enabled = true,
-        backend = { "telescope" },
-      },
-      input = { enabled = true, { win_options = { winblend = 0 } } },
+      select = { enabled = true, backend = { "telescope" } },
+      input = { enabled = true, win_options = { winblend = 0 } },
     },
   },
   { -- gitsigns
