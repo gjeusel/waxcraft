@@ -151,6 +151,15 @@ for i = 0, 5, 1 do
   end)
 end
 
+-- find vim help quickly
+vim.keymap.set("n", "<leader>fh", function()
+  vim.cmd([[normal! "wyiw]])
+  local word = vim.fn.getreg('"')
+  vim.cmd("vert h " .. word)
+end, {
+  desc = "Vertical split help for word under cursor",
+})
+
 --------- Different menues ---------
 vim.keymap.set("n", "<leader>sm", function()
   local options = {

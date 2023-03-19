@@ -28,10 +28,13 @@ return {
     "romgrk/barbar.nvim",
     event = { "BufReadPre", "BufNewFile" },
     dependencies = "nvim-tree/nvim-web-devicons",
+    init = function()
+      vim.g.bufferline = { auto_hide = true } -- avoid flicker
+    end,
     opts = {
       animation = false,
       icons = false,
-      auto_hide = false,
+      auto_hide = true,
       closable = false,
       clickable = false,
       maximum_padding = 1,
@@ -435,10 +438,108 @@ return {
   },
   { -- fzf-lua
     "ibhagwan/fzf-lua",
-    event = "VeryLazy",
     config = function()
       require("wax.plugcfg.fzf")
     end,
+    keys = {
+      ---------- Grep ----------
+      {
+        "<leader>a",
+        function()
+          require("wax.plugcfg.fzf").fzf_grep()
+        end,
+        desc = "Fuzzy search content of files",
+      },
+      {
+        "<leader>A",
+        function()
+          require("wax.plugcfg.fzf").live_grep()
+        end,
+        desc = "RipGrep content of files",
+      },
+      {
+        "<leader>ff",
+        function()
+          require("wax.plugcfg.fzf").grep_word_under_cursor()
+        end,
+        desc = "RipGrep with search being the current word under the cursor",
+      },
+      ---------- Files ----------
+      {
+        "<leader>p",
+        function()
+          require("wax.plugcfg.fzf").rg_files()
+        end,
+        desc = "Find git files",
+      },
+      {
+        "<leader>P",
+        function()
+          require("wax.plugcfg.fzf").rg_files("--no-ignore-vcs")
+        end,
+        desc = "Find files",
+      },
+      ---------- Misc ----------
+      {
+        "<leader>fe",
+        function()
+          require("fzf-lua").builtin()
+        end,
+        desc = "Fzf Lua Builtin",
+      },
+      {
+        "∂", -- option + d
+        function()
+          require("fzf-lua").command_history()
+        end,
+        desc = "Fzf Command History",
+        mode = { "n", "i", "c" },
+      },
+      {
+        "z=",
+        function()
+          require("fzf-lua").spell_suggest()
+        end,
+        desc = "Fzf Spell Suggest",
+      },
+      {
+        "<leader>n",
+        function()
+          require("fzf-lua").buffers()
+        end,
+        desc = "Fzf Opened Buffers",
+      },
+      ---------- LSP ----------
+      {
+        "<leader>r",
+        function()
+          require("wax.plugcfg.fzf").lsp_references()
+        end,
+        desc = "Fzf Lsp References of word under cursor",
+      },
+      ------- Custom -------
+      {
+        "<leader>fw",
+        function()
+          require("wax.plugcfg.fzf").wax_files()
+        end,
+        desc = "Find file among dotfiles",
+      },
+      {
+        "<leader>q",
+        function()
+          require("wax.plugcfg.fzf").select_project_find_file()
+        end,
+        desc = "Select project then find file.",
+      },
+      {
+        "<leader>Q",
+        function()
+          require("wax.plugcfg.fzf").select_project_fzf_grep()
+        end,
+        desc = "Select project then grep files.",
+      },
+    },
   },
   { -- grapple
     "cbochs/grapple.nvim",

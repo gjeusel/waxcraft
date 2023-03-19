@@ -128,27 +128,25 @@ local function fn_selected_multi(selected, opts)
   end
 end
 
-local kmap = vim.keymap.set
-
 --
 ---------- Grep ----------
 --
 -- Fzf Grep
-kmap("n", "<leader>a", function()
+local function fzf_grep()
   return fzf_lua.grep({
     cwd = git_or_cwd(),
     search = "",
     fn_selected = fn_selected_multi,
   })
-end)
+end
 
 -- Live Grep
-kmap("n", "<leader>A", function()
-  return fzf_lua.live_grep({ cwd = git_or_cwd(), fn_selected = fn_selected_multi })
-end)
+local function live_grep()
+  fzf_lua.live_grep({ cwd = git_or_cwd(), fn_selected = fn_selected_multi })
+end
 
 -- Fzf Grep word under cursor
-kmap("n", "<leader>ff", function()
+local function grep_word_under_cursor()
   vim.cmd([[normal! "wyiw]])
   local word = vim.fn.getreg('"')
   fzf_lua.grep({
@@ -156,7 +154,7 @@ kmap("n", "<leader>ff", function()
     search = word,
     fn_selected = fn_selected_multi,
   })
-end)
+end
 
 --
 ---------- Files ----------
@@ -183,60 +181,22 @@ local function rg_files(rg_opts)
   })
 end
 
--- Find Files restricted
-kmap("n", "<leader>p", rg_files, { desc = "Find git files" })
-
--- Find Files
-kmap("n", "<leader>P", function()
-  return rg_files("--no-ignore-vcs")
-end, { desc = "Find files" })
-
---
----------- Misc ----------
---
--- Fzf Lua Builtin
-kmap("n", "<leader>fe", fzf_lua.builtin, { desc = "Fzf Lua Builtin" })
-
-kmap("n", "<leader>fh", function()
-  vim.cmd([[normal! "wyiw]])
-  local word = vim.fn.getreg('"')
-  vim.cmd("vert h " .. word)
-end, {
-  desc = "Vertical split help for word under cursor",
-})
-
--- Command History: option-d
-kmap(
-  { "n", "i", "c" },
-  "∂", -- option + d
-  fzf_lua.command_history,
-  { desc = "Fzf Command History" }
-)
-
--- Spell Suggest:
-kmap("n", "z=", fzf_lua.spell_suggest, { desc = "Fzf Spell Suggest" })
-
--- Opened Buffers
-kmap("n", "<leader>n", fzf_lua.buffers, { desc = "Fzf Opened Buffers" })
-
 --
 ---------- LSP ----------
 --
 -- lsp issue with tips and tricks: https://github.com/ibhagwan/fzf-lua/issues/441
 --
-kmap("n", "<leader>r", function()
+local function lsp_references()
   fzf_lua.lsp_references({
     async = true,
     file_ignore_patterns = { "miniconda3", "node_modules" }, -- ignore references in env libs
   })
-end, {
-  desc = "Fzf Lsp References",
-})
+end
 
 --
 ------- Wax files -------
 
-kmap("n", "<leader>fw", function()
+local function wax_files()
   local paths = {
     ".config/nvim/config.lua",
     ".gitconfig",
@@ -262,9 +222,7 @@ kmap("n", "<leader>fw", function()
       return fzf_lua.make_entry.file(x, { file_icons = true, color_icons = true })
     end,
   })
-end, {
-  desc = "Find file among dotfiles",
-})
+end
 
 --
 ------- Project Select first -------
@@ -290,18 +248,29 @@ local function pick_project(fn)
   end)
 end
 
-kmap("n", "<leader>q", function()
+local function select_project_find_file()
   pick_project(function(path)
     fzf_lua.files({ cwd = path })
   end)
-end, {
-  desc = "Pick project then find file",
-})
+end
 
-kmap("n", "<leader>Q", function()
+local function select_project_fzf_grep()
   pick_project(function(path)
     fzf_lua.grep({ cwd = path, search = "" })
   end)
-end, {
-  desc = "Pick project then grep",
-})
+end
+
+return {
+  -- grep
+  fzf_grep = fzf_grep,
+  live_grep = live_grep,
+  grep_word_under_cursor = grep_word_under_cursor,
+  -- files
+  rg_files = rg_files,
+  -- lsp
+  lsp_references = lsp_references,
+  -- custom
+  wax_files = wax_files,
+  select_project_find_file = select_project_find_file,
+  select_project_fzf_grep = select_project_fzf_grep,
+}
