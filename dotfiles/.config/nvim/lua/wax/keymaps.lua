@@ -134,14 +134,31 @@ vim.keymap.set("n", "[q", "<cmd>cprev<cr>")
 vim.keymap.set("n", "[w", "<cmd>ccl<cr>") -- quite quick fix list
 
 -- copy in register current buffer absolute filepath
-vim.keymap.set("n", "<leader>fp", function()
+vim.keymap.set("n", "<leader>yf", function()
   local fname = vim.fn.expand("%:t")
   vim.fn.setreg("+", fname)
-end)
-vim.keymap.set("n", "<leader>fP", function()
+end, { desc = "Yank current buffer filename" })
+
+vim.keymap.set("n", "<leader>yF", function()
   local fpath = vim.api.nvim_buf_get_name(0)
   vim.fn.setreg("+", fpath)
-end)
+end, { desc = "Yank current buffer absolute filepath" })
+
+vim.keymap.set("n", "<leader>yp", function()
+  local abspath = vim.api.nvim_buf_get_name(0)
+  local workspace = find_root_dir(abspath)
+  if not workspace then
+    return
+  end
+
+  local Path = require("plenary.path")
+  local relpath = Path:new(abspath):make_relative(workspace)
+  if not string.match(relpath, ".py$") then
+    return
+  end
+
+  vim.fn.setreg("+", string.gsub(relpath, "/", "."):gsub("%.py$", ""))
+end, { desc = "Yank current file python module" })
 
 -- set foldlevel
 for i = 0, 5, 1 do

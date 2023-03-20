@@ -33,6 +33,7 @@ local prettier_cfg = {
 
 local sources = {
   -- builtins.completion.spell,
+  builtins.formatting.taplo,
 
   -- python
   builtins.formatting.black.with({
