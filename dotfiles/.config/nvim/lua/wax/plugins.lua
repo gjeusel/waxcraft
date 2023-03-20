@@ -430,7 +430,7 @@ return {
       {
         "<leader>gf",
         function()
-          require("diffview").open("HEAD", "%")
+          require("diffview").open("HEAD", vim.api.nvim_buf_get_name(0))
         end,
         desc = "Open diffview merge on current file against HEAD",
       },

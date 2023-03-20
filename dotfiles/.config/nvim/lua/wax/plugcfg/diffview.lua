@@ -45,7 +45,7 @@ diffview.setup({
       end
     end,
     diff_buf_win_enter = function(bufnr, winid, ctx)
-      log.warn("bufnr=", bufnr, "winid=", winid, "ctx=", ctx)
+      log.debug("bufnr=", bufnr, "winid=", winid, "ctx=", ctx)
       if ctx.layout_name == "diff2_horizontal" and ctx.symbol == "b" then
         vim.schedule(function()
           vim.api.nvim_set_current_win(winid)
