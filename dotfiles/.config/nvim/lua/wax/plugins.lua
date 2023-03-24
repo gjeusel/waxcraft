@@ -94,6 +94,7 @@ return {
     "lewis6991/gitsigns.nvim",
     event = { "BufReadPre", "BufNewFile" },
     dependencies = { "nvim-lua/plenary.nvim" },
+    cmd = { "Gdiff" },
     opts = {
       on_attach = function(buffer)
         local gs = package.loaded.gitsigns
@@ -134,6 +135,15 @@ return {
         end)
       end,
     },
+    config = function(_, opts)
+      local gs = require("gitsigns")
+      gs.setup(opts)
+
+      -- Define our custom user command
+      vim.api.nvim_create_user_command("Gdiff", function(ctx)
+        gs.diffthis(ctx.args)
+      end, { nargs = "*" })
+    end,
   },
   { -- indentline
     "lukas-reineke/indent-blankline.nvim",
@@ -221,8 +231,8 @@ return {
         keymaps = {
           init_selection = "<C-space>",
           node_incremental = "<C-space>",
-          scope_incremental = "<nop>",
-          node_decremental = "<nop>",
+          -- scope_incremental = "<nop>",
+          -- node_decremental = "<nop>",
         },
       },
       indent = {
