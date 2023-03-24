@@ -48,20 +48,15 @@ return {
       { "∑", "<cmd>BufferNext<cr>", desc = "Next buffer", mode = { "n", "i" } },
       { "®", "<cmd>BufferClose<cr>", desc = "Close buffer", mode = { "n", "i" } },
       {
-        "©",
-        "<cmd>BufferCloseAllButCurrent<cr>",
+        "©", -- option + g
+        function()
+          vim.cmd("BufferCloseAllButCurrent")
+          vim.cmd([[exec "normal \<c-w>\<c-o>"]])
+        end,
         desc = "Close all buffer except current",
         mode = { "n", "i" },
       },
     },
-    -- init = function()
-    --   local kmap = vim.keymap.set
-    --   local opts = { nowait = true, silent = true }
-    --   kmap({ "n", "i" }, "œ", "<cmd>BufferPrevious<cr>", opts) -- option + q
-    --   kmap({ "n", "i" }, "∑", "<cmd>BufferNext<cr>", opts) -- option + w
-    --   kmap({ "n", "i" }, "®", "<cmd>BufferClose<cr>", opts) -- option + r
-    --   kmap({ "n" }, "©", "<cmd>BufferCloseAllButCurrent<cr>", opts) -- option + g
-    -- end,
   },
   { -- dressing
     "stevearc/dressing.nvim",
@@ -107,8 +102,14 @@ return {
           vim.keymap.set(mode, l, r, { buffer = buffer, desc = desc })
         end
 
-        map("n", "]h", gs.next_hunk, "Next Hunk")
-        map("n", "[h", gs.prev_hunk, "Prev Hunk")
+        map("n", "]c", function()
+          gs.next_hunk()
+          vim.cmd("normal! zz")
+        end, "Next Hunk")
+        map("n", "[c", function()
+          gs.prev_hunk()
+          vim.cmd("normal! zz")
+        end, "Prev Hunk")
 
         -- Actions
         map({ "n", "v" }, "<leader>hs", ":Gitsigns stage_hunk<CR>")
@@ -125,7 +126,9 @@ return {
         end)
 
         -- diffthis
-        map("n", "<leader>gD", gs.diffthis)
+        map("n", "<leader>gD", function()
+          gs.diffthis("master")
+        end)
         map("n", "<leader>gd", function()
           gs.diffthis("~")
         end)
@@ -182,6 +185,7 @@ return {
       { "windwp/nvim-ts-autotag" },
       {
         "andymass/vim-matchup",
+        -- enabled = false,
         event = "VeryLazy",
         init = function()
           vim.g.matchup_enabled = 1
@@ -218,7 +222,7 @@ return {
           init_selection = "<C-space>",
           node_incremental = "<C-space>",
           scope_incremental = "<nop>",
-          node_decremental = "<bs>",
+          node_decremental = "<nop>",
         },
       },
       indent = {
@@ -547,7 +551,7 @@ return {
   },
   { -- grapple
     "cbochs/grapple.nvim",
-    event = "VeryLazy",
+    lazy = false,
     config = function()
       require("wax.plugcfg.grapple")
     end,
@@ -666,24 +670,22 @@ return {
           ratio = 0.4,
         },
       },
-      suggestion = {
-        enabled = false,
-      },
-      server_opts_overrides = {
-        settings = {
-          inlineSuggest = { enabled = false },
-          editor = {
-            showEditorCompletions = false,
-            enableAutoCompletions = false,
-          },
-          advanced = {
-            top_p = 0.70,
-            listCount = 3, -- #completions for panel
-            inlineSuggestCount = 0, -- #completions for getCompletions
-            enableAutoCompletions = false,
-          },
-        },
-      },
+      suggestion = { enabled = false },
+      -- server_opts_overrides = {
+      --   settings = {
+      --     inlineSuggest = { enabled = false },
+      --     editor = {
+      --       showEditorCompletions = false,
+      --       enableAutoCompletions = false,
+      --     },
+      --     advanced = {
+      --       top_p = 0.70,
+      --       listCount = 3, -- #completions for panel
+      --       inlineSuggestCount = 0, -- #completions for getCompletions
+      --       enableAutoCompletions = false,
+      --     },
+      --   },
+      -- },
     },
   },
   { -- null-ls
@@ -749,12 +751,20 @@ return {
 
       local have_mason, mlsp = pcall(require, "mason-lspconfig")
 
+      local excluded_auto_install = { "pylsp" }
+      local excluded_ensure_install = { "lua_ls" }
+
       if have_mason then
         local handlers = waxlsp.create_mason_handlers()
+
         local ensure_installed = vim.tbl_keys(handlers)
+        ensure_installed = vim.tbl_filter(function(server_name)
+          return not vim.tbl_contains(excluded_ensure_install, server_name)
+        end, ensure_installed)
+
         mlsp.setup({
           ensure_installed = ensure_installed,
-          automatic_installation = { exclude = { "pylsp" } },
+          automatic_installation = { exclude = excluded_auto_install },
         })
         mlsp.setup_handlers(handlers)
       end
