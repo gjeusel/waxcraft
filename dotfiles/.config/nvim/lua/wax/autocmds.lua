@@ -107,7 +107,7 @@ vim.api.nvim_create_autocmd({ "BufReadPre", "FileReadPre" }, {
 
     -- disable view backup and swap
     vim.opt_local.backupdir = nil
-    vim.opt_local.viewdir = nil
+    -- vim.opt_local.viewdir = nil
     vim.opt_local.viewoptions = nil
     vim.opt_local.directory = nil
 
@@ -118,7 +118,7 @@ vim.api.nvim_create_autocmd({ "BufReadPre", "FileReadPre" }, {
     -- vim.opt_local.noloadplugins = true
 
     -- disable all autocmds
-    vim.opt_local.eventignore = "all"
+    -- vim.opt_local.eventignore = "all"
 
     -- -- disable treesitter capabilities
     -- if is_module_available("nvim-treesitter") then
