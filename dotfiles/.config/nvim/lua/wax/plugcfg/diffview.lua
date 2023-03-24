@@ -106,8 +106,8 @@ diffview.setup({
   },
 })
 
--- Define our custom user command
-vim.api.nvim_create_user_command("Gdiff", function(ctx)
-  local arg_parser = require("diffview.arg_parser")
-  diffview.open(arg_parser.scan(ctx.args).args)
-end, { nargs = "*", complete = diffview.completion })
+-- -- Define our custom user command
+-- vim.api.nvim_create_user_command("Gdiff", function(ctx)
+--   local arg_parser = require("diffview.arg_parser")
+--   diffview.open(arg_parser.scan(ctx.args).args)
+-- end, { nargs = "*", complete = diffview.completion })
