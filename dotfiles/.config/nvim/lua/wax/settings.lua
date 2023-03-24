@@ -54,7 +54,7 @@ endif
 )
 
 -- Whitespace & Indent settings
--- vim.o.nowrap = nil                                          -- don't wrap lines
+vim.o.nowrap = nil -- don't wrap lines
 vim.o.tabstop = 2
 vim.o.expandtab = true -- a tab is two spaces
 vim.o.shiftwidth = 2 -- an autoindent (with <<) is two spaces

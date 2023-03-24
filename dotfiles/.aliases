@@ -6,6 +6,7 @@ alias wax="cd $waxCraft_PATH"
 
 # definitly swhich to nvim:
 alias vim="nvim"
+alias v="nvim"
 alias vimdiff="nvim -d"
 
 # Brew
