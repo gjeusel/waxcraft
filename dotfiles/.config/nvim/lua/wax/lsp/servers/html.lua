@@ -1,4 +1,4 @@
 return {
-  filetypes = { "html", "markdown" },
+  filetypes = { "html" },
   settings = { documentFormattingProvider = false },
 }
