@@ -26,6 +26,7 @@ vim.cmd([[
     cnoreabbrev Q q
     cnoreabbrev Qa qa
     cnoreabbrev Qall qall
+    cnoreabbrev E e
 ]])
 
 --------- Behaviour fixes ---------
@@ -50,6 +51,8 @@ vim.keymap.set("n", "<S-q>", "<Nop>")
 -- ThePrimeagen is right ...
 -- Why ? Because else "<C-c>" does not trigger InsertLeave autcmd
 vim.keymap.set("i", "<C-c>", "<Esc>")
+
+vim.keymap.set({ "n", "x", "t" }, "<C-c>", "<Esc>") -- try out replace <C-c> wrong habit
 
 --
 ----------- Opiniated KeyMaps -----------
@@ -138,6 +141,10 @@ vim.keymap.set("n", "[q", function()
   vim.cmd("cprev")
   vim.cmd([[normal! zz]])
 end, { desc = "Goto prev qflist item" })
+
+
+-- vim.keymap.set("n", "]q", "<cmd>cnext<cr>")
+-- vim.keymap.set("n", "[q", "<cmd>cprev<cr>")
 
 vim.keymap.set("n", "[w", "<cmd>ccl<cr>") -- quite quick fix list
 
