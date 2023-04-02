@@ -28,19 +28,19 @@ return {
     "romgrk/barbar.nvim",
     event = { "BufReadPre", "BufNewFile" },
     dependencies = "nvim-tree/nvim-web-devicons",
-    init = function()
-      vim.g.bufferline = { auto_hide = true } -- avoid flicker
-    end,
     opts = {
       animation = false,
-      icons = false,
       auto_hide = true,
-      closable = false,
+      tabpages = false,
       clickable = false,
+      icons = {
+        button = "",
+        filetype = { enabled = true },
+        separator = { left = "▎", right = "" },
+      },
       maximum_padding = 1,
-      icon_separator_active = "▎",
-      icon_separator_inactive = "▎",
-      no_name_title = "", -- avoid scratch buffer display from null-ls
+      -- avoid scratch buffer display from null-ls:
+      no_name_title = "",
       exclude_name = { "" },
     },
     keys = {
