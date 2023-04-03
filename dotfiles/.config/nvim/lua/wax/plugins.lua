@@ -35,8 +35,11 @@ return {
       clickable = false,
       icons = {
         button = "",
-        filetype = { enabled = true },
+        filetype = { enabled = false },
         separator = { left = "▎", right = "" },
+        modified = { button = "" },
+        pinned = { button = "" },
+        inactive = { button = "" },
       },
       maximum_padding = 1,
       -- avoid scratch buffer display from null-ls:
@@ -103,11 +106,11 @@ return {
           vim.keymap.set(mode, l, r, { buffer = buffer, desc = desc })
         end
 
-        map("n", "]c", function()
+        map("n", "]h", function()
           gs.next_hunk()
           vim.cmd("normal! zz")
         end, "Next Hunk")
-        map("n", "[c", function()
+        map("n", "[h", function()
           gs.prev_hunk()
           vim.cmd("normal! zz")
         end, "Prev Hunk")
@@ -718,6 +721,7 @@ return {
   { -- lspconfig + mason
     "neovim/nvim-lspconfig",
     event = { "BufReadPre", "BufNewFile" },
+    -- enabled = false,
     dependencies = {
       { "folke/neodev.nvim", opts = { experimental = { pathStrict = true } } },
       { -- fidget

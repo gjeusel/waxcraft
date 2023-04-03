@@ -1,7 +1,6 @@
 local fzf_lua = require("fzf-lua")
 
-local scan = safe_require("plenary.scandir")
-local Path = safe_require("plenary.path")
+local Path = require("wax.path")
 
 local fzf_actions = {
   ["default"] = fzf_lua.actions.file_edit,
@@ -59,7 +58,7 @@ fzf_lua.setup({
 local function git_or_cwd()
   local cwd = vim.fn.getcwd()
   if is_git() then
-    cwd = find_root_dir_fn({ ".git" })(cwd)
+    cwd = find_root_dir(cwd, { ".git" })
   end
   return cwd
 end
@@ -228,22 +227,19 @@ end
 ------- Project Select first -------
 
 local function pick_project(fn)
-  local base_path = vim.env.HOME .. "/src"
-  local projects = scan.scan_dir(base_path, {
-    hidden = false,
-    add_dirs = true,
-    only_dirs = true,
-    depth = 1,
-  })
+  local src_path = Path.home():join("src")
 
-  projects = vim.tbl_map(function(entry)
-    return Path:new(entry):make_relative(base_path)
+  local projects = vim.tbl_filter(function(path)
+    return path:is_directory()
+  end, src_path:ls())
+
+  projects = vim.tbl_map(function(path)
+    return (path:make_relative(src_path)).path
   end, projects)
 
   vim.ui.select(projects, { prompt = "Select project> " }, function(choice, _)
     if choice then
-      local project = Path:new(base_path):joinpath(choice):absolute()
-      fn(project)
+      fn(src_path:join(choice):absolute())
     end
   end)
 end

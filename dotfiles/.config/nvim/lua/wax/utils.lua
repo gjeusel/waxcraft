@@ -2,6 +2,10 @@
 
 local scratch = require("wax.scratch")
 
+-------- Register Path --------
+
+local Path = require("wax.path")
+
 -------- Debug utils --------
 
 ---Open a scratch window with given content
@@ -203,27 +207,17 @@ function _G.is_git(cwd)
   return not (ret ~= 0 or #git_root <= 0)
 end
 
----Return a function to find the root directory based on a list of patterns
----@param patterns table<string>
----@return fun(path: string): string
-function _G.find_root_dir_fn(patterns)
-  local default_patterns = {
-    ".git",
-    -- "Dockerfile",
-    -- "LICENSE",
-    -- "src",
-    -- "pyproject.toml",
-  }
-  patterns = patterns or default_patterns
-  return require("lspconfig").util.root_pattern(patterns)
-end
-
----Return the root directory
----@param path string
----@return string
-function _G.find_root_dir(path)
-  return find_root_dir_fn()(path)
-end
+_G.find_root_dir = wax_cache_fn(
+  ---Return the root directory
+  ---@param path string
+  ---@return string
+  function(path, patterns)
+    local default_patterns = { ".git" }
+    patterns = patterns or default_patterns
+    path = path or vim.loop.cwd()
+    return Path:new(path):find_root_dir(patterns).path
+  end
+)
 
 ---Convert the path of the workspace to its name
 ---@param path string
