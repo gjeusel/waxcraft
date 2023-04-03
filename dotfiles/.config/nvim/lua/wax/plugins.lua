@@ -74,6 +74,19 @@ return {
           mode = "n",
         },
       },
+      config = function()
+        local actions = require("telescope.actions")
+        require("telescope").setup({
+          defaults = {
+            mappings = {
+              i = {
+                -- map <esp> to close
+                ["<esc>"] = actions.close,
+              },
+            },
+          },
+        })
+      end,
     },
     init = function()
       ---@diagnostic disable-next-line: duplicate-set-field

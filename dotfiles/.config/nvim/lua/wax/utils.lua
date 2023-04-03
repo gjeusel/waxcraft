@@ -209,12 +209,17 @@ end
 _G.find_root_dir = wax_cache_fn(
   ---Return the root directory
   ---@param path string
-  ---@return string
+  ---@return string | nil
   function(path, patterns)
     local default_patterns = { ".git" }
     patterns = patterns or default_patterns
     path = path or vim.loop.cwd()
-    return Path:new(path):find_root_dir(patterns).path
+    local root_dir = Path:new(path):find_root_dir(patterns)
+    if root_dir ~= nil then
+      return root_dir.path
+    else
+      return nil
+    end
   end
 )
 
