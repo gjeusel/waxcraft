@@ -37,7 +37,7 @@ ls.config.set_config({
   enable_autosnippets = false,
 })
 
-local snippets_path = lua_waxdir .. "/snippets"
+local snippets_path = require("wax.path").waxdir():join("snippets"):absolute()
 
 load_from_lua({ paths = snippets_path })
 

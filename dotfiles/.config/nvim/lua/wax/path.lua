@@ -4,7 +4,11 @@ local uv = vim.loop
 ---@field path string
 
 ---@type Wax.Path
-local Path = {}
+local Path = {
+  -- those classmethod are here for lsp purpose (avoid [undefined-field])
+  home = function() end,
+  waxdir = function() end,
+}
 
 function Path:new(path)
   if type(path) == "table" and path.path ~= nil then
@@ -23,6 +27,12 @@ end
 ---@return Wax.Path
 function Path.home()
   return Path:new(os.getenv("HOME"))
+end
+
+---Return the lua wax directory ($HOME/.config/nvim/lua/wax)
+---@return Wax.Path
+function Path.waxdir()
+  return Path:new(vim.fn.fnamemodify(debug.getinfo(1, "S").short_src, ":p:h"))
 end
 
 ---Return the parent path
@@ -124,11 +134,16 @@ function Path:find_root_dir(patterns)
   local current_path = self
   while current_path.path ~= "/" do
     for _, pattern in ipairs(patterns) do
-      log.warn(("Checking for pattern '%s' at '%s'"):format(pattern, current_path.path))
+      -- log.warn(("Checking for pattern '%s' at '%s'"):format(pattern, current_path.path))
       local paths = current_path:glob(pattern)
       if #paths > 0 then
         return current_path
       end
+    end
+
+    -- early stop to avoid infinite loop
+    if current_path:parent().path == current_path.path then
+      return nil
     end
 
     current_path = current_path:parent()

@@ -5,12 +5,12 @@ end, {})
 local relative_path = wax_cache_fn(function()
   local abspath = vim.api.nvim_buf_get_name(0)
   local workspace = find_root_dir(abspath)
-  local Path = require("plenary.path")
+  local Path = require("wax.path")
 
   if workspace then
-    return Path:new(abspath):make_relative(workspace)
+    return Path:new(abspath):make_relative(workspace).path
   else
-    return Path:new(abspath):make_relative(vim.env.HOME)
+    return Path:new(abspath):make_relative(vim.env.HOME).path
   end
 end)
 

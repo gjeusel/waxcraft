@@ -165,8 +165,8 @@ vim.keymap.set("n", "<leader>yp", function()
     return
   end
 
-  local Path = require("plenary.path")
-  local relpath = Path:new(abspath):make_relative(workspace)
+  local Path = require("wax.path")
+  local relpath = Path:new(abspath):make_relative(workspace).path
   if not string.match(relpath, ".py$") then
     return
   end

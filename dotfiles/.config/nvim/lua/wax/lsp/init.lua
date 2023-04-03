@@ -130,7 +130,7 @@ require("mason-lspconfig.mappings.server").lspconfig_to_package["mypygls"] = "my
 
 local custom_lsps = { "mypygls" }
 
-local scan = require("plenary.scandir")
+local Path = require("wax.path")
 
 local function create_mason_handlers()
   -- Generate capabilities
@@ -140,9 +140,9 @@ local function create_mason_handlers()
 
   local handlers = {}
 
-  local server_with_custom_config = vim.tbl_map(function(server_file)
-    return vim.fn.fnamemodify(server_file, ":t:r")
-  end, scan.scan_dir(lua_waxdir .. "/lsp/servers", { depth = 1 }))
+  local server_with_custom_config = vim.tbl_map(function(path)
+    return vim.fn.fnamemodify(path.path, ":t:r")
+  end, Path.waxdir():join("lsp/servers"):ls())
 
   for _, server_name in ipairs(server_with_custom_config) do
     local function to_server_opts()

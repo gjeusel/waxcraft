@@ -110,9 +110,8 @@ end
 -- debug.getinfo to get the filepath of the current lua script
 -- then get its parent directory
 
----@type string
-_G.lua_waxdir = vim.fn.fnamemodify(debug.getinfo(1, "S").short_src, ":p:h")
--- "$HOME/.config/nvim/lua/wax"
+---@type Wax.Path
+_G.lua_waxdir = Path:new(vim.fn.fnamemodify(debug.getinfo(1, "S").short_src, ":p:h")) -- "$HOME/.config/nvim/lua/wax"
 
 -------- Cache --------
 
