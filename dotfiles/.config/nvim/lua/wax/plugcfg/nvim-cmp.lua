@@ -131,7 +131,8 @@ cmp.setup({
       cmp.config.compare.score,
       cmp.config.compare.offset,
       cmp.config.compare.recently_used,
-      cmp.config.compare.scopes, --this is commented in nvim-cmp too
+      -- scopes is using treesitter
+      -- cmp.config.compare.scopes, --this is commented in nvim-cmp too
       cmp.config.compare.exact,
       cmp.config.compare.locality,
       cmp.config.compare.kind,

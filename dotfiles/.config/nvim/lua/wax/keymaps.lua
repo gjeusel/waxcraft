@@ -133,12 +133,12 @@ vim.keymap.set({ "n", "v" }, "<Space>", "za")
 
 -- quick fix list
 vim.keymap.set("n", "]q", function()
-  vim.cmd("cnext!")
+  vim.cmd("silent! cnext")
   vim.cmd([[normal! zz]])
 end, { desc = "Goto next qflist item" })
 
 vim.keymap.set("n", "[q", function()
-  vim.cmd("cprev!")
+  vim.cmd("silent! cprev")
   vim.cmd([[normal! zz]])
 end, { desc = "Goto prev qflist item" })
 
