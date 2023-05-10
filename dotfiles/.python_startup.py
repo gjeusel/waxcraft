@@ -36,6 +36,19 @@ for lib in warning_libs:
 
 
 try:
+    from rich.console import Console
+    from rich.theme import Theme
+
+    _console_rich = Console(
+        theme=Theme.read(Path("~/.config/rich/rich.ini").expanduser().as_posix())
+    )
+    print = pp = _console_rich.print
+except ImportError:
+    pass
+except Exception:
+    print("Failed rich setup")
+
+try:
     import pandas as pd
 except ImportError:
     pass
@@ -110,7 +123,7 @@ except Exception:
 
 
 imports = (
-    "requests",
+    "httpx",
     "flask",
     # ("sa", "sqlalchemy"),
     ("debug", "devtools.debug"),
