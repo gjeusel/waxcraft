@@ -8,15 +8,15 @@ end
 grapple.setup({
   ---@type "debug" | "info" | "warn" | "error"
   log_level = loglevel,
-  -- log_level = "debug",
 
   ---The scope used when creating, selecting, and deleting tags
-  scope = "static",
+  scope = "git_branch",
+
   ---Window options used for the popup menu
   popup_options = {
     relative = "editor",
-    width = 60,
-    height = 12,
+    width = 80,
+    height = 6,
     style = "minimal",
     focusable = false,
     border = "single",

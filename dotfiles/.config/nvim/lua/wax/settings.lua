@@ -28,7 +28,7 @@ vim.o.autochdir = true -- working directory is always the same as the file you a
 vim.o.textwidth = 0 -- avoid auto line return while typing
 
 vim.o.updatetime = 50 -- frequency to apply Autocmd events -> low for nvim-ts-context-commentstring
-vim.api.nvim_exec([[set shortmess+=cs]], false) -- don't pass messages to ins-completion-menu
+vim.cmd([[set shortmess+=cs]]) -- don't pass messages to ins-completion-menu
 vim.o.completeopt = "menuone,noselect"
 
 vim.o.pumheight = 5 -- max completion popup menu height
@@ -43,18 +43,15 @@ vim.o.pyxversion = 3
 vim.o.spellang = "en_us" -- activate vim spell checking
 vim.o.spelloptions = "camel,noplainbuffer"
 -- vim.o.nospell = true
-vim.api.nvim_exec([[set fillchars=vert:│]], false) -- box drawings heavy vertical (U+2503, UTF-8: E2 94 83)
-vim.api.nvim_exec(
-  [[
-if has('linebreak')
-  let &showbreak='⤷ '   " arrow pointing downwards then curving rightwards (u+2937, utf-8: e2 a4 b7)
-endif
-]],
-  false
-)
+vim.cmd([[set fillchars=vert:│]]) -- box drawings heavy vertical (U+2503, UTF-8: E2 94 83)
+vim.cmd([[
+  if has('linebreak')
+    let &showbreak='⤷ '   " arrow pointing downwards then curving rightwards (u+2937, utf-8: e2 a4 b7)
+  endif
+]])
 
 -- Whitespace & Indent settings
-vim.o.nowrap = nil -- don't wrap lines
+vim.o.wrap = false -- don't wrap lines
 vim.o.tabstop = 2
 vim.o.expandtab = true -- a tab is two spaces
 vim.o.shiftwidth = 2 -- an autoindent (with <<) is two spaces
@@ -62,7 +59,7 @@ vim.o.shiftwidth = 2 -- an autoindent (with <<) is two spaces
 vim.o.autoindent = false -- do not use previous line indent
 
 vim.o.list = true -- show the following:
-vim.api.nvim_exec([[set listchars=tab:›\ ,trail:•,extends:#,nbsp:.]], false) -- Highlight problematic whitespace
+vim.cmd([[set listchars=tab:›\ ,trail:•,extends:#,nbsp:.]]) -- Highlight problematic whitespace
 
 -- Backup, swap, undo & sessions
 local basedir = vim.fn.stdpath("data")

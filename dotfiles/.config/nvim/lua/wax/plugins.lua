@@ -115,18 +115,30 @@ return {
       on_attach = function(buffer)
         local gs = package.loaded.gitsigns
 
+        -- Navigation with ]c & [c
+        vim.keymap.set("n", "]c", function()
+          if vim.wo.diff then
+            return "]c"
+          end
+          vim.schedule(function()
+            gs.next_hunk()
+          end)
+          return "<Ignore>"
+        end, { expr = true, buffer = buffer, desc = "Next Hunk/Diff" })
+
+        vim.keymap.set("n", "[c", function()
+          if vim.wo.diff then
+            return "[c"
+          end
+          vim.schedule(function()
+            gs.prev_hunk()
+          end)
+          return "<Ignore>"
+        end, { expr = true, buffer = buffer, desc = "Prev Hunk/Diff" })
+
         local function map(mode, l, r, desc)
           vim.keymap.set(mode, l, r, { buffer = buffer, desc = desc })
         end
-
-        map("n", "]h", function()
-          gs.next_hunk()
-          vim.cmd("normal! zz")
-        end, "Next Hunk")
-        map("n", "[h", function()
-          gs.prev_hunk()
-          vim.cmd("normal! zz")
-        end, "Prev Hunk")
 
         -- Actions
         map({ "n", "v" }, "<leader>hs", ":Gitsigns stage_hunk<CR>")
@@ -209,10 +221,9 @@ return {
         ft = { "html", "vue", "typescriptreact", "svelte" },
       },
       { "windwp/nvim-ts-autotag" },
-      {
+      { -- vim-matchup - better %
         "andymass/vim-matchup",
         -- enabled = false,
-        event = "VeryLazy",
         init = function()
           vim.g.matchup_enabled = 1
           vim.g.matchup_mouse_enabled = 0

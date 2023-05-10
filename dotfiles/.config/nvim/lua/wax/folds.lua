@@ -10,8 +10,13 @@ vim.o.foldlevel = 99 -- always open all folds on open
 vim.o.foldenable = true -- Open all folds while not set.
 -- vim.o.foldminlines = 3 -- Min lines before fold.
 
+-- TODO: Sometimes folds disappear on format or get out of sync
+-- https://github.com/nvim-treesitter/nvim-treesitter/issues/1424
+-- https://github.com/neovim/neovim/issues/14977
+
 vim.o.foldmethod = "expr"
-vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+vim.o.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+-- vim.o.foldexpr = "nvim_treesitter#foldexpr()"
 
 -- TODO: convert it to lua function ?
 vim.cmd([[
