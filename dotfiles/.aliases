@@ -37,6 +37,7 @@ alias ls='ls -G'
 # Docker & Kubernetes
 alias dk="docker"
 alias k=kubectl
+alias dco="docker-compose"
 
 kdebug() {
   kubectl run -i --rm --tty debug --image=${1:-busybox} --restart=Never -- ${2:-sh}
