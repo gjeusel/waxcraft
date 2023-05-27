@@ -111,25 +111,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
   end,
 })
 
--- Register homemade LSP servers (mypygls):
-local lspconfig = require("lspconfig")
-local configs = require("lspconfig.configs")
-
-configs.mypygls = {
-  default_config = {
-    cmd = { "mypygls" },
-    filetypes = { "python" },
-    root_dir = function(fname)
-      return lspconfig.util.find_git_ancestor(fname)
-    end,
-    settings = {},
-  },
-}
-
-require("mason-lspconfig.mappings.server").lspconfig_to_package["mypygls"] = "mypygls"
-
-local custom_lsps = { "mypygls" }
-
 local Path = require("wax.path")
 
 local function create_mason_handlers()
@@ -150,12 +131,8 @@ local function create_mason_handlers()
       return vim.tbl_deep_extend("keep", { capabilities = capabilities }, require(server_module))
     end
 
-    if vim.tbl_contains(custom_lsps, server_name) then
+    handlers[server_name] = function()
       require("lspconfig")[server_name].setup(to_server_opts())
-    else
-      handlers[server_name] = function()
-        require("lspconfig")[server_name].setup(to_server_opts())
-      end
     end
   end
 

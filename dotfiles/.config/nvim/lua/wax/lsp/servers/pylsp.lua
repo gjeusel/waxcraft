@@ -4,7 +4,7 @@ local function to_pylsp_cmd(python_path)
   local log_dir = vim.env.HOME .. "/.cache/nvim"
   local log_file = log_dir .. "/pylsp.log"
 
-  local map_loglevel = { trace = "-vvv", debug = "-vv", info = "-v", warn = "-v", error = "-v" }
+  local map_loglevel = { trace = "-vvv", debug = "-vv", info = "-v", warn = "", error = "" }
   local log_level = map_loglevel[waxopts.loglevel]
 
   local cmd = { python_path, "-m", "pylsp", "--log-file", log_file, log_level }
@@ -44,13 +44,14 @@ return {
           },
         },
         pylsp_mypy = {
-          enabled = false,
+          enabled = true,
           live_mode = false,
-          -- dmypy = true,
-          args = {
-            "--sqlite-cache", -- Use an SQLite database to store the cache.
-            "--cache-fine-grained", -- Include fine-grained dependency information in the cache for the mypy daemon.
-          },
+          dmypy = false,
+          report_progress = false,
+          -- args = {
+          --   "--sqlite-cache", -- Use an SQLite database to store the cache.
+          --   "--cache-fine-grained", -- Include fine-grained dependency information in the cache for the mypy daemon.
+          -- },
         },
         -- Disabled ones:
         flake8 = { enabled = false },

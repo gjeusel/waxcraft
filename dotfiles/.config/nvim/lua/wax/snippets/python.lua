@@ -27,21 +27,21 @@ return {
   s("iannot", { t("from __future__ import annotations") }),
   -- debugger
   -- s("iforkedpdb", { t('__import__("venturi").utils.forked_pdb.ForkedPdb().set_trace()') }),
-  s("iforkedpdb", { t('__import__("dagster").utils.forked_pdb.ForkedPdb().set_trace()') }),
+  s("iforkedpdb", { t('__import__("dagster")._utils.forked_pdb.ForkedPdb().set_trace()') }),
   -- tests
-  s(
-    "pyraises",
-    fmt(
-      [[
-        match = "{match}"
-        with pytest.raises({exc}, match=match):
-            {0}
-      ]],
-      {
-        match = i(1, ""),
-        exc = i(2, ""),
-        [0] = i(0, ""),
-      }
-    )
-  ),
+  -- s(
+  --   "pyraises",
+  --   fmt(
+  --     [[
+  --       match = "{match}"
+  --       with pytest.raises({exc}, match=match):
+  --           {0}
+  --     ]],
+  --     {
+  --       match = i(1, ""),
+  --       exc = i(2, ""),
+  --       [0] = i(0, ""),
+  --     }
+  --   )
+  -- ),
 }
