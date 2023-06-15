@@ -41,8 +41,8 @@ yabai -m config focus_follows_mouse          off
 
 # general space settings
 yabai -m config layout                       bsp
-yabai -m config --space 1 layout             float
-yabai -m config --space 3 layout             float
+yabai -m config --space 1 layout             stack
+yabai -m config --space 3 layout             stack
 
 yabai -m config bottom_padding               0
 yabai -m config left_padding                 0
@@ -86,6 +86,6 @@ yabai -m rule --add app="Messages" space="Social"
 # Make all non-resizable window float (https://github.com/koekeishiya/yabai/issues/1317)
 yabai -m signal --add event=window_created action='yabai -m query --windows --window $YABAI_WINDOW_ID | jq -er ".\"can-resize\" or .\"is-floating\"" || yabai -m window $YABAI_WINDOW_ID --toggle float'
 
-yabai -m signal --add event=window_created label="Misc" action='yabai -m window --toggle zoom-fullscreen'
+# yabai -m signal --add event=window_created label="Misc" action='yabai -m window --toggle zoom-fullscreen --window $YABAI_WINDOW_ID'
 
 echo "yabai configuration loaded.."
