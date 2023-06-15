@@ -13,7 +13,13 @@ ctrl + alt - r : yabai -m space --rotate 270
 
 
 # ---- modifying window size ----
-ctrl + alt - f : yabai -m window --toggle zoom-fullscreen
+
+# fullscreen (event if float layout: https://github.com/koekeishiya/yabai/issues/317)
+ctrl + alt - f : \
+ yabai -m query --spaces --window | grep '"type":"float"' && yabai -m space --layout bsp;\
+ yabai -m query --windows --window | grep '"floating":1' && yabai -m window --toggle float;\
+ yabai -m window --toggle zoom-fullscreen;
+
 ctrl + alt - e : yabai -m space --balance
 
 # ---- moving windows around ----
