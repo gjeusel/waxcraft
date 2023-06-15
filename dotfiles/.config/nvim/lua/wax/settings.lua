@@ -40,7 +40,7 @@ vim.o.winblend = 0
 
 vim.o.pyxversion = 3
 
-vim.o.spellang = "en_us" -- activate vim spell checking
+-- vim.o.spellang = "en_us" -- activate vim spell checking
 vim.o.spelloptions = "camel,noplainbuffer"
 -- vim.o.nospell = true
 vim.cmd([[set fillchars=vert:│]]) -- box drawings heavy vertical (U+2503, UTF-8: E2 94 83)
@@ -93,7 +93,7 @@ vim.g.netrw_sort_direction = "reverse"
 -- Searching
 vim.o.ignorecase = true -- searches are case insensitive...
 vim.o.smartcase = true -- ... unless they contain at least one capital letter
-vim.o.incsearch = 1 -- show the pattern matches while typing
+vim.o.incsearch = true -- show the pattern matches while typing
 
 -- cmdline autocomplete
 vim.o.wildignore = "**/*.egg-info,**/__pycache__,**/node_modules" -- ignore those pattern

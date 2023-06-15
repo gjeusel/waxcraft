@@ -9,6 +9,10 @@ vim.api.nvim_create_autocmd(
   { pattern = "*", command = "silent! mkview" }
 )
 
+-- When in diffmode, open all folds
+vim.cmd([[au OptionSet diff normal zR]])
+
+
 -- Python
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "python",
