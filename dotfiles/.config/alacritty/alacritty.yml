@@ -6,10 +6,11 @@ live_config_reload: true
 window:
   decorations: buttonless
   opacity: 0.9
+  # option_as_alt: Both
   # startup_mode: SimpleFullscreen
-  # padding:
-  #   x: 10
-  #   y: 8
+  padding:
+    x: 10
+    # y: 8
 
 font:
   size: 19.0
@@ -18,8 +19,20 @@ font:
   #   x: 1
   #   y: 2
   normal:
-    family: Consolas
+    family: Hack Nerd Font Mono
     style: Regular
+
+  bold:
+    family: Hack Nerd Font Mono
+    style: Bold
+
+  italic:
+    family: Hack Nerd Font Mono
+    style: Italic
+
+  bold_italic:
+    family: Hack Nerd Font Mono
+    style: Bold Italic
 
 mouse:
   hide_when_typing: true
@@ -29,6 +42,14 @@ cursor:
   style:
     shape: Block
     blinking: Never
+
+# selection:
+#   # This string contains all characters that are used as separators for "semantic words" in Alacritty.
+#   semantic_escape_chars: ",│`|:\"' ()[]{}<>\t"
+#   # When set to `true`, selected text will be copied to the primary clipboard.
+#   #save_to_clipboard: false
+
+semantic_escape_chars: ",│`|:\"' ()[]{}<>\t/"
 
 # To find escape sequences run `xxd -c1`
 # Example:
@@ -40,13 +61,13 @@ cursor:
 # Which becomes `\x1b\x64`
 
 key_bindings:
-  - { key: N, mods: Command, action: SpawnNewInstance }
-  - { key: Space, mods: Alt, chars: " " }
-  - { key: Back, mods: Super, chars: "\x15" } # delete word/line
+  - { key: N, mods: Command, action: SpawnNewInstance } # new window
   - { key: Left, mods: Alt, chars: "\x1bb" } # one word left
   - { key: Right, mods: Alt, chars: "\x1bf" } # one word right
-  - { key: Left, mods: Command, chars: "\x1bOH", mode: AppCursor } # Home
-  - { key: Right, mods: Command, chars: "\x1bOF", mode: AppCursor } # End
+  - { key: Back, mods: Alt, chars: "\x1b\x7f" } # delete word
+  # - { key: Back, mods: Alt, action: "^[^H]"  } # delete word/line
+  # - { key: Delete, chars: "\x1b[3~" }
+
 
 # Colors (Gruvbox dark)
 colors:
@@ -105,4 +126,3 @@ colors:
   #   - { index: 246, color: "#a89984" }
   #   - { index: 248, color: "#bdae93" }
   #   - { index: 250, color: "#d5c4a1" }
-
