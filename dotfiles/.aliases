@@ -127,47 +127,10 @@ alias meteo="curl https://v2.wttr.in/brussels"
 
 pylsp_deps() {
   # LSP
-  pip install -U python-lsp-server[rope] jedi
+  pip install -U python-lsp-server[rope] jedi pylsp-mypy mypy
   pip install -U ruff ruff-lsp
-  pip install --editable ~/src/mypygls/
 }
 
-# https://docs.npmjs.com/getting-started/fixing-npm-permissions
-comnpm() {
-  # AutoComplete
-  npm install -g\
-    tern
-    #flow-bin
-
-  # Fixers
-  npm install -g\
-    fixjson
-    #eslint
-
-  ## eslint plugins:
-  #npm install -g\
-  #  eslint-plugin-prettier \
-  #  eslint-config-prettier \
-  #  eslint-plugin-vue \
-  #  eslint-config-standard \
-  #  eslint-plugin-standard \
-  #  eslint-plugin-promise \
-  #  eslint-plugin-import \
-  #  eslint-plugin-html \
-  #  eslint-friendly-formatter \
-  #  eslint-plugin-node \
-  #  babel-eslint
-
-  npm install -g\
-    prettier
-
-  # Linters:
-  npm install -g\
-    alex \
-    write-good
-
-    #htlmhint
-}
 
 # Fuzzy finders
 vag() {

@@ -29,7 +29,8 @@ tcsh-backward-delete-word () {
   zle backward-delete-word
 }
 zle -N tcsh-backward-delete-word
-bindkey '^[^H' tcsh-backward-delete-word
+bindkey '^[^H' tcsh-backward-delete-word  # iterm2
+bindkey '\x1b\x7f' tcsh-backward-delete-word  # alacritty
 
 # delete char forward
 bindkey "^[[3~" delete-char

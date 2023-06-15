@@ -103,7 +103,7 @@ compinit -i -c -D
 
 # enable cache:
 zstyle ':completion:*' use-cache on
-zstyle ':completion:*' cache-path "${ZDOTDIR:-~}/.zcompcache"
+zstyle ':completion:*' cache-path "${ZDOTDIR:-$HOME}/.zcompcache"
 
 local _ignored_patterns=(
   '(|*/)__pycache__'
@@ -146,16 +146,16 @@ fi
 # https://getantidote.github.io/
 # brew install antidote
 
-if [[ (! -d ${ZDOTDIR:-~}/.antidote) && (( $+commands[git] )) ]]; then
-  git clone --depth=1 https://github.com/mattmc3/antidote.git ${ZDOTDIR:-~}/.antidote
+if [[ (! -d ${ZDOTDIR:-$HOME}/.antidote) && (( $+commands[git] )) ]]; then
+  git clone --depth=1 https://github.com/mattmc3/antidote.git ${ZDOTDIR:-$HOME}/.antidote
 fi
 
-source ${ZDOTDIR:-~}/.antidote/antidote.zsh
+source ${ZDOTDIR:-$HOME}/.antidote/antidote.zsh
 
 # # Static load, when change of plugins run:
 # antidote bundle < "$waxCraft_PATH/dotfiles/.zsh-plugins.txt" > ~/.zsh-plugins.zsh
-if [ -f ${ZDOTDIR:-~}/.zsh-plugins.zsh ]; then
-  source ${ZDOTDIR:-~}/.zsh-plugins.zsh
+if [ -f ${ZDOTDIR:-$HOME}/.zsh-plugins.zsh ]; then
+  source ${ZDOTDIR:-$HOME}/.zsh-plugins.zsh
 fi
 
 # Auto install tpm (tmux plugin)
