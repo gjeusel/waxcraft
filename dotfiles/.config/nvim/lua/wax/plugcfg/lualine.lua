@@ -111,6 +111,7 @@ require("lualine").setup({
         sections = { "error", "warn" },
         diagnostics_color = { error = "GruvboxBg3", warn = "GruvboxBg3" },
       },
+      "require('lsp-progress').progress()",
     },
     lualine_x = { relative_path },
     lualine_y = { "location", "progress" },

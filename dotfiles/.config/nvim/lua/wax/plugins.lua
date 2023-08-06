@@ -19,6 +19,7 @@ return {
   },
   { -- lualine
     "nvim-lualine/lualine.nvim",
+    dependencies = { "linrongbin16/lsp-progress.nvim" },
     lazy = false,
     config = function()
       require("wax.plugcfg.lualine")
@@ -694,7 +695,7 @@ return {
     opts = {
       panel = {
         enabled = true,
-        auto_refresh = false,
+        auto_refresh = true,
         keymap = {
           jump_prev = "[[",
           jump_next = "]]",
@@ -747,14 +748,8 @@ return {
     event = { "BufReadPre", "BufNewFile" },
     -- enabled = false,
     dependencies = {
+      { "linrongbin16/lsp-progress.nvim", opts = {} },
       { "folke/neodev.nvim", opts = { experimental = { pathStrict = true } } },
-      { -- fidget
-        "j-hui/fidget.nvim",
-        opts = {
-          align = { bottom = false, right = true },
-          window = { blend = 0, relative = "editor" },
-        },
-      },
       { -- mason
         "williamboman/mason.nvim",
         lazy = true,

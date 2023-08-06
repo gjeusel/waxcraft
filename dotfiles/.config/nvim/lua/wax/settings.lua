@@ -107,6 +107,10 @@ if vim.fn.has("clipboard") == 1 and vim.fn.has("unnamedplus") == 1 then
   vim.o.clipboard = "unnamedplus"
 end
 
+-- diffmode
+vim.cmd[[set diffopt+=linematch:800]]
+
+
 -- -- activate per project settings
 -- vim.o.exrc = true  -- allows loading local EXecuting local RC files
 -- vim.o.secure = true  -- disallows the use of :autocmd, shell and write commands in local

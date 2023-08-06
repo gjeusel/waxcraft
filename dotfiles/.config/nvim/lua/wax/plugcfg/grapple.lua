@@ -10,9 +10,8 @@ grapple.setup({
   log_level = loglevel,
 
   ---The scope used when creating, selecting, and deleting tags
-  -- scope = "git_branch",
-  scope = "git",
-  -- scope = "static",
+  -- scope = "git",
+  scope = "lsp",
 
   ---Window options used for the popup menu
   popup_options = {
