@@ -44,7 +44,7 @@ return {
           },
         },
         pylsp_mypy = {
-          enabled = true,
+          enabled = false,
           live_mode = false,
           dmypy = false,
           report_progress = false,
