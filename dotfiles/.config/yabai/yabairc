@@ -39,11 +39,6 @@ yabai -m config mouse_drop_action            swap
 yabai -m config mouse_follows_focus          off
 yabai -m config focus_follows_mouse          off
 
-# general space settings
-yabai -m config layout                       bsp
-yabai -m config --space 1 layout             stack
-yabai -m config --space 3 layout             stack
-
 yabai -m config bottom_padding               0
 yabai -m config left_padding                 0
 yabai -m config right_padding                0
@@ -53,24 +48,37 @@ yabai -m config window_gap                   0
 
 # Setup preferences on spaces
 
+# general space settings
+yabai -m config layout                       bsp
+yabai -m config --space 1 layout             stack
+yabai -m config --space 3 layout             stack
+yabai -m config --space 5 layout             stack
+
 # Space labels
 yabai -m space 1 --label "Misc"
 yabai -m space 2 --label "Code"
 yabai -m space 3 --label "Browser"
 yabai -m space 4 --label "Social"
+yabai -m space 5 --label "Business"
 
 # Misc
 yabai -m rule --add app="Finder" space="Misc"
 yabai -m rule --add app="Spotify" space="Misc"
+yabai -m rule --add app="Youtube Music Desktop App" space="Misc"
 yabai -m rule --add app="Activity Monitor" space="Misc"
 yabai -m rule --add app="Bitwarden" space="Misc"
 yabai -m rule --add app="Notion" space="Misc"
 yabai -m rule --add app="Cron" space="Misc"
 yabai -m rule --add app="Calendar" space="Misc"
 yabai -m rule --add app="FaceTime" space="Misc"
+yabai -m rule --add app="App Store" space="Misc"
 
 # Browser
-yabai -m rule --add app="Brave" space="Browser"
+yabai -m rule --add app="Brave Browser" space="Browser"
+yabai -m rule --add app="Firefox" space="Browser"
+yabai -m rule --add app="Chromium" space="Browser"
+yabai -m rule --add app="Safari" space="Browser"
+yabai -m rule --add app="Arc" pace="Browser"
 
 # Programming
 yabai -m rule --add app="Alacritty" space="Code"
@@ -80,12 +88,34 @@ yabai -m rule --add app="iTerm2" space="Code"
 # Social
 yabai -m rule --add app="Discord" space="Social"
 yabai -m rule --add app="Slack" space="Social"
-yabai -m rule --add app="Spark" space="Social"
 yabai -m rule --add app="Messages" space="Social"
+yabai -m rule --add app="Messenger" space="Social"
+
+# Business
+yabai -m rule --add app="Spark" space="Business"
+yabai -m rule --add app="Microsoft Excel" space="Business"
 
 # Make all non-resizable window float (https://github.com/koekeishiya/yabai/issues/1317)
 yabai -m signal --add event=window_created action='yabai -m query --windows --window $YABAI_WINDOW_ID | jq -er ".\"can-resize\" or .\"is-floating\"" || yabai -m window $YABAI_WINDOW_ID --toggle float'
 
 # yabai -m signal --add event=window_created label="Misc" action='yabai -m window --toggle zoom-fullscreen --window $YABAI_WINDOW_ID'
+
+yabai -m rule --add label="Raycast" app="Raycast" manage=off
+yabai -m rule --add label="System Preferences" app="System Preferences" manage=off
+yabai -m rule --add label="System Settings" app="System Settings" manage=off
+yabai -m rule --add label="Software Update" title="Software Update" manage=off
+# yabai -m rule --add label="Safari" app="Brave Browser" title="^(General|(Tab|Password|Website|Extension)s|AutoFill|Se(arch|curity)|Privacy|Advance)$" manage=off
+yabai -m rule --add title="Slack.*Appel.*" manage=off space="Misc"
+
+yabai -m rule --add label="Arc" title="Shortcuts" manage=off
+yabai -m rule --add label="Arc" title="Little Arc.*" manage=off
+
+yabai -m rule --add label="FaceTime" app="FaceTime" manage=off
+
+# any non-resizable set to not managed
+# https://github.com/koekeishiya/yabai/issues/1317
+yabai -m signal --add event=window_created action='yabai -m query --windows --window $YABAI_WINDOW_ID | jq -er ".\"can-resize\" or .\"is-floating\"" || yabai -m window $YABAI_WINDOW_ID --toggle float'
+
+
 
 echo "yabai configuration loaded.."
