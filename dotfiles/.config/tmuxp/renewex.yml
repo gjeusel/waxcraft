@@ -49,11 +49,11 @@ windows:
         focus: true
       -
 
-  - window_name: peregreen
+  - window_name: squamish
     layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
     shell_command_before:
-      - act peregreen
-      - cd ~/src/peregreen
+      - act squamish
+      - cd ~/src/squamish
     panes:
       - shell_command:
           - neofetch
