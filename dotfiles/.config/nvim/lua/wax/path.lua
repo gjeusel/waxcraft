@@ -121,7 +121,11 @@ end
 ---@return Wax.Path[]
 function Path:glob(pattern)
   local glob_path = self.path .. "/" .. pattern
-  local files = vim.fn.glob(glob_path, true, true)
+
+  -- https://github.com/nvim-telescope/telescope.nvim/pull/2345/files
+  local glob_path_sain = vim.fn.escape(glob_path, "?*[]")
+
+  local files = vim.fn.glob(glob_path_sain, true, true)
   return vim.tbl_map(function(file)
     return Path:new(file)
   end, files)

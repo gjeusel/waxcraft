@@ -57,7 +57,7 @@ local source_rg = {
   option = {
     -- only trigger rg if find a git workspace
     cwd = function()
-      local cwd = find_root_dir(vim.fn.expand("%:p"))
+      local cwd = find_root_dir(vim.api.nvim_buf_get_name(0))
       if cwd == vim.env.HOME then
         return nil
       else

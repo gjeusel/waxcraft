@@ -18,13 +18,13 @@ return {
     "vsetup",
     fmt(
       [[
-        <template>
-          <div />
-        </template>
-
         <script setup lang="ts">
         const props = defineProps<{[0]}>()
         </script>
+
+        <template>
+          <div />
+        </template>
       ]],
       { [0] = i(0, "") },
       opts

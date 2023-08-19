@@ -1,9 +1,21 @@
 local grapple = require("grapple")
+local scope_resolvers = require("grapple.scope_resolvers")
+local scope = require("grapple.scope")
 
 local loglevel = waxopts.loglevel
 if loglevel == "trace" then
   loglevel = "debug"
 end
+
+scope_resolvers.workspace_fallback = scope.resolver(function()
+  local clients = vim.lsp.get_active_clients({ bufnr = 0 })
+  if #clients > 0 then
+    local client = clients[1]
+    return find_workspace_name(client.config.root_dir)
+  end
+
+  return find_workspace_name(vim.fn.getcwd()) or vim.fn.getcwd()
+end, { cache = { "FileType", "BufEnter", "FocusGained" } })
 
 grapple.setup({
   ---@type "debug" | "info" | "warn" | "error"
@@ -11,7 +23,8 @@ grapple.setup({
 
   ---The scope used when creating, selecting, and deleting tags
   -- scope = "git",
-  scope = "lsp",
+  -- scope = "lsp",
+  scope = scope.fallback({ "workspace_fallback", "static" }),
 
   ---Window options used for the popup menu
   popup_options = {

@@ -20,9 +20,26 @@ local eslint_filetypes = {
   "vue",
   "svelte",
 }
-local eslint_cfg = {
+
+-- local eslint_cfg = {
+--   filetypes = eslint_filetypes,
+--   -- dynamic_command = cmd_resolver.from_node_modules(),
+-- }
+local eslint_d_cfg = {
   filetypes = eslint_filetypes,
-  dynamic_command = cmd_resolver.from_node_modules(),
+  -- dynamic_command = cmd_resolver.from_node_modules(),
+  -- extra_args = function(_)
+  --   local root_dir = find_root_dir()
+  --   if root_dir then
+  --     local node_bin_dir = root_dir .. "/node_modules/.bin"
+  --     local eslint_path = node_bin_dir .. "/eslint"
+  --     -- local node_resolver = cmd_resolver.generic()
+  --     -- local eslint_path = node_resolver(vim.tbl_extend("force", params, { command = "eslint" }))
+  --     log.warn("Found eslint path at ", eslint_path)
+  --     return { "--eslint-path", eslint_path, "--resolve-plugins-relative-to", node_bin_dir }
+  --   end
+  --   return {}
+  -- end,
 }
 
 local prettier_filetypes = vim.list_extend(vim.deepcopy(eslint_filetypes), { "yaml" })
@@ -72,8 +89,8 @@ local sources = {
   builtins.formatting.prettierd.with(prettier_cfg),
 
   -- builtins.code_actions.eslint_d,
-  builtins.diagnostics.eslint_d.with(eslint_cfg),
-  builtins.formatting.eslint_d.with(eslint_cfg),
+  builtins.diagnostics.eslint_d.with(eslint_d_cfg),
+  builtins.formatting.eslint_d.with(eslint_d_cfg),
   -- builtins.diagnostics.eslint.with(eslint_cfg),
   -- builtins.formatting.eslint.with(eslint_cfg),
 
