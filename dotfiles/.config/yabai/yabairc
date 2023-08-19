@@ -60,6 +60,7 @@ yabai -m space 2 --label "Code"
 yabai -m space 3 --label "Browser"
 yabai -m space 4 --label "Social"
 yabai -m space 5 --label "Business"
+yabai -m space 6 --label "MiscBis"
 
 # Misc
 yabai -m rule --add app="Finder" space="Misc"
@@ -74,7 +75,6 @@ yabai -m rule --add app="FaceTime" space="Misc"
 yabai -m rule --add app="App Store" space="Misc"
 
 # Browser
-yabai -m rule --add app="Brave Browser" space="Browser"
 yabai -m rule --add app="Firefox" space="Browser"
 yabai -m rule --add app="Chromium" space="Browser"
 yabai -m rule --add app="Safari" space="Browser"
@@ -94,6 +94,9 @@ yabai -m rule --add app="Messenger" space="Social"
 # Business
 yabai -m rule --add app="Spark" space="Business"
 yabai -m rule --add app="Microsoft Excel" space="Business"
+
+# MiscBis
+yabai -m rule --add app="Brave Browser" space="MiscBis"
 
 # Make all non-resizable window float (https://github.com/koekeishiya/yabai/issues/1317)
 yabai -m signal --add event=window_created action='yabai -m query --windows --window $YABAI_WINDOW_ID | jq -er ".\"can-resize\" or .\"is-floating\"" || yabai -m window $YABAI_WINDOW_ID --toggle float'
