@@ -48,13 +48,13 @@ vim.api.nvim_create_autocmd("FileType", {
   pattern = { "vue", "svelte", "typescript", "javascript", "typescriptreact", "javascriptreact", "html" },
   callback = function()
     vim.keymap.set("n", "<leader>o", function()
-      utils.insert_new_line_in_current_buffer("debugger  // BREAKPOINT")
+      utils.insert_new_line_in_current_buffer("debugger // BREAKPOINT")
     end, {
       buffer = 0,
       desc = "Insert debugger breakpoint below.",
     })
     vim.keymap.set("n", "<leader>O", function()
-      utils.insert_new_line_in_current_buffer("debugger  // BREAKPOINT", { delta = 0 })
+      utils.insert_new_line_in_current_buffer("debugger // BREAKPOINT", { delta = 0 })
     end, {
       buffer = 0,
       desc = "Insert debugger breakpoint above.",
@@ -62,22 +62,22 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
--- Fix Html like mini.ai
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = { "jinja.html", "html", "vue" },
-  callback = function()
-    -- Solve issue on mini ai with nested html tags
-    -- https://github.com/echasnovski/mini.nvim/issues/110
-    if is_module_available("mini.ai") then
-      local spec_treesitter = require("mini.ai").gen_spec.treesitter
-      vim.b.miniai_config = {
-        custom_textobjects = {
-          t = spec_treesitter({ a = "@function.outer", i = "@function.inner" }),
-        },
-      }
-    end
-  end,
-})
+-- -- Fix Html like mini.ai
+-- vim.api.nvim_create_autocmd("FileType", {
+--   pattern = { "jinja.html", "html", "vue" },
+--   callback = function()
+--     -- Solve issue on mini ai with nested html tags
+--     -- https://github.com/echasnovski/mini.nvim/issues/110
+--     if is_module_available("mini.ai") then
+--       local spec_treesitter = require("mini.ai").gen_spec.treesitter
+--       vim.b.miniai_config = {
+--         custom_textobjects = {
+--           t = spec_treesitter({ a = "@function.outer", i = "@function.inner" }),
+--         },
+--       }
+--     end
+--   end,
+-- })
 
 -- -- Can't use after file for jinja.html filetype
 -- vim.api.nvim_create_autocmd("FileType", {

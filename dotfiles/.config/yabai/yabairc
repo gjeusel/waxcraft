@@ -96,7 +96,7 @@ yabai -m rule --add app="Spark" space="Business"
 yabai -m rule --add app="Microsoft Excel" space="Business"
 
 # MiscBis
-yabai -m rule --add app="Brave Browser" space="MiscBis"
+# yabai -m rule --add app="Brave Browser" space="MiscBis"
 
 # Make all non-resizable window float (https://github.com/koekeishiya/yabai/issues/1317)
 yabai -m signal --add event=window_created action='yabai -m query --windows --window $YABAI_WINDOW_ID | jq -er ".\"can-resize\" or .\"is-floating\"" || yabai -m window $YABAI_WINDOW_ID --toggle float'

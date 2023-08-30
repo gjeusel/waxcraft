@@ -164,6 +164,20 @@ return {
         end)
       end,
     },
+    keys = {
+      {
+        "<leader>gh",
+        "<cmd>Gdiff head<cr>",
+        desc = "Open Git diff on HEAD",
+        mode = "n",
+      },
+      {
+        "<leader>gm",
+        "<cmd>Gdiff main<cr>",
+        desc = "Open Git diff on main",
+        mode = "n",
+      },
+    },
     config = function(_, opts)
       local gs = require("gitsigns")
       gs.setup(opts)
@@ -332,6 +346,10 @@ return {
 
             ["ie"] = "@block.inner",
             ["ae"] = "@block.outer",
+
+            -- -- html tags:
+            -- ["at"] = "@function.outer",
+            -- ["it"] = "@function.inner",
           },
         },
         move = {
@@ -462,17 +480,17 @@ return {
         mode = "n",
       },
       {
-        "<leader>gh",
+        "<leader>gH",
         "<cmd>DiffviewFileHistory %<cr>",
         desc = "Open diffview history on current file",
         mode = "n",
       },
-      {
-        "<leader>gH",
-        "<cmd>DiffviewFileHistory<cr>",
-        desc = "Open diffview history on repository",
-        mode = "n",
-      },
+      -- {
+      --   "<leader>gH",
+      --   "<cmd>DiffviewFileHistory<cr>",
+      --   desc = "Open diffview history on repository",
+      --   mode = "n",
+      -- },
       {
         "<leader>gf",
         function()
@@ -623,11 +641,37 @@ return {
     "echasnovski/mini.ai",
     dependencies = { "echasnovski/mini.nvim", "nvim-treesitter-textobjects" },
     event = "VeryLazy",
+    enabled = function()
+      -- https://github.com/echasnovski/mini.nvim/issues/110
+      local filetype = vim.api.nvim_buf_get_option(0, "filetype")
+      local frontend_fts =
+        { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue" }
+      if vim.tbl_contains(frontend_fts, filetype) then
+        return false
+      else
+        return true
+      end
+    end,
     opts = function()
       local ai = require("mini.ai")
       return {
         search_method = "cover_or_nearest",
         n_lines = 500,
+        mappings = {
+          -- Main textobject prefixes
+          around = "a",
+          inside = "i",
+
+          -- Next/last variants
+          around_next = "an",
+          inside_next = "in",
+          around_last = "al",
+          inside_last = "il",
+
+          -- Move cursor to corresponding edge of `a` textobject
+          goto_left = "g[",
+          goto_right = "g]",
+        },
         custom_textobjects = {
           o = ai.gen_spec.treesitter({
             a = { "@block.outer", "@conditional.outer", "@loop.outer" },
@@ -635,6 +679,8 @@ return {
           }, {}),
           f = ai.gen_spec.treesitter({ a = "@function.outer", i = "@function.inner" }, {}),
           c = ai.gen_spec.treesitter({ a = "@class.outer", i = "@class.inner" }, {}),
+          -- html tags: https://github.com/echasnovski/mini.nvim/issues/110
+          t = ai.gen_spec.treesitter({ a = "@function.outer", i = "@function.inner" }, {}),
         },
       }
     end,

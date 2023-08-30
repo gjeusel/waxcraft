@@ -22,6 +22,9 @@ return {
     package_json = "https://github.com/johnsoncodehk/volar/blob/5496c1ecc0ae6207d6fa7da745f047c44c32db81/extensions/vscode-vue-language-features/package.json",
   },
   settings = {
+    -- typescript = {
+    --   suggest = { autoImports = false },
+    -- },
     volar = {
       autoCompleteRefs = true,
       codelens = {

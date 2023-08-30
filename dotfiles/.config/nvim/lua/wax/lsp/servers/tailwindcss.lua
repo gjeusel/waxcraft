@@ -69,9 +69,14 @@ return {
       includeLanguages = {
         ["jinja.html"] = "html",
       },
-      -- experimental = {
-      --   configFile = "../../../scripts/weasytail/tailwind.config.js",
-      -- },
+      classAttributes = { "class", "className", "ngClass", "ui" },
+      experimental = {
+        classRegex = {
+          { "ui:\\s*{([^)]*)\\s*}", "[\"'`]([^\"'`]*).*?[\"'`]" },
+          { "/\\* ui \\*/\\s*{([^;]*)}", ":\\s*[\"'`]([^\"'`]*).*?[\"'`]" },
+        },
+        -- configFile = "../../../scripts/weasytail/tailwind.config.js",
+      },
     },
   },
 }
