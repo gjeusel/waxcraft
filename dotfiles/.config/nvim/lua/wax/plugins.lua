@@ -347,9 +347,9 @@ return {
             ["ie"] = "@block.inner",
             ["ae"] = "@block.outer",
 
-            -- -- html tags:
-            -- ["at"] = "@function.outer",
-            -- ["it"] = "@function.inner",
+            -- html tags:
+            ["at"] = "@class.outer",
+            ["it"] = "@class.inner",
           },
         },
         move = {
@@ -395,6 +395,9 @@ return {
       -- 'windwp/nvim-ts-autotag'  -- auto close/rename html tags
       autotag = {
         enable = true,
+        enable_rename = false,
+        enable_close = true,
+        enable_close_on_slash = false,
         filetypes = {
           "html",
           "jinja.html", -- custom add
@@ -641,17 +644,7 @@ return {
     "echasnovski/mini.ai",
     dependencies = { "echasnovski/mini.nvim", "nvim-treesitter-textobjects" },
     event = "VeryLazy",
-    enabled = function()
-      -- https://github.com/echasnovski/mini.nvim/issues/110
-      local filetype = vim.api.nvim_buf_get_option(0, "filetype")
-      local frontend_fts =
-        { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue" }
-      if vim.tbl_contains(frontend_fts, filetype) then
-        return false
-      else
-        return true
-      end
-    end,
+    ft = { "python", "typescript" },
     opts = function()
       local ai = require("mini.ai")
       return {

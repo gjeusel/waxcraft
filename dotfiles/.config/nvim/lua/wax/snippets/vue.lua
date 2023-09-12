@@ -15,7 +15,7 @@ local tags = { t("div"), t("p"), t("span") }
 return {
   -- Setup
   s(
-    "vsetup",
+    "vcomponent",
     fmt(
       [[
         <script setup lang="ts">
@@ -23,13 +23,43 @@ return {
         </script>
 
         <template>
-          <div />
         </template>
       ]],
       { [0] = i(0, "") },
       opts
     )
   ),
+  s(
+    "vpage",
+    fmt(
+      [[
+        <script setup lang="ts">
+        definePageMeta({
+          title: "[0]",
+        })
+        </script>
+
+        <template>
+        </template>
+      ]],
+      { [0] = i(0, "") },
+      opts
+    )
+  ),
+  s(
+    "iscript",
+    fmt(
+      [[
+        <script setup lang="ts">
+        [0]
+        </script>
+      ]],
+      { [0] = i(0, "") },
+      opts
+    )
+  ),
+  s("iimport", fmt([[import { [0] } from "#imports"]], { [0] = i(0, "") }, opts)),
+
   s(
     "vstyle",
     fmt(
@@ -123,4 +153,7 @@ return {
       opts
     )
   ),
+
+  -- Debug / Dev
+  s("pjson", fmt([[<pre>{{JSON.stringify([0])}}</pre>]], { [0] = i(0, "") }, opts)),
 }
