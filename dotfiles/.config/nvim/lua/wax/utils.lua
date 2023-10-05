@@ -180,7 +180,7 @@ function _G.get_os_command_output(cmd, cwd)
     return {}, 0, {}
   end
 
-  cwd = cwd or vim.loop.cwd()
+  cwd = cwd or vim.uv.cwd()
   local Job = require("plenary.job")
 
   local command = table.remove(cmd, 1)
@@ -213,7 +213,7 @@ _G.find_root_dir = wax_cache_fn(
   function(path, patterns)
     local default_patterns = { ".git" }
     patterns = patterns or default_patterns
-    path = path or vim.loop.cwd()
+    path = path or vim.uv.cwd()
     local root_dir = Path:new(path):find_root_dir(patterns)
     if root_dir ~= nil then
       return root_dir.path

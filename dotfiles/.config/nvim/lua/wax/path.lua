@@ -1,5 +1,3 @@
-local uv = vim.loop
-
 ---@class Wax.Path
 ---@field path string
 
@@ -75,12 +73,12 @@ end
 ---@return Wax.Path[]
 function Path:ls()
   local paths = {}
-  local handle = uv.fs_scandir(self.path)
+  local handle = vim.uv.fs_scandir(self.path)
   if not handle then
     return paths
   end
   while true do
-    local name, _type = uv.fs_scandir_next(handle)
+    local name, _type = vim.uv.fs_scandir_next(handle)
     if not name then
       break
     end

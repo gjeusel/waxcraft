@@ -423,6 +423,7 @@ return {
       require("nvim-treesitter.configs").setup(opts)
     end,
   },
+
   { -- hlslens
     "kevinhwang91/nvim-hlslens",
     event = "VeryLazy",
