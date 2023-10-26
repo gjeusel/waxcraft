@@ -107,7 +107,7 @@ function M.run_in_pane(cmd)
   local args = { "send-keys", "-t", target_pane, table.concat(cmd, " "), TMUXKeys.enter }
 
   local handle
-  handle, _ = vim.uv.spawn("tmux", { args = args }, function(code)
+  handle, _ = vim.loop.spawn("tmux", { args = args }, function(code)
     handle:close()
     if code ~= 0 then
       vim.notify(

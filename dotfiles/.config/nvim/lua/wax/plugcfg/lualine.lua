@@ -92,7 +92,9 @@ require("lualine").setup({
   -- | A | B | C                             X | Y | Z |
   -- +-------------------------------------------------+
   sections = {
-    lualine_a = { { "mode", fmt = fmt_mode } },
+    lualine_a = {
+      { "mode", fmt = fmt_mode }
+    },
     lualine_b = {
       workspace_name,
       { "branch", fmt = trunc(120, 12, 60) },

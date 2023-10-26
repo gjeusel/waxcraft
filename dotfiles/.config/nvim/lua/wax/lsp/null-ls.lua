@@ -90,7 +90,7 @@ local sources = {
 
   -- builtins.code_actions.eslint_d,
   builtins.diagnostics.eslint_d.with(eslint_d_cfg),
-  builtins.formatting.eslint_d.with(eslint_d_cfg),
+  -- builtins.formatting.eslint_d.with(eslint_d_cfg),
   -- builtins.diagnostics.eslint.with(eslint_cfg),
   -- builtins.formatting.eslint.with(eslint_cfg),
 
