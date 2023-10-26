@@ -348,8 +348,8 @@ return {
             ["ae"] = "@block.outer",
 
             -- html tags:
-            ["at"] = "@class.outer",
-            ["it"] = "@class.inner",
+            ["at"] = "@function.outer",
+            ["it"] = "@function.inner",
           },
         },
         move = {
@@ -645,7 +645,7 @@ return {
     "echasnovski/mini.ai",
     dependencies = { "echasnovski/mini.nvim", "nvim-treesitter-textobjects" },
     event = "VeryLazy",
-    ft = { "python", "typescript" },
+    -- ft = { "python", "typescript", "vue" },
     opts = function()
       local ai = require("mini.ai")
       return {
@@ -673,8 +673,6 @@ return {
           }, {}),
           f = ai.gen_spec.treesitter({ a = "@function.outer", i = "@function.inner" }, {}),
           c = ai.gen_spec.treesitter({ a = "@class.outer", i = "@class.inner" }, {}),
-          -- html tags: https://github.com/echasnovski/mini.nvim/issues/110
-          t = ai.gen_spec.treesitter({ a = "@function.outer", i = "@function.inner" }, {}),
         },
       }
     end,
