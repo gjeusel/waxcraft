@@ -51,7 +51,7 @@ yabai -m config window_gap                   0
 # general space settings
 yabai -m config layout                       bsp
 yabai -m config --space 1 layout             stack
-yabai -m config --space 3 layout             stack
+yabai -m config --space 3 layout             bsp
 yabai -m config --space 5 layout             stack
 
 # Space labels
@@ -95,9 +95,6 @@ yabai -m rule --add app="Messenger" space="Social"
 yabai -m rule --add app="Spark" space="Business"
 yabai -m rule --add app="Microsoft Excel" space="Business"
 
-# MiscBis
-# yabai -m rule --add app="Brave Browser" space="MiscBis"
-
 # Make all non-resizable window float (https://github.com/koekeishiya/yabai/issues/1317)
 yabai -m signal --add event=window_created action='yabai -m query --windows --window $YABAI_WINDOW_ID | jq -er ".\"can-resize\" or .\"is-floating\"" || yabai -m window $YABAI_WINDOW_ID --toggle float'
 
@@ -107,8 +104,7 @@ yabai -m rule --add label="Raycast" app="Raycast" manage=off
 yabai -m rule --add label="System Preferences" app="System Preferences" manage=off
 yabai -m rule --add label="System Settings" app="System Settings" manage=off
 yabai -m rule --add label="Software Update" title="Software Update" manage=off
-# yabai -m rule --add label="Safari" app="Brave Browser" title="^(General|(Tab|Password|Website|Extension)s|AutoFill|Se(arch|curity)|Privacy|Advance)$" manage=off
-yabai -m rule --add title="Slack.*Appel.*" manage=off space="Misc"
+yabai -m rule --add title=".*Appel.*avec" manage=off space="Misc"
 
 yabai -m rule --add label="Arc" title="Shortcuts" manage=off
 yabai -m rule --add label="Arc" title="Little Arc.*" manage=off
