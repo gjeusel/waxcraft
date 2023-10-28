@@ -20,7 +20,7 @@ scope_resolvers.workspace_fallback = scope.resolver(function()
       path = find_root_dir(vim.fn.getcwd()) or vim.fn.getcwd()
     end
 
-    vim_session_scope = find_root_dir(path)
+    vim_session_scope = path
   end
 
   return vim_session_scope
