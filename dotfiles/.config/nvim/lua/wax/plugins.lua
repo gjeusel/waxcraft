@@ -611,6 +611,7 @@ return {
   },
   { -- grapple
     "cbochs/grapple.nvim",
+    -- dev = true, -- use "~/src/grapple.nvim/"
     lazy = false,
     config = function()
       require("wax.plugcfg.grapple")
@@ -765,7 +766,7 @@ return {
     },
   },
   { -- null-ls
-    "jose-elias-alvarez/null-ls.nvim",
+    "nvimtools/none-ls.nvim",
     event = { "BufReadPre", "BufNewFile" },
     dependencies = { "nvim-lua/plenary.nvim" }, -- used for python-utils
     config = function()

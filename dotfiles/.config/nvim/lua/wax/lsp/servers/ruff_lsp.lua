@@ -7,6 +7,11 @@ return {
     interpreter = { python_utils.get_python_path() },
     organizeImports = false,
   },
+  on_attach = function(client, _)
+    -- formatting is done by null-ls
+    client.server_capabilities.documentFormattingProvider = false
+    client.server_capabilities.documentRangeFormattingProvider = false
+  end,
   on_new_config = function(config, new_workspace)
     local python_path = python_utils.get_python_path(new_workspace, "python")
     local new_workspace_name = to_workspace_name(new_workspace)

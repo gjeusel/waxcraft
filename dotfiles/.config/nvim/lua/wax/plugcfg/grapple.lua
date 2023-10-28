@@ -7,14 +7,23 @@ if loglevel == "trace" then
   loglevel = "debug"
 end
 
+local vim_session_scope = nil
+
 scope_resolvers.workspace_fallback = scope.resolver(function()
-  local clients = vim.lsp.get_active_clients({ bufnr = 0 })
-  if #clients > 0 then
-    local client = clients[1]
-    return find_workspace_name(client.config.root_dir)
+  if not vim_session_scope then
+    local path
+
+    local clients = vim.lsp.get_active_clients({ bufnr = 0 })
+    if #clients > 0 then
+      path = clients[1].config.root_dir
+    else
+      path = find_root_dir(vim.fn.getcwd()) or vim.fn.getcwd()
+    end
+
+    vim_session_scope = find_root_dir(path)
   end
 
-  return find_workspace_name(vim.fn.getcwd()) or vim.fn.getcwd()
+  return vim_session_scope
 end, { cache = { "FileType", "BufEnter", "FocusGained" } })
 
 grapple.setup({
@@ -62,8 +71,8 @@ local function orderby_grapple_tags()
   local grapple_state = require("grapple.state")
   local grapple_settings = require("grapple.settings")
 
-  local scope = grapple_state.ensure_loaded(grapple_settings.scope)
-  local state_scope = grapple_state.scope(scope)
+  local actual_scope = grapple_state.ensure_loaded(grapple_settings.scope)
+  local state_scope = grapple_state.scope(actual_scope)
 
   if vim.tbl_count(state_scope) == 0 then
     return

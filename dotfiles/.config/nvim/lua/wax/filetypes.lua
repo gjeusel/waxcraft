@@ -17,7 +17,7 @@ vim.filetype.add({
     ["html"] = function(_, bufnr)
       local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, true)
       local content = table.concat(lines, "\n")
-      if vim.filetype.matchregex(content, jinja_regex) then
+      if vim.regex(jinja_regex):match_str(content) then
         return "jinja.html"
       else
         return "html"
