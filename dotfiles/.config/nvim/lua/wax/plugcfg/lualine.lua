@@ -93,38 +93,40 @@ require("lualine").setup({
   -- +-------------------------------------------------+
   sections = {
     lualine_a = {
-      { "mode", fmt = fmt_mode }
+      -- { "mode", fmt = fmt_mode }
     },
     lualine_b = {
-      workspace_name,
-      { "branch", fmt = trunc(120, 12, 60) },
-      { -- git diff in numbers of lines
-        "diff",
-        colored = false,
-        symbols = { added = "+", modified = "~", removed = "-" }, -- Changes the symbols used by the diff.
-      },
+      -- workspace_name,
+      -- { "branch", fmt = trunc(120, 12, 60) },
     },
     lualine_c = {
-      "spell",
-      "readonly",
-      "modified",
-      { -- Displays diagnostics for the defined severity types
-        "diagnostics",
-        sections = { "error", "warn" },
-        diagnostics_color = { error = "GruvboxBg3", warn = "GruvboxBg3" },
-      },
-      "require('lsp-progress').progress()",
+      -- "require('lsp-progress').progress()",
     },
     lualine_x = { relative_path },
-    lualine_y = { "location", "progress" },
-    lualine_z = { filetype },
+    lualine_y = {
+      -- { -- git diff in numbers of lines
+      --   "diff",
+      --   colored = false,
+      --   symbols = { added = "+", modified = "~", removed = "-" }, -- Changes the symbols used by the diff.
+      -- },
+      -- { -- Displays diagnostics for the defined severity types
+      --   "diagnostics",
+      --   sections = { "error", "warn" },
+      --   diagnostics_color = { error = "GruvboxBg3", warn = "GruvboxBg3" },
+      -- },
+      "location",
+      "progress",
+    },
+    lualine_z = {
+      -- filetype,
+    },
   },
   inactive_sections = {
     lualine_a = {},
     lualine_b = {},
-    lualine_c = { relative_path },
-    lualine_x = { "location" },
-    lualine_y = {},
+    lualine_c = {},
+    lualine_x = { relative_path },
+    lualine_y = { "location", "progress" },
     lualine_z = {},
   },
   tabline = {},
