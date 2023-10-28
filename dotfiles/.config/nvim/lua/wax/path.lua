@@ -13,7 +13,7 @@ function Path:new(path)
     path = path.path
   end
   if type(path) ~= "string" then
-    error(("Tried to instantiate a Path using a '%s' type"):format(type(path)))
+    error(("Tried to instantiate a Path using a '%s' type"):format(type(path)), 2)
   end
   local obj = { path = path }
   setmetatable(obj, self)

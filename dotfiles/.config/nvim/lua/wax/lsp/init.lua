@@ -116,8 +116,11 @@ local Path = require("wax.path")
 local function create_mason_handlers()
   -- Generate capabilities
   local capabilities = vim.lsp.protocol.make_client_capabilities()
-  capabilities.textDocument.completion =
-    require("cmp_nvim_lsp").default_capabilities({}).textDocument.completion
+
+  if is_module_available("cmp_nvim_lsp") then
+    capabilities.textDocument.completion =
+      require("cmp_nvim_lsp").default_capabilities({}).textDocument.completion
+  end
 
   local handlers = {}
 

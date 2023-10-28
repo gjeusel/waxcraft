@@ -36,7 +36,7 @@ local find_python_cmd = wax_cache_fn(function(workspace, cmd)
     end
 
     -- Check for any virtualenv named like the project
-    if Path.new(workspace):join("poetry.lock"):exists() then
+    if Path:new(workspace):join("poetry.lock"):exists() then
       local poetry_venv_path = M.basepath_poetry_venv:glob(pattern)
       if #poetry_venv_path >= 1 then
         return poetry_venv_path[1]:join("bin", cmd):absolute()
