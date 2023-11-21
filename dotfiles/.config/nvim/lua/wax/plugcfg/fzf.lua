@@ -13,6 +13,9 @@ fzf_lua.setup({
   winopts = {
     height = 0.8,
     width = 0.9,
+    preview = {
+      flip_columns = 200, -- #cols to switch to horizontal on flex
+    },
   },
   fzf_opts = {
     ["--cycle"] = "", -- enable cycling
@@ -42,7 +45,8 @@ fzf_lua.setup({
     show_cwd_header = false,
     rg_opts = table.concat({
       "--hidden --column --line-number --no-heading --color=always --smart-case",
-      "--glob '!{.git,.vscode}/*' --glob '!{package-lock.json,*.svg,*weasytail.min.css}'",
+      "--glob '!{.git,.vscode}/*'",
+      "--glob '!{*.svg,*.min.css,pnpm-lock.yaml,package-lock.json}'",
     }, " "),
   },
 })
@@ -161,7 +165,7 @@ end
 
 local function rg_files(rg_opts)
   local ignore_dirs = { ".git", ".*_cache", "postgres-data", "edgedb-data", "__pycache__" }
-  local ignore_files = { "weasytail.min.css" }
+  local ignore_files = { "*.min.css" }
 
   local ignore_arg = ("--glob '!{%s}' --glob '!{%s}'"):format(
     table.concat(ignore_dirs, ","),

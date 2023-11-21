@@ -1,12 +1,33 @@
--- local tsdk = vim.env.HOME .. "/.volta/tools/shared/typescript/lib"
-
+-- https://github.com/vuejs/language-tools/blob/20d713b/packages/shared/src/types.ts
 local init_options = {
-  petiteVue = { processHtmlFile = false },
-  vitePress = { processMdFile = false },
-  -- typescript = { tsdk = tsdk },
-  -- serverMode = 0, --
-  ignoreTriggerCharacters = "",
-  -- textDocumentSync = 2,
+  languageFeatures = {
+    references = true,
+    implementation = true,
+    definition = true,
+    typeDefinition = true,
+    callHierarchy = true,
+    hover = true,
+    rename = true,
+    renameFileRefactoring = true,
+    signatureHelp = true,
+    documentHighlight = false,
+    documentLink = false,
+    workspaceSymbol = true,
+    codeLens = false,
+    semanticTokens = false,
+    codeAction = true,
+    inlayHints = false,
+    diagnostics = true,
+    schemaRequestService = false,
+  },
+  documentFeatures = {
+    selectionRange = false,
+    foldingRange = false,
+    linkedEditingRange = false,
+    documentSymbol = true,
+    documentColor = false,
+    documentFormatting = false,
+  },
 }
 
 return {
@@ -42,9 +63,5 @@ return {
       -- diagnostics = { delay = 200 },
     },
   },
-  init_options = {},
-  -- on_new_config = function(new_config, new_workspace)
-  --   -- TODO: case of monorepo, use maybe ts path of lower node_modules relative to file
-  --   -- new_config.init_options.typescript.tsdk = tsPath
-  -- end,
+  init_options = init_options,
 }

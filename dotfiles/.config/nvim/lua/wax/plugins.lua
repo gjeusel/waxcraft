@@ -859,6 +859,21 @@ return {
     end,
   },
 
+  { -- conform.nvim  (better buffer lsp format)
+    "stevearc/conform.nvim",
+    keys = {
+      {
+        "<leader>m",
+        "<cmd>lua require('conform').format({lsp_fallback=true})<cr>",
+        desc = "Conform Format",
+        mode = { "n", "v" },
+      },
+    },
+    config = function()
+      require("wax.lsp.conform")
+    end,
+  },
+
   --------- Language Specific ---------
   { "edgedb/edgedb-vim", ft = "edgedb" },
   { "Vimjas/vim-python-pep8-indent", ft = "python" },

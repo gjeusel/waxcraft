@@ -54,12 +54,11 @@ local function set_lsp_keymaps()
     vim.diagnostic.goto_next(goto_win_opts)
   end, opts)
 
-  vim.keymap.set({ "n", "v" }, "<leader>m", function()
-    -- It defaults to range formatting when in visual mode
-    --
-    -- vim.lsp.buf.format({ async = false, timeout_ms = 2000 })
-    vim.lsp.buf.format({ async = true })
-  end, opts)
+  -- -- Formatting is done in conform.lua
+  -- vim.keymap.set({ "n", "v" }, "<leader>m", function()
+  --   vim.lsp.buf.format({ async = true })
+  -- end, opts)
+
 end
 
 -- Customization of the publishDiagnostics (remove all pyright diags)
