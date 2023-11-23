@@ -1,17 +1,30 @@
 local python_utils = require("wax.lsp.python-utils")
 
-local function to_python_cmd(cmd)
+local function to_python_cmd(cmd, tbl)
   local function inner()
-    return {
-      command = python_utils.get_python_path(nil, cmd),
-    }
+    local command = python_utils.get_python_path(nil, cmd)
+    return vim.tbl_extend("force", tbl or {}, { command = command })
   end
   return inner
 end
 
 require("conform").setup({
   formatters = {
-    ruff_fix = to_python_cmd("ruff"),
+    ruff_fix = to_python_cmd(
+      "ruff",
+      {
+        args = {
+          "--ignore",
+          "E203,F841,F401",
+          "--fix",
+          "-e",
+          "-n",
+          "--stdin-filename",
+          "$FILENAME",
+          "-",
+        },
+      }
+    ),
     ruff_format = to_python_cmd("ruff"),
     isort = to_python_cmd("isort"),
     black = to_python_cmd("black"),
@@ -20,13 +33,8 @@ require("conform").setup({
   --
   formatters_by_ft = {
     lua = { "stylua" },
-    python = function(bufnr)
-      if require("conform").get_formatter_info("ruff_format", bufnr).available then
-        return { "ruff_fix", "ruff_format" }
-      else
-        return { "isort", "black" }
-      end
-    end,
+    python = { "ruff_fix", "ruff_format" },
+    -- python = { "isort", "black" },
     ["jinja.html"] = { "djhtml" },
     javascript = { { "prettierd", "prettier" }, { "eslint_d", "eslint" } },
     typescript = { { "prettierd", "prettier" }, { "eslint_d", "eslint" } },
