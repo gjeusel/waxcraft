@@ -10,21 +10,18 @@ end
 
 require("conform").setup({
   formatters = {
-    ruff_fix = to_python_cmd(
-      "ruff",
-      {
-        args = {
-          "--ignore",
-          "E203,F841,F401",
-          "--fix",
-          "-e",
-          "-n",
-          "--stdin-filename",
-          "$FILENAME",
-          "-",
-        },
-      }
-    ),
+    ruff_fix = to_python_cmd("ruff", {
+      args = {
+        "--ignore",
+        "E203,F841,F401,RUF100",
+        "--fix",
+        "-e",
+        "-n",
+        "--stdin-filename",
+        "$FILENAME",
+        "-",
+      },
+    }),
     ruff_format = to_python_cmd("ruff"),
     isort = to_python_cmd("isort"),
     black = to_python_cmd("black"),
@@ -39,5 +36,7 @@ require("conform").setup({
     javascript = { { "prettierd", "prettier" }, { "eslint_d", "eslint" } },
     typescript = { { "prettierd", "prettier" }, { "eslint_d", "eslint" } },
     vue = { { "prettierd", "prettier" }, { "eslint_d", "eslint" } },
+    xml = { "xmlformat" },
+    rust = { "rustfmt" },
   },
 })

@@ -5,7 +5,7 @@ return {
     ["rust-analyzer"] = {
       completion = {
         -- prevent snippets from adding () which is not "." repeatable
-        -- callable = { snippets = "none" },
+        callable = { snippets = "none" },
       },
       -- experimental = {
       --   procAttrMacros = false, -- Expand attribute macros.

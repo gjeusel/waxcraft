@@ -233,7 +233,7 @@ return {
       { -- nvim-ts-context-commentstring
         "JoosepAlviste/nvim-ts-context-commentstring",
         lazy = true,
-        ft = { "html", "vue", "typescriptreact", "svelte" },
+        ft = { "html", "vue", "typescriptreact", "svelte", "lua", "vim" },
       },
       { "windwp/nvim-ts-autotag" },
       { -- vim-matchup - better %
@@ -380,7 +380,7 @@ return {
         },
       },
       -- 'JoosepAlviste/nvim-ts-context-commentstring' -- auto deduce comment string on context
-      context_commentstring = {
+      ts_context_commentstring = {
         enable = true,
         enable_autocmd = false,
         -- config = {
