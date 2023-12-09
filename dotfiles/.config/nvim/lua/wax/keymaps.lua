@@ -221,6 +221,7 @@ vim.keymap.set("n", "<leader>sm", function()
 
   vim.ui.select(sorted_options, { prompt = "Open Menu > " }, function(selected)
     if selected then
+      vim.cmd('stopinsert')
       options[selected]()
     end
   end)

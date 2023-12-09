@@ -14,7 +14,8 @@ fzf_lua.setup({
     height = 0.8,
     width = 0.9,
     preview = {
-      flip_columns = 200, -- #cols to switch to horizontal on flex
+      flip_columns = 200, -- number of cols to switch to horizontal on flex
+      wrap = "wrap",
     },
   },
   fzf_opts = {
@@ -110,6 +111,8 @@ local function fn_selected_multi(selected, opts)
       multiselect_actions,
       { prompt = "FZF Actions (multi select)> " },
       function(choice, idx)
+        vim.cmd('stopinsert')
+
         log.debug("fzf multi select: ", choice)
 
         if idx == 2 then
