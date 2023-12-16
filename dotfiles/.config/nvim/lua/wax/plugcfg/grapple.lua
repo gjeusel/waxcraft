@@ -13,7 +13,7 @@ scope_resolvers.workspace_fallback = scope.resolver(function()
   if not vim_session_scope then
     local path
 
-    local clients = vim.lsp.get_active_clients({ bufnr = 0 })
+    local clients = vim.lsp.get_clients({ bufnr = 0 })
     if #clients > 0 then
       path = clients[1].config.root_dir
     else
@@ -96,7 +96,7 @@ local function orderby_grapple_tags()
   render.update()
 end
 
-vim.api.nvim_create_autocmd("BufEnter", {
+vim.api.nvim_create_autocmd({ "BufEnter", "BufModifiedSet" }, {
   pattern = "*",
   callback = orderby_grapple_tags,
 })

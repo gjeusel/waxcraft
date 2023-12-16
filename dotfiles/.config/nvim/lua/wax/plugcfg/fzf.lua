@@ -2,6 +2,14 @@ local fzf_lua = require("fzf-lua")
 
 local Path = require("wax.path")
 
+local rg_ignore_dirs =
+  { ".git", ".*_cache", "postgres-data", "edgedb-data", "__pycache__", ".vscode" }
+local rg_ignore_files = { "*.min.css", "*.svg", "pnpm-lock.yaml", "package-lock.json" }
+local rg_ignore_arg = ("--glob '!{%s}' --glob '!{%s}'"):format(
+  table.concat(rg_ignore_dirs, ","),
+  table.concat(rg_ignore_files, ",")
+)
+
 local fzf_actions = {
   ["default"] = fzf_lua.actions.file_edit,
   ["ctrl-s"] = fzf_lua.actions.file_split,
@@ -46,8 +54,7 @@ fzf_lua.setup({
     show_cwd_header = false,
     rg_opts = table.concat({
       "--hidden --column --line-number --no-heading --color=always --smart-case",
-      "--glob '!{.git,.vscode}/*'",
-      "--glob '!{*.svg,*.min.css,pnpm-lock.yaml,package-lock.json}'",
+      rg_ignore_arg,
     }, " "),
   },
 })
@@ -165,17 +172,8 @@ end
 --
 ---------- Files ----------
 --
-
 local function rg_files(rg_opts)
-  local ignore_dirs = { ".git", ".*_cache", "postgres-data", "edgedb-data", "__pycache__" }
-  local ignore_files = { "*.min.css" }
-
-  local ignore_arg = ("--glob '!{%s}' --glob '!{%s}'"):format(
-    table.concat(ignore_dirs, ","),
-    table.concat(ignore_files, ",")
-  )
-
-  local rg_cmd = ("rg %s --files --hidden %s"):format(rg_opts or "", ignore_arg)
+  local rg_cmd = ("rg %s --files --hidden %s"):format(rg_opts or "", rg_ignore_arg)
   return fzf_lua.fzf_exec(rg_cmd, {
     prompt = "Files > ",
     previewer = "builtin",
@@ -217,7 +215,7 @@ local function wax_files()
     return home .. "/" .. path
   end, paths)
 
-  local cmd = ("rg --hidden --glob '!{.git,}/' --files %s"):format(table.concat(abs_paths, " "))
+  local cmd = ("rg --hidden %s --files %s"):format(rg_ignore_arg, table.concat(abs_paths, " "))
 
   return fzf_lua.fzf_exec(cmd, {
     prompt = "WaxFiles > ",
