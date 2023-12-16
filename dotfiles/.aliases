@@ -5,6 +5,7 @@ alias czshrc="vim $waxCraft_PATH/dotfiles/zshrc_common.zsh"
 alias wax="cd $waxCraft_PATH"
 
 # definitly swhich to nvim:
+alias vi="nvim"
 alias vim="nvim"
 alias v="nvim"
 alias vimdiff="nvim -d"

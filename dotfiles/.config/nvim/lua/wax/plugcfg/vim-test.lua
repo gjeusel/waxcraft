@@ -28,6 +28,7 @@ vim.api.nvim_set_var("test#echo_command", 0)
 -- python
 vim.api.nvim_set_var("test#python#runner", "pytest")
 vim.api.nvim_set_var("test#python#pytest#options", "--log-cli-level=INFO")
+-- vim.api.nvim_set_var("test#python#pytest#file_pattern", ".*.py$")
 
 kmap("n", "<leader>5", function()
   local items = {
@@ -48,5 +49,6 @@ kmap("n", "<leader>5", function()
   vim.ui.select(items, opts, function(choice)
     local varname = "test#python#pytest#options"
     vim.api.nvim_set_var(varname, table.concat(choice["options"], " "))
+    vim.cmd("stopinsert")
   end)
 end)

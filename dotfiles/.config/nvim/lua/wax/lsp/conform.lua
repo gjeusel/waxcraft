@@ -13,7 +13,7 @@ require("conform").setup({
     ruff_fix = to_python_cmd("ruff", {
       args = {
         "--ignore",
-        "E203,F841,F401,RUF100",
+        "E203,F841,F401,RUF100,B007",
         "--fix",
         "-e",
         "-n",

@@ -52,7 +52,7 @@ fzf_lua.setup({
   },
 })
 
--- Register fzf-lua for vim.ui.select
+-- -- Register fzf-lua for vim.ui.select
 -- fzf_lua.register_ui_select({ winopts = { height = 0.33, width = 0.33 } }, true)
 -- fzf_lua.deregister_ui_select({}, true)
 
@@ -111,7 +111,7 @@ local function fn_selected_multi(selected, opts)
       multiselect_actions,
       { prompt = "FZF Actions (multi select)> " },
       function(choice, idx)
-        vim.cmd('stopinsert')
+        vim.cmd("stopinsert")
 
         log.debug("fzf multi select: ", choice)
 
@@ -245,6 +245,7 @@ local function pick_project(fn)
   end, projects)
 
   vim.ui.select(projects, { prompt = "Select project> " }, function(choice, _)
+    vim.cmd("stopinsert")
     if choice then
       fn(src_path:join(choice):absolute())
     end

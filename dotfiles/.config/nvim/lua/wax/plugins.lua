@@ -64,46 +64,12 @@ return {
   },
   { -- dressing
     "stevearc/dressing.nvim",
-    lazy = true,
-    dependencies = {
-      "nvim-telescope/telescope.nvim",
-      keys = {
-        {
-          "<leader>fE",
-          "<cmd>Telescope builtin<cr>",
-          desc = "Find anything with telescope",
-          mode = "n",
-        },
-      },
-      config = function()
-        local actions = require("telescope.actions")
-        require("telescope").setup({
-          defaults = {
-            mappings = {
-              i = {
-                -- map <esp> to close
-                ["<esc>"] = actions.close,
-              },
-            },
-          },
-        })
-      end,
-    },
     init = function()
-      ---@diagnostic disable-next-line: duplicate-set-field
-      vim.ui.select = function(...)
-        require("lazy").load({ plugins = { "dressing.nvim" } })
-        return vim.ui.select(...)
-      end
-      ---@diagnostic disable-next-line: duplicate-set-field
-      vim.ui.input = function(...)
-        require("lazy").load({ plugins = { "dressing.nvim" } })
-        return vim.ui.input(...)
-      end
+      require("dressing")
     end,
     opts = {
       builtin = { enabled = false },
-      select = { enabled = true, backend = { "telescope" } },
+      select = { enabled = true, fzf_lua = { winopts = { height = 0.5, width = 0.5 } } },
       input = { enabled = true, win_options = { winblend = 0 } },
     },
   },
@@ -819,7 +785,7 @@ return {
       waxlsp.set_lsp_keymaps()
 
       --Enable completion triggered by <c-x><c-o>
-      vim.api.nvim_set_option("omnifunc", "v:lua.vim.lsp.omnifunc")
+      vim.api.nvim_set_option_value("omnifunc", "v:lua.vim.lsp.omnifunc", {})
 
       local have_mason, mlsp = pcall(require, "mason-lspconfig")
 
