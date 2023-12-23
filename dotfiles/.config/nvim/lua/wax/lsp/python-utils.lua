@@ -30,16 +30,20 @@ local find_python_cmd = wax_cache_fn(function(workspace, cmd)
     local pattern = (".*%s.*"):format(workspace_name)
 
     -- Check for any conda env named like the project
-    local conda_venv_path = M.basepath_conda_venv:glob(pattern)
-    if #conda_venv_path > 0 then
-      return conda_venv_path[1]:join("bin", cmd):absolute()
+    if M.basepath_conda_venv then
+      local conda_venv_path = M.basepath_conda_venv:glob(pattern)
+      if #conda_venv_path > 0 then
+        return conda_venv_path[1]:join("bin", cmd):absolute()
+      end
     end
 
     -- Check for any virtualenv named like the project
-    if Path:new(workspace):join("poetry.lock"):exists() then
-      local poetry_venv_path = M.basepath_poetry_venv:glob(pattern)
-      if #poetry_venv_path >= 1 then
-        return poetry_venv_path[1]:join("bin", cmd):absolute()
+    if M.basepath_poetry_venv then
+      if Path:new(workspace):join("poetry.lock"):exists() then
+        local poetry_venv_path = M.basepath_poetry_venv:glob(pattern)
+        if #poetry_venv_path >= 1 then
+          return poetry_venv_path[1]:join("bin", cmd):absolute()
+        end
       end
     end
   end
@@ -62,10 +66,10 @@ M.get_python_path = wax_cache_fn(function(workspace, cmd)
     return Path:new(workspace):find_root_dir({ pattern }):join("bin", cmd):absolute()
   end
 
-  if string.find(workspace, M.basepath_poetry_venv.path) then
+  if M.basepath_poetry_venv and string.find(workspace, M.basepath_poetry_venv.path) then
     -- In case of jump to definition inside dependency with poetry venv:
     python_path = pattern_to_python_path("pyvenv.cfg")
-  elseif string.find(workspace, M.basepath_conda_venv.path) then
+  elseif M.basepath_conda_venv and string.find(workspace, M.basepath_conda_venv.path) then
     -- In case of jump to definition inside dependency with conda venv:
     python_path = pattern_to_python_path("conda-meta")
   else

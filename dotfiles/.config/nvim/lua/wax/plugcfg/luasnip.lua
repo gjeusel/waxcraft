@@ -41,9 +41,9 @@ local snippets_path = require("wax.path").waxdir():join("snippets"):absolute()
 
 load_from_lua({ paths = snippets_path })
 
-ls.filetype_extend("vue", { "typescript" })
-ls.filetype_extend("svelte", { "typescript" })
-ls.filetype_extend("typescriptreact", { "typescript" })
+ls.filetype_extend("vue", { "typescript", "html" })
+ls.filetype_extend("svelte", { "typescript", "html" })
+ls.filetype_extend("typescriptreact", { "typescript", "html" })
 ls.filetype_extend("jinja.html", { "html" })
 
 -- mappings for navigating nodes

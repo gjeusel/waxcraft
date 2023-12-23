@@ -153,7 +153,4 @@ return {
       opts
     )
   ),
-
-  -- Debug / Dev
-  s("pjson", fmt([[<pre>{{JSON.stringify([0])}}</pre>]], { [0] = i(0, "") }, opts)),
 }

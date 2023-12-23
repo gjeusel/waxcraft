@@ -129,7 +129,7 @@ alias meteo="curl https://v2.wttr.in/brussels"
 pylsp_deps() {
   # LSP
   pip install -U python-lsp-server[rope] jedi pylsp-mypy mypy
-  pip install -U ruff ruff-lsp
+  pip install ruff ruff-lsp
 }
 
 
@@ -239,3 +239,5 @@ function generate_fernet_key() {
 function realpath() {
   [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
 }
+
+alias shadcn="pnpx shadcn-svelte@0.4.1"

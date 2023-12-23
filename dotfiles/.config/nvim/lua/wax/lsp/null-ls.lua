@@ -1,4 +1,6 @@
+local u = require("null-ls.utils")
 local builtins = require("null-ls.builtins")
+local python_utils = require("wax.lsp.python-utils")
 
 local eslint_filetypes = {
   "javascript",
@@ -9,7 +11,17 @@ local eslint_filetypes = {
   "svelte",
 }
 
+local from_python_env = wax_cache_fn(function(params)
+  local workspace = u.get_root()
+  local cmd = python_utils.get_python_path(workspace, params.command)
+  return cmd
+end)
+
 local sources = {
+  -- builtins.diagnostics.mypy.with({
+  --   command = "mypy",
+  --   dynamic_command = from_python_env,
+  -- }),
   builtins.diagnostics.eslint_d.with({
     filetypes = eslint_filetypes,
   }),

@@ -4,7 +4,7 @@ local Path = require("wax.path")
 
 local rg_ignore_dirs =
   { ".git", ".*_cache", "postgres-data", "edgedb-data", "__pycache__", ".vscode" }
-local rg_ignore_files = { "*.min.css", "*.svg", "pnpm-lock.yaml", "package-lock.json" }
+local rg_ignore_files = { "*.min.css", "*.svg", "pnpm-lock.yaml", "package-lock.json", "edgedb.toml"}
 local rg_ignore_arg = ("--glob '!{%s}' --glob '!{%s}'"):format(
   table.concat(rg_ignore_dirs, ","),
   table.concat(rg_ignore_files, ",")

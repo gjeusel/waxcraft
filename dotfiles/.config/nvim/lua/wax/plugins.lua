@@ -841,7 +841,7 @@ return {
   },
 
   --------- Language Specific ---------
-  { "edgedb/edgedb-vim", ft = "edgedb" },
+  { "edgedb/edgedb-vim", ft = { "edgedb", "edgeql" } },
   { "Vimjas/vim-python-pep8-indent", ft = "python" },
 
   --------- NeoVim Perf / Dev ---------

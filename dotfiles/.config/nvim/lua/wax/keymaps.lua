@@ -14,6 +14,7 @@ vim.cmd([[
     cnoreabbrev q1 q!
     cnoreabbrev Qa! qa!
     cnoreabbrev Qall! qall!
+    cnoreabbrev Cq cq
     cnoreabbrev Wa wa
     cnoreabbrev Wq wq
     cnoreabbrev Wqa wqa
