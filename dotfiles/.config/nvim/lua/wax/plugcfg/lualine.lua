@@ -1,21 +1,29 @@
+local Path = require("wax.path")
+
 local workspace_name = wax_cache_fn(function()
   return find_workspace_name() or ""
 end, {})
 
 local relative_path = wax_cache_fn(function()
   local abspath = vim.api.nvim_buf_get_name(0)
-  local workspace = find_root_dir(abspath)
-  local Path = require("wax.path")
+  local workspace = find_root_dir(abspath, {
+    "package.json", -- better in monorepo
+    ".git",
+  })
+  workspace = workspace or vim.env.HOME
 
-  if workspace then
-    return Path:new(abspath):make_relative(workspace).path
-  else
-    return Path:new(abspath):make_relative(vim.env.HOME).path
+  local relpath = Path:new(abspath):make_relative(workspace)
+  local path = relpath.path
+  local name = to_workspace_name(workspace)
+  if string.find(relpath.path, name) == nil then
+    path = ("%s/%s"):format(name, relpath.path)
   end
+
+  return path
 end)
 
 local function filetype()
-  return vim.api.nvim_buf_get_option(0, "filetype")
+  return vim.api.nvim_get_option_value(0, "filetype")
 end
 
 --- @param trunc_width number trunctates component when screen width is less then trunc_width
@@ -96,13 +104,15 @@ require("lualine").setup({
       -- { "mode", fmt = fmt_mode }
     },
     lualine_b = {
-      -- workspace_name,
       -- { "branch", fmt = trunc(120, 12, 60) },
     },
     lualine_c = {
       -- "require('lsp-progress').progress()",
     },
-    lualine_x = { relative_path },
+    lualine_x = {
+      workspace_name,
+      relative_path,
+    },
     lualine_y = {
       -- { -- git diff in numbers of lines
       --   "diff",
@@ -125,7 +135,10 @@ require("lualine").setup({
     lualine_a = {},
     lualine_b = {},
     lualine_c = {},
-    lualine_x = { relative_path },
+    lualine_x = {
+      workspace_name,
+      relative_path,
+    },
     lualine_y = { "location", "progress" },
     lualine_z = {},
   },

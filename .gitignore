@@ -11,3 +11,5 @@ dotfiles/.config/nvim/lua/packer_compiled.lua
 
 *.zwc
 *.DS_store
+
+.luarc.json
