@@ -11,9 +11,7 @@ windows:
       - act zefire
       - cd ~/src/zefire
     panes:
-      - shell_command:
-          - neofetch
-        focus: true
+      - focus: true
       -
 
   - window_name: front
@@ -21,9 +19,7 @@ windows:
     shell_command_before:
       - cd ~/src/zefire-front
     panes:
-      - shell_command:
-          - neofetch
-        focus: true
+      - focus: true
       -
 
   - window_name: venturi
@@ -32,30 +28,32 @@ windows:
       - act venturi
       - cd ~/src/venturi
     panes:
-      - shell_command:
-          - neofetch
-        focus: true
+      - focus: true
       -
 
-  - window_name: remote
+  - window_name: devops
     layout: aa80,158x47,0,0{79x47,0,0,9,78x47,80,0[78x23,80,0,14,78x23,80,24,15]}
     options:
       main-pane-height: 50
     shell_command_before:
       - cd ~/src/cloud-renewex
     panes:
-      - shell_command:
-          - neofetch
-        focus: true
+      - focus: true
       -
 
-  - window_name: squamish
+  - window_name: peregreen
     layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
     shell_command_before:
-      - act squamish
-      - cd ~/src/squamish
+      - act peregreen
+      - cd ~/src/peregreen
     panes:
-      - shell_command:
-          - neofetch
-        focus: true
+      - focus: true
+      -
+
+  - window_name: goofolio
+    layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
+    shell_command_before:
+      - cd ~/src/goofolio
+    panes:
+      - focus: true
       -

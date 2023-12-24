@@ -107,9 +107,11 @@ alias ipy="ptipython"
 alias pt="pytest --log-level=DEBUG -x -s --pdb -k "
 alias pdb="pytest --pdb -x -s "
 alias ptp="pytest -n 6 -vv "
-alias act='conda activate'
+alias act='conda deactivate && conda activate'
 alias deact='conda deactivate'
+
 alias libclean="find . | grep -E '(__pycache__|\.pyc|\.pyo|\.orig$)' | xargs rm -rf"
+
 function pwhere() {
   python -c "import $1; print($1.__file__)"
 }
@@ -128,7 +130,7 @@ alias meteo="curl https://v2.wttr.in/brussels"
 
 pylsp_deps() {
   # LSP
-  pip install -U python-lsp-server[rope] jedi pylsp-mypy mypy
+  pip install -U python-lsp-server[rope] jedi pylsp-mypy
   pip install ruff ruff-lsp
 }
 

@@ -38,5 +38,6 @@ require("conform").setup({
     vue = { { "prettierd", "prettier" }, { "eslint_d", "eslint" } },
     xml = { "xmlformat" },
     rust = { "rustfmt" },
+    toml = { "taplo" },
   },
 })
