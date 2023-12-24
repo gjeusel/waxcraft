@@ -1,9 +1,5 @@
 local Path = require("wax.path")
 
-local workspace_name = wax_cache_fn(function()
-  return find_workspace_name() or ""
-end, {})
-
 local relative_path = wax_cache_fn(function()
   local abspath = vim.api.nvim_buf_get_name(0)
   local workspace = find_root_dir(abspath, {
@@ -21,6 +17,16 @@ local relative_path = wax_cache_fn(function()
 
   return path
 end)
+
+local workspace_name = wax_cache_fn(function()
+  local name = find_workspace_name() or ""
+  local relpath = relative_path()
+  if string.find(relpath, name) ~= nil then
+    return ""
+  else
+    return name
+  end
+end, {})
 
 local function filetype()
   return vim.api.nvim_get_option_value(0, "filetype")
