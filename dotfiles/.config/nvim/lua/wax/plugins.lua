@@ -884,7 +884,7 @@ return {
   --------- Funky bits ---------
   {
     "Eandrju/cellular-automaton.nvim",
-    lazy = false,
+    lazy = true,
     keys = {
       {
         "<leader>fl",
