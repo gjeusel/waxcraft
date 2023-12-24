@@ -1,12 +1,7 @@
 ---@class Wax.Path
 ---@field path string
-
----@type Wax.Path
-local Path = {
-  -- those classmethod are here for lsp purpose (avoid [undefined-field])
-  home = function() end,
-  waxdir = function() end,
-}
+---@field type 'directory' | 'file'
+local Path = {}
 
 function Path:new(path)
   if type(path) == "table" and path.path ~= nil then
