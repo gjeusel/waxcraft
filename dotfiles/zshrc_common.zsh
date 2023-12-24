@@ -14,10 +14,10 @@ source "$waxCraft_PATH/dotfiles/fzf-extras.zsh"
 
 # _______ ZSH Options _______
 
-# History
+# History - https://zsh.sourceforge.io/Doc/Release/Options.html#index-APPENDHISTORY
 setopt appendhistory
 setopt inc_append_history
-setopt share_history           # Share history accross shells
+# setopt share_history           # Share history accross shells
 
 setopt hist_expire_dups_first  # Expire a duplicate event first when trimming history.
 setopt hist_ignore_dups        # Do not record an event that was just recorded again.
@@ -26,8 +26,7 @@ setopt hist_find_no_dups       # Do not display a previously found event.
 setopt hist_save_no_dups       # Do not write a duplicate event to the history file.
 setopt hist_ignore_space       # Do not write to history commands starting with a space.
 
-#setopt hist_reduce_blanks
-#setopt hist_reduce_blanks hist_verify
+setopt hist_reduce_blanks      # Remove superfluous blanks from each command line being added to the history list.
 
 # Other
 #setopt autocd extendedglob notify nomatch autopushd pushdignoredups promptsubst
