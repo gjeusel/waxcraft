@@ -5,9 +5,9 @@
 sudo yabai --load-sa
 yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
 
-# Ensure there are at least 7 spaces
+# Ensure there are at least 6 spaces
 current_spaces=$(yabai -m query --spaces | jq 'length')
-while [ $current_spaces -lt 7 ]; do
+while [ $current_spaces -lt 6 ]; do
     yabai -m space --create
     current_spaces=$((current_spaces + 1))
 done
@@ -75,7 +75,8 @@ yabai -m rule --add app="App Store" space="Misc"
 yabai -m rule --add app="Firefox" space="Browser"
 yabai -m rule --add app="Chromium" space="Browser"
 yabai -m rule --add app="Safari" space="Browser"
-yabai -m rule --add app="Arc" pace="Browser"
+yabai -m rule --add app="Arc" space="Browser"
+yabai -m rule --add app="Brave Browser" space="Browser"
 
 # Programming
 yabai -m rule --add app="Alacritty" space="Code"
