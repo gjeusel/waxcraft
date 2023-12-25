@@ -13,28 +13,20 @@ vim.o.foldenable = true -- Open all folds while not set.
 -- TODO: Sometimes folds disappear on format or get out of sync
 -- https://github.com/nvim-treesitter/nvim-treesitter/issues/1424
 -- https://github.com/neovim/neovim/issues/14977
+-- Fixed by conform.
 
 vim.o.foldmethod = "expr"
 vim.o.foldexpr = "v:lua.vim.treesitter.foldexpr()"
--- vim.o.foldexpr = "nvim_treesitter#foldexpr()"
 
--- TODO: convert it to lua function ?
-vim.cmd([[
-function! FoldText() abort
-  " clear fold from fillchars to set it up the way we want later
-  let &l:fillchars = substitute(&l:fillchars,',\?fold:.','','gi')
-  let l:numwidth = (v:version < 701 ? 8 : &numberwidth)
-  let l:foldtext = ' '.(v:foldend-v:foldstart).' lines folded'.v:folddashes.'¦'
-  " let l:endofline = (&textwidth>0 ? &textwidth : 80)
-  let l:endofline = 100
-  let l:linetext = strpart(getline(v:foldstart),0,l:endofline-strlen(l:foldtext))
-  let l:align = l:endofline-strlen(l:linetext)
-  setlocal fillchars+=fold:\ 
-  return printf('%s%*s', l:linetext, l:align, l:foldtext)
-endfunction
-]])
-
-vim.cmd("set foldtext=FoldText()")
+_G.custom_fold_text = function()
+  local line = vim.fn.getline(vim.v.foldstart)
+  local num_lines = vim.v.foldend - vim.v.foldstart + 1
+  local maxchars = tonumber(vim.o.colorcolumn) or 100
+  local suffix = string.format("%s lines ↩", num_lines)
+  local spaces = string.rep(" ", maxchars - (line:len() + suffix:len()))
+  return line .. spaces .. suffix
+end
+vim.opt.foldtext = "v:lua.custom_fold_text()"
 
 -- Taken from https://github.com/kevinhwang91/nvim-ufo
 

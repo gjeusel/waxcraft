@@ -102,6 +102,8 @@ yabai -m signal --add event=window_created action='yabai -m query --windows --wi
 
 yabai -m signal --add event=display_added action='yabai --restart-service'
 yabai -m signal --add event=display_removed action='yabai --restart-service'
+
+# yabai -m query --spaces
 # yabai -m space --create
 
 echo "yabai configuration loaded.."
