@@ -5,6 +5,13 @@
 sudo yabai --load-sa
 yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
 
+# Ensure there are at least 7 spaces
+current_spaces=$(yabai -m query --spaces | jq 'length')
+while [ $current_spaces -lt 7 ]; do
+    yabai -m space --create
+    current_spaces=$((current_spaces + 1))
+done
+
 # global settings
 
 yabai -m config window_placement             second_child
@@ -16,7 +23,7 @@ yabai -m config window_opacity               on
 yabai -m config window_opacity_duration      0.0
 yabai -m config window_animation_duration    0.0
 yabai -m config active_window_opacity        1.0
-yabai -m config normal_window_opacity        0.9
+yabai -m config normal_window_opacity        1.0
 
 yabai -m config split_ratio                  0.50
 yabai -m config auto_balance                 off
@@ -45,12 +52,12 @@ yabai -m config --space 3 layout             bsp
 yabai -m config --space 5 layout             stack
 
 # Space labels
-yabai -m space 1 --label "Misc"
-yabai -m space 2 --label "Code"
-yabai -m space 3 --label "Browser"
-yabai -m space 4 --label "Social"
-yabai -m space 5 --label "Business"
-yabai -m space 6 --label "Perso"
+yabai -m space 1 --label "Misc" --display 1
+yabai -m space 2 --label "Code" --display 2
+yabai -m space 3 --label "Browser" --display 2
+yabai -m space 4 --label "Social" --display 2
+yabai -m space 5 --label "Business" --display 2
+yabai -m space 6 --label "Perso" --display 2
 
 # Misc
 yabai -m rule --add app="Finder" space="Misc"
@@ -99,11 +106,5 @@ yabai -m rule --add label="FaceTime" app="FaceTime" manage=off
 
 # Make all non-resizable window float (https://github.com/koekeishiya/yabai/issues/1317)
 yabai -m signal --add event=window_created action='yabai -m query --windows --window $YABAI_WINDOW_ID | jq -er ".\"can-resize\" or .\"is-floating\"" || yabai -m window $YABAI_WINDOW_ID --toggle float'
-
-yabai -m signal --add event=display_added action='yabai --restart-service'
-yabai -m signal --add event=display_removed action='yabai --restart-service'
-
-# yabai -m query --spaces
-# yabai -m space --create
 
 echo "yabai configuration loaded.."
