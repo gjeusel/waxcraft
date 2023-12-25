@@ -1,20 +1,9 @@
 #!/usr/bin/env sh
 
-# the scripting-addition must be loaded manually if
-# you are running yabai on macOS Big Sur. Uncomment
-# the following line to have the injection performed
-# when the config is executed during startup.
-#
-# for this to work you must configure sudo such that
-# it will be able to run the command without password
-#
 # see this wiki page for information:
-#  - https://github.com/koekeishiya/yabai/wiki/Installing-yabai-(latest-release)
-#
-# sudo yabai --load-sa
-# yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
-
-#!/usr/bin/env sh
+#  https://github.com/koekeishiya/yabai/wiki/Installing-yabai-(latest-release)#configure-scripting-addition
+sudo yabai --load-sa
+yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
 
 # global settings
 
@@ -25,6 +14,7 @@ yabai -m config window_border                off
 yabai -m config window_shadow                off
 yabai -m config window_opacity               on
 yabai -m config window_opacity_duration      0.0
+yabai -m config window_animation_duration    0.0
 yabai -m config active_window_opacity        1.0
 yabai -m config normal_window_opacity        0.9
 
@@ -60,7 +50,7 @@ yabai -m space 2 --label "Code"
 yabai -m space 3 --label "Browser"
 yabai -m space 4 --label "Social"
 yabai -m space 5 --label "Business"
-yabai -m space 6 --label "MiscBis"
+yabai -m space 6 --label "Perso"
 
 # Misc
 yabai -m rule --add app="Finder" space="Misc"
@@ -95,26 +85,23 @@ yabai -m rule --add app="Messenger" space="Social"
 yabai -m rule --add app="Spark" space="Business"
 yabai -m rule --add app="Microsoft Excel" space="Business"
 
-# Make all non-resizable window float (https://github.com/koekeishiya/yabai/issues/1317)
-yabai -m signal --add event=window_created action='yabai -m query --windows --window $YABAI_WINDOW_ID | jq -er ".\"can-resize\" or .\"is-floating\"" || yabai -m window $YABAI_WINDOW_ID --toggle float'
-
-# yabai -m signal --add event=window_created label="Misc" action='yabai -m window --toggle zoom-fullscreen --window $YABAI_WINDOW_ID'
-
+# manage off list:
 yabai -m rule --add label="Raycast" app="Raycast" manage=off
 yabai -m rule --add label="System Preferences" app="System Preferences" manage=off
 yabai -m rule --add label="System Settings" app="System Settings" manage=off
 yabai -m rule --add label="Software Update" title="Software Update" manage=off
 yabai -m rule --add title=".*Appel.*avec" manage=off space="Misc"
-
 yabai -m rule --add label="Arc" title="Shortcuts" manage=off
 yabai -m rule --add label="Arc" title="Little Arc.*" manage=off
-
 yabai -m rule --add label="FaceTime" app="FaceTime" manage=off
 
-# any non-resizable set to not managed
-# https://github.com/koekeishiya/yabai/issues/1317
+# --- Events ---
+
+# Make all non-resizable window float (https://github.com/koekeishiya/yabai/issues/1317)
 yabai -m signal --add event=window_created action='yabai -m query --windows --window $YABAI_WINDOW_ID | jq -er ".\"can-resize\" or .\"is-floating\"" || yabai -m window $YABAI_WINDOW_ID --toggle float'
 
-
+yabai -m signal --add event=display_added action='yabai --restart-service'
+yabai -m signal --add event=display_removed action='yabai --restart-service'
+# yabai -m space --create
 
 echo "yabai configuration loaded.."
