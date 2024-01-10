@@ -40,14 +40,14 @@ yabai -m config bottom_padding               0
 yabai -m config left_padding                 0
 yabai -m config right_padding                0
 yabai -m config top_padding                  0
-yabai -m config window_gap                   0
+yabai -m config window_gap                   10
 
 yabai -m config layout                       bsp
 
 # Setup preferences on spaces
 yabai -m space 1 --label "Misc" --display 1 --layout stack
 yabai -m space 2 --label "Code" --display 2 --layout bsp
-yabai -m space 3 --label "Browser" --display 2 --layout bsp
+yabai -m space 3 --label "Browser" --display 2 --layout stack
 yabai -m space 4 --label "Social" --display 2 --layout bsp
 yabai -m space 5 --label "Business" --display 2 --layout stack
 yabai -m space 6 --label "Perso" --display 2 --layout bsp
@@ -69,7 +69,7 @@ yabai -m rule --add app="Firefox" space="Browser"
 yabai -m rule --add app="Chromium" space="Browser"
 yabai -m rule --add app="Safari" space="Browser"
 yabai -m rule --add app="Arc" space="Browser"
-yabai -m rule --add app="Brave Browser" space="Browser"
+# yabai -m rule --add app="Brave Browser" space="Browser"
 
 # Programming
 yabai -m rule --add app="Alacritty" space="Code"

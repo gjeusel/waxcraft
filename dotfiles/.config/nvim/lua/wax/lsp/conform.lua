@@ -36,6 +36,7 @@ require("conform").setup({
     javascript = { { "prettierd", "prettier" }, { "eslint_d", "eslint" } },
     typescript = { { "prettierd", "prettier" }, { "eslint_d", "eslint" } },
     vue = { { "prettierd", "prettier" }, { "eslint_d", "eslint" } },
+    yaml = { "prettier" },
     xml = { "xmlformat" },
     rust = { "rustfmt" },
     toml = { "taplo" },

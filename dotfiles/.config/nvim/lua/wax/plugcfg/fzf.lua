@@ -3,7 +3,7 @@ local fzf_lua = require("fzf-lua")
 local Path = require("wax.path")
 
 local rg_ignore_dirs =
-  { ".git", ".*_cache", "postgres-data", "edgedb-data", "__pycache__", ".vscode" }
+  { ".git", ".*_cache", "postgres-data", "edgedb-data", "__pycache__", ".vscode", "tests/data" }
 local rg_ignore_files = { "*.min.css", "*.svg", "pnpm-lock.yaml", "package-lock.json", "edgedb.toml"}
 local rg_ignore_arg = ("--glob '!{%s}' --glob '!{%s}'"):format(
   table.concat(rg_ignore_dirs, ","),

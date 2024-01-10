@@ -280,18 +280,11 @@ function M.insert_new_line_in_current_buffer(str, opts)
   -- special cases depending on filetype
   local filetype = vim.api.nvim_buf_get_option(bufnr, "filetype")
 
-  if filetype == "python" then
-    n_space = vim.fn.GetPythonPEPIndent(n_insert_line)
-    if n_space == -1 then -- but fix it when can't find
-      n_space = vim.fn.indent(n_line)
-    end
-  else
-    -- if treesitter available, might use it to correct corner cases:
-    local has_treesitter = is_module_available("nvim-treesitter.indent")
-    if has_treesitter then
-      local ts_indent = require("nvim-treesitter.indent")
-      n_space = ts_indent.get_indent(n_insert_line)
-    end
+  -- if treesitter available, might use it to correct corner cases:
+  local has_treesitter = is_module_available("nvim-treesitter.indent")
+  if has_treesitter then
+    local ts_indent = require("nvim-treesitter.indent")
+    n_space = ts_indent.get_indent(n_insert_line)
   end
 
   local space = string.rep(" ", n_space)
