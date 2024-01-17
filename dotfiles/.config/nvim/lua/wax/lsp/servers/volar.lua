@@ -32,8 +32,8 @@ local init_options = {
 
 return {
   -- enable takeover
-  -- filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue" },
-  filetypes = { "vue" },
+  filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue" },
+  -- filetypes = { "vue" },
   -- https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md#volar
   on_attach = function(client, _)
     -- formatting is done by prettier and eslint

@@ -248,7 +248,7 @@ return {
         disable = {
           "lua",
           "vim",
-          -- "python", -- we use "Vimjas/vim-python-pep8-indent"
+          "python", -- we use "Vimjas/vim-python-pep8-indent"
           "json",
           "typescript",
         },
@@ -842,7 +842,7 @@ return {
 
   --------- Language Specific ---------
   { "edgedb/edgedb-vim", ft = { "edgedb", "edgeql" } },
-  -- { "Vimjas/vim-python-pep8-indent", ft = "python" },
+  { "Vimjas/vim-python-pep8-indent", ft = "python" },
 
   --------- NeoVim Perf / Dev ---------
   { "dstein64/vim-startuptime", cmd = "StartupTime" }, -- analyze startup time
