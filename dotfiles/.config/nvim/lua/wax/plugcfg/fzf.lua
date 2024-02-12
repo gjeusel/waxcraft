@@ -4,7 +4,8 @@ local Path = require("wax.path")
 
 local rg_ignore_dirs =
   { ".git", ".*_cache", "postgres-data", "edgedb-data", "__pycache__", ".vscode", "tests/data" }
-local rg_ignore_files = { "*.min.css", "*.svg", "pnpm-lock.yaml", "package-lock.json", "edgedb.toml"}
+local rg_ignore_files =
+  { "*.min.css", "*.svg", "pnpm-lock.yaml", "package-lock.json", "edgedb.toml" }
 local rg_ignore_arg = ("--glob '!{%s}' --glob '!{%s}'"):format(
   table.concat(rg_ignore_dirs, ","),
   table.concat(rg_ignore_files, ",")
@@ -109,35 +110,39 @@ local function fn_selected_multi(selected, opts)
     local _, entries = fzf_lua.actions.normalize_selected(opts.actions, selected)
     entries = parse_entries(entries, opts)
 
-    local multiselect_actions = {
-      "Open occurrences in qf list",
-      "Open unique files in qf list",
-    }
+    vim.fn.setqflist(entries, "r")
+    vim.cmd("cfirst")
 
-    vim.ui.select(
-      multiselect_actions,
-      { prompt = "FZF Actions (multi select)> " },
-      function(choice, idx)
-        vim.cmd("stopinsert")
+    -- local function action_choice_on_multiselect()
+    --   local multiselect_actions = {
+    --     "Open occurrences in qf list",
+    --     "Open unique files in qf list",
+    --   }
+    --   vim.ui.select(
+    --     multiselect_actions,
+    --     { prompt = "FZF Actions (multi select)> " },
+    --     function(choice, idx)
+    --       vim.cmd("stopinsert")
 
-        log.debug("fzf multi select: ", choice)
+    --       log.debug("fzf multi select: ", choice)
 
-        if idx == 2 then
-          local seen = {}
-          entries = vim.tbl_filter(function(entry)
-            if vim.tbl_contains(seen, entry.filename) then
-              return false
-            else
-              table.insert(seen, entry.filename)
-              return true
-            end
-          end, entries)
-        end
+    --       if idx == 2 then
+    --         local seen = {}
+    --         entries = vim.tbl_filter(function(entry)
+    --           if vim.tbl_contains(seen, entry.filename) then
+    --             return false
+    --           else
+    --             table.insert(seen, entry.filename)
+    --             return true
+    --           end
+    --         end, entries)
+    --       end
 
-        vim.fn.setqflist(entries, "r")
-        vim.cmd("cfirst")
-      end
-    )
+    --       vim.fn.setqflist(entries, "r")
+    --       vim.cmd("cfirst")
+    --     end
+    --   )
+    -- end
   end
 end
 

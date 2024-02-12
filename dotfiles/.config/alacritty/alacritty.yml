@@ -68,61 +68,32 @@ key_bindings:
   # - { key: Back, mods: Alt, action: "^[^H]"  } # delete word/line
   # - { key: Delete, chars: "\x1b[3~" }
 
-
 # Colors (Gruvbox dark)
 colors:
   primary:
-    foreground: "#ecdbb2"
-    background: "#252525"
+    foreground: '#ebdbb2'
+    background: '#282828'
+  normal:
+    black: "#282828"
+    red: "#cc241d"
+    green: "#98971a"
+    yellow: "#d79921"
+    blue: "#458588"
+    magenta: "#b16286"
+    cyan: "#689d6a"
+    white: "#a89984"
+  bright:
+    black: "#928374"
+    red: "#fb4934"
+    green: "#b8bb26"
+    yellow: "#fabd2f"
+    blue: "#83a598"
+    magenta: "#d3869b"
+    cyan: "#8ec07c"
+    white: "#ebdbb2"
   cursor:
     cursor: "#7f7f7f"
     text: "#ecdbb2"
   selection:
     background: "#413e3d"
     text: "#c1c1c1"
-  normal:
-    black: "#353535"
-    red: "#d73925"
-    green: "#a8a521"
-    yellow: "#dfa82a"
-    blue: "#549699"
-    magenta: "#bf7897"
-    cyan: "#79aa7d"
-    white: "#b7a996"
-  bright:
-    black: "#a39586"
-    red: "#fe6142"
-    green: "#c4c431"
-    yellow: "#fcc73c"
-    blue: "#94b3a8"
-    magenta: "#dc9aab"
-    cyan: "#9dd08e"
-    white: "#efe1bf"
-  # indexed_colors:
-  #   - { index: 66, color: "#458588" }
-  #   - { index: 72, color: "#689d6a" }
-  #   - { index: 106, color: "#98971a" }
-  #   - { index: 108, color: "#8ec07c" }
-  #   - { index: 109, color: "#83a598" }
-  #   - { index: 124, color: "#cc241d" }
-  #   - { index: 132, color: "#b16286" }
-  #   - { index: 142, color: "#b8bb26" }
-  #   - { index: 166, color: "#d65d0e" }
-  #   - { index: 167, color: "#fb4934" }
-  #   - { index: 172, color: "#d79921" }
-  #   - { index: 175, color: "#d3869b" }
-  #   - { index: 208, color: "#fe8019" }
-  #   - { index: 214, color: "#fabd2f" }
-  #   - { index: 223, color: "#ebdbb2" }
-  #   - { index: 229, color: "#fbf1c7" }
-  #   - { index: 234, color: "#1d2021" }
-  #   - { index: 235, color: "#282828" }
-  #   - { index: 236, color: "#32302f" }
-  #   - { index: 237, color: "#3c3836" }
-  #   - { index: 239, color: "#504945" }
-  #   - { index: 241, color: "#665c54" }
-  #   - { index: 243, color: "#7c6f64" }
-  #   - { index: 245, color: "#928374" }
-  #   - { index: 246, color: "#a89984" }
-  #   - { index: 248, color: "#bdae93" }
-  #   - { index: 250, color: "#d5c4a1" }

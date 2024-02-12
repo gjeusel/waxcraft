@@ -22,4 +22,52 @@ return {
     )
   ),
   s("iclassnames", { t("import cn from 'classnames'") }),
+
+  --
+  -- In template --
+  --
+  ls.parser.parse_snippet(
+    { trig = "pjson", name = "json stringify in pre tag" },
+    [[
+      <pre>{JSON.stringify($0)}</pre>
+    ]]
+  ),
+  ls.parser.parse_snippet(
+    { trig = "seach", name = "Svelte Each Block" },
+    [[
+      {#each $1 as $2 ($3)}
+        $0
+      {/each}
+    ]]
+  ),
+  ls.parser.parse_snippet(
+    { trig = "sif", name = "Svelte If Block" },
+    [[
+      {#if $1}
+        $0
+      {/if}
+    ]]
+  ),
+  ls.parser.parse_snippet(
+    { trig = "sifelse", name = "Svelte If Else Block" },
+    [[
+      {#if $1}
+        $2
+      {:else}
+        $0
+      {/if}
+    ]]
+  ),
+  ls.parser.parse_snippet(
+    { trig = "sifelif", name = "Svelte If Else If Else Block" },
+    [[
+      {#if $1}
+        $2
+      {:else if $3}
+        $4
+      {:else}
+        $0
+      {/if}
+    ]]
+  ),
 }

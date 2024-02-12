@@ -10,6 +10,7 @@ return {
     lazy = false,
     priority = 1000,
     config = function()
+      vim.o.termguicolors = false
       vim.o.background = "dark"
       vim.g.gruvbox_invert_selection = 0
       vim.g.gruvbox_improved_warnings = 1
@@ -361,7 +362,7 @@ return {
       -- 'windwp/nvim-ts-autotag'  -- auto close/rename html tags
       autotag = {
         enable = true,
-        enable_rename = false,
+        enable_rename = true,
         enable_close = true,
         enable_close_on_slash = false,
         filetypes = {

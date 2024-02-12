@@ -86,8 +86,10 @@ local base_gruvbox_hls = {
 }
 
 local base_gruvbox_ts_hls = {
+  ["@keyword.import"] = { link = "GruvboxBlue" },
+
   ["@property"] = { link = "white" },
-  ["@parameter"] = { link = "white" },
+  ["@variable.parameter"] = { link = "white" },
   ["@constant"] = { link = "white" },
 
   ["@variable"] = { link = "white" },
@@ -113,7 +115,7 @@ local frontend_gruvbox_ts_hls = {
   ["@definition.function"] = { link = "GruvboxBlue" },
 
   -- ["@method.call"] = { link = "GruvboxBlue" },
-  ["@definition.method"] = { link = "GruvboxBlue" },
+  ["@function.method"] = { link = "GruvboxBlue" },
 
   ["@type"] = { link = "GruvboxYellow" },
   ["@type.builtin"] = { link = "GruvboxYellow" },
@@ -121,10 +123,9 @@ local frontend_gruvbox_ts_hls = {
 
 local python_gruvbox_ts_hls = {
   ["@keyword.operator"] = { link = "GruvboxRed" },
-  ["@boolean"] = { link = "GruvboxOrange" },
+  ["@keyword.exception"] = { link = "GruvboxAqua" },
 
-  ["@include"] = { link = "GruvboxBlue" },
-  ["@exception"] = { link = "GruvboxAqua" },
+  ["@boolean"] = { link = "GruvboxOrange" },
 
   ["@punctuation.special"] = { link = "GruvboxOrange" }, -- { } of f-string
   ["@punctuation.bracket"] = { link = "white" },
@@ -141,7 +142,7 @@ local python_gruvbox_ts_hls = {
 
   -- functions / methods / calls
   ["@function"] = { link = "GruvboxAqua" },
-  ["@definition.method"] = { link = "GruvboxAqua" },
+  ["@function.method"] = { link = "GruvboxAqua" },
 
   ["@method"] = { link = "GruvboxAqua" },
   ["@definition.function"] = { link = "GruvboxAqua" },

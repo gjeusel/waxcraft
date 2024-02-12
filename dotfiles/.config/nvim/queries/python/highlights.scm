@@ -5,24 +5,48 @@
  (#lua-match? @constant "^[A-Z][A-Z_0-9]*$"))
 
 ((identifier) @constant.builtin
- (#any-of? @constant.builtin
-           ;; https://docs.python.org/3/library/constants.html
-           "NotImplemented"
-           "Ellipsis"
-           "quit"
-           "exit"
-           "copyright"
-           "credits"
-           "license"
-           "__name__"
-           "__file__"
-           "__module__"
-           "__import__"
-           "__doc__"
-           "__dict__"
-           "__package__"
-           "__slots__"
-))
+  ; format-ignore
+  (#any-of? @constant.builtin 
+    ; https://docs.python.org/3/library/constants.html
+    "NotImplemented" "Ellipsis" 
+    "quit" "exit" "copyright" "credits" "license"))
+
+"_" @constant.builtin ; match wildcard
+
+; Literals
+(none) @constant.builtin
+[(true) (false)] @boolean
+((identifier) @variable.builtin
+  (#eq? @variable.builtin "self"))
+((identifier) @variable.builtin
+  (#eq? @variable.builtin "cls"))
+(integer) @number
+(float) @number.float
+
+(comment) @comment @spell
+(string) @string @spell
+[(escape_sequence) (escape_interpolation)] @string.escape
+
+; doc-strings
+(module
+  .
+  (comment)*
+  .
+  (expression_statement
+    (string) @string.documentation @spell))
+(class_definition
+  body:
+    (block
+      .
+      (expression_statement
+        (string) @string.documentation @spell)))
+(function_definition
+  body:
+    (block
+      .
+      (expression_statement
+        (string) @string.documentation @spell)))
+
 
 ; Decorators
 (decorator
@@ -38,20 +62,11 @@
 ; Builtin functions
 ((call
   function: (identifier) @function.builtin)
- (#any-of? @function.builtin
-          "abs" "all" "any" "ascii" "bin" "bool" "breakpoint" "bytearray" "bytes" "callable" "chr" "classmethod"
-          "compile" "complex" "delattr" "dict" "dir" "divmod" "enumerate" "eval" "exec" "filter" "float" "format"
-          "frozenset" "getattr" "globals" "hasattr" "hash" "help" "hex" "id" "input" "int" "isinstance" "issubclass"
-          "iter" "len" "list" "locals" "map" "max" "memoryview" "min" "next" "object" "oct" "open" "ord" "pow"
-          "print" "property" "range" "repr" "reversed" "round" "set" "setattr" "slice" "sorted" "staticmethod" "str"
-          "sum" "super" "tuple" "type" "vars" "zip" "__import__"))
-
+  (#any-of? @function.builtin "abs" "all" "any" "ascii" "bin" "bool" "breakpoint" "bytearray" "bytes" "callable" "chr" "classmethod" "compile" "complex" "delattr" "dict" "dir" "divmod" "enumerate" "eval" "exec" "filter" "float" "format" "frozenset" "getattr" "globals" "hasattr" "hash" "help" "hex" "id" "input" "int" "isinstance" "issubclass" "iter" "len" "list" "locals" "map" "max" "memoryview" "min" "next" "object" "oct" "open" "ord" "pow" "print" "property" "range" "repr" "reversed" "round" "set" "setattr" "slice" "sorted" "staticmethod" "str" "sum" "super" "tuple" "type" "vars" "zip" "__import__"))
 
 ;; Function definitions
-
 (function_definition
-  name: (identifier) @definition.function
-)
+  name: (identifier) @function)
 
 (call
   function: (identifier) @function.call)
@@ -63,48 +78,61 @@
     (identifier) @type))
  (#eq? @_isinstance "isinstance"))
 
-;; Normal parameters
+; Normal parameters
 (parameters
-  (identifier) @parameter)
-;; Lambda parameters
+  (identifier) @variable.parameter)
+
+; Lambda parameters
 (lambda_parameters
-  (identifier) @parameter)
+  (identifier) @variable.parameter)
+
 (lambda_parameters
   (tuple_pattern
-    (identifier) @parameter))
+    (identifier) @variable.parameter))
+
 ; Default parameters
 (keyword_argument
-  name: (identifier) @parameter)
+  name: (identifier) @variable.parameter)
+
 ; Naming parameters on call-site
 (default_parameter
-  name: (identifier) @parameter)
+  name: (identifier) @variable.parameter)
+
 (typed_parameter
-  (identifier) @parameter)
+  (identifier) @variable.parameter)
+
 (typed_default_parameter
-  (identifier) @parameter)
+  name: (identifier) @variable.parameter)
+
 ; Variadic parameters *args, **kwargs
 (parameters
   (list_splat_pattern ; *args
-    (identifier) @parameter))
+    (identifier) @variable.parameter))
+
 (parameters
   (dictionary_splat_pattern ; **kwargs
-    (identifier) @parameter))
+    (identifier) @variable.parameter))
 
+; Typed variadic parameters
+(parameters
+  (typed_parameter
+    (list_splat_pattern ; *args: type
+      (identifier) @variable.parameter)))
 
-;; Literals
+(parameters
+  (typed_parameter
+    (dictionary_splat_pattern ; *kwargs: type
+      (identifier) @variable.parameter)))
 
-(none) @constant.builtin
-[(true) (false)] @boolean
+; Lambda parameters
+(lambda_parameters
+  (list_splat_pattern
+    (identifier) @variable.parameter))
 
-(integer) @number
-(float) @float
+(lambda_parameters
+  (dictionary_splat_pattern
+    (identifier) @variable.parameter))
 
-(comment) @comment @spell
-(string) @string @spell
-(escape_sequence) @string.escape
-
-((module . (comment) @preproc)
-  (#match? @preproc "^#!/"))
 
 ; Tokens
 
@@ -147,48 +175,41 @@
 ] @operator
 
 ; Keywords
-[
-  "and"
-  "in"
-  "is"
-  "not"
-  "not in"
-  "is not"
-  "or"
-  "del"
-  "@"
-] @keyword.operator
+["and" "in" "is" "not" "or" "is not" "not in" "del" "@"] @keyword.operator
+["def" "lambda"] @keyword.function
+["assert" "class" "exec" "global" "nonlocal" "pass" "print" "with" "as" "type"] @keyword
+["async" "await"] @keyword.coroutine
+["return" "yield"] @keyword.return
+(yield "from" @keyword.return)
 
-[
-  "assert"
-  "async"
-  "await"
-  "class"
-  "def"
-  "except"
-  "exec"
-  "finally"
-  "global"
-  "lambda"
-  "nonlocal"
-  "pass"
-  "print"
-  "raise"
-  "return"
-  "try"
-  "with"
-  "yield"
-  "as"
-] @keyword
+(future_import_statement
+  "from" @keyword.import
+  "__future__" @constant.builtin)
+(import_from_statement
+  "from" @keyword.import)
+"import" @keyword.import
+(aliased_import
+  "as" @keyword.import)
 
-["from" "import"] @include
-(aliased_import "as" @include)
+["if" "elif" "else" "match" "case"] @keyword.conditional
 
-["if" "elif" "else" "match" "case"] @conditional
+["for" "while" "break" "continue"] @keyword.repeat
 
-["for" "while" "break" "continue"] @repeat
+["try" "except" "except*" "raise" "finally"] @keyword.exception
+
+(raise_statement
+  "from" @keyword.exception)
+(try_statement
+  (else_clause
+    "else" @keyword.exception))
 
 ["(" ")" "[" "]" "{" "}"] @punctuation.bracket
+
+; (interpolation
+;   "{" @punctuation.special
+;   "}" @punctuation.special)
+
+(type_conversion) @function.macro
 
 ["," "." ":"] @punctuation.delimiter
 
@@ -211,34 +232,38 @@
 
 ;; Class definitions
 (class_definition
-  name: (identifier) @type
-)
+  name: (identifier) @type)
 
 (class_definition
   body: (block
     [
-      (decorated_definition
-        (function_definition (identifier) @definition.method)
-      )
-      (function_definition name: (identifier) @definition.method)
+      (function_definition name: (identifier) @function.method)
+      (decorated_definition (function_definition (identifier) @function.method))
     ]
   )
 )
+(class_definition
+  superclasses:
+    (argument_list
+      (identifier) @type))
 
 ((class_definition
-  body: (block
-          (expression_statement
-            (assignment
-              left: (identifier) @field))))
- (#vim-match? @field "^([A-Z])@!.*$"))
+  body:
+    (block
+      (expression_statement
+        (assignment
+          left: (identifier) @variable.member))))
+  (#lua-match? @variable.member "^[%l_].*$"))
 
 ((class_definition
-  body: (block
-          (expression_statement
-            (assignment
-              left: (_ 
-                     (identifier) @field)))))
- (#vim-match? @field "^([A-Z])@!.*$"))
+  body:
+    (block
+      (expression_statement
+        (assignment
+          left:
+            (_
+              (identifier) @variable.member)))))
+  (#lua-match? @variable.member "^[%l_].*$"))
 
 ((class_definition
   (block
@@ -251,16 +276,21 @@
  (#vim-match? @field "^([A-Z])@!.*$"))
 
 
-((identifier) @variable.builtin
- (#match? @variable.builtin "^(self|cls)$"))
-
 ; Exceptions
 (raise_statement
   [
-    (call (identifier) @exception)
+    (call (identifier) @keyword.exception)
   ]
 )
 
-
-;; Error
-(ERROR) @error
+; Regex from the `re` module
+(call
+  function:
+    (attribute
+      object: (identifier) @_re)
+  arguments:
+    (argument_list
+      .
+      (string
+        (string_content) @string.regexp))
+  (#eq? @_re "re"))

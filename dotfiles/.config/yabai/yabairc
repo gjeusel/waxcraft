@@ -51,6 +51,7 @@ yabai -m space 3 --label "Browser" --display 2 --layout stack
 yabai -m space 4 --label "Social" --display 2 --layout bsp
 yabai -m space 5 --label "Business" --display 2 --layout stack
 yabai -m space 6 --label "Perso" --display 2 --layout bsp
+yabai -m space 7 --label "Extra" --display 2 --layout bsp
 
 # Misc
 yabai -m rule --add app="Finder" space="Misc"
@@ -84,7 +85,9 @@ yabai -m rule --add app="Messenger" space="Social"
 
 # Business
 yabai -m rule --add app="Spark" space="Business"
-yabai -m rule --add app="Microsoft Excel" space="Business"
+
+# Extra
+yabai -m rule --add app="Microsoft Excel" space="Extra"
 
 # manage off list:
 yabai -m rule --add label="Raycast" app="Raycast" manage=off
