@@ -38,3 +38,12 @@ export ENHANCD_DISABLE_HYPHEN=1  # disable enhancd for "cd -"
 export HOMEBREW_NO_AUTO_UPDATE=1
 export HOMEBREW_NO_INSTALL_CLEANUP=1
 export HOMEBREW_NO_ENV_HINTS=1
+
+# tmux / iterm / others
+export DISABLE_AUTO_TITLE='true'
+
+# Annoying tools
+export PYARROW_IGNORE_TIMEZONE=1
+export SCW_DISABLE_CHECK_VERSION=true
+export TURBO_NO_UPDATE_NOTIFIER=true
+export VITE_CJS_IGNORE_WARNING=true

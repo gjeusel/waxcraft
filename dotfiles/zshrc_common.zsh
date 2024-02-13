@@ -59,6 +59,14 @@ done
 # our own completions for (docker + docker-compose):
 fpath+="$waxCraft_PATH/dotfiles/completions"
 
+# NOTE: Scaleway CLI autocomplete initialization.
+# scaleway autocomplete script is calling itself compinit, which is a mistake.
+# eval "$(scw autocomplete script shell=zsh)"
+# FIX:
+# > scw autocomplete script shell=zsh &> ~/.zfunc/_scw
+# edit ~/.zfunc/_scw and remove first line calling compinit
+# > rm ~/.zcompdump
+
 # shell user completion:
 fpath+="${ZDOTDIR:-$HOME}/.zfunc"
 
@@ -135,8 +143,8 @@ zstyle ':completion:*:warnings' format ' %F{red}-- no matches found --%f'
 # _______ Setups before plugin sourcing _______
 
 # Make sure to have binaries in PATH before sourcing antibody
-# else tmux is not yet available and it messes up iterm2 startup
-if [ -f /opt/homebrew/bin/brew ]; then
+# else tmux is not yet available and it messes up startup
+if [[ -f /opt/homebrew/bin/brew && -z "$TMUX" ]]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
@@ -144,11 +152,9 @@ fi
 #
 # https://getantidote.github.io/
 # brew install antidote
-
 if [[ (! -d ${ZDOTDIR:-$HOME}/.antidote) && (( $+commands[git] )) ]]; then
   git clone --depth=1 https://github.com/mattmc3/antidote.git ${ZDOTDIR:-$HOME}/.antidote
 fi
-
 source ${ZDOTDIR:-$HOME}/.antidote/antidote.zsh
 
 # # Static load, when change of plugins run:
@@ -184,4 +190,3 @@ __enhancd::filter::exists()
        fi
    done
 }
-
