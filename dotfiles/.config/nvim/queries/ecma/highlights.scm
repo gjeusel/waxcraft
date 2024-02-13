@@ -282,7 +282,7 @@
   "try"
   "catch"
   "finally"
-] @exception
+] @keyword.exception
 
 (export_statement
   "default" @keyword)

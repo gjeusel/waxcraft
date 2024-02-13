@@ -87,10 +87,12 @@ local base_gruvbox_hls = {
 
 local base_gruvbox_ts_hls = {
   ["@keyword.import"] = { link = "GruvboxBlue" },
+  ["@keyword.exception"] = { link = "GruvboxRed" },
+  ["@keyword.operator"] = { link = "GruvboxRed" },
 
-  ["@property"] = { link = "white" },
   ["@variable.parameter"] = { link = "white" },
   ["@constant"] = { link = "white" },
+  ["@constant.builtin"] = { link = "GruvboxOrange" },
 
   ["@variable"] = { link = "white" },
 
@@ -114,6 +116,8 @@ local frontend_gruvbox_ts_hls = {
   ["@function.call"] = { link = "white" },
   ["@definition.function"] = { link = "GruvboxBlue" },
 
+  ["@property"] = { link = "white" },
+
   -- ["@method.call"] = { link = "GruvboxBlue" },
   ["@function.method"] = { link = "GruvboxBlue" },
 
@@ -122,10 +126,9 @@ local frontend_gruvbox_ts_hls = {
 }
 
 local python_gruvbox_ts_hls = {
-  ["@keyword.operator"] = { link = "GruvboxRed" },
-  ["@keyword.exception"] = { link = "GruvboxAqua" },
-
   ["@boolean"] = { link = "GruvboxOrange" },
+
+  ["@type.builtin"] = { link = "GruvboxAqua" }, -- used for exception
 
   ["@punctuation.special"] = { link = "GruvboxOrange" }, -- { } of f-string
   ["@punctuation.bracket"] = { link = "white" },
@@ -138,7 +141,6 @@ local python_gruvbox_ts_hls = {
 
   ["@variable.builtin"] = { link = "GruvboxBlue" },
   ["@function.builtin"] = { link = "GruvboxYellow" },
-  ["@constant.builtin"] = { link = "GruvboxOrange" },
 
   -- functions / methods / calls
   ["@function"] = { link = "GruvboxAqua" },

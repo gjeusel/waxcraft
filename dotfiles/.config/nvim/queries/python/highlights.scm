@@ -203,6 +203,30 @@
   (else_clause
     "else" @keyword.exception))
 
+; Exceptions
+((identifier) @type.builtin
+  ; format-ignore
+  (#any-of? @type.builtin
+    ; https://docs.python.org/3/library/exceptions.html
+    "BaseException" "Exception" "ArithmeticError" "BufferError" "LookupError" "AssertionError" "AttributeError"
+    "EOFError" "FloatingPointError" "GeneratorExit" "ImportError" "ModuleNotFoundError" "IndexError" "KeyError"
+    "KeyboardInterrupt" "MemoryError" "NameError" "NotImplementedError" "OSError" "OverflowError" "RecursionError"
+    "ReferenceError" "RuntimeError" "StopIteration" "StopAsyncIteration" "SyntaxError" "IndentationError" "TabError"
+    "SystemError" "SystemExit" "TypeError" "UnboundLocalError" "UnicodeError" "UnicodeEncodeError" "UnicodeDecodeError"
+    "UnicodeTranslateError" "ValueError" "ZeroDivisionError" "EnvironmentError" "IOError" "WindowsError"
+    "BlockingIOError" "ChildProcessError" "ConnectionError" "BrokenPipeError" "ConnectionAbortedError"
+    "ConnectionRefusedError" "ConnectionResetError" "FileExistsError" "FileNotFoundError" "InterruptedError"
+    "IsADirectoryError" "NotADirectoryError" "PermissionError" "ProcessLookupError" "TimeoutError" "Warning"
+    "UserWarning" "DeprecationWarning" "PendingDeprecationWarning" "SyntaxWarning" "RuntimeWarning"
+    "FutureWarning" "ImportWarning" "UnicodeWarning" "BytesWarning" "ResourceWarning"
+))
+; (raise_statement
+;   [
+;     (call (identifier) @keyword.exception)
+;   ]
+; )
+
+
 ["(" ")" "[" "]" "{" "}"] @punctuation.bracket
 
 ; (interpolation
@@ -275,13 +299,6 @@
     attribute: (identifier) @field)
  (#vim-match? @field "^([A-Z])@!.*$"))
 
-
-; Exceptions
-(raise_statement
-  [
-    (call (identifier) @keyword.exception)
-  ]
-)
 
 ; Regex from the `re` module
 (call
