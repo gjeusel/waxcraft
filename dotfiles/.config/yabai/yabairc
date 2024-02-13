@@ -16,6 +16,7 @@ done
 
 yabai -m config window_placement             second_child
 yabai -m config window_topmost               off
+yabai -m config window_zoom_persist          off
 
 yabai -m config window_border                off
 yabai -m config window_shadow                off
@@ -54,7 +55,6 @@ yabai -m space 6 --label "Perso" --display 2 --layout bsp
 yabai -m space 7 --label "Extra" --display 2 --layout bsp
 
 # Misc
-yabai -m rule --add app="Finder" space="Misc"
 yabai -m rule --add app="Spotify" space="Misc"
 yabai -m rule --add app="Youtube Music Desktop App" space="Misc"
 yabai -m rule --add app="Activity Monitor" space="Misc"
@@ -70,7 +70,7 @@ yabai -m rule --add app="Firefox" space="Browser"
 yabai -m rule --add app="Chromium" space="Browser"
 yabai -m rule --add app="Safari" space="Browser"
 yabai -m rule --add app="Arc" space="Browser"
-# yabai -m rule --add app="Brave Browser" space="Browser"
+yabai -m rule --add app="Brave Browser"
 
 # Programming
 yabai -m rule --add app="Alacritty" space="Code"

@@ -41,8 +41,6 @@ ctrl + alt - e : yabai -m space --balance
 ctrl + alt - d : [[ "$(yabai -m query --spaces --space | jq -r ".type")" == "stack" ]] && { yabai -m space --layout bsp; } || { yabai -m space --layout stack; }
 
 
-
-
 # ---- moving windows around ----
 # ctrl + alt - j : yabai -m window --warp south
 # ctrl + alt - k : yabai -m window --warp north
