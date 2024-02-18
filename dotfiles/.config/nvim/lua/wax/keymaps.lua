@@ -160,6 +160,9 @@ vim.keymap.set("n", "<leader>yF", function()
 end, { desc = "Yank current buffer absolute filepath" })
 
 vim.keymap.set("n", "<leader>yp", function()
+  vim.cmd([[normal! "wyiw]])
+  local word_under_cursor = vim.fn.getreg('"')
+
   local abspath = vim.api.nvim_buf_get_name(0)
   local workspace = find_root_dir(abspath)
   if not workspace then
@@ -172,7 +175,9 @@ vim.keymap.set("n", "<leader>yp", function()
     return
   end
 
-  vim.fn.setreg("+", string.gsub(relpath, "/", "."):gsub("%.py$", ""))
+  local module = string.gsub(relpath, "/", "."):gsub("%.py$", "")
+
+  vim.fn.setreg("+", ("from %s import %s"):format(module, word_under_cursor))
 end, { desc = "Yank current file python module" })
 
 -- set foldlevel
@@ -222,7 +227,7 @@ vim.keymap.set("n", "<leader>sm", function()
 
   vim.ui.select(sorted_options, { prompt = "Open Menu > " }, function(selected)
     if selected then
-      vim.cmd('stopinsert')
+      vim.cmd("stopinsert")
       options[selected]()
     end
   end)

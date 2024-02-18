@@ -116,6 +116,7 @@ local frontend_gruvbox_ts_hls = {
   ["@function.call"] = { link = "white" },
   ["@definition.function"] = { link = "GruvboxBlue" },
 
+  ["@repeat"] = { link = "GruvboxRed" },
   ["@property"] = { link = "white" },
 
   -- ["@method.call"] = { link = "GruvboxBlue" },

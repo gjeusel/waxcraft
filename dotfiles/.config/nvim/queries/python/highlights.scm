@@ -9,7 +9,9 @@
   (#any-of? @constant.builtin 
     ; https://docs.python.org/3/library/constants.html
     "NotImplemented" "Ellipsis" 
-    "quit" "exit" "copyright" "credits" "license"))
+    "quit" "exit" "copyright" "credits" "license"
+    "__name__" "__module__"
+  ))
 
 "_" @constant.builtin ; match wildcard
 
@@ -62,7 +64,22 @@
 ; Builtin functions
 ((call
   function: (identifier) @function.builtin)
-  (#any-of? @function.builtin "abs" "all" "any" "ascii" "bin" "bool" "breakpoint" "bytearray" "bytes" "callable" "chr" "classmethod" "compile" "complex" "delattr" "dict" "dir" "divmod" "enumerate" "eval" "exec" "filter" "float" "format" "frozenset" "getattr" "globals" "hasattr" "hash" "help" "hex" "id" "input" "int" "isinstance" "issubclass" "iter" "len" "list" "locals" "map" "max" "memoryview" "min" "next" "object" "oct" "open" "ord" "pow" "print" "property" "range" "repr" "reversed" "round" "set" "setattr" "slice" "sorted" "staticmethod" "str" "sum" "super" "tuple" "type" "vars" "zip" "__import__"))
+  (#any-of? @function.builtin
+    "bytes" "str" "int" "float" "bool" "object" "frozenset" "set" "tuple" "list" "dict" "type"
+    "abs" "all" "any" "ascii" "bin" "breakpoint" "bytearray"
+    "callable" "chr" "classmethod" "compile" "complex" "delattr" "dir"
+    "divmod" "enumerate" "eval" "exec" "filter" "format"
+    "getattr" "globals" "hasattr" "hash" "help" "hex" "id" "input" "isinstance"
+    "issubclass" "iter" "len" "locals" "map" "max" "memoryview" "min"
+    "next" "oct" "open" "ord" "pow" "print" "property" "range" "repr"
+    "reversed" "round" "setattr" "slice" "sorted" "staticmethod"
+    "sum" "super" "vars" "zip" "__import__"
+  ))
+
+((identifier) @type
+ (#any-of? @type
+    "bytes" "str" "int" "float" "bool" "object" "frozenset" "set" "tuple" "list" "dict" "type"
+ ))
 
 ;; Function definitions
 (function_definition

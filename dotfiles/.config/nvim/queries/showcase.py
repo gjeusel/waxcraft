@@ -65,6 +65,9 @@ read_sql = f"""
     ORDER BY ts ASC
 """
 
+isinstance(read_sql, int | bool | float | str)
+
+
 interp = f"{test_highlight()}"
 
 
