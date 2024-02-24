@@ -1,6 +1,49 @@
 -- Set log level for LSP
 vim.lsp.set_log_level(waxopts.loglevel)
 
+local function _lsp_to_single_location(err, locations)
+  if err or locations == nil or vim.tbl_isempty(locations) then
+    return
+  end
+  return locations[1]
+end
+
+local function custom_go_to_definition()
+  local params = vim.lsp.util.make_position_params()
+  vim.lsp.buf_request(0, "textDocument/definition", params, function(err, locations)
+    local location = _lsp_to_single_location(err, locations)
+    if not location then
+      return
+    end
+
+    vim.lsp.util.jump_to_location(location, "utf-8")
+
+    -- Special case of nested goto definition (on generated typescript files)
+    if string.match(location.uri or location.targetUri, ".*imports.d.ts") then
+      local line_num = location["targetRange"]["end"]["line"]
+      local buf = vim.api.nvim_get_current_buf()
+      local line_length = #vim.api.nvim_buf_get_lines(buf, line_num, line_num + 1, false)[1]
+
+      local next_position = {
+        position = { character = line_length - 1, line = line_num },
+        textDocument = { uri = location.targetUri },
+      }
+      vim.lsp.buf_request(
+        0,
+        "textDocument/definition",
+        next_position,
+        function(nested_err, nested_locations)
+          local nested_location = _lsp_to_single_location(nested_err, nested_locations)
+          if nested_location then
+            vim.api.nvim_buf_delete(0, { force = true }) -- remove buffer of import.d.ts
+            vim.lsp.util.jump_to_location(nested_location, "utf-8")
+          end
+        end
+      )
+    end
+  end)
+end
+
 -- Mappings
 local function set_lsp_keymaps()
   local opts = { noremap = true, silent = true }
@@ -18,6 +61,9 @@ local function set_lsp_keymaps()
   end
   vim.keymap.set("n", "gd", goto_first_definition, opts)
   vim.keymap.set("n", "<leader>d", goto_first_definition, opts)
+
+  vim.keymap.set("n", "gd", custom_go_to_definition, opts)
+  vim.keymap.set("n", "<leader>d", custom_go_to_definition, opts)
 
   vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
 

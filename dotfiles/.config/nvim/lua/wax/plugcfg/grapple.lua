@@ -46,25 +46,6 @@ grapple.setup({
   },
 })
 
-vim.keymap.set("n", "<leader>tt", grapple.toggle)
-vim.keymap.set("n", "<leader>tl", grapple.popup_tags)
-vim.keymap.set("n", "<leader>tk", grapple.popup_scopes)
-
-local map_opt_idx = {
-  ["¡"] = 1, -- option + 1
-  ["™"] = 2, -- option + 2
-  ["£"] = 3, -- option + 3
-  ["¢"] = 4, -- option + 4
-  ["∞"] = 5, -- option + 5
-}
-for keymap, grapple_key in pairs(map_opt_idx) do
-  vim.keymap.set({ "n", "i", "x" }, keymap, function()
-    if grapple.exists({ key = grapple_key }) then
-      grapple.select({ key = grapple_key })
-    end
-  end)
-end
-
 local function orderby_grapple_tags()
   local bufline_state = require("bufferline.state")
   local render = require("bufferline.render")
@@ -96,7 +77,24 @@ local function orderby_grapple_tags()
   render.update()
 end
 
-vim.api.nvim_create_autocmd({ "BufEnter", "BufModifiedSet" }, {
-  pattern = "*",
-  callback = orderby_grapple_tags,
-})
+vim.keymap.set("n", "<leader>tt", function()
+  grapple.toggle()
+  orderby_grapple_tags()
+end)
+vim.keymap.set("n", "<leader>tl", grapple.popup_tags)
+vim.keymap.set("n", "<leader>tk", grapple.popup_scopes)
+
+local map_opt_idx = {
+  ["¡"] = 1, -- option + 1
+  ["™"] = 2, -- option + 2
+  ["£"] = 3, -- option + 3
+  ["¢"] = 4, -- option + 4
+  ["∞"] = 5, -- option + 5
+}
+for keymap, grapple_key in pairs(map_opt_idx) do
+  vim.keymap.set({ "n", "i", "x" }, keymap, function()
+    if grapple.exists({ key = grapple_key }) then
+      grapple.select({ key = grapple_key })
+    end
+  end)
+end
