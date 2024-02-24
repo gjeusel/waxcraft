@@ -433,6 +433,9 @@ return {
       require("wax.plugcfg.vim-test")
     end,
   },
+  { -- tpope/vim-sleuth - heuristic for setting shiftwidth and expandtab
+    "tpope/vim-sleuth",
+  },
   { -- tpope/vim-eunuch - sugar for shell commands
     "tpope/vim-eunuch",
     cmd = { "Move", "Copy", "Rename", "Delete" },

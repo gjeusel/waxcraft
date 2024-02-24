@@ -44,4 +44,7 @@ return {
   --     }
   --   )
   -- ),
+
+  -- zefire
+  s("zsite", { fmt("site = m.Site.query.filter_by({0})", { [0] = i(0, "") }) }),
 }

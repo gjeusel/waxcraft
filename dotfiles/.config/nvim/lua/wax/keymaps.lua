@@ -143,6 +143,10 @@ vim.keymap.set("n", "[q", function()
   vim.cmd([[normal! zz]])
 end, { desc = "Goto prev qflist item" })
 
+vim.keymap.set("n", "q][", function ()
+  vim.cmd("silent! cclose")
+end)
+
 -- vim.keymap.set("n", "]q", "<cmd>cnext<cr>")
 -- vim.keymap.set("n", "[q", "<cmd>cprev<cr>")
 

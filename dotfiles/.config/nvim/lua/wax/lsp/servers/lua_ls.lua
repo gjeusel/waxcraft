@@ -27,11 +27,10 @@ return {
       workspace = {
         checkThirdParty = false, -- https://github.com/sumneko/lua-language-server/wiki/Libraries#environment-emulation
         -- Make the server aware of Neovim runtime files
-        -- library = vim.api.nvim_get_runtime_file("", true),
-        -- library = {
-        --   [vim.fn.expand("$VIMRUNTIME/lua")] = true,
-        --   [vim.fn.expand("$VIMRUNTIME/lua/vim/lsp")] = true,
-        -- },
+        library = {
+          "${3rd}/luv/library",
+          unpack(vim.api.nvim_get_runtime_file("", true)),
+        },
         maxPreload = 3000,
       },
       -- disable certain warnings that don't concern us

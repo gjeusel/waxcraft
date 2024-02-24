@@ -45,9 +45,7 @@ return {
         -- diagnosticMode = "workspace",
         -- autoSearchPaths = true,
         -- typeCheckingMode = "basic",
-
-        -- All disabled, keep only auto importing
-        -- autoImportCompletions = true,  -- only thing I use pyright for
+        autoImportCompletions = true,
         diagnosticMode = "openFilesOnly",
         autoSearchPaths = false,
         typeCheckingMode = "off",
