@@ -6,7 +6,6 @@ local i = ls.insert_node
 
 return {
   -- Console snippets
-  -- s("eowijroe", { t("eojwroeiwjirewiojrew")}),
   s("cl", { t("console.log("), i(1), t(")") }),
   s("ct", { t("console.trace("), i(1), t(")") }),
   s("cd", { t("console.debug("), i(1), t(")") }),

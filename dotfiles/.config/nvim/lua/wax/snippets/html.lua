@@ -8,5 +8,26 @@ local opts = { delimiters = "[]" }
 
 return {
   -- Debug / Dev
-  s("pjson", fmt([[<pre>{{JSON.stringify([0])}}</pre>]], { [0] = i(0, "") }, opts)),
+  s(
+    "pjson",
+    fmt(
+      [[
+    <pre
+      style="
+        white-space: pre-wrap;
+        overflow: auto;
+        max-height: 400px;
+        max-width: 800px;
+        border-radius: 0.375rem;
+        border-width: 1px;
+        border-color: rgb(243 244 246);
+      "
+    >
+ {{ JSON.stringify([0], null, 2) }}
+    </pre>
+      ]],
+      { [0] = i(0, "") },
+      opts
+    )
+  ),
 }

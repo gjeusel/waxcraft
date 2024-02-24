@@ -1,3 +1,5 @@
+require("luasnip.session.snippet_collection").clear_snippets("python")
+
 local ls = require("luasnip")
 local s = ls.snippet
 local t = ls.text_node
@@ -11,8 +13,12 @@ return {
   s("ipath", { t("from pathlib import Path") }),
   s("isqla", { t("import sqlalchemy as sa") }),
   s("idataclass", { t("from dataclasses import dataclass") }),
+  s("iannot", { t("from __future__ import annotations") }),
+  --
   s("ipdb", { t('__import__("pdb").set_trace()  # BREAKPOINT') }),
   s("ipostmortem", { t('__import__("pdb").post_mortem()  # POSTMORTEM') }),
+  s("iforkedpdb", { t('__import__("dagster")._utils.forked_pdb.ForkedPdb().set_trace()') }),
+  --
   s(
     "istruct",
     fmt(
@@ -23,28 +29,11 @@ return {
       {}
     )
   ),
-  -- annotations
-  s("iannot", { t("from __future__ import annotations") }),
-  -- debugger
-  -- s("iforkedpdb", { t('__import__("venturi").utils.forked_pdb.ForkedPdb().set_trace()') }),
-  s("iforkedpdb", { t('__import__("dagster")._utils.forked_pdb.ForkedPdb().set_trace()') }),
-  -- tests
-  -- s(
-  --   "pyraises",
-  --   fmt(
-  --     [[
-  --       match = "{match}"
-  --       with pytest.raises({exc}, match=match):
-  --           {0}
-  --     ]],
-  --     {
-  --       match = i(1, ""),
-  --       exc = i(2, ""),
-  --       [0] = i(0, ""),
-  --     }
-  --   )
-  -- ),
 
   -- zefire
   s("zsite", { fmt("site = m.Site.query.filter_by({0})", { [0] = i(0, "") }) }),
+  s("zspv", { fmt("spv = m.AssetOwner.query.filter_by({0})", { [0] = i(0, "") }) }),
+  s("zassetmanager", { fmt("am = m.AssetManager.query.filter_by({0})", { [0] = i(0, "") }) }),
+  s("zcontract", { fmt("contract = m.Contract.query.filter_by({0})", { [0] = i(0, "") }) }),
+  s("zinvoice", { fmt("invoice = m.Invoice.query.filter_by({0})", { [0] = i(0, "") }) }),
 }
