@@ -12,7 +12,7 @@ local function set_lsp_keymaps()
     vim.lsp.buf.definition({
       on_list = function(options)
         vim.fn.setqflist({}, " ", options)
-        vim.api.nvim_command("cfirst")
+        vim.api.nvim_command("silent! cfirst!")
       end,
     })
   end
@@ -58,7 +58,6 @@ local function set_lsp_keymaps()
   -- vim.keymap.set({ "n", "v" }, "<leader>m", function()
   --   vim.lsp.buf.format({ async = true })
   -- end, opts)
-
 end
 
 -- Customization of the publishDiagnostics (remove all pyright diags)
