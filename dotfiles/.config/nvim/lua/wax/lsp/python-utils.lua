@@ -27,11 +27,9 @@ local find_python_cmd = wax_cache_fn(function(workspace, cmd)
   -- If a conda env exists with `almost` the same name as the workspace, use it
   local workspace_name = to_workspace_name(workspace)
   if workspace and workspace_name then
-    local pattern = (".*%s.*"):format(workspace_name)
-
     -- Check for any conda env named like the project
     if M.basepath_conda_venv then
-      local conda_venv_path = M.basepath_conda_venv:glob(pattern)
+      local conda_venv_path = M.basepath_conda_venv:glob(workspace_name)
       if #conda_venv_path > 0 then
         return conda_venv_path[1]:join("bin", cmd):absolute()
       end
@@ -40,7 +38,7 @@ local find_python_cmd = wax_cache_fn(function(workspace, cmd)
     -- Check for any virtualenv named like the project
     if M.basepath_poetry_venv then
       if Path:new(workspace):join("poetry.lock"):exists() then
-        local poetry_venv_path = M.basepath_poetry_venv:glob(pattern)
+        local poetry_venv_path = M.basepath_poetry_venv:glob(workspace_name)
         if #poetry_venv_path >= 1 then
           return poetry_venv_path[1]:join("bin", cmd):absolute()
         end
