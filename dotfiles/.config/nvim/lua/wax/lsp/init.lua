@@ -15,12 +15,12 @@ local function custom_go_to_definition()
         timeout,
         bufnr
       )
-      if resp ~= nil and #resp.result > 0 then
+      if resp ~= nil and resp.result and #resp.result > 0 then
         local location = resp.result[1]
         local uri = location.uri or location.targetUri
 
         if not string.match(uri, ".*imports.d.ts") then
-          vim.lsp.util.jump_to_location(location, client.encoding or "utf-8")
+          vim.lsp.util.jump_to_location(location, "utf-8")
           return
         end
 
@@ -39,7 +39,7 @@ local function custom_go_to_definition()
         }, timeout, bufnr)
         if nested_resp.result then
           local nested_location = nested_resp.result[1]
-          vim.lsp.util.jump_to_location(nested_location, client.encoding or "utf-8")
+          vim.lsp.util.jump_to_location(nested_location, "utf-8")
         end
 
         vim.api.nvim_buf_delete(tmp_buf, { force = true })
@@ -119,20 +119,6 @@ vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(function(_, r
 
   vim.lsp.diagnostic.on_publish_diagnostics(_, result, ctx, config)
 end, {})
-
--- Disable semanticTokens on lsp attach
---
--- should be done in on_attach setting it to nil, but buggy right now:
--- https://github.com/neovim/neovim/issues/21588
-vim.api.nvim_create_autocmd("LspAttach", {
-  callback = function(args)
-    -- disable semanticTokens for now
-    local client = vim.lsp.get_client_by_id(args.data.client_id)
-    local bufnr = args.buf
-    vim.lsp.semantic_tokens.stop(bufnr, client.id)
-    client.server_capabilities.semanticTokensProvider = nil
-  end,
-})
 
 -- Add auto disable client following waxopts.servers defs
 vim.api.nvim_create_autocmd("LspAttach", {

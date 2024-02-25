@@ -81,8 +81,19 @@ vim.keymap.set("n", "<leader>tt", function()
   grapple.toggle()
   orderby_grapple_tags()
 end)
-vim.keymap.set("n", "<leader>tl", grapple.popup_tags)
+vim.keymap.set("n", "<leader>tl", function()
+  grapple.popup_tags()
+end)
 vim.keymap.set("n", "<leader>tk", grapple.popup_scopes)
+
+-- order when leaving the grapple popup_tags
+vim.api.nvim_create_autocmd("BufUnload", {
+  callback = function()
+    if vim.bo.filetype == "grapple" then
+      orderby_grapple_tags()
+    end
+  end,
+})
 
 local map_opt_idx = {
   ["¡"] = 1, -- option + 1
