@@ -1,47 +1,51 @@
 -- Set log level for LSP
 vim.lsp.set_log_level(waxopts.loglevel)
 
-local function _lsp_to_single_location(err, locations)
-  if err or locations == nil or vim.tbl_isempty(locations) then
-    return
-  end
-  return locations[1]
-end
-
 local function custom_go_to_definition()
-  local params = vim.lsp.util.make_position_params()
-  vim.lsp.buf_request(0, "textDocument/definition", params, function(err, locations)
-    local location = _lsp_to_single_location(err, locations)
-    if not location then
-      return
-    end
+  local bufnr = vim.api.nvim_get_current_buf()
+  local clients = vim.lsp.get_clients({ bufnr = bufnr })
 
-    vim.lsp.util.jump_to_location(location, "utf-8")
+  local timeout = 1000
 
-    -- Special case of nested goto definition (on generated typescript files)
-    if string.match(location.uri or location.targetUri, ".*imports.d.ts") then
-      local line_num = location["targetRange"]["end"]["line"]
-      local buf = vim.api.nvim_get_current_buf()
-      local line_length = #vim.api.nvim_buf_get_lines(buf, line_num, line_num + 1, false)[1]
-
-      local next_position = {
-        position = { character = line_length - 1, line = line_num },
-        textDocument = { uri = location.targetUri },
-      }
-      vim.lsp.buf_request(
-        0,
+  for _, client in ipairs(clients) do
+    if client.supports_method("textDocument/definition") then
+      local resp = client.request_sync(
         "textDocument/definition",
-        next_position,
-        function(nested_err, nested_locations)
-          local nested_location = _lsp_to_single_location(nested_err, nested_locations)
-          if nested_location then
-            vim.api.nvim_buf_delete(0, { force = true }) -- remove buffer of import.d.ts
-            vim.lsp.util.jump_to_location(nested_location, "utf-8")
-          end
-        end
+        vim.lsp.util.make_position_params(),
+        timeout,
+        bufnr
       )
+      if resp ~= nil and #resp.result > 0 then
+        local location = resp.result[1]
+        local uri = location.uri or location.targetUri
+
+        if not string.match(uri, ".*imports.d.ts") then
+          vim.lsp.util.jump_to_location(location, client.encoding or "utf-8")
+          return
+        end
+
+        -- Special case of jump into redirection file: "imports.d.ts"
+        -- Doing the equivalent of https://github.com/antfu/vscode-goto-alias
+        local tmp_buf = vim.fn.bufadd(uri:sub(8))
+        vim.fn.bufload(tmp_buf)
+
+        local line_num = location["targetRange"]["end"]["line"]
+        local lines = vim.api.nvim_buf_get_lines(tmp_buf, line_num, line_num + 1, false)
+        local line_length = #lines[1] - 1
+
+        local nested_resp = client.request_sync("textDocument/definition", {
+          position = { line = line_num, character = line_length },
+          textDocument = { uri = uri },
+        }, timeout, bufnr)
+        if nested_resp.result then
+          local nested_location = nested_resp.result[1]
+          vim.lsp.util.jump_to_location(nested_location, client.encoding or "utf-8")
+        end
+
+        vim.api.nvim_buf_delete(tmp_buf, { force = true })
+      end
     end
-  end)
+  end
 end
 
 -- Mappings
@@ -140,17 +144,16 @@ vim.api.nvim_create_autocmd("LspAttach", {
     local lsp_client = vim.lsp.get_client_by_id(args.data.client_id)
     local opts = vim.tbl_get(waxopts.servers, lsp_client.name)
 
-    if not opts then
-      return
-    end
-
     local project = find_workspace_name(args.file)
-    if vim.tbl_contains(opts.blacklist, project) then
-      log.info("Disabling", lsp_client.name, "for project", project)
-      -- failing as not attached yet when not using defer_fn, the fuck?
+    if opts and vim.tbl_contains(opts.blacklist, project) then
+      log.debug("Disabling", lsp_client.name, "for project", project)
+      lsp_client.cancel_request(args.id)
+      -- failing as not attached yet when not using defer_fn, the fuck? resort to defer
       vim.defer_fn(function()
-        vim.lsp.buf_detach_client(args.buf, args.data.client_id)
-      end, 3000)
+        if vim.api.nvim_buf_is_loaded(args.buf) then
+          vim.lsp.buf_detach_client(args.buf, args.data.client_id)
+        end
+      end, 500)
     end
   end,
 })
