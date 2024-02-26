@@ -1,7 +1,7 @@
 -- Set log level for LSP
 vim.lsp.set_log_level(waxopts.loglevel)
 
-local function custom_go_to_definition()
+local function goto_alias_definition()
   local bufnr = vim.api.nvim_get_current_buf()
   local clients = vim.lsp.get_clients({ bufnr = bufnr })
 
@@ -56,18 +56,19 @@ local function set_lsp_keymaps()
   vim.keymap.set("n", "<leader>D", vim.lsp.buf.type_definition, opts)
 
   local function goto_first_definition()
-    vim.lsp.buf.definition({
-      on_list = function(options)
-        vim.fn.setqflist({}, " ", options)
-        vim.api.nvim_command("silent! cfirst!")
-      end,
-    })
+    if vim.tbl_contains({ "vue", "typescript" }, vim.bo.filetype) then
+      goto_alias_definition()
+    else
+      vim.lsp.buf.definition({
+        on_list = function(options)
+          vim.fn.setqflist({}, " ", options)
+          vim.api.nvim_command("silent! cfirst!")
+        end,
+      })
+    end
   end
   vim.keymap.set("n", "gd", goto_first_definition, opts)
   vim.keymap.set("n", "<leader>d", goto_first_definition, opts)
-
-  vim.keymap.set("n", "gd", custom_go_to_definition, opts)
-  vim.keymap.set("n", "<leader>d", custom_go_to_definition, opts)
 
   vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
 
