@@ -740,6 +740,7 @@ return {
     event = { "BufReadPre", "BufNewFile" },
     dependencies = { "nvim-lua/plenary.nvim" }, -- used for python-utils
     config = function()
+      vim.g.nonels_supress_issue58 = true
       require("wax.lsp.null-ls")
     end,
   },
