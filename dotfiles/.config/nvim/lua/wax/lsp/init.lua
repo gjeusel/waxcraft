@@ -121,6 +121,20 @@ vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(function(_, r
   vim.lsp.diagnostic.on_publish_diagnostics(_, result, ctx, config)
 end, {})
 
+-- Disable semanticTokens on lsp attach
+--
+-- should be done in on_attach setting it to nil, but buggy right now:
+-- https://github.com/neovim/neovim/issues/21588
+vim.api.nvim_create_autocmd("LspAttach", {
+  callback = function(args)
+    -- disable semanticTokens for now
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+    local bufnr = args.buf
+    vim.lsp.semantic_tokens.stop(bufnr, client.id)
+    client.server_capabilities.semanticTokensProvider = nil
+  end,
+})
+
 -- Add auto disable client following waxopts.servers defs
 vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(args)

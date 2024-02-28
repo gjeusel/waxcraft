@@ -47,7 +47,7 @@ return {
     )
   ),
   s(
-    "iscript",
+    "vscript",
     fmt(
       [[
         <script setup lang="ts">
@@ -58,7 +58,7 @@ return {
       opts
     )
   ),
-  s("iimport", fmt([[import { [0] } from "#imports"]], { [0] = i(0, "") }, opts)),
+  s("vimport", fmt([[import { [0] } from "#imports"]], { [0] = i(0, "") }, opts)),
 
   s(
     "vstyle",

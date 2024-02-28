@@ -22,9 +22,9 @@ local sources = {
   --   command = "mypy",
   --   dynamic_command = from_python_env,
   -- }),
-  builtins.diagnostics.eslint_d.with({
-    filetypes = eslint_filetypes,
-  }),
+  -- builtins.diagnostics.eslint_d.with({
+  --   filetypes = eslint_filetypes,
+  -- }),
 }
 
 require("null-ls").setup({

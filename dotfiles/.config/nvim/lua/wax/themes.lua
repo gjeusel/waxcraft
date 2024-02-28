@@ -172,6 +172,8 @@ local map_gruvbox_filetype_hls = {
     ["@function.call"] = { link = "white" },
     ["@function.builtin"] = { link = "GruvboxYellow" },
     ["@comment"] = { link = "Comment" },
+    ["@variable"] = { link = "white" },
+    ["@variable.member"] = { link = "white" },
   },
   yaml = {
     ["@field"] = { link = "GruvboxBlue" },

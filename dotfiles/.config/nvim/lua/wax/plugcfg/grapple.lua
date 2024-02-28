@@ -86,13 +86,9 @@ vim.keymap.set("n", "<leader>tl", function()
 end)
 vim.keymap.set("n", "<leader>tk", grapple.popup_scopes)
 
--- order when leaving the grapple popup_tags
-vim.api.nvim_create_autocmd("BufUnload", {
-  callback = function()
-    if vim.bo.filetype == "grapple" then
-      orderby_grapple_tags()
-    end
-  end,
+vim.api.nvim_create_autocmd({ "BufEnter", "BufModifiedSet" }, {
+  pattern = "*",
+  callback = orderby_grapple_tags,
 })
 
 local map_opt_idx = {
