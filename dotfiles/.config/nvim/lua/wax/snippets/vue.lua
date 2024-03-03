@@ -114,6 +114,20 @@ return {
     )
   ),
   s(
+    "velif",
+    fmt(
+      [[
+        <div v-else-if="{condition}">
+          {0}
+        </div>
+      ]],
+      {
+        condition = i(1, ""),
+        [0] = i(0, ""),
+      }
+    )
+  ),
+  s(
     "vif",
     fmt(
       [[

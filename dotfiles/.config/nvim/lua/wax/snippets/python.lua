@@ -35,5 +35,7 @@ return {
   s("zspv", fmt("spv = m.AssetOwner.query.filter_by({0}).one()", { [0] = i(0, "") })),
   s("zassetmanager", fmt("am = m.AssetManager.query.filter_by({0}).one()", { [0] = i(0, "") })),
   s("zcontract", fmt("contract = m.Contract.query.filter_by({0}).one()", { [0] = i(0, "") })),
+  s("zclause", fmt("clause = m.Clause.query.filter_by({0}).one()", { [0] = i(0, "") })),
   s("zinvoice", fmt("invoice = m.Invoice.query.filter_by({0}).one()", { [0] = i(0, "") })),
+  s("zdocument", fmt("document = m.Document.query.filter_by({0}).one()", { [0] = i(0, "") })),
 }

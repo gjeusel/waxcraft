@@ -20,3 +20,5 @@ alias timeit from fohn import timer; timer.timeit(lambda: %*)
 
 alias loginfo from fohn import logs; logs.setup_structlog(log_level="info")
 alias logdebug from fohn import logs; logs.setup_structlog(log_level="debug")
+
+alias horizon print(f"{%*.start.tz_convert('CET')} -> {%*.end.tz_convert('CET')}")

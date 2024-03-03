@@ -3,10 +3,14 @@ import logging
 import sys
 from pathlib import Path
 from pprint import pprint
+import warnings
 
 import __main__
 
 pdb = lambda: __import__("pdb").set_trace()  # BREAKPOINT
+
+for exc in (FutureWarning,):
+    warnings.filterwarnings("ignore", category=exc)
 
 try:
     import pytz
@@ -39,9 +43,7 @@ try:
     from rich.console import Console
     from rich.theme import Theme
 
-    _console_rich = Console(
-        theme=Theme.read(Path("~/.config/rich/rich.ini").expanduser().as_posix())
-    )
+    _console_rich = Console(theme=Theme.read(Path("~/.config/rich/rich.ini").expanduser().as_posix()))
     print = pp = _console_rich.print
 except ImportError:
     pass

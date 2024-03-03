@@ -66,13 +66,15 @@ local function orderby_grapple_tags()
 
   local default_rank = 1000
   table.sort(bufline_state.buffers, function(left, right)
-    local left_name = vim.api.nvim_buf_get_name(left)
-    local right_name = vim.api.nvim_buf_get_name(right)
-    local left_rank = vim.tbl_get(tagged_files, left_name) or default_rank + left
-    local right_rank = vim.tbl_get(tagged_files, right_name) or default_rank + right
-    -- log.warn("\nleft_name=", left_name, "left_rank=", left_rank)
-    -- log.warn("\nright_name=", right_name, "right_rank=", right_rank)
-    return left_rank < right_rank
+    if vim.api.nvim_buf_is_valid(left) and vim.api.nvim_buf_is_valid(right) then
+      local left_name = vim.api.nvim_buf_get_name(left)
+      local right_name = vim.api.nvim_buf_get_name(right)
+      local left_rank = vim.tbl_get(tagged_files, left_name) or default_rank + left
+      local right_rank = vim.tbl_get(tagged_files, right_name) or default_rank + right
+      -- log.warn("\nleft_name=", left_name, "left_rank=", left_rank)
+      -- log.warn("\nright_name=", right_name, "right_rank=", right_rank)
+      return left_rank < right_rank
+    end
   end)
   render.update()
 end
