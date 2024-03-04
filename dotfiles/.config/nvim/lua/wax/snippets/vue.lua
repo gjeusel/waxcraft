@@ -19,13 +19,13 @@ return {
     fmt(
       [[
         <script setup lang="ts">
-        const props = defineProps<{[0]}>()
+        const props = defineProps<{[props]}>()
         </script>
 
         <template>
         </template>
       ]],
-      { [0] = i(0, "") },
+      { props = i(0) },
       opts
     )
   ),
@@ -35,14 +35,14 @@ return {
       [[
         <script setup lang="ts">
         definePageMeta({
-          title: "[0]",
+          title: "[title]",
         })
         </script>
 
         <template>
         </template>
       ]],
-      { [0] = i(0, "") },
+      { title = i(0) },
       opts
     )
   ),
@@ -51,24 +51,25 @@ return {
     fmt(
       [[
         <script setup lang="ts">
-        [0]
+        [input]
         </script>
       ]],
-      { [0] = i(0, "") },
+      { input = i(0) },
       opts
     )
   ),
-  s("vimport", fmt([[import { [0] } from "#imports"]], { [0] = i(0, "") }, opts)),
+  s("vimport", fmt([[import { [name] } from "#imports"]], { name = i(0) }, opts)),
 
   s(
     "vstyle",
     fmt(
       [[
         <style lang="postcss">
-          {0}
+          [input]
         </style>
       ]],
-      { [0] = i(0, "") }
+      { input = i(0) },
+      opts
     )
   ),
 
@@ -76,9 +77,9 @@ return {
     "demits",
     fmt(
       [[
-        const emits = defineEmits(["{0}"])
+        const emits = defineEmits(["{emits}"])
       ]],
-      { [0] = i(0, "") }
+      { emits = i(0) }
     )
   ),
 
@@ -88,15 +89,15 @@ return {
     fmt(
       [[
         <{tag} v-for="{iter}" :key="{key}">
-          {0}
+          {input}
         </{tag_rep}>
       ]],
       {
         tag = c(1, tags),
         tag_rep = rep(1),
-        iter = i(2, ""),
-        key = i(3, "i"),
-        [0] = i(0, ""),
+        iter = i(2),
+        key = i(3),
+        input = i(0),
       }
     )
   ),
@@ -107,10 +108,10 @@ return {
     fmt(
       [[
         <div v-else>
-          {0}
+          {input}
         </div>
       ]],
-      { [0] = i(0, "") }
+      { input = i(0) }
     )
   ),
   s(
@@ -118,12 +119,12 @@ return {
     fmt(
       [[
         <div v-else-if="{condition}">
-          {0}
+          {input}
         </div>
       ]],
       {
-        condition = i(1, ""),
-        [0] = i(0, ""),
+        condition = i(1),
+        input = i(0),
       }
     )
   ),
@@ -132,12 +133,12 @@ return {
     fmt(
       [[
         <div v-if="{condition}">
-          {0}
+          {input}
         </div>
       ]],
       {
-        condition = i(1, ""),
-        [0] = i(0, ""),
+        condition = i(1),
+        input = i(0),
       }
     )
   ),
@@ -146,12 +147,12 @@ return {
     fmt(
       [[
       <div v-else-if="{condition}">
-        {0}
+        {input}
       </div>
       ]],
       {
-        condition = i(1, ""),
-        [0] = i(0, ""),
+        condition = i(1),
+        input = i(0),
       }
     )
   ),
@@ -160,11 +161,10 @@ return {
     fmt(
       [[
         <div v-else>
-          [0]
+        {input}
         </div>
       ]],
-      { [0] = i(0, "") },
-      opts
+      { input = i(0, "") }
     )
   ),
 }
