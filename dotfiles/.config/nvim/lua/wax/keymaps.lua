@@ -60,6 +60,18 @@ vim.keymap.set({ "n", "x", "t" }, "<C-c>", "<Esc>") -- try out replace <C-c> wro
 
 -- select current paragraph with enter:
 vim.keymap.set("n", "<return>", "vip")
+vim.keymap.set(
+  "i",
+  "<S-CR>",
+  "<CR>",
+  { nowait = true, remap = false, desc = "Force a clear line return" }
+)
+vim.keymap.set(
+  "i",
+  "<C-CR>",
+  "<CR>",
+  { nowait = true, remap = false, desc = "Force a clear line return" }
+)
 
 -- For when you forget to sudo.. Really Write the file.
 -- vim.keymap.set("c", "w!!", "w !sudo tee % >/dev/null")
@@ -143,7 +155,7 @@ vim.keymap.set("n", "[q", function()
   vim.cmd([[normal! zz]])
 end, { desc = "Goto prev qflist item" })
 
-vim.keymap.set("n", "q][", function ()
+vim.keymap.set("n", "q][", function()
   vim.cmd("silent! cclose")
 end)
 

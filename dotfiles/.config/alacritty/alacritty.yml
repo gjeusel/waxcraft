@@ -67,6 +67,8 @@ key_bindings:
   - { key: Back, mods: Alt, chars: "\x1b\x7f" } # delete word
   # - { key: Back, mods: Alt, action: "^[^H]"  } # delete word/line
   # - { key: Delete, chars: "\x1b[3~" }
+  - { key: Return, mods: Shift, chars: "\u001B[13;2u"}
+  - { key: Return, mods: Control, chars: "\u001B[13;5u"}
 
 # Colors (Gruvbox dark)
 colors:

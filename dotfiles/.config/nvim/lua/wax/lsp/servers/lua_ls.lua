@@ -31,7 +31,7 @@ return {
         --   "${3rd}/luv/library",
         --   unpack(vim.api.nvim_get_runtime_file("", true)),
         -- },
-        maxPreload = 3000,
+        -- maxPreload = 3000,
       },
       -- disable certain warnings that don't concern us
       -- https://github.com/sumneko/lua-language-server/blob/master/doc/en-us/config.md

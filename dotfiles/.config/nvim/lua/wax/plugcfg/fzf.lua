@@ -71,7 +71,8 @@ fzf_lua.setup({
 local function git_or_cwd()
   local cwd = vim.fn.getcwd()
   if is_git() then
-    cwd = find_root_dir(cwd, { ".git" })
+    -- use .gitignore so it works as expected in monorepo setup
+    cwd = find_root_dir(cwd, { ".gitignore" })
   end
   return cwd
 end
