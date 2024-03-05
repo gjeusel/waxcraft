@@ -161,9 +161,11 @@ local map_gruvbox_filetype_hls = {
   -- frontend:
   [{ "typescript", "javascript", "typescriptreact", "javascriptreact" }] = frontend_gruvbox_ts_hls,
   vue = vim.tbl_extend("force", frontend_gruvbox_ts_hls, {
-    ["@function.macro"] = { link = "GruvboxBlueBold" },
+    ["@tag.attribute"] = { link = "GruvboxAqua" },
+    ["@function.macro.vue"] = { link = "GruvboxBlue" },
     ["@field"] = { link = "GruvboxBlue" },
-    -- ["@method"] = { link = "GruvboxBlue" }, -- tag binded attribute
+    ["@variable.member"] = { link = "GruvboxBlue" },
+    ["@variable.parameter"] = { link = "GruvboxOrange" },
   }),
   --
   -- common:

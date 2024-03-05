@@ -213,7 +213,6 @@ local function wax_files()
     ".python_startup_local.py",
     ".zshrc",
     "src/waxcraft/dotfiles",
-    "src/nvim-treesitter",
     ".local/share/nvim/lazy",
   }
   local home = vim.env.HOME
