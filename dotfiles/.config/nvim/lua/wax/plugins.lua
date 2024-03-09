@@ -581,7 +581,7 @@ return {
   },
   { -- grapple
     "cbochs/grapple.nvim",
-    tag="v0.8.1",
+    tag = "v0.8.1",
     -- dev = true, -- use "~/src/grapple.nvim/"
     lazy = false,
     config = function()
@@ -694,6 +694,7 @@ return {
   --------- LSP ---------
   { -- Github lua copilot
     "zbirenbaum/copilot.lua",
+    enabled = false,
     keys = {
       {
         "<C-x>",

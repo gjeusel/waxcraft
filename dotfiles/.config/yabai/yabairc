@@ -46,13 +46,26 @@ yabai -m config window_gap                   10
 yabai -m config layout                       bsp
 
 # Setup preferences on spaces
-yabai -m space 1 --label "Misc" --display 1 --layout stack
-yabai -m space 2 --label "Code" --display 2 --layout bsp
-yabai -m space 3 --label "Browser" --display 2 --layout stack
-yabai -m space 4 --label "Social" --display 2 --layout bsp
-yabai -m space 5 --label "Business" --display 2 --layout stack
-yabai -m space 6 --label "Perso" --display 2 --layout bsp
-yabai -m space 7 --label "Extra" --display 2 --layout bsp
+display_count=$(yabai -m query --displays | jq 'length')
+
+if [ "$display_count" -gt 1 ]; then
+  yabai -m space 1 --label "Misc" --display 1 --layout stack
+  yabai -m space 2 --label "Code" --display 2 --layout bsp
+  yabai -m space 3 --label "Browser" --display 2 --layout stack
+  yabai -m space 4 --label "Social" --display 2 --layout bsp
+  yabai -m space 5 --label "Business" --display 2 --layout stack
+  yabai -m space 6 --label "Perso" --display 2 --layout bsp
+  yabai -m space 7 --label "Extra" --display 2 --layout bsp
+else
+  yabai -m space 1 --label "Misc" --display 1 --layout stack
+  yabai -m space 2 --label "Code" --display 1 --layout bsp
+  yabai -m space 3 --label "Browser" --display 1 --layout stack
+  yabai -m space 4 --label "Social" --display 1 --layout bsp
+  yabai -m space 5 --label "Business" --display 1 --layout stack
+  yabai -m space 6 --label "Perso" --display 1 --layout bsp
+  yabai -m space 7 --label "Extra" --display 1 --layout bsp
+fi
+
 
 # Misc
 yabai -m rule --add app="Spotify" space="Misc"
