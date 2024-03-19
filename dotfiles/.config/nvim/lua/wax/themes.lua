@@ -35,7 +35,7 @@ local base_gruvbox_hls = {
   MatchWord = { cterm = nil, ctermfg = nil, ctermbg = nil },
   MatchWordCur = { cterm = nil, ctermfg = nil, ctermbg = nil },
 
-  -- Imp gruvbox signs
+  -- Improve gruvbox signs
   GruvboxGreenSign = { link = "GruvboxGreen" },
   GruvboxRedSign = { link = "GruvboxRed" },
   GruvboxAquaSign = { link = "GruvboxAqua" },

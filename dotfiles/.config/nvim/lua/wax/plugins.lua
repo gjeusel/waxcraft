@@ -18,6 +18,20 @@ return {
       require("wax.themes")
     end,
   },
+  -- {
+  --   "sainnhe/gruvbox-material",
+  --   lazy = false,
+  --   priority = 1000,
+  --   config = function()
+  --     vim.o.termguicolors = false
+  --     vim.o.background = "dark"
+  --     vim.g.gruvbox_material_background = "soft"
+  --     vim.g.gruvbox_material_foreground = "original"
+  --     vim.g.gruvbox_material_transparent_background = 1
+  --     vim.g.gruvbox_material_better_performance = 1
+  --     vim.cmd([[colorscheme gruvbox-material]])
+  --   end,
+  -- },
   { -- lualine
     "nvim-lualine/lualine.nvim",
     dependencies = { "linrongbin16/lsp-progress.nvim" },
@@ -157,27 +171,30 @@ return {
   },
   { -- indentline
     "lukas-reineke/indent-blankline.nvim",
-    enabled = false,
+    main = "ibl",
+    enabled = true,
     lazy = false,
     opts = {
-      char = "¦",
-      show_end_of_line = false,
-      show_trailing_blankline_indent = false,
+      indent = { char = "┊", highlight = "GruvboxBg1" },
+      whitespace = { remove_blankline_trail = true, highlight = "GruvboxBg1" },
+      scope = { enabled = false },
+      exclude = {
+        filetypes = {
+          "lspinfo",
+          "checkhealth",
+          "help",
+          "man",
+          "gitcommit",
+          "startify",
+          "markdown",
+          "vim",
+          "tex",
+          "fzf",
+          "TelescopePrompt",
+          "TelescopeResults",
+        },
+      },
     },
-    init = function()
-      vim.g.indent_blankline_filetype_exclude = {
-        "lspinfo",
-        "checkhealth",
-        "help",
-        "man",
-        "startify",
-        "markdown",
-        "vim",
-        "tex",
-        "fzf",
-        "TelescopePrompt",
-      }
-    end,
   },
   { -- treesitter
     "nvim-treesitter/nvim-treesitter",
@@ -850,7 +867,7 @@ return {
 
   --------- Language Specific ---------
   { "edgedb/edgedb-vim", ft = { "edgedb", "edgeql" } },
-  { "Vimjas/vim-python-pep8-indent", ft = "python" },
+  { "Vimjas/vim-python-pep8-indent", ft = "python", pin = true },
 
   --------- NeoVim Perf / Dev ---------
   { "dstein64/vim-startuptime", cmd = "StartupTime" }, -- analyze startup time
