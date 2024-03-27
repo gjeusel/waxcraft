@@ -355,13 +355,13 @@ return {
             ["[L"] = "@class.outer",
           },
         },
-        lsp_interop = {
-          enable = true,
-          peek_definition_code = {
-            ["<leader>fd"] = "@function.outer",
-            ["<leader>fD"] = "@class.outer",
-          },
-        },
+        -- lsp_interop = {
+        --   enable = true,
+        --   peek_definition_code = {
+        --     ["<leader>fd"] = "@function.outer",
+        --     ["<leader>fD"] = "@class.outer",
+        --   },
+        -- },
       },
       -- 'JoosepAlviste/nvim-ts-context-commentstring' -- auto deduce comment string on context
       ts_context_commentstring = {
@@ -844,6 +844,7 @@ return {
       "hrsh7th/cmp-nvim-lsp",
       { "lukas-reineke/cmp-rg", dev = true, pin = true },
       "saadparwaiz1/cmp_luasnip",
+      "rcarriga/cmp-dap",
     },
     config = function()
       require("wax.plugcfg.nvim-cmp")
@@ -864,6 +865,9 @@ return {
       require("wax.lsp.conform")
     end,
   },
+
+  -- DAP
+  { import = "wax.debugger" },
 
   --------- Language Specific ---------
   { "edgedb/edgedb-vim", ft = { "edgedb", "edgeql" } },

@@ -48,6 +48,9 @@ local base_gruvbox_hls = {
   Statusline = { link = "GruvboxFg3" },
   StatuslineNC = { link = "GruvboxFg4" },
 
+  -- debugger
+  DapStoppedLine = { link = "Visual" },
+
   -- barbar
   BufferCurrent = { link = "GruvboxFg1" },
   BufferCurrentSign = { link = "GruvboxAqua" },

@@ -74,6 +74,6 @@ require("lazy").setup({ import = "wax.plugins" }, {
   },
 })
 
-vim.keymap.set("n", "<leader>fp", function()
-  require("lazy").profile()
-end)
+-- vim.keymap.set("n", "<leader>fp", function()
+--   require("lazy").profile()
+-- end)

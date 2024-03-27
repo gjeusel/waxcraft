@@ -151,3 +151,17 @@ cmp.setup({
     },
   },
 })
+
+-- Completion in DAP buffers
+cmp.setup({
+  enabled = function()
+    return vim.api.nvim_get_option_value("buftype", { buf = 0 }) ~= "prompt"
+      or require("cmp_dap").is_dap_buffer()
+  end,
+})
+cmp.setup.filetype({ "dap-repl", "dapui_watches", "dapui_hover" }, {
+  enabled = true,
+  sources = {
+    { name = "dap" },
+  },
+})

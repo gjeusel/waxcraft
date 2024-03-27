@@ -177,13 +177,15 @@ local function create_mason_handlers()
   end, Path.waxdir():join("lsp/servers"):ls())
 
   for _, server_name in ipairs(server_with_custom_config) do
-    local function to_server_opts()
-      local server_module = ("wax.lsp.servers.%s"):format(server_name)
-      return vim.tbl_deep_extend("keep", { capabilities = capabilities }, require(server_module))
-    end
+    local server_module = ("wax.lsp.servers.%s"):format(server_name)
+    local server_custom_opts = require(server_module)
 
-    handlers[server_name] = function()
-      require("lspconfig")[server_name].setup(to_server_opts())
+    if type(server_custom_opts) == "table" then
+      handlers[server_name] = function()
+        require("lspconfig")[server_name].setup(
+          vim.tbl_deep_extend("keep", { capabilities = capabilities }, server_custom_opts)
+        )
+      end
     end
   end
 
