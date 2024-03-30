@@ -113,7 +113,12 @@ require("lualine").setup({
       -- { "branch", fmt = trunc(120, 12, 60) },
     },
     lualine_c = {
-      -- "require('lsp-progress').progress()",
+      function()
+        return require("lsp-progress").progress()
+      end,
+      function()
+        return require("dap").status()
+      end,
     },
     lualine_x = {
       workspace_name,
