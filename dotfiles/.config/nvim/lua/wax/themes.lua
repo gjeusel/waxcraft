@@ -51,6 +51,9 @@ local base_gruvbox_hls = {
   -- debugger
   DapStoppedLine = { link = "Visual" },
 
+  -- indentline
+  MiniIndentscopeSymbol = { link = "GruvboxBg2" },
+
   -- barbar
   BufferCurrent = { link = "GruvboxFg1" },
   BufferCurrentSign = { link = "GruvboxAqua" },

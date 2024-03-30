@@ -169,17 +169,21 @@ return {
       end, { nargs = "*" })
     end,
   },
-  { -- indentline
-    "lukas-reineke/indent-blankline.nvim",
-    main = "ibl",
-    enabled = true,
+  { -- indent line
+    "echasnovski/mini.indentscope",
     lazy = false,
     opts = {
-      indent = { char = "┊", highlight = "GruvboxBg1" },
-      whitespace = { remove_blankline_trail = true, highlight = "GruvboxBg1" },
-      scope = { enabled = false },
-      exclude = {
-        filetypes = {
+      mappings = {},
+      draw = {
+        delay = 100, -- ms
+      },
+      symbol = "│",
+      options = { try_as_border = true },
+    },
+    init = function()
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = {
+          "mason",
           "lspinfo",
           "checkhealth",
           "help",
@@ -193,8 +197,11 @@ return {
           "TelescopePrompt",
           "TelescopeResults",
         },
-      },
-    },
+        callback = function()
+          vim.b.miniindentscope_disable = true
+        end,
+      })
+    end,
   },
   { -- treesitter
     "nvim-treesitter/nvim-treesitter",

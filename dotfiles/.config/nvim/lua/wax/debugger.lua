@@ -86,17 +86,6 @@ local function config_dap()
       },
     }
   end
-
-  -- Customize windows
-  repl.commands = vim.tbl_extend("force", repl.commands, {
-    exit = { "exit", ".exit", ".bye", "quit" },
-    -- stylua: ignore
-    -- custom_commands = {
-    --   ["c"] = function() dap.continue() end,
-    --   ["n"] = function() dap.step_over() end,
-    --   ["s"] = function() dap.step_into() end,
-    -- },
-  })
 end
 
 local winopts_repl = { height = 15, width = 1 }
@@ -134,6 +123,7 @@ local keymaps = {
 
 return {
   "mfussenegger/nvim-dap",
+  lazy = false,
   config = config_dap,
   keys = keymaps,
   dependencies = {
