@@ -176,6 +176,9 @@ return {
       mappings = {},
       draw = {
         delay = 100, -- ms
+        animation = function(s, n)
+          return 20
+        end,
       },
       symbol = "│",
       options = { try_as_border = true },
