@@ -112,7 +112,7 @@ local keymaps = {
             ["pwa-chrome"] = js_based_languages,
           })
         end
-        dap.repl.open(winopts_repl)
+        -- dap.repl.open(winopts_repl)
       end
 
       dap.continue()

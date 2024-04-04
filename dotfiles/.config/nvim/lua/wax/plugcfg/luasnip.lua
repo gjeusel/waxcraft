@@ -37,14 +37,13 @@ ls.config.set_config({
   enable_autosnippets = false,
 })
 
-local snippets_path = require("wax.path").waxdir():join("snippets"):absolute()
-
-load_from_lua({ paths = snippets_path })
-
 ls.filetype_extend("vue", { "typescript", "html" })
 ls.filetype_extend("svelte", { "typescript", "html" })
 ls.filetype_extend("typescriptreact", { "typescript", "html" })
 ls.filetype_extend("jinja.html", { "html" })
+
+local snippets_path = require("wax.path").waxdir():join("snippets"):absolute()
+load_from_lua({ paths = snippets_path })
 
 -- mappings for navigating nodes
 local kmapopts = { silent = true, nowait = true }
