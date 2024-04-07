@@ -112,6 +112,8 @@ local base_gruvbox_ts_hls = {
   ["@method.call"] = { link = "white" },
   ["@function.call"] = { link = "white" },
 
+  ["@property"] = { link = "white" },
+
   -- html
   ["@tag"] = { link = "GruvboxRed" },
   ["@tag.delimiter"] = { link = "GruvboxFg4" },
@@ -123,7 +125,6 @@ local frontend_gruvbox_ts_hls = {
   ["@definition.function"] = { link = "GruvboxBlue" },
 
   ["@repeat"] = { link = "GruvboxRed" },
-  ["@property"] = { link = "white" },
 
   -- ["@method.call"] = { link = "GruvboxBlue" },
   ["@function.method"] = { link = "GruvboxBlue" },

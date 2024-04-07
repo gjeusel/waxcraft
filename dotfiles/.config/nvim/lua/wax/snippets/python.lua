@@ -14,6 +14,7 @@ return {
   s("isqla", { t("import sqlalchemy as sa") }),
   s("idataclass", { t("from dataclasses import dataclass") }),
   s("iannot", { t("from __future__ import annotations") }),
+  s("imock", { t("from unittest import mock") }),
   --
   s("ipdb", { t('__import__("pdb").set_trace()  # BREAKPOINT') }),
   s("ipostmortem", { t('__import__("pdb").post_mortem()  # POSTMORTEM') }),

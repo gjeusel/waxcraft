@@ -18,20 +18,6 @@ return {
       require("wax.themes")
     end,
   },
-  -- {
-  --   "sainnhe/gruvbox-material",
-  --   lazy = false,
-  --   priority = 1000,
-  --   config = function()
-  --     vim.o.termguicolors = false
-  --     vim.o.background = "dark"
-  --     vim.g.gruvbox_material_background = "soft"
-  --     vim.g.gruvbox_material_foreground = "original"
-  --     vim.g.gruvbox_material_transparent_background = 1
-  --     vim.g.gruvbox_material_better_performance = 1
-  --     vim.cmd([[colorscheme gruvbox-material]])
-  --   end,
-  -- },
   { -- lualine
     "nvim-lualine/lualine.nvim",
     dependencies = { "linrongbin16/lsp-progress.nvim" },
@@ -177,7 +163,7 @@ return {
       draw = {
         delay = 100, -- ms
         animation = function(s, n)
-          return 0
+          return 5
         end,
       },
       symbol = "│",
