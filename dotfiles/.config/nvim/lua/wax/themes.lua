@@ -176,6 +176,9 @@ local map_gruvbox_filetype_hls = {
   }),
   --
   -- common:
+  [{ "jsonc", "json" }] = {
+    ["@property"] = { link = "GruvboxBlue" },
+  },
   lua = {
     ["@function"] = { link = "GruvboxBlueBold" },
     ["@function.call"] = { link = "white" },

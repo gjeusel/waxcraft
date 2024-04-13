@@ -12,9 +12,9 @@ return {
     "pjson",
     fmt(
       [[
-        <pre class="whitespace-pre-wrap overflow-auto max-w-lg max-h-[height] border border-gray-200" >
-           {{ JSON.stringify([0], null, 2) }}
-        </pre>
+        <pre class="whitespace-pre-wrap overflow-auto max-w-lg max-h-[height] border border-gray-200">{{
+          JSON.stringify([0], null, 2)
+        }}</pre>
       ]],
       { [0] = i(0, ""), height = i(0, "[32rem]") },
       opts

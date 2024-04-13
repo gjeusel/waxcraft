@@ -46,6 +46,8 @@ vim.filetype.add({
     ["cronfile"] = "sh",
     [".flaskenv"] = "sh",
     [".aliases"] = "zsh",
+    --
+    [".nuxtrc"] = "config"
   },
   -- pattern = map_pattern_ft,
   pattern = {

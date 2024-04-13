@@ -27,6 +27,20 @@ local function config_dap()
     vim.fn.sign_define(sign.name, sign)
   end
 
+  -- local dapui = require("dapui")
+  -- dap.listeners.before.attach.dapui_config = function()
+  --   dapui.open()
+  -- end
+  -- dap.listeners.before.launch.dapui_config = function()
+  --   dapui.open()
+  -- end
+  -- dap.listeners.before.event_terminated.dapui_config = function()
+  --   dapui.close()
+  -- end
+  -- dap.listeners.before.event_exited.dapui_config = function()
+  --   dapui.close()
+  -- end
+
   -- silence logs "could not read source map"
   dap.defaults.fallback.on_output = function(session, event)
     if
@@ -88,6 +102,48 @@ local function config_dap()
   end
 end
 
+---@param dir "next"|"prev"
+local function gotoBreakpoint(dir)
+  -- https://github.com/mfussenegger/nvim-dap/issues/792
+  local breakpoints = require("dap.breakpoints").get()
+  if #breakpoints == 0 then
+    vim.notify("No breakpoints set", vim.log.levels.WARN)
+    return
+  end
+  local points = {}
+  for bufnr, buffer in pairs(breakpoints) do
+    for _, point in ipairs(buffer) do
+      table.insert(points, { bufnr = bufnr, line = point.line })
+    end
+  end
+
+  local current = {
+    bufnr = vim.api.nvim_get_current_buf(),
+    line = vim.api.nvim_win_get_cursor(0)[1],
+  }
+
+  local nextPoint
+  for i = 1, #points do
+    local isAtBreakpointI = points[i].bufnr == current.bufnr and points[i].line == current.line
+    if isAtBreakpointI then
+      local nextIdx = dir == "next" and i + 1 or i - 1
+      if nextIdx > #points then
+        nextIdx = 1
+      end
+      if nextIdx == 0 then
+        nextIdx = #points
+      end
+      nextPoint = points[nextIdx]
+      break
+    end
+  end
+  if not nextPoint then
+    nextPoint = points[1]
+  end
+
+  vim.cmd(("buffer +%s %s"):format(nextPoint.line, nextPoint.bufnr))
+end
+
 local winopts_repl = { height = 15, width = 1 }
 
 -- stylua: ignore
@@ -97,7 +153,8 @@ local keymaps = {
   -- { "<leader>fO", function() require("dap").step_out() end, desc = "[DAP] step over" },
   -- { "<leader>fi", function() require("dap").step_into() end, desc = "[DAP] step into" },
   { "<leader>ft", function() require("dap.ui.widgets").hover() end, desc = "[DAP] hover"},
-  { "<leader>fr", function() require("dap").repl.toggle(winopts_repl) end, desc = "[DAP] open repl" },
+  -- { "<leader>fr", function() require("dap").repl.toggle(winopts_repl) end, desc = "[DAP] open repl" },
+  { "<leader>fr", function() require("dapui").toggle({}) end, desc = "[DAP] toggle UI" },
   { "<leader>fc",
     function()
       local dap = require("dap")
@@ -119,6 +176,8 @@ local keymaps = {
     end,
     desc = "[DAP] continue",
   },
+  {"[p", function () gotoBreakpoint("next") end, desc = '[DAP] go to next breakpoint'},
+  {"]p", function () gotoBreakpoint("next") end, desc = '[DAP] go to next breakpoint'},
 }
 
 return {
@@ -127,11 +186,34 @@ return {
   config = config_dap,
   keys = keymaps,
   dependencies = {
-    -- { -- dap virtual text
-    --   "theHamsta/nvim-dap-virtual-text",
-    --   config = true,
-    --   opts = {},
-    -- },
+    { -- fancy UI for the debugger
+      "rcarriga/nvim-dap-ui",
+      dependencies = { "nvim-neotest/nvim-nio" },
+      opts = {
+        controls = { enabled = false },
+        icons = {
+          collapsed = "⮕ ",
+          current_frame = "⮕ ",
+          expanded = "⤷",
+        },
+        layouts = {
+          -- scopes & breakpoints & stacks are better done by fzf-lua, hence only repl
+          {
+            elements = { { id = "repl", size = 1 } },
+            position = "bottom",
+            size = 15,
+          },
+        },
+        mappings = {
+          edit = "e",
+          expand = { "<CR>", "<2-LeftMouse>", "<Space>" },
+          open = "o",
+          remove = "dd",
+          repl = "r",
+          toggle = "t",
+        },
+      },
+    },
     { -- mason.nvim integration
       "jay-babu/mason-nvim-dap.nvim",
       dependencies = { "nvim-dap" },

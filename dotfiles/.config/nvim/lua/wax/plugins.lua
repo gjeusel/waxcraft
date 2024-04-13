@@ -46,21 +46,21 @@ return {
       maximum_padding = 1,
       -- avoid scratch buffer display from null-ls:
       no_name_title = "",
-      exclude_name = { "" },
+      exclude_name = { "", "[dap-repl]" },
     },
     keys = {
       { "œ", "<cmd>BufferPrevious<cr>", desc = "Previous buffer", mode = { "n", "i" } },
       { "∑", "<cmd>BufferNext<cr>", desc = "Next buffer", mode = { "n", "i" } },
       { "®", "<cmd>BufferClose<cr>", desc = "Close buffer", mode = { "n", "i" } },
-      {
-        "©", -- option + g
-        function()
-          vim.cmd("BufferCloseAllButCurrent")
-          vim.cmd([[exec "normal \<c-w>\<c-o>"]])
-        end,
-        desc = "Close all buffer except current",
-        mode = { "n", "i" },
-      },
+      -- {
+      --   "©", -- option + g
+      --   function()
+      --     vim.cmd("BufferCloseAllButCurrent")
+      --     vim.cmd([[exec "normal \<c-w>\<c-o>"]])
+      --   end,
+      --   desc = "Close all buffer except current",
+      --   mode = { "n", "i" },
+      -- },
     },
   },
   { -- dressing
@@ -282,6 +282,7 @@ return {
         "graphql",
         "html",
         "css",
+        "scss",
         -- "jsdoc",
         "javascript",
         "typescript",
@@ -363,9 +364,9 @@ return {
       ts_context_commentstring = {
         enable = true,
         enable_autocmd = false,
-        -- config = {
-        --   ["jinja.html"] = "{# %s #}",
-        -- },
+        config = {
+          -- ["jinja.html"] = "{# %s #}",
+        },
       },
       -- 'andymass/vim-matchup' -- better the '%'
       matchup = {
@@ -675,7 +676,7 @@ return {
         -- line-comment keymap
         line = "<leader>cc",
         ---block-comment keymap
-        -- block = "gbc",
+        -- block = "<leader>bc",
       },
       opleader = {
         -- line-comment keymap
@@ -688,10 +689,13 @@ return {
         extra = false,
         extended = false,
       },
+      -- pre_hook = function()
+      --   require("ts_context_commentstring.integrations.comment_nvim").create_pre_hook()
+      -- end,
       pre_hook = function()
         -- https://github.com/numToStr/Comment.nvim/pull/62#issuecomment-972790418
         -- Fix builtin Comment behaviour by using ts_context_commentstring:
-        if vim.tbl_contains({ "vue", "svelte" }, vim.bo.filetype) then
+        if vim.tbl_contains({ "vue", "svelte", "scss" }, vim.bo.filetype) then
           require("ts_context_commentstring.internal").update_commentstring()
           return vim.o.commentstring
         end
