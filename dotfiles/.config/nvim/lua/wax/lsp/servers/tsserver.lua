@@ -1,7 +1,13 @@
 -- return false -- better use vtsls (not sure in fact...)
 
+local preferences = {
+  autoImportFileExcludePatterns = {
+    "**/components/**/*.vue",
+  },
+}
 return {
   init_options = {
+    preferences = preferences,
     plugins = {
       {
         name = "@vue/typescript-plugin",
@@ -10,16 +16,6 @@ return {
         languages = { "vue" },
       },
     },
-  },
-  settings = {
-    -- https://code.visualstudio.com/docs/getstarted/settings#_default-settings
-    -- // Specify glob patterns of files to exclude from auto imports.
-    -- javascript.suggest.autoImports
-    -- javascript = {
-    --   suggest = { autoImports = false },
-    --   -- preferences = { autoImportFileExcludePatterns = { "#build/components" } },
-    -- },
-    -- "javascript.preferences.autoImportFileExcludePatterns": [],
   },
   filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue" },
   on_attach = function(client, _)
