@@ -12,6 +12,16 @@ export waxCraft_PATH=${0:A:h:h}
 source "$waxCraft_PATH/dotfiles/envvar.sh"
 source "$waxCraft_PATH/dotfiles/fzf-extras.zsh"
 
+source "$waxCraft_PATH/dotfiles/fzf-git.sh"
+_fzf_git_fzf() {
+  fzf-tmux -p80%,60% -- \
+    --layout=reverse --multi --height=50% --min-height=20 \
+    --border-label-pos=2 \
+    --color='header:italic:underline,label:blue' \
+    --preview-window='right,50%,border-left' \
+    --bind='ctrl-/:change-preview-window(down,50%,border-rounded|hidden|)' "$@"
+}
+
 # _______ ZSH Options _______
 
 # History - https://zsh.sourceforge.io/Doc/Release/Options.html#index-APPENDHISTORY

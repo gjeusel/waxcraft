@@ -5,8 +5,20 @@ return false
 
 --   -- https://github.com/yioneko/vtsls/issues/148
 --   filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue" },
+--   -- on_attach = function(client, _)
+--   --   client.server_capabilities.semanticTokensProvider = nil
+--   -- end,
+--   autoUseWorkspaceTsdk = true,
 --   settings = {
+--     typescript = {
+--       tsserver = { log = "verbose" },
+--       preferences = {
+--         includePackageJsonAutoImports = "off",
+--         autoImportFileExcludePatterns = { "**/components/**/*.vue" },
+--       },
+--     },
 --     vtsls = {
+--       experimental = { completion = { enableServerSideFuzzyMatch = true, entriesLimit = 5 } },
 --       tsserver = {
 --         globalPlugins = {
 --           {

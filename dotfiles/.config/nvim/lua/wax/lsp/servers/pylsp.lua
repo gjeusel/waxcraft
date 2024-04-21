@@ -79,13 +79,18 @@ return {
     if python_path == "python" then
       local msg = "LSP python (pylsp) - keeping previous python path '%s' for new_root_dir '%s'"
       log.debug(msg:format(config.cmd[1], new_workspace))
-      return config
     else
       local msg = "LSP python (pylsp) - '%s' using path %s"
       log.info(msg:format(new_workspace_name, python_path))
 
       config.cmd = to_pylsp_cmd(python_path)
-      return config
     end
+
+    if vim.list_contains({ "ticts" }, new_workspace_name) then
+      config.settings.pylsp.plugins.pylsp_mypy.enabled = true
+      config.settings.pylsp.plugins.pylsp_mypy.live_mode = true
+    end
+
+    return config
   end,
 }
