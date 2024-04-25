@@ -4,6 +4,8 @@ local jinja_regex =
 vim.filetype.add({
   extension = {
     ["json"] = "jsonc",
+    ["JSON"] = "jsonc",
+
     ["md"] = "markdown",
     ["txt"] = "sh",
     ["conf"] = "config",
@@ -47,7 +49,7 @@ vim.filetype.add({
     [".flaskenv"] = "sh",
     [".aliases"] = "zsh",
     --
-    [".nuxtrc"] = "config"
+    [".nuxtrc"] = "config",
   },
   -- pattern = map_pattern_ft,
   pattern = {

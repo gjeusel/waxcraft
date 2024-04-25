@@ -20,6 +20,10 @@ vim.o.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 
 _G.custom_fold_text = function()
   local line = vim.fn.getline(vim.v.foldstart)
+  if vim.list_contains({ "{" }, line:gsub("%s", "")) then
+    line = ("%s %s"):format(line, vim.fn.getline(vim.v.foldstart + 1):match("^%s*(.-)%s*$"))
+  end
+
   local num_lines = vim.v.foldend - vim.v.foldstart + 1
   local maxchars = tonumber(vim.o.colorcolumn) or 100
   local suffix = string.format("%s lines ↩", num_lines)

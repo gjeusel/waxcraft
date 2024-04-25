@@ -12,7 +12,6 @@ vim.api.nvim_create_autocmd(
 -- When in diffmode, open all folds
 vim.cmd([[au OptionSet diff normal zR]])
 
-
 -- Python
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "python",
@@ -37,15 +36,23 @@ vim.api.nvim_create_autocmd("FileType", {
 
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "python",
-  callback = function ()
+  callback = function()
     local python = require("wax.lsp.python-utils").get_python_path()
     vim.g.python3_host_prog = python
-  end
+  end,
 })
 
 -- Frontend
 vim.api.nvim_create_autocmd("FileType", {
-  pattern = { "vue", "svelte", "typescript", "javascript", "typescriptreact", "javascriptreact", "html" },
+  pattern = {
+    "vue",
+    "svelte",
+    "typescript",
+    "javascript",
+    "typescriptreact",
+    "javascriptreact",
+    "html",
+  },
   callback = function()
     vim.keymap.set("n", "<leader>o", function()
       utils.insert_new_line_in_current_buffer("debugger // BREAKPOINT")
@@ -100,13 +107,15 @@ vim.api.nvim_create_autocmd({ "BufReadPre", "FileReadPre" }, {
     end
 
     local fname = vim.fn.expand("%:t")
-    print(("Big file '%s', disabling features for performance reasons."):format(fname))
+    vim.schedule(function()
+      print("big file detected -> minimalist mode")
+    end)
 
     -- Ensure syntax is disable
     vim.opt_local.syntax = nil
 
     -- disable folding
-    vim.opt_local.foldmethod = "manual"
+    vim.opt_local.foldmethod = "indent"
     vim.opt_local.foldexpr = nil
 
     -- disable view backup and swap
@@ -117,6 +126,9 @@ vim.api.nvim_create_autocmd({ "BufReadPre", "FileReadPre" }, {
 
     -- disable wrap
     vim.opt_local.wrap = nil
+
+    -- disable indentline
+    vim.b.miniindentscope_disable = true
 
     -- vim.cmd([[setlocal noloadplugins]])
     -- vim.opt_local.noloadplugins = true

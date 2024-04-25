@@ -41,5 +41,6 @@ require("conform").setup({
     xml = { "xmlformat" },
     rust = { "rustfmt" },
     toml = { "taplo" },
+    jsonc = { "jq" },
   },
 })
