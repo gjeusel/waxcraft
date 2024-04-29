@@ -213,7 +213,7 @@ return {
       { -- nvim-ts-context-commentstring
         "JoosepAlviste/nvim-ts-context-commentstring",
         lazy = true,
-        ft = { "html", "vue", "typescriptreact", "svelte", "lua", "vim" },
+        ft = { "html", "vue", "typescriptreact", "svelte", "lua", "vim", "tsx" },
       },
       { "windwp/nvim-ts-autotag" },
       { -- vim-matchup - better %
@@ -235,6 +235,7 @@ return {
     build = ":TSUpdate",
     init = function()
       vim.treesitter.language.register("jinja.html", "html")
+      vim.treesitter.language.register("bash", "zsh")
     end,
     opts = {
       highlight = {
@@ -695,15 +696,15 @@ return {
       pre_hook = function()
         -- https://github.com/numToStr/Comment.nvim/pull/62#issuecomment-972790418
         -- Fix builtin Comment behaviour by using ts_context_commentstring:
-        if vim.tbl_contains({ "vue", "svelte", "scss" }, vim.bo.filetype) then
+        if vim.tbl_contains({ "vue", "svelte", "scss", "typescriptreact" }, vim.bo.filetype) then
           require("ts_context_commentstring.internal").update_commentstring()
           return vim.o.commentstring
         end
 
-        if vim.bo.filetype == "typescriptreact" then
-          local fn = require("ts_context_commentstring.integrations.comment_nvim").create_pre_hook()
-          return fn()
-        end
+        -- if vim.bo.filetype == "typescriptreact" then
+        --   local fn = require("ts_context_commentstring.integrations.comment_nvim").create_pre_hook()
+        --   return fn()
+        -- end
       end,
     },
   },
@@ -871,7 +872,7 @@ return {
 
   --------- Language Specific ---------
   { "edgedb/edgedb-vim", ft = { "edgedb", "edgeql" } },
-  { "Vimjas/vim-python-pep8-indent", ft = "python", pin = true },
+  { "Vimjas/vim-python-pep8-indent", ft = "python", pin = true, dev=true },
 
   --------- NeoVim Perf / Dev ---------
   { "dstein64/vim-startuptime", cmd = "StartupTime" }, -- analyze startup time

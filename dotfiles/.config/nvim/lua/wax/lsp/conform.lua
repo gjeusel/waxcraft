@@ -35,6 +35,7 @@ require("conform").setup({
     ["jinja.html"] = { "djhtml" },
     javascript = { { "prettierd", "prettier" }, { "eslint_d", "eslint" } },
     typescript = { { "prettierd", "prettier" }, { "eslint_d", "eslint" } },
+    typescriptreact = { { "prettierd", "prettier" }, { "eslint_d", "eslint" } },
     vue = { { "prettierd", "prettier" }, { "eslint_d", "eslint" } },
     yaml = { "prettier" },
     css = { "prettier" },

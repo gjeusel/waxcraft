@@ -166,7 +166,7 @@ local map_gruvbox_filetype_hls = {
   python = python_gruvbox_ts_hls,
   --
   -- frontend:
-  [{ "typescript", "javascript", "typescriptreact", "javascriptreact" }] = frontend_gruvbox_ts_hls,
+  [{ "typescript", "javascript", "typescriptreact", "javascriptreact", "tsx", "jsx" }] = frontend_gruvbox_ts_hls,
   vue = vim.tbl_extend("force", frontend_gruvbox_ts_hls, {
     ["@tag.attribute"] = { link = "GruvboxAqua" },
     ["@function.macro.vue"] = { link = "GruvboxBlue" },
