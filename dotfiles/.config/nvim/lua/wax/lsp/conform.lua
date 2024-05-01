@@ -8,6 +8,8 @@ local function to_python_cmd(cmd, tbl)
   return inner
 end
 
+local frontend_cfg = { { "prettierd", "prettier" }, { "eslint_d", "eslint" } }
+
 require("conform").setup({
   formatters = {
     ruff_fix = to_python_cmd("ruff", {
@@ -33,10 +35,10 @@ require("conform").setup({
     python = { "ruff_fix", "ruff_format" },
     -- python = { "isort", "black" },
     ["jinja.html"] = { "djhtml" },
-    javascript = { { "prettierd", "prettier" }, { "eslint_d", "eslint" } },
-    typescript = { { "prettierd", "prettier" }, { "eslint_d", "eslint" } },
-    typescriptreact = { { "prettierd", "prettier" }, { "eslint_d", "eslint" } },
-    vue = { { "prettierd", "prettier" }, { "eslint_d", "eslint" } },
+    javascript = frontend_cfg,
+    typescript = frontend_cfg,
+    typescriptreact = frontend_cfg,
+    vue = frontend_cfg,
     yaml = { "prettier" },
     css = { "prettier" },
     xml = { "xmlformat" },

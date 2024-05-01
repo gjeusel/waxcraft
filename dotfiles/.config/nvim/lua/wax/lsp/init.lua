@@ -49,8 +49,8 @@ local function goto_alias_definition()
 end
 
 -- Mappings
-local function set_lsp_keymaps()
-  local opts = { noremap = true, silent = true }
+local function set_lsp_keymaps(buffer)
+  local opts = { noremap = true, silent = true, buffer = buffer }
 
   -- See `:help vim.lsp.*` for documentation on any of the below functions
   vim.keymap.set("n", "<leader>D", vim.lsp.buf.type_definition, opts)

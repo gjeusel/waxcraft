@@ -808,7 +808,13 @@ return {
 
       local waxlsp = require("wax.lsp")
       waxlsp.setup_ui()
-      waxlsp.set_lsp_keymaps()
+
+      vim.api.nvim_create_autocmd("LspAttach", {
+        group = vim.api.nvim_create_augroup("wax-lsp-attach", { clear = true }),
+        callback = function(event)
+          waxlsp.set_lsp_keymaps(event.buf)
+        end,
+      })
 
       --Enable completion triggered by <c-x><c-o>
       vim.api.nvim_set_option_value("omnifunc", "v:lua.vim.lsp.omnifunc", {})
@@ -872,7 +878,7 @@ return {
 
   --------- Language Specific ---------
   { "edgedb/edgedb-vim", ft = { "edgedb", "edgeql" } },
-  { "Vimjas/vim-python-pep8-indent", ft = "python", pin = true, dev=true },
+  { "Vimjas/vim-python-pep8-indent", ft = "python", pin = true, dev = true },
 
   --------- NeoVim Perf / Dev ---------
   { "dstein64/vim-startuptime", cmd = "StartupTime" }, -- analyze startup time
