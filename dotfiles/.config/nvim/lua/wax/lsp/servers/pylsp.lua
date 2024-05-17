@@ -86,7 +86,7 @@ return {
       config.cmd = to_pylsp_cmd(python_path)
     end
 
-    if vim.list_contains({ "ticts" }, new_workspace_name) then
+    if vim.list_contains({ "ticts", "aquilon" }, new_workspace_name) then
       config.settings.pylsp.plugins.pylsp_mypy.enabled = true
       config.settings.pylsp.plugins.pylsp_mypy.live_mode = true
     end

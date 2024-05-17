@@ -107,7 +107,7 @@ cmp.setup({
     ["<C-d>"] = cmp.mapping.scroll_docs(4),
     ["<C-u>"] = cmp.mapping.scroll_docs(-4),
     ["<C-e>"] = cmp.mapping.close(),
-    ["<C-c"] = cmp.mapping(function()
+    ["<C-c>"] = cmp.mapping(function()
       if cmp.visible() then
         cmp.close()
       end

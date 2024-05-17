@@ -49,11 +49,10 @@ windows:
       - focus: true
       -
 
-  - window_name: mailtem
+  - window_name: aquilon
     layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
     shell_command_before:
-      - act mailtem
-      - cd ~/src/mailtem
+      - cd ~/src/aquilon
     panes:
       - focus: true
       -
