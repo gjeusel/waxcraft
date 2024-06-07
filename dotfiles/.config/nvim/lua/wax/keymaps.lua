@@ -180,7 +180,7 @@ vim.keymap.set("n", "<leader>yp", function()
   local word_under_cursor = vim.fn.getreg('"')
 
   local abspath = vim.api.nvim_buf_get_name(0)
-  local workspace = find_root_dir(abspath)
+  local workspace = find_root_dir(abspath, { "pyproject.toml" })
   if not workspace then
     return
   end
