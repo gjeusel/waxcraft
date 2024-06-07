@@ -18,7 +18,9 @@ local function format(entry, vim_item)
   end
 
   -- fancy icons and a name of kind
-  vim_item.kind = lspkind.presets.default[vim_item.kind] .. " " .. vim_item.kind
+  if vim_item.kind then
+    vim_item.kind = lspkind.presets.default[vim_item.kind] .. " " .. vim_item.kind
+  end
 
   local lsp_client = ""
   if entry.source.name == "nvim_lsp" then
