@@ -19,7 +19,11 @@ local function goto_alias_definition()
         local location = resp.result[1]
         local uri = location.uri or location.targetUri
 
-        if not string.match(uri, ".*imports.d.ts") then
+        -- TODO: make the or statement inside the regex
+        local is_gotoalias_case = string.match(uri, ".*imports.d.ts")
+          or string.match(uri, ".*components.d.ts")
+
+        if not is_gotoalias_case then
           vim.lsp.util.jump_to_location(location, "utf-8")
           return
         end
@@ -50,10 +54,10 @@ end
 
 -- Mappings
 local function set_lsp_keymaps(buffer)
-  local opts = { noremap = true, silent = true, buffer = buffer }
+  local kmap_opts = { noremap = true, silent = true, buffer = buffer }
 
   -- See `:help vim.lsp.*` for documentation on any of the below functions
-  vim.keymap.set("n", "<leader>D", vim.lsp.buf.type_definition, opts)
+  vim.keymap.set("n", "<leader>D", vim.lsp.buf.type_definition, kmap_opts)
 
   local function goto_first_definition()
     if vim.tbl_contains({ "vue", "typescript" }, vim.bo.filetype) then
@@ -67,49 +71,49 @@ local function set_lsp_keymaps(buffer)
       })
     end
   end
-  vim.keymap.set("n", "gd", goto_first_definition, opts)
-  vim.keymap.set("n", "<leader>d", goto_first_definition, opts)
+  vim.keymap.set("n", "gd", goto_first_definition, kmap_opts)
+  vim.keymap.set("n", "<leader>d", goto_first_definition, kmap_opts)
 
-  vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+  vim.keymap.set("n", "K", vim.lsp.buf.hover, kmap_opts)
 
-  vim.keymap.set("n", "<leader>i", vim.lsp.buf.implementation, opts)
-  vim.keymap.set("n", "<leader>I", vim.lsp.buf.declaration, opts)
+  vim.keymap.set("n", "<leader>i", vim.lsp.buf.implementation, kmap_opts)
+  vim.keymap.set("n", "<leader>I", vim.lsp.buf.declaration, kmap_opts)
 
   vim.keymap.set("i", "<C-s>", vim.lsp.buf.signature_help)
 
-  vim.keymap.set("n", "<leader>R", vim.lsp.buf.rename, opts)
+  vim.keymap.set("n", "<leader>R", vim.lsp.buf.rename, kmap_opts)
 
   -- Mapping with selectors:
-  vim.keymap.set("n", "<leader>fa", vim.lsp.buf.code_action, opts)
-
-  local goto_win_opts = {
-    float = {
-      format = function(diag)
-        return ("[%s] %s"):format(diag.source, diag.message)
-      end,
-      -- nvim_open_win generic:
-      relative = "cursor",
-      style = "minimal",
-      border = "rounded",
-      -- open_floating_preview generic:
-      focusable = true,
-      -- lsp win specific:
-      scope = "cursor",
-      header = "",
-    },
-  }
-  vim.keymap.set("n", "å", function()
-    vim.diagnostic.goto_prev(goto_win_opts)
-  end, opts)
-  vim.keymap.set("n", "ß", function()
-    vim.diagnostic.goto_next(goto_win_opts)
-  end, opts)
+  vim.keymap.set("n", "<leader>fa", vim.lsp.buf.code_action, kmap_opts)
 
   -- -- Formatting is done in conform.lua
   -- vim.keymap.set({ "n", "v" }, "<leader>m", function()
   --   vim.lsp.buf.format({ async = true })
-  -- end, opts)
+  -- end, kmap_opts)
 end
+
+local goto_win_opts = {
+  float = {
+    format = function(diag)
+      return ("[%s] %s"):format(diag.source, diag.message)
+    end,
+    -- nvim_open_win generic:
+    relative = "cursor",
+    style = "minimal",
+    border = "rounded",
+    -- open_floating_preview generic:
+    focusable = true,
+    -- lsp win specific:
+    scope = "cursor",
+    header = "",
+  },
+}
+vim.keymap.set("n", "å", function()
+  vim.diagnostic.goto_prev(goto_win_opts)
+end, { noremap = true, silent = true })
+vim.keymap.set("n", "ß", function()
+  vim.diagnostic.goto_next(goto_win_opts)
+end, { noremap = true, silent = true })
 
 -- Customization of the publishDiagnostics (remove all pyright diags)
 vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(function(_, result, ctx, config)
