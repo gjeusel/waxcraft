@@ -10,6 +10,7 @@ vim.o.relativenumber = true -- relative line number
 vim.o.conceallevel = 0 -- don't conceal anything
 vim.o.colorcolumn = "100" -- Show vertical bar at column 100
 vim.o.signcolumn = "yes" -- always show sign column
+-- vim.o.foldcolumn = "1" -- fold column width
 vim.o.ruler = true -- Show the cursor position all the time
 -- vim.o.cursorline = true     -- Highlight the line of the cursor
 -- vim.o.guicursor=nil         -- disable cursor-styling
@@ -43,6 +44,7 @@ vim.o.pyxversion = 3
 -- vim.o.spellang = "en_us" -- activate vim spell checking
 vim.o.spelloptions = "camel,noplainbuffer"
 -- vim.o.nospell = true
+
 vim.cmd([[set fillchars=vert:│,stlnc:―,stl:―,fold:\ ]]) -- box drawings heavy vertical (U+2503, UTF-8: E2 94 83)
 vim.cmd([[
   if has('linebreak')
@@ -108,8 +110,12 @@ if vim.fn.has("clipboard") == 1 and vim.fn.has("unnamedplus") == 1 then
 end
 
 -- diffmode
-vim.cmd[[set diffopt+=linematch:800]]
-
+vim.opt.diffopt:append({
+  "linematch:800",
+  "vertical",
+  "foldcolumn:1",
+  "indent-heuristic",
+})
 
 -- -- activate per project settings
 -- vim.o.exrc = true  -- allows loading local EXecuting local RC files
