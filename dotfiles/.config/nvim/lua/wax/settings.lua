@@ -10,7 +10,6 @@ vim.o.relativenumber = true -- relative line number
 vim.o.conceallevel = 0 -- don't conceal anything
 vim.o.colorcolumn = "100" -- Show vertical bar at column 100
 vim.o.signcolumn = "yes" -- always show sign column
--- vim.o.foldcolumn = "1" -- fold column width
 vim.o.ruler = true -- Show the cursor position all the time
 -- vim.o.cursorline = true     -- Highlight the line of the cursor
 -- vim.o.guicursor=nil         -- disable cursor-styling

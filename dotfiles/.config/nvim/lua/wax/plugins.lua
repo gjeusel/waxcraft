@@ -163,7 +163,7 @@ return {
       draw = {
         delay = 100, -- ms
         animation = function(s, n)
-          return 5
+          return 0
         end,
       },
       symbol = "│",

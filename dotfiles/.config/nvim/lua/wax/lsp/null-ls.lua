@@ -34,6 +34,12 @@ require("null-ls").setup({
   update_in_insert = false,
   should_attach = function(bufnr)
     local fpath = vim.api.nvim_buf_get_name(bufnr)
+    local workspace = find_workspace_name(fpath)
+
+    if vim.tbl_contains({ "aquilon" }, workspace) then
+      return false
+    end
+
     return not is_big_file(fpath)
   end,
   log = {

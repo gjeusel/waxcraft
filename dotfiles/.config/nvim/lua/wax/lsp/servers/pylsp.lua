@@ -87,8 +87,17 @@ return {
     end
 
     if vim.list_contains({ "ticts", "aquilon" }, new_workspace_name) then
-      config.settings.pylsp.plugins.pylsp_mypy.enabled = true
-      config.settings.pylsp.plugins.pylsp_mypy.live_mode = true
+      local activate_mypy_opts = {
+        -- dmypy = true,
+        enabled = true,
+        live_mode = false,
+        args = {
+          "--sqlite-cache", -- Use an SQLite database to store the cache.
+          "--cache-fine-grained", -- Include fine-grained dependency information in the cache for the mypy daemon.
+        },
+      }
+      config.settings.pylsp.plugins.pylsp_mypy =
+        vim.tbl_extend("keep", activate_mypy_opts, config.settings.pylsp.plugins.pylsp_mypy)
     end
 
     return config
