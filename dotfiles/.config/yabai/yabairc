@@ -30,7 +30,7 @@ yabai -m config split_ratio                  0.50
 yabai -m config auto_balance                 off
 
 # Mouse support
-yabai -m config mouse_modifier               alt
+yabai -m config mouse_modifier               fn
 yabai -m config mouse_action1                move
 yabai -m config mouse_action2                resize
 yabai -m config mouse_drop_action            swap
@@ -52,18 +52,20 @@ if [ "$display_count" -gt 1 ]; then
   yabai -m space 1 --label "Misc" --display 1 --layout stack
   yabai -m space 2 --label "Code" --display 2 --layout bsp
   yabai -m space 3 --label "Browser" --display 2 --layout stack
-  yabai -m space 4 --label "Social" --display 2 --layout bsp
-  yabai -m space 5 --label "Business" --display 2 --layout stack
-  yabai -m space 6 --label "Perso" --display 2 --layout bsp
-  yabai -m space 7 --label "Extra" --display 2 --layout bsp
+  yabai -m space 5 --label "BrowserDev" --display 2 --layout bsp
+  yabai -m space 5 --label "Social" --display 2 --layout bsp
+  yabai -m space 6 --label "Business" --display 2 --layout stack
+  yabai -m space 7 --label "Perso" --display 2 --layout bsp
+  yabai -m space 8 --label "Extra" --display 2 --layout bsp
 else
   yabai -m space 1 --label "Misc" --display 1 --layout stack
   yabai -m space 2 --label "Code" --display 1 --layout bsp
   yabai -m space 3 --label "Browser" --display 1 --layout stack
-  yabai -m space 4 --label "Social" --display 1 --layout bsp
-  yabai -m space 5 --label "Business" --display 1 --layout stack
-  yabai -m space 6 --label "Perso" --display 1 --layout bsp
-  yabai -m space 7 --label "Extra" --display 1 --layout bsp
+  yabai -m space 4 --label "BrowserDev" --display 1 --layout stack
+  yabai -m space 5 --label "Social" --display 1 --layout bsp
+  yabai -m space 6 --label "Business" --display 1 --layout stack
+  yabai -m space 7 --label "Perso" --display 1 --layout bsp
+  yabai -m space 8 --label "Extra" --display 1 --layout bsp
 fi
 
 
@@ -79,11 +81,12 @@ yabai -m rule --add app="FaceTime" space="Misc"
 yabai -m rule --add app="App Store" space="Misc"
 
 # Browser
-yabai -m rule --add app="Firefox" space="Browser"
 yabai -m rule --add app="Chromium" space="Browser"
 yabai -m rule --add app="Safari" space="Browser"
 yabai -m rule --add app="Arc" space="Browser"
 yabai -m rule --add app="Brave Browser"
+# BrowserDev
+yabai -m rule --add app="Firefox" space="BrowserDev"
 
 # Programming
 yabai -m rule --add app="Alacritty" space="Code"
