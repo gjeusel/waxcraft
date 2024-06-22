@@ -93,7 +93,7 @@
   arguments: (argument_list
     (_)
     (identifier) @type))
- (#eq? @_isinstance "isinstance"))
+  (#eq? @_isinstance "isinstance"))
 
 ; Normal parameters
 (parameters
@@ -259,17 +259,22 @@
 
 ;; Type Hint
 (type
-  [
-    (identifier) @type
-    (_ (identifier) @type)
-    (_ (_ (identifier) @type))
-    (_ (_ (_ (identifier) @type)))
-    (_ (_ (_ (_ (identifier) @type))))
-    (_ (_ (_ (_ (_ (identifier) @type)))))
-    (_ (_ (_ (_ (_ (_ (identifier) @type))))))
-    (_ (_ (_ (_ (_ (_ (_ (identifier) @type)))))))
-  ]
-)
+  (identifier) @type)
+(type
+  (subscript
+    (identifier) @type)) ; type subscript: Tuple[int]
+
+((assignment
+  left: (identifier) @type.definition
+  (type
+    (identifier) @_annotation))
+  (#eq? @_annotation "TypeAlias"))
+
+((assignment
+  left: (identifier) @type.definition
+  right: (call
+    function: (identifier) @_func))
+  (#any-of? @_func "TypeVar" "NewType"))
 
 ;; Class definitions
 (class_definition
