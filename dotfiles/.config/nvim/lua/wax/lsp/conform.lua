@@ -8,7 +8,7 @@ local function to_python_cmd(cmd, tbl)
   return inner
 end
 
-local frontend_cfg = { { "prettierd", "prettier" }, { "eslint_d", "eslint" } }
+local frontend_cfg = { "prettierd", "eslint_d" }
 
 require("conform").setup({
   formatters = {
@@ -40,6 +40,7 @@ require("conform").setup({
     typescriptreact = frontend_cfg,
     vue = frontend_cfg,
     yaml = { "prettier" },
+    markdown = { "prettier" },
     css = { "prettier" },
     xml = { "xmlformat" },
     rust = { "rustfmt" },
