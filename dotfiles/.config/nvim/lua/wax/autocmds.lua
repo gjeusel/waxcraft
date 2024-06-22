@@ -130,6 +130,9 @@ vim.api.nvim_create_autocmd({ "BufReadPre", "FileReadPre" }, {
     -- disable indentline
     vim.b.miniindentscope_disable = true
 
+    -- disable undotree
+    vim.b.loaded_undotree = 1
+
     -- vim.cmd([[setlocal noloadplugins]])
     -- vim.opt_local.noloadplugins = true
 
