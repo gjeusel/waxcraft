@@ -108,7 +108,7 @@ local function fn_selected_multi(selected, opts)
   if #selected <= 2 then
     fzf_lua.actions.act(opts.actions, selected, opts)
   else -- here we multi-selected ("select-all+accept" on fzf lua view point)
-    local _, entries = fzf_lua.actions.normalize_selected(opts.actions, selected)
+    local _, entries = fzf_lua.actions.normalize_selected(opts.actions, selected, {})
     entries = parse_entries(entries, opts)
 
     vim.fn.setqflist(entries, "r")
