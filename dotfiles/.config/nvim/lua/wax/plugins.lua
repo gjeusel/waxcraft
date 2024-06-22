@@ -231,6 +231,21 @@ return {
           vim.g.matchup_matchpref = { html = { nolists = 1 } }
         end,
       },
+      { -- 'windwp/nvim-ts-autotag'  -- auto close/rename html tags
+        "windwp/nvim-ts-autotag",
+        event = { "BufReadPre", "BufNewFile" },
+        config = function(_, opts)
+          require("nvim-ts-autotag").setup({
+            opts = {
+              -- enable = true,
+              enable_close = true,
+              enable_rename = true,
+              enable_close_on_slash = false,
+              aliases = { ["jinja.html"] = "html" },
+            },
+          })
+        end,
+      },
     },
     build = ":TSUpdate",
     init = function()
@@ -373,32 +388,6 @@ return {
       matchup = {
         enable = true,
         disable_virtual_text = true,
-      },
-      -- 'windwp/nvim-ts-autotag'  -- auto close/rename html tags
-      autotag = {
-        enable = true,
-        enable_rename = true,
-        enable_close = true,
-        enable_close_on_slash = false,
-        filetypes = {
-          "html",
-          "jinja.html", -- custom add
-          "javascript",
-          "typescript",
-          "javascriptreact",
-          "typescriptreact",
-          "svelte",
-          "vue",
-          "tsx",
-          "jsx",
-          "rescript",
-          "xml",
-          "php",
-          "markdown",
-          "glimmer",
-          "handlebars",
-          "hbs",
-        },
       },
     },
     config = function(_, opts)
