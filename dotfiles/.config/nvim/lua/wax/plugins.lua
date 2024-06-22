@@ -215,7 +215,6 @@ return {
         lazy = true,
         ft = { "html", "vue", "typescriptreact", "svelte", "lua", "vim", "tsx" },
       },
-      { "windwp/nvim-ts-autotag" },
       { -- vim-matchup - better %
         "andymass/vim-matchup",
         -- enabled = false,
@@ -743,16 +742,6 @@ return {
       --   },
       -- },
     },
-  },
-  { -- null-ls
-    "nvimtools/none-ls.nvim",
-    commit = "1dad329b3899413e7e8e03412b2489dbcda5f7e4",
-    event = { "BufReadPre", "BufNewFile" },
-    dependencies = { "nvim-lua/plenary.nvim" }, -- used for python-utils
-    config = function()
-      vim.g.nonels_supress_issue58 = true
-      require("wax.lsp.null-ls")
-    end,
   },
 
   { -- luasnip
