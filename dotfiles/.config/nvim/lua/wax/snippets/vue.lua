@@ -167,4 +167,21 @@ return {
       { input = i(0, "") }
     )
   ),
+
+  -- nuxt ui / tailwindcss
+  s(
+    "uiconst",
+    fmt(
+      [[
+        const ui[constname] = /* ui */ {
+          [input]
+        }
+      ]],
+      {
+        constname = i(1),
+        input = i(0),
+      },
+      opts
+    )
+  ),
 }
