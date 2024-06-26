@@ -81,12 +81,13 @@ yabai -m rule --add app="FaceTime" space="Misc"
 yabai -m rule --add app="App Store" space="Misc"
 
 # Browser
-yabai -m rule --add app="Chromium" space="Browser"
+# yabai -m rule --add app="Chromium" space="Browser"
 yabai -m rule --add app="Safari" space="Browser"
 yabai -m rule --add app="Arc" space="Browser"
 yabai -m rule --add app="Brave Browser"
 # BrowserDev
 yabai -m rule --add app="Firefox" space="BrowserDev"
+yabai -m rule --add app="Google Chrome" space="BrowserDev"
 
 # Programming
 yabai -m rule --add app="Alacritty" space="Code"
