@@ -1,5 +1,18 @@
 -- return false
 
+local preferences = {
+  includePackageJsonAutoImports = "off",
+  autoImportFileExcludePatterns = {
+    "@vue/runtime-core",
+    "@vue/runtime-dom",
+    "@vue/reactivity",
+    --
+    "**/components/**/*.vue",
+    "#imports",
+    "**/*.ts", -- disable auto import from "#build/components", don't know why it works
+  },
+}
+
 return {
   -- filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact" },
 
@@ -12,11 +25,9 @@ return {
   settings = {
     typescript = {
       -- tsserver = { log = "verbose" },
-      preferences = {
-        includePackageJsonAutoImports = "off",
-        autoImportFileExcludePatterns = { "**/components/**/*.vue" },
-      },
+      preferences = preferences,
     },
+    javascript = { preferences = preferences },
     vtsls = {
       experimental = { completion = { enableServerSideFuzzyMatch = true, entriesLimit = 5 } },
       -- tsserver = { globalPlugins = {} },
