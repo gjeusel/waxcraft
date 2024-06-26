@@ -494,7 +494,11 @@ return {
       {
         "<leader>A",
         function()
-          require("wax.plugcfg.fzf").live_grep()
+          if is_monorepo() then
+            require("wax.plugcfg.fzf").fzf_grep(find_root_dir(vim.loop.cwd(), { ".git" }))
+          else
+            require("wax.plugcfg.fzf").live_grep()
+          end
         end,
         desc = "RipGrep content of files",
       },
@@ -516,7 +520,11 @@ return {
       {
         "<leader>P",
         function()
-          require("wax.plugcfg.fzf").rg_files("--no-ignore-vcs")
+          if is_monorepo() then
+            require("wax.plugcfg.fzf").rg_files(nil, find_root_dir(vim.loop.cwd(), { ".git" }))
+          else
+            require("wax.plugcfg.fzf").rg_files("--no-ignore-vcs")
+          end
         end,
         desc = "Find files",
       },

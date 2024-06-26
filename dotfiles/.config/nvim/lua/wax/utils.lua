@@ -115,6 +115,8 @@ _G.lua_waxdir = Path:new(vim.fn.fnamemodify(debug.getinfo(1, "S").short_src, ":p
 
 -------- Cache --------
 
+_G._wax_cache = {}
+
 ---@class Wax.CacheFnOpts
 ---@field per_buffer? boolean
 
@@ -125,38 +127,68 @@ _G.lua_waxdir = Path:new(vim.fn.fnamemodify(debug.getinfo(1, "S").short_src, ":p
 function _G.wax_cache_fn(fn, opts)
   opts = opts or {}
 
-  local cache = {}
-  -- local fn_info = debug.getinfo(foo, "u")
-
   local per_buffer = opts.per_buffer == nil or opts.per_buffer
 
+  -- local function to_cache_key(...)
+  --   local key = { args = { ... } }
+  --   if per_buffer then
+  --     key.buffer = vim.api.nvim_buf_get_name(0)
+  --   end
+  --   return vim.inspect(key, { depth = 2 })
+  -- end
   local function to_cache_key(...)
-    local key = { args = { ... } }
-    if per_buffer then
-      key.buffer = vim.api.nvim_buf_get_name(0)
+    local mem_address = string.gsub(tostring(fn), "function: ", "")
+
+    local args = vim
+      .iter({ ... })
+      :filter(function(e)
+        return e ~= nil and e ~= ""
+      end)
+      :map(tostring)
+
+    local pieces = { mem_address }
+
+    if #args then
+      table.insert(pieces, table.concat(args, ", "))
     end
-    return vim.inspect(key, { depth = 2 })
+
+    if per_buffer then
+      local buf_name = vim.api.nvim_buf_get_name(0)
+      if #buf_name > 0 then
+        table.insert(pieces, buf_name)
+      else
+        table.insert(pieces, vim.loop.cwd())
+      end
+    end
+
+    local key = table.concat(pieces, " | ")
+
+    return key
   end
 
   local function wrap(...)
-    local key = to_cache_key(...)
+    local key = ""
+    if #{ ... } == 0 then
+      key = to_cache_key(...)
+    end
     if string.len(key) == 0 then
       log.trace("Could not cache call due to empty cache key.")
       return fn(...)
     end
 
-    local value = vim.tbl_get(cache, key)
+    local value = vim.tbl_get(_G._wax_cache, key)
     if value == nil then
-      cache[key] = fn(...)
+      _G._wax_cache[key] = fn(...)
       log.trace("Cached returned value using cache key", key)
     else
       log.trace("Found in cache using cache key", key)
     end
 
-    return cache[key]
+    return _G._wax_cache[key]
   end
 
-  return wrap
+  -- return wrap
+  return fn
 end
 
 -------- Logs --------
@@ -200,7 +232,7 @@ end
 ---@param cwd string | nil
 ---@return boolean
 function _G.is_git(cwd)
-  cwd = cwd or vim.fn.getcwd()
+  cwd = cwd or vim.loop.cwd()
   local cmd = { "git", "rev-parse", "--show-toplevel" }
   local git_root, ret = _G.get_os_command_output(cmd, cwd)
   return not (ret ~= 0 or #git_root <= 0)
@@ -208,7 +240,7 @@ end
 
 _G.find_root_dir = wax_cache_fn(
   ---Return the root directory
-  ---@param path string
+  ---@param path string | nil
   ---@return string | nil
   function(path, patterns)
     local default_patterns = { ".git" }
@@ -220,6 +252,19 @@ _G.find_root_dir = wax_cache_fn(
     else
       return nil
     end
+  end
+)
+
+_G.is_monorepo = wax_cache_fn(
+  ---Return the root directory
+  ---@param cwd string | nil
+  ---@return string | nil
+  function(cwd)
+    -- cwd = cwd or vim.loop.cwd()
+    local root_dir = _G.find_root_dir(nil, { ".git" })
+    local root_subproject = _G.find_root_dir(nil, { "package.json" })
+    local is_monorepo = root_dir and root_subproject and root_dir ~= root_subproject
+    return is_monorepo
   end
 )
 

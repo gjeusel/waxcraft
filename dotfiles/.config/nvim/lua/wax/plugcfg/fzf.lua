@@ -2,10 +2,23 @@ local fzf_lua = require("fzf-lua")
 
 local Path = require("wax.path")
 
-local rg_ignore_dirs =
-  { ".git", ".*_cache", "postgres-data", "edgedb-data", "__pycache__", ".vscode", "tests/data" }
+local rg_ignore_dirs = {
+  ".git",
+  ".*_cache",
+  "postgres-data",
+  "edgedb-data",
+  "__pycache__",
+  ".vscode",
+  "tests/data",
+  --
+  "*.dist/*",
+  "*.output/*",
+  "*node_modules/*",
+}
+
 local rg_ignore_files =
   { "*.min.css", "*.svg", "pnpm-lock.yaml", "package-lock.json", "edgedb.toml" }
+
 local rg_ignore_arg = ("--glob '!{%s}' --glob '!{%s}'"):format(
   table.concat(rg_ignore_dirs, ","),
   table.concat(rg_ignore_files, ",")
@@ -68,13 +81,12 @@ fzf_lua.setup({
 ------- utils funcs -------
 --
 
-local function git_or_cwd()
-  local cwd = vim.fn.getcwd()
-  if is_git() then
-    -- use .gitignore so it works as expected in monorepo setup
-    cwd = find_root_dir(cwd, { ".git" })
+local function make_fzf_dir()
+  if is_monorepo() then
+    return find_root_dir(vim.loop.cwd(), { "package.json" })
+  else
+    return find_root_dir(vim.loop.cwd(), { ".git" })
   end
-  return cwd
 end
 
 ---@class FzfFileEntry
@@ -151,17 +163,20 @@ end
 ---------- Grep ----------
 --
 -- Fzf Grep
-local function fzf_grep()
+local function fzf_grep(cwd)
   return fzf_lua.grep({
-    cwd = git_or_cwd(),
+    cwd = cwd or make_fzf_dir(),
     search = "",
     fn_selected = fn_selected_multi,
   })
 end
 
 -- Live Grep
-local function live_grep()
-  fzf_lua.live_grep({ cwd = git_or_cwd(), fn_selected = fn_selected_multi })
+local function live_grep(cwd)
+  fzf_lua.live_grep({
+    cwd = cwd or make_fzf_dir(),
+    fn_selected = fn_selected_multi,
+  })
 end
 
 -- Fzf Grep word under cursor
@@ -169,7 +184,7 @@ local function grep_word_under_cursor()
   vim.cmd([[normal! "wyiw]])
   local word = vim.fn.getreg('"')
   fzf_lua.grep({
-    cwd = git_or_cwd(),
+    cwd = make_fzf_dir(),
     search = word,
     fn_selected = fn_selected_multi,
   })
@@ -178,12 +193,12 @@ end
 --
 ---------- Files ----------
 --
-local function rg_files(rg_opts)
+local function rg_files(rg_opts, cwd)
   local rg_cmd = ("rg %s --files --hidden %s"):format(rg_opts or "", rg_ignore_arg)
   return fzf_lua.fzf_exec(rg_cmd, {
     prompt = "Files > ",
     previewer = "builtin",
-    cwd = git_or_cwd(),
+    cwd = cwd or make_fzf_dir(),
     actions = fzf_actions,
     fn_transform = function(x)
       return fzf_lua.make_entry.file(x, { file_icons = true, color_icons = true })
@@ -256,13 +271,19 @@ local function pick_project(fn)
 end
 
 local function select_project_find_file()
-  pick_project(function(path)
+  -- if is_monorepo() then
+  --   return fzf_grep(find_root_dir(vim.loop.cwd(), { ".git" }))
+  -- else
+  return pick_project(function(path)
     fzf_lua.files({ cwd = path })
   end)
 end
 
 local function select_project_fzf_grep()
-  pick_project(function(path)
+  -- if is_monorepo() then
+  --   return live_grep(find_root_dir(vim.loop.cwd(), { ".git" }))
+  -- else
+  return pick_project(function(path)
     fzf_lua.grep({ cwd = path, search = "" })
   end)
 end
