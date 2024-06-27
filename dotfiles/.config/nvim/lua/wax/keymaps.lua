@@ -175,7 +175,7 @@ vim.keymap.set("n", "<leader>yF", function()
   vim.fn.setreg("+", fpath)
 end, { desc = "Yank current buffer absolute filepath" })
 
-vim.keymap.set("n", "<leader>yp", function()
+local function _get_python_parts()
   vim.cmd([[normal! "wyiw]])
   local word_under_cursor = vim.fn.getreg('"')
 
@@ -193,8 +193,19 @@ vim.keymap.set("n", "<leader>yp", function()
 
   local module = string.gsub(relpath, "/", "."):gsub("%.py$", "")
 
+  return module, word_under_cursor
+end
+
+vim.keymap.set("n", "<leader>yp", function()
+  local module, word_under_cursor = _get_python_parts()
+
   vim.fn.setreg("+", ("from %s import %s"):format(module, word_under_cursor))
-end, { desc = "Yank current file python module" })
+end, { desc = "Yank current file python word as import" })
+
+vim.keymap.set("n", "<leader>yP", function()
+  local module, word_under_cursor = _get_python_parts()
+  vim.fn.setreg("+", ("%s.%s"):format(module, word_under_cursor))
+end, { desc = "Yank current file python word as modle" })
 
 -- set foldlevel
 for i = 0, 5, 1 do
