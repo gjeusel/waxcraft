@@ -17,7 +17,7 @@ windows:
   - window_name: zf-spa
     layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
     shell_command_before:
-      - cd ~/src/rnx/apps/zefire-spa/
+      - cd ~/src/rnux/apps/zefire-spa/
     panes:
       - focus: true
       -
