@@ -12,7 +12,7 @@ return {
       },
       -- schemaStore = { enable = true },
       schemas = {
-        kubernetes = "cloud-renewex/**/*.yaml",
+        kubernetes = { "cloud-renewex/**/*.yaml", "!cloud-renewex/**/*values.yaml" },
         ["http://json.schemastore.org/github-workflow"] = ".github/workflows/*",
         ["http://json.schemastore.org/github-action"] = ".github/action.{yml,yaml}",
         ["http://json.schemastore.org/ansible-stable-2.9"] = "roles/tasks/*.{yml,yaml}",

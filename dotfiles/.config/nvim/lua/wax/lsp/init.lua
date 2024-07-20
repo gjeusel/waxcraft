@@ -41,7 +41,7 @@ local function goto_alias_definition()
           position = { line = line_num, character = line_length },
           textDocument = { uri = uri },
         }, timeout, bufnr)
-        if nested_resp.result then
+        if nested_resp and nested_resp.result then
           local nested_location = nested_resp.result[1]
           vim.lsp.util.jump_to_location(nested_location, "utf-8")
         end
