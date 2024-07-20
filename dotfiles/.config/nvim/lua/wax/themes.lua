@@ -20,6 +20,19 @@ local base_gruvbox_hls = {
   DiffDelete = { cterm = nil, ctermfg = "Red", ctermbg = nil },
   DiffText = { cterm = nil, ctermfg = "Blue", ctermbg = nil },
 
+  -- Vim Matchup
+  MatchBackground = { cterm = nil, ctermfg = nil, ctermbg = nil },
+  MatchParentCur = { cterm = nil, ctermfg = nil, ctermbg = nil },
+  MatchParen = { cterm = nil, ctermfg = nil, ctermbg = nil },
+  MatchWord = { cterm = nil, ctermfg = nil, ctermbg = nil },
+  MatchWordCur = { cterm = nil, ctermfg = nil, ctermbg = nil },
+
+  -- fold
+  Folded = { bold = true, ctermbg = nil, ctermfg = 248 },
+
+  -- debugger
+  DapStoppedLine = { link = "Visual" },
+
   -- Better floating windows hl
   FloatTitle = { link = "GruvboxAqua" },
   FloatBorder = { link = "GruvboxAqua" },
@@ -27,13 +40,6 @@ local base_gruvbox_hls = {
   FzfLuaBorder = { link = "GruvboxAqua" },
   TelescopeBorder = { link = "GruvboxAqua" },
   NullLsInfoBorder = { link = "GruvboxAqua" },
-
-  -- Vim Matchup
-  MatchBackground = { cterm = nil, ctermfg = nil, ctermbg = nil },
-  MatchParentCur = { cterm = nil, ctermfg = nil, ctermbg = nil },
-  MatchParen = { cterm = nil, ctermfg = nil, ctermbg = nil },
-  MatchWord = { cterm = nil, ctermfg = nil, ctermbg = nil },
-  MatchWordCur = { cterm = nil, ctermfg = nil, ctermbg = nil },
 
   -- Improve gruvbox signs
   GruvboxGreenSign = { link = "GruvboxGreen" },
@@ -47,9 +53,6 @@ local base_gruvbox_hls = {
   -- statusline
   Statusline = { link = "GruvboxFg3" },
   StatuslineNC = { link = "GruvboxFg4" },
-
-  -- debugger
-  DapStoppedLine = { link = "Visual" },
 
   -- indentline
   MiniIndentscopeSymbol = { link = "GruvboxBg2" },
@@ -69,9 +72,6 @@ local base_gruvbox_hls = {
 
   BufferTabpages = { link = "GruvboxBg0" },
   BufferTabpageFill = { link = "GruvboxBg0" },
-
-  -- fold
-  Folded = { bold = true, ctermbg = nil, ctermfg = 248 },
 
   -- lsp
   DiagnosticError = { link = "GruvboxRed" },
