@@ -263,6 +263,12 @@
 (type
   (subscript
     (identifier) @type)) ; type subscript: Tuple[int]
+(type
+  (binary_operator
+    (identifier) @type)) ; type subscript: Any | None
+
+(typed_parameter
+  (identifier) @variable.parameter)
 
 ((assignment
   left: (identifier) @type.definition
