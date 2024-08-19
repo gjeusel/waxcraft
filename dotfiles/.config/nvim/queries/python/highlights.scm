@@ -260,12 +260,31 @@
 ;; Type Hint
 (type
   (identifier) @type)
-(type
+
+; (type
+;   (subscript
+;     (identifier) @type)) ; type subscript: Tuple[int]
+((type
   (subscript
-    (identifier) @type)) ; type subscript: Tuple[int]
+    (identifier) @type))
+  (#any-of? @type
+    "bytes" "str" "int" "float" "bool" "frozenset" "set" "tuple" "list" "dict" "type"
+   )
+)
+
 (type
   (binary_operator
     (identifier) @type)) ; type subscript: Any | None
+
+(function_definition
+  (type
+   [
+      (binary_operator (identifier) @type)
+      (binary_operator (binary_operator (identifier) @type))
+      (binary_operator (binary_operator (binary_operator (identifier) @type)))
+   ]
+  )
+)
 
 (typed_parameter
   (identifier) @variable.parameter)
