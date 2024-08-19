@@ -10,14 +10,8 @@ alias vim="nvim"
 alias v="nvim"
 alias vimdiff="nvim -d"
 
-# Brew
-alias bs="brew services"
-
 # Terraform
 alias tf="terraform"
-
-# Fancy
-alias tac=gtac
 
 # git
 alias gl='git pull'
@@ -29,8 +23,6 @@ alias gb='git branch'
 alias gs='git status'
 alias ga='git add'
 alias glog="git log --graph --no-merges --abbrev-commit --pretty='%C(dim red)%h%C(reset) - %s %C(yellow)%d%C(reset) %C(dim green)(%cr) %C(dim blue)<%aN>%C(reset)'"
-
-alias lg=lazygit
 
 # ls colorized output
 alias ls='ls -G'
@@ -116,10 +108,6 @@ function pwhere() {
   python -c "import $1; print($1.__file__)"
 }
 
-
-# frontend
-alias pn="pnpm"
-
 alias infogpu='nvidia-smi --query-gpu=timestamp,name,pci.bus_id,driver_version,pstate,pcie.link.gen.max,pcie.link.gen.current,temperature.gpu,utilization.gpu,utilization.memory,memory.total,memory.free,memory.used --format=csv -l 5'
 
 ## Using tmux locally and SSHing into a remote:
@@ -187,9 +175,6 @@ function resilient() {
 # alias to launch Brave
 alias brave="/Applications/Brave\ Browser.app/Contents/MacOS/Brave\ Browser"
 
-# Alias z zsh plugin
-alias w="_z 2>&1"
-
 function psql_kill_locks() {
   psql postgresql://postgres:postgres@localhost:5432/ -c "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname='$1' AND pid <> pg_backend_pid()"
 }
@@ -243,4 +228,4 @@ function realpath() {
   [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
 }
 
-alias shadcn="pnpx shadcn-svelte@0.4.1"
+# alias shadcn="pnpx shadcn-svelte@0.4.1"
