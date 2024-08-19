@@ -8,7 +8,8 @@ local function to_python_cmd(cmd, tbl)
   return inner
 end
 
-local frontend_cfg = { "prettierd", "eslint_d" }
+-- local frontend_cfg = { "prettierd", "eslint_d" }
+local frontend_cfg = { "prettier", "eslint" }
 
 require("conform").setup({
   formatters = {

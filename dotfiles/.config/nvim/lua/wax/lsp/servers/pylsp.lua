@@ -86,7 +86,7 @@ return {
       config.cmd = to_pylsp_cmd(python_path)
     end
 
-    if vim.list_contains({ "ticts", "aquilon" }, new_workspace_name) then
+    if vim.list_contains({ "ticts", "aquilon", "pyanthracit" }, new_workspace_name) then
       local activate_mypy_opts = {
         -- dmypy = true,
         enabled = true,
