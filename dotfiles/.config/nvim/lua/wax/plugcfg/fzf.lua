@@ -10,10 +10,11 @@ local rg_ignore_dirs = {
   "__pycache__",
   ".vscode",
   "tests/data",
+  "**/playground/*",
   --
-  "*.dist/*",
-  "*.output/*",
-  "*node_modules/*",
+  "**/.dist/*",
+  "**/.output/*",
+  "**/node_modules/*",
 }
 
 local rg_ignore_files =
