@@ -46,27 +46,14 @@ yabai -m config window_gap                   10
 yabai -m config layout                       bsp
 
 # Setup preferences on spaces
-display_count=$(yabai -m query --displays | jq 'length')
-
-if [ "$display_count" -gt 1 ]; then
-  yabai -m space 1 --label "Misc" --display 1 --layout stack
-  yabai -m space 2 --label "Code" --display 2 --layout bsp
-  yabai -m space 3 --label "Browser" --display 2 --layout stack
-  yabai -m space 5 --label "BrowserDev" --display 2 --layout bsp
-  yabai -m space 5 --label "Social" --display 2 --layout bsp
-  yabai -m space 6 --label "Business" --display 2 --layout stack
-  yabai -m space 7 --label "Perso" --display 2 --layout bsp
-  yabai -m space 8 --label "Extra" --display 2 --layout bsp
-else
-  yabai -m space 1 --label "Misc" --display 1 --layout stack
-  yabai -m space 2 --label "Code" --display 1 --layout bsp
-  yabai -m space 3 --label "Browser" --display 1 --layout stack
-  yabai -m space 4 --label "BrowserDev" --display 1 --layout stack
-  yabai -m space 5 --label "Social" --display 1 --layout bsp
-  yabai -m space 6 --label "Business" --display 1 --layout stack
-  yabai -m space 7 --label "Perso" --display 1 --layout bsp
-  yabai -m space 8 --label "Extra" --display 1 --layout bsp
-fi
+yabai -m space 1 --label "Misc" --display 1 --layout stack
+yabai -m space 2 --label "Code" --display 2 --layout bsp
+yabai -m space 3 --label "Browser" --display 2 --layout stack
+yabai -m space 5 --label "BrowserDev" --display 2 --layout bsp
+yabai -m space 5 --label "Social" --display 2 --layout bsp
+yabai -m space 6 --label "Business" --display 2 --layout stack
+yabai -m space 7 --label "Perso" --display 2 --layout bsp
+yabai -m space 8 --label "Extra" --display 2 --layout bsp
 
 
 # Misc
@@ -116,7 +103,9 @@ yabai -m rule --add label="Arc" title="Little Arc.*" manage=off
 yabai -m rule --add label="FaceTime" app="FaceTime" manage=off
 
 # slack call:
-yabai -m rule --add title="Appel.*Slack.*" space=^Misc manage=off grid=4:4:1:1:2:2
+yabai -m rule --add app="^Slack$" title="^Slack \| .* \| .* call$" manage=off sticky=on layer=above
+yabai -m signal --add event=window_created app="^Slack$" title="^Slack \| .* \| .* call$" action="yabai -m window \$YABAI_WINDOW_ID --center"
+
 
 # --- Events ---
 
