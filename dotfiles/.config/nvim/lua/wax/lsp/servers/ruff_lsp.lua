@@ -17,7 +17,7 @@ return {
       return config
     else
       local msg = "LSP python (ruff-lsp) - '%s' using path %s"
-      log.info(msg:format(new_workspace_name, python_path))
+      log.debug(msg:format(new_workspace_name, python_path))
 
       config.settings.interpreter = { python_path }
       return config

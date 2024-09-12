@@ -81,12 +81,12 @@ return {
       log.debug(msg:format(config.cmd[1], new_workspace))
     else
       local msg = "LSP python (pylsp) - '%s' using path %s"
-      log.info(msg:format(new_workspace_name, python_path))
+      log.debug(msg:format(new_workspace_name, python_path))
 
       config.cmd = to_pylsp_cmd(python_path)
     end
 
-    if vim.list_contains({ "ticts", "aquilon", "pyanthracit" }, new_workspace_name) then
+    if vim.list_contains({ "ticts", "aquilon", "pyanthracit", "venturi" }, new_workspace_name) then
       local activate_mypy_opts = {
         -- dmypy = true,
         enabled = true,
