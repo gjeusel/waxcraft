@@ -52,6 +52,128 @@ local function goto_alias_definition()
   end
 end
 
+-- copy pasted and adapted from: runtime/lua/vim/lsp/buf.lua
+local function custom_rename(new_name, opts)
+  local util = require("vim.lsp.util")
+  local ms = require("vim.lsp.protocol").Methods
+  local api = vim.api
+
+  opts = opts or {}
+  local bufnr = opts.bufnr or api.nvim_get_current_buf()
+  local clients = vim.lsp.get_clients({
+    bufnr = bufnr,
+    name = opts.name,
+    -- Clients must at least support rename, prepareRename is optional
+    method = ms.textDocument_rename,
+  })
+  if opts.filter then
+    clients = vim.tbl_filter(opts.filter, clients)
+  end
+
+  if #clients == 0 then
+    vim.notify("[LSP] Rename, no matching language servers with rename capability.")
+  end
+
+  local win = api.nvim_get_current_win()
+
+  -- Compute early to account for cursor movements after going async
+  local cword = vim.fn.expand("<cword>")
+
+  local function get_text_at_range(range, offset_encoding)
+    return api.nvim_buf_get_text(
+      bufnr,
+      range.start.line,
+      util._get_line_byte_from_position(bufnr, range.start, offset_encoding),
+      range["end"].line,
+      util._get_line_byte_from_position(bufnr, range["end"], offset_encoding),
+      {}
+    )[1]
+  end
+
+  local function try_use_client(idx, client)
+    if not client then
+      return
+    end
+
+    --- @param name string
+    local function rename(name)
+      local params = util.make_position_params(win, client.offset_encoding)
+      params.newName = name
+      local handler = client.handlers[ms.textDocument_rename]
+        or vim.lsp.handlers[ms.textDocument_rename]
+      client.request(ms.textDocument_rename, params, function(...)
+        vim.cmd("mkview")
+        handler(...)
+        vim.cmd("loadview")
+        try_use_client(next(clients, idx))
+      end, bufnr)
+    end
+
+    if client.supports_method(ms.textDocument_prepareRename) then
+      local params = util.make_position_params(win, client.offset_encoding)
+      client.request(ms.textDocument_prepareRename, params, function(err, result)
+        if err or result == nil then
+          if next(clients, idx) then
+            try_use_client(next(clients, idx))
+          else
+            local msg = err and ("Error on prepareRename: " .. (err.message or ""))
+              or "Nothing to rename"
+            vim.notify(msg, vim.log.levels.INFO)
+          end
+          return
+        end
+
+        if new_name then
+          rename(new_name)
+          return
+        end
+
+        local prompt_opts = {
+          prompt = "New Name: ",
+        }
+        -- result: Range | { range: Range, placeholder: string }
+        if result.placeholder then
+          prompt_opts.default = result.placeholder
+        elseif result.start then
+          prompt_opts.default = get_text_at_range(result, client.offset_encoding)
+        elseif result.range then
+          prompt_opts.default = get_text_at_range(result.range, client.offset_encoding)
+        else
+          prompt_opts.default = cword
+        end
+        vim.ui.input(prompt_opts, function(input)
+          if not input or #input == 0 then
+            return
+          end
+          rename(input)
+        end)
+      end, bufnr)
+    else
+      assert(
+        client.supports_method(ms.textDocument_rename),
+        "Client must support textDocument/rename"
+      )
+      if new_name then
+        rename(new_name)
+        return
+      end
+
+      local prompt_opts = {
+        prompt = "New Name: ",
+        default = cword,
+      }
+      vim.ui.input(prompt_opts, function(input)
+        if not input or #input == 0 then
+          return
+        end
+        rename(input)
+      end)
+    end
+  end
+
+  try_use_client(next(clients))
+end
+
 -- Mappings
 local function set_lsp_keymaps(buffer)
   local kmap_opts = { noremap = true, silent = true, buffer = buffer }
@@ -81,7 +203,7 @@ local function set_lsp_keymaps(buffer)
 
   vim.keymap.set("i", "<C-s>", vim.lsp.buf.signature_help)
 
-  vim.keymap.set("n", "<leader>R", vim.lsp.buf.rename, kmap_opts)
+  vim.keymap.set("n", "<leader>R", custom_rename, kmap_opts)
 
   -- Mapping with selectors:
   vim.keymap.set("n", "<leader>fa", vim.lsp.buf.code_action, kmap_opts)
