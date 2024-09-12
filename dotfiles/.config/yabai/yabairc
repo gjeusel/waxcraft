@@ -45,15 +45,18 @@ yabai -m config window_gap                   10
 
 yabai -m config layout                       bsp
 
+
 # Setup preferences on spaces
+display_count=$(yabai -m query --displays | jq length)
+
 yabai -m space 1 --label "Misc" --display 1 --layout stack
-yabai -m space 2 --label "Code" --display 2 --layout bsp
-yabai -m space 3 --label "Browser" --display 2 --layout stack
-yabai -m space 5 --label "BrowserDev" --display 2 --layout bsp
-yabai -m space 5 --label "Social" --display 2 --layout bsp
-yabai -m space 6 --label "Business" --display 2 --layout stack
-yabai -m space 7 --label "Perso" --display 2 --layout bsp
-yabai -m space 8 --label "Extra" --display 2 --layout bsp
+yabai -m space 2 --label "Code" --display $(display_count) --layout bsp
+yabai -m space 3 --label "Browser" --display $(display_count) --layout stack
+yabai -m space 4 --label "BrowserDev" --display $(display_count) --layout bsp
+yabai -m space 5 --label "Social" --display $(display_count) --layout bsp
+yabai -m space 6 --label "Business" --display $(display_count) --layout stack
+yabai -m space 7 --label "Perso" --display $(display_count) --layout bsp
+yabai -m space 8 --label "Extra" --display $(display_count) --layout bsp
 
 
 # Misc
@@ -68,13 +71,13 @@ yabai -m rule --add app="FaceTime" space="Misc"
 yabai -m rule --add app="App Store" space="Misc"
 
 # Browser
-# yabai -m rule --add app="Chromium" space="Browser"
 yabai -m rule --add app="Safari" space="Browser"
 yabai -m rule --add app="Arc" space="Browser"
-yabai -m rule --add app="Brave Browser"
+yabai -m rule --add app="Brave Browser" space="Browser"
 # BrowserDev
 yabai -m rule --add app="Firefox" space="BrowserDev"
 yabai -m rule --add app="Google Chrome" space="BrowserDev"
+# yabai -m rule --add app="Chromium" space="BrowserDev"
 
 # Programming
 yabai -m rule --add app="Alacritty" space="Code"
@@ -109,7 +112,7 @@ yabai -m signal --add event=window_created app="^Slack$" title="^Slack \| .* \| 
 
 # --- Events ---
 
-# Make all non-resizable window float (https://github.com/koekeishiya/yabai/issues/1317)
-yabai -m signal --add event=window_created action='yabai -m query --windows --window $YABAI_WINDOW_ID | jq -er ".\"can-resize\" or .\"is-floating\"" || yabai -m window $YABAI_WINDOW_ID --toggle float'
+# # Make all non-resizable window float (https://github.com/koekeishiya/yabai/issues/1317)
+# yabai -m signal --add event=window_created action='yabai -m query --windows --window $YABAI_WINDOW_ID | jq -er ".\"can-resize\" or .\"is-floating\"" || yabai -m window $YABAI_WINDOW_ID --toggle float'
 
 echo "yabai configuration loaded.."
