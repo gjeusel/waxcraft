@@ -199,6 +199,8 @@ function dst() {
   echo -e "2023 -->    $YELLOW 26/03 $NC      -      $BLUE 29/10 $NC"
   echo -e "                        ---"
   echo -e "2024 -->    $YELLOW 31/03 $NC      -      $BLUE 27/10 $NC"
+  echo -e "2025 -->    $YELLOW 30/03 $NC      -      $BLUE 26/10 $NC"
+  echo -e "2026 -->    $YELLOW 29/03 $NC      -      $BLUE 25/10 $NC"
 }
 
 encode64() {
