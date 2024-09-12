@@ -83,7 +83,7 @@ local viewdir = basedir .. "/view"
 vim.fn.mkdir(viewdir, "p")
 vim.o.viewdir = viewdir
 
-vim.o.viewoptions = "cursor,slash,unix"
+vim.o.viewoptions = "folds,cursor,slash,unix"
 
 -- NetRW (https://shapeshed.com/vim-netrw/)
 vim.g.netrw_banner = 0 -- no need for banner

@@ -3,7 +3,18 @@ local utils = require("wax.utils")
 -- Handle Views
 local group_view = "Views"
 vim.api.nvim_create_augroup(group_view, { clear = true })
-vim.api.nvim_create_autocmd("BufRead", { pattern = "*", command = "silent! loadview" })
+vim.api.nvim_create_autocmd({ "BufRead" }, {
+  pattern = "*",
+  callback = function()
+    local buf = vim.api.nvim_get_current_buf()
+    -- The loadview should be done once the parsing of the treesitter
+    -- tree has been parsed so we can define folds.
+    -- Hence, put it in schedule_wrap
+    vim.schedule_wrap(function()
+      vim.cmd("silent! loadview")
+    end)()
+  end,
+})
 vim.api.nvim_create_autocmd(
   { "BufWrite", "BufLeave" },
   { pattern = "*", command = "silent! mkview" }
