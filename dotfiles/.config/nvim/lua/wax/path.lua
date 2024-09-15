@@ -105,8 +105,7 @@ end
 ---Check if the path exists
 ---@return boolean
 function Path:exists()
-  local exists = vim.fn.exists(self.path) == 1
-  return exists
+  return vim.fn.isdirectory(self.path) == 1 or vim.fn.filereadable(self.path) == 1
 end
 
 ---Return table of paths matching the pattern
