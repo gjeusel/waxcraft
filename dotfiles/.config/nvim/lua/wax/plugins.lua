@@ -309,6 +309,7 @@ return {
         "rust",
         "python",
         -- Infra:
+        "helm",
         "hcl", -- terraform
       },
       --
@@ -865,6 +866,7 @@ return {
   --------- Language Specific ---------
   { "edgedb/edgedb-vim", ft = { "edgedb", "edgeql" } },
   { "Vimjas/vim-python-pep8-indent", ft = "python", pin = true, dev = true },
+  { "towolf/vim-helm", ft = { "yaml", "smarty" } },
 
   --------- NeoVim Perf / Dev ---------
   { "dstein64/vim-startuptime", cmd = "StartupTime" }, -- analyze startup time
