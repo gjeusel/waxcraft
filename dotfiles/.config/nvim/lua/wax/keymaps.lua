@@ -208,7 +208,7 @@ vim.keymap.set("n", "<leader>yP", function()
 end, { desc = "Yank current file python word as modle" })
 
 -- set foldlevel
-for i = 0, 5, 1 do
+for i = 0, 9, 1 do
   vim.keymap.set("n", ("<leader>f%s"):format(i), function()
     vim.cmd(("set foldlevel=%s"):format(i))
     vim.cmd("silent! zO")

@@ -14,7 +14,7 @@ waxopts = {
   loglevel = "info",
   python3 = "python",
   colorscheme = os.getenv("ITERM_PROFILE") or "gruvbox",
-  big_file_threshold = 1024 * 1024, -- 1 Megabyte
+  big_file_threshold = 1024 * 1024 * 0.5, -- 0.5 Megabyte
   servers = {
     -- tsserver = { blacklist = { "some-project" } },
   },
