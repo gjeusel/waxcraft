@@ -36,7 +36,7 @@ setopt hist_find_no_dups       # Do not display a previously found event.
 setopt hist_save_no_dups       # Do not write a duplicate event to the history file.
 setopt hist_ignore_space       # Do not write to history commands starting with a space.
 
-setopt hist_reduce_blanks      # Remove superfluous blanks from each command line being added to the history list.
+# setopt hist_reduce_blanks    # not wanted as it removes multiline \
 
 # Other
 #setopt autocd extendedglob notify nomatch autopushd pushdignoredups promptsubst
