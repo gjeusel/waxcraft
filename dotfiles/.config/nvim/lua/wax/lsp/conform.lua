@@ -15,17 +15,36 @@ require("conform").setup({
   formatters = {
     ruff_fix = to_python_cmd("ruff", {
       args = {
+        "check",
+        "--fix",
+        "--force-exclude",
+        "--exit-zero",
+        "--no-cache",
         "--ignore",
         "E203,F841,F401,RUF100,B007",
-        "--fix",
-        "-e",
-        "-n",
         "--stdin-filename",
         "$FILENAME",
         "-",
       },
     }),
-    ruff_format = to_python_cmd("ruff"),
+    ruff_format = to_python_cmd(
+      "ruff",
+      { args = { "format", "--force-exclude", "--stdin-filename", "$FILENAME", "-" } }
+    ),
+    ruff_organize_imports = to_python_cmd("ruff", {
+      args = {
+        "check",
+        "--fix",
+        "--force-exclude",
+        "--select=I001",
+        "--exit-zero",
+        "--no-cache",
+        "--stdin-filename",
+        "$FILENAME",
+        "-",
+      },
+    }),
+    --
     isort = to_python_cmd("isort"),
     black = to_python_cmd("black"),
     djhtml = to_python_cmd("djhtml"),
@@ -33,7 +52,7 @@ require("conform").setup({
   --
   formatters_by_ft = {
     lua = { "stylua" },
-    python = { "ruff_fix", "ruff_format" },
+    python = { "ruff_organize_imports", "ruff_fix", "ruff_format" },
     -- python = { "isort", "black" },
     ["jinja.html"] = { "djhtml" },
     javascript = frontend_cfg,
