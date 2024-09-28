@@ -5,7 +5,7 @@ live_config_reload: true
 
 window:
   decorations: buttonless
-  opacity: 0.9
+  opacity: 0.95
   # option_as_alt: Both
   # startup_mode: SimpleFullscreen
   padding:
