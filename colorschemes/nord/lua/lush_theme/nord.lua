@@ -30,7 +30,7 @@ local theme = lush(function(injected_functions)
 
   -- stylua: ignore start
   return {
-    Normal         { fg=p.storm0, bg=nil }, -- Normal text
+    Normal         { fg=p.storm0 }, -- Normal text
 
     ColorColumn    { bg=p.night0 }, -- Columns set with 'colorcolumn'
     Cursor         { bg=p.night1 }, -- Character under the cursor
@@ -269,19 +269,19 @@ local theme = lush(function(injected_functions)
     FidgetTask   { Comment },
 
     -- nvim-cmp
-  CmpItemAbbrMatch        { fg=p.night3.darken(-40) },
-  CmpItemAbbrMatchFuzzy   { CmpItemAbbrMatch },
-  CmpItemKind             { fg=p.night3.darken(-50) },
-  CmpItemMenu             { fg=p.night2 },
-  CmpItemAbbrDeprecated   { fg=p.night1 },
+    CmpItemAbbrMatch        { fg=p.night3.darken(-40) },
+    CmpItemAbbrMatchFuzzy   { CmpItemAbbrMatch },
+    CmpItemKind             { fg=p.night3.darken(-50) },
+    CmpItemMenu             { fg=p.night2 },
+    CmpItemAbbrDeprecated   { fg=p.night1 },
 
-  -- lualine
-  LualineA { Comment },
-  LualineB { Comment },
-  LualineC { Comment },
-  LualineX { Comment },
-  LualineY { Comment },
-  LualineZ { Comment },
+    -- lualine
+    LualineA { Comment },
+    LualineB { Comment },
+    LualineC { Comment },
+    LualineX { Comment },
+    LualineY { Comment },
+    LualineZ { Comment },
 
   }
 

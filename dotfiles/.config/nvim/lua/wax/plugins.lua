@@ -7,11 +7,27 @@ return {
   { "mhinz/vim-startify", lazy = false },
   -- {
   --   "rktjmp/lush.nvim",
-  --   lazy = true,
-  --   cmd = { "Lushify" },
+  --   -- lazy = true,
+  --   -- cmd = { "Lushify" },
   --   dependencies = {
-  --     { dir = vim.env.WAXPATH .. "/colorschemes/nord", lazy = true },
+  --     {
+  --       dir = vim.env.WAXPATH .. "/colorschemes/nord",
+  --       lazy = false,
+  --       config = function()
+  --         vim.cmd("colorscheme nord")
+  --       end,
+  --     },
+  --     {
+  --       dir = vim.env.WAXPATH .. "/colorschemes/gruvbox",
+  --       lazy = true,
+  --       -- config = function()
+  --       --   vim.cmd("colorscheme gruvbox")
+  --       -- end,
+  --     },
   --   },
+  --   init = function()
+  --     vim.o.termguicolors = true
+  --   end,
   -- },
   { -- gruvbox
     "morhetz/gruvbox",
