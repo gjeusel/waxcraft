@@ -8,6 +8,7 @@
 
 # Used by aliases
 export waxCraft_PATH=${0:A:h:h}
+export WAXPATH=${waxCraft_PATH}
 
 source "$waxCraft_PATH/dotfiles/envvar.sh"
 source "$waxCraft_PATH/dotfiles/fzf-extras.zsh"
