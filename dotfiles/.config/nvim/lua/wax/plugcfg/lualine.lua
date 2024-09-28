@@ -30,34 +30,22 @@ local lsp_progress = function()
 end
 
 local function make_theme()
-  local colors = {
-    green = "#a89984",
-    GruvboxFg4 = "#a89984",
-    GruvboxBg0 = "#282828",
-    GruvboxBg1 = "#3c3836",
-    GruvboxBg3 = "#665c54",
-  }
-
   local sober_theme = {
-    a = { fg = colors.green, gui = "bold" },
-    b = { fg = colors.GruvboxBg3 },
-    c = { fg = colors.GruvboxBg3 },
-    x = { fg = colors.GruvboxBg3 },
-    y = { fg = colors.GruvboxBg3 },
-    z = { fg = colors.GruvboxBg3 },
+    a = "LualineA",
+    b = "LualineB",
+    c = "LualineC",
+    x = "LualineX",
+    y = "LualineY",
+    z = "LualineZ",
   }
-
-  local function to_mode_theme(a_opts)
-    return vim.tbl_extend("keep", { a = a_opts }, sober_theme)
-  end
 
   return {
-    normal = to_mode_theme(),
-    insert = to_mode_theme(),
-    visual = to_mode_theme(),
-    replace = to_mode_theme(),
-    command = to_mode_theme(),
-    inactive = to_mode_theme(),
+    normal = sober_theme,
+    insert = sober_theme,
+    visual = sober_theme,
+    replace = sober_theme,
+    command = sober_theme,
+    inactive = sober_theme,
   }
 end
 

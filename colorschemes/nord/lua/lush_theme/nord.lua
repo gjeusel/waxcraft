@@ -30,7 +30,7 @@ local theme = lush(function(injected_functions)
 
   -- stylua: ignore start
   return {
-    Normal         { fg=p.storm0 }, -- Normal text
+    Normal         { fg=p.storm0, bg=nil }, -- Normal text
 
     ColorColumn    { bg=p.night0 }, -- Columns set with 'colorcolumn'
     Cursor         { bg=p.night1 }, -- Character under the cursor
@@ -42,84 +42,78 @@ local theme = lush(function(injected_functions)
     Substitute     { bg=p.orange.darken(40)}, -- |:substitute| replacement text highlighting
 
     -- Git
-    -- DiffAdd        { }, -- Diff mode: Added line |diff.txt|
-    -- DiffChange     { }, -- Diff mode: Changed line |diff.txt|
-    -- DiffDelete     { }, -- Diff mode: Deleted line |diff.txt|
-    -- DiffText       { }, -- Diff mode: Changed text within a changed line |diff.txt|
+    DiffAdd        { fg=p.green }, -- Diff mode: Added line |diff.txt|
+    DiffChange     { fg=p.yellow }, -- Diff mode: Changed line |diff.txt|
+    DiffDelete     { fg=p.red }, -- Diff mode: Deleted line |diff.txt|
+    DiffText       { fg=p.frost2 }, -- Diff mode: Changed text within a changed line |diff.txt|
 
     ErrorMsg       { fg=p.red }, -- Error messages on the command line
     VertSplit      { fg=p.storm0 }, -- Column separating vertically split windows
     Folded         { fg=Normal.fg.darken(25), gui="bold" }, -- Line used for closed folds
     FoldColumn     { }, -- 'foldcolumn'
     SignColumn     { }, -- Column where |signs| are displayed
-    LineNr         { fg=p.night3}, -- Line number for ":number" and ":#" commands, and when 'number' or 'relativenumber' option is set.
-    CursorLineNr   { fg=p.storm0}, -- Like LineNr when 'cursorline' or 'relativenumber' is set for the cursor line.
+    CursorLineNr   { fg=p.storm0 }, -- Like LineNr when 'cursorline' or 'relativenumber' is set for the cursor line.
     MatchParen     { bg=p.night3 }, -- Character under the cursor or just before it, if it is a paired bracket, and its match. |pi_paren.txt|
 
+    FloatTitle     { fg=p.storm2, gui="bold" }, -- Title of floating windows.
     NormalFloat    { Normal }, -- Normal text in floating windows.
     FloatBorder    { Normal }, -- Border of floating windows.
-    FloatTitle     { fg=p.storm2 }, -- Title of floating windows.
 
-    -- Title          { }, -- Titles for output from ":set all", ":autocmd" etc.
+    Title          { gui="bold" }, -- Titles for output from ":set all", ":autocmd" etc.
     Visual         { bg=p.night1}, -- Visual mode selection
 
     -- Common vim syntax groups used for all kinds of code and markup.
     -- Commented-out groups should chain up to their preferred (*) group
-    -- by default.
-    --
-    -- See :h group-name
-    --
-    -- Uncomment and edit if you want more specific syntax highlighting.
+    -- by default. (See :h group-name)
 
-    -- Comment        { }, -- Any comment
+    Comment        { fg=p.night3.darken(-20) }, -- Any comment
+    String         { fg=p.green }, --   A string constant: "this is a string"
+    Boolean        { fg=p.orange }, --   A boolean constant: TRUE, false
+    Number         { fg=p.purple }, --   A number constant: 234, 0xff
+    Float          { Number }, --   A floating point constant: 2.3e10
 
-    -- Constant       { }, -- (*) Any constant
-    -- String         { }, --   A string constant: "this is a string"
-    -- Character      { }, --   A character constant: 'c', '\n'
-    -- Number         { }, --   A number constant: 234, 0xff
-    -- Boolean        { }, --   A boolean constant: TRUE, false
-    -- Float          { }, --   A floating point constant: 2.3e10
+    Identifier     { }, -- (*) Any variable name
+    Statement      { }, -- (*) Any statement
+    Operator       { }, --   "sizeof", "+", "*", etc.
 
-    -- Identifier     { }, -- (*) Any variable name
-    -- Function       { }, --   Function name (also: methods for classes)
+    Function       { fg=p.frost2 }, --   Function name (also: methods for classes)
 
-    -- Statement      { }, -- (*) Any statement
-    -- Conditional    { }, --   if, then, else, endif, switch, etc.
-    -- Repeat         { }, --   for, do, while, etc.
-    -- Label          { }, --   case, default, etc.
-    -- Operator       { }, --   "sizeof", "+", "*", etc.
-    -- Keyword        { }, --   any other keyword
-    -- Exception      { }, --   try, catch, throw
+    Keyword        { fg=p.red }, --   any other keyword
+    Conditional    { Keyword }, --   if, then, else, endif, switch, etc.
+    Repeat         { Keyword }, --   for, do, while, etc.
+    Label          { Keyword }, --   case, default, etc.
+    Exception      { Keyword }, --   try, catch, throw
 
-    -- PreProc        { }, -- (*) Generic Preprocessor
-    -- Include        { }, --   Preprocessor #include
-    -- Define         { }, --   Preprocessor #define
-    -- Macro          { }, --   Same as Define
-    -- PreCondit      { }, --   Preprocessor #if, #else, #endif, etc.
+    PreProc        { }, -- (*) Generic Preprocessor
+    Include        { }, --   Preprocessor #include
+    Define         { }, --   Preprocessor #define
+    Macro          { }, --   Same as Define
+    PreCondit      { }, --   Preprocessor #if, #else, #endif, etc.
 
-    -- Type           { }, -- (*) int, long, char, etc.
-    -- StorageClass   { }, --   static, register, volatile, etc.
-    -- Structure      { }, --   struct, union, enum, etc.
-    -- Typedef        { }, --   A typedef
+    Type           { fg=p.yellow }, -- (*) int, long, char, etc.
+    StorageClass   { fg=p.yellow }, --   static, register, volatile, etc.
+    Structure      { fg=p.yellow }, --   struct, union, enum, etc.
+    Typedef        { fg=p.yellow }, --   A typedef
 
-    -- Special        { }, -- (*) Any special symbol
-    -- SpecialChar    { }, --   Special character in a constant
-    -- Tag            { }, --   You can use CTRL-] on this
-    -- Delimiter      { }, --   Character that needs attention
-    -- SpecialComment { }, --   Special things inside a comment (e.g. '\n')
-    -- Debug          { }, --   Debugging statements
+    Special        { fg=p.night3.darken(-30) }, -- (*) Any special symbol
+    SpecialChar    { }, --   Special character in a constant
+    Tag            { fg=p.frost0.darken(-20) }, --   You can use CTRL-] on this
+    Delimiter      { }, --   Character that needs attention
+    SpecialComment { }, --   Special things inside a comment (e.g. '\n')
+    Debug          { fg = p.frost2, bg = p.night0 }, --   Debugging statements
 
-    -- Underlined     { gui = "underline" }, -- Text that stands out, HTML links
-    -- Ignore         { }, -- Left blank, hidden |hl-Ignore| (NOTE: May be invisible here in template)
-    -- Error          { }, -- Any erroneous construct
-    -- Todo           { }, -- Anything that needs extra attention; mostly the keywords TODO FIXME and XXX
+    Underlined     { gui = "underline" }, -- Text that stands out, HTML links
+    Ignore         { }, -- Left blank, hidden |hl-Ignore| (NOTE: May be invisible here in template)
+    Error          { bg=p.red.darken(50), gui="bold" }, -- Any erroneous construct
+    Todo           { gui = "bold" }, -- Anything that needs extra attention; mostly the keywords TODO FIXME and XXX
+
+    Statusline     { Normal },
+    StatuslineNC   { fg=p.night3.darken(-20) },
 
     -- These groups are for the native LSP client and diagnostic system. Some
     -- other LSP clients may use these groups, or use their own. Consult your
-    -- LSP client's documentation.
+    -- LSP client's documentation. (See :h lsp-highlight)
 
-    -- See :h lsp-highlight, some groups may not be listed, submit a PR fix to lush-template!
-    --
     -- LspReferenceText            { } , -- Used for highlighting "text" references
     -- LspReferenceRead            { } , -- Used for highlighting "read" references
     -- LspReferenceWrite           { } , -- Used for highlighting "write" references
@@ -127,13 +121,12 @@ local theme = lush(function(injected_functions)
     -- LspCodeLensSeparator        { } , -- Used to color the seperator between two or more code lens.
     -- LspSignatureActiveParameter { } , -- Used to highlight the active parameter in the signature help. See |vim.lsp.handlers.signature_help()|.
 
-    -- See :h diagnostic-highlights, some groups may not be listed, submit a PR fix to lush-template!
-    --
-    -- DiagnosticError            { } , -- Used as the base highlight group. Other Diagnostic highlights link to this by default (except Underline)
-    -- DiagnosticWarn             { } , -- Used as the base highlight group. Other Diagnostic highlights link to this by default (except Underline)
-    -- DiagnosticInfo             { } , -- Used as the base highlight group. Other Diagnostic highlights link to this by default (except Underline)
-    -- DiagnosticHint             { } , -- Used as the base highlight group. Other Diagnostic highlights link to this by default (except Underline)
-    -- DiagnosticOk               { } , -- Used as the base highlight group. Other Diagnostic highlights link to this by default (except Underline)
+    -- (See :h diagnostic-highlights)
+    DiagnosticError            { fg = p.red } , -- Used as the base highlight group. Other Diagnostic highlights link to this by default (except Underline)
+    DiagnosticWarn             { fg = p.yellow } , -- Used as the base highlight group. Other Diagnostic highlights link to this by default (except Underline)
+    DiagnosticInfo             { fg = p.storm0 } , -- Used as the base highlight group. Other Diagnostic highlights link to this by default (except Underline)
+    DiagnosticHint             { fg = p.frost2 } , -- Used as the base highlight group. Other Diagnostic highlights link to this by default (except Underline)
+    DiagnosticOk               { fg = p.green } , -- Used as the base highlight group. Other Diagnostic highlights link to this by default (except Underline)
     -- DiagnosticVirtualTextError { } , -- Used for "Error" diagnostic virtual text.
     -- DiagnosticVirtualTextWarn  { } , -- Used for "Warn" diagnostic virtual text.
     -- DiagnosticVirtualTextInfo  { } , -- Used for "Info" diagnostic virtual text.
@@ -155,25 +148,7 @@ local theme = lush(function(injected_functions)
     -- DiagnosticSignHint         { } , -- Used for "Hint" signs in sign column.
     -- DiagnosticSignOk           { } , -- Used for "Ok" signs in sign column.
 
-    -- Plugins
-    -- MiniIndentscopeSymbol = {p.night3},
-
-    -- Tree-Sitter syntax groups.
-    --
-    -- See :h treesitter-highlight-groups, some groups may not be listed,
-    -- submit a PR fix to lush-template!
-    --
-    -- Tree-Sitter groups are defined with an "@" symbol, which must be
-    -- specially handled to be valid lua code, we do this via the special
-    -- sym function. The following are all valid ways to call the sym function,
-    -- for more details see https://www.lua.org/pil/5.html
-    --
-    -- sym("@text.literal")
-    -- sym('@text.literal')
-    -- sym"@text.literal"
-    -- sym'@text.literal'
-    --
-    -- For more information see https://github.com/rktjmp/lush.nvim/issues/109
+    -- Tree-Sitter syntax groups. (See :h treesitter-highlight-groups)
 
     -- sym"@text.literal"      { }, -- Comment
     -- sym"@text.reference"    { }, -- Identifier
@@ -181,48 +156,66 @@ local theme = lush(function(injected_functions)
     -- sym"@text.uri"          { }, -- Underlined
     -- sym"@text.underline"    { }, -- Underlined
     -- sym"@text.todo"         { }, -- Todo
-    sym"@comment"           { fg=p.night3.darken(-20) }, -- Comment
+
+    sym"@comment"           { Comment }, -- Comment
+
     sym"@punctuation"       { }, -- Delimiter
-    sym"@punctuation.special"       { fg=p.night3.darken(-20) }, -- Delimiter
+    sym"@punctuation.special"       { Special }, -- Delimiter
     sym"@punctuation.bracket"       { fg=p.night3.darken(-20) }, -- Delimiter
+
     -- sym"@constant"          { }, -- Constant
     sym"@constant.builtin"  { fg=p.orange}, -- Special
     -- sym"@constant.macro"    { }, -- Define
+
     -- sym"@define"            { }, -- Define
     -- sym"@macro"             { }, -- Macro
-    sym"@string"            { fg=p.green }, -- String
+
+    sym"@string"            { String }, -- String
     -- sym"@string.escape"     { }, -- SpecialChar
     -- sym"@string.special"    { }, -- SpecialChar
+
     -- sym"@character"         { }, -- Character
     -- sym"@character.special" { }, -- SpecialChar
-    sym"@number"            { fg=p.purple}, -- Number
-    sym"@number.float"      { fg=p.purple}, -- Float
-    sym"@boolean"           { fg=p.orange}, -- Boolean
-    sym"@function"          { fg=p.frost2 }, -- Function
-    sym"@function.builtin"  { fg=p.frost1 }, -- Special
-    sym"@function.macro"    { fg=p.frost2 }, -- Macro
-    sym"@function.macro.vue"{ fg=p.frost3 }, -- Macro
-    sym"@function.method"    { fg=p.frost2 }, -- Macro
-    sym"@function.call"     {  }, -- Function call
+
+    sym"@number"            { Number }, -- Number
+    sym"@number.float"      { Number }, -- Float
+
+    sym"@boolean"           { Boolean }, -- Boolean
+
+    sym"@function"           { Function }, -- Function
+    sym"@function.builtin"   { fg=p.frost1 }, -- Special
+    sym"@function.macro"     { Function }, -- Macro
+    sym"@function.method"    { Function }, -- Macro
+    sym"@function.call"      {  }, -- Function call
+    sym"@function.macro.vue" { fg=p.frost3 }, -- Macro
+
+    sym"@method"            { Function }, -- Function
+    sym"@method.call"        {  }, -- Macro
+
     -- sym"@parameter"         { }, -- Identifier
-    -- sym"@method"            { }, -- Function
     -- sym"@field"             { }, -- Identifier
     sym"@property"          { }, -- Identifier
-    -- sym"@constructor"       { }, -- Special
+    sym"@constructor"       { }, -- Special
     -- sym"@conditional"       { }, -- Conditional
     sym"@repeat"            { fg=p.red}, -- Repeat
     -- sym"@label"             { }, -- Label
-    -- sym"@operator"          { }, -- Operator
+    sym"@operator"          { Operator }, -- Operator
+
     sym"@keyword"           { fg=p.red }, -- Keyword
     sym"@keyword.import"    { fg=p.frost2 }, -- Keyword
-    sym"@keyword.exception" { fg=p.frost3 }, -- Keyword
+    sym"@keyword.exception" { Exception }, -- Keyword
+
     -- sym"@exception"         { }, -- Exception
-    sym"@variable"          { }, -- Identifier
-    sym"@variable.builtin"  { fg=p.frost2 }, -- Identifier
-    sym"@variable.member"  { fg=p.frost2 }, -- Identifier
-    sym"@variable.member.python"  { Normal }, -- Identifier
-    sym"@type"              { fg=p.yellow}, -- Type
-    sym"@type.builtin"      { fg=p.orange}, -- Type builtin
+
+    sym"@variable"                 { }, -- Identifier
+    sym"@variable.builtin"         { fg=p.frost2 }, -- Identifier
+    sym"@variable.member"          { fg=p.frost2 }, -- Identifier
+    sym"@variable.member.python"   { Normal }, -- Identifier
+    sym"@variable.parameter.bash"       { Special },
+
+    sym"@type"              { Type }, -- Type
+    sym"@type.builtin"      { fg=p.orange }, -- Type builtin
+    sym"@type.builtin.typescript" { fg=p.yellow }, -- Type builtin
     -- sym"@type.definition"   { }, -- Typedef
     -- sym"@storageclass"      { }, -- StorageClass
     -- sym"@structure"         { }, -- Structure
@@ -230,9 +223,68 @@ local theme = lush(function(injected_functions)
     -- sym"@include"           { }, -- Include
     -- sym"@preproc"           { }, -- PreProc
     -- sym"@debug"             { }, -- Debug
-    sym"@tag"               { fg=p.frost0.darken(-20)}, -- Tag
-    sym"@none"               { Normal }, -- Tag
+    sym"@tag"               { Tag }, -- Tag
+    sym"@tag.attribute"     { fg=p.frost2 },
+    sym"@none"              { Normal }, -- Tag
+    sym"@markup.heading.1"  { fg=p.frost0 },
+    sym"@markup.heading.2"  { fg=p.frost1 },
+    sym"@markup.heading.3"  { fg=p.frost2 },
+    sym"@markup.heading.4"  { fg=p.frost3 },
+    sym"@markup.heading.5"  { fg=p.frost3 },
+    sym"@markup.heading.6"  { fg=p.frost3 },
+
+    ---- Plugins ----
+
+    -- mini indent
+    MiniIndentscopeSymbol { fg = p.night3 },
+
+    -- vim matchup
+    MatchBackground {},
+    MatchParentCur  {},
+    MatchWord       {},
+    MatchWordCur    {},
+
+    -- DAP
+    DapStoppedLine { Visual },
+
+    -- Better floating window
+    LspInfoBorder    { FloatBorder },
+    FzfLuaBorder     { FloatBorder },
+    TelescopeBorder  { FloatBorder },
+    NullLsInfoBorder { FloatBorder },
+
+    -- barbar
+    BufferCurrent      { fg=p.frost0 },
+    BufferCurrentSign  { fg=p.frost0 },
+    BufferCurrentMod   { fg=p.frost0 },
+    BufferVisible      { fg=p.frost2 },
+    BufferVisibleSign  { fg=p.frost2 },
+    BufferVisibleMod   { fg=p.frost2 },
+    BufferInactive     { Comment },
+    BufferInactiveSign { Comment },
+    BufferInactiveMod  { Comment },
+
+    -- fidget
+    FidgetTitle  { fg=p.night3.darken(-40) },
+    FidgetTask   { Comment },
+
+    -- nvim-cmp
+  CmpItemAbbrMatch        { fg=p.night3.darken(-40) },
+  CmpItemAbbrMatchFuzzy   { CmpItemAbbrMatch },
+  CmpItemKind             { fg=p.night3.darken(-50) },
+  CmpItemMenu             { fg=p.night2 },
+  CmpItemAbbrDeprecated   { fg=p.night1 },
+
+  -- lualine
+  LualineA { Comment },
+  LualineB { Comment },
+  LualineC { Comment },
+  LualineX { Comment },
+  LualineY { Comment },
+  LualineZ { Comment },
+
   }
+
   -- stylua: ignore end
 end)
 

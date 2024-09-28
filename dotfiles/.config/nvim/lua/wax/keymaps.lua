@@ -216,7 +216,7 @@ for i = 0, 9, 1 do
 end
 
 -- find vim help quickly
-vim.keymap.set("n", "<leader>fh", function()
+vim.keymap.set("n", "<leader>fH", function()
   vim.cmd([[normal! "wyiw]])
   local word = vim.fn.getreg('"')
   vim.cmd("vert h " .. word)

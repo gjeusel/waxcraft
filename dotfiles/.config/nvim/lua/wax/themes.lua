@@ -89,6 +89,14 @@ local base_gruvbox_hls = {
   CmpItemKind = { link = "GruvboxFg4" },
   CmpItemMenu = { link = "GruvboxBg4" },
   CmpItemAbbrDeprecated = { strikethrough = true },
+
+  -- Lualine
+  LualineA = { link = "Comment" },
+  LualineB = { link = "Comment" },
+  LualineC = { link = "Comment" },
+  LualineX = { link = "Comment" },
+  LualineY = { link = "Comment" },
+  LualineZ = { link = "Comment" },
 }
 
 local base_gruvbox_ts_hls = {

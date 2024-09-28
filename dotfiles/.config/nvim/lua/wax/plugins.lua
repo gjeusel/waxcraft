@@ -5,15 +5,14 @@
 return {
   --------- UI ---------
   { "mhinz/vim-startify", lazy = false },
-  {
-    "rktjmp/lush.nvim",
-    lazy = true,
-    cmd = { "Lushify" },
-    dependencies = {
-
-      { dir = "~/src/waxcraft/colorschemes/nord", lazy = true },
-    },
-  },
+  -- {
+  --   "rktjmp/lush.nvim",
+  --   lazy = true,
+  --   cmd = { "Lushify" },
+  --   dependencies = {
+  --     { dir = vim.env.WAXPATH .. "/colorschemes/nord", lazy = true },
+  --   },
+  -- },
   { -- gruvbox
     "morhetz/gruvbox",
     lazy = false,
@@ -545,6 +544,13 @@ return {
           require("fzf-lua").builtin()
         end,
         desc = "Fzf Lua Builtin",
+      },
+      {
+        "<leader>fh",
+        function()
+          require("fzf-lua/providers/colorschemes").highlights()
+        end,
+        desc = "Fzf Lua Highlights",
       },
       {
         "∂", -- option + d
