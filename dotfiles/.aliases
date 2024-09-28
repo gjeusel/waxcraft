@@ -231,3 +231,5 @@ function realpath() {
 }
 
 # alias shadcn="pnpx shadcn-svelte@0.4.1"
+
+alias httpx="uvx --from 'httpx[cli]' httpx"
