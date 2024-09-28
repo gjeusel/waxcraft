@@ -6,10 +6,13 @@ from typing import Optional, Union
 import pandas as pd
 import pydantic
 import pytest
+from unittest import mock
 
 logger = logging.getLogger(__name__)
 
-CONSTANT = 10
+CONSTANT = (10, 10.)
+
+round(20)
 
 
 class Config(pydantic.BaseSettings):
@@ -21,7 +24,10 @@ class Config(pydantic.BaseSettings):
 
     @pydantic.validator("ok")
     def _sanitize_ok(cls, v):
-        return v
+        try:
+            return v
+        except ValueError:
+            return "ok"
 
     @property
     def messy(self) -> bool:
@@ -58,6 +64,7 @@ def test_highlight(value):
 Config().classicmethod()
 
 # Can't query it, parser is wrong
+read_qry = target_tsdata = joined_conditions = mock.MagicMock()
 read_sql = f"""
     SELECT ts, {read_qry.tsmeta.column_name}::double precision as "{read_qry.tsmeta.tablename}"
     FROM {target_tsdata}
@@ -78,20 +85,14 @@ class TypeHintBinaryOperator:
     def fnb(self) -> list[dict[str, None]]:
         return []
 
-    def fnc(self) -> str | None:
-        ...
+    def fnc(self) -> str | None: ...
 
-    def fnd(self) -> list[str] | None:
-        ...
+    def fnd(self) -> list[str] | None: ...
 
-    def fne(self) -> str | int:
-        ...
+    def fne(self) -> str | int: ...
 
-    def fn2(self) -> list[dict[str, str]] | None:
-        ...
+    def fn2(self) -> list[dict[str, str]] | None: ...
 
-    def fn3(self) -> None | list[dict[str, str]] | None:
-        ...
+    def fn3(self) -> None | list[dict[str, str]] | None: ...
 
-    def fn4(self) -> None | list[dict[str, str]]:
-        ...
+    def fn4(self) -> None | list[dict[str, str]]: ...

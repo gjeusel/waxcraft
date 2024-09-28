@@ -5,6 +5,15 @@
 return {
   --------- UI ---------
   { "mhinz/vim-startify", lazy = false },
+  {
+    "rktjmp/lush.nvim",
+    lazy = true,
+    cmd = { "Lushify" },
+    dependencies = {
+
+      { dir = "~/src/waxcraft/colorschemes/nord", lazy = true },
+    },
+  },
   { -- gruvbox
     "morhetz/gruvbox",
     lazy = false,
