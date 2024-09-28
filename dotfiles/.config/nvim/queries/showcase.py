@@ -10,7 +10,7 @@ from unittest import mock
 
 logger = logging.getLogger(__name__)
 
-CONSTANT = (10, 10.)
+CONSTANT = (10, 10. + 40)
 
 round(20)
 
