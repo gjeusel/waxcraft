@@ -195,6 +195,8 @@ local theme = lush(function(injected_functions)
     -- sym"@parameter"         { }, -- Identifier
     -- sym"@field"             { }, -- Identifier
     sym"@property"          { }, -- Identifier
+    sym"@property.yaml"     { fg=p.frost2 }, -- Identifier
+    sym"@property.jsonc"     { fg=p.frost2 }, -- Identifier
     sym"@constructor"       { }, -- Special
     -- sym"@conditional"       { }, -- Conditional
     sym"@repeat"            { fg=p.red}, -- Repeat

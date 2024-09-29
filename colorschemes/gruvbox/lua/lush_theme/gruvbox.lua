@@ -32,7 +32,7 @@ local theme = lush(function(injected_functions)
 
   -- stylua: ignore start
   return {
-    Normal         { fg=p.light1.lighten(30) }, -- Normal text
+    Normal         { fg=p.light1.lighten(10) }, -- Normal text
 
     ColorColumn    { bg=p.dark1 }, -- Columns set with 'colorcolumn'
     Cursor         { bg=p.dark4 }, -- Character under the cursor
@@ -228,6 +228,7 @@ local theme = lush(function(injected_functions)
     sym"@property.jsonc"    { fg=p.blue }, -- Identifier
     sym"@property.json"    { fg=p.blue }, -- Identifier
     sym"@constructor"       { Normal }, -- Special
+    sym"@constructor.lua"   { }, -- Special
     -- sym"@conditional"       { }, -- Conditional
     sym"@repeat"            { fg=p.red}, -- Repeat
     -- sym"@label"             { }, -- Label

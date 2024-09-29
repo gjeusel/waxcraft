@@ -19,7 +19,7 @@ return {
     },
     init = function()
       vim.o.termguicolors = true
-      vim.cmd("colorscheme gruvbox")
+      vim.cmd("colorscheme nord")
     end,
   },
   -- { -- gruvbox
