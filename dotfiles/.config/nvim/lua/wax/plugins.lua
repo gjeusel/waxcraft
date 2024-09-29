@@ -5,43 +5,36 @@
 return {
   --------- UI ---------
   { "mhinz/vim-startify", lazy = false },
-  -- {
-  --   "rktjmp/lush.nvim",
-  --   -- lazy = true,
-  --   -- cmd = { "Lushify" },
-  --   dependencies = {
-  --     {
-  --       dir = vim.env.WAXPATH .. "/colorschemes/nord",
-  --       lazy = false,
-  --       config = function()
-  --         vim.cmd("colorscheme nord")
-  --       end,
-  --     },
-  --     {
-  --       dir = vim.env.WAXPATH .. "/colorschemes/gruvbox",
-  --       lazy = true,
-  --       -- config = function()
-  --       --   vim.cmd("colorscheme gruvbox")
-  --       -- end,
-  --     },
-  --   },
-  --   init = function()
-  --     vim.o.termguicolors = true
-  --   end,
-  -- },
-  { -- gruvbox
-    "morhetz/gruvbox",
-    lazy = false,
-    priority = 1000,
-    config = function()
-      vim.o.termguicolors = false
-      vim.o.background = "dark"
-      vim.g.gruvbox_invert_selection = 0
-      vim.g.gruvbox_improved_warnings = 1
-      vim.cmd([[colorscheme gruvbox]])
-      require("wax.themes")
+  {
+    "rktjmp/lush.nvim",
+    dependencies = {
+      {
+        dir = vim.env.WAXPATH .. "/colorschemes/nord",
+        lazy = true,
+      },
+      {
+        dir = vim.env.WAXPATH .. "/colorschemes/gruvbox",
+        lazy = true,
+      },
+    },
+    init = function()
+      vim.o.termguicolors = true
+      vim.cmd("colorscheme gruvbox")
     end,
   },
+  -- { -- gruvbox
+  --   "morhetz/gruvbox",
+  --   lazy = false,
+  --   priority = 1000,
+  --   config = function()
+  --     vim.o.termguicolors = false
+  --     vim.o.background = "dark"
+  --     vim.g.gruvbox_invert_selection = 0
+  --     vim.g.gruvbox_improved_warnings = 1
+  --     vim.cmd([[colorscheme gruvbox]])
+  --     require("wax.themes")
+  --   end,
+  -- },
   { -- lualine
     "nvim-lualine/lualine.nvim",
     dependencies = { "linrongbin16/lsp-progress.nvim" },
