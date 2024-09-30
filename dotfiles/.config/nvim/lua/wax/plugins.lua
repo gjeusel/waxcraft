@@ -446,6 +446,8 @@ return {
   { -- janko/vim-test
     "janko/vim-test",
     lazy = false,
+    dev = true,
+    pin = true,
     event = "VeryLazy",
     dependencies = {
       "jgdavey/tslime.vim", -- send command from vim to a running tmux session

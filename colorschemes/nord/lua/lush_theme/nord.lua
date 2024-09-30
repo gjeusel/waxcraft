@@ -152,6 +152,9 @@ local theme = lush(function(injected_functions)
     -- DiagnosticSignHint         { } , -- Used for "Hint" signs in sign column.
     -- DiagnosticSignOk           { } , -- Used for "Ok" signs in sign column.
 
+    -- netrw
+    Directory { fg=p.frost2 },
+
     -- Tree-Sitter syntax groups. (See :h treesitter-highlight-groups)
 
     -- sym"@text.literal"      { }, -- Comment
@@ -208,6 +211,7 @@ local theme = lush(function(injected_functions)
     sym"@operator"          { Operator }, -- Operator
 
     sym"@keyword"           { fg=p.red }, -- Keyword
+    sym"@keyword.vim"       { fg=p.frost2 }, -- Keyword
     sym"@keyword.import"    { fg=p.frost2 }, -- Keyword
     sym"@keyword.exception" { Exception }, -- Keyword
 
@@ -217,7 +221,10 @@ local theme = lush(function(injected_functions)
     sym"@variable.builtin"         { fg=p.frost2 }, -- Identifier
     sym"@variable.member"          { fg=p.frost2 }, -- Identifier
     sym"@variable.member.python"   { Normal }, -- Identifier
+    sym"@variable.member.lua"      { Normal }, -- Identifier
     sym"@variable.parameter.bash"       { Special },
+
+    sym"@module.builtin" { },
 
     sym"@type"              { Type }, -- Type
     sym"@type.builtin"      { fg=p.orange }, -- Type builtin
