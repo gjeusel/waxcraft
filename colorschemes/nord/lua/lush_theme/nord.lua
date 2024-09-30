@@ -56,11 +56,15 @@ local theme = lush(function(injected_functions)
     MatchParen     { bg=p.night3 }, -- Character under the cursor or just before it, if it is a paired bracket, and its match. |pi_paren.txt|
 
     FloatTitle     { fg=p.storm2, gui="bold" }, -- Title of floating windows.
+    FloatShadow    { bg=p.night1 },
     NormalFloat    { Normal }, -- Normal text in floating windows.
     FloatBorder    { Normal }, -- Border of floating windows.
 
     Title          { gui="bold" }, -- Titles for output from ":set all", ":autocmd" etc.
     Visual         { bg=p.night1}, -- Visual mode selection
+
+    Pmenu          { bg=p.night0, fg=p.storm1 },
+    PmenuSel       { bg=p.night3, fg=p.storm0 },
 
     -- Common vim syntax groups used for all kinds of code and markup.
     -- Commented-out groups should chain up to their preferred (*) group
@@ -284,6 +288,14 @@ local theme = lush(function(injected_functions)
     LualineX { Comment },
     LualineY { Comment },
     LualineZ { Comment },
+
+    -- vim startify
+    StartifyBracket   { Special },
+    StartifyFile      { fg=p.storm2 },
+    StartifyPath      { StartifyFile },
+    StartifySlash     { StartifyFile },
+    StartifySection   { fg=p.frost2 },
+    StartifyHeader    { fg=p.frost1 },
 
   }
 
