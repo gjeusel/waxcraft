@@ -3,59 +3,58 @@ Configuration example for ``ptpython``.
 
 Copy this file to $XDG_CONFIG_HOME/ptpython/config.py
 """
+
 from __future__ import unicode_literals
 
 from prompt_toolkit.filters import ViInsertMode
 from prompt_toolkit.key_binding.key_processor import KeyPress
 from prompt_toolkit.keys import Keys
 from prompt_toolkit.styles.pygments import style_from_pygments_cls
-from pygments.style import Style
-from pygments.token import (Comment, Generic, Keyword, Name, Number, Operator,
-                            String, Token)
-
 from ptpython.layout import CompletionVisualisation
+from pygments.style import Style
+from pygments.token import Comment, Generic, Keyword, Name, Number, Operator, String, Token
 
 
 class GruvboxStyle(Style):
-    """ Retro groove color scheme for Vim by Github: @morhetz """
+    """Retro groove color scheme for Vim by Github: @morhetz"""
 
-    background_color = '#282828'
+    background_color = "#282828"
     styles = {
-        Comment.Preproc: 'noinherit #8ec07c',
-        Comment: '#928374 italic',
-        Generic.Deleted: 'noinherit #282828 bg:#fb4934',
-        Generic.Emph: '#83a598 underline',
-        Generic.Error: '#fb4934 bold',
-        Generic.Heading: '#b8bb26 bold',
-        Generic.Inserted: 'noinherit #282828 bg:#b8bb26',
-        Generic.Output: 'noinherit #504945',
-        Generic.Prompt: '#ebdbb2',
-        Generic.Strong: '#ebdbb2',
-        Generic.Subheading: '#b8bb26 bold',
-        Generic.Traceback: '#fb4934 bold',
-        Generic: '#ebdbb2',
-        Keyword.Type: 'noinherit #fabd2f',
-        Keyword: 'noinherit #fe8019',
-        Name.Attribute: '#b8bb26 bold',
-        Name.Builtin: '#fabd2f',
-        Name.Constant: 'noinherit #d3869b',
-        Name.Entity: 'noinherit #fabd2f',
-        Name.Exception: 'noinherit #fb4934',
-        Name.Function: '#fabd2f',
-        Name.Label: 'noinherit #fb4934',
-        Name.Tag: 'noinherit #fb4934',
-        Name.Variable: 'noinherit #ebdbb2',
-        Name: '#ebdbb2',
-        Number.Float: 'noinherit #d3869b',
-        Number: 'noinherit #d3869b',
-        Operator: '#fe8019',
-        String.Symbol: '#83a598',
-        String: 'noinherit #b8bb26',
-        Token: 'noinherit #ebdbb2 bg:#282828',
+        Comment.Preproc: "noinherit #8ec07c",
+        Comment: "#928374 italic",
+        Generic.Deleted: "noinherit #282828",
+        Generic.Emph: "#83a598 underline",
+        Generic.Error: "#fb4934 bold",
+        Generic.Heading: "#b8bb26 bold",
+        Generic.Inserted: "noinherit #282828",
+        Generic.Output: "noinherit #504945",
+        Generic.Prompt: "#ebdbb2",
+        Generic.Strong: "#ebdbb2",
+        Generic.Subheading: "#b8bb26 bold",
+        Generic.Traceback: "#fb4934 bold",
+        Generic: "#ebdbb2",
+        Keyword.Type: "noinherit #fabd2f",
+        Keyword: "noinherit #fe8019",
+        Name.Attribute: "#b8bb26 bold",
+        Name.Builtin: "#fabd2f",
+        Name.Constant: "noinherit #d3869b",
+        Name.Entity: "noinherit #fabd2f",
+        Name.Exception: "noinherit #fb4934",
+        Name.Function: "#fabd2f",
+        Name.Label: "noinherit #fb4934",
+        Name.Tag: "noinherit #fb4934",
+        Name.Variable: "noinherit #ebdbb2",
+        Name: "#ebdbb2",
+        Number.Float: "noinherit #d3869b",
+        Number: "noinherit #d3869b",
+        Operator: "#fe8019",
+        String.Symbol: "#83a598",
+        String: "noinherit #b8bb26",
+        Token: "noinherit #ebdbb2",
     }
 
 
-__all__ = ('configure', )
+__all__ = ("configure",)
 
 
 def configure(repl):
@@ -116,7 +115,7 @@ def configure(repl):
     repl.paste_mode = False
 
     # Use the classic prompt. (Display '>>>' instead of 'In [1]'.)
-    repl.prompt_style = 'classic'  # 'classic' or 'ipython'
+    repl.prompt_style = "classic"  # 'classic' or 'ipython'
 
     # Don't insert a blank line after the output.
     repl.insert_blank_line_after_output = False
@@ -136,7 +135,7 @@ def configure(repl):
     # Typing 'ctrl-space' will accept auto-complete
     @repl.add_key_binding("c-space")
     def _(event):
-        " Map 'ctrl-space' to 'ctrl-e'. "
+        "Map 'ctrl-space' to 'ctrl-e'."
         event.cli.key_processor.feed(KeyPress(Keys.ControlE))
 
     # Enable open-in-editor. Pressing C-X C-E in emacs mode or 'v' in
@@ -164,7 +163,7 @@ def configure(repl):
     # Set color depth (keep in mind that not all terminals support true color).
     # repl.color_depth = 'DEPTH_1_BIT'  # Monochrome.
     # repl.color_depth = 'DEPTH_4_BIT'  # ANSI colors only.
-    repl.color_depth = 'DEPTH_8_BIT'  # The default, 256 colors.
+    repl.color_depth = "DEPTH_8_BIT"  # The default, 256 colors.
     # repl.color_depth = 'DEPTH_24_BIT'  # True color.
 
     # Syntax.
@@ -172,21 +171,21 @@ def configure(repl):
 
     # Typing 'jj' in Vi Insert mode, should send escape. (Go back to navigation
     # mode.)
-    @repl.add_key_binding('j', 'j', filter=ViInsertMode())
+    @repl.add_key_binding("j", "j", filter=ViInsertMode())
     def _(event):
-        " Map 'jj' to Escape. "
+        "Map 'jj' to Escape."
         event.cli.key_processor.feed(KeyPress(Keys.Escape))
 
     # Custom key binding for some simple autocorrection while typing.
     corrections = {
-        'mport': 'import',
-        'impotr': 'import',
-        'pritn': 'print',
+        "mport": "import",
+        "impotr": "import",
+        "pritn": "print",
     }
 
-    @repl.add_key_binding(' ')
+    @repl.add_key_binding(" ")
     def _(event):
-        ' When a space is pressed. Check & correct word before cursor. '
+        "When a space is pressed. Check & correct word before cursor."
         b = event.cli.current_buffer
         w = b.document.get_word_before_cursor()
 
@@ -195,4 +194,4 @@ def configure(repl):
                 b.delete_before_cursor(count=len(w))
                 b.insert_text(corrections[w])
 
-        b.insert_text(' ')
+        b.insert_text(" ")

@@ -303,13 +303,17 @@ return {
         -- Generic:
         "bash",
         "jsonc",
-        -- "yaml",
+        "yaml",
         "lua",
         "ql",
         "query",
         "regex",
         "toml",
         "markdown",
+        "git_config",
+        "git_rebase",
+        "gitcommit",
+        "diff",
         -- Frontend:
         "graphql",
         "html",
@@ -322,6 +326,7 @@ return {
         "svelte",
         "vue",
         -- Backend:
+        "sql",
         "go",
         "rust",
         "python",
@@ -446,7 +451,7 @@ return {
   { -- janko/vim-test
     "janko/vim-test",
     lazy = false,
-    dev = true,
+    -- dev = true,
     pin = true,
     event = "VeryLazy",
     dependencies = {

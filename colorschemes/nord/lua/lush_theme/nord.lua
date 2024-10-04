@@ -36,16 +36,16 @@ local theme = lush(function(injected_functions)
     Cursor         { bg=p.night1 }, -- Character under the cursor
     CursorLine     { bg=p.night0 }, -- Screen-line at the cursor, when 'cursorline' is set. Low-priority if foreground (ctermfg OR guifg) is not set.
 
-    CurSearch      { bg=p.orange.darken(50) }, -- Highlighting a search pattern under the cursor (see 'hlsearch')
-    Search         { bg=p.yellow.darken(70)}, -- Last search pattern highlighting (see 'hlsearch'). Also used for similar items that need to stand out.
+    CurSearch      { bg=p.orange.darken(65) }, -- Highlighting a search pattern under the cursor (see 'hlsearch')
+    Search         { bg=p.yellow.darken(75)}, -- Last search pattern highlighting (see 'hlsearch'). Also used for similar items that need to stand out.
     IncSearch      { CurSearch }, -- 'incsearch' highlighting; also used for the text replaced with ":s///c"
-    Substitute     { bg=p.orange.darken(40)}, -- |:substitute| replacement text highlighting
+    Substitute     { bg=p.orange.darken(55)}, -- |:substitute| replacement text highlighting
 
     -- Git
-    DiffAdd        { fg=p.green }, -- Diff mode: Added line |diff.txt|
-    DiffChange     { fg=p.yellow }, -- Diff mode: Changed line |diff.txt|
-    DiffDelete     { fg=p.red }, -- Diff mode: Deleted line |diff.txt|
-    DiffText       { fg=p.frost2 }, -- Diff mode: Changed text within a changed line |diff.txt|
+    DiffAdd        { bg=p.green.darken(75), blend=80 }, -- Diff mode: Added line |diff.txt|
+    DiffChange     { bg=p.yellow.darken(75) }, -- Diff mode: Changed line |diff.txt|
+    DiffDelete     { bg=p.red.darken(75) }, -- Diff mode: Deleted line |diff.txt|
+    DiffText       { bg=p.frost2.darken(70) }, -- Diff mode: Changed text within a changed line |diff.txt|
 
     ErrorMsg       { fg=p.red }, -- Error messages on the command line
     VertSplit      { fg=p.storm0 }, -- Column separating vertically split windows
@@ -61,7 +61,7 @@ local theme = lush(function(injected_functions)
     FloatBorder    { Normal }, -- Border of floating windows.
 
     Title          { gui="bold" }, -- Titles for output from ":set all", ":autocmd" etc.
-    Visual         { bg=p.night1}, -- Visual mode selection
+    Visual         { bg=p.night1 }, -- Visual mode selection
 
     Pmenu          { bg=p.night0, fg=p.storm1 },
     PmenuSel       { bg=p.night3, fg=p.storm0 },
@@ -245,6 +245,10 @@ local theme = lush(function(injected_functions)
     sym"@markup.heading.4"  { fg=p.frost3 },
     sym"@markup.heading.5"  { fg=p.frost3 },
     sym"@markup.heading.6"  { fg=p.frost3 },
+
+    -- for commit diff view:
+    sym"@diff.minus" { fg=p.red },
+    sym"@diff.plus"  { fg=p.green },
 
     ---- Plugins ----
 
