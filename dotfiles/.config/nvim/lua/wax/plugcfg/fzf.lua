@@ -5,6 +5,7 @@ local Path = require("wax.path")
 local rg_ignore_dirs = {
   ".git",
   ".*_cache",
+  "*.pyc",
   "postgres-data",
   "edgedb-data",
   "__pycache__",

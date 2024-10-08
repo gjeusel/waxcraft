@@ -22,19 +22,6 @@ return {
       vim.cmd("colorscheme nord")
     end,
   },
-  -- { -- gruvbox
-  --   "morhetz/gruvbox",
-  --   lazy = false,
-  --   priority = 1000,
-  --   config = function()
-  --     vim.o.termguicolors = false
-  --     vim.o.background = "dark"
-  --     vim.g.gruvbox_invert_selection = 0
-  --     vim.g.gruvbox_improved_warnings = 1
-  --     vim.cmd([[colorscheme gruvbox]])
-  --     require("wax.themes")
-  --   end,
-  -- },
   { -- lualine
     "nvim-lualine/lualine.nvim",
     dependencies = { "linrongbin16/lsp-progress.nvim" },
