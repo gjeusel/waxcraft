@@ -1,0 +1,22 @@
+# Bind common keys for navigation
+
+bind "^[[1;5C" em-next-word
+bind "^[[1;5D" ed-prev-word
+
+bind "^A" ed-move-to-beg
+bind "^E" ed-move-to-end
+
+bind "^K" ed-kill-line
+bind "^U" vi-kill-line-prev
+
+bind "^W" ed-delete-prev-word
+
+bind '^P' ed-search-prev-history
+bind '^N' ed-search-next-history
+bind "^[[A" ed-search-prev-history
+bind "^[[B" ed-search-next-history
+
+bind '^L' ed-clear-screen
+
+# UTF-8 support
+encoding utf-8

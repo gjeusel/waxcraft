@@ -54,6 +54,7 @@ local theme = lush(function(injected_functions)
     SignColumn     { }, -- Column where |signs| are displayed
     CursorLineNr   { fg=p.storm0 }, -- Like LineNr when 'cursorline' or 'relativenumber' is set for the cursor line.
     MatchParen     { bg=p.night3 }, -- Character under the cursor or just before it, if it is a paired bracket, and its match. |pi_paren.txt|
+    -- NonText        { fg=p.frost0 }, -- character like linebreak ⤷
 
     FloatTitle     { fg=p.storm2, gui="bold" }, -- Title of floating windows.
     FloatShadow    { bg=p.night1 },

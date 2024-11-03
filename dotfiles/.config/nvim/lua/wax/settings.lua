@@ -47,7 +47,7 @@ vim.o.spelloptions = "camel,noplainbuffer"
 vim.cmd([[set fillchars=vert:│,stlnc:―,stl:―,fold:\ ,diff:\ ]]) -- box drawings heavy vertical (U+2503, UTF-8: E2 94 83)
 vim.cmd([[
   if has('linebreak')
-    let &showbreak='⤷ '   " arrow pointing downwards then curving rightwards (u+2937, utf-8: e2 a4 b7)
+    let &showbreak='⤷    '   " arrow pointing downwards then curving rightwards (u+2937, utf-8: e2 a4 b7)
   endif
 ]])
 

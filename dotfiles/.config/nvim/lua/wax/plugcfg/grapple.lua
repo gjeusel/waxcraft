@@ -20,6 +20,9 @@ scope_resolvers.workspace_fallback = scope.resolver(function()
       path = find_root_dir(vim.fn.getcwd()) or vim.fn.getcwd()
     end
 
+    -- maybe add git infos from first opened buffer ?
+    -- {"git", "symbolic-ref", "--short", "HEAD" }
+
     vim_session_scope = path
   end
 

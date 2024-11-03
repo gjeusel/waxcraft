@@ -56,3 +56,6 @@ export SCW_DISABLE_CHECK_VERSION=true
 export TURBO_NO_UPDATE_NOTIFIER=true
 export VITE_CJS_IGNORE_WARNING=true
 export ESLINT_USE_FLAT_CONFIG=true
+
+# Cargo restrict
+export CARGO_BUILD_JOBS=6
