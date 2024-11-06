@@ -66,5 +66,6 @@ require("conform").setup({
     rust = { "rustfmt" },
     toml = { "taplo" },
     jsonc = { "jq" },
+    sql = { "sqlfmt" },
   },
 })
