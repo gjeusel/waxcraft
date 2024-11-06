@@ -14,27 +14,19 @@ windows:
       - focus: true
       -
 
-  - window_name: zf-spa
-    layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
-    shell_command_before:
-      - cd ~/src/rnux/apps/zefire-spa/
-    panes:
-      - focus: true
-      -
-
-  - window_name: anthracit
-    layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
-    shell_command_before:
-      - cd ~/src/anthracit
-    panes:
-      - focus: true
-      -
-
   - window_name: venturi
     layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
     shell_command_before:
       - act venturi
       - cd ~/src/venturi
+    panes:
+      - focus: true
+      -
+
+  - window_name: libs
+    layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
+    shell_command_before:
+      - cd ~/src/fohn
     panes:
       - focus: true
       -
@@ -49,6 +41,23 @@ windows:
       - focus: true
       -
 
+  - window_name: zf-spa
+    layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
+    shell_command_before:
+      - cd ~/src/rnux/apps/zefire-spa/
+    panes:
+      - focus: true
+      -
+
+  # - window_name: peregreen
+  #   layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
+  #   shell_command_before:
+  #     - act peregreen
+  #     - cd ~/src/peregreen
+  #   panes:
+  #     - focus: true
+  #     -
+
   # - window_name: anthracit
   #   layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
   #   shell_command_before:
@@ -61,15 +70,6 @@ windows:
   #   layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
   #   shell_command_before:
   #     - cd ~/src/rnux/apps/gofolio/
-  #   panes:
-  #     - focus: true
-  #     -
-
-  # - window_name: peregreen
-  #   layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
-  #   shell_command_before:
-  #     - act peregreen
-  #     - cd ~/src/peregreen
   #   panes:
   #     - focus: true
   #     -
