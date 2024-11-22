@@ -643,6 +643,16 @@ return {
       require("mini.pairs").setup(opts)
     end,
   },
+  { -- mini.align
+    "echasnovski/mini.align",
+    event = "VeryLazy",
+    opts = {
+      mappings = {
+        start = "<leader>ta",
+        start_with_preview = "<leader>tA",
+      },
+    },
+  },
   { -- mini - (arround/inside improved)
     "echasnovski/mini.ai",
     dependencies = { "echasnovski/mini.nvim", "nvim-treesitter-textobjects" },
