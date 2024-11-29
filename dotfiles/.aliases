@@ -233,6 +233,7 @@ function realpath() {
 # alias shadcn="pnpx shadcn-svelte@0.4.1"
 
 alias httpx="uvx --from 'httpx[cli]' httpx"
+alias http="uvx --from 'httpie' http"
 
 function webp2gitlab() {
   # function to convert a webp created by chatgpt into png for gitlab icon

@@ -45,7 +45,7 @@ return {
         -- diagnosticMode = "workspace",
         -- autoSearchPaths = true,
         -- typeCheckingMode = "basic",
-        autoImportCompletions = true,
+        autoImportCompletions = false,
         diagnosticMode = "openFilesOnly",
         autoSearchPaths = false,
         typeCheckingMode = "off",

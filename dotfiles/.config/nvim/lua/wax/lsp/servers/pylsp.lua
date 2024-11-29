@@ -62,6 +62,7 @@ return {
         pylint = { enabled = false },
         rope = { enabled = true },
         rope_completion = { enabled = true },
+        rope_autoimport = { enabled = true },
         rope_rename = { enabled = false },
         yapf = { enabled = false },
         -- still unsure:
