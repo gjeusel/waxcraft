@@ -43,6 +43,10 @@ return {
             "dagster",
           },
         },
+        -- jedi_hover = { enabled = false },
+        -- jedi_references = { enabled = false },
+        -- jedi_rename = { enabled = false },
+        -- jedi_highlight = { enabled = false },
         pylsp_mypy = {
           enabled = false,
           live_mode = false,
@@ -55,18 +59,19 @@ return {
         },
         -- Disabled ones:
         flake8 = { enabled = false },
-        mccabe = { enabled = false },
+        folding = { enabled = false },
         preload = { enabled = false },
         pycodestyle = { enabled = false },
+        pydocstyle = { enabled = false },
+        autopep8 = { enabled = false },
+        mccabe = { enabled = false },
         pyflakes = { enabled = false },
         pylint = { enabled = false },
-        rope = { enabled = true },
-        rope_completion = { enabled = true },
-        rope_autoimport = { enabled = true },
+        rope = { enabled = false },
+        rope_completion = { enabled = false },
+        rope_autoimport = { enabled = false },
         rope_rename = { enabled = false },
         yapf = { enabled = false },
-        -- still unsure:
-        -- jedi_completion = { enabled = false }, -- done better by pyright ?
         -- Formatting is taken care of by null-ls
         ["pylsp_black"] = { enabled = false },
         ["pyls_isort"] = { enabled = false },

@@ -9,6 +9,7 @@ local rg_ignore_dirs = {
   "postgres-data",
   "edgedb-data",
   "__pycache__",
+  "**/__snapshots__",
   ".vscode",
   "tests/data",
   "**/playground/*",
