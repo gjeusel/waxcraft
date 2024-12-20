@@ -4,15 +4,18 @@ local Path = require("wax.path")
 
 local rg_ignore_dirs = {
   ".git",
+  --
   ".*_cache",
-  "*.pyc",
   "postgres-data",
   "edgedb-data",
-  "__pycache__",
-  "**/__snapshots__",
   ".vscode",
-  "tests/data",
   "**/playground/*",
+  --
+  "*.pyc",
+  "**/__pycache__/*",
+  "**.venv/*",
+  "**/__snapshots__",
+  "tests/data",
   --
   "**/.dist/*",
   "**/.output/*",
@@ -67,8 +70,8 @@ fzf_lua.setup({
     git_icons = false,
     file_icons = false,
     multiprocess = true,
-    debug = true,
-    show_cwd_header = false,
+    -- debug = true,
+    cwd_header = false,
     rg_opts = table.concat({
       "--hidden --column --line-number --no-heading --color=always --smart-case",
       rg_ignore_arg,
