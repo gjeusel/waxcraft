@@ -7,7 +7,8 @@ local function to_pylsp_cmd(python_path)
   local map_loglevel = { trace = "-vvv", debug = "-vv", info = "-v", warn = "", error = "" }
   local log_level = map_loglevel[waxopts.loglevel]
 
-  local cmd = { python_path, "-m", "pylsp", "--log-file", log_file, log_level }
+  -- local cmd = { python_path, "-m", "pylsp", "--log-file", log_file, log_level }
+  local cmd = { python_path, "-m", "pylsp" }
 
   return cmd
 end

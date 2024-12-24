@@ -32,6 +32,7 @@ local function open_scratch_win(content)
 
   content = vim.tbl_map(split_line_return, content)
   content = vim.tbl_flatten(content)
+  -- content = vim.flatten(content) -- but is null the fucker !
 
   vim.api.nvim_buf_set_lines(bufnr, 0, 0, false, content)
 end
@@ -323,7 +324,7 @@ function M.insert_new_line_in_current_buffer(str, opts)
   local n_space = vim.fn.indent(n_line)
 
   -- special cases depending on filetype
-  local filetype = vim.api.nvim_buf_get_option(bufnr, "filetype")
+  local filetype = vim.api.nvim_get_option_value(bufnr, "filetype")
   if filetype == "python" then
     n_space = vim.fn.GetPythonPEPIndent(n_insert_line)
     if n_space == -1 then -- but fix it when can't find

@@ -67,16 +67,13 @@ function M.setup_servers(global_lsp_settings)
 
     -- Install if not yet installed
     local server_identifier, version = Package.Parse(server_name)
-    resolve_package(server_identifier):if_present(
-      ---@param pkg Package
-      function(pkg)
-        if not pkg:is_installed() then
-          pkg:install({
-            version = version,
-          })
-        end
+    resolve_package(server_identifier):if_present(function(pkg)
+      if not pkg:is_installed() then
+        pkg:install({
+          version = version,
+        })
       end
-    )
+    end)
 
     -- Finally, setup our settings in lspconfig
     lspconfig[server_name].setup(settings)

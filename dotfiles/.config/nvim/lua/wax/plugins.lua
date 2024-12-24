@@ -301,6 +301,7 @@ return {
         "git_rebase",
         "gitcommit",
         "diff",
+        "make",
         -- Frontend:
         "graphql",
         "html",

@@ -21,7 +21,7 @@ local function preview_location(location, context, before_context)
     range["end"].line + 1 + context,
     false
   )
-  local filetype = vim.api.nvim_buf_get_option(bufnr, "filetype")
+  local filetype = vim.api.nvim_get_option_value(bufnr, "filetype")
   return vim.lsp.util.open_floating_preview(contents, filetype)
 end
 
@@ -31,7 +31,7 @@ local function preview_location_callback(_, method, result)
     print("No location found: " .. method)
     return nil
   end
-  if vim.tbl_islist(result) then
+  if vim.islist(result) then
     M.floating_buf, M.floating_win = preview_location(result[1], context)
   else
     M.floating_buf, M.floating_win = preview_location(result, context)
@@ -42,7 +42,7 @@ function M.PeekDefinition()
   if vim.tbl_contains(vim.api.nvim_list_wins(), M.floating_win) then
     vim.api.nvim_set_current_win(M.floating_win)
   else
-    local params = vim.lsp.util.make_position_params()
+    local params = vim.lsp.util.make_position_params(0, 'utf-8')
     return vim.lsp.buf_request(0, "textDocument/definition", params, preview_location_callback)
   end
 end
@@ -51,7 +51,7 @@ function M.PeekTypeDefinition()
   if vim.tbl_contains(vim.api.nvim_list_wins(), M.floating_win) then
     vim.api.nvim_set_current_win(M.floating_win)
   else
-    local params = vim.lsp.util.make_position_params()
+    local params = vim.lsp.util.make_position_params(0, 'utf-8')
     return vim.lsp.buf_request(0, "textDocument/typeDefinition", params, preview_location_callback)
   end
 end
@@ -60,7 +60,7 @@ function M.PeekImplementation()
   if vim.tbl_contains(vim.api.nvim_list_wins(), M.floating_win) then
     vim.api.nvim_set_current_win(M.floating_win)
   else
-    local params = vim.lsp.util.make_position_params()
+    local params = vim.lsp.util.make_position_params(0, 'utf-8')
     return vim.lsp.buf_request(0, "textDocument/implementation", params, preview_location_callback)
   end
 end

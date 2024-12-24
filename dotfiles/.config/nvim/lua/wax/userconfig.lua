@@ -8,6 +8,7 @@
 ---@field colorscheme string
 ---@field big_file_threshold number
 ---@field servers table<string, Wax.LspServerOpts>
+---@field _servers table<string, any> | nil
 
 ---@type Wax.Opts
 waxopts = {
