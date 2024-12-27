@@ -142,7 +142,6 @@ end
 ---@field pane string | nil
 ---@field interrupt_before boolean | nil
 ---@field clear_before boolean | nil
----@field backstop boolean | nil
 
 ---Use send-keys to send command to tmux pane.
 ---@param target Wax.TmuxPane
@@ -180,7 +179,6 @@ function M.run_in_pane(cmd, opts)
     --
     interrupt_before = false,
     clear_before = false,
-    backstop = false,
   }
   opts = vim.tbl_extend("keep", opts, default_opts)
 
