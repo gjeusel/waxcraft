@@ -50,6 +50,7 @@ vim.filetype.add({
     [".aliases"] = "zsh",
     --
     [".nuxtrc"] = "config",
+    ["config"] = "config",
   },
   -- pattern = map_pattern_ft,
   pattern = {
