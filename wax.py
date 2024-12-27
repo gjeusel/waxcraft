@@ -25,11 +25,7 @@ def pcall(cmd, args, env=None):
         print("Executing bash cmd: > {}".format(cmd + " " + " ".join(args)))
         return subprocess.check_call([cmd] + args, env=env)
     except subprocess.CalledProcessError as e:
-        raise RuntimeError(
-            "command '{}' return with error (code {}): {}".format(
-                e.cmd, e.returncode, e.output
-            )
-        )
+        raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
 
 
 def query_yes_no(question, default="yes"):
@@ -84,7 +80,6 @@ def _robust_copy_or_symlink(from_obj, to_obj, mode):
         to_dir.mkdir(parents=True)
 
     if to_obj.exists():
-
         if to_obj.is_symlink():  # if symlink, unlink it
             to_obj.unlink()
 
@@ -148,9 +143,7 @@ def neovim():
         ".config/nvim/queries",
         ".config/nvim/.stylua.toml",
     ]
-    create_symlinks_robust(
-        relative_paths=relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home()
-    )
+    create_symlinks_robust(relative_paths=relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home())
 
     # stylua = "./config/nvim/lua/wax/.stylua.toml"
     # create_symlinks_robust(
@@ -161,6 +154,12 @@ def neovim():
 def alacritty():
     """install Alacritty."""
     relative_paths = [".config/alacritty"]
+    create_symlinks_robust(relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home())
+
+
+def ghostty():
+    """install ghostty."""
+    relative_paths = [".config/ghostty"]
     create_symlinks_robust(relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home())
 
 
@@ -265,7 +264,6 @@ def setup_argparser():
 
 
 if __name__ == "__main__":
-
     parser = setup_argparser()
 
     try:
@@ -301,3 +299,6 @@ if __name__ == "__main__":
     if any(v in optlist for v in ["ala", "alacritty"]):
         print(msg.format("Alacritty"))
         alacritty()
+
+    if "ghostty" in optlist:
+        ghostty()
