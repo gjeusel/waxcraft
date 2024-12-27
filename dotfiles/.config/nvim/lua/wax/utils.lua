@@ -324,7 +324,7 @@ function M.insert_new_line_in_current_buffer(str, opts)
   local n_space = vim.fn.indent(n_line)
 
   -- special cases depending on filetype
-  local filetype = vim.api.nvim_get_option_value(bufnr, "filetype")
+  local filetype = vim.api.nvim_buf_get_option(bufnr, "filetype")
   if filetype == "python" then
     n_space = vim.fn.GetPythonPEPIndent(n_insert_line)
     if n_space == -1 then -- but fix it when can't find

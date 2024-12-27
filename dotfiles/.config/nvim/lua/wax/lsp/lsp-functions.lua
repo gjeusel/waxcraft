@@ -21,7 +21,7 @@ local function preview_location(location, context, before_context)
     range["end"].line + 1 + context,
     false
   )
-  local filetype = vim.api.nvim_get_option_value(bufnr, "filetype")
+  local filetype = vim.api.nvim_buf_get_option(bufnr, "filetype")
   return vim.lsp.util.open_floating_preview(contents, filetype)
 end
 
