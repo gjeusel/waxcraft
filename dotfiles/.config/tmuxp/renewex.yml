@@ -23,10 +23,10 @@ windows:
       - focus: true
       -
 
-  - window_name: libs
+  - window_name: anthracit
     layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
     shell_command_before:
-      - cd ~/src/fohn
+      - cd ~/src/anthracit
     panes:
       - focus: true
       -
@@ -54,14 +54,6 @@ windows:
   #   shell_command_before:
   #     - act peregreen
   #     - cd ~/src/peregreen
-  #   panes:
-  #     - focus: true
-  #     -
-
-  # - window_name: anthracit
-  #   layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
-  #   shell_command_before:
-  #     - cd ~/src/anthracit
   #   panes:
   #     - focus: true
   #     -
