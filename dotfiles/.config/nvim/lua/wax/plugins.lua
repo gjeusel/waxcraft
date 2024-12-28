@@ -929,7 +929,7 @@ return {
         if prof.is_recording() then
           prof.stop()
           vim.ui.input(
-            { prompt = "Save profile to:", completion = "file", default = "profile.json" },
+            { prompt = "Save profile to:", completion = "file", default = "/tmp/nvim-profile.json" },
             function(filename)
               if filename then
                 prof.export(filename)
@@ -941,7 +941,7 @@ return {
           prof.start("*")
         end
       end
-      -- vim.keymap.set("", "<leader>fP", _G.toggle_profile)
+      vim.keymap.set("", "<leader>fP", _G.toggle_profile)
     end,
   },
 
