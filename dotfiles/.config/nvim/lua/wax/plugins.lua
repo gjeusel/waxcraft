@@ -4,7 +4,10 @@
 
 return {
   --------- UI ---------
-  { "mhinz/vim-startify", lazy = false },
+  {
+    "mhinz/vim-startify",
+    lazy = false,
+  },
   {
     "rktjmp/lush.nvim",
     dependencies = {
@@ -22,7 +25,7 @@ return {
       vim.cmd("colorscheme nord")
     end,
   },
-  { -- lualine
+  {
     "nvim-lualine/lualine.nvim",
     dependencies = { "linrongbin16/lsp-progress.nvim" },
     lazy = false,
@@ -30,7 +33,7 @@ return {
       require("wax.plugcfg.lualine")
     end,
   },
-  { -- barbar
+  {
     "romgrk/barbar.nvim",
     event = { "BufReadPre", "BufNewFile" },
     dependencies = "nvim-tree/nvim-web-devicons",
@@ -67,18 +70,16 @@ return {
       -- },
     },
   },
-  { -- dressing
+  {
     "stevearc/dressing.nvim",
-    init = function()
-      require("dressing")
-    end,
+    lazy = false,
     opts = {
       builtin = { enabled = false },
       select = { enabled = true, fzf_lua = { winopts = { height = 0.5, width = 0.5 } } },
       input = { enabled = true, win_options = { winblend = 0 } },
     },
   },
-  { -- gitsigns
+  {
     "lewis6991/gitsigns.nvim",
     event = { "BufReadPre", "BufNewFile" },
     dependencies = { "nvim-lua/plenary.nvim" },
@@ -159,7 +160,7 @@ return {
       end, { nargs = "*" })
     end,
   },
-  { -- indent line
+  {
     "echasnovski/mini.indentscope",
     lazy = false,
     opts = {
@@ -196,7 +197,15 @@ return {
       })
     end,
   },
-  { -- treesitter
+  {
+    "kevinhwang91/nvim-hlslens",
+    event = "VeryLazy",
+    config = function()
+      require("wax.plugcfg.hlslens")
+    end,
+  },
+
+  {
     "nvim-treesitter/nvim-treesitter",
     -- dev = true, -- use "~/src/nvim-treesitter/"
     event = { "BufReadPost", "BufNewFile" },
@@ -405,23 +414,18 @@ return {
     end,
   },
 
-  { -- hlslens
-    "kevinhwang91/nvim-hlslens",
-    event = "VeryLazy",
-    config = function()
-      require("wax.plugcfg.hlslens")
-    end,
-  },
-
   --------- Deemed Necessary ---------
-  { "nvim-lua/plenary.nvim", lazy = true },
-  { -- undotree
+  {
+    "nvim-lua/plenary.nvim",
+    lazy = true,
+  },
+  {
     "mbbill/undotree",
     keys = {
       { "<leader>u", "<cmd>UndotreeToggle<cr>", desc = "UndotreeToggle", mode = "n" },
     },
   },
-  { -- vim-tmux-navigator
+  {
     "christoomey/vim-tmux-navigator", -- tmux navigation in love with vim
     event = "VeryLazy",
     keys = {
@@ -436,7 +440,7 @@ return {
       vim.g.tmux_navigator_no_mappings = 1 -- custom ones below regarding modes
     end,
   },
-  { -- janko/vim-test
+  {
     "janko/vim-test",
     lazy = false,
     -- dev = true,
@@ -446,16 +450,19 @@ return {
       require("wax.plugcfg.vim-test")
     end,
   },
-  { -- tpope/vim-sleuth - heuristic for setting shiftwidth and expandtab
-    "tpope/vim-sleuth",
+  {
+    "tpope/vim-sleuth", -- heuristic for setting shiftwidth and expandtab
   },
-  { -- tpope/vim-eunuch - sugar for shell commands
-    "tpope/vim-eunuch",
+  {
+    "tpope/vim-eunuch", -- sugar for shell commands
     cmd = { "Move", "Copy", "Rename", "Delete" },
   },
-  { "tpope/vim-scriptease", cmd = "Messages" },
-  { -- diffview: git integration for nvim
-    "sindrets/diffview.nvim",
+  {
+    "tpope/vim-scriptease",
+    cmd = "Messages",
+  },
+  {
+    "sindrets/diffview.nvim", -- git integration for nvim
     config = function()
       require("wax.plugcfg.diffview")
     end,
@@ -487,7 +494,7 @@ return {
       },
     },
   },
-  { -- fzf-lua
+  {
     "ibhagwan/fzf-lua",
     config = function()
       require("wax.plugcfg.fzf")
@@ -607,7 +614,7 @@ return {
       },
     },
   },
-  { -- grapple
+  {
     "cbochs/grapple.nvim",
     tag = "v0.8.1",
     -- dev = true, -- use "~/src/grapple.nvim/"
@@ -618,8 +625,11 @@ return {
   },
 
   --------- Enrich Actions ---------
-  { "AndrewRadev/splitjoin.vim", event = "VeryLazy" },
-  { -- nvim-surround
+  {
+    "AndrewRadev/splitjoin.vim",
+    event = "VeryLazy",
+  },
+  {
     "kylechui/nvim-surround",
     event = "VeryLazy",
     opts = {
@@ -634,14 +644,14 @@ return {
       },
     },
   },
-  { -- mini.pairs
+  {
     "echasnovski/mini.pairs",
     event = "VeryLazy",
     config = function(_, opts)
       require("mini.pairs").setup(opts)
     end,
   },
-  { -- mini.align
+  {
     "echasnovski/mini.align",
     event = "VeryLazy",
     opts = {
@@ -651,8 +661,8 @@ return {
       },
     },
   },
-  { -- mini - (arround/inside improved)
-    "echasnovski/mini.ai",
+  {
+    "echasnovski/mini.ai", -- (arround/inside improved)
     dependencies = { "echasnovski/mini.nvim", "nvim-treesitter-textobjects" },
     event = "VeryLazy",
     -- ft = { "python", "typescript", "vue" },
@@ -690,7 +700,7 @@ return {
       require("mini.ai").setup(opts)
     end,
   },
-  { -- numToStr/Comment.nvim
+  {
     "numToStr/Comment.nvim",
     lazy = false,
     opts = {
@@ -733,9 +743,10 @@ return {
   },
 
   --------- LSP ---------
-  { -- Github lua copilot
+  {
     "zbirenbaum/copilot.lua",
-    enabled = false,
+    enabled = true,
+    lazy = true,
     keys = {
       {
         "<C-x>",
@@ -779,7 +790,7 @@ return {
     },
   },
 
-  { -- luasnip
+  {
     "L3MON4D3/LuaSnip",
     event = "VeryLazy",
     config = function()
@@ -787,7 +798,7 @@ return {
     end,
   },
 
-  { -- lspconfig + mason
+  {
     "neovim/nvim-lspconfig",
     event = { "BufReadPre", "BufNewFile" },
     -- enabled = false,
@@ -853,7 +864,7 @@ return {
       end
     end,
   },
-  { -- nvim-cmp
+  {
     "hrsh7th/nvim-cmp",
     event = "InsertEnter",
     dependencies = {
@@ -871,8 +882,8 @@ return {
     end,
   },
 
-  { -- conform.nvim  (better buffer lsp format)
-    "stevearc/conform.nvim",
+  {
+    "stevearc/conform.nvim", --  (better buffer lsp format)
     keys = {
       {
         "<leader>m",
@@ -895,9 +906,12 @@ return {
   { "towolf/vim-helm", ft = { "yaml", "smarty" } },
 
   --------- NeoVim Perf / Dev ---------
-  { "dstein64/vim-startuptime", cmd = "StartupTime" }, -- analyze startup time
-  { -- profiler with flamegraph
-    "stevearc/profile.nvim",
+  {
+    "dstein64/vim-startuptime", -- analyze startup time
+    cmd = "StartupTime",
+  },
+  {
+    "stevearc/profile.nvim", -- profiler with flamegraph
     lazy = false,
     config = function()
       local should_profile = os.getenv("NVIM_PROFILE")
