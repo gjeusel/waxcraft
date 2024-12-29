@@ -504,21 +504,18 @@ return {
       {
         "<leader>a",
         function()
-          require("wax.plugcfg.fzf").fzf_grep()
+          require("wax.plugcfg.fzf").fzf_grep(find_root_package())
         end,
-        desc = "Fuzzy search content of files",
+        desc = "Fuzzy search content of files (package first)",
       },
       {
         "<leader>A",
         function()
-          if is_monorepo() then
-            require("wax.plugcfg.fzf").fzf_grep(find_root_dir(vim.loop.cwd(), { ".git" }))
-          else
-            require("wax.plugcfg.fzf").live_grep()
-          end
+          require("wax.plugcfg.fzf").fzf_grep(find_root_monorepo())
         end,
-        desc = "RipGrep content of files",
+        desc = "Fuzzy search content of files",
       },
+      --
       {
         "<leader>ff",
         function()
@@ -530,18 +527,28 @@ return {
       {
         "<leader>p",
         function()
-          require("wax.plugcfg.fzf").rg_files()
+          require("wax.plugcfg.fzf").rg_files(nil, find_root_package())
         end,
-        desc = "Find git files",
+        desc = "Find git files (package first)",
       },
       {
         "<leader>P",
         function()
-          if is_monorepo() then
-            require("wax.plugcfg.fzf").rg_files(nil, find_root_dir(vim.loop.cwd(), { ".git" }))
-          else
-            require("wax.plugcfg.fzf").rg_files("--no-ignore-vcs")
-          end
+          require("wax.plugcfg.fzf").rg_files(nil, find_root_monorepo())
+        end,
+        desc = "Find git files",
+      },
+      {
+        "<leader>fp",
+        function()
+          require("wax.plugcfg.fzf").rg_files("--no-ignore-vcs", find_root_package())
+        end,
+        desc = "Find files (package first)",
+      },
+      {
+        "<leader>fP",
+        function()
+          require("wax.plugcfg.fzf").rg_files("--no-ignore-vcs", find_root_monorepo())
         end,
         desc = "Find files",
       },

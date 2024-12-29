@@ -242,6 +242,7 @@ end
 _G.find_root_dir = wax_cache_fn(
   ---Return the root directory
   ---@param path string | nil
+  ---@param patterns string[] | nil
   ---@return string | nil
   function(path, patterns)
     local default_patterns = { ".git" }
@@ -256,14 +257,32 @@ _G.find_root_dir = wax_cache_fn(
   end
 )
 
+_G.find_root_monorepo = wax_cache_fn(
+  ---Return the root of a monorepo setup
+  ---@param path string | nil
+  ---@return string | nil
+  function(path)
+    return _G.find_root_dir(path, { ".git" })
+  end
+)
+
+_G.find_root_package = wax_cache_fn(
+  ---Return the root of a package
+  ---@param path string | nil
+  ---@return string | nil
+  function(path)
+    return _G.find_root_dir(path, { "package.json", "pyproject.toml" })
+  end
+)
+
 _G.is_monorepo = wax_cache_fn(
   ---Return the root directory
   ---@param cwd string | nil
   ---@return string | nil
   function(cwd)
     -- cwd = cwd or vim.loop.cwd()
-    local root_dir = _G.find_root_dir(nil, { ".git" })
-    local root_subproject = _G.find_root_dir(nil, { "package.json" })
+    local root_dir = _G.find_root_monorepo(nil)
+    local root_subproject = _G.find_root_package(nil)
     local is_monorepo = root_dir and root_subproject and root_dir ~= root_subproject
     return is_monorepo
   end

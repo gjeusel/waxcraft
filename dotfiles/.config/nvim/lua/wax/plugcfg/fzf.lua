@@ -87,14 +87,6 @@ fzf_lua.setup({
 ------- utils funcs -------
 --
 
-local function make_fzf_dir()
-  if is_monorepo() then
-    return find_root_dir(vim.loop.cwd(), { "package.json" })
-  else
-    return find_root_dir(vim.loop.cwd(), { ".git" })
-  end
-end
-
 ---@class FzfFileEntry
 ---@field filename string
 ---@field lnum number
@@ -171,7 +163,7 @@ end
 -- Fzf Grep
 local function fzf_grep(cwd)
   return fzf_lua.grep({
-    cwd = cwd or make_fzf_dir(),
+    cwd = cwd,
     search = "",
     fn_selected = fn_selected_multi,
   })
@@ -180,7 +172,7 @@ end
 -- Live Grep
 local function live_grep(cwd)
   fzf_lua.live_grep({
-    cwd = cwd or make_fzf_dir(),
+    cwd = cwd,
     fn_selected = fn_selected_multi,
   })
 end
@@ -190,7 +182,7 @@ local function grep_word_under_cursor()
   vim.cmd([[normal! "wyiw]])
   local word = vim.fn.getreg('"')
   fzf_lua.grep({
-    cwd = make_fzf_dir(),
+    cwd = nil,
     search = word,
     fn_selected = fn_selected_multi,
   })
@@ -204,7 +196,7 @@ local function rg_files(rg_opts, cwd)
   return fzf_lua.fzf_exec(rg_cmd, {
     prompt = "Files > ",
     previewer = "builtin",
-    cwd = cwd or make_fzf_dir(),
+    cwd = cwd,
     actions = fzf_actions,
     fn_transform = function(x)
       return fzf_lua.make_entry.file(x, { file_icons = true, color_icons = true })
@@ -278,18 +270,12 @@ local function pick_project(fn)
 end
 
 local function select_project_find_file()
-  -- if is_monorepo() then
-  --   return fzf_grep(find_root_dir(vim.loop.cwd(), { ".git" }))
-  -- else
   return pick_project(function(path)
     fzf_lua.files({ cwd = path })
   end)
 end
 
 local function select_project_fzf_grep()
-  -- if is_monorepo() then
-  --   return live_grep(find_root_dir(vim.loop.cwd(), { ".git" }))
-  -- else
   return pick_project(function(path)
     fzf_lua.grep({ cwd = path, search = "" })
   end)
