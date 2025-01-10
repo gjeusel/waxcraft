@@ -1,7 +1,6 @@
 local Path = require("wax.path")
 
-local relative_path = wax_cache_fn(function()
-  local abspath = vim.api.nvim_buf_get_name(0)
+local find_relative_path = wax_cache_fn(function(abspath)
   local workspace = find_root_dir(abspath, {
     "package.json", -- better in monorepo
     ".git",
@@ -18,7 +17,15 @@ local relative_path = wax_cache_fn(function()
   return path
 end)
 
-local lsp_progress = function()
+local function relative_path()
+  local abspath = vim.api.nvim_buf_get_name(0)
+  if abspath == "" then
+    return ""
+  end
+  return find_relative_path(abspath)
+end
+
+local function lsp_progress()
   return require("lsp-progress").progress({
     format = function(client_messages)
       if #client_messages > 0 then

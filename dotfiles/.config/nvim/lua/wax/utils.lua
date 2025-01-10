@@ -130,13 +130,6 @@ function _G.wax_cache_fn(fn, opts)
 
   local per_buffer = opts.per_buffer == nil or opts.per_buffer
 
-  -- local function to_cache_key(...)
-  --   local key = { args = { ... } }
-  --   if per_buffer then
-  --     key.buffer = vim.api.nvim_buf_get_name(0)
-  --   end
-  --   return vim.inspect(key, { depth = 2 })
-  -- end
   local function to_cache_key(...)
     local mem_address = string.gsub(tostring(fn), "function: ", "")
 
@@ -168,14 +161,12 @@ function _G.wax_cache_fn(fn, opts)
   end
 
   local function wrap(...)
-    local key = ""
     if #{ ... } == 0 then
-      key = to_cache_key(...)
-    end
-    if string.len(key) == 0 then
-      log.trace("Could not cache call due to empty cache key.")
+      log.trace("Could not cache call due to empty args.")
       return fn(...)
     end
+
+    local key = to_cache_key(...)
 
     local value = vim.tbl_get(_G._wax_cache, key)
     if value == nil then
@@ -248,6 +239,7 @@ _G.find_root_dir = wax_cache_fn(
     local default_patterns = { ".git" }
     patterns = patterns or default_patterns
     path = path or vim.loop.cwd()
+
     local root_dir = Path:new(path):find_root_dir(patterns)
     if root_dir ~= nil then
       return root_dir.path

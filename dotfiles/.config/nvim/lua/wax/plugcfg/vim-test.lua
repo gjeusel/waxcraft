@@ -44,12 +44,13 @@ kmap("n", "<leader>5", function()
     local varname = "test#python#pytest#options"
     local before = vim.api.nvim_get_var(varname)
     vim.api.nvim_set_var(varname, choice.options)
+
     vim.cmd("stopinsert")
 
     if choice.name == "pdb-fast" then
-      vim.cmd(":TestFile<CR>")
+      vim.cmd(":TestFile")
     else
-      vim.cmd(":TestNearest<CR>")
+      vim.cmd(":TestNearest")
     end
 
     vim.defer_fn(function()

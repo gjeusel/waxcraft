@@ -13,6 +13,7 @@ return {
   s("ipath", { t("from pathlib import Path") }),
   s("isqla", { t("import sqlalchemy as sa") }),
   s("idataclass", { t("from dataclasses import dataclass") }),
+  s("ipydantic", { t("from pydantic import BaseModel, Field") }),
   s("iannot", { t("from __future__ import annotations") }),
   --
   s("imock", { t("from unittest import mock") }),

@@ -210,18 +210,18 @@ return {
     -- dev = true, -- use "~/src/nvim-treesitter/"
     event = { "BufReadPost", "BufNewFile" },
     dependencies = {
-      { -- playground
-        "nvim-treesitter/playground",
-        keys = {
-          {
-            "<leader>xc",
-            "<cmd>TSHighlightCapturesUnderCursor<cr>",
-            desc = "Show TS higlight under the cursor",
-            mode = "n",
-          },
-        },
-        cmd = "TSPlaygroundToggle",
-      },
+      -- { -- playground
+      --   "nvim-treesitter/playground",
+      --   keys = {
+      --     {
+      --       "<leader>xc",
+      --       "<cmd>TSHighlightCapturesUnderCursor<cr>",
+      --       desc = "Show TS higlight under the cursor",
+      --       mode = "n",
+      --     },
+      --   },
+      --   cmd = "TSPlaygroundToggle",
+      -- },
       { "nvim-treesitter/nvim-treesitter-textobjects" },
       { -- nvim-ts-context-commentstring
         "JoosepAlviste/nvim-ts-context-commentstring",
@@ -504,7 +504,7 @@ return {
       {
         "<leader>a",
         function()
-          require("wax.plugcfg.fzf").fzf_grep(find_root_package())
+          require("wax.plugcfg.fzf").fzf_grep(nil) -- default to find_root_package
         end,
         desc = "Fuzzy search content of files (package first)",
       },
@@ -515,11 +515,25 @@ return {
         end,
         desc = "Fuzzy search content of files",
       },
+      -- {
+      --   "<leader>fA",
+      --   function()
+      --     require("wax.plugcfg.fzf").fzf_grep(vim.fn.getcwd(), "--no-ignore-vcs")
+      --   end,
+      --   desc = "Fuzzy search content of files in cwd",
+      -- },
       --
       {
         "<leader>ff",
         function()
-          require("wax.plugcfg.fzf").grep_word_under_cursor()
+          require("wax.plugcfg.fzf").grep_word_under_cursor(find_root_package())
+        end,
+        desc = "RipGrep with search being the current word under the cursor (package first)",
+      },
+      {
+        "<leader>fF",
+        function()
+          require("wax.plugcfg.fzf").grep_word_under_cursor(find_root_monorepo())
         end,
         desc = "RipGrep with search being the current word under the cursor",
       },

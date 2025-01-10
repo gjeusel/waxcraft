@@ -161,11 +161,23 @@ end
 ---------- Grep ----------
 --
 -- Fzf Grep
-local function fzf_grep(cwd)
+local function fzf_grep(cwd, rg_opts)
+  if rg_opts == nil and cwd == nil then
+    cwd = vim.loop.cwd()
+    local venv_pkg_path = cwd:match("(.-site%-packages/[^/]+)")
+    if venv_pkg_path then
+      cwd = venv_pkg_path
+      rg_opts = "--no-ignore-vcs"
+    else
+      cwd = find_root_package()
+    end
+  end
+
   return fzf_lua.grep({
     cwd = cwd,
     search = "",
     fn_selected = fn_selected_multi,
+    rg_opts = rg_opts,
   })
 end
 
@@ -178,11 +190,11 @@ local function live_grep(cwd)
 end
 
 -- Fzf Grep word under cursor
-local function grep_word_under_cursor()
+local function grep_word_under_cursor(cwd)
   vim.cmd([[normal! "wyiw]])
   local word = vim.fn.getreg('"')
   fzf_lua.grep({
-    cwd = nil,
+    cwd = cwd,
     search = word,
     fn_selected = fn_selected_multi,
   })
