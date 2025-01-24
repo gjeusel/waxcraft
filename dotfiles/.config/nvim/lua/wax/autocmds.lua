@@ -3,10 +3,10 @@ local utils = require("wax.utils")
 -- Handle Views
 local group_view = "Views"
 vim.api.nvim_create_augroup(group_view, { clear = true })
-vim.api.nvim_create_autocmd({ "BufWinEnter" }, {
-  pattern = "*",
-  command = "silent! loadview",
-})
+vim.api.nvim_create_autocmd(
+  { "BufWinEnter" },
+  { pattern = "*", command = "silent! loadview" }
+)
 vim.api.nvim_create_autocmd(
   { "BufWrite", "BufLeave" },
   { pattern = "*", command = "silent! mkview" }

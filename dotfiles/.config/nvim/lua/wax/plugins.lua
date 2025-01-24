@@ -523,6 +523,7 @@ return {
       --   desc = "Fuzzy search content of files in cwd",
       -- },
       --
+      ---------- Word Under Cursor ----------
       {
         "<leader>ff",
         function()

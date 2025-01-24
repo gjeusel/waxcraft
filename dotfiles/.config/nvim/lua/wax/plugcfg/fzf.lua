@@ -41,6 +41,7 @@ fzf_lua.setup({
   winopts = {
     height = 0.8,
     width = 0.9,
+    treesitter = { enabled = false },
     preview = {
       flip_columns = 200, -- number of cols to switch to horizontal on flex
       wrap = "wrap",
@@ -116,45 +117,50 @@ local function fn_selected_multi(selected, opts)
 
   -- first element of "selected" is the keybind pressed
   if #selected <= 2 then
-    fzf_lua.actions.act(opts.actions, selected, opts)
-  else -- here we multi-selected ("select-all+accept" on fzf lua view point)
-    local _, entries = fzf_lua.actions.normalize_selected(opts.actions, selected, {})
-    entries = parse_entries(entries, opts)
-
-    vim.fn.setqflist(entries, "r")
-    vim.cmd("cfirst")
-
-    -- local function action_choice_on_multiselect()
-    --   local multiselect_actions = {
-    --     "Open occurrences in qf list",
-    --     "Open unique files in qf list",
-    --   }
-    --   vim.ui.select(
-    --     multiselect_actions,
-    --     { prompt = "FZF Actions (multi select)> " },
-    --     function(choice, idx)
-    --       vim.cmd("stopinsert")
-
-    --       log.debug("fzf multi select: ", choice)
-
-    --       if idx == 2 then
-    --         local seen = {}
-    --         entries = vim.tbl_filter(function(entry)
-    --           if vim.tbl_contains(seen, entry.filename) then
-    --             return false
-    --           else
-    --             table.insert(seen, entry.filename)
-    --             return true
-    --           end
-    --         end, entries)
-    --       end
-
-    --       vim.fn.setqflist(entries, "r")
-    --       vim.cmd("cfirst")
-    --     end
-    --   )
-    -- end
+    if selected[1] == "esc" then
+      return
+    else
+      return fzf_lua.actions.act(opts.actions, selected, opts)
+    end
   end
+
+  -- here we multi-selected ("select-all+accept" on fzf lua view point)
+  local _, entries = fzf_lua.actions.normalize_selected(opts.actions, selected, {})
+  entries = parse_entries(entries, opts)
+
+  vim.fn.setqflist(entries, "r")
+  vim.cmd("cfirst")
+
+  -- local function action_choice_on_multiselect()
+  --   local multiselect_actions = {
+  --     "Open occurrences in qf list",
+  --     "Open unique files in qf list",
+  --   }
+  --   vim.ui.select(
+  --     multiselect_actions,
+  --     { prompt = "FZF Actions (multi select)> " },
+  --     function(choice, idx)
+  --       vim.cmd("stopinsert")
+
+  --       log.debug("fzf multi select: ", choice)
+
+  --       if idx == 2 then
+  --         local seen = {}
+  --         entries = vim.tbl_filter(function(entry)
+  --           if vim.tbl_contains(seen, entry.filename) then
+  --             return false
+  --           else
+  --             table.insert(seen, entry.filename)
+  --             return true
+  --           end
+  --         end, entries)
+  --       end
+
+  --       vim.fn.setqflist(entries, "r")
+  --       vim.cmd("cfirst")
+  --     end
+  --   )
+  -- end
 end
 
 --
