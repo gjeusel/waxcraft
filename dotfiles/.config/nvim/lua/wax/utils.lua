@@ -115,20 +115,11 @@ end
 _G.lua_waxdir = Path:new(vim.fn.fnamemodify(debug.getinfo(1, "S").short_src, ":p:h")) -- "$HOME/.config/nvim/lua/wax"
 
 -------- Cache --------
-
-_G._wax_cache = {}
-
----@class Wax.CacheFnOpts
----@field per_buffer? boolean
-
 ---@generic T : function
 ---@param fn T
----@param opts Wax.CacheFnOpts
 ---@return T
-function _G.wax_cache_fn(fn, opts)
-  opts = opts or {}
-
-  local per_buffer = opts.per_buffer == nil or opts.per_buffer
+function _G.wax_cache_fn(fn)
+  _G._wax_cache = _G._wax_cache or {}
 
   local function to_cache_key(...)
     local mem_address = string.gsub(tostring(fn), "function: ", "")
@@ -139,36 +130,25 @@ function _G.wax_cache_fn(fn, opts)
         return e ~= nil and e ~= ""
       end)
       :map(tostring)
+      :totable()
 
     local pieces = { mem_address }
-
-    if #args then
+    if #args > 0 then
       table.insert(pieces, table.concat(args, ", "))
     end
 
-    if per_buffer then
-      local buf_name = vim.api.nvim_buf_get_name(0)
-      if #buf_name > 0 then
-        table.insert(pieces, buf_name)
-      else
-        table.insert(pieces, vim.loop.cwd())
-      end
-    end
-
-    local key = table.concat(pieces, " | ")
-
-    return key
+    return table.concat(pieces, " | ")
   end
 
   local function wrap(...)
-    if #{ ... } == 0 then
+    if select("#", ...) == 0 then
       log.trace("Could not cache call due to empty args.")
       return fn(...)
     end
 
     local key = to_cache_key(...)
-
     local value = vim.tbl_get(_G._wax_cache, key)
+
     if value == nil then
       _G._wax_cache[key] = fn(...)
       log.trace("Cached returned value using cache key", key)
@@ -179,8 +159,7 @@ function _G.wax_cache_fn(fn, opts)
     return _G._wax_cache[key]
   end
 
-  -- return wrap
-  return fn
+  return wrap
 end
 
 -------- Logs --------
@@ -220,15 +199,17 @@ function _G.get_os_command_output(cmd, cwd)
   return stdout, ret, stderr
 end
 
----Check if cwd is git versioned
----@param cwd string | nil
----@return boolean
-function _G.is_git(cwd)
-  cwd = cwd or vim.loop.cwd()
-  local cmd = { "git", "rev-parse", "--show-toplevel" }
-  local git_root, ret = _G.get_os_command_output(cmd, cwd)
-  return not (ret ~= 0 or #git_root <= 0)
-end
+_G.is_git = wax_cache_fn(
+  ---Check if cwd is git versioned
+  ---@param cwd string | nil
+  ---@return boolean
+  function(cwd)
+    cwd = cwd or vim.loop.cwd()
+    local cmd = { "git", "rev-parse", "--show-toplevel" }
+    local git_root, ret = _G.get_os_command_output(cmd, cwd)
+    return not (ret ~= 0 or #git_root <= 0)
+  end
+)
 
 _G.find_root_dir = wax_cache_fn(
   ---Return the root directory
@@ -236,6 +217,28 @@ _G.find_root_dir = wax_cache_fn(
   ---@param patterns string[] | nil
   ---@return string | nil
   function(path, patterns)
+    -- Special case, handling python deps:
+    if string.find(path, "site%-packages") then
+      local start_pos = string.find(path, "site%-packages")
+
+      -- Get everything up to "site-packages" plus the next component
+      local parts = vim.split(path:sub(1, start_pos - 1), "/", { plain = true })
+      local package_name = vim.split(path:sub(start_pos), "/", { plain = true })[2]
+
+      -- Reconstruct the path
+      local python_pkg_path = table.concat(parts, "/") .. "site-packages/" .. package_name
+      return python_pkg_path
+    end
+
+    -- Special case, neovim plugin:
+    -- /Users/gjeusel/.local/share/nvim/lazy/fzf-lua/lua/fzf-lua/providers/grep.lua
+    local plugin_base = vim.env.HOME .. "/.local/share/nvim/lazy/"
+    if string.find(path, plugin_base, 1, true) then -- true for plain text search
+      local remainder = path:sub(#plugin_base + 1)
+      local plugin_name = vim.split(remainder, "/", { plain = true })[1]
+      return plugin_base .. plugin_name .. "/"
+    end
+
     local default_patterns = { ".git" }
     patterns = patterns or default_patterns
     path = path or vim.loop.cwd()
@@ -249,23 +252,21 @@ _G.find_root_dir = wax_cache_fn(
   end
 )
 
-_G.find_root_monorepo = wax_cache_fn(
-  ---Return the root of a monorepo setup
-  ---@param path string | nil
-  ---@return string | nil
-  function(path)
-    return _G.find_root_dir(path, { ".git" })
-  end
-)
+---Return the root of a monorepo setup
+---@param path string | nil
+---@return string | nil
+_G.find_root_monorepo = function(path)
+  path = path or vim.loop.cwd()
+  return _G.find_root_dir(path, { ".git" })
+end
 
-_G.find_root_package = wax_cache_fn(
-  ---Return the root of a package
-  ---@param path string | nil
-  ---@return string | nil
-  function(path)
-    return _G.find_root_dir(path, { "package.json", "pyproject.toml" })
-  end
-)
+---Return the root of a package
+---@param path string | nil
+---@return string | nil
+_G.find_root_package = function(path)
+  path = path or vim.loop.cwd()
+  return _G.find_root_dir(path, { "package.json", "pyproject.toml" })
+end
 
 _G.is_monorepo = wax_cache_fn(
   ---Return the root directory

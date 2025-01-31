@@ -5,17 +5,17 @@ local Path = require("wax.path")
 local rg_ignore_dirs = {
   ".git",
   --
-  ".*_cache",
   "postgres-data",
   "edgedb-data",
-  ".vscode",
+  "**/.vscode",
   "**/playground/*",
   --
-  "*.pyc",
-  "**/__pycache__/*",
-  "**.venv/*",
-  "**/__snapshots__",
-  "tests/data",
+  "**/*.pyc",
+  "**/__pycache__",
+  "**/.venv",
+  -- "**/__snapshots__",
+  -- "**/tests/data",
+  "**/.*_cache",
   --
   "**/.dist/*",
   "**/.output/*",
@@ -23,7 +23,7 @@ local rg_ignore_dirs = {
 }
 
 local rg_ignore_files =
-  { "*.min.css", "*.svg", "pnpm-lock.yaml", "package-lock.json", "edgedb.toml" }
+  { "*.min.css", "*.svg", "*.pdf", "pnpm-lock.yaml", "package-lock.json", "edgedb.toml" }
 
 local rg_ignore_arg = ("--glob '!{%s}' --glob '!{%s}'"):format(
   table.concat(rg_ignore_dirs, ","),
@@ -120,88 +120,70 @@ local function fn_selected_multi(selected, opts)
     if selected[1] == "esc" then
       return
     else
-      return fzf_lua.actions.act(opts.actions, selected, opts)
+      return fzf_lua.actions.act(selected, opts)
     end
   end
 
   -- here we multi-selected ("select-all+accept" on fzf lua view point)
-  local _, entries = fzf_lua.actions.normalize_selected(opts.actions, selected, {})
+  local _, entries = fzf_lua.actions.normalize_selected(selected, opts)
   entries = parse_entries(entries, opts)
 
   vim.fn.setqflist(entries, "r")
   vim.cmd("cfirst")
 
-  -- local function action_choice_on_multiselect()
-  --   local multiselect_actions = {
-  --     "Open occurrences in qf list",
-  --     "Open unique files in qf list",
-  --   }
-  --   vim.ui.select(
-  --     multiselect_actions,
-  --     { prompt = "FZF Actions (multi select)> " },
-  --     function(choice, idx)
-  --       vim.cmd("stopinsert")
+  -- local multiselect_actions = {
+  --   "Open occurrences in qf list",
+  --   "Open unique files in qf list",
+  -- }
+  -- vim.ui.select(
+  --   multiselect_actions,
+  --   { prompt = "FZF Actions (multi select)> " },
+  --   function(choice, idx)
+  --     vim.cmd("stopinsert")
 
-  --       log.debug("fzf multi select: ", choice)
+  --     log.warn("fzf multi select: ", choice)
 
-  --       if idx == 2 then
-  --         local seen = {}
-  --         entries = vim.tbl_filter(function(entry)
-  --           if vim.tbl_contains(seen, entry.filename) then
-  --             return false
-  --           else
-  --             table.insert(seen, entry.filename)
-  --             return true
-  --           end
-  --         end, entries)
-  --       end
-
-  --       vim.fn.setqflist(entries, "r")
-  --       vim.cmd("cfirst")
+  --     if idx == 2 then
+  --       local seen = {}
+  --       entries = vim.tbl_filter(function(entry)
+  --         if vim.tbl_contains(seen, entry.filename) then
+  --           return false
+  --         else
+  --           table.insert(seen, entry.filename)
+  --           return true
+  --         end
+  --       end, entries)
   --     end
-  --   )
-  -- end
+
+  --     vim.fn.setqflist(entries, "r")
+  --     vim.cmd("cfirst")
+  --   end
+  -- )
 end
 
 --
 ---------- Grep ----------
 --
 -- Fzf Grep
-local function fzf_grep(cwd, rg_opts)
-  if rg_opts == nil and cwd == nil then
-    cwd = vim.loop.cwd()
-    local venv_pkg_path = cwd:match("(.-site%-packages/[^/]+)")
-    if venv_pkg_path then
-      cwd = venv_pkg_path
-      rg_opts = "--no-ignore-vcs"
-    else
-      cwd = find_root_package()
-    end
-  end
-
+local function fzf_grep(cwd)
   return fzf_lua.grep({
+    winopts = { title = ("  %s  "):format(cwd), title_flags = false },
+    cmd = ("rg --no-ignore-vcs --hidden %s"):format(rg_ignore_arg),
     cwd = cwd,
     search = "",
-    fn_selected = fn_selected_multi,
-    rg_opts = rg_opts,
-  })
-end
-
--- Live Grep
-local function live_grep(cwd)
-  fzf_lua.live_grep({
-    cwd = cwd,
     fn_selected = fn_selected_multi,
   })
 end
 
 -- Fzf Grep word under cursor
-local function grep_word_under_cursor(cwd)
+local function grep_cword(cwd)
   vim.cmd([[normal! "wyiw]])
   local word = vim.fn.getreg('"')
-  fzf_lua.grep({
+
+  return fzf_lua.grep_cword({
+    winopts = { title = ("  %s   -   %s  "):format(word, cwd), title_flags = false },
+    cmd = ("rg --no-ignore-vcs --hidden %s"):format(rg_ignore_arg),
     cwd = cwd,
-    search = word,
     fn_selected = fn_selected_multi,
   })
 end
@@ -209,11 +191,10 @@ end
 --
 ---------- Files ----------
 --
-local function rg_files(rg_opts, cwd)
-  local rg_cmd = ("rg %s --files --hidden %s"):format(rg_opts or "", rg_ignore_arg)
+local function rg_files(cwd)
+  local rg_cmd = ("rg --no-ignore-vcs --files --hidden %s"):format(rg_ignore_arg)
   return fzf_lua.fzf_exec(rg_cmd, {
-    prompt = "Files > ",
-    previewer = "builtin",
+    winopts = { title = ("  %s  "):format(cwd) },
     cwd = cwd,
     actions = fzf_actions,
     fn_transform = function(x)
@@ -289,21 +270,20 @@ end
 
 local function select_project_find_file()
   return pick_project(function(path)
-    fzf_lua.files({ cwd = path })
+    rg_files(path)
   end)
 end
 
 local function select_project_fzf_grep()
   return pick_project(function(path)
-    fzf_lua.grep({ cwd = path, search = "" })
+    fzf_grep(path)
   end)
 end
 
 return {
   -- grep
   fzf_grep = fzf_grep,
-  live_grep = live_grep,
-  grep_word_under_cursor = grep_word_under_cursor,
+  grep_cword = grep_cword,
   -- files
   rg_files = rg_files,
   -- lsp

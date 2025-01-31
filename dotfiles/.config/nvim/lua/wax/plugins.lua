@@ -504,68 +504,46 @@ return {
       {
         "<leader>a",
         function()
-          require("wax.plugcfg.fzf").fzf_grep(nil) -- default to find_root_package
+          require("wax.plugcfg.fzf").fzf_grep(find_root_monorepo())
         end,
-        desc = "Fuzzy search content of files (package first)",
+        desc = "Fuzzy search content of files (entire monorepo)",
       },
       {
         "<leader>A",
         function()
-          require("wax.plugcfg.fzf").fzf_grep(find_root_monorepo())
+          require("wax.plugcfg.fzf").fzf_grep(find_root_package()) -- default to find_root_package
         end,
-        desc = "Fuzzy search content of files",
+        desc = "Fuzzy search content of files (package first)",
       },
-      -- {
-      --   "<leader>fA",
-      --   function()
-      --     require("wax.plugcfg.fzf").fzf_grep(vim.fn.getcwd(), "--no-ignore-vcs")
-      --   end,
-      --   desc = "Fuzzy search content of files in cwd",
-      -- },
-      --
       ---------- Word Under Cursor ----------
       {
         "<leader>ff",
         function()
-          require("wax.plugcfg.fzf").grep_word_under_cursor(find_root_package())
+          require("wax.plugcfg.fzf").grep_cword(find_root_monorepo())
         end,
-        desc = "RipGrep with search being the current word under the cursor (package first)",
+        desc = "RipGrep with search being the current word under the cursor (entire monorepo)",
       },
       {
         "<leader>fF",
         function()
-          require("wax.plugcfg.fzf").grep_word_under_cursor(find_root_monorepo())
+          require("wax.plugcfg.fzf").grep_cword(find_root_package())
         end,
-        desc = "RipGrep with search being the current word under the cursor",
+        desc = "RipGrep with search being the current word under the cursor (package first)",
       },
       ---------- Files ----------
       {
         "<leader>p",
         function()
-          require("wax.plugcfg.fzf").rg_files(nil, find_root_package())
+          require("wax.plugcfg.fzf").rg_files(find_root_monorepo())
         end,
-        desc = "Find git files (package first)",
+        desc = "Find git files (all monorepo)",
       },
       {
         "<leader>P",
         function()
-          require("wax.plugcfg.fzf").rg_files(nil, find_root_monorepo())
+          require("wax.plugcfg.fzf").rg_files(find_root_package())
         end,
-        desc = "Find git files",
-      },
-      {
-        "<leader>fp",
-        function()
-          require("wax.plugcfg.fzf").rg_files("--no-ignore-vcs", find_root_package())
-        end,
-        desc = "Find files (package first)",
-      },
-      {
-        "<leader>fP",
-        function()
-          require("wax.plugcfg.fzf").rg_files("--no-ignore-vcs", find_root_monorepo())
-        end,
-        desc = "Find files",
+        desc = "Find git files (package first)",
       },
       ---------- Misc ----------
       {
