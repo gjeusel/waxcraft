@@ -13,6 +13,7 @@ local rg_ignore_dirs = {
   "**/*.pyc",
   "**/__pycache__",
   "**/.venv",
+  ".eggs",
   -- "**/__snapshots__",
   -- "**/tests/data",
   "**/.*_cache",
@@ -168,7 +169,7 @@ end
 local function fzf_grep(cwd)
   return fzf_lua.grep({
     winopts = { title = ("  %s  "):format(cwd), title_flags = false },
-    cmd = ("rg --no-ignore-vcs --hidden %s"):format(rg_ignore_arg),
+    cmd = ("rg --line-number --column --no-ignore-vcs --hidden %s"):format(rg_ignore_arg),
     cwd = cwd,
     search = "",
     fn_selected = fn_selected_multi,
@@ -182,7 +183,7 @@ local function grep_cword(cwd)
 
   return fzf_lua.grep_cword({
     winopts = { title = ("  %s   -   %s  "):format(word, cwd), title_flags = false },
-    cmd = ("rg --no-ignore-vcs --hidden %s"):format(rg_ignore_arg),
+    cmd = ("rg --line-number --column --no-ignore-vcs --hidden %s"):format(rg_ignore_arg),
     cwd = cwd,
     fn_selected = fn_selected_multi,
   })
@@ -195,6 +196,7 @@ local function rg_files(cwd)
   local rg_cmd = ("rg --no-ignore-vcs --files --hidden %s"):format(rg_ignore_arg)
   return fzf_lua.fzf_exec(rg_cmd, {
     winopts = { title = ("  %s  "):format(cwd) },
+    previewer = "builtin",
     cwd = cwd,
     actions = fzf_actions,
     fn_transform = function(x)
