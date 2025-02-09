@@ -175,9 +175,14 @@ local function create_mason_handlers()
   -- Generate capabilities
   local capabilities = vim.lsp.protocol.make_client_capabilities()
 
-  if is_module_available("cmp_nvim_lsp") then
+  -- if is_module_available("cmp_nvim_lsp") then
+  --   capabilities.textDocument.completion =
+  --     require("cmp_nvim_lsp").default_capabilities({}).textDocument.completion
+  -- end
+
+  if is_module_available("blink.cmp") then
     capabilities.textDocument.completion =
-      require("cmp_nvim_lsp").default_capabilities({}).textDocument.completion
+      require("blink.cmp").get_lsp_capabilities({}).textDocument.completion
   end
 
   local handlers = {}

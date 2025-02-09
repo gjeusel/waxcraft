@@ -804,6 +804,7 @@ return {
     -- enabled = false,
     dependencies = {
       { "linrongbin16/lsp-progress.nvim", opts = {} },
+      { "saghen/blink.cmp" },
       { "folke/neodev.nvim", opts = { experimental = { pathStrict = true } } },
       { -- mason
         "williamboman/mason.nvim",
@@ -864,24 +865,33 @@ return {
       end
     end,
   },
+  -- {
+  --   "hrsh7th/nvim-cmp",
+  --   event = "InsertEnter",
+  --   dependencies = {
+  --     "onsails/lspkind-nvim",
+  --     "hrsh7th/cmp-buffer",
+  --     "hrsh7th/cmp-path",
+  --     "hrsh7th/cmp-nvim-lua",
+  --     "hrsh7th/cmp-nvim-lsp",
+  --     { "lukas-reineke/cmp-rg", dev = true, pin = true },
+  --     "saadparwaiz1/cmp_luasnip",
+  --     "rcarriga/cmp-dap",
+  --   },
+  --   config = function()
+  --     require("wax.plugcfg.nvim-cmp")
+  --   end,
+  -- },
   {
-    "hrsh7th/nvim-cmp",
-    event = "InsertEnter",
+    "saghen/blink.cmp",
+    -- version = "*",
     dependencies = {
-      "onsails/lspkind-nvim",
-      "hrsh7th/cmp-buffer",
-      "hrsh7th/cmp-path",
-      "hrsh7th/cmp-nvim-lua",
-      "hrsh7th/cmp-nvim-lsp",
-      { "lukas-reineke/cmp-rg", dev = true, pin = true },
-      "saadparwaiz1/cmp_luasnip",
-      "rcarriga/cmp-dap",
+      "mikavilpas/blink-ripgrep.nvim",
     },
     config = function()
-      require("wax.plugcfg.nvim-cmp")
+      require("wax.plugcfg.blink-cmp")
     end,
   },
-
   {
     "stevearc/conform.nvim", --  (better buffer lsp format)
     keys = {
