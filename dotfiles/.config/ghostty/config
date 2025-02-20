@@ -6,7 +6,7 @@ font-family = "Hack Nerd Font Mono"
 font-size = 16
 adjust-cell-width = "-5%"
 
-cursor-style = "bar"
+cursor-style = "block"
 cursor-style-blink = false
 shell-integration-features = no-cursor
 

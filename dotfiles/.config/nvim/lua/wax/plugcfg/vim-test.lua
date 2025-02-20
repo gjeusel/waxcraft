@@ -41,6 +41,10 @@ kmap("n", "<leader>5", function()
   }
 
   vim.ui.select(items, opts, function(choice)
+    if choice == nil then
+      return
+    end
+
     local varname = "test#python#pytest#options"
     local before = vim.api.nvim_get_var(varname)
     vim.api.nvim_set_var(varname, choice.options)
