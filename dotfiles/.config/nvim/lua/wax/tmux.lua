@@ -1,5 +1,9 @@
+---@class Wax.TmuxState
+---@field target_pane Wax.TmuxPane | nil
+---@field previous_panes Wax.TmuxPane[]
 local M = {
   target_pane = nil,
+  previous_panes = {},
 }
 
 ---@class Wax.TmuxPane
@@ -38,6 +42,8 @@ function M.get_panes()
     pane.channel = pane.session .. ":" .. pane.window .. "." .. pane.index
     return pane
   end, panes_raw)
+
+  M.previous_panes = panes
   return panes
 end
 
@@ -70,8 +76,12 @@ end
 --- @param callback fun(pane: Wax.TmuxPane)
 function M.select_target_pane(callback)
   local panes = M.get_panes()
-  if #panes == 2 then
-    local bottom_pane = deduce_bottom_pane(panes)
+  local candidates = vim.tbl_filter(function(pane)
+    return not vim.list_contains({ "nvim" }, pane.current_cmd)
+  end, panes)
+
+  if #candidates == 2 then
+    local bottom_pane = deduce_bottom_pane(candidates)
     if bottom_pane then
       log.debug("[wax.tmux] auto set pane to #" .. bottom_pane.index)
       M.target_pane = bottom_pane
@@ -83,13 +93,17 @@ function M.select_target_pane(callback)
     end
   end
 
-  vim.ui.select(panes, {
+  vim.ui.select(candidates, {
     prompt = "Select tmux pane> ",
     format_item = function(item)
       return table.concat({ item.current_cmd, item.title }, " | ")
     end,
   }, function(_, i)
-    local selected = panes[i]
+    local selected = candidates[i]
+    if selected == nil then
+      return
+    end
+
     M.target_pane = selected
     if callback ~= nil then
       callback(selected)
@@ -182,10 +196,13 @@ function M.run_in_pane(cmd, opts)
   }
   opts = vim.tbl_extend("keep", opts, default_opts)
 
-  local pane = opts.pane or M.target_pane
+  if opts.pane then
+    M.send(opts.pane, cmd, opts)
+    return
+  end
 
-  if pane then
-    M.send(pane, cmd, opts)
+  if M.target_pane ~= nil and #M.previous_panes == #M.get_panes() then
+    M.send(M.target_pane, cmd, opts)
     return
   end
 
