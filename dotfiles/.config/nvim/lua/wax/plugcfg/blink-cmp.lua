@@ -125,6 +125,10 @@ local opts = {
     },
   },
   fuzzy = {
+    max_typos = function(keyword)
+      -- return 0 -- 0 means same behaviour as fzf
+      return math.floor(#keyword / 4)
+    end,
     sorts = { "score", "sort_text" },
     prebuilt_binaries = { force_version = "v0.12.4", ignore_version_mismatch = true },
   },
