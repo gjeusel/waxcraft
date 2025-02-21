@@ -124,26 +124,6 @@ cmp.setup({
     source_rg,
     { name = "path" },
   },
-  -- sorting = {
-  --   priority_weight = 1000,
-  --   comparators = {
-  --     -- require("copilot_cmp.comparators").prioritize,
-  --     -- require("copilot_cmp.comparators").score,
-
-  --     cmp.config.compare.score,
-  --     cmp.config.compare.offset,
-  --     cmp.config.compare.recently_used,
-  --     -- scopes is using treesitter
-  --     -- cmp.config.compare.scopes, --this is commented in nvim-cmp too
-  --     cmp.config.compare.exact,
-  --     cmp.config.compare.locality,
-  --     cmp.config.compare.kind,
-  --     cmp.config.compare.sort_text,
-  --     cmp.config.compare.length,
-  --     cmp.config.compare.order,
-  --   },
-  -- },
-  --
   sorting = {
     comparators = {
       cmp.config.compare.offset,

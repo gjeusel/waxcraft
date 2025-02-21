@@ -744,50 +744,41 @@ return {
 
   --------- LSP ---------
   {
-    "zbirenbaum/copilot.lua",
-    enabled = true,
-    lazy = true,
-    keys = {
-      {
-        "<C-x>",
-        "<cmd>Copilot panel<cr>",
-        desc = "Open Copilot Panel",
-        mode = { "n", "i" },
-      },
-    },
-    opts = {
-      panel = {
-        enabled = true,
-        auto_refresh = true,
-        keymap = {
-          jump_prev = "[[",
-          jump_next = "]]",
-          accept = "<CR>",
-          refresh = "gr",
-          open = "<C-x>",
+    "milanglacier/minuet-ai.nvim",
+    event = "VeryLazy",
+    config = function()
+      require("minuet").setup({
+        context_window = 4000,
+        request_timeout = 3,
+        virtualtext = {
+          auto_trigger_ft = {},
+          keymap = {
+            accept = "<C-space>", -- accept whole completion
+            next = "<C-x>", -- Cycle to next completion item, or manually invoke completion
+          },
         },
-        layout = {
-          position = "bottom", -- | top | left | right
-          ratio = 0.4,
+        provider = "openai_compatible",
+        provider_options = {
+          openai_compatible = {
+            name = "scaleway",
+            end_point = vim.env.SCW_AI_ENDPOINT,
+            api_key = "SCW_AI_KEY",
+            model = "qwen2.5-coder-32b-instruct",
+            stream = true,
+            template = {
+              prompt = "See [Prompt Section for default value]",
+              suffix = "See [Prompt Section for default value]",
+            },
+            optional = {
+              max_tokens = nil,
+              top_p = 0.95,
+              temperature = 0.6,
+              stream = true,
+            },
+          },
         },
-      },
-      suggestion = { enabled = false },
-      -- server_opts_overrides = {
-      --   settings = {
-      --     inlineSuggest = { enabled = false },
-      --     editor = {
-      --       showEditorCompletions = false,
-      --       enableAutoCompletions = false,
-      --     },
-      --     advanced = {
-      --       top_p = 0.70,
-      --       listCount = 3, -- #completions for panel
-      --       inlineSuggestCount = 0, -- #completions for getCompletions
-      --       enableAutoCompletions = false,
-      --     },
-      --   },
-      -- },
-    },
+      })
+    end,
   },
 
   {
