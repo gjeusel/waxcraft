@@ -17,6 +17,7 @@ local opts = {
     },
     --
     ["<Tab>"] = { "select_next", "fallback" },
+    ["<CR>"] = { "select_and_accept", "fallback" },
     --
     ["<C-space>"] = { "show", "show_documentation", "hide_documentation" },
     ["<C-s>"] = { "show_signature", "hide_signature", "fallback" },
@@ -27,6 +28,7 @@ local opts = {
     ["<C-j>"] = { "snippet_forward", "fallback" },
     ["<C-k>"] = { "snippet_backward", "fallback" },
   },
+  cmdline = { enabled = false },
   completion = {
     trigger = {
       show_on_keyword = true,
@@ -34,11 +36,32 @@ local opts = {
     },
     menu = {
       draw = {
-        columns = { { "label", gap = 1, "source_name" }, { "kind", gap = 1, "kind_icon" } },
+        padding = 2,
+        columns = {
+          { "label", gap = 1 },
+          { "kind_icon", "kind", gap = 1 },
+          { "source_name" },
+        },
+        components = {
+          label = {
+            width = { fill = true, max = 40 },
+          },
+          source_name = {
+            width = { max = 30 },
+            text = function(ctx)
+              log.warn(ctx)
+              return ctx.item.client_name
+            end,
+            highlight = "BlinkCmpSource",
+          },
+        },
       },
-      auto_show = function(ctx)
-        return ctx.mode ~= "cmdline"
-      end,
+      -- auto_show = function(ctx)
+      --   if ctx == nil then
+      --     return false
+      --   end
+      --   return ctx.mode ~= "cmdline"
+      -- end,
     },
     list = {
       max_items = 6,
@@ -57,7 +80,7 @@ local opts = {
       -- auto_show_delay_ms = 500,
     },
   },
-  signature = { enabled = true, window = { border = "rounded" } },
+  signature = { enabled = false, window = { border = "rounded" } },
   snippets = { preset = "luasnip" },
   sources = {
     default = {
@@ -103,7 +126,7 @@ local opts = {
   },
   fuzzy = {
     sorts = { "score", "sort_text" },
-    prebuilt_binaries = { ignore_version_mismatch = true },
+    prebuilt_binaries = { force_version = "v0.12.4", ignore_version_mismatch = true },
   },
 }
 
