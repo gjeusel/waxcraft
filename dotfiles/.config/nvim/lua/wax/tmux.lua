@@ -80,19 +80,27 @@ function M.select_target_pane(callback)
     return not vim.list_contains({ "nvim" }, pane.current_cmd)
   end, panes)
 
-  if #candidates == 2 then
+  -- handle auto-selection of correct pane
+  local target_pane = nil
+  if #candidates == 1 then
+    target_pane = candidates[1]
+  elseif #candidates == 2 then
     local bottom_pane = deduce_bottom_pane(candidates)
     if bottom_pane then
       log.debug("[wax.tmux] auto set pane to #" .. bottom_pane.index)
-      M.target_pane = bottom_pane
-
-      if callback ~= nil then
-        callback(bottom_pane)
-      end
-      return
+      target_pane = bottom_pane
     end
   end
 
+  if target_pane ~= nil then
+    M.target_pane = target_pane
+    if callback ~= nil then
+      callback(target_pane)
+    end
+    return
+  end
+
+  -- fallback select pane
   vim.ui.select(candidates, {
     prompt = "Select tmux pane> ",
     format_item = function(item)

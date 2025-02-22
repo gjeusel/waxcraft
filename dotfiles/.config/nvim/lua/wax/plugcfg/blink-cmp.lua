@@ -1,34 +1,39 @@
 local blink = require("blink.cmp")
 
+local keymap = {
+  preset = "default",
+  --
+  ["<C-e>"] = { "hide" },
+  ["<C-c>"] = {
+    function(cmp)
+      if cmp.is_visible() then
+        cmp.hide()
+      end
+      vim.cmd.stopinsert()
+    end,
+  },
+  --
+  ["<Tab>"] = { "select_next", "fallback" },
+  ["<CR>"] = { "select_and_accept", "fallback" },
+  --
+  ["<C-space>"] = { "show", "show_documentation", "hide_documentation" },
+  ["<C-s>"] = { "show_signature", "hide_signature", "fallback" },
+  --
+  ["<C-u>"] = { "scroll_documentation_up", "fallback" },
+  ["<C-d>"] = { "scroll_documentation_down", "fallback" },
+  --
+  ["<C-j>"] = { "snippet_forward", "fallback" },
+  ["<C-k>"] = { "snippet_backward", "fallback" },
+}
+
 ---@module 'blink.cmp'
 ---@type blink.cmp.Config
 local opts = {
-  keymap = {
-    preset = "default",
-    --
-    ["<C-e>"] = { "hide" },
-    ["<C-c>"] = {
-      function(cmp)
-        if cmp.is_visible() then
-          cmp.hide()
-        end
-        vim.cmd.stopinsert()
-      end,
-    },
-    --
-    ["<Tab>"] = { "select_next", "fallback" },
-    ["<CR>"] = { "select_and_accept", "fallback" },
-    --
-    ["<C-space>"] = { "show", "show_documentation", "hide_documentation" },
-    ["<C-s>"] = { "show_signature", "hide_signature", "fallback" },
-    --
-    ["<C-u>"] = { "scroll_documentation_up", "fallback" },
-    ["<C-d>"] = { "scroll_documentation_down", "fallback" },
-    --
-    ["<C-j>"] = { "snippet_forward", "fallback" },
-    ["<C-k>"] = { "snippet_backward", "fallback" },
-  },
-  cmdline = { enabled = false },
+  enabled = function()
+    local disabled_filetypes = { "DressingInput" }
+    return not vim.tbl_contains(disabled_filetypes, vim.bo.filetype)
+  end,
+  keymap = keymap,
   completion = {
     trigger = {
       show_on_keyword = true,
@@ -49,7 +54,6 @@ local opts = {
           source_name = {
             width = { max = 30 },
             text = function(ctx)
-              log.warn(ctx)
               return ctx.item.client_name
             end,
             highlight = "BlinkCmpSource",
@@ -80,7 +84,8 @@ local opts = {
       -- auto_show_delay_ms = 500,
     },
   },
-  signature = { enabled = false, window = { border = "rounded" } },
+  cmdline = { enabled = false },
+  signature = { enabled = true, trigger = { enabled = false }, window = { border = "rounded" } },
   snippets = { preset = "luasnip" },
   sources = {
     default = {
