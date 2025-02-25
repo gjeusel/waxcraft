@@ -31,6 +31,7 @@ kmap("n", "<leader>5", function()
     { name = "pdb-snapshot", options = "--snapshot -vv" },
     { name = "pdb-debug", options = "--pdb -xs --log-cli-level=DEBUG -vv" },
     { name = "pdb-fast", options = "-n 4" },
+    { name = "pdb-module", options = "" },
   }
 
   local opts = {
@@ -51,7 +52,7 @@ kmap("n", "<leader>5", function()
 
     vim.cmd("stopinsert")
 
-    if choice.name == "pdb-fast" then
+    if vim.list_contains({ "pdb-fast", "pdb-module" }, choice.name) then
       vim.cmd(":TestFile")
     else
       vim.cmd(":TestNearest")
