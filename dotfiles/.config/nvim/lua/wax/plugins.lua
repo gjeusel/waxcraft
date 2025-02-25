@@ -943,7 +943,10 @@ return {
     keys = {
       {
         "<leader>fl",
-        "<cmd>CellularAutomaton make_it_rain<cr>",
+        function()
+          vim.cmd([[norm! zR]])
+          vim.cmd([[CellularAutomaton make_it_rain]])
+        end,
         desc = "Who will bring the rain ?",
         nowait = true,
       },
