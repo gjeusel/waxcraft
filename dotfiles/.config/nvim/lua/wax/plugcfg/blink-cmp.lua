@@ -103,9 +103,9 @@ local opts = {
         min_keyword_length = 3,
         max_items = 2,
         score_offset = -0.1,
-        should_show_items = function(ctx)
-          return ctx.trigger.initial_kind ~= "trigger_character"
-        end,
+        -- should_show_items = function(ctx)
+        --   return ctx.trigger.initial_kind ~= "trigger_character"
+        -- end,
       },
       buffer = {
         opts = {
@@ -115,9 +115,9 @@ local opts = {
             end, vim.api.nvim_list_bufs())
           end,
         },
-        should_show_items = function(ctx)
-          return ctx.trigger.initial_kind ~= "trigger_character"
-        end,
+        -- should_show_items = function(ctx)
+        --   return ctx.trigger.initial_kind ~= "trigger_character"
+        -- end,
       },
       snippets = {
         score_offset = 0.1,
@@ -131,8 +131,8 @@ local opts = {
   },
   fuzzy = {
     max_typos = function(keyword)
-      -- return 0 -- 0 means same behaviour as fzf
-      return math.floor(#keyword / 4)
+      return 0 -- 0 means same behaviour as fzf
+      -- return math.floor(#keyword / 4)
     end,
     sorts = { "score", "sort_text" },
     prebuilt_binaries = { force_version = "v0.12.4", ignore_version_mismatch = true },
