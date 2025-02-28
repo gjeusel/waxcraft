@@ -21,6 +21,7 @@ local rg_ignore_dirs = {
   "**/.dist/*",
   "**/.output/*",
   "**/node_modules/*",
+  "**.vercel/output/**",
 }
 
 local rg_ignore_files =
