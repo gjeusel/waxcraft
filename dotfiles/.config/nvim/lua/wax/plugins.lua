@@ -747,37 +747,7 @@ return {
     "milanglacier/minuet-ai.nvim",
     event = "VeryLazy",
     config = function()
-      require("minuet").setup({
-        context_window = 4000,
-        request_timeout = 3,
-        virtualtext = {
-          auto_trigger_ft = {},
-          keymap = {
-            accept = "<C-space>", -- accept whole completion
-            next = "<C-x>", -- Cycle to next completion item, or manually invoke completion
-          },
-        },
-        provider = "openai_compatible",
-        provider_options = {
-          openai_compatible = {
-            name = "scaleway",
-            end_point = vim.env.SCW_AI_ENDPOINT,
-            api_key = "SCW_AI_KEY",
-            model = "qwen2.5-coder-32b-instruct",
-            stream = true,
-            template = {
-              prompt = "See [Prompt Section for default value]",
-              suffix = "See [Prompt Section for default value]",
-            },
-            optional = {
-              max_tokens = nil,
-              top_p = 0.95,
-              temperature = 0.6,
-              stream = true,
-            },
-          },
-        },
-      })
+      require("wax.plugcfg.minuet-ai")
     end,
   },
 
