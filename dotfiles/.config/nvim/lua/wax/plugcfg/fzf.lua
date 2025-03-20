@@ -4,11 +4,15 @@ local Path = require("wax.path")
 
 local rg_ignore_dirs = {
   ".git",
+  "**/*orig", -- merge conflicts
   --
-  "postgres-data",
-  "edgedb-data",
-  "**/.vscode",
-  "**/playground/*",
+  "postgres-data", -- docker volume
+  "edgedb-data", -- docker volume
+  "**/.vscode", -- vscode ? Nop
+  "**/playground/*", -- messy
+  --
+  "data.ms", -- meilisearch
+  "**/clients-cache", -- hishel httpx cache in venturi
   --
   "**/*.pyc",
   "**/__pycache__",
@@ -19,9 +23,11 @@ local rg_ignore_dirs = {
   "**/.*_cache",
   --
   "**/.dist/*",
+  "**/dist/*",
+  "**/.nuxt/dist/*",
   "**/.output/*",
   "**/node_modules/*",
-  "**.vercel/output/**",
+  "**/.vercel/output/*",
 }
 
 local rg_ignore_files =
