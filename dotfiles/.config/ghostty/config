@@ -18,3 +18,5 @@ window-padding-x = 10
 
 macos-titlebar-style = "hidden"
 window-decoration = false
+
+keybind = cmd+enter=text:\x0D
