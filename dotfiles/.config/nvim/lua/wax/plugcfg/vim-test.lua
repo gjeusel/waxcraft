@@ -16,7 +16,7 @@ vim.api.nvim_set_var("test#echo_command", 0)
 
 -- python
 vim.api.nvim_set_var("test#python#runner", "pytest")
-vim.api.nvim_set_var("test#python#pytest#options", "-xs")
+vim.api.nvim_set_var("test#python#pytest#options", "-s")
 
 -- -- vue
 -- vim.api.nvim_set_var("test#javascript#runner", "npm run test")
