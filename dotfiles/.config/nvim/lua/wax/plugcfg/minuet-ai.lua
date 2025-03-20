@@ -20,13 +20,14 @@ Guidelines:
    additional comments or markdown code block fences. Return the result directly.
 4. Answer with the code AND ONLY the code.
 5. Create entirely new code completion that DO NOT REPEAT OR COPY any user's existing code around <cursorPosition>.
+6. Be on
 ]]
 local template = "{{{prompt}}}\n{{{guidelines}}}"
 
 require("minuet").setup({
   context_window = 10000,
   request_timeout = 60,
-  n_completions = 1,
+  n_completions = 3,
   virtualtext = {
     auto_trigger_ft = {},
     keymap = {
@@ -34,11 +35,11 @@ require("minuet").setup({
       next = "<C-x>", -- Cycle to next completion item, or manually invoke completion
     },
   },
-  default_template = {
-    template = template,
-    prompt = prompt,
-    guidelines = guidelines,
-  },
+  -- default_template = {
+  --   template = template,
+  --   prompt = prompt,
+  --   guidelines = guidelines,
+  -- },
   provider = "openai_compatible",
   provider_options = {
     openai_compatible = {
