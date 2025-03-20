@@ -1,3 +1,6 @@
+# Format: alias [alias name] [command]
+# To use arguments: $1, $2, etc. represent the first, second, etc. arguments
+
 alias sh from ptpython.repl import embed, run_config; embed(history_filename="/tmp/pdb_history", configure=run_config, locals=locals(), globals=globals())
 
 alias dpp __import__("devtools").debug(%*)
@@ -22,3 +25,5 @@ alias loginfo from fohn import logs; logs.setup_structlog(log_level="info")
 alias logdebug from fohn import logs; logs.setup_structlog(log_level="debug")
 
 alias horizon print(f"{%*.start.tz_convert('CET')} -> {%*.end.tz_convert('CET')}")
+
+alias dump import json; data = %2; label = '%1'; data = data.model_dump(mode="json") if hasattr(data, "model_dump") else data; dumppath = f"/tmp/dump-pdb-{label}.json"; lambda obj: {k: recursive_sort(obj[k]) for k in sorted(obj.keys())} if isinstance(obj, dict) else sorted((recursive_sort(x) for x in obj), key=lambda x: str(x)) if isinstance(obj, list | tuple | set) else obj; json.dump(recursive_sort(data), open(dumppath, "w"), indent=2, ensure_ascii=False); print(f"Dumped at {dumppath}")
