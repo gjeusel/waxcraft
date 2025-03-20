@@ -13,7 +13,7 @@ vim.api.nvim_create_autocmd(
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "diff",
   callback = function()
-    vim.cmd([[!normal zM]]) -- When in diffmode, close all folds by default
+    vim.cmd([[normal zM]]) -- When in diffmode, close all folds by default
   end,
 })
 
