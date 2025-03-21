@@ -28,7 +28,9 @@ kmap("n", "<leader>4", tmux.select_target_pane)
 
 kmap("n", "<leader>5", function()
   local items = {
-    { name = "pdb-snapshot", options = "--snapshot -vv" },
+    { name = "pdb-snapshot-json", options = "--snapshot='json' -vv" },
+    { name = "pdb-snapshot", options = "--snapshot='all' -vv" },
+    --
     { name = "pdb-debug", options = "--pdb -xs --log-cli-level=DEBUG -vv" },
     { name = "pdb-fast", options = "-n 4" },
     { name = "pdb-module", options = "" },
