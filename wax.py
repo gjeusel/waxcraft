@@ -56,7 +56,7 @@ def query_yes_no(question, default="yes"):
         elif choice in valid:
             return valid[choice]
         else:
-            sys.stdout.write("Please respond with 'yes' or 'no' " "(or 'y' or 'n').\n")
+            sys.stdout.write("Please respond with 'yes' or 'no' (or 'y' or 'n').\n")
 
 
 # Low level conveniant functions:
@@ -163,6 +163,12 @@ def ghostty():
     create_symlinks_robust(relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home())
 
 
+def aerospace():
+    """install aerospace."""
+    relative_paths = [".config/aerospace"]
+    create_symlinks_robust(relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home())
+
+
 def tmux():
     """Install tmux config files."""
     relative_paths = [".tmux.conf", ".config/tmuxp"]
@@ -189,7 +195,7 @@ def zsh():
         "fi",
         "",
         "# Specific config here",
-        "" "# waxCraft zshrc_common.zsh file sourcing :",
+        "# waxCraft zshrc_common.zsh file sourcing :",
         "source {}".format((wax_dotfile_dir / "zshrc_common.zsh").as_posix()),
     )
 
@@ -301,4 +307,7 @@ if __name__ == "__main__":
         alacritty()
 
     if "ghostty" in optlist:
+        ghostty()
+
+    if "aerospace" in optlist:
         ghostty()
