@@ -169,6 +169,12 @@ def aerospace():
     create_symlinks_robust(relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home())
 
 
+def karabiner():
+    """install karabiner."""
+    relative_paths = [".config/karabiner/karabiner.json"]
+    create_symlinks_robust(relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home())
+
+
 def tmux():
     """Install tmux config files."""
     relative_paths = [".tmux.conf", ".config/tmuxp"]
@@ -311,3 +317,6 @@ if __name__ == "__main__":
 
     if "aerospace" in optlist:
         ghostty()
+
+    if "karabiner" in optlist:
+        karabiner()
