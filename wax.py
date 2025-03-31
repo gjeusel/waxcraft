@@ -25,7 +25,11 @@ def pcall(cmd, args, env=None):
         print("Executing bash cmd: > {}".format(cmd + " " + " ".join(args)))
         return subprocess.check_call([cmd] + args, env=env)
     except subprocess.CalledProcessError as e:
-        raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
+        raise RuntimeError(
+            "command '{}' return with error (code {}): {}".format(
+                e.cmd, e.returncode, e.output
+            )
+        )
 
 
 def query_yes_no(question, default="yes"):
@@ -143,7 +147,9 @@ def neovim():
         ".config/nvim/queries",
         ".config/nvim/.stylua.toml",
     ]
-    create_symlinks_robust(relative_paths=relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home())
+    create_symlinks_robust(
+        relative_paths=relative_paths, from_dir=wax_dotfile_dir, to_dir=Path.home()
+    )
 
     # stylua = "./config/nvim/lua/wax/.stylua.toml"
     # create_symlinks_robust(
@@ -316,7 +322,7 @@ if __name__ == "__main__":
         ghostty()
 
     if "aerospace" in optlist:
-        ghostty()
+        aerospace()
 
     if "karabiner" in optlist:
         karabiner()

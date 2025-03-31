@@ -1,5 +1,5 @@
 # ZSH config
-export HISTFILE=~/.zsh_history
+export HISTFILE=${ZDOTDIR:-$HOME}/.zsh_history
 export HISTSIZE=100000
 export SAVEHIST=100000
 
