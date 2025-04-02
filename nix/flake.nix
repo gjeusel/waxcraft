@@ -42,18 +42,22 @@
         wget
         bat
         dust
+        zoxide
 
         raycast
 
         # ----- code -----
         go
         rustup
+        pnpm_10
+        uv
 
         # ----- infra -----
         sops
         kubectl
         terraform
         scaleway-cli
+        python312Packages.pgcli
 
         # ----- vim formatters for conform -----
         alejandra
@@ -65,8 +69,28 @@
         taplo
         xmlformat
 
+        # ----- vim LSP -----
+        lua-language-server
+        bash-language-server
+        # eslint-lsp # not available
+        helm-ls
+        # html-lsp # not available
+        # json-lsp # not available
+        pyright
+        python312Packages.python-lsp-server
+        ruff
+        rust-analyzer
+        sqls
+        svelte-language-server
+        tailwindcss-language-server
+        terraform-ls
+        vtsls
+        yaml-language-server
+
         # ----- daily life -----
         # calibre # unavailable for aarch64-darwin
+        spotify
+        karabiner-elements
 
         # ----- because I'm altruist -----
         vscode
@@ -77,16 +101,22 @@
         enable = true;
         brews = [
           "mas"
+          "postgresql@16"
+          "redis"
         ];
         casks = [
-          "brave-browser"
-          "vlc" # unavailable in nixpkgs for aarch64-darwin
           "ghostty" # broken in nixpkgs
-          "notion" # does not exists in nixpkgs
 
-          # "postgresql@16"
-          # "firefox"
-          # "nikitabobko/tap/aerospace"
+          "brave-browser"
+          "firefox"
+          "vlc" # unavailable in nixpkgs for aarch64-darwin
+
+          "notion" # does not exists in nixpkgs
+          "notion-calendar"
+
+          # "nikitabobko/tap/aerospace" # more recent than in nixpkgs (error)
+
+          "calibre" # e-book
         ];
         masApps = {
           ## apps from appstore
@@ -94,6 +124,7 @@
           "TeamPaper" = 1199502670;
           "Bitwarden" = 1352778147;
           "Slack" = 803453959;
+          # "Spark" = 1176895641; # email (not working from app store...)
         };
         onActivation.cleanup = "zap";
       };
@@ -125,16 +156,20 @@
       system.defaults = {
         dock.autohide = true;
         dock.persistent-apps = [
-          # "/Applications/Brave Browser.app"
-          # "${pkgs.ghostty}/Applications/Ghostty.app"
-          # "/Applications/Ghostty.app"
+          # "${pkgs.ghostty}/Applications/Ghostty.app" # if coming from nixkpgs
+          "/Applications/Ghostty.app"
+          "/Applications/Brave Browser.app"
+          "/Applications/Slack.app"
+          "/Applications/Notion.app"
         ];
 
         finder.FXPreferredViewStyle = "clmv"; # prefer column view by default on finder
         loginwindow.GuestEnabled = false;
         NSGlobalDomain.AppleICUForce24HourTime = true;
         NSGlobalDomain.KeyRepeat = 2; # lowest minimum
+        NSGlobalDomain.NSWindowResizeTime = 0.01;
       };
+
 
       # # Necessary for using flakes on this system.
       # nix.settings.experimental-features = "nix-command flakes";
