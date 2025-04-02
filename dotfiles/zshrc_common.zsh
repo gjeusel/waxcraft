@@ -183,6 +183,9 @@ zinit light zsh-users/zsh-completions               # additional completion
 zinit ice wait lucid atload'_zsh_autosuggest_start'
 zinit light zsh-users/zsh-autosuggestions           # inline completion
 
+# zinit ice wait lucid
+# zinit light Aloxaf/fzf-tab                          # fzf for tab completion
+
 # snippets
 for snip in git extract common-aliases tmux sudo command-not-found gcloud aws kubectl kubectx; do
     zinit ice wait lucid
@@ -221,3 +224,16 @@ fi
 source "$WAXPATH/dotfiles/bindings.zsh"
 
 source "$WAXPATH/dotfiles/aliases.zsh"
+
+# _______ completions _______
+
+# Fzf conf
+if command -v fzf &> /dev/null; then
+    source <(fzf --zsh)
+fi
+
+# kubectl conf
+if command -v kubectl &> /dev/null; then
+  source <(kubectl completion zsh)
+fi
+
