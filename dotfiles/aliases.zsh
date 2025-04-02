@@ -1,7 +1,7 @@
 # Own config
 alias wax="cd $WAXPATH"
 alias vimrc="vim $WAXPATH/dotfiles/.config/nvim/lua/wax/plugins.lua"
-alias zshrc="vim ~/.zshrc"
+alias zshrc="vim ${ZDOTDIR:-$HOME}/.zshrc"
 alias czshrc="vim $WAXPATH/dotfiles/zshrc_common.zsh"
 
 # definitly swhich to nvim:
