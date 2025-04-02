@@ -25,6 +25,16 @@ export NNN_OPENER_DETACH=1  # do not block when invoking file opener
 # Python Config
 export PYTHONSTARTUP=$HOME/.python_startup.py
 
+# GO
+export GOPATH="$HOME/.go"
+export PATH="$GOPATH/bin:$PATH"
+
+# Rust
+export PATH="$HOME/.cargo/bin:$PATH"
+
+# K8S
+export KUBECONFIG="$HOME/.kube/config"
+
 # Bat for color in terminal
 export BAT_THEME="gruvbox-dark"
 
@@ -57,5 +67,5 @@ export TURBO_NO_UPDATE_NOTIFIER=true
 export VITE_CJS_IGNORE_WARNING=true
 export ESLINT_USE_FLAT_CONFIG=true
 
-# Cargo restrict
-export CARGO_BUILD_JOBS=6
+# # Cargo restrict
+# export CARGO_BUILD_JOBS=6

@@ -3,17 +3,17 @@
 
 # _______ ZSH NOTES _______
 #
-# - [How to check if command exists](https://stackoverflow.com/a/39983422/17973851)
-# - [How to do conditions](https://zsh.sourceforge.io/Doc/Release/Conditional-Expressions.html)
+# Variables that can be overwritten:
+#   - ZDOTDIR (folder in which to put zsh files)
+#   - CONDA_HOME (influence lazy load of conda)
 
 # Used by aliases
-export waxCraft_PATH=${0:A:h:h}
-export WAXPATH=${waxCraft_PATH}
+export WAXPATH=${0:A:h:h}
 
-source "$waxCraft_PATH/dotfiles/envvar.sh"
-source "$waxCraft_PATH/dotfiles/fzf-extras.zsh"
+source "$WAXPATH/dotfiles/envvar.sh"
+source "$WAXPATH/dotfiles/fzf-extras.zsh"
 
-source "$waxCraft_PATH/dotfiles/fzf-git.sh"
+source "$WAXPATH/dotfiles/fzf-git.sh"
 _fzf_git_fzf() {
   fzf-tmux -p80%,60% -- \
     --layout=reverse --multi --height=50% --min-height=20 \
@@ -70,7 +70,7 @@ done
 # --- Autocompletion ---
 
 # our own completions for (docker + docker-compose):
-fpath+="$waxCraft_PATH/dotfiles/completions"
+fpath+="$WAXPATH/dotfiles/completions"
 
 # NOTE: Scaleway CLI autocomplete initialization.
 # scaleway autocomplete script is calling itself compinit, which is a mistake.
@@ -155,53 +155,67 @@ zstyle ':completion:*:warnings' format ' %F{red}-- no matches found --%f'
 
 # _______ Setups before plugin sourcing _______
 
-# Make sure to have binaries in PATH before sourcing antibody
+# Make sure to have binaries in PATH before sourcing zinit
 # else tmux is not yet available and it messes up startup
 if [[ -f /opt/homebrew/bin/brew && -z "$TMUX" ]]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
 # _______ ZSH Plugins _______
-#
-# https://getantidote.github.io/
-# brew install antidote
-if [[ (! -d ${ZDOTDIR:-$HOME}/.antidote) && (( $+commands[git] )) ]]; then
-  git clone --depth=1 https://github.com/mattmc3/antidote.git ${ZDOTDIR:-$HOME}/.antidote
-fi
-source ${ZDOTDIR:-$HOME}/.antidote/antidote.zsh
 
-# # Static load, when change of plugins run:
-if [ ! -f "${ZDOTDIR:-$HOME}/.zsh-plugins.zsh" ]; then
-  antidote bundle < "$waxCraft_PATH/dotfiles/.zsh-plugins.txt" > ${ZDOTDIR:-$HOME}/.zsh-plugins.zsh
-fi
-if [ -f ${ZDOTDIR:-$HOME}/.zsh-plugins.zsh ]; then
-  source ${ZDOTDIR:-$HOME}/.zsh-plugins.zsh
-fi
+ZINIT_HOME="${ZDOTDIR:-${HOME}/.local/share}/zinit/zinit.git"
+[ ! -d $ZINIT_HOME ] && mkdir -p "$(dirname $ZINIT_HOME)"
+[ ! -d $ZINIT_HOME/.git ] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+source "${ZINIT_HOME}/zinit.zsh"
+
+zinit ice pick"async.zsh" src"pure.zsh"
+zinit light sindresorhus/pure
+
+zinit ice wait lucid
+zinit light zsh-users/zsh-history-substring-search  # history ctrl-p / arrow up
+
+zinit ice wait lucid
+zinit light zsh-users/zsh-syntax-highlighting       # syntax highlight
+
+zinit ice wait lucid
+zinit light zsh-users/zsh-completions               # additional completion
+
+zinit ice wait lucid atload'_zsh_autosuggest_start'
+zinit light zsh-users/zsh-autosuggestions           # inline completion
+
+# snippets
+for snip in git extract common-aliases tmux sudo command-not-found gcloud aws kubectl kubectx; do
+    zinit ice wait lucid
+    zinit snippet OMZP::$snip
+done
+
+# load conda async (as slow)
+function __load_conda() {
+  folder="${CONDA_HOME:-$HOME/opt/miniconda3}"
+  __conda_setup="$(${folder}/bin/conda 'shell.zsh' 'hook' 2> /dev/null)"
+  if [ $? -eq 0 ]; then
+      eval "$__conda_setup"
+  else
+      if [ -f "${folder}/etc/profile.d/conda.sh" ]; then
+          . "${folder}/etc/profile.d/conda.sh"
+      else
+          export PATH="${folder}/bin:$PATH"
+      fi
+  fi
+}
+zinit wait lucid as'null' id-as'conda' \
+  atclone'__load_conda' \
+  for zdharma-continuum/null
+
+# _______ TMUX Plugins _______
 
 # Auto install tpm (tmux plugin)
-#export TERM="tmux-256color"
 [ -n "$TMUX" ] && export TERM=screen-256color
 if [ ! -e "$HOME/.tmux/plugins/tpm" ]; then
   git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 fi
 
-
 # _______ Setups after plugin sourcing _______
 
 # Source bindings (after source plugins so we got all widgets defined)
-source "$waxCraft_PATH/dotfiles/bindings.zsh"
-
-# _______ Fixes / Optims _______
-
-# Avoid issues trying to list all directories in a mounted S3
-# https://github.com/b4b4r07/enhancd/issues/85
-__enhancd::filter::exists()
-{
-   local line
-   while read line
-   do
-       if [[ $line == $HOME/s3/* || -d $line ]]; then
-           echo "$line"
-       fi
-   done
-}
+source "$WAXPATH/dotfiles/bindings.zsh"
