@@ -19,21 +19,58 @@
       config,
       ...
     }: {
+      # https://determinate.systems/posts/nix-darwin-updates/
+      nix.enable = false; # let nix-darwin take full control over "Determinate"
+
       nixpkgs.config.allowUnfree = true;
+      nixpkgs.config.allowBroken = true;
 
       # List packages installed in system profile. To search by name, run:
       # $ nix-env -qaP | grep wget
       environment.systemPackages = with pkgs; [
-        # MVD: minimal viable dev
-        ghostty
+        # ----- MVD: Minimal Viable dev -----
+        # ghostty # broken for now
         tmux
         neovim
+
         ripgrep
         fzf
-        #
-        vlc
-        calibre
-        bitwarden
+        jq
+        htop
+        rclone
+        tldr
+        wget
+        bat
+        dust
+
+        raycast
+
+        # ----- code -----
+        go
+        rustup
+
+        # ----- infra -----
+        sops
+        kubectl
+        terraform
+        scaleway-cli
+
+        # ----- vim formatters for conform -----
+        alejandra
+        djhtml
+        eslint_d
+        prettierd
+        python312Packages.sqlfmt
+        stylua
+        taplo
+        xmlformat
+
+        # ----- daily life -----
+        # calibre # unavailable for aarch64-darwin
+
+        # ----- because I'm altruist -----
+        vscode
+        zed-editor
       ];
 
       homebrew = {
@@ -42,19 +79,27 @@
           "mas"
         ];
         casks = [
-          "firefox"
           "brave-browser"
+          "vlc" # unavailable in nixpkgs for aarch64-darwin
+          "ghostty" # broken in nixpkgs
+          "notion" # does not exists in nixpkgs
+
+          # "postgresql@16"
+          # "firefox"
           # "nikitabobko/tap/aerospace"
         ];
         masApps = {
           ## apps from appstore
-          # "Yoink" = 457622435;
+          # to find id from cli: `mas search bitwarden`
+          "TeamPaper" = 1199502670;
+          "Bitwarden" = 1352778147;
+          "Slack" = 803453959;
         };
         onActivation.cleanup = "zap";
       };
 
       fonts.packages = [
-        (pkgs.nerdfonts.override {fonts = ["JetBrainsMono"];})
+        pkgs.nerd-fonts.jetbrains-mono
       ];
 
       system.activationScripts.applications.text = let
@@ -70,7 +115,7 @@
           rm -rf /Applications/Nix\ Apps
           mkdir -p /Applications/Nix\ Apps
           find ${env}/Applications -maxdepth 1 -type l -exec readlink '{}' + |
-          while read src; do
+          while read -r src; do
             app_name=$(basename "$src")
             echo "copying $src" >&2
             ${pkgs.mkalias}/bin/mkalias "$src" "/Applications/Nix Apps/$app_name"
@@ -80,20 +125,16 @@
       system.defaults = {
         dock.autohide = true;
         dock.persistent-apps = [
-          "${pkgs.alacritty}/Applications/Ghostty.app"
-          "/Applications/Brave Browser.app"
+          # "/Applications/Brave Browser.app"
+          # "${pkgs.ghostty}/Applications/Ghostty.app"
+          # "/Applications/Ghostty.app"
         ];
 
         finder.FXPreferredViewStyle = "clmv"; # prefer column view by default on finder
         loginwindow.GuestEnabled = false;
         NSGlobalDomain.AppleICUForce24HourTime = true;
-        NSGlobalDomain.AppleInterfaceStyle = "Auto";
         NSGlobalDomain.KeyRepeat = 2; # lowest minimum
       };
-
-      # Auto upgrade nix package and the daemon service.
-      services.nix-daemon.enable = true;
-      # nix.package = pkgs.nix;
 
       # # Necessary for using flakes on this system.
       # nix.settings.experimental-features = "nix-command flakes";
