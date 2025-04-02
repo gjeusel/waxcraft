@@ -1,6 +1,7 @@
 -- Investigate:
--- https://github.com/cshuaimin/ssr.nvim/
+-- https://github.com/cshuaimin/ssr.nvim
 -- https://github.com/monaqa/dial.nvim
+
 
 return {
   --------- UI ---------
@@ -11,18 +12,19 @@ return {
   {
     "rktjmp/lush.nvim",
     dependencies = {
+      -- robustify when missing WAXPATH env variable (e.g. sudo vim)
       {
-        dir = vim.env.WAXPATH .. "/colorschemes/nord",
+        dir = vim.env.WAXPATH and vim.env.WAXPATH .. "/colorschemes/nord" or "/tmp",
         lazy = true,
       },
       {
-        dir = vim.env.WAXPATH .. "/colorschemes/gruvbox",
+        dir = vim.env.WAXPATH and vim.env.WAXPATH .. "/colorschemes/gruvbox" or "/tmp",
         lazy = true,
       },
     },
     init = function()
       vim.o.termguicolors = true
-      vim.cmd("colorscheme nord")
+      pcall(vim.cmd, "colorscheme nord")
     end,
   },
   {
@@ -293,10 +295,12 @@ return {
           "python", -- we use "Vimjas/vim-python-pep8-indent"
           "json",
           "typescript",
+          "nix",
         },
       },
       ensure_installed = {
         -- Generic:
+        "nix",
         "bash",
         "jsonc",
         "yaml",
@@ -834,7 +838,7 @@ return {
       "hrsh7th/cmp-path",
       "hrsh7th/cmp-nvim-lua",
       "hrsh7th/cmp-nvim-lsp",
-      { "lukas-reineke/cmp-rg", dev = true, pin = true },
+      -- { "lukas-reineke/cmp-rg", dev = true, pin = true },
       "saadparwaiz1/cmp_luasnip",
       "rcarriga/cmp-dap",
     },

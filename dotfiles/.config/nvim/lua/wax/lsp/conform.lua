@@ -51,6 +51,7 @@ require("conform").setup({
   },
   --
   formatters_by_ft = {
+    nix = {"alejandra"},
     lua = { "stylua" },
     python = { "ruff_organize_imports", "ruff_fix", "ruff_format" },
     -- python = { "isort", "black" },
