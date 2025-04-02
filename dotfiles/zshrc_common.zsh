@@ -193,8 +193,8 @@ for snip in git extract common-aliases tmux sudo command-not-found gcloud aws ku
 done
 
 # load conda async (as slow)
-function __load_conda() {
-  folder="${CONDA_HOME:-$HOME/opt/miniconda3}"
+function _load_conda() {
+  folder="${CONDA_HOME:-${HOME}/opt/miniconda3}"
   __conda_setup="$(${folder}/bin/conda 'shell.zsh' 'hook' 2> /dev/null)"
   if [ $? -eq 0 ]; then
       eval "$__conda_setup"
@@ -207,7 +207,7 @@ function __load_conda() {
   fi
 }
 zinit wait lucid as'null' id-as'conda' \
-  atclone'__load_conda' \
+  atload'_load_conda' \
   for zdharma-continuum/null
 
 # _______ TMUX Plugins _______
