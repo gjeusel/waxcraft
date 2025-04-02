@@ -219,3 +219,5 @@ fi
 
 # Source bindings (after source plugins so we got all widgets defined)
 source "$WAXPATH/dotfiles/bindings.zsh"
+
+source "$WAXPATH/dotfiles/aliases.zsh"
