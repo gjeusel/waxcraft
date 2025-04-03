@@ -5,7 +5,7 @@
 - Text editor: [Neovim](https://neovim.io/) (nightly)
 - Terminal Multiplexer: [tmux](https://github.com/tmux/tmux) and [tmuxp](https://github.com/tmux-python/tmuxp)
 - Shell: [zsh](https://ohmyz.sh/) with [antibody](https://github.com/getantibody/antibody) plugin manager
-
+- Nix Darwin
 
 ### nvim standout plugins
 
@@ -16,8 +16,22 @@
 - [mason](https://github.com/williamboman/mason.nvim): LSP & else installer
 - [tslime](https://github.com/jgdavey/tslime.vim): send anything to tmux pane from vim
 
-
 ### Notes:
+
+#### Nix Cheatsheet
+
+- install nix determinate (fast, friendly & reliable, what to ask more ?)
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | \
+  sh -s -- install
+```
+
+- update setup
+
+```bash
+nix run nix-darwin/master#darwin-rebuild -- switch --impure --flake ~/src/waxcraft/nix#wax
+```
 
 #### Profile zsh startup time:
 

@@ -1,8 +1,8 @@
 # Own config
-alias vimrc="vim $waxCraft_PATH/dotfiles/.config/nvim/lua/wax/plugins.lua"
-alias zshrc="vim ~/.zshrc"
-alias czshrc="vim $waxCraft_PATH/dotfiles/zshrc_common.zsh"
-alias wax="cd $waxCraft_PATH"
+alias wax="cd $WAXPATH"
+alias vimrc="vim $WAXPATH/dotfiles/.config/nvim/lua/wax/plugins.lua"
+alias zshrc="vim ${ZDOTDIR:-$HOME}/.zshrc"
+alias czshrc="vim $WAXPATH/dotfiles/zshrc_common.zsh"
 
 # definitly swhich to nvim:
 alias vi="nvim"
@@ -94,34 +94,10 @@ function unproxy() {
 }
 alias negociate_proxy='curl --proxy-negotiate -I -u :  http://google.com'
 
-# Python
-alias ipy="ptipython"
-alias pt="pytest --log-level=DEBUG -x -s --pdb -k "
-alias pdb="pytest --pdb -x -s "
-alias ptp="pytest -n 6 -vv "
+# Python / Conda
 alias act='conda deactivate && conda activate'
 alias deact='conda deactivate'
-
-alias libclean="find . | grep -E '(__pycache__|\.pyc|\.pyo|\.orig$)' | xargs rm -rf"
-
-function pwhere() {
-  python -c "import $1; print($1.__file__)"
-}
-
-alias infogpu='nvidia-smi --query-gpu=timestamp,name,pci.bus_id,driver_version,pstate,pcie.link.gen.max,pcie.link.gen.current,temperature.gpu,utilization.gpu,utilization.memory,memory.total,memory.free,memory.used --format=csv -l 5'
-
-## Using tmux locally and SSHing into a remote:
-## (Avoiding the 'screen-256color': unknown terminal type.)
-#alias ssh="TERM=xterm ssh"
-
-alias meteo="curl https://v2.wttr.in/brussels"
-
-pylsp_deps() {
-  # LSP
-  pip install -U python-lsp-server[rope] jedi pylsp-mypy
-  pip install ruff ruff-lsp
-}
-
+alias lsp_python_deps='pip install -U ruff "python-lsp-server[rope]" jedi pylsp-mypy'
 
 # Fuzzy finders
 vag() {
@@ -175,11 +151,7 @@ function resilient() {
 # alias to launch Brave
 alias brave="/Applications/Brave\ Browser.app/Contents/MacOS/Brave\ Browser"
 
-function psql_kill_locks() {
-  psql postgresql://postgres:postgres@localhost:5432/ -c "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname='$1' AND pid <> pg_backend_pid()"
-}
-
-
+# helper dst
 function dst() {
   YELLOW='\033[0;33m'
   BLUE='\033[0;34m'
@@ -229,11 +201,6 @@ function generate_fernet_key() {
 function realpath() {
   [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
 }
-
-# alias shadcn="pnpx shadcn-svelte@0.4.1"
-
-alias httpx="uvx --from 'httpx[cli]' httpx"
-alias http="uvx --from 'httpie' http"
 
 function webp2gitlab() {
   # function to convert a webp created by chatgpt into png for gitlab icon

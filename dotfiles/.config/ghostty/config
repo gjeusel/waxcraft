@@ -20,3 +20,6 @@ macos-titlebar-style = "hidden"
 window-decoration = false
 
 keybind = cmd+enter=text:\x0D
+
+# https://github.com/ghostty-org/ghostty/discussions/3151
+keybind = ctrl+enter=text:\r
