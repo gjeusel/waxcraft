@@ -69,6 +69,7 @@
         alejandra
         djhtml
         eslint_d
+        nodePackages.prettier
         prettierd
         python312Packages.sqlfmt
         stylua
