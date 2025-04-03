@@ -199,6 +199,7 @@
             "/Applications/Notion Calendar.app"
             "/Applications/Bitwarden.app"
           ];
+          expose-animation-duration = 0.1; # speed of mission control animation
           wvous-tl-corner = null; # top-left
           wvous-tr-corner = null; # top-right
           wvous-bl-corner = null; # bottom-left
@@ -251,6 +252,7 @@
             AppleShowAllFiles = true;
             _FXSortFoldersFirst = true;
             FXDefaultSearchScope = "SCcf"; # When performing a search, search the current folder by default
+            DisableAllAnimations = true;
           };
           "com.apple.desktopservices" = {
             # Avoid creating .DS_Store files on network or USB volumes
