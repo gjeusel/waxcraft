@@ -30,8 +30,10 @@
       environment.systemPackages = with pkgs; [
         # ----- MVD: Minimal Viable dev -----
         # ghostty # broken for now
-        tmux
         neovim
+
+        tmux
+        tmuxp
 
         ripgrep
         fzf
@@ -45,6 +47,7 @@
         zoxide
 
         raycast
+        aerospace
 
         # ----- code -----
         go
@@ -115,8 +118,6 @@
           "notion" # does not exists in nixpkgs
           "notion-calendar"
 
-          # "nikitabobko/tap/aerospace" # more recent than in nixpkgs (error)
-
           "calibre" # e-book
         ];
         masApps = {
@@ -135,6 +136,12 @@
       ];
 
       system.activationScripts = {
+        # Following should allow us to disable conflicting shortcuts.
+        postActivation.text = ''
+          # Disable Minimize:
+          defaults write -g NSUserKeyEquivalents -dict-add 'Minimize' '\0'
+        '';
+
         # Allow Raycast/Spotlight to find apps installed via nixpkgs brew:
         applications.text = let
           env = pkgs.buildEnv {
