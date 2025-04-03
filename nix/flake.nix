@@ -32,7 +32,7 @@
       environment.systemPackages = with pkgs; [
         # ----- MVD: Minimal Viable dev -----
         # ghostty # broken for now
-        neovim
+        # neovim # prefer to build from sources
 
         tmux
         tmuxp
@@ -58,8 +58,9 @@
         # ----- code -----
         go
         rustup
-        pnpm_10
         uv
+        pnpm_10
+        ni # Use the right package manager (npm / pnpm / bun)
 
         # ----- infra -----
         sops
@@ -68,8 +69,15 @@
         scaleway-cli
         python312Packages.pgcli
         python312Packages.httpie
-        cmake
         openssl
+
+        cmake
+
+        # build nvim from sources:
+        ninja
+        cmake
+        gettext
+        curl
 
         # ----- vim formatters for conform -----
         alejandra
