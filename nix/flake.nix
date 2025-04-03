@@ -154,7 +154,9 @@
       };
 
       fonts.packages = [
+        # https://search.nixos.org/packages?channel=unstable&from=0&size=50&sort=relevance&type=packages&query=nerd-fonts+hack
         pkgs.nerd-fonts.jetbrains-mono
+        pkgs.nerd-fonts.hack
       ];
 
       system.activationScripts = {
