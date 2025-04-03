@@ -69,16 +69,12 @@ done
 
 # --- Autocompletion ---
 
-# our own completions for (docker + docker-compose):
+# Curated completions:
+#  for (docker + docker-compose):
+#  - docker: using the dynamic comp
+#  - docker-compose
+#  - scw: comes from `scw autocomplete script shell=zsh`, but stripped from an added `zcompinit` which slowed down things
 fpath+="$WAXPATH/dotfiles/completions"
-
-# NOTE: Scaleway CLI autocomplete initialization.
-# scaleway autocomplete script is calling itself compinit, which is a mistake.
-# eval "$(scw autocomplete script shell=zsh)"
-# FIX:
-# > scw autocomplete script shell=zsh &> ~/.zfunc/_scw
-# edit ~/.zfunc/_scw and remove first line calling compinit
-# > rm ~/.zcompdump
 
 # shell user completion:
 fpath+="${ZDOTDIR:-$HOME}/.zfunc"
@@ -89,31 +85,13 @@ if type brew &>/dev/null; then
 fi
 
 # Notes:
-#   We prefer to manually re-build the cache (instead of the known trick to auto rebuild the cache each day once)
-#   as it should be done after loading the entire ~/.zshrc
-#   Maybe split this file in two with a `before_zshrc.zsh` and `after_zshrc.zsh` ?
+#   We prefer to manually re-build the cache (found no good automated solution)
 autoload -Uz compinit
-#
-# -i silently ignore all insecure files and directories
-# -D turn off generation of cache ~/.zcompdump
-# -c do not check function name changes ()
-compinit -i -c -D
 #
 # to rebuild cache, run:
 # > compinit
 
-## PERF: rebuild cache once per day
-# if [[ (! -f ~/.zcompdump ) || $(date +'%j') != $(stat -f '%Sm' -t '%j' ~/.zcompdump) ]]; then
-#   echo "Building zsh completion cache..."
-#   # -i to ignore insecure directories and files
-#   # compinit -i
-#   compinit
-# else
-#   compinit -C
-# fi
-# compinit -C
-
-# --- Fine tuning ---
+# --- Fine tuning completion ---
 # https://thevaluable.dev/zsh-completion-guide-examples/
 #
 # `zstyle <pattern> <style> <values>`
@@ -177,14 +155,21 @@ zinit light zsh-users/zsh-history-substring-search  # history ctrl-p / arrow up
 zinit ice wait lucid
 zinit light zsh-users/zsh-syntax-highlighting       # syntax highlight
 
-zinit ice wait lucid
-zinit light zsh-users/zsh-completions               # additional completion
+# load zsh-completion on (see: https://github.com/zdharma-continuum/zinit/discussions/515)
+zinit for \
+    atload"zicompinit; zicdreplay" \
+    blockf \
+    lucid \
+    wait \
+  @zsh-users/zsh-completions               # additional completion
 
 zinit ice wait lucid atload'_zsh_autosuggest_start'
 zinit light zsh-users/zsh-autosuggestions           # inline completion
 
-# zinit ice wait lucid
-# zinit light Aloxaf/fzf-tab                          # fzf for tab completion
+zinit ice wait lucid
+zinit light Aloxaf/fzf-tab                          # fzf for tab completion
+# fzf-tab nord theme (it can't use FZF_DEFAULT_OPTS, see: https://github.com/Aloxaf/fzf-tab/issues/463)
+zstyle ':fzf-tab:*' fzf-flags --color fg:#e5e9f0,bg+:#3b4252,hl:#81a1c1,fg+:#e5e9f0,bg+:#3b4252,hl+:#81a1c1,info:#eacb8a,prompt:#bf6069,pointer:#b48dac,marker:#a3be8b,spinner:#b48dac,header:#a3be8b,gutter:-1 --pointer '❯'
 
 # snippets
 for snip in git extract common-aliases tmux sudo command-not-found gcloud aws kubectl kubectx; do

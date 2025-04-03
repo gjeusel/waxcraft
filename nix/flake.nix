@@ -308,7 +308,25 @@
       };
 
       # Create /etc/zshrc that loads the nix-darwin environment.
-      programs.zsh.enable = true; # default shell on catalina
+      # The zsh sourced files loading order is:
+      #   1) /etc/zshenv (always sourced, even for scripts, should be minimal)
+      #   2) ~/.zshenv (user-specific, rare, should be minimal)
+      #   3) /etc/zprofile (for login shells only)
+      #   4) ~/.zprofile (for login shells only)
+      #   5) /etc/zshrc (for interactive shells, not login shells)
+      #   6) ~/.zshrc (for interactive shells, where you usually configure things)
+      #   7) /etc/zlogin (for login shells only, runs at the end)
+      #   8) ~/.zlogin (for login shells only, runs at the end)
+
+      programs.zsh = {
+        enable = true;
+        # Speed up zsh load time (https://github.com/nix-community/home-manager/issues/3965)
+        enableGlobalCompInit = false; # is the same value as enableCompletion by default
+        interactiveShellInit = ''
+          # define an empty compdef to avoid err messages on disabled global compinit
+          compdef() { : }
+        '';
+      };
 
       # Set Git commit hash for darwin-version.
       system.configurationRevision = self.rev or self.dirtyRev or null;
