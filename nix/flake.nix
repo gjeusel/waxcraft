@@ -3,8 +3,10 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    nix-darwin.url = "github:LnL7/nix-darwin";
-    nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
+    nix-darwin = {
+      url = "github:LnL7/nix-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
   };
 
@@ -46,8 +48,12 @@
         dust
         zoxide
 
-        raycast
+        # NOTE: Once launchd is fixed on Sequoia, we might define them from nixpkgs.
+        #       See: https://github.com/nix-darwin/nix-darwin/issues/1255
+        #       For now, if we want them in Login Items, we need to pass by brew.
+        # raycast
         aerospace
+        # karabiner-elements
 
         # ----- code -----
         go
@@ -98,7 +104,6 @@
         # ----- daily life -----
         # calibre # unavailable for aarch64-darwin
         spotify
-        karabiner-elements
 
         # ----- because I'm altruist -----
         vscode
@@ -121,6 +126,11 @@
 
           "notion" # does not exists in nixpkgs
           "notion-calendar"
+
+          # NOTE: remove from brew once launchd is fixed
+          "raycast"
+          "karabiner-elements"
+          # "nikitabobko/tap/aerospace" # failing, so for now manual...
 
           "calibre" # e-book
         ];
@@ -183,8 +193,11 @@
             # "${pkgs.ghostty}/Applications/Ghostty.app" # if coming from nixkpgs
             "/Applications/Ghostty.app"
             "/Applications/Brave Browser.app"
-            "/Applications/Slack.app"
             "/Applications/Notion.app"
+            "/Applications/Slack.app"
+            "/Applications/Spark Desktop.app"
+            "/Applications/Notion Calendar.app"
+            "/Applications/Bitwarden.app"
           ];
           wvous-tl-corner = null; # top-left
           wvous-tr-corner = null; # top-right
@@ -281,9 +294,6 @@
         # use https://hidutil-generator.netlify.app/ and convert hex to decimal
         userKeyMapping = [];
       };
-
-      # # Necessary for using flakes on this system.
-      # nix.settings.experimental-features = "nix-command flakes";
 
       # Create /etc/zshrc that loads the nix-darwin environment.
       programs.zsh.enable = true; # default shell on catalina
