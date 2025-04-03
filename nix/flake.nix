@@ -61,6 +61,7 @@
         terraform
         scaleway-cli
         python312Packages.pgcli
+        python312Packages.httpie
         cmake
         openssl
 

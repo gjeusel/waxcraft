@@ -202,9 +202,6 @@ function realpath() {
   [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
 }
 
-alias httpx="uvx --from 'httpx[cli]' httpx"
-alias http="uvx --from 'httpie' http"
-
 function webp2gitlab() {
   # function to convert a webp created by chatgpt into png for gitlab icon
   local input_webp="$1"
