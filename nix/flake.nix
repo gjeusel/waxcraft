@@ -61,6 +61,8 @@
         terraform
         scaleway-cli
         python312Packages.pgcli
+        cmake
+        openssl
 
         # ----- vim formatters for conform -----
         alejandra
