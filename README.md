@@ -2,14 +2,14 @@
 
 ---
 
-- Text editor: [Neovim](https://neovim.io/) (nightly)
+- Text editor: [Neovim](https://neovim.io/)
 - Terminal Multiplexer: [tmux](https://github.com/tmux/tmux) and [tmuxp](https://github.com/tmux-python/tmuxp)
-- Shell: [zsh](https://ohmyz.sh/) with [antibody](https://github.com/getantibody/antibody) plugin manager
-- Nix Darwin
+- Shell: zsh with [zinit](https://github.com/zdharma-continuum/zinit) plugin manager
+- Package Manager: [Nix Determinate](https://github.com/DeterminateSystems/nix-installer) with [Nix Darwin](https://github.com/nix-darwin/nix-darwin)
 
 ### nvim standout plugins
 
-- [packer](https://github.com/wbthomason/packer.nvim): plugin manager
+- [lazy.nvim](https://github.com/folke/lazy.nvim): plugin manager
 - [treesitter](https://github.com/nvim-treesitter/nvim-treesitter): instant code parsing for syntax highlight and more
 - [fzf-lua](https://github.com/ibhagwan/fzf-lua): fuzzy find everything
 - [lspconfig](https://github.com/neovim/nvim-lspconfig): configure builtin nvim LSP
@@ -37,7 +37,3 @@ nix run nix-darwin/master#darwin-rebuild -- switch --impure --flake ~/src/waxcra
 
 - Use [zsh/zprof](https://stevenvanbael.com/profiling-zsh-startup) module
 - Use `set -x` at top of zshrc to echo line by line
-
-#### Neovim:
-
-- [Lua Type Hint](https://github.com/LuaLS/lua-language-server/wiki/Annotations)
