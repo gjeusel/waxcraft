@@ -32,7 +32,7 @@
       environment.systemPackages = with pkgs; [
         # ----- MVD: Minimal Viable dev -----
         # ghostty # broken for now
-        # neovim # prefer to build from sources
+        neovim # prefer to build from sources
 
         tmux
         tmuxp
