@@ -180,6 +180,23 @@ if.app-id = 'org.videolan.vlc'
 run = 'move-node-to-workspace 0'
 
 [[on-window-detected]]
+if.app-id = 'com.spotify.client'
+run = 'move-node-to-workspace 0'
+
+[[on-window-detected]]
+if.app-id = 'com.bitwarden.desktop'
+run = 'move-node-to-workspace 0'
+
+[[on-window-detected]]
+if.app-id = 'com.cron.electron' # Notion Calendar
+run = 'move-node-to-workspace 0'
+
+[[on-window-detected]]
+if.app-id = 'com.apple.TextEdit'
+run = 'move-node-to-workspace 0'
+
+
+[[on-window-detected]]
 if.app-id = 'org.alacritty'
 run = 'move-node-to-workspace 1'
 
@@ -190,7 +207,7 @@ run = 'move-node-to-workspace 1'
 
 [[on-window-detected]]
 if.app-id = 'com.brave.Browser'
-if.window-title-regex-substring = 'Brave – Renewex'
+if.window-title-regex-substring = 'Brave - Renewex'
 run = 'move-node-to-workspace 2'
 
 
@@ -199,7 +216,7 @@ if.app-id = 'com.google.Chrome'
 run = 'move-node-to-workspace 3'
 
 [[on-window-detected]]
-if.app-id = 'com.spotify.client'
+if.app-id = 'org.mozilla.firefox'
 run = 'move-node-to-workspace 3'
 
 
@@ -215,10 +232,23 @@ run = 'move-node-to-workspace 5'
 
 [[on-window-detected]]
 if.app-id = 'com.brave.Browser'
-if.window-title-regex-substring = 'Brave – Perso'
+if.window-title-regex-substring = 'Brave - Perso'
 run = 'move-node-to-workspace 6'
 
 
-# [[on-window-detected]]
-# if.app-id = 'com.bitwarden.desktop'
-# run = 'move-node-to-workspace 7'
+[[on-window-detected]]
+if.app-id = 'com.microsoft.Excel'
+run = 'move-node-to-workspace 7'
+
+
+[[on-window-detected]]
+if.app-id = 'com.apple.Preview' # PDF Preview
+run = 'move-node-to-workspace 8'
+
+
+[[on-window-detected]]
+if.app-id = 'com.parallels.desktop.console' # Parallel base
+run = 'move-node-to-workspace 9'
+[[on-window-detected]]
+if.window-title-regex-substring = 'Windows 11' # Parallel windows 11 virtualization
+run = 'move-node-to-workspace 9'
