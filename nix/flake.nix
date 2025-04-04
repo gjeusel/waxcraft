@@ -55,6 +55,8 @@
         aerospace
         # karabiner-elements
 
+        mountain-duck
+
         # ----- code -----
         go
         rustup
@@ -148,6 +150,7 @@
           "TeamPaper" = 1199502670;
           "Bitwarden" = 1352778147;
           "Slack" = 803453959;
+          "Bear" = 1091189122; # Markdown Notes
           # "Spark" = 1176895641; # email (not working from app store...)
         };
         onActivation.cleanup = "zap";
@@ -218,8 +221,10 @@
 
         # customize finder
         finder = {
+          NewWindowTarget = "Home"; # default shown folder
           FXPreferredViewStyle = "clmv"; # prefer column view by default on finder
           _FXShowPosixPathInTitle = true; # show full path in finder title
+          _FXSortFoldersFirst = true; # show folders first in order
           AppleShowAllExtensions = true; # show all file extensions
           FXEnableExtensionChangeWarning = false; # disable warning when changing file extension
           QuitMenuItem = true; # enable quit menu item
@@ -260,7 +265,6 @@
 
           "com.apple.finder" = {
             AppleShowAllFiles = true;
-            _FXSortFoldersFirst = true;
             FXDefaultSearchScope = "SCcf"; # When performing a search, search the current folder by default
             DisableAllAnimations = true;
           };
