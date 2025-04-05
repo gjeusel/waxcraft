@@ -1,0 +1,56 @@
+[
+  // Defaults can be found here: https://zed.dev/ref/default.json
+  {
+    "bindings": {
+      "alt-q": "pane::ActivatePrevItem",
+      "alt-w": "pane::ActivateNextItem",
+      "alt-a": "editor::GoToPrevDiagnostic",
+      "alt-s": "editor::GoToDiagnostic",
+      "alt-r": "pane::CloseActiveItem",
+      //
+      "ctrl-h": ["workspace::ActivatePaneInDirection", "Left"],
+      "ctrl-l": ["workspace::ActivatePaneInDirection", "Right"],
+      "ctrl-k": ["workspace::ActivatePaneInDirection", "Up"],
+      "ctrl-j": ["workspace::ActivatePaneInDirection", "Down"],
+      //
+      "ctrl-s": "workspace::Save"
+    }
+  },
+  {
+    // VIM Mode: Visual + Normal
+    "context": "Editor && VimControl && !VimWaiting && !menu",
+    "bindings": {
+      "z M": "editor::Fold",
+      "z r": "editor::UnfoldLines",
+      "z R": "editor::UnfoldLines",
+      //
+      ", c": "vim::ToggleComments",
+      //
+      ", d": "editor::GoToDefinition",
+      ", r": "editor::FindAllReferences",
+      ", R": "editor::Rename",
+      //
+      ", l": "pane::SplitRight",
+      //
+      "W": "vim::PreviousWordStart",
+      "E": "vim::PreviousWordEnd"
+    }
+  },
+  {
+    // VIM Mode: Normal
+    "context": "Editor && vim_mode == normal && !VimWaiting && !menu",
+    "bindings": {
+      ", m": "editor::Format"
+    }
+  },
+  {
+    // Vim Mode: Visual
+    "context": "Editor && vim_mode == visual && !VimWaiting && !menu",
+    "bindings": {}
+  },
+  {
+    // Vim Mode: Insert
+    "context": "Editor && vim_mode == insert && !menu",
+    "bindings": {}
+  }
+]

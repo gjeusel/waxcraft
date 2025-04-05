@@ -1,0 +1,144 @@
+// Zed settings
+//
+// For information on how to configure Zed, see the Zed
+// documentation: https://zed.dev/docs/configuring-zed
+//
+// To see all of Zed's default settings without changing your
+// custom settings, run the `open default settings` command
+// from the command palette or from `Zed` application menu.
+{
+  "features": {
+    "edit_prediction_provider": "none"
+  },
+  "base_keymap": "VSCode",
+  "theme": "Nord",
+  "buffer_font_size": 14,
+  "vim_mode": true,
+  "cursor_blink": false, // disable cursor blink
+  "relative_line_numbers": true, // use relative line numbers
+  "ensure_final_newline_on_save": false,
+  "project_panel": {
+    "dock": "right"
+  },
+  // "inlay_hints": {
+  //   "enabled": false,
+  //   "show_type_hints": true,
+  //   "show_parameter_hints": true,
+  //   "show_other_hints": true,
+  //   "show_background": false
+  // },
+  "tab_bar": { "show_nav_history_buttons": false },
+  "toolbar": { "breadcrumbs": false, "quick_actions": false },
+  "preferred_line_length": 100,
+  "tab_size": 2,
+  "git": {
+    "inline_blame": {
+      "enabled": false
+    }
+  },
+  "scrollbar": {
+    "show": "never" // hide the scroll bar
+  },
+  "terminal": {
+    "copy_on_select": true,
+    "detect_venv": { "on": { "directories": [] } },
+    "button": false,
+    "toolbar": { "title": false }
+  },
+  "experimental.theme_overrides": {
+    "players": [
+      {
+        "cursor": "#d8dee9"
+      }
+    ],
+    "syntax": {
+      "comment": {
+        "font_style": "italic"
+      }
+    }
+  },
+  "languages": {
+    "Python": {
+      "language_servers": ["pyright", "ruff"],
+      // "language_servers": ["pyright", "pylsp", "ruff"],
+      "format_on_save": "on",
+      "formatter": [
+        { "language_server": { "name": "ruff" } },
+        {
+          "code_actions": {
+            "source.fixAll.ruff": true, // Fix all auto-fixable lint violations
+            "source.organizeImports.ruff": true // Organize imports
+          }
+        }
+      ]
+    }
+  },
+  "lsp": {
+    // --- Python ---
+    // "pylsp": {
+    //   "initialization_options": {
+    //     "settings": {
+    //       "python": {
+    //         "pythonPath": "/Users/gjeusel/opt/miniconda3/envs/zefire/bin/python"
+    //       }
+    //     }
+    //   },
+    //   "settings": {
+    //     "plugins": {
+    //       "jedi_definition": {
+    //         "enabled": true,
+    //         "follow_imports": true,
+    //         "follow_builtin_imports": true,
+    //         "follow_builtin_definitions": true
+    //       },
+    //       "jedi_symbols": { "enabled": true },
+    //       "jedi_rename": { "enabled": true },
+    //       "jedi_references": { "enabled": true },
+    //       "jedi_hover": { "enabled": true },
+    //       "jedi_signature_help": { "enablded": true },
+    //       "jedi": {
+    //         "environment": {
+    //           "PYTHONPATH": "/Users/gjeusel/opt/miniconda3/envs/zefire/bin/python"
+    //         }
+    //       },
+    //       "jedi_completion": {
+    //         "enabled": true,
+    //         "eager": true,
+    //         "cache_labels_for": [
+    //           "pandas",
+    //           "numpy",
+    //           "pydantic",
+    //           "fastapi",
+    //           "flask",
+    //           "sqlalchemy",
+    //           "dagster"
+    //         ]
+    //       },
+    //       "rope": { "enabled": false },
+    //       "rope_completion": { "enabled": false },
+    //       "pylsp_mypy": { "enabled": false },
+    //       "flake8": { "enabled": false },
+    //       "mccabe": { "enabled": false },
+    //       "preload": { "enabled": false },
+    //       "pycodestyle": { "enabled": false },
+    //       "pyflakes": { "enabled": false },
+    //       "pylint": { "enabled": false },
+    //       "rope_rename": { "enabled": false },
+    //       "yapf": { "enabled": false },
+    //       "pylsp_black": { "enabled": false },
+    //       "pyls_isort": { "enabled": false }
+    //     }
+    //   }
+    // }
+    "pyright": {
+      "enabled": true,
+      "settings": {
+        "python.analysis": {
+          "diagnosticMode": "off",
+          "typeCheckingMode": "off"
+        },
+        "python.pythonPath": "${HOME}/opt/miniconda3/envs/zefire/bin/python"
+      }
+    }
+  }
+}
