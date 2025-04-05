@@ -188,7 +188,7 @@ if.app-id = 'com.bitwarden.desktop'
 run = 'move-node-to-workspace 0'
 
 [[on-window-detected]]
-if.app-id = 'com.cron.electron' # Notion Calendar
+if.app-id = 'com.cron.electron'  # Notion Calendar
 run = 'move-node-to-workspace 0'
 
 [[on-window-detected]]
@@ -242,7 +242,11 @@ run = 'move-node-to-workspace 7'
 
 
 [[on-window-detected]]
-if.app-id = 'com.apple.Preview' # PDF Preview
+if.app-id = 'com.apple.Preview'  # PDF Preview
+run = 'move-node-to-workspace 8'
+
+[[on-window-detected]]
+if.app-id = 'org.m0k.transmission' # Transmission - torrent download
 run = 'move-node-to-workspace 8'
 
 

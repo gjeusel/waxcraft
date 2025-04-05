@@ -29,6 +29,7 @@
       "obs" # screen record
 
       "cyberghost-vpn" # VPN
+      "transmission" # torrent downloader
 
       "calibre" # e-book
     ];

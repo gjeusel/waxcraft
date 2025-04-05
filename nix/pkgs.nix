@@ -99,7 +99,6 @@
     # karabiner-elements
 
     mountain-duck
-    transmission_4 # torrent downloader
 
     # ----- because I'm altruist -----
     vscode
