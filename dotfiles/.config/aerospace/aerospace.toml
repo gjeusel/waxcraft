@@ -192,7 +192,7 @@ if.app-id = 'com.cron.electron'  # Notion Calendar
 run = 'move-node-to-workspace 0'
 
 [[on-window-detected]]
-if.app-id = 'com.apple.TextEdit'
+if.app-id = 'org.m0k.transmission' # Transmission - torrent download
 run = 'move-node-to-workspace 0'
 
 
@@ -243,10 +243,6 @@ run = 'move-node-to-workspace 7'
 
 [[on-window-detected]]
 if.app-id = 'com.apple.Preview'  # PDF Preview
-run = 'move-node-to-workspace 8'
-
-[[on-window-detected]]
-if.app-id = 'org.m0k.transmission' # Transmission - torrent download
 run = 'move-node-to-workspace 8'
 
 
