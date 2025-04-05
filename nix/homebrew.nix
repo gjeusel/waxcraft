@@ -16,10 +16,15 @@
 
       "brave-browser"
       "firefox"
+      "tor-browser"
       "vlc"
+
+      "readdle-spark" # Spark email
 
       "notion" # does not exists in nixpkgs
       "notion-calendar"
+
+      "whatsapp"
 
       # NOTE: remove from brew once launchd is fixed
       "raycast"
@@ -32,6 +37,12 @@
       "transmission" # torrent downloader
 
       "calibre" # e-book
+
+      # to lookup:
+      # "gifox" # gif maker
+      # "homerow" # keyboard for everything instead of pad
+      # "rekordbox" # dj software
+      # "ableton-live-suite" # sound editor
     ];
     masApps = {
       ## apps from appstore
@@ -40,7 +51,6 @@
       "Bitwarden" = 1352778147;
       "Slack" = 803453959;
       "Bear" = 1091189122; # Markdown Notes
-      # "Spark" = 1176895641; # email (not working from app store...)
     };
   };
 }

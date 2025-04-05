@@ -2,7 +2,6 @@
 -- https://github.com/cshuaimin/ssr.nvim
 -- https://github.com/monaqa/dial.nvim
 
-
 return {
   --------- UI ---------
   {

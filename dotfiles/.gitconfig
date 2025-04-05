@@ -6,9 +6,6 @@
 [core]
 	editor = nvim
 
-[pager]
-	difftool = true
-
 [merge]
 	tool = vimdiff
 [mergetool]
@@ -19,13 +16,16 @@
 [difftool]
 	prompt=false
 [diff]
-	tool = difftastic
-	external = difft
+	path = vimdiff
 
-[difftool "difftastic"]
-	cmd = difft --display inline --color always "$LOCAL" "$REMOTE"
 [diff "sopsdiffer"]
 	textconv = sops -d
+
+# [diff]
+# 	tool = difftastic
+# 	external = difft
+# [difftool "difftastic"]
+# 	cmd = difft --display inline --color always "$LOCAL" "$REMOTE"
 
 
 [pager]

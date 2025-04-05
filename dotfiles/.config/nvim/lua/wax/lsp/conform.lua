@@ -51,8 +51,9 @@ require("conform").setup({
   },
   --
   formatters_by_ft = {
-    nix = {"alejandra"},
+    nix = { "alejandra" },
     lua = { "stylua" },
+    just = { "just" },
     python = { "ruff_organize_imports", "ruff_fix", "ruff_format" },
     -- python = { "isort", "black" },
     ["jinja.html"] = { "djhtml" },
