@@ -2,12 +2,14 @@
 
 ---
 
+### 1. Summary
+
 - Text editor: [Neovim](https://neovim.io/)
 - Terminal Multiplexer: [tmux](https://github.com/tmux/tmux) and [tmuxp](https://github.com/tmux-python/tmuxp)
 - Shell: zsh with [zinit](https://github.com/zdharma-continuum/zinit) plugin manager
-- Package Manager: [Nix Determinate](https://github.com/DeterminateSystems/nix-installer) with [Nix Darwin](https://github.com/nix-darwin/nix-darwin)
+- Package Manager: Nix [Determinate](https://github.com/DeterminateSystems/nix-installer) & [Darwin](https://github.com/nix-darwin/nix-darwin)
 
-### nvim standout plugins
+### 2. NVIM standout plugins
 
 - [lazy.nvim](https://github.com/folke/lazy.nvim): plugin manager
 - [treesitter](https://github.com/nvim-treesitter/nvim-treesitter): instant code parsing for syntax highlight and more
@@ -16,9 +18,7 @@
 - [mason](https://github.com/williamboman/mason.nvim): LSP & else installer
 - [tslime](https://github.com/jgdavey/tslime.vim): send anything to tmux pane from vim
 
-### Notes:
-
-#### Setup
+### 3. Use:
 
 - install nix determinate (fast, friendly & reliable, what to ask more ?)
 
