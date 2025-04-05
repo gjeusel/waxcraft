@@ -18,7 +18,7 @@
 
 ### Notes:
 
-#### Nix Cheatsheet
+#### Setup
 
 - install nix determinate (fast, friendly & reliable, what to ask more ?)
 
@@ -27,13 +27,14 @@ curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix 
   sh -s -- install
 ```
 
-- update setup
+- install brew (maybe shall be done by nix using home-manager ? -> rabbit hole)
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+- install the flake
 
 ```bash
 nix run nix-darwin/master#darwin-rebuild -- switch --impure --flake ~/src/waxcraft/nix#wax
 ```
-
-#### Profile zsh startup time:
-
-- Use [zsh/zprof](https://stevenvanbael.com/profiling-zsh-startup) module
-- Use `set -x` at top of zshrc to echo line by line
