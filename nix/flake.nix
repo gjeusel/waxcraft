@@ -85,6 +85,8 @@
         "${self}/preferences.nix" # system.default
         "${self}/system-scripts.nix" # system.activationScripts
         "${self}/keymaps.nix" # system.keyboard
+        #
+        # "${self}/postgres.nix" # not fuly working on nix-darwin (and what of launchctl ?)
       ];
     };
   in {
