@@ -8,7 +8,10 @@ url: https://labforfunfl272gtp-n8n-perso.functions.fnc.fr-par.scw.cloud/home/wor
 ```bash
 scw --profile perso \
   container container update 455edb12-eae8-4e39-aac6-8fa02a736ac4 \
-  redeploy=true timeout=30s privacy=private description="n8n for own consumption" \
+  region="fr-par" privacy=public description="n8n for own consumption" \
+  redeploy=true timeout=30s http-option=redirected \
+  port=5678 cpu-limit=1000 memory-limit=3072 max-scale=1 \
+  health-check.http.path=/ health-check.interval=30s health-check.failure-threshold=6 \
   \
   environment-variables.DB_TYPE=postgresdb \
   environment-variables.DB_POSTGRESDB_DATABASE=n8n \
@@ -33,9 +36,9 @@ scw --profile perso \
   environment-variables.N8N_RUNNERS_TASK_TIMEOUT=120 \
   environment-variables.N8N_RUNNERS_HEARTBEAT_INTERVAL=30 \
   \
-  environment-variables.N8N_HOST=labforfunfl272gtp-n8n-perso.functions.fnc.fr-par.scw.cloud  \
-  environment-variables.N8N_PROTOCOL=https  \
-  environment-variables.N8N_PORT=403 \
+  environment-variables.N8N_HOST=labforfunfl272gtp-n8n-perso.functions.fnc.fr-par.scw.cloud \
+  environment-variables.N8N_PROTOCOL=https \
+  environment-variables.N8N_PORT=5678 \
   environment-variables.WEBHOOK_URL=https://labforfunfl272gtp-n8n-perso.functions.fnc.fr-par.scw.cloud/ \
   \
   environment-variables.N8N_EXTERNAL_STORAGE_S3_HOST=n8n-perso.s3.fr-par.scw.cloud \
@@ -50,7 +53,7 @@ scw --profile perso \
   secret-environment-variables.2.key=N8N_EXTERNAL_STORAGE_S3_ACCESS_SECRET \
   secret-environment-variables.2.value=${N8N_PERSO_API_SECRET_KEY} \
   \
-  environment-variables.N8N_LOG_LEVEL=debug \
+  environment-variables.N8N_LOG_LEVEL=info \
   environment-variables.DB_LOGGING_ENABLED=true \
   environment-variables.DB_LOGGING_OPTIONS=warn \
   environment-variables.CODE_ENABLE_STDOUT=true
