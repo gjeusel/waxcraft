@@ -1,5 +1,5 @@
 local ls = require("luasnip")
-local load_from_lua = require("luasnip.loaders.from_lua").lazy_load
+local lazy_load = require("luasnip.loaders.from_lua").lazy_load
 local types = require("luasnip.util.types")
 
 local symbol = "  ❬●❭"
@@ -43,7 +43,7 @@ ls.filetype_extend("typescriptreact", { "typescript", "html" })
 ls.filetype_extend("jinja.html", { "html" })
 
 local snippets_path = require("wax.path").waxdir():join("snippets"):absolute()
-load_from_lua({ paths = snippets_path })
+lazy_load({ paths = snippets_path })
 
 -- mappings for navigating nodes
 local kmapopts = { silent = true, nowait = true }
@@ -73,7 +73,7 @@ end, kmapopts)
 local M = {}
 
 function M.reload()
-  load_from_lua({ paths = snippets_path })
+  lazy_load({ paths = snippets_path })
 end
 
 return M
