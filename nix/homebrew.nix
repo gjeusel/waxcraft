@@ -38,6 +38,8 @@
 
       "calibre" # e-book
 
+      "modrinth" # minecraft virtual env
+
       # to lookup:
       # "gifox" # gif maker
       # "homerow" # keyboard for everything instead of pad
