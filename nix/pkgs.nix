@@ -12,6 +12,9 @@
     neovim
 
     tmux
+    # TODO: Investiguate how to configure entirely tmux with nix
+    #       For now, `cd ~/.tmux/plugins/tmux-thumbs &&  cargo build --release`
+    # tmuxPlugins.tmux-thumbs
     tmuxp
 
     ripgrep
