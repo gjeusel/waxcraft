@@ -34,12 +34,18 @@ return {
     )
   ),
 
+  -- pandas
+  s("pts", fmt('pd.Timestamp("{0}", tz="CET")', { [0] = i(0, "") })),
+  s("ptd", fmt('pd.Timedelta("{0}")', { [0] = i(0, "") })),
+  s("poff", fmt('pd.DateOffset("{0}")', { [0] = i(0, "") })),
+
   -- zefire
   s("zsite", fmt("m.Site.query.filter_by({0}).one()", { [0] = i(0, "") })),
   s("zdp", fmt("m.DeliveryPoint.query.filter_by({0}).one()", { [0] = i(0, "") })),
   s("zspv", fmt("m.AssetOwner.query.filter_by({0}).one()", { [0] = i(0, "") })),
   s("zassetmanager", fmt("m.AssetManager.query.filter_by({0}).one()", { [0] = i(0, "") })),
   s("zassetowner", fmt("m.AssetOwner.query.filter_by({0}).one()", { [0] = i(0, "") })),
+  s("zholding", fmt("m.Holding.query.filter_by({0}).one()", { [0] = i(0, "") })),
   s("zcontract", fmt("m.Contract.query.filter_by({0}).one()", { [0] = i(0, "") })),
   s("zclause", fmt("m.Clause.query.filter_by({0}).one()", { [0] = i(0, "") })),
   s("zinvoice", fmt("m.Invoice.query.filter_by({0}).one()", { [0] = i(0, "") })),
