@@ -35,10 +35,10 @@ export PATH="$HOME/.cargo/bin:$PATH"
 # CONDA
 export CONDARC=$HOME/.config/conda/condarc
 
-# K8S
-export KUBECONFIG="$HOME/.kube/config"
-# K8S - add plugin manager krew
-export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+# K8S & plugin manager krew
+export KUBECONFIG="$HOME/.config/kube/config"
+export KREW_ROOT="$HOME/.config/krew"
+export PATH="${KREW_ROOT}/bin:$PATH"
 
 # Bat for color in terminal
 export BAT_THEME="gruvbox-dark"
