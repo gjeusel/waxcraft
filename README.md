@@ -38,3 +38,23 @@ curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix 
 ```bash
 nix run nix-darwin/master#darwin-rebuild -- switch --impure --flake ~/src/waxcraft/nix#wax
 ```
+
+- install dotfiles
+
+```bash
+stow --verbose --no-folding --dir ~/src/waxcraft/dotfiles/ --target ~/ --adopt *
+```
+
+- (optional) define the ZDOTDIR in `$HOME/.zshenv`:
+
+```zsh
+# NOTE: Overwriting this variable makes zsh search `.zshrc` inside this folder.
+export ZDOTDIR=$HOME/.config/zsh
+```
+
+- add sourcing of init.zsh in your `${ZDOTDIR:-$HOME}/.zshrc`
+
+```zsh
+# init.sh file sourcing:
+source $HOME/src/waxcraft/zsh/init.zsh
+```

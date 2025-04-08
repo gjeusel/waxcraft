@@ -7,7 +7,7 @@ default:
 # Run darwin-rebuild and switch
 [group('nix')]
 up:
-    nix run nix-darwin/master#darwin-rebuild -- switch --impure --flake {{justfile_dir}}/nix#wax
+    nix run nix-darwin/master#darwin-rebuild -- switch --impure --flake {{ justfile_dir }}/nix#wax
 
 # List all generations of the system profile
 [group('nix')]
@@ -17,12 +17,14 @@ history:
 # remove all generations older than 7 days
 
 # on darwin, you may need to switch to root user to run this command
-[group('nix'), confirm]
+[confirm]
+[group('nix')]
 clean:
     sudo nix profile wipe-history --profile /nix/var/nix/profiles/system  --older-than 7d
 
 # Garbage collect all unused nix store entries
-[group('nix'), confirm]
+[confirm]
+[group('nix')]
 gc:
     # garbage collect all unused nix store entries(system-wide)
     sudo nix-collect-garbage --delete-older-than 7d
@@ -34,3 +36,13 @@ gc:
 [group('nix')]
 gcroot:
     ls -al /nix/var/nix/gcroots/auto/
+
+# Symlink all dotfiles
+[group('dotfiles')]
+stow-install:
+    stow --verbose --no-folding --dir {{ justfile_dir }}/dotfiles/ --target ~/ --adopt $(ls {{ justfile_dir }}/dotfiles)
+
+# Remove stow symblinks
+[group('dotfiles')]
+stow-delete:
+    stow --verbose --no-folding --dir {{ justfile_dir }}/dotfiles/ --target ~/ --delete $(ls {{ justfile_dir }}/dotfiles)
