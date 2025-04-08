@@ -233,5 +233,3 @@ function conda() {
     unset -f conda &&
     command conda "$@"
   }
-alias act='conda deactivate && conda activate'
-alias deact='conda deactivate'
