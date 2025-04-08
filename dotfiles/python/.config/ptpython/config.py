@@ -1,7 +1,7 @@
 """
 Configuration example for ``ptpython``.
 
-Copy this file to $XDG_CONFIG_HOME/ptpython/config.py
+Copy this file to ${PTPYTHON_CONFIG_HOME:-XDG_CONFIG_HOME/ptpython}/config.py
 """
 
 from __future__ import unicode_literals

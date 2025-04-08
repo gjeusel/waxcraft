@@ -1,9 +1,10 @@
 import importlib
 import logging
+import os
 import sys
+import warnings
 from pathlib import Path
 from pprint import pprint
-import warnings
 
 import __main__
 
@@ -43,7 +44,9 @@ try:
     from rich.console import Console
     from rich.theme import Theme
 
-    _console_rich = Console(theme=Theme.read(Path("~/.config/rich/rich.ini").expanduser().as_posix()))
+    _console_rich = Console(
+        theme=Theme.read(Path("~/.config/rich/rich.ini").expanduser().as_posix())
+    )
     print = pp = _console_rich.print
 except ImportError:
     pass
@@ -100,7 +103,7 @@ else:
 
 
 # Compile and Exec local config
-local_startup_file = Path.home() / ".python_startup_local.py"
+local_startup_file = Path(os.environ.get("PTPYTHON_CONFIG_HOME", Path.home() / ".ptpython")) / "local_startup.py"
 if local_startup_file.exists():
     filepath = local_startup_file.as_posix()
     with open(filepath, "rb") as f:
@@ -137,7 +140,7 @@ for pkg in imports:
         import_in_ctx(pkg)
 
 
-_ptpython_conf_dir = Path.home() / ".ptpython"
+_ptpython_conf_dir = Path(os.environ.get("PTPYTHON_CONFIG_HOME", Path.home() / ".ptpython"))
 
 
 def _deduce_history_file():
