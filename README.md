@@ -8,6 +8,7 @@
 - Terminal Multiplexer: [tmux](https://github.com/tmux/tmux) and [tmuxp](https://github.com/tmux-python/tmuxp)
 - Shell: zsh with [zinit](https://github.com/zdharma-continuum/zinit) plugin manager
 - Package Manager: Nix [Determinate](https://github.com/DeterminateSystems/nix-installer) & [Darwin](https://github.com/nix-darwin/nix-darwin)
+- Symlink Farm Manager: [GNU Stow](https://www.gnu.org/software/stow/)
 
 ### 2. NVIM standout plugins
 
@@ -39,10 +40,10 @@ curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix 
 nix run nix-darwin/master#darwin-rebuild -- switch --impure --flake ~/src/waxcraft/nix#wax
 ```
 
-- install dotfiles
+- symlink dotfiles
 
 ```bash
-stow --verbose --no-folding --dir ~/src/waxcraft/dotfiles/ --target ~/ --adopt *
+stow --verbose --no-folding --ignore="zsh" --dir ~/src/waxcraft/dotfiles/ --target ~/ --adopt $(ls ~/src/waxcraft/dotfiles)
 ```
 
 - (optional) define the ZDOTDIR in `$HOME/.zshenv`:
