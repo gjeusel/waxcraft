@@ -8,12 +8,12 @@
 #   - CONDA_HOME (influence lazy load of conda)
 
 # Used by aliases
-export WAXPATH=${0:A:h:h}
+export WAXPATH=${0:A:h:h:h:h}
 
-source "$WAXPATH/dotfiles/envvar.sh"
-source "$WAXPATH/dotfiles/fzf-extras.zsh"
+source "$WAXPATH/dotfiles/.config/zsh/envvar.sh"
 
-source "$WAXPATH/dotfiles/fzf-git.sh"
+source "$WAXPATH/dotfiles/.config/zsh/functions/fzf-extras.zsh"
+source "$WAXPATH/dotfiles/.config/zsh/functions/fzf-git.sh"
 _fzf_git_fzf() {
   fzf-tmux -p80%,60% -- \
     --layout=reverse --multi --height=50% --min-height=20 \
@@ -74,7 +74,7 @@ done
 #  - docker: using the dynamic comp
 #  - docker-compose
 #  - scw: comes from `scw autocomplete script shell=zsh`, but stripped from an added `zcompinit` which slowed down things
-fpath+="$WAXPATH/dotfiles/completions"
+fpath+="$WAXPATH/dotfiles/.config/zsh/completions"
 
 # shell user completion:
 fpath+="${ZDOTDIR:-$HOME}/.zfunc"
@@ -206,9 +206,9 @@ fi
 # _______ Setups after plugin sourcing _______
 
 # Source bindings (after source plugins so we got all widgets defined)
-source "$WAXPATH/dotfiles/bindings.zsh"
+source "$WAXPATH/dotfiles/.config/zsh/bindings.zsh"
 
-source "$WAXPATH/dotfiles/aliases.zsh"
+source "$WAXPATH/dotfiles/.config/zsh/aliases.zsh"
 
 # _______ completions _______
 

@@ -219,6 +219,10 @@ run = 'move-node-to-workspace 3'
 if.app-id = 'org.mozilla.firefox'
 run = 'move-node-to-workspace 3'
 
+[[on-window-detected]]
+if.app-id = 'org.jkiss.dbeaver.core.product'
+run = 'move-node-to-workspace 3'
+
 
 [[on-window-detected]]
 if.app-id = 'com.tinyspeck.slackmacgap'

@@ -23,7 +23,9 @@ export NNN_USE_EDITOR=1  # Open text files in $EDITOR ($VISUAL, if defined; fall
 export NNN_OPENER_DETACH=1  # do not block when invoking file opener
 
 # Python Config
-export PYTHONSTARTUP=$HOME/.python_startup.py
+export PYTHONSTARTUP=$HOME/.config/python/startup.py
+export IPYTHONDIR=$HOME/.config/ipython
+export PTPYTHON_CONFIG_HOME=$HOME/.config/ptpython
 
 # GO
 export GOPATH="$HOME/.go"
@@ -39,6 +41,12 @@ export CONDARC=$HOME/.config/conda/condarc
 export KUBECONFIG="$HOME/.config/kube/config"
 export KREW_ROOT="$HOME/.config/krew"
 export PATH="${KREW_ROOT}/bin:$PATH"
+
+# PSQL
+export PSQL_HISTORY="$HOME/.cache/psql_history"
+
+# # TMUXP
+# export TMUX_PLUGIN_MANAGER_PATH="$HOME/.config/tmux/plugins"
 
 # Bat for color in terminal
 export BAT_THEME="gruvbox-dark"
