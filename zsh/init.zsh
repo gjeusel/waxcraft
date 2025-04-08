@@ -158,7 +158,7 @@ zinit light zsh-users/zsh-syntax-highlighting       # syntax highlight
 zinit ice wait lucid
 zinit light zsh-users/zsh-completions               # additional completion
 
-zinit ice wait lucid atload'_zsh_autosuggest_start'
+zinit ice wait lucid
 zinit light zsh-users/zsh-autosuggestions           # inline completion
 
 zinit ice wait lucid

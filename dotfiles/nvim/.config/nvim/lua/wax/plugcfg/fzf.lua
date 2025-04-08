@@ -229,9 +229,6 @@ end
 
 local function wax_files()
   local paths = {
-    ".config/nvim/config.lua",
-    ".gitconfig",
-    ".python_startup_local.py",
     ".zshrc",
     "src/waxcraft/dotfiles",
     "src/waxcraft/colorschemes",
