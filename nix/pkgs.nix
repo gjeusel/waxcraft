@@ -47,10 +47,17 @@
 
     # ----- infra -----
     sops
-    kubectl
+
+    # kubectl
+    # krew
+    # kubectl-tree
+    # kubectl-view-secret
+    # kubectx
+
     (wrapHelm kubernetes-helm {
       plugins = [kubernetes-helmPlugins.helm-secrets];
     })
+
     terraform
     scaleway-cli
     pgcli
