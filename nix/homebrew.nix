@@ -14,6 +14,8 @@
     casks = [
       "ghostty" # broken in nixpkgs
 
+      "dbeaver-community"
+
       "brave-browser"
       "firefox"
       "tor-browser"

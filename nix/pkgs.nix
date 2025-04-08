@@ -31,6 +31,8 @@
     zoxide
     just
     httpie
+    tree
+    python312Packages.watchfiles
 
     # ----- setup -----
     duti # help to switch default app handler for macos
