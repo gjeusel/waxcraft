@@ -19,6 +19,7 @@
       "brave-browser"
       "firefox"
       "tor-browser"
+      "google-chrome"
       "vlc"
 
       "readdle-spark" # Spark email
