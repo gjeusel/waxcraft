@@ -17,6 +17,7 @@
     # tmuxPlugins.tmux-thumbs
     tmuxp
 
+    stow
     ripgrep
     silver-searcher
     fzf
@@ -84,6 +85,7 @@
     pyright
     python312Packages.python-lsp-server
     ruff
+    # (ruff.overrideAttrs (old: {version = "0.9.5";}))
     rust-analyzer
     sqls
     postgres-lsp
