@@ -155,13 +155,8 @@ zinit light zsh-users/zsh-history-substring-search  # history ctrl-p / arrow up
 zinit ice wait lucid
 zinit light zsh-users/zsh-syntax-highlighting       # syntax highlight
 
-# load zsh-completion on (see: https://github.com/zdharma-continuum/zinit/discussions/515)
-zinit for \
-    atload"zicompinit; zicdreplay" \
-    blockf \
-    lucid \
-    wait \
-  @zsh-users/zsh-completions               # additional completion
+zinit ice wait lucid
+zinit light zsh-users/zsh-completions               # additional completion
 
 zinit ice wait lucid atload'_zsh_autosuggest_start'
 zinit light zsh-users/zsh-autosuggestions           # inline completion
