@@ -188,23 +188,23 @@ zinit snippet OMZP::tmux
 # zinit ice wait lucid trigger-load'!aws'
 # zinit snippet OMZP::aws
 
-# # load conda async (as slow)
-# function _load_conda() {
-#   folder="${CONDA_HOME:-${HOME}/opt/miniconda3}"
-#   __conda_setup="$(${folder}/bin/conda 'shell.zsh' 'hook' 2> /dev/null)"
-#   if [ $? -eq 0 ]; then
-#       eval "$__conda_setup"
-#   else
-#       if [ -f "${folder}/etc/profile.d/conda.sh" ]; then
-#           . "${folder}/etc/profile.d/conda.sh"
-#       else
-#           export PATH="${folder}/bin:$PATH"
-#       fi
-#   fi
-# }
-# zinit wait lucid as'null' id-as'conda' \
-#   atload'_load_conda' \
-#   for zdharma-continuum/null
+# load conda async (as slow)
+function _load_conda() {
+  folder="${CONDA_HOME:-${HOME}/opt/miniconda3}"
+  __conda_setup="$(${folder}/bin/conda 'shell.zsh' 'hook' 2> /dev/null)"
+  if [ $? -eq 0 ]; then
+      eval "$__conda_setup"
+  else
+      if [ -f "${folder}/etc/profile.d/conda.sh" ]; then
+          . "${folder}/etc/profile.d/conda.sh"
+      else
+          export PATH="${folder}/bin:$PATH"
+      fi
+  fi
+}
+zinit wait lucid as'null' id-as'conda' \
+  atload'_load_conda' \
+  for zdharma-continuum/null
 
 
 # _______ TMUX Plugins _______

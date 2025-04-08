@@ -95,6 +95,8 @@ function unproxy() {
 alias negociate_proxy='curl --proxy-negotiate -I -u :  http://google.com'
 
 # Python / Conda
+alias act='conda deactivate && conda activate'
+alias deact='conda deactivate'
 alias lsp_python_deps='pip install -U ruff "python-lsp-server[rope]" jedi pylsp-mypy'
 
 # Fuzzy finders
@@ -208,28 +210,3 @@ function webp2gitlab() {
   sips -s format png "$input_webp" --out "$output_png"
   sips -z 192 192 "$output_png"
 }
-
-# load conda lazily (as slow)
-# https://stackoverflow.com/a/73910386/3620725
-function initialize_conda() {
-  if [ -z "$_CONDA_INITIALIZED" ]; then
-    _CONDA_INITIALIZED=true
-    folder="${CONDA_HOME:-${HOME}/opt/miniconda3}"
-    __conda_setup="$(${folder}/bin/conda 'shell.zsh' 'hook' 2> /dev/null)"
-    if [ $? -eq 0 ]; then
-      eval "$__conda_setup"
-    else
-      if [ -f "${folder}/etc/profile.d/conda.sh" ]; then
-        . "${folder}/etc/profile.d/conda.sh"
-      else
-        export PATH="${folder}/bin:$PATH"
-      fi
-    fi
-  fi
-}
-# On the first usage of `conda`, run initialize_conda and then unset the function so it doesn't run again.
-function conda() {
-  initialize_conda &&
-    unset -f conda &&
-    command conda "$@"
-  }
