@@ -233,6 +233,7 @@ local function wax_files()
     "src/waxcraft/dotfiles",
     "src/waxcraft/colorschemes",
     "src/waxcraft/nix",
+    "src/waxcraft/zsh",
     ".local/share/nvim/lazy",
   }
   local home = vim.env.HOME
