@@ -8,7 +8,7 @@ windows:
     focus: true
     layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
     shell_command_before:
-      - conda activate zefire
+      - mamba activate zefire
       - cd ~/src/zefire
     panes:
       - focus: true
@@ -17,7 +17,7 @@ windows:
   - window_name: venturi
     layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
     shell_command_before:
-      - conda activate venturi
+      - mamba activate venturi
       - cd ~/src/venturi
     panes:
       - focus: true
@@ -49,6 +49,15 @@ windows:
       - focus: true
       -
 
+  - window_name: rnx-cli
+    layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
+    shell_command_before:
+      - mamba activate rnx-cli
+      - cd ~/src/rnx-cli
+    panes:
+      - focus: true
+      -
+
   - window_name: wax
     layout: aa80,158x47,0,0{79x47,0,0,9,78x47,80,0[78x23,80,0,14,78x23,80,24,15]}
     options:
@@ -62,7 +71,7 @@ windows:
   # - window_name: peregreen
   #   layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
   #   shell_command_before:
-  #     - conda activate peregreen
+  #     - mamba activate peregreen
   #     - cd ~/src/peregreen
   #   panes:
   #     - focus: true

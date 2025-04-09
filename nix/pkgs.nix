@@ -44,6 +44,7 @@
     uv
     pnpm_10
     ni # Use the right package manager (npm / pnpm / bun)
+    micromamba
 
     # ----- infra -----
     sops
