@@ -95,8 +95,8 @@ function unproxy() {
 alias negociate_proxy='curl --proxy-negotiate -I -u :  http://google.com'
 
 # Python / Conda
-alias act='conda deactivate && conda activate'
-alias deact='conda deactivate'
+alias act='mamba deactivate && mamba activate'
+alias deact='mamba deactivate'
 alias lsp_python_deps='pip install -U ruff "python-lsp-server[rope]" jedi pylsp-mypy'
 
 # Fuzzy finders
