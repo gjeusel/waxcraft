@@ -41,10 +41,22 @@
     # ----- code -----
     go
     rustup
-    uv
+
+    # js
     pnpm_10
     ni # Use the right package manager (npm / pnpm / bun)
+
+    # python
+    uv
     micromamba
+
+    # ghostscript
+    # tesseract4
+    # # tesseract4.tessdata.eng
+    # # tesseract4.tessdata.fra
+    # # Add more languages as needed
+    # #   # Environment variables to help Tesseract find the data
+    # #   TESSDATA_PREFIX = "${pkgs.tesseract4}/share/tessdata";
 
     # ----- infra -----
     sops
