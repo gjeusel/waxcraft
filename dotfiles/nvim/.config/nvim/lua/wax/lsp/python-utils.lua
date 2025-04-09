@@ -8,6 +8,10 @@ if vim.env.CONDA_EXE then
   M.basepath_conda = Path:new(vim.env.CONDA_EXE):parent():parent()
   M.basepath_conda_venv = M.basepath_conda:join("envs")
 end
+if vim.env.MAMBA_ROOT_PREFIX then
+  M.basepath_conda = Path:new(vim.env.MAMBA_ROOT_PREFIX)
+  M.basepath_conda_venv = M.basepath_conda:join("envs")
+end
 
 local find_python_cmd = wax_cache_fn(function(workspace, cmd)
   -- https://github.com/neovim/nvim-lspconfig/issues/500#issuecomment-851247107
