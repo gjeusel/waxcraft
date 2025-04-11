@@ -103,7 +103,7 @@ else:
 
 
 # Compile and Exec local config
-local_startup_file = Path(os.environ.get("PTPYTHON_CONFIG_HOME", Path.home() / ".ptpython")) / "local_startup.py"
+local_startup_file = Path(__file__).parent / "local_startup.py"
 if local_startup_file.exists():
     filepath = local_startup_file.as_posix()
     with open(filepath, "rb") as f:
@@ -140,7 +140,9 @@ for pkg in imports:
         import_in_ctx(pkg)
 
 
-_ptpython_conf_dir = Path(os.environ.get("PTPYTHON_CONFIG_HOME", Path.home() / ".ptpython"))
+_ptpython_conf_dir = Path(
+    os.environ.get("PTPYTHON_CONFIG_HOME", Path.home() / ".ptpython")
+)
 
 
 def _deduce_history_file():
