@@ -31,7 +31,7 @@
 
       # NOTE: remove from brew once launchd is fixed
       "raycast"
-      "nikitabobko/tap/aerospace" # NOTE: can safely ignore the printed error on re-run
+      "nikitabobko/tap/aerospace"
       "karabiner-elements"
 
       "obs" # screen record
