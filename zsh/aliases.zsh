@@ -43,7 +43,7 @@ kvdebug() {
       return
   fi
 
-  sanename=debug-`echo $1 | sed s:\/:\-:g`
+  sanename=debug-`echo $1 | sed "s/\(.*\):.*/\1/" | sed "s:/:-:g"`
 
   k run -i --tty --rm $sanename \
   --image=$1 --restart=Never \
