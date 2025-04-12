@@ -1,0 +1,19 @@
+#compdef scw
+
+# NOTE: Scaleway CLI autocomplete initialization.
+# scaleway autocomplete script is calling itself compinit, which is a mistake.
+# eval "$(scw autocomplete script shell=zsh)"
+# FIX:
+# > scw autocomplete script shell=zsh &> ${ZDOTDIR:-$HOME}/.zfunc/_scw
+# edit ${ZDOTDIR:-$HOME}/.zfunc/_scw and remove first line calling compinit
+# > rm ${ZDOTDIR:-$HOME}/.zcompdump
+
+_scw () {
+	output=($(scw autocomplete complete zsh -- ${CURRENT} ${words}))
+	opts=('-S' ' ')
+	if [[ $output == *= ]]; then
+		opts=('-S' '')
+	fi
+	compadd "${opts[@]}" -- "${output[@]}"
+}
+compdef _scw scw

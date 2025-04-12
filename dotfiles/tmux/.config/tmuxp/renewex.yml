@@ -1,0 +1,86 @@
+# To show current layout:
+# > tmux display-message -p "#{window_layout}"
+
+session_name: renewex
+
+windows:
+  - window_name: zefire
+    focus: true
+    layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
+    shell_command_before:
+      - mamba activate zefire
+      - cd ~/src/zefire
+    panes:
+      - focus: true
+      -
+
+  - window_name: venturi
+    layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
+    shell_command_before:
+      - mamba activate venturi
+      - cd ~/src/venturi
+    panes:
+      - focus: true
+      -
+
+  - window_name: anthracit
+    layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
+    shell_command_before:
+      - cd ~/src/anthracit
+    panes:
+      - focus: true
+      -
+
+  - window_name: devops
+    layout: aa80,158x47,0,0{79x47,0,0,9,78x47,80,0[78x23,80,0,14,78x23,80,24,15]}
+    options:
+      main-pane-height: 50
+    shell_command_before:
+      - cd ~/src/cloud-renewex
+    panes:
+      - focus: true
+      -
+
+  - window_name: zf-spa
+    layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
+    shell_command_before:
+      - cd ~/src/rnux/apps/zefire-spa/
+    panes:
+      - focus: true
+      -
+
+  - window_name: rnx-cli
+    layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
+    shell_command_before:
+      - mamba activate rnx-cli
+      - cd ~/src/rnx-cli
+    panes:
+      - focus: true
+      -
+
+  - window_name: wax
+    layout: aa80,158x47,0,0{79x47,0,0,9,78x47,80,0[78x23,80,0,14,78x23,80,24,15]}
+    options:
+      main-pane-height: 50
+    shell_command_before:
+      - cd ~/src/waxcraft/
+    panes:
+      - focus: true
+      -
+
+  # - window_name: peregreen
+  #   layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
+  #   shell_command_before:
+  #     - mamba activate peregreen
+  #     - cd ~/src/peregreen
+  #   panes:
+  #     - focus: true
+  #     -
+
+  # - window_name: gofolio
+  #   layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
+  #   shell_command_before:
+  #     - cd ~/src/rnux/apps/gofolio/
+  #   panes:
+  #     - focus: true
+  #     -

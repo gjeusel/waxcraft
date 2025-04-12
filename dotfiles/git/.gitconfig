@@ -1,0 +1,41 @@
+[user]
+	# email = jeusel.guillaume@gmail.com
+	email = guillaume.jeusel@renewex.co
+	name = Jeusel Guillaume
+
+[core]
+	editor = nvim
+
+[merge]
+	tool = vimdiff
+[mergetool]
+	prompt = false
+[mergetool "vimdiff"]
+	cmd = nvim -d $LOCAL $REMOTE $MERGED -c '$wincmd w' -c 'wincmd J'
+
+[difftool]
+	prompt=false
+[diff]
+	path = vimdiff
+
+[diff "sopsdiffer"]
+	textconv = sops -d
+
+# [diff]
+# 	tool = difftastic
+# 	external = difft
+# [difftool "difftastic"]
+# 	cmd = difft --display inline --color always "$LOCAL" "$REMOTE"
+
+
+[pager]
+	difftool = true
+
+[pull]
+	rebase = false
+
+[init]
+	defaultBranch = main
+
+[push]
+	autoSetupRemote = true
