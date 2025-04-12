@@ -37,7 +37,7 @@ return {
   -- pandas
   s("pts", fmt('pd.Timestamp("{0}", tz="CET")', { [0] = i(0, "") })),
   s("ptd", fmt('pd.Timedelta("{0}")', { [0] = i(0, "") })),
-  s("poff", fmt('pd.DateOffset("{0}")', { [0] = i(0, "") })),
+  s("poff", fmt('pd.DateOffset({0})', { [0] = i(0, "") })),
 
   -- zefire
   s("zsite", fmt("m.Site.query.filter_by({0}).one()", { [0] = i(0, "") })),
