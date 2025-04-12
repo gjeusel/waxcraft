@@ -86,6 +86,12 @@ require("lualine").setup({
       function()
         return require("dap").status()
       end,
+      -- function()
+      --   local ok, node = pcall(vim.treesitter.get_node)
+      --   if ok then
+      --     return node:type()
+      --   end
+      -- end,
     },
     lualine_x = {
       relative_path,

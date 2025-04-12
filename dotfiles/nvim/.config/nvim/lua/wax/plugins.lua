@@ -291,7 +291,6 @@ return {
         disable = {
           "lua",
           "vim",
-          "python", -- we use "Vimjas/vim-python-pep8-indent"
           "json",
           "typescript",
           "nix",
@@ -879,7 +878,6 @@ return {
 
   --------- Language Specific ---------
   { "edgedb/edgedb-vim", ft = { "edgedb", "edgeql" } },
-  { "Vimjas/vim-python-pep8-indent", ft = "python", pin = true, dev = true },
   { "towolf/vim-helm", ft = { "yaml", "smarty" } },
 
   --------- NeoVim Perf / Dev ---------
