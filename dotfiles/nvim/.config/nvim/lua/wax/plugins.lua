@@ -829,6 +829,7 @@ return {
       end
     end,
   },
+
   -- {
   --   "hrsh7th/nvim-cmp",
   --   event = "InsertEnter",
@@ -846,6 +847,7 @@ return {
   --     require("wax.plugcfg.nvim-cmp")
   --   end,
   -- },
+
   {
     "saghen/blink.cmp",
     version = "v1.1.1",
@@ -856,6 +858,7 @@ return {
       require("wax.plugcfg.blink-cmp")
     end,
   },
+
   {
     "stevearc/conform.nvim", --  (better buffer lsp format)
     keys = {

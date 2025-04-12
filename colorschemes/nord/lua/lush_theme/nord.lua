@@ -293,6 +293,12 @@ local theme = lush(function(injected_functions)
     CmpItemMenu             { fg=p.night2 },
     CmpItemAbbrDeprecated   { fg=p.night1 },
 
+    -- blink-cmp
+    BlinkCmpKind              { fg=p.night1.darken(-30) },
+    BlinkCmpSource            { BlinkCmpKind },
+    BlinkCmpLabelMatch        { fg=p.storm1.darken(10) },
+    BlinkCmpMenu              { fg=p.night1.darken(-50) },
+
     -- lualine
     LualineA { Comment },
     LualineB { Comment },
