@@ -168,13 +168,14 @@ zinit for \
 zinit ice wait lucid atload'_zsh_autosuggest_start'
 zinit light zsh-users/zsh-autosuggestions           # inline completion
 
-zinit ice wait lucid
+# # NOTE: can't lazy load fzf-tab else buggy with autosuggestions
+# zinit ice wait lucid
 zinit light Aloxaf/fzf-tab                          # fzf for tab completion
 # fzf-tab nord theme (it can't use FZF_DEFAULT_OPTS, see: https://github.com/Aloxaf/fzf-tab/issues/463)
 zstyle ':fzf-tab:*' fzf-flags --color fg:#e5e9f0,bg+:#3b4252,hl:#81a1c1,fg+:#e5e9f0,bg+:#3b4252,hl+:#81a1c1,info:#eacb8a,prompt:#bf6069,pointer:#b48dac,marker:#a3be8b,spinner:#b48dac,header:#a3be8b,gutter:-1 --pointer '❯'
 
 # snippets
-for snip in common-aliases command-not-found kubectx kubectl tmux; do
+for snip in common-aliases kubectx kubectl tmux; do
     zinit ice wait lucid
     zinit snippet OMZP::$snip
 done
