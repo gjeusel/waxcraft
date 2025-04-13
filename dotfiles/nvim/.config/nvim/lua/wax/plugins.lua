@@ -291,6 +291,7 @@ return {
         disable = {
           "lua",
           "vim",
+          "python", -- we use "Vimjas/vim-python-pep8-indent"
           "json",
           "typescript",
           "nix",
