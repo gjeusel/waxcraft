@@ -5,16 +5,14 @@
 ---@class Wax.Opts
 ---@field loglevel "trace" | "debug" | "info" | "warn" | "error"
 ---@field python3 string
----@field colorscheme string
 ---@field big_file_threshold number
 ---@field servers table<string, Wax.LspServerOpts>
 ---@field _servers table<string, any> | nil
 
 ---@type Wax.Opts
 waxopts = {
-  loglevel = "info",
+  loglevel = "warn",
   python3 = "python",
-  colorscheme = os.getenv("ITERM_PROFILE") or "gruvbox",
   big_file_threshold = 1024 * 1024 * 0.5, -- 0.5 Megabyte
   servers = {
     -- tsserver = { blacklist = { "some-project" } },

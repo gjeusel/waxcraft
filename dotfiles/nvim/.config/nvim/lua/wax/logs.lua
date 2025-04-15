@@ -12,7 +12,7 @@ local default_config = {
   -- Should write to the quickfix list
   use_quickfix = false,
   -- Any messages above this level will be logged.
-  level = "info",
+  level = waxopts.loglevel,
   -- Level configuration
   modes = {
     { name = "trace", hl = "Comment" },
