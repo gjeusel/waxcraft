@@ -76,6 +76,8 @@
     pgcli
     openssl
 
+    google-cloud-sdk
+
     cmake
 
     # ----- build nvim from sources -----
