@@ -69,20 +69,20 @@ return {
     },
     vtsls = {
       experimental = { completion = { enableServerSideFuzzyMatch = true, entriesLimit = 5 } },
-      -- tsserver = { globalPlugins = {} },
-      tsserver = {
-        globalPlugins = {
-          {
-            name = "@vue/typescript-plugin",
-            location = require("mason-registry")
-              .get_package("vue-language-server")
-              :get_install_path() .. "/node_modules/@vue/language-server",
-            languages = { "vue" },
-            configNamespace = "typescript",
-            enableForWorkspaceTypeScriptVersions = true,
-          },
-        },
-      },
+      tsserver = { globalPlugins = {} },
+      -- tsserver = {
+      --   globalPlugins = {
+      --     {
+      --       name = "@vue/typescript-plugin",
+      --       location = require("mason-registry")
+      --         .get_package("vue-language-server")
+      --         :get_install_path() .. "/node_modules/@vue/language-server",
+      --       languages = { "vue" },
+      --       configNamespace = "typescript",
+      --       enableForWorkspaceTypeScriptVersions = true,
+      --     },
+      --   },
+      -- },
     },
   },
 }
