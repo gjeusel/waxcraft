@@ -13,14 +13,12 @@
     ];
     casks = [
       "ghostty" # broken in nixpkgs
-
-      "dbeaver-community"
+      "raycast"
 
       "brave-browser"
       "firefox"
       "tor-browser"
       "google-chrome"
-      "vlc"
 
       "readdle-spark" # Spark email
 
@@ -28,11 +26,14 @@
       "notion-calendar"
 
       "whatsapp"
+      "signal"
+      "viber" # phone calls
 
-      # NOTE: remove from brew once launchd is fixed
-      "raycast"
       "nikitabobko/tap/aerospace"
       "karabiner-elements"
+      "dbeaver-community"
+
+      "vlc"
 
       "obs" # screen record
 

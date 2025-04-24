@@ -50,8 +50,11 @@
     uv
     micromamba
 
-    # ghostscript
-    # tesseract4
+    # pdf
+    poppler
+    poppler-utils
+    ghostscript
+    tesseract4
     # # tesseract4.tessdata.eng
     # # tesseract4.tessdata.fra
     # # Add more languages as needed
