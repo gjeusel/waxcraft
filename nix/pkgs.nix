@@ -49,6 +49,11 @@
     # python
     uv
     micromamba
+    # Note: we install python on system instead of relying on uv for having GNU readline
+    # see https://github.com/astral-sh/uv/issues/11039 & https://gregoryszorc.com/docs/python-build-standalone/main/quirks.html
+    python310
+    python311
+    python312
 
     # pdf
     poppler

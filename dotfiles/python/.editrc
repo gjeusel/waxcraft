@@ -1,4 +1,4 @@
-# Bind common keys for navigation
+# Configuration file for `libedit`
 
 bind "^[[1;5C" em-next-word
 bind "^[[1;5D" ed-prev-word
