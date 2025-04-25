@@ -1,8 +1,19 @@
 # Configuration file for "GNU readline"
 
-# set editing-mode vi
-# set completion-ignore-case on
-# set convert-meta off
-# set input-meta on
-# set output-meta on
-# set mark-symlinked-directories on
+# If on, allow 8-bit input (needed for UTF-8)
+set input-meta on
+
+# If on, allow 8-bit output
+set output-meta on
+
+# If on, convert characters with 8th bit set to escape sequences
+set convert-meta off
+
+# Ignore case in completion (on or off)
+set completion-ignore-case on
+
+# Makes completion case-insensitive, preserving case
+set completion-map-case on
+
+# Append / to directory names in completion
+set mark-directories on

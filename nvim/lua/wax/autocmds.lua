@@ -10,10 +10,15 @@ vim.api.nvim_create_autocmd(
 )
 
 -- Diff
-vim.api.nvim_create_autocmd("FileType", {
+vim.api.nvim_create_autocmd("OptionSet", {
   pattern = "diff",
   callback = function()
-    vim.cmd([[normal zM]]) -- When in diffmode, close all folds by default
+    if vim.o.diff then
+      vim.opt_local.viewoptions = nil
+      vim.opt_local.viewdir = nil
+
+      vim.opt_local.foldenable = false
+    end
   end,
 })
 
