@@ -43,6 +43,10 @@ vim.keymap.set("c", "<c-a>", "<c-b>", { nowait = true, desc = "Move to beginning
 vim.keymap.set("c", "<M-b>", "<S-Left>", { nowait = true, desc = "Move left word" }) -- move left word
 vim.keymap.set("c", "<M-f>", "<S-Right>", { nowait = true, desc = "Move right word" }) -- move right word
 
+-- remap ctrl+d and ctrl+u to trick neovim into not adding those movements into the jump list
+vim.keymap.set("n", "<C-D>", "<C-D>", { nowait = true })
+vim.keymap.set("n", "<C-U>", "<C-U>", { nowait = true })
+
 -- Avoid vim history cmd to pop up with q:
 vim.keymap.set("n", "q:", "<Nop>")
 

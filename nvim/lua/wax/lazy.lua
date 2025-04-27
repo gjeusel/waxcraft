@@ -18,6 +18,7 @@ require("lazy").setup({ import = "wax.plugins" }, {
     lazy = true,
     version = false, -- always use the latest git commit
   },
+  lockfile = nil,
   install = { colorscheme = { "gruvbox" } },
   custom_keys = false,
   checker = { enabled = false }, -- background plugin update checker

@@ -1,13 +1,16 @@
 local python_utils = require("wax.lsp.python-utils")
 
 local function to_pylsp_cmd(python_path)
-  local log_dir = vim.env.HOME .. "/.cache/nvim"
-  local log_file = log_dir .. "/pylsp.log"
+  -- local log_dir = vim.env.HOME .. "/.cache/nvim"
+  -- local log_file = log_dir .. "/pylsp.log"
+  -- local cmd = { python_path, "-m", "pylsp", "--check-parent-process", "--log-file", log_file }
 
-  local map_loglevel = { trace = "-vvv", debug = "-vv", info = "-v", warn = "", error = "" }
-  local log_level = map_loglevel[waxopts.loglevel]
+  -- local map_loglevel = { trace = "-vvv", debug = "-vv", info = "-v" }
+  -- local log_level = vim.tbl_get(map_loglevel, waxopts.loglevel)
+  -- if log_level ~= nil then
+  --   cmd = vim.list_extend(cmd, { log_level })
+  -- end
 
-  -- local cmd = { python_path, "-m", "pylsp", "--log-file", log_file, log_level }
   local cmd = { python_path, "-m", "pylsp" }
 
   return cmd
@@ -33,6 +36,7 @@ return {
         },
         jedi_rename = { enabled = true },
         jedi_completion = {
+          enabled = true,
           eager = true,
           cache_labels_for = {
             "pandas",
@@ -70,7 +74,12 @@ return {
         pylint = { enabled = false },
         rope = { enabled = false },
         rope_completion = { enabled = false },
-        rope_autoimport = { enabled = false },
+        rope_autoimport = {
+          enabled = false,
+          -- memory = true,
+          completions = { enabled = true },
+          code_actions = { enabled = true },
+        },
         rope_rename = { enabled = false },
         yapf = { enabled = false },
         -- Formatting is taken care of by null-ls

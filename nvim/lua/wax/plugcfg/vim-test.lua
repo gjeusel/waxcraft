@@ -31,6 +31,7 @@ kmap("n", "<leader>5", function()
     { name = "pdb-snapshot-json", options = "--snapshot='json' -vv" },
     { name = "pdb-snapshot", options = "--snapshot='all' -vv" },
     --
+    { name = "pdb-last-fail", options = "--pdb -xs --log-cli-level=DEBUG -vv --lf" },
     { name = "pdb-debug", options = "--pdb -xs --log-cli-level=DEBUG -vv" },
     { name = "pdb-fast", options = "-n 4" },
     { name = "pdb-module", options = "" },

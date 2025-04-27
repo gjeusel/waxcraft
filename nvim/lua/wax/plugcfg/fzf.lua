@@ -138,35 +138,9 @@ local function fn_selected_multi(selected, opts)
 
   vim.fn.setqflist(entries, "r")
   vim.cmd("cfirst")
-
-  -- local multiselect_actions = {
-  --   "Open occurrences in qf list",
-  --   "Open unique files in qf list",
-  -- }
-  -- vim.ui.select(
-  --   multiselect_actions,
-  --   { prompt = "FZF Actions (multi select)> " },
-  --   function(choice, idx)
-  --     vim.cmd("stopinsert")
-
-  --     log.warn("fzf multi select: ", choice)
-
-  --     if idx == 2 then
-  --       local seen = {}
-  --       entries = vim.tbl_filter(function(entry)
-  --         if vim.tbl_contains(seen, entry.filename) then
-  --           return false
-  --         else
-  --           table.insert(seen, entry.filename)
-  --           return true
-  --         end
-  --       end, entries)
-  --     end
-
-  --     vim.fn.setqflist(entries, "r")
-  --     vim.cmd("cfirst")
-  --   end
-  -- )
+  for _, item in ipairs(vim.fn.getqflist()) do
+    vim.cmd("badd " .. vim.fn.fnameescape(vim.fn.bufname(item.bufnr)))
+  end
 end
 
 --
@@ -230,6 +204,7 @@ end
 local function wax_files()
   local paths = {
     ".zshrc",
+    "src/waxcraft/nvim",
     "src/waxcraft/dotfiles",
     "src/waxcraft/colorschemes",
     "src/waxcraft/nix",
