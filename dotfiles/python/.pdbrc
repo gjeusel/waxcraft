@@ -19,7 +19,7 @@ alias t type(%*)
 
 alias osexit __import__("os")._exit(0)
 
-alias timeit from fohn import timer; timer.timeit(lambda: %*)
+alias timeit from fohn import timer; timer.timeit(%*)
 
 alias loginfo from fohn import logs; logs.setup_structlog(log_level="info")
 alias logdebug from fohn import logs; logs.setup_structlog(log_level="debug")

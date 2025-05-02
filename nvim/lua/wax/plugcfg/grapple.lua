@@ -91,9 +91,14 @@ vim.keymap.set("n", "<leader>tl", function()
 end)
 vim.keymap.set("n", "<leader>tk", grapple.popup_scopes)
 
-vim.api.nvim_create_autocmd({ "BufEnter", "BufModifiedSet" }, {
+vim.api.nvim_create_autocmd({ "BufLeave" }, {
   pattern = "*",
-  callback = orderby_grapple_tags,
+  callback = function(args)
+    local filetype = vim.bo[args.buf].filetype
+    if filetype == "grapple" then
+      orderby_grapple_tags()
+    end
+  end,
 })
 
 local map_opt_idx = {
@@ -107,6 +112,7 @@ for keymap, grapple_key in pairs(map_opt_idx) do
   vim.keymap.set({ "n", "i", "x" }, keymap, function()
     if grapple.exists({ key = grapple_key }) then
       grapple.select({ key = grapple_key })
+      orderby_grapple_tags()
     end
   end)
 end

@@ -52,6 +52,9 @@ kmap("n", "<leader>5", function()
     local varname = "test#python#pytest#options"
     local before = vim.api.nvim_get_var(varname)
     vim.api.nvim_set_var(varname, choice.options)
+    vim.defer_fn(function()
+      vim.api.nvim_set_var(varname, before)
+    end, 3000)
 
     vim.cmd("stopinsert")
 
@@ -60,9 +63,5 @@ kmap("n", "<leader>5", function()
     else
       vim.cmd(":TestNearest")
     end
-
-    vim.defer_fn(function()
-      vim.api.nvim_set_var(varname, before)
-    end, 3000)
   end)
 end)

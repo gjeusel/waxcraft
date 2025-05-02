@@ -10,14 +10,21 @@ vim.api.nvim_create_autocmd(
 )
 
 -- Diff
+local previous_foldmethod = nil
+
 vim.api.nvim_create_autocmd("OptionSet", {
   pattern = "diff",
   callback = function()
-    if vim.o.diff then
+    if vim.opt.diff then
       vim.opt_local.viewoptions = nil
       vim.opt_local.viewdir = nil
 
       vim.opt_local.foldenable = false
+
+      previous_foldmethod = vim.opt.foldmethod
+    elseif previous_foldmethod then
+      vim.opt.foldmethod = previous_foldmethod -- set back previous foldmethod when leaving diff mode
+      previous_foldmethod = nil
     end
   end,
 })

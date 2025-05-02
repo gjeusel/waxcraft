@@ -8,6 +8,7 @@ local i = ls.insert_node
 
 return {
   -- libraries often used
+  s("ipolars", { t("import polars as pl") }),
   s("ipandas", { t("import pandas as pd") }),
   s("inumpy", { t("import numpy as np") }),
   s("ipath", { t("from pathlib import Path") }),

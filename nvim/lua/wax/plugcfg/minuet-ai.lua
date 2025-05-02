@@ -44,7 +44,7 @@ require("minuet").setup({
   provider_options = {
     openai_compatible = {
       name = "scaleway",
-      end_point = vim.env.SCW_AI_ENDPOINT .. '/v1/chat/completions',
+      end_point = (vim.env.SCW_AI_ENDPOINT or '') .. '/v1/chat/completions',
       api_key = "SCW_AI_KEY",
       -- model = "deepseek-r1-distill-llama-70b",
       model = "qwen2.5-coder-32b-instruct",

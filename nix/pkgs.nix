@@ -35,6 +35,8 @@
     tree
     python312Packages.watchfiles
 
+    unixtools.watch
+
     # ----- setup -----
     duti # help to switch default app handler for macos
 
