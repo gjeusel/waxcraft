@@ -15,23 +15,26 @@
       "ghostty" # broken in nixpkgs
       "raycast"
 
-      "brave-browser"
-      "firefox"
-      "tor-browser"
-      "google-chrome"
+      "brave-browser" # default
+      "firefox@developer-edition" # used for webdev
+      "google-chrome" # used for webdev
+      "tor-browser" # curiosity
+      "firefox" # used for shopping (and )
 
       "readdle-spark" # Spark email
 
       "notion" # does not exists in nixpkgs
       "notion-calendar"
+      "notion-mail"
 
       "whatsapp"
       "signal"
       "viber" # phone calls
 
-      "nikitabobko/tap/aerospace"
-      "karabiner-elements"
-      "dbeaver-community"
+      "nikitabobko/tap/aerospace" # tiling window manager
+      "karabiner-elements" # keyboards maps
+      "betterdisplay" # register per screen settings
+      "dbeaver-community" # sql UI
 
       "vlc"
 

@@ -11,7 +11,7 @@
     /usr/bin/defaults write -g NSUserKeyEquivalents -dict-add "Minimize" "\\0"
 
     # --- Setup Default App for file extensions ---
-    # note: get the id with `$(osascript -e 'id of app "VLC"')`
+    # note: get the id with `osascript -e 'id of app "VLC"'
 
     # Set VLC as default for all common video formats
     for ext in .3gp .3g2 .asf .avi .divx .dv .flv .m2t .m2ts .m4v .mkv \
@@ -28,19 +28,24 @@
       ${pkgs.duti}/bin/duti -s org.videolan.vlc "$ext" all
     done
 
-    # # Set Zed as default for all common text file formats
-    # for ext in .txt .md .markdown .rst .org .tex .bib .log .csv .tsv \
-    #            .json .yaml .yml .xml .html .htm .css .scss .sass .less \
-    #            .js .jsx .ts .tsx .mjs .cjs .php .py .rb .go .java .kt \
-    #            .scala .swift .m .h .c .cpp .cc .hpp .cs .fs .fsx .rs \
-    #            .lua .pl .pm .sh .bash .zsh .fish .ps1 .bat .cmd .vbs \
-    #            .ini .cfg .conf .config .toml .env .gitignore .dockerignore \
-    #            .editorconfig .eslintrc .prettierrc .babelrc .npmrc \
-    #            .lock .gitattributes .gitmodules .gradle .properties \
-    #            .pug .jade .ejs .erb .haml .slim .mustache .hbs .handlebars \
-    #            .vue .svelte .astro .graphql .gql .sql .prisma; do
-    #   ${pkgs.duti}/bin/duti -s dev.zed.Zed "$ext" all
-    # done
+    # Set Zed as default for all common text file formats
+    for ext in .txt .md .markdown .rst .org .tex .bib .log \
+               .json .yaml .yml .xml .html .htm .css .scss .sass .less \
+               .js .jsx .ts .tsx .mjs .cjs .php .py .rb .go .java .kt \
+               .scala .swift .m .h .c .cpp .cc .hpp .cs .fs .fsx .rs \
+               .lua .pl .pm .sh .bash .zsh .fish .ps1 .bat .cmd .vbs \
+               .ini .cfg .conf .config .toml .env .gitignore .dockerignore \
+               .editorconfig .eslintrc .prettierrc .babelrc .npmrc \
+               .lock .gitattributes .gitmodules .gradle .properties \
+               .pug .jade .ejs .erb .haml .slim .mustache .hbs .handlebars \
+               .vue .svelte .astro .graphql .gql .sql .prisma; do
+      ${pkgs.duti}/bin/duti -s dev.zed.Zed "$ext" all
+    done
+
+    # Set Excel as default for common table formats
+    for ext in .csv .tsv .xlsx; do
+      ${pkgs.duti}/bin/duti -s com.microsoft.Excel "$ext" all
+    done
   '';
 
   # Make Apps installed with nixpkgs appear in spotlight search (by making alias in /Applications/Nix Apps/)

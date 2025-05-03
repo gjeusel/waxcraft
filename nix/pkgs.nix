@@ -148,5 +148,9 @@
     # calibre
     # obs-studio
     # vlc
+
+    # ----- experiments -----
+    temporal
+    temporal-cli
   ];
 }
