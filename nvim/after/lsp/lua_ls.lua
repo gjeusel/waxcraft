@@ -1,3 +1,9 @@
+-- if is_module_available("mason-lspconfig") then
+--   require("mason-lspconfig").setup({
+--     ensure_installed = { "lua_ls" },
+--   })
+-- end
+
 return {
   on_attach = function(client, _)
     client.server_capabilities.colorProvider = false
@@ -10,7 +16,7 @@ return {
       telemetry = { enable = false },
       runtime = { version = "LuaJIT" },
       diagnostics = {
-        globals = { "vim", "waxopts" },
+        globals = { "vim", "require", "waxopts" },
         disable = {
           -- Need check nil
           "need-check-nil",
@@ -31,6 +37,9 @@ return {
         --   "${3rd}/luv/library",
         --   unpack(vim.api.nvim_get_runtime_file("", true)),
         -- },
+        library = {
+          vim.api.nvim_get_runtime_file("", true),
+        },
         -- maxPreload = 3000,
       },
       -- disable certain warnings that don't concern us

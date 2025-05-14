@@ -10,6 +10,7 @@
       "mas"
       "postgresql@16"
       "redis"
+      "meilisearch"
     ];
     casks = [
       "ghostty" # broken in nixpkgs
@@ -25,7 +26,7 @@
 
       "notion" # does not exists in nixpkgs
       "notion-calendar"
-      "notion-mail"
+      # "notion-mail"
 
       "whatsapp"
       "signal"

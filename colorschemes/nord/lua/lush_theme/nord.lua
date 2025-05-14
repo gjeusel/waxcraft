@@ -292,6 +292,7 @@ local theme = lush(function(injected_functions)
     CmpItemKind             { fg=p.night3.darken(-50) },
     CmpItemMenu             { fg=p.night2 },
     CmpItemAbbrDeprecated   { fg=p.night1 },
+    CmpItemKindSupermaven   { fg=p.night1 },
 
     -- blink-cmp
     BlinkCmpKind              { fg=p.night1.darken(-30) },

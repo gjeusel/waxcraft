@@ -16,6 +16,10 @@ local function format(entry, vim_item)
     vim_item.kind = "    AI"
     return vim_item
   end
+  if entry.source.name == "supermaven" then
+    vim_item.kind = "    AI"
+    return vim_item
+  end
 
   -- fancy icons and a name of kind
   if vim_item.kind then
@@ -35,7 +39,6 @@ local function format(entry, vim_item)
     nvim_lsp = lsp_client,
     path = "[Path]",
     luasnip = "[Snip]",
-    copilot = "[AI]",
   })[entry.source.name]
 
   -- disable duplicate keys: https://github.com/hrsh7th/nvim-cmp/issues/32
@@ -122,6 +125,7 @@ cmp.setup({
     { name = "nvim_lsp", keyword_length = 1, max_item_count = 10 },
     source_buffer,
     source_rg,
+    -- { name = "supermaven" },
     { name = "path" },
   },
   sorting = {

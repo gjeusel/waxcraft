@@ -619,12 +619,32 @@ return {
   },
   {
     "cbochs/grapple.nvim",
-    tag = "v0.8.1",
+    tag = "v0.30.0",
     -- dev = true, -- use "~/src/grapple.nvim/"
     lazy = false,
     config = function()
       require("wax.plugcfg.grapple")
     end,
+  },
+
+  {
+    "bassamsdata/namu.nvim",
+    opts = {
+      namu_symbols = { enable = true },
+      ui_select = { enable = false }, -- vim.ui.select() wrapper
+    },
+    keys = {
+      {
+        "<leader>ss",
+        ":Namu symbols<cr>",
+        desc = "Jump to LSP symbol",
+      },
+      {
+        "<leader>sw",
+        ":Namu workspace<cr>",
+        desc = "LSP Symbols - Workspace",
+      },
+    },
   },
 
   --------- Enrich Actions ---------
@@ -746,11 +766,25 @@ return {
   },
 
   --------- LSP ---------
+  -- {
+  --   "milanglacier/minuet-ai.nvim",
+  --   event = "VeryLazy",
+  --   config = function()
+  --     require("wax.plugcfg.minuet-ai")
+  --   end,
+  -- },
+
   {
-    "milanglacier/minuet-ai.nvim",
+    "supermaven-inc/supermaven-nvim",
     event = "VeryLazy",
     config = function()
-      require("wax.plugcfg.minuet-ai")
+      require("supermaven-nvim").setup({
+        keymaps = {
+          accept_suggestion = "<C-x>",
+          clear_suggestion = "<C-]>",
+          accept_word = "<C-j>",
+        },
+      })
     end,
   },
 
@@ -787,46 +821,40 @@ return {
       },
       { -- mason-lspconfig.nvim
         "williamboman/mason-lspconfig.nvim",
-        lazy = true,
+        config = function()
+          require("mason-lspconfig").setup({
+            automatic_enable = true,
+            ensure_installed = {
+              "lua_ls",
+              --
+              "bashls",
+              "yamlls",
+              "jsonls",
+              --
+              "helm_ls",
+              "terraformls",
+              "sqls",
+              --
+              "gopls",
+              "rust_analyzer",
+              --
+              "pyright",
+              "ruff",
+              --
+              "tailwindcss",
+              "vtsls",
+              "svelte",
+              "html",
+              "eslint",
+              "volar",
+            },
+          })
+        end,
       },
       { "b0o/schemastore.nvim", ft = "json" }, -- json schemas for jsonls
     },
     config = function()
-      -- Set log level for LSP
-      vim.lsp.set_log_level(waxopts.loglevel)
-
-      local waxlsp = require("wax.lsp")
-      waxlsp.setup_ui()
-
-      vim.api.nvim_create_autocmd("LspAttach", {
-        group = vim.api.nvim_create_augroup("wax-lsp-attach", { clear = true }),
-        callback = function(event)
-          waxlsp.set_lsp_keymaps(event.buf)
-        end,
-      })
-
-      --Enable completion triggered by <c-x><c-o>
-      vim.api.nvim_set_option_value("omnifunc", "v:lua.vim.lsp.omnifunc", {})
-
-      local have_mason, mlsp = pcall(require, "mason-lspconfig")
-
-      local excluded_auto_install = { "pylsp" }
-      local excluded_ensure_install = { "lua_ls" }
-
-      if have_mason then
-        local handlers = waxlsp.create_mason_handlers()
-
-        local ensure_installed = vim.tbl_keys(handlers)
-        ensure_installed = vim.tbl_filter(function(server_name)
-          return not vim.tbl_contains(excluded_ensure_install, server_name)
-        end, ensure_installed)
-
-        mlsp.setup({
-          ensure_installed = ensure_installed,
-          automatic_installation = { exclude = excluded_auto_install },
-        })
-        mlsp.setup_handlers(handlers)
-      end
+      require("wax.lsp")
     end,
   },
 

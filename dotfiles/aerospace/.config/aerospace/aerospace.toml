@@ -27,7 +27,7 @@ after-startup-command = [
   'workspace-back-and-forth',
   #
   'workspace 7',
-  'layout h_tiles',
+  'layout v_accordion',
   'workspace-back-and-forth',
   #
   'workspace 8',
@@ -220,19 +220,27 @@ run = 'move-node-to-workspace 1'
 if.app-id = 'com.brave.Browser'
 if.window-title-regex-substring = 'Brave - Renewex'
 run = 'move-node-to-workspace 2'
+if.during-aerospace-startup = true
+check-further-callbacks = false
 
 
 [[on-window-detected]]
 if.app-id = 'com.google.Chrome'
 run = 'move-node-to-workspace 3'
+if.during-aerospace-startup = true
+check-further-callbacks = false
 
 [[on-window-detected]]
 if.app-id = 'org.mozilla.firefox'
 run = 'move-node-to-workspace 3'
+if.during-aerospace-startup = true
+check-further-callbacks = false
 
 [[on-window-detected]]
 if.app-id = 'org.mozilla.firefoxdeveloperedition'
 run = 'move-node-to-workspace 3'
+if.during-aerospace-startup = true
+check-further-callbacks = false
 
 
 [[on-window-detected]]
@@ -243,11 +251,23 @@ run = 'move-node-to-workspace 3'
 [[on-window-detected]]
 if.app-id = 'com.tinyspeck.slackmacgap'
 run = 'move-node-to-workspace 4'
+if.during-aerospace-startup = true
+check-further-callbacks = false
 
 
 [[on-window-detected]]
 if.app-id = 'com.readdle.SparkDesktop'
 run = 'move-node-to-workspace 5'
+if.during-aerospace-startup = true
+check-further-callbacks = false
+
+[[on-window-detected]]
+# for the popup coming from the top bar on click of meeting ai
+if.app-id = 'com.readdle.SparkDesktop'
+run = ['layout floating']
+if.during-aerospace-startup = false
+check-further-callbacks = true
+
 
 [[on-window-detected]]
 if.app-id = 'notion.mail.id'
@@ -258,6 +278,8 @@ run = 'move-node-to-workspace 5'
 if.app-id = 'com.brave.Browser'
 if.window-title-regex-substring = 'Brave - Perso'
 run = 'move-node-to-workspace 6'
+if.during-aerospace-startup = true
+check-further-callbacks = false
 
 
 [[on-window-detected]]

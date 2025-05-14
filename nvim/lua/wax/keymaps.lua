@@ -84,7 +84,7 @@ vim.keymap.set(
 vim.keymap.set("n", "<leader>sf", ":luafile %<CR>")
 
 -- activate/deactivate spellcheck
-vim.keymap.set("n", "<leader>ss", ":setlocal spell!<CR>")
+-- vim.keymap.set("n", "<leader>ss", ":setlocal spell!<CR>")
 
 -- set no highlight
 -- vim.keymap.set("n", "<leader>;", ":nohl<cr>") -- done in hlslens plugin
@@ -231,8 +231,8 @@ end, {
 --------- Different menues ---------
 vim.keymap.set("n", "<leader>sm", function()
   local options = {
-    ["LspInfo"] = function()
-      vim.cmd("LspInfo")
+    ["checkhealth vim.lsp"] = function()
+      vim.cmd("checkhealth vim.lsp")
     end,
     ["Mason UI"] = function()
       require("mason.ui").open()

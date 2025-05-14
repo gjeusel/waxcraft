@@ -14,6 +14,9 @@ local rg_ignore_dirs = {
   "data.ms", -- meilisearch
   "**/clients-cache", -- hishel httpx cache in venturi
   --
+  "history/*", -- dagster
+  "storage/**/compute_logs", -- dagster
+  --
   "**/*.pyc",
   "**/__pycache__",
   "**/.venv",

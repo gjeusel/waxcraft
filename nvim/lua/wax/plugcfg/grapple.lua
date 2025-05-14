@@ -1,5 +1,5 @@
 local grapple = require("grapple")
-local scope_resolvers = require("grapple.scope_resolvers")
+-- local scope_resolvers = require("grapple.scope_resolvers")
 local scope = require("grapple.scope")
 
 local loglevel = waxopts.loglevel
@@ -9,25 +9,25 @@ end
 
 local vim_session_scope = nil
 
-scope_resolvers.workspace_fallback = scope.resolver(function()
-  if not vim_session_scope then
-    local path
+-- scope_resolvers.workspace_fallback = scope.resolver(function()
+--   if not vim_session_scope then
+--     local path
 
-    local clients = vim.lsp.get_clients({ bufnr = 0 })
-    if #clients > 0 then
-      path = clients[1].config.root_dir
-    else
-      path = find_root_dir(vim.fn.getcwd()) or vim.fn.getcwd()
-    end
+--     local clients = vim.lsp.get_clients({ bufnr = 0 })
+--     if #clients > 0 then
+--       path = clients[1].config.root_dir
+--     else
+--       path = find_root_dir(vim.fn.getcwd()) or vim.fn.getcwd()
+--     end
 
-    -- maybe add git infos from first opened buffer ?
-    -- {"git", "symbolic-ref", "--short", "HEAD" }
+--     -- maybe add git infos from first opened buffer ?
+--     -- {"git", "symbolic-ref", "--short", "HEAD" }
 
-    vim_session_scope = path
-  end
+--     vim_session_scope = path
+--   end
 
-  return vim_session_scope
-end, { cache = { "FileType", "BufEnter", "FocusGained" } })
+--   return vim_session_scope
+-- end, { cache = { "FileType", "BufEnter", "FocusGained" } })
 
 grapple.setup({
   ---@type "debug" | "info" | "warn" | "error"
@@ -36,10 +36,11 @@ grapple.setup({
   ---The scope used when creating, selecting, and deleting tags
   -- scope = "git",
   -- scope = "lsp",
-  scope = scope.fallback({ "workspace_fallback", "static" }),
+  -- scope = scope.fallback({ "workspace_fallback", "static" }),
+  scope = "git_branch", -- also try out "git_branch"
 
   ---Window options used for the popup menu
-  popup_options = {
+  win_opts = {
     relative = "editor",
     width = 80,
     height = 6,
@@ -55,7 +56,7 @@ local function orderby_grapple_tags()
   local grapple_state = require("grapple.state")
   local grapple_settings = require("grapple.settings")
 
-  local actual_scope = grapple_state.ensure_loaded(grapple_settings.scope)
+  local actual_scope = grapple_state.ensure_created(grapple_settings.scope)
   local state_scope = grapple_state.scope(actual_scope)
 
   if vim.tbl_count(state_scope) == 0 then
@@ -84,19 +85,19 @@ end
 
 vim.keymap.set("n", "<leader>tt", function()
   grapple.toggle()
-  orderby_grapple_tags()
+  -- orderby_grapple_tags()
 end)
 vim.keymap.set("n", "<leader>tl", function()
-  grapple.popup_tags()
+  grapple.toggle_tags()
 end)
-vim.keymap.set("n", "<leader>tk", grapple.popup_scopes)
+-- vim.keymap.set("n", "<leader>tk", grapple.popup_scopes)
 
 vim.api.nvim_create_autocmd({ "BufLeave" }, {
   pattern = "*",
   callback = function(args)
     local filetype = vim.bo[args.buf].filetype
     if filetype == "grapple" then
-      orderby_grapple_tags()
+      -- orderby_grapple_tags()
     end
   end,
 })
@@ -112,7 +113,7 @@ for keymap, grapple_key in pairs(map_opt_idx) do
   vim.keymap.set({ "n", "i", "x" }, keymap, function()
     if grapple.exists({ key = grapple_key }) then
       grapple.select({ key = grapple_key })
-      orderby_grapple_tags()
+      -- orderby_grapple_tags()
     end
   end)
 end

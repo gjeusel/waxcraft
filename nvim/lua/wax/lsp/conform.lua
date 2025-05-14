@@ -21,7 +21,7 @@ require("conform").setup({
         "--exit-zero",
         "--no-cache",
         "--ignore",
-        "E203,F841,F401,RUF100,B007",
+        "E203,F841,F401,RUF100,B007,PERF102",
         "--stdin-filename",
         "$FILENAME",
         "-",

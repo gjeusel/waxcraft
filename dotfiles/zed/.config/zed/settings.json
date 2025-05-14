@@ -7,9 +7,16 @@
 // custom settings, run the `open default settings` command
 // from the command palette or from `Zed` application menu.
 {
-  "features": {
-    "edit_prediction_provider": "none"
+  "agent": {
+    "model_parameters": [],
+    "default_model": {
+      "provider": "zed.dev",
+      "model": "claude-3-7-sonnet-thinking-latest"
+    },
+    "version": "2"
   },
+  "features": { "edit_prediction_provider": "supermaven" },
+  "edit_predictions": { "mode": "eager" },
   "base_keymap": "VSCode",
   "theme": "Nord",
   "buffer_font_size": 14,

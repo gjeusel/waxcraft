@@ -12,7 +12,7 @@ alias pi from pathlib import Path;from rich.console import Console;from rich.the
 alias piv from pathlib import Path;from rich.console import Console;from rich.theme import Theme;from rich import inspect;inspect(%*, private=True, methods=True, console=Console(theme=Theme.read(Path("~/.config/rich/rich.ini").expanduser().as_posix())))
 alias pivv from pathlib import Path;from rich.console import Console;from rich.theme import Theme;from rich import inspect;inspect(%*, private=True, methods=True, dunder=True, all=True, console=Console(theme=Theme.read(Path("~/.config/rich/rich.ini").expanduser().as_posix())))
 
-alias sql print(__import__("sqlparse").format(str(%*), reindent=True, keyword_case="upper"))
+alias sql print(__import__("sqlparse").format(str(%*.statement.compile(dialect=__import__("sqlalchemy").dialects.postgresql.dialect(), compile_kwargs={"literal_binds": True})), reindent=True, keyword_case="upper"))
 alias sqlinline from zefire.debug import render_query;print(__import__("sqlparse").format(render_query(%*), reindent=True, keyword_case="upper"))
 
 alias t type(%*)

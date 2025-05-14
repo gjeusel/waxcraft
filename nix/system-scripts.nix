@@ -30,7 +30,7 @@
 
     # Set Zed as default for all common text file formats
     for ext in .txt .md .markdown .rst .org .tex .bib .log \
-               .json .yaml .yml .xml .html .htm .css .scss .sass .less \
+               .json .yaml .yml .xml .css .scss .sass .less \
                .js .jsx .ts .tsx .mjs .cjs .php .py .rb .go .java .kt \
                .scala .swift .m .h .c .cpp .cc .hpp .cs .fs .fsx .rs \
                .lua .pl .pm .sh .bash .zsh .fish .ps1 .bat .cmd .vbs \
