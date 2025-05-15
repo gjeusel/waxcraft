@@ -39,6 +39,7 @@ vim.o.matchpairs = "(:),{:},[:],<:>,':',\":\""
 -- vim.o.matchpairs = { "(:)", "{:}", "[:]", "<:>", "':'", '":"' } -- behavior of '%'
 
 vim.o.winblend = 0
+vim.o.winborder = "rounded"
 
 vim.o.pyxversion = 3
 

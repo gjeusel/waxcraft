@@ -280,8 +280,8 @@ return {
       incremental_selection = {
         enable = true,
         keymaps = {
-          init_selection = "<C-space>",
-          node_incremental = "<C-space>",
+          -- init_selection = "<C-space>",
+          -- node_incremental = "<C-space>",
           -- scope_incremental = "<nop>",
           -- node_decremental = "<nop>",
         },
@@ -777,15 +777,34 @@ return {
   {
     "supermaven-inc/supermaven-nvim",
     event = "VeryLazy",
-    config = function()
-      require("supermaven-nvim").setup({
-        keymaps = {
-          accept_suggestion = "<C-x>",
-          clear_suggestion = "<C-]>",
-          accept_word = "<C-j>",
-        },
-      })
-    end,
+    opts = {
+      keymaps = {
+        accept_suggestion = "<C-space>",
+        clear_suggestion = "<C-]>",
+        accept_word = "<C-j>",
+      },
+      condition = function() -- if return true, disable supermaven
+        local enabled_ft = { "lua", "javascript", "typescript", "vue", "tsx", "html" }
+        return not vim.tbl_contains(enabled_ft, vim.bo.filetype)
+      end,
+    },
+    keys = {
+      {
+        "<C-x>",
+        function()
+          local api = require("supermaven-nvim.api")
+          if api.is_running() then
+            api.stop()
+            print("supermaven disabled")
+          else
+            print("supermaven on")
+            api.start()
+          end
+        end,
+        desc = "SuperMaven Toggle",
+        mode = "n",
+      },
+    },
   },
 
   {

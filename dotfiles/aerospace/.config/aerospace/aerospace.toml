@@ -285,6 +285,8 @@ check-further-callbacks = false
 [[on-window-detected]]
 if.app-id = 'com.microsoft.Excel'
 run = 'move-node-to-workspace 7'
+if.during-aerospace-startup = true
+check-further-callbacks = false
 
 
 [[on-window-detected]]
