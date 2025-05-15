@@ -33,10 +33,6 @@ grapple.setup({
   ---@type "debug" | "info" | "warn" | "error"
   log_level = loglevel,
 
-  ---The scope used when creating, selecting, and deleting tags
-  -- scope = "git",
-  -- scope = "lsp",
-  -- scope = scope.fallback({ "workspace_fallback", "static" }),
   scope = "git_branch", -- also try out "git_branch"
 
   ---Window options used for the popup menu
@@ -51,53 +47,47 @@ grapple.setup({
 })
 
 local function orderby_grapple_tags()
-  local bufline_state = require("bufferline.state")
-  local render = require("bufferline.render")
-  local grapple_state = require("grapple.state")
-  local grapple_settings = require("grapple.settings")
+  local state = require("barbar.state")
+  local render = require("barbar.ui.render")
 
-  local actual_scope = grapple_state.ensure_created(grapple_settings.scope)
-  local state_scope = grapple_state.scope(actual_scope)
+  local tagged_files = vim.tbl_map(function(tag)
+    return tag.path
+  end, grapple.tags())
 
-  if vim.tbl_count(state_scope) == 0 then
-    return
+  local function index_of(tbl, val)
+    for i, v in ipairs(tbl) do
+      if v == val then
+        return i
+      end
+    end
+    return 1000
   end
 
-  local tagged_files = {}
-  for i, e in ipairs(state_scope) do
-    tagged_files[e.file_path] = i
-  end
-
-  local default_rank = 1000
-  table.sort(bufline_state.buffers, function(left, right)
+  table.sort(state.buffers, function(left, right)
     if vim.api.nvim_buf_is_valid(left) and vim.api.nvim_buf_is_valid(right) then
       local left_name = vim.api.nvim_buf_get_name(left)
       local right_name = vim.api.nvim_buf_get_name(right)
-      local left_rank = vim.tbl_get(tagged_files, left_name) or default_rank + left
-      local right_rank = vim.tbl_get(tagged_files, right_name) or default_rank + right
-      -- log.warn("\nleft_name=", left_name, "left_rank=", left_rank)
-      -- log.warn("\nright_name=", right_name, "right_rank=", right_rank)
-      return left_rank < right_rank
+      return index_of(tagged_files, left_name) < index_of(tagged_files, right_name)
     end
+    return left < right
   end)
+  log.warn("passing there")
   render.update()
 end
 
 vim.keymap.set("n", "<leader>tt", function()
   grapple.toggle()
-  -- orderby_grapple_tags()
 end)
 vim.keymap.set("n", "<leader>tl", function()
   grapple.toggle_tags()
 end)
--- vim.keymap.set("n", "<leader>tk", grapple.popup_scopes)
 
-vim.api.nvim_create_autocmd({ "BufLeave" }, {
+vim.api.nvim_create_autocmd({ "BufWinLeave" }, {
   pattern = "*",
   callback = function(args)
     local filetype = vim.bo[args.buf].filetype
     if filetype == "grapple" then
-      -- orderby_grapple_tags()
+      orderby_grapple_tags()
     end
   end,
 })
@@ -111,9 +101,9 @@ local map_opt_idx = {
 }
 for keymap, grapple_key in pairs(map_opt_idx) do
   vim.keymap.set({ "n", "i", "x" }, keymap, function()
-    if grapple.exists({ key = grapple_key }) then
-      grapple.select({ key = grapple_key })
-      -- orderby_grapple_tags()
+    if grapple.exists({ index = grapple_key }) then
+      grapple.select({ index = grapple_key })
+      orderby_grapple_tags()
     end
   end)
 end
