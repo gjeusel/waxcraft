@@ -7,33 +7,54 @@ if loglevel == "trace" then
   loglevel = "debug"
 end
 
-local vim_session_scope = nil
+local function project_resolver()
+  local clients = vim.lsp.get_clients({ bufnr = 0 })
+  if #clients > 0 then
+    return clients[1].config.root_dir
+  else
+    return find_root_dir(vim.fn.getcwd()) or vim.fn.getcwd()
+  end
+end
 
--- scope_resolvers.workspace_fallback = scope.resolver(function()
---   if not vim_session_scope then
---     local path
+local function git_branch_resolver()
+  -- TODO: this will stop on submodules, needs fixing
+  local git_files = vim.fs.find(".git", { upward = true, stop = vim.loop.os_homedir() })
+  if #git_files == 0 then
+    return
+  end
 
---     local clients = vim.lsp.get_clients({ bufnr = 0 })
---     if #clients > 0 then
---       path = clients[1].config.root_dir
---     else
---       path = find_root_dir(vim.fn.getcwd()) or vim.fn.getcwd()
---     end
+  local root = vim.fn.fnamemodify(git_files[1], ":h")
 
---     -- maybe add git infos from first opened buffer ?
---     -- {"git", "symbolic-ref", "--short", "HEAD" }
+  -- TODO: Don't use vim.system, it's a nvim-0.10 feature
+  -- TODO: Don't shell out, read the git head or something similar
+  local result = vim.fn.system({ "git", "symbolic-ref", "--short", "HEAD" })
+  local branch = vim.trim(string.gsub(result, "\n", ""))
 
---     vim_session_scope = path
---   end
+  local id = string.format("%s:%s", root, branch)
+  local path = root
 
---   return vim_session_scope
--- end, { cache = { "FileType", "BufEnter", "FocusGained" } })
+  return id, path
+end
 
 grapple.setup({
   ---@type "debug" | "info" | "warn" | "error"
   log_level = loglevel,
 
-  scope = "git_branch", -- also try out "git_branch"
+  scope = "no-cache-gitbranch", -- also try out "git_branch"
+  scopes = {
+    {
+      name = "project",
+      fallback = "cwd",
+      cache = { "DirChanged" },
+      resolver = project_resolver,
+    },
+    {
+      name = "no-cache-gitbranch",
+      fallback = "project",
+      cache = {},
+      resolver = git_branch_resolver,
+    },
+  },
 
   ---Window options used for the popup menu
   win_opts = {
