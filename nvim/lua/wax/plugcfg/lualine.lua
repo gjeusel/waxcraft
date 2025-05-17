@@ -36,6 +36,14 @@ local function lsp_progress()
   })
 end
 
+local function supermaven_status()
+  if _G.supermaven_enabled then
+    return "  "
+  else
+    return ""
+  end
+end
+
 local function make_theme()
   local sober_theme = {
     a = "LualineA",
@@ -97,6 +105,7 @@ require("lualine").setup({
       relative_path,
     },
     lualine_y = {
+      supermaven_status,
       "location",
       "progress",
     },
@@ -109,7 +118,11 @@ require("lualine").setup({
     lualine_x = {
       relative_path,
     },
-    lualine_y = { "location", "progress" },
+    lualine_y = {
+      supermaven_status,
+      "location",
+      "progress",
+    },
     lualine_z = {},
   },
   tabline = {},

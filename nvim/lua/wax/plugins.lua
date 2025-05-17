@@ -776,6 +776,7 @@ return {
 
   {
     "supermaven-inc/supermaven-nvim",
+    ft = { "lua", "javascript", "typescript", "vue", "tsx", "html" },
     event = "VeryLazy",
     opts = {
       keymaps = {
@@ -784,21 +785,23 @@ return {
         accept_word = "<C-j>",
       },
       condition = function() -- if return true, disable supermaven
-        local enabled_ft = { "lua", "javascript", "typescript", "vue", "tsx", "html" }
-        return not vim.tbl_contains(enabled_ft, vim.bo.filetype)
+        if _G.supermaven_enabled ~= nil then -- first run
+          local enabled_ft = { "lua", "javascript", "typescript", "vue", "tsx", "html" }
+          _G.supermaven_enabled = not vim.tbl_contains(enabled_ft, vim.bo.filetype)
+        end
+
+        return _G.supermaven_enabled
       end,
     },
     keys = {
       {
         "<C-x>",
         function()
-          local api = require("supermaven-nvim.api")
-          if api.is_running() then
-            api.stop()
-            print("supermaven disabled")
-          else
+          _G.supermaven_enabled = not _G.supermaven_enabled
+          if _G.supermaven_enabled then
             print("supermaven on")
-            api.start()
+          else
+            print("supermaven disabled")
           end
         end,
         desc = "SuperMaven Toggle",
