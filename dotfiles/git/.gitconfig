@@ -5,6 +5,7 @@
 
 [core]
 	editor = nvim
+	ignorecase = false
 
 [merge]
 	tool = vimdiff
