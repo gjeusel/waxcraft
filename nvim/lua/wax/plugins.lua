@@ -868,7 +868,7 @@ return {
               "svelte",
               "html",
               "eslint",
-              "volar",
+              -- "volar",
             },
           })
         end,

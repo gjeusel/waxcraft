@@ -88,7 +88,13 @@ local function orderby_grapple_tags()
     if vim.api.nvim_buf_is_valid(left) and vim.api.nvim_buf_is_valid(right) then
       local left_name = vim.api.nvim_buf_get_name(left)
       local right_name = vim.api.nvim_buf_get_name(right)
-      return index_of(tagged_files, left_name) < index_of(tagged_files, right_name)
+      local left_index = index_of(tagged_files, left_name)
+      local right_index = index_of(tagged_files, right_name)
+      if left_index == 1000 and right_index == 1000 then
+        return left_name < right_name
+      else
+        return left_index < right_index
+      end
     end
     return left < right
   end)
