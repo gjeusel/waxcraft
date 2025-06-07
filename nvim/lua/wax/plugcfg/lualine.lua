@@ -37,11 +37,17 @@ local function lsp_progress()
 end
 
 local function supermaven_status()
-  if _G.supermaven_enabled then
+  local ok, api = pcall(require, "supermaven-nvim.api")
+  if ok and api.is_running() then
     return "  "
   else
     return ""
   end
+  -- if vim.g.SUPERMAVEN_DISABLED == 1 then
+  --   return ""
+  -- else
+  --   return "  "
+  -- end
 end
 
 local function make_theme()

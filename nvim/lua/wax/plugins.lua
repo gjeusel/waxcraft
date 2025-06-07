@@ -1,3 +1,4 @@
+---@diagnostic disable: duplicate-set-field
 -- Investigate:
 -- https://github.com/cshuaimin/ssr.nvim
 -- https://github.com/monaqa/dial.nvim
@@ -168,7 +169,7 @@ return {
       mappings = {},
       draw = {
         delay = 100, -- ms
-        animation = function(s, n)
+        animation = function()
           return 0
         end,
       },
@@ -247,17 +248,15 @@ return {
       { -- 'windwp/nvim-ts-autotag'  -- auto close/rename html tags
         "windwp/nvim-ts-autotag",
         event = { "BufReadPre", "BufNewFile" },
-        config = function(_, opts)
-          require("nvim-ts-autotag").setup({
-            opts = {
-              -- enable = true,
-              enable_close = true,
-              enable_rename = true,
-              enable_close_on_slash = false,
-              aliases = { ["jinja.html"] = "html" },
-            },
-          })
-        end,
+        opts = {
+          opts = {
+            -- enable = true,
+            enable_close = true,
+            enable_rename = true,
+            enable_close_on_slash = false,
+            aliases = { ["jinja.html"] = "html" },
+          },
+        },
       },
     },
     build = ":TSUpdate",
@@ -776,38 +775,34 @@ return {
 
   {
     "supermaven-inc/supermaven-nvim",
-    ft = { "lua", "javascript", "typescript", "vue", "tsx", "html" },
     event = "VeryLazy",
-    opts = {
-      keymaps = {
-        accept_suggestion = "<C-space>",
-        clear_suggestion = "<C-]>",
-        accept_word = "<C-j>",
-      },
-      condition = function() -- if return true, disable supermaven
-        if _G.supermaven_enabled ~= nil then -- first run
-          local enabled_ft = { "lua", "javascript", "typescript", "vue", "tsx", "html" }
-          _G.supermaven_enabled = not vim.tbl_contains(enabled_ft, vim.bo.filetype)
-        end
+    config = function()
+      require("supermaven-nvim").setup({
+        keymaps = {
+          accept_suggestion = "<C-space>",
+          clear_suggestion = "<C-]>",
+          accept_word = "<C-j>",
+        },
+      })
 
-        return _G.supermaven_enabled
-      end,
-    },
-    keys = {
-      {
-        "<C-x>",
-        function()
-          _G.supermaven_enabled = not _G.supermaven_enabled
-          if _G.supermaven_enabled then
-            print("supermaven on")
-          else
-            print("supermaven disabled")
-          end
-        end,
-        desc = "SuperMaven Toggle",
-        mode = "n",
-      },
-    },
+      local enabled_ft = { "lua", "javascript", "typescript", "vue", "tsx", "html" }
+      local enabled = not vim.tbl_contains(enabled_ft, vim.bo.filetype)
+      vim.g.SUPERMAVEN_DISABLED = (not enabled) and 1 or 0
+
+      vim.keymap.set({ "n", "i" }, "<C-x>", function()
+        require("supermaven-nvim.api").toggle()
+        if vim.g.SUPERMAVEN_DISABLED == 1 then
+          print("supermaven disabled")
+          vim.g.SUPERMAVEN_DISABLED = 0
+        else
+          print("supermaven enabled")
+          vim.g.SUPERMAVEN_DISABLED = 1
+        end
+      end, {
+        silent = true,
+        desc = "Toggle Supermaven",
+      })
+    end,
   },
 
   {
@@ -900,7 +895,7 @@ return {
 
   -- {
   --   "saghen/blink.cmp",
-  --   version = "v1.1.1",
+  --   version = "v1.3.1",
   --   dependencies = {
   --     "mikavilpas/blink-ripgrep.nvim",
   --   },
