@@ -28,7 +28,7 @@
     dock = {
       autohide = true; # automatically hide and show the dock
       mru-spaces = false; # do not automatically rearrange spaces based on most recent use.
-      expose-group-apps = false; # Group windows by application
+      expose-group-apps = true; # Group windows by application (aerospace mission control fix else small windows)
       tilesize = 38;
       show-recents = false; # do not show recent apps in dock
       persistent-apps = [
@@ -46,6 +46,11 @@
       wvous-tr-corner = null; # top-right
       wvous-bl-corner = null; # bottom-left
       wvous-br-corner = null; # bottom-right
+    };
+
+    # customize spaces
+    spaces = {
+      spans-displays = true; # set "Displays have separate Spaces" to false (better aerospace perfs and behaviour)
     };
 
     # customize finder

@@ -1,46 +1,37 @@
 start-at-login = false
 
 after-login-command = []
+
 after-startup-command = [
   'workspace 1',
-  'layout h_tiles',
-  'workspace-back-and-forth',
+  'layout h_accordion',
   #
   'workspace 2',
-  'layout h_tiles',
-  'workspace-back-and-forth',
+  'layout h_accordion',
   #
   'workspace 3',
-  'layout h_tiles',
-  'workspace-back-and-forth',
+  'layout h_accordion',
   #
   'workspace 4',
-  'layout h_tiles',
-  'workspace-back-and-forth',
+  'layout h_accordion',
   #
   'workspace 5',
-  'layout v_accordion',
-  'workspace-back-and-forth',
+  'layout h_accordion',
   #
   'workspace 6',
-  'layout h_tiles',
-  'workspace-back-and-forth',
+  'layout h_accordion',
   #
   'workspace 7',
-  'layout v_accordion',
-  'workspace-back-and-forth',
+  'layout h_accordion',
   #
   'workspace 8',
-  'layout h_tiles',
-  'workspace-back-and-forth',
+  'layout h_accordion',
   #
   'workspace 9',
-  'layout h_tiles',
-  'workspace-back-and-forth',
+  'layout h_accordion',
   #
   'workspace 0',
-  'layout v_accordion',
-  'workspace-back-and-forth',
+  'layout h_accordion',
 ]
 
 enable-normalization-flatten-containers = true
@@ -48,7 +39,7 @@ enable-normalization-opposite-orientation-for-nested-containers = true
 
 accordion-padding = 0
 
-default-root-container-layout = 'tiles'
+default-root-container-layout = 'accordion'
 default-root-container-orientation = 'horizontal'
 
 key-mapping.preset = 'qwerty'
@@ -168,13 +159,6 @@ alt-ctrl-9 = 'move-node-to-workspace 9'
 8 = 'secondary'
 9 = 'secondary'
 
-# # default everything to be in workspace 0
-# [[on-window-detected]]
-# check-further-callbacks = true
-# # if.during-aerospace-startup = true
-# # run = ['layout v_accordion', 'move-node-to-workspace 0']
-# run = ['move-node-to-workspace 0']
-
 [[on-window-detected]]
 if.app-id = 'org.videolan.vlc'
 run = 'move-node-to-workspace 0'
@@ -221,57 +205,54 @@ if.app-id = 'com.brave.Browser'
 if.window-title-regex-substring = 'Brave - Renewex'
 run = 'move-node-to-workspace 2'
 if.during-aerospace-startup = true
-check-further-callbacks = false
 
 
 [[on-window-detected]]
 if.app-id = 'com.google.Chrome'
 run = 'move-node-to-workspace 3'
 if.during-aerospace-startup = true
-check-further-callbacks = false
 
 [[on-window-detected]]
 if.app-id = 'org.mozilla.firefox'
 run = 'move-node-to-workspace 3'
 if.during-aerospace-startup = true
-check-further-callbacks = false
 
 [[on-window-detected]]
 if.app-id = 'org.mozilla.firefoxdeveloperedition'
 run = 'move-node-to-workspace 3'
 if.during-aerospace-startup = true
-check-further-callbacks = false
 
 
 [[on-window-detected]]
 if.app-id = 'org.jkiss.dbeaver.core.product'
 run = 'move-node-to-workspace 3'
+if.during-aerospace-startup = true
 
 
 [[on-window-detected]]
 if.app-id = 'com.tinyspeck.slackmacgap'
 run = 'move-node-to-workspace 4'
 if.during-aerospace-startup = true
-check-further-callbacks = false
 
 
 [[on-window-detected]]
 if.app-id = 'com.readdle.SparkDesktop'
 run = 'move-node-to-workspace 5'
 if.during-aerospace-startup = true
-check-further-callbacks = false
-
 [[on-window-detected]]
 # for the popup coming from the top bar on click of meeting ai
 if.app-id = 'com.readdle.SparkDesktop'
 run = ['layout floating']
 if.during-aerospace-startup = false
-check-further-callbacks = true
-
 
 [[on-window-detected]]
 if.app-id = 'notion.mail.id'
 run = 'move-node-to-workspace 5'
+if.during-aerospace-startup = true
+[[on-window-detected]]
+if.app-id = 'com.mimestream.Mimestream'
+run = 'move-node-to-workspace 5'
+if.during-aerospace-startup = true
 
 
 [[on-window-detected]]
@@ -279,14 +260,12 @@ if.app-id = 'com.brave.Browser'
 if.window-title-regex-substring = 'Brave - Perso'
 run = 'move-node-to-workspace 6'
 if.during-aerospace-startup = true
-check-further-callbacks = false
 
 
 [[on-window-detected]]
 if.app-id = 'com.microsoft.Excel'
 run = 'move-node-to-workspace 7'
 if.during-aerospace-startup = true
-check-further-callbacks = false
 
 
 [[on-window-detected]]
@@ -304,3 +283,11 @@ run = 'move-node-to-workspace 9'
 [[on-window-detected]]
 if.window-title-regex-substring = 'Windows 11' # Parallel windows 11 virtualization
 run = 'move-node-to-workspace 9'
+
+
+# # default everything to be in workspace 0
+# [[on-window-detected]]
+# check-further-callbacks = true
+# # if.during-aerospace-startup = true
+# # run = ['layout v_accordion', 'move-node-to-workspace 0']
+# run = ['move-node-to-workspace 0']
