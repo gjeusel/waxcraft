@@ -23,6 +23,7 @@
       "firefox" # used for shopping (and )
 
       "readdle-spark" # Spark email
+      "mimestream" # email
 
       "notion" # does not exists in nixpkgs
       "notion-calendar"
