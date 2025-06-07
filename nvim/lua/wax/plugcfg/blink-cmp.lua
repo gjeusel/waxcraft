@@ -1,7 +1,7 @@
 local blink = require("blink.cmp")
 
 local keymap = {
-  preset = "default",
+  preset = "none",
   --
   ["<C-e>"] = { "hide" },
   ["<C-c>"] = {
@@ -14,9 +14,13 @@ local keymap = {
   },
   --
   ["<Tab>"] = { "select_next", "fallback" },
+  ["<C-n>"] = { "select_next", "fallback" },
+  ["<C-p>"] = { "select_prev", "fallback" },
+
   ["<CR>"] = { "select_and_accept", "fallback" },
+  ["<C-y>"] = { "select_and_accept", "fallback" },
   --
-  ["<C-space>"] = { "show", "show_documentation", "hide_documentation" },
+  ["<C-f>"] = { "show", "show_documentation", "hide_documentation" },
   ["<C-s>"] = { "show_signature", "hide_signature", "fallback" },
   --
   ["<C-u>"] = { "scroll_documentation_up", "fallback" },
@@ -26,7 +30,35 @@ local keymap = {
   ["<C-k>"] = { "snippet_backward", "fallback" },
 }
 
+local source_priority = {
+  "lsp",
+  "path",
+  "snippets",
+  "buffer",
+  "ripgrep",
+}
+
+-- https://github.com/Saghen/blink.cmp/issues/1222
+local original = require("blink.cmp.completion.list").show
+---@diagnostic disable-next-line: duplicate-set-field
+require("blink.cmp.completion.list").show = function(ctx, items_by_source)
+  local seen = {}
+  local function filter(item)
+    if seen[item.label] then
+      return false
+    end
+    seen[item.label] = true
+    return true
+  end
+  for id in vim.iter(source_priority) do
+    items_by_source[id] = items_by_source[id]
+      and vim.iter(items_by_source[id]):filter(filter):totable()
+  end
+  return original(ctx, items_by_source)
+end
+
 ---@module 'blink.cmp'
+---@diagnostic disable-next-line: undefined-doc-name
 ---@type blink.cmp.Config
 local opts = {
   enabled = function()
@@ -42,20 +74,21 @@ local opts = {
       -- show_on_insert_on_trigger_character = true,
     },
     menu = {
+      border = "none",
+      max_height = 5,
       draw = {
         padding = 1,
         gap = 5,
         columns = {
           { "label", gap = 1 },
-          { "kind_icon", "kind", gap = 1 },
-          -- { "source_name" },
+          { "kind_icon", "kind", "source_name", gap = 1 },
         },
         components = {
           label = {
-            width = { fill = true, max = 60 },
+            width = { fill = true, max = 20 },
           },
           source_name = {
-            width = { max = 30 },
+            width = { max = 10 },
             text = function(ctx)
               return ctx.item.client_name
             end,
@@ -150,25 +183,9 @@ local opts = {
         end,
       },
     },
-
-    -- Waiting for better:
-    -- https://github.com/Saghen/blink.cmp/issues/1222
-    transform_items = function(_, items)
-      local seen = {}
-      local result = {}
-
-      for _, item in ipairs(items) do
-        local value = item.label
-        if not seen[value] then
-          seen[value] = true
-          table.insert(result, item)
-        end
-      end
-      log.warn(result)
-      return result
-    end,
   },
   fuzzy = {
+    ---@diagnostic disable-next-line: unused-local
     max_typos = function(keyword)
       return 0 -- 0 means same behaviour as fzf
       -- return math.floor(#keyword / 4)
