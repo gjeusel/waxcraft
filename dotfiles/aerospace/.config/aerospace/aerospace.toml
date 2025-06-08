@@ -161,7 +161,7 @@ alt-ctrl-9 = 'move-node-to-workspace 9'
 
 [[on-window-detected]]
 if.app-id = 'org.videolan.vlc'
-run = 'move-node-to-workspace 0'
+run = 'layout floating'
 
 [[on-window-detected]]
 if.app-id = 'com.spotify.client'
