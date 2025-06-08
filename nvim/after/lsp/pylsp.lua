@@ -1,23 +1,30 @@
 local python_utils = require("wax.lsp.python-utils")
 
-local function to_pylsp_cmd(python_path)
-  -- local log_dir = vim.env.HOME .. "/.cache/nvim"
-  -- local log_file = log_dir .. "/pylsp.log"
-  -- local cmd = { python_path, "-m", "pylsp", "--check-parent-process", "--log-file", log_file }
+local debug_server = false
 
-  -- local map_loglevel = { trace = "-vvv", debug = "-vv", info = "-v" }
-  -- local log_level = vim.tbl_get(map_loglevel, waxopts.loglevel)
-  -- if log_level ~= nil then
-  --   cmd = vim.list_extend(cmd, { log_level })
-  -- end
+local function to_pylsp_cmd(workspace)
+  workspace = workspace or find_workspace_name(vim.api.nvim_buf_get_name(0))
+  local pylsp_path = python_utils.find_python_cmd(workspace, "pylsp")
 
-  local cmd = { python_path, "-m", "pylsp" }
+  if debug_server then
+    local log_dir = vim.env.HOME .. "/.cache/nvim"
+    local log_file = log_dir .. "/pylsp.log"
+    local cmd = { pylsp_path, "--check-parent-process", "--log-file", log_file }
 
-  return cmd
+    local map_loglevel = { trace = "-vvv", debug = "-vv", info = "-v" }
+    local log_level = vim.tbl_get(map_loglevel, waxopts.loglevel)
+    if log_level ~= nil then
+      cmd = vim.list_extend(cmd, { log_level })
+    end
+
+    return cmd
+  else
+    return { pylsp_path }
+  end
 end
 
 return {
-  -- cmd = to_pylsp_cmd(python_utils.get_python_path()),
+  cmd = to_pylsp_cmd(),
   -- if python format by efm, disable formatting capabilities for pylsp
   on_attach = function(client, _)
     -- formatting is done by null-ls
@@ -89,33 +96,7 @@ return {
     },
   },
   on_new_config = function(config, new_workspace)
-    local python_path = python_utils.get_python_path(new_workspace, "python")
-    local new_workspace_name = to_workspace_name(new_workspace)
-
-    if python_path == "python" then
-      local msg = "LSP python (pylsp) - keeping previous python path '%s' for new_root_dir '%s'"
-      log.debug(msg:format(config.cmd[1], new_workspace))
-    else
-      local msg = "LSP python (pylsp) - '%s' using path %s"
-      log.debug(msg:format(new_workspace_name, python_path))
-
-      config.cmd = to_pylsp_cmd(python_path)
-    end
-
-    -- if vim.list_contains({ "ticts", "aquilon", "pyanthracit", "venturi" }, new_workspace_name) then
-    --   local activate_mypy_opts = {
-    --     -- dmypy = true,
-    --     enabled = true,
-    --     live_mode = false,
-    --     args = {
-    --       "--sqlite-cache", -- Use an SQLite database to store the cache.
-    --       "--cache-fine-grained", -- Include fine-grained dependency information in the cache for the mypy daemon.
-    --     },
-    --   }
-    --   config.settings.pylsp.plugins.pylsp_mypy =
-    --     vim.tbl_extend("keep", activate_mypy_opts, config.settings.pylsp.plugins.pylsp_mypy)
-    -- end
-
+    config.cmd = to_pylsp_cmd(new_workspace)
     return config
   end,
 }

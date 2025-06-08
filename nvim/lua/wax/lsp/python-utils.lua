@@ -13,7 +13,7 @@ if vim.env.MAMBA_ROOT_PREFIX then
   M.basepath_conda_venv = M.basepath_conda:join("envs")
 end
 
-local find_python_cmd = wax_cache_fn(function(workspace, cmd)
+M.find_python_cmd = wax_cache_fn(function(workspace, cmd)
   -- https://github.com/neovim/nvim-lspconfig/issues/500#issuecomment-851247107
 
   -- If conda env is activated, use it
@@ -27,7 +27,7 @@ local find_python_cmd = wax_cache_fn(function(workspace, cmd)
   end
 
   -- If .venv directory, use it
-  local workspace_venv_cmdpath = Path:new(workspace):join(".venv/bin"):join(cmd)
+  local workspace_venv_cmdpath = Path:new(find_root_package()):join(".venv/bin"):join(cmd)
   if workspace_venv_cmdpath:exists() then
     return workspace_venv_cmdpath:absolute()
   end
@@ -46,7 +46,7 @@ local find_python_cmd = wax_cache_fn(function(workspace, cmd)
     -- Check for any virtualenv named like the project
   end
 
-  -- Fallback to system Python.
+  -- Fallback to system cmd.
   return cmd
 end)
 
@@ -68,7 +68,7 @@ M.get_python_path = wax_cache_fn(function(workspace, cmd)
     -- In case of jump to definition inside dependency with conda venv:
     python_path = pattern_to_python_path("conda-meta")
   else
-    python_path = find_python_cmd(workspace, cmd)
+    python_path = M.find_python_cmd(workspace, cmd)
   end
 
   return python_path

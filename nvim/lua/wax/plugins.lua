@@ -785,9 +785,10 @@ return {
         },
       })
 
-      local enabled_ft = { "lua", "javascript", "typescript", "vue", "tsx", "html" }
-      local enabled = not vim.tbl_contains(enabled_ft, vim.bo.filetype)
-      vim.g.SUPERMAVEN_DISABLED = (not enabled) and 1 or 0
+      -- local enabled_ft = { "lua", "javascript", "typescript", "vue", "tsx", "html" }
+      -- local enabled = vim.tbl_contains(enabled_ft, vim.bo.filetype)
+      -- vim.g.SUPERMAVEN_DISABLED = (not enabled) and 1 or 0
+      vim.g.SUPERMAVEN_DISABLED = 0
 
       vim.keymap.set("n", "<C-x>", function()
         require("supermaven-nvim.api").toggle()
