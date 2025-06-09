@@ -16,6 +16,8 @@
       "ghostty" # broken in nixpkgs
       "raycast"
 
+      "aldente" # set Charge Limits and Prolong Battery Lifespan
+
       "brave-browser" # default
       "firefox@developer-edition" # used for webdev
       "google-chrome" # used for webdev
@@ -34,7 +36,7 @@
       "viber" # phone calls
 
       "hammerspoon" # macOS desktop automation
-      "nikitabobko/tap/aerospace" # tiling window manager
+      # "nikitabobko/tap/aerospace" # tiling window manager
       "karabiner-elements" # keyboards maps
       "betterdisplay" # register per screen settings
       "dbeaver-community" # sql UI

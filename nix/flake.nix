@@ -73,6 +73,8 @@
       system.stateVersion = 6; # Used for backwards compatibility, please read the changelog before changing (> darwin-rebuild changelog).
       system.configurationRevision = self.rev or self.dirtyRev or null; # Set Git commit hash for darwin-version.
 
+      system.primaryUser = user;
+
       fonts.packages = [
         # https://search.nixos.org/packages?channel=unstable&from=0&size=50&sort=relevance&type=packages&query=nerd-fonts+hack
         pkgs.nerd-fonts.jetbrains-mono
