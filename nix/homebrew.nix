@@ -33,6 +33,7 @@
       "signal"
       "viber" # phone calls
 
+      "hammerspoon" # macOS desktop automation
       "nikitabobko/tap/aerospace" # tiling window manager
       "karabiner-elements" # keyboards maps
       "betterdisplay" # register per screen settings

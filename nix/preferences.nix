@@ -26,9 +26,13 @@
 
     # customize dock
     dock = {
-      autohide = true; # automatically hide and show the dock
       mru-spaces = false; # do not automatically rearrange spaces based on most recent use.
       expose-group-apps = true; # Group windows by application (aerospace mission control fix else small windows)
+      expose-animation-duration = 0.1; # speed of mission control animation
+      autohide = true; # automatically hide and show the dock
+      autohide-delay = 0.1; # delay before autohiding the dock
+      autohide-time-modifier = 0.1; # time modifier for autohide
+      magnification = true; # magnify the dock
       tilesize = 38;
       show-recents = false; # do not show recent apps in dock
       persistent-apps = [
@@ -40,8 +44,8 @@
         "/Applications/Spark Desktop.app"
         "/Applications/Notion Calendar.app"
         "/Applications/Bitwarden.app"
+        "/Applications/Mimestream.app"
       ];
-      expose-animation-duration = 0.1; # speed of mission control animation
       wvous-tl-corner = null; # top-left
       wvous-tr-corner = null; # top-right
       wvous-bl-corner = null; # bottom-left
