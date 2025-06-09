@@ -16,7 +16,7 @@ return {
       telemetry = { enable = false },
       runtime = { version = "LuaJIT" },
       diagnostics = {
-        globals = { "vim", "require", "waxopts" },
+        globals = { "vim", "require", "waxopts", "hs" },
         disable = {
           -- Need check nil
           "need-check-nil",
@@ -36,6 +36,7 @@ return {
         library = {
           "${3rd}/luv/library",
           unpack(vim.api.nvim_get_runtime_file("", true)),
+          "/Applications/Hammerspoon.app/Contents/Resources/extensions/hs/",
         },
         -- library = {
         --   vim.api.nvim_get_runtime_file("", true),
