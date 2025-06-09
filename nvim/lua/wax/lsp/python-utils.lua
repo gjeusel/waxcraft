@@ -27,9 +27,12 @@ M.find_python_cmd = wax_cache_fn(function(workspace, cmd)
   end
 
   -- If .venv directory, use it
-  local workspace_venv_cmdpath = Path:new(find_root_package()):join(".venv/bin"):join(cmd)
-  if workspace_venv_cmdpath:exists() then
-    return workspace_venv_cmdpath:absolute()
+  local root_package = find_root_package()
+  if root_package then
+    local workspace_venv_cmdpath = Path:new(root_package):join(".venv/bin"):join(cmd)
+    if workspace_venv_cmdpath:exists() then
+      return workspace_venv_cmdpath:absolute()
+    end
   end
 
   -- If a conda env exists with `almost` the same name as the workspace, use it
