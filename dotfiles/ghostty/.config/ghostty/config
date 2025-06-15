@@ -2,6 +2,11 @@ foreground = "#d8dee9"
 background = "#2e3440"
 background-opacity = 0.95
 
+# # white configuration for screenshots:
+# foreground="000000"
+# background="ffffff"
+# background-opacity=0.95
+
 font-family = "Hack Nerd Font Mono"
 font-size = 18
 font-feature = -calt

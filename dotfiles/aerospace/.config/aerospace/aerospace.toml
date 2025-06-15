@@ -202,6 +202,11 @@ if.window-title-regex-substring = 'Brave - Renewex'
 run = 'move-node-to-workspace 2'
 if.during-aerospace-startup = true
 
+[[on-window-detected]]
+if.app-id = 'com.brave.Browser'
+if.window-title-regex-substring = 'Inloggen - Google Accounts'
+run = ['layout floating']
+
 
 [[on-window-detected]]
 if.app-id = 'com.google.Chrome'
@@ -283,6 +288,6 @@ run = 'move-node-to-workspace 9'
 
 # ----
 
-# default all the rest to be floating
-[[on-window-detected]]
-run = ['layout floating']
+# # default all the rest to be floating
+# [[on-window-detected]]
+# run = ['layout floating', 'move-node-to-workspace 0']
