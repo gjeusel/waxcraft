@@ -62,7 +62,7 @@
       NewWindowTarget = "Home"; # default shown folder
       FXPreferredViewStyle = "clmv"; # prefer column view by default on finder
       _FXShowPosixPathInTitle = true; # show full path in finder title
-      _FXSortFoldersFirst = true; # show folders first in order
+      _FXSortFoldersFirst = false; # show folders first in order
       AppleShowAllExtensions = true; # show all file extensions
       FXEnableExtensionChangeWarning = false; # disable warning when changing file extension
       QuitMenuItem = true; # enable quit menu item
