@@ -98,7 +98,6 @@ local function orderby_grapple_tags()
     end
     return left < right
   end)
-  log.warn("passing there")
   render.update()
 end
 

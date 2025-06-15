@@ -254,14 +254,14 @@ return {
             enable_close = true,
             enable_rename = true,
             enable_close_on_slash = false,
-            aliases = { ["jinja.html"] = "html" },
+            aliases = { ["jinja.html"] = "html", jinja = "html" },
           },
         },
       },
     },
     build = ":TSUpdate",
     init = function()
-      vim.treesitter.language.register("jinja.html", "html")
+      -- vim.treesitter.language.register("jinja.html", "html")
       vim.treesitter.language.register("bash", "zsh")
     end,
     opts = {
@@ -313,6 +313,7 @@ return {
         "gitcommit",
         "diff",
         "make",
+        "jinja",
         -- Frontend:
         "graphql",
         "html",

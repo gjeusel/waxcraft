@@ -47,7 +47,7 @@ require("conform").setup({
     --
     isort = to_python_cmd("isort"),
     black = to_python_cmd("black"),
-    djhtml = to_python_cmd("djhtml"),
+    djhtml = to_python_cmd("djhtml", { args = { "--tabwidth", "2" } }),
   },
   --
   formatters_by_ft = {
@@ -57,6 +57,7 @@ require("conform").setup({
     python = { "ruff_organize_imports", "ruff_fix", "ruff_format" },
     -- python = { "isort", "black" },
     ["jinja.html"] = { "djhtml" },
+    ["jinja"] = { "djhtml" },
     javascript = frontend_cfg,
     typescript = frontend_cfg,
     typescriptreact = frontend_cfg,
