@@ -192,6 +192,7 @@ function _G.get_os_command_output(cmd, cwd)
     command = command,
     args = cmd,
     cwd = cwd,
+    interactive = false,
     on_stderr = function(_, data)
       table.insert(stderr, data)
     end,
@@ -205,9 +206,18 @@ _G.is_git = wax_cache_fn(
   ---@return boolean
   function(cwd)
     cwd = cwd or vim.loop.cwd()
-    local cmd = { "git", "rev-parse", "--show-toplevel" }
-    local git_root, ret = _G.get_os_command_output(cmd, cwd)
-    return not (ret ~= 0 or #git_root <= 0)
+
+    -- local cmd = { "git", "rev-parse", "--show-toplevel" }
+    -- local git_root, ret = _G.get_os_command_output(cmd, cwd)
+    -- return not (ret ~= 0 or #git_root <= 0)
+
+    local cmd = string.format("git -C %q rev-parse --is-inside-work-tree", cwd)
+    local handle = io.popen(cmd .. " 2>/dev/null")
+    local result = handle and handle:read("*a")
+    if handle then
+      handle:close()
+    end
+    return result and result:match("true") ~= nil
   end
 )
 
