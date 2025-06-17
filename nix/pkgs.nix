@@ -90,6 +90,8 @@
 
     cmake
 
+    ghostscript # pdf compression
+
     # ----- build nvim from sources -----
     ninja
     cmake
