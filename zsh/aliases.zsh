@@ -88,6 +88,13 @@ function fuzzy_gco() {
 }
 alias gcos=fuzzy_gco
 
+function fopen() {
+  filepath=`fzf`
+  if [ -f "$filepath" ]; then
+    open $filepath
+  fi
+}
+
 # Proxy
 function unproxy() {
   unset http_proxy https_proxy rsync_proxy ftp_proxy HTTP_PROXY HTTPS_PROXY

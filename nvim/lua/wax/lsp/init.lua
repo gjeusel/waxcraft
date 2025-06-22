@@ -10,8 +10,8 @@ local function goto_alias_definition()
   local timeout = 1000
 
   for _, client in ipairs(clients) do
-    if client.supports_method(ms.textDocument_definition) then
-      local resp = client.request_sync(
+    if client:supports_method(ms.textDocument_definition) then
+      local resp = client:request_sync(
         ms.textDocument_definition,
         vim.lsp.util.make_position_params(0, "utf-8"),
         timeout,
