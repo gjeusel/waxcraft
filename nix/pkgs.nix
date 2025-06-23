@@ -111,6 +111,7 @@
     stylua
     taplo
     xmlformat
+    sql-formatter
 
     # ----- vim LSP -----
     lua-language-server
@@ -135,6 +136,7 @@
     # ----- daily life -----
     spotify
     zoom-us # video conferencing application
+    discord
 
     # NOTE: Once launchd is fixed on Sequoia, we might define them from nixpkgs.
     #       See: https://github.com/nix-darwin/nix-darwin/issues/1255
@@ -145,9 +147,9 @@
 
     mountain-duck
 
-    # ----- because I'm altruist -----
-    vscode
-    zed-editor
+    # ----- editors -----
+    vscode # because I'm altruist
+    zed-editor # neat agentic ai
 
     # ----- not available on aarch64-darwin (yet) -----
     # calibre
