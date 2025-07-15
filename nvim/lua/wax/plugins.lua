@@ -895,6 +895,22 @@ return {
     end,
   },
 
+  {
+    "piersolenski/import.nvim",
+    opts = {
+      picker = "fzf-lua",
+    },
+    keys = {
+      {
+        "<leader>fi",
+        function()
+          require("import").pick()
+        end,
+        desc = "Import",
+      },
+    },
+  },
+
   -- {
   --   "saghen/blink.cmp",
   --   version = "v1.3.1",
