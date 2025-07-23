@@ -57,6 +57,8 @@
     python311
     python312
 
+    graphviz
+
     # pdf
     poppler
     poppler-utils

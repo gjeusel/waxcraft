@@ -34,10 +34,10 @@
       url = "github:homebrew/homebrew-bundle";
       flake = false;
     };
-    nikitabobko-tap = {
-      url = "github:nikitabobko/homebrew-tap"; # Contains aerospace
-      flake = false;
-    };
+    # nikitabobko-tap = {
+    #   url = "github:nikitabobko/homebrew-tap"; # Contains aerospace
+    #   flake = false;
+    # };
   };
 
   outputs = inputs @ {
@@ -50,7 +50,7 @@
     homebrew-cask,
     homebrew-services,
     homebrew-bundle,
-    nikitabobko-tap,
+    # nikitabobko-tap,
   }: let
     user = "gjeusel";
 
@@ -112,7 +112,7 @@
               "homebrew/homebrew-core" = homebrew-core;
               "homebrew/homebrew-cask" = homebrew-cask;
               "homebrew/homebrew-bundle" = homebrew-bundle;
-              "nikitabobko/homebrew-tap" = nikitabobko-tap;
+              # "nikitabobko/homebrew-tap" = nikitabobko-tap;
             };
             mutableTaps = false;
           };
