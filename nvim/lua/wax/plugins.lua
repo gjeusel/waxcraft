@@ -225,6 +225,17 @@ return {
       --   cmd = "TSPlaygroundToggle",
       -- },
       { "nvim-treesitter/nvim-treesitter-textobjects" },
+      {
+        "nvim-treesitter/nvim-treesitter-context",
+        opts = {
+          enable = true,
+          max_lines = 2,
+          multiline_threshold = 1,
+          trim_scope = "inner",
+          separator = "-",
+          mode = "topline",
+        },
+      },
       { -- nvim-ts-context-commentstring
         "JoosepAlviste/nvim-ts-context-commentstring",
         lazy = true,
@@ -234,15 +245,20 @@ return {
         "andymass/vim-matchup",
         -- enabled = false,
         init = function()
-          vim.g.matchup_enabled = 1
+          vim.g.matchup_enabled = 0
           vim.g.matchup_mouse_enabled = 0
           vim.g.matchup_text_obj_enabled = 0
           vim.g.matchup_transmute_enabled = 0
           vim.g.matchup_matchparen_offscreen = {}
 
+          vim.g.matchup_delim_stopline = 300
+          vim.g.matchup_matchparen_stopline = 300
+
           -- Wrong matching (HTML)
           -- https://github.com/andymass/vim-matchup/issues/19
           vim.g.matchup_matchpref = { html = { nolists = 1 } }
+
+          -- vim.g.matchup_matchparen_deferred_show_delay = 100
         end,
       },
       { -- 'windwp/nvim-ts-autotag'  -- auto close/rename html tags

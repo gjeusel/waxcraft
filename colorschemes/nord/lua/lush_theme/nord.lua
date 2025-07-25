@@ -316,6 +316,9 @@ local theme = lush(function(injected_functions)
     StartifySection   { fg=p.frost2 },
     StartifyHeader    { fg=p.frost1 },
 
+    -- nvim treesitter context
+    TreesitterContextSeparator  { Comment },
+
   }
 
   -- stylua: ignore end
