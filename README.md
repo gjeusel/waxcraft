@@ -59,3 +59,9 @@ export ZDOTDIR=$HOME/.config/zsh
 # init.sh file sourcing:
 source $HOME/src/waxcraft/zsh/init.zsh
 ```
+
+#### Notes:
+
+To try out:
+    - https://wezterm.org/multiplexing.html
+    - https://github.com/mrjones2014/smart-splits.nvim
