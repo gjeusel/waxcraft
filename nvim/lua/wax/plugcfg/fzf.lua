@@ -183,9 +183,6 @@ local function rg_files(cwd)
     previewer = "builtin",
     cwd = cwd,
     actions = fzf_actions,
-    fn_transform = function(x)
-      return fzf_lua.make_entry.file(x, { file_icons = true, color_icons = true })
-    end,
   })
 end
 
@@ -226,9 +223,6 @@ local function wax_files()
     previewer = "builtin",
     cwd = vim.env.HOME,
     actions = fzf_actions,
-    fn_transform = function(x)
-      return fzf_lua.make_entry.file(x, { file_icons = true, color_icons = true })
-    end,
   })
 end
 

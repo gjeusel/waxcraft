@@ -232,8 +232,11 @@ return {
           max_lines = 2,
           multiline_threshold = 1,
           trim_scope = "inner",
-          separator = "-",
+          separator = "─",
           mode = "topline",
+          on_attach = function(bufnr)
+            return vim.tbl_contains({ "python" }, vim.bo[bufnr].filetype)
+          end,
         },
       },
       { -- nvim-ts-context-commentstring
