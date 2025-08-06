@@ -1,6 +1,8 @@
+# ruff: noqa: E402, F401, E731
 import importlib
 import logging
 import os
+import subprocess
 import sys
 import warnings
 from pathlib import Path

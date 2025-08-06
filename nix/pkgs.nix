@@ -56,6 +56,7 @@
     python310
     python311
     python312
+    python313
 
     graphviz
 
@@ -146,6 +147,11 @@
     # raycast
     aerospace
     # karabiner-elements
+
+    slack
+
+    bitwarden-desktop
+    # bitwarden-cli
 
     mountain-duck
 

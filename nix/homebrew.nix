@@ -62,9 +62,11 @@
       ## apps from appstore
       # to find id from cli: `mas search bitwarden`
       "TeamPaper" = 1199502670;
-      "Bitwarden" = 1352778147;
-      "Slack" = 803453959;
-      "Bear" = 1091189122; # Markdown Notes
+
+      ## the following apps where put in pkgs.nix
+      # "Bitwarden" = 1352778147;
+      # "Slack" = 803453959;
+      # "Bear" = 1091189122; # Markdown Notes
     };
   };
 }
