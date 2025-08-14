@@ -10,6 +10,7 @@
   "show_edit_predictions": false,
   "context_servers": {
     "mcp-server-context7": {
+      "source": "extension",
       "settings": {
         "default_minimum_tokens": "10000"
       }
@@ -19,10 +20,9 @@
     "play_sound_when_agent_done": true,
     "model_parameters": [],
     "default_model": {
-      "provider": "anthropic",
-      "model": "claude-sonnet-4-latest"
+      "provider": "openai",
+      "model": "gpt-5"
     },
-    "version": "2"
   },
   "features": { "edit_prediction_provider": "supermaven" },
   "edit_predictions": { "mode": "eager" },
