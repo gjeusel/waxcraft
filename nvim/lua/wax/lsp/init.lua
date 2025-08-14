@@ -1,7 +1,7 @@
 local ms = require("vim.lsp.protocol").Methods
 
 -- Set log level for LSP
-vim.lsp.set_log_level(waxopts.loglevel)
+vim.lsp.log.set_level(waxopts.loglevel)
 
 local function goto_alias_definition()
   local bufnr = vim.api.nvim_get_current_buf()
