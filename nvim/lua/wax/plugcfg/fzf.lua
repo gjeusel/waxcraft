@@ -6,8 +6,8 @@ local rg_ignore_dirs = {
   ".git",
   "**/*orig", -- merge conflicts
   --
-  "postgres-data", -- docker volume
-  "edgedb-data", -- docker volume
+  "**/postgres-data", -- docker volume
+  "**/edgedb-data", -- docker volume
   "**/.vscode", -- vscode ? Nop
   "**/playground/*", -- messy
   --
@@ -21,6 +21,7 @@ local rg_ignore_dirs = {
   "**/__pycache__",
   "**/.venv",
   ".eggs",
+  "**/.ropeproject",
   -- "**/__snapshots__",
   -- "**/tests/data",
   "**/.*_cache",
