@@ -11,6 +11,7 @@
       "postgresql@16"
       "redis"
       "meilisearch"
+      "libomp" # openmp on macos
     ];
     casks = [
       "ghostty" # broken in nixpkgs
