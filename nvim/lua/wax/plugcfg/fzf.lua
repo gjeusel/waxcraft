@@ -93,7 +93,7 @@ fzf_lua.setup({
 })
 
 -- -- Register fzf-lua for vim.ui.select
--- fzf_lua.register_ui_select({ winopts = { height = 0.33, width = 0.33 } }, true)
+fzf_lua.register_ui_select({ winopts = { height = 0.33, width = 0.33 } }, true)
 -- fzf_lua.deregister_ui_select({}, true)
 
 --
