@@ -28,3 +28,5 @@ alias logdebug from fohn import logs; logs.setup_structlog(log_level="debug")
 alias horizon print(f"{%*.start.tz_convert('CET')} -> {%*.end.tz_convert('CET')}")
 
 alias dump import json; data = %2; label = '%1'; data = data.model_dump(mode="json") if hasattr(data, "model_dump") else data; dumppath = f"/tmp/dump-pdb-{label}.json"; json.dump(data, open(dumppath, "w"), indent=2, ensure_ascii=False); print(f"Dumped at {dumppath}")
+
+alias open __import__("subprocess").run(["open", %*])
