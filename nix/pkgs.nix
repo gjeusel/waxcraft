@@ -63,7 +63,14 @@
     # pdf
     poppler
     poppler-utils
-    ghostscript
+
+    ghostscript # (compress pdf)
+    imagemagick # imagemagick (compress pdf)
+
+    fontconfig
+
+    qpdf
+
     tesseract4
     # # tesseract4.tessdata.eng
     # # tesseract4.tessdata.fra

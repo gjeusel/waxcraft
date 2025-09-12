@@ -17,33 +17,32 @@
       "ghostty" # broken in nixpkgs
       "raycast"
 
-      "aldente" # set Charge Limits and Prolong Battery Lifespan
-
       "brave-browser" # default
       "firefox@developer-edition" # used for webdev
       "google-chrome" # used for webdev
       "tor-browser" # curiosity
-      "firefox" # used for shopping (and )
+      "firefox" # used for shopping
 
-      "readdle-spark" # Spark email
+      "marta" # replacement for finder
+
       "mimestream" # email
 
       "notion" # does not exists in nixpkgs
       "notion-calendar"
-      # "notion-mail"
 
       "whatsapp"
       "signal"
       "viber" # phone calls
 
-      "hammerspoon" # macOS desktop automation
-      # "nikitabobko/tap/aerospace" # tiling window manager
       "karabiner-elements" # keyboards maps
-      "betterdisplay" # register per screen settings
-      "dbeaver-community" # sql UI
+      "aldente" # set Charge Limits and Prolong Battery Lifespan
+
+      # "dbeaver-community" # sql UI
+      "tableplus" # sql UI
 
       "vlc"
 
+      "shottr" # screenshot
       "obs" # screen record
 
       "cyberghost-vpn" # VPN
@@ -62,11 +61,9 @@
     masApps = {
       ## apps from appstore
       # to find id from cli: `mas search bitwarden`
-      "TeamPaper" = 1199502670;
+      # "TeamPaper" = 1199502670;
 
       ## the following apps where put in pkgs.nix
-      # "Bitwarden" = 1352778147;
-      # "Slack" = 803453959;
       # "Bear" = 1091189122; # Markdown Notes
     };
   };

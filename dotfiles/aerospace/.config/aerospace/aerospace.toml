@@ -191,7 +191,7 @@ if.app-id = 'com.apple.Preview'  # PDF Preview
 run = 'move-node-to-workspace 0'
 
 [[on-window-detected]]
-if.app-id = 'com.apple.finder'     # finder
+if.app-id = 'com.apple.finder'   # finder
 run = 'move-node-to-workspace 0'
 
 
@@ -273,6 +273,12 @@ run = 'move-node-to-workspace 9'
 if.window-title-regex-substring = 'Windows 11' # Parallel windows 11 virtualization
 run = 'move-node-to-workspace 9'
 
+
+# --- Floating ---
+
+[[on-window-detected]]
+if.app-id = 'cc.ffitch.shottr'
+run = ['layout floating']
 
 # ----
 
