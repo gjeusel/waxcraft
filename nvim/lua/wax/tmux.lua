@@ -27,7 +27,8 @@ function M.get_panes()
     "-F",
     "#{session_name},#{window_index},#{pane_index},#{pane_bottom},#{pane_left},#{pane_title},#{pane_current_command}",
   }
-  local panes_raw = get_os_command_output(cmd)
+  local result = vim.system(cmd, { text = true }):wait()
+  local panes_raw = result.stdout and vim.split(result.stdout, "\n", { trimempty = true }) or {}
   local panes = vim.tbl_map(function(e)
     local opts = vim.split(e, ",", {})
     local pane = {

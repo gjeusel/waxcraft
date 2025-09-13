@@ -172,52 +172,14 @@ _G.log = require("wax.logs").new({
 
 -------- WorkSpace --------
 
----Get stringified result of sh command
----@param cmd string[] command to run
----@param cwd? string current working directory
----@return string[] stdout
----@return number command status
----@return string[] stderr
-function _G.get_os_command_output(cmd, cwd)
-  if type(cmd) ~= "table" then
-    return {}, 0, {}
-  end
-
-  cwd = cwd or vim.loop.cwd()
-  local Job = require("plenary.job")
-
-  local command = table.remove(cmd, 1)
-  local stderr = {}
-  local stdout, ret = Job:new({
-    command = command,
-    args = cmd,
-    cwd = cwd,
-    interactive = false,
-    on_stderr = function(_, data)
-      table.insert(stderr, data)
-    end,
-  }):sync()
-  return stdout, ret, stderr
-end
-
 _G.is_git = wax_cache_fn(
   ---Check if cwd is git versioned
   ---@param cwd string | nil
   ---@return boolean
   function(cwd)
-    cwd = cwd or vim.loop.cwd()
-
-    -- local cmd = { "git", "rev-parse", "--show-toplevel" }
-    -- local git_root, ret = _G.get_os_command_output(cmd, cwd)
-    -- return not (ret ~= 0 or #git_root <= 0)
-
-    local cmd = string.format("git -C %q rev-parse --is-inside-work-tree", cwd)
-    local handle = io.popen(cmd .. " 2>/dev/null")
-    local result = handle and handle:read("*a")
-    if handle then
-      handle:close()
-    end
-    return result and result:match("true") ~= nil
+    local cmd = { "git", "-C", cwd or vim.uv.cwd(), "rev-parse", "--is-inside-work-tree" }
+    local result = vim.system(cmd, { stderr = false }):wait()
+    return result.code == 0 and result.stdout and result.stdout:match("true") ~= nil
   end
 )
 
