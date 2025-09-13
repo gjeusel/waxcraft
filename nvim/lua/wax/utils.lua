@@ -228,7 +228,7 @@ _G.is_monorepo = wax_cache_buf_fn(
   ---@param cwd string | nil
   ---@return string | nil
   function(cwd)
-    -- cwd = cwd or vim.loop.cwd()
+    cwd = cwd or vim.loop.cwd()
     local root_dir = _G.find_root_monorepo(nil)
     local root_subproject = _G.find_root_package(nil)
     local is_monorepo = root_dir and root_subproject and root_dir ~= root_subproject

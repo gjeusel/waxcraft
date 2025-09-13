@@ -1,6 +1,4 @@
 local grapple = require("grapple")
--- local scope_resolvers = require("grapple.scope_resolvers")
-local scope = require("grapple.scope")
 
 local loglevel = waxopts.loglevel
 if loglevel == "trace" then
