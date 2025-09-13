@@ -21,6 +21,10 @@ return {
         dir = vim.env.WAXPATH and vim.env.WAXPATH .. "/colorschemes/gruvbox" or "/tmp",
         lazy = true,
       },
+      {
+        dir = vim.env.WAXPATH and vim.env.WAXPATH .. "/colorschemes/rosepine" or "/tmp",
+        lazy = true,
+      },
     },
     init = function()
       vim.o.termguicolors = true
