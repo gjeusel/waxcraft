@@ -237,6 +237,16 @@ if.app-id = 'org.jkiss.dbeaver.core.product'
 run = 'move-node-to-workspace 3'
 if.during-aerospace-startup = true
 
+[[on-window-detected]]
+if.app-id = 'com.tinyapp.TablePlus'
+run = 'move-node-to-workspace 3'
+if.during-aerospace-startup = true
+
+[[on-window-detected]]
+if.app-id = 'org.yanex.marta'
+run = 'move-node-to-workspace 3'
+if.during-aerospace-startup = true
+
 
 [[on-window-detected]]
 if.app-id = 'com.tinyspeck.slackmacgap'
@@ -279,6 +289,11 @@ run = 'move-node-to-workspace 9'
 [[on-window-detected]]
 if.app-id = 'cc.ffitch.shottr'
 run = ['layout floating']
+
+[[on-window-detected]]
+if.app-id = 'org.videolan.vlc'
+run = ['layout floating']
+
 
 # ----
 
