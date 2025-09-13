@@ -28,6 +28,8 @@ return {
           "param-type-mismatch",
           -- This variable is defined as type `string`. Cannot convert its type to `unknown`.
           "cast-local-type",
+          -- Duplicate field warning
+          "duplicate-set-field",
         },
       },
       workspace = {
