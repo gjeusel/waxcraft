@@ -1,6 +1,6 @@
 local Path = require("wax.path")
 
-local find_relative_path = wax_cache_fn(function(abspath)
+local find_relative_path = wax_cache_buf_fn(function(abspath)
   local workspace = find_root_dir(abspath, {
     "package.json", -- better in monorepo
     ".git",

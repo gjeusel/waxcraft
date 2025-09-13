@@ -13,7 +13,7 @@ if vim.env.MAMBA_ROOT_PREFIX then
   M.basepath_conda_venv = M.basepath_conda:join("envs")
 end
 
-M.find_python_cmd = wax_cache_fn(function(workspace, cmd)
+M.find_python_cmd = wax_cache_buf_fn(function(workspace, cmd)
   -- https://github.com/neovim/nvim-lspconfig/issues/500#issuecomment-851247107
 
   -- If conda env is activated, use it
@@ -53,7 +53,7 @@ M.find_python_cmd = wax_cache_fn(function(workspace, cmd)
   return cmd
 end)
 
-M.get_python_path = wax_cache_fn(function(workspace, cmd)
+M.get_python_path = wax_cache_buf_fn(function(workspace, cmd)
   workspace = workspace or find_workspace_name(vim.api.nvim_buf_get_name(0))
   cmd = cmd or "python"
 

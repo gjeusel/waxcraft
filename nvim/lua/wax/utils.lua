@@ -115,51 +115,34 @@ end
 _G.lua_waxdir = Path:new(vim.fn.fnamemodify(debug.getinfo(1, "S").short_src, ":p:h")) -- "$HOME/.config/nvim/lua/wax"
 
 -------- Cache --------
+---Buffer-specific function memoization
 ---@generic T : function
 ---@param fn T
+---@param bufnr? number Buffer number (defaults to current buffer)
 ---@return T
-function _G.wax_cache_fn(fn)
-  _G._wax_cache = _G._wax_cache or {}
+function _G.wax_cache_buf_fn(fn, bufnr)
+  bufnr = bufnr or 0
 
-  local function to_cache_key(...)
-    local mem_address = string.gsub(tostring(fn), "function: ", "")
+  -- Module-level cache storage
+  _G._wax_buf_cache = _G._wax_buf_cache or {}
 
-    local args = vim
-      .iter({ ... })
-      :filter(function(e)
-        return e ~= nil and e ~= ""
-      end)
-      :map(tostring)
-      :totable()
+  return function(...)
+    local cache_key = bufnr .. "_" .. tostring(fn):gsub("function: ", "")
+    local args_key = vim.inspect({ ... })
 
-    local pieces = { mem_address }
-    if #args > 0 then
-      table.insert(pieces, table.concat(args, ", "))
+    -- Initialize buffer cache if needed
+    if not _G._wax_buf_cache[cache_key] then
+      _G._wax_buf_cache[cache_key] = {}
     end
 
-    return table.concat(pieces, " | ")
+    local cache = _G._wax_buf_cache[cache_key]
+
+    if cache[args_key] == nil then
+      cache[args_key] = fn(...)
+    end
+
+    return cache[args_key]
   end
-
-  local function wrap(...)
-    if select("#", ...) == 0 then
-      log.trace("Could not cache call due to empty args.")
-      return fn(...)
-    end
-
-    local key = to_cache_key(...)
-    local value = vim.tbl_get(_G._wax_cache, key)
-
-    if value == nil then
-      _G._wax_cache[key] = fn(...)
-      log.trace("Cached returned value using cache key", key)
-    else
-      log.trace("Found in cache using cache key", key)
-    end
-
-    return _G._wax_cache[key]
-  end
-
-  return wrap
 end
 
 -------- Logs --------
@@ -172,7 +155,7 @@ _G.log = require("wax.logs").new({
 
 -------- WorkSpace --------
 
-_G.is_git = wax_cache_fn(
+_G.is_git = wax_cache_buf_fn(
   ---Check if cwd is git versioned
   ---@param cwd string | nil
   ---@return boolean
@@ -183,7 +166,7 @@ _G.is_git = wax_cache_fn(
   end
 )
 
-_G.find_root_dir = wax_cache_fn(
+_G.find_root_dir = wax_cache_buf_fn(
   ---Return the root directory
   ---@param path string | nil
   ---@param patterns string[] | nil
@@ -240,7 +223,7 @@ _G.find_root_package = function(path)
   return _G.find_root_dir(path, { "package.json", "pyproject.toml" })
 end
 
-_G.is_monorepo = wax_cache_fn(
+_G.is_monorepo = wax_cache_buf_fn(
   ---Return the root directory
   ---@param cwd string | nil
   ---@return string | nil
