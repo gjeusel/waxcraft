@@ -1,0 +1,34 @@
+behavior {
+  theme "Kon"
+
+  layout {
+      alwaysShowTabBar false
+      showActionBar false
+  }
+  sizeFormat "adaptive"
+
+  setCurrentPathAsWindowTitle true
+
+  actions {
+      core.trash.confirm false
+      core.delete.confirm true
+      core.lookup.mode "prefix"
+  }
+
+  files {
+      defaultLocation "~"
+      dragDrop true
+      fileWatcher true
+
+      globalFilter {
+          alwaysShowFolders true
+          name [ "^(?!\\.DS_Store$).*$" ]
+      }
+  }
+
+  table {
+      showIcons true
+      iconSize 32
+      verticalPadding 2
+  }
+}

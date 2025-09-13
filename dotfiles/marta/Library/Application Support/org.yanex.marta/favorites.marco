@@ -1,0 +1,8 @@
+Home "~"
+Downloads "${user.downloads}"
+Documents "${user.documents}"
+
+Separator1 null
+
+tmp "/tmp"
+work "~/work"
