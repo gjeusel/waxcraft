@@ -693,9 +693,7 @@ return {
   {
     "echasnovski/mini.pairs",
     event = "VeryLazy",
-    config = function(_, opts)
-      require("mini.pairs").setup(opts)
-    end,
+    opts = {},
   },
   {
     "echasnovski/mini.align",
@@ -789,14 +787,6 @@ return {
   },
 
   --------- LSP ---------
-  -- {
-  --   "milanglacier/minuet-ai.nvim",
-  --   event = "VeryLazy",
-  --   config = function()
-  --     require("wax.plugcfg.minuet-ai")
-  --   end,
-  -- },
-
   {
     "supermaven-inc/supermaven-nvim",
     event = "VeryLazy",
@@ -829,7 +819,6 @@ return {
       })
     end,
   },
-
   {
     "L3MON4D3/LuaSnip",
     event = "VeryLazy",
@@ -837,7 +826,6 @@ return {
       require("wax.plugcfg.luasnip")
     end,
   },
-
   {
     "neovim/nvim-lspconfig",
     event = { "BufReadPre", "BufNewFile" },
@@ -898,7 +886,6 @@ return {
       require("wax.lsp")
     end,
   },
-
   {
     "piersolenski/import.nvim",
     opts = {
@@ -913,6 +900,31 @@ return {
         desc = "Import",
       },
     },
+  },
+  {
+    "stevearc/conform.nvim", --  (better buffer lsp format)
+    keys = {
+      {
+        "<leader>m",
+        "<cmd>lua require('conform').format({lsp_fallback=true})<cr>",
+        desc = "Conform Format",
+        mode = { "n", "v" },
+      },
+    },
+    config = function()
+      require("wax.lsp.conform")
+    end,
+  },
+
+  {
+    "saghen/blink.cmp",
+    version = "v1.6.0",
+    dependencies = {
+      "mikavilpas/blink-ripgrep.nvim",
+    },
+    config = function()
+      require("wax.plugcfg.blink-cmp")
+    end,
   },
 
   -- {
@@ -933,37 +945,10 @@ return {
   --   end,
   -- },
 
-  {
-    "saghen/blink.cmp",
-    version = "v1.6.0",
-    dependencies = {
-      "mikavilpas/blink-ripgrep.nvim",
-    },
-    config = function()
-      require("wax.plugcfg.blink-cmp")
-    end,
-  },
-
-  {
-    "stevearc/conform.nvim", --  (better buffer lsp format)
-    keys = {
-      {
-        "<leader>m",
-        "<cmd>lua require('conform').format({lsp_fallback=true})<cr>",
-        desc = "Conform Format",
-        mode = { "n", "v" },
-      },
-    },
-    config = function()
-      require("wax.lsp.conform")
-    end,
-  },
-
   -- DAP
   { import = "wax.debugger" },
 
   --------- Language Specific ---------
-  { "edgedb/edgedb-vim", ft = { "edgedb", "edgeql" } },
   { "towolf/vim-helm", ft = { "yaml", "smarty" } },
 
   --------- NeoVim Perf / Dev ---------
