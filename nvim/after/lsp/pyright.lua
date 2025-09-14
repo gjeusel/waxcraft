@@ -1,28 +1,5 @@
 local python_utils = require("wax.lsp.python-utils")
 
--- documentFormattingProvider
--- documentRangeFormattingProvider
--- callHierarchyProvider
--- codeActionProvider
--- codeLensProvider = {
---   resolveProvider = false
--- },
--- completionProvider = {
---   resolveProvider = true,
---   triggerCharacters = { "." }
--- },
--- declarationProvider
--- definitionProvider
--- documentHighlightProvider
--- documentSymbolProvider
--- executeCommandProvider
--- hoverProvider
--- referencesProvider
--- renameProvider
--- signatureHelpProvider
--- typeDefinitionProvider
--- workspaceSymbolProvider
-
 return {
   on_attach = function(client, _)
     -- disable capabilities that are better handled by pylsp
@@ -31,7 +8,7 @@ return {
     client.server_capabilities.signatureHelpProvider = false -- pyright typing of signature is weird
     client.server_capabilities.definitionProvider = false -- pyright does not follow imports correctly
     client.server_capabilities.referencesProvider = false -- pylsp does it
-    -- client.server_capabilities.completionProvider = false -- missing when dep is untyped
+
     client.server_capabilities.completionProvider = {
       resolveProvider = true,
       triggerCharacters = { "." },

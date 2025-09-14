@@ -95,16 +95,6 @@ vim.keymap.set("n", "ß", function()
   vim.diagnostic.jump(vim.tbl_extend("error", goto_win_opts, { count = 1 }))
 end, { noremap = true, silent = true })
 
--- Customization of the publishDiagnostics:
---   - remove all pyright diagnostics
-vim.lsp.handlers[ms.textDocument_publishDiagnostics] = function(_, result, ctx)
-  result.diagnostics = vim.tbl_filter(function(diagnostic)
-    -- Filter out all diagnostics from pyright
-    return not vim.tbl_contains({ "Pyright" }, diagnostic.source)
-  end, result.diagnostics)
-  vim.lsp.diagnostic.on_publish_diagnostics(_, result, ctx)
-end
-
 -- mappings the rest
 vim.api.nvim_create_autocmd("LspAttach", {
   group = vim.api.nvim_create_augroup("wax-lsp-attach", { clear = true }),
@@ -140,3 +130,13 @@ vim.api.nvim_create_autocmd("LspAttach", {
 vim.api.nvim_set_option_value("omnifunc", "v:lua.vim.lsp.omnifunc", {})
 
 require("wax.lsp.ui")
+
+-- -- Customization of the publishDiagnostics:
+-- --   - remove all pyright diagnostics
+-- vim.lsp.handlers[ms.textDocument_publishDiagnostics] = function(_, result, ctx)
+--   result.diagnostics = vim.tbl_filter(function(diagnostic)
+--     -- Filter out all diagnostics from pyright
+--     return not vim.tbl_contains({ "Pyright" }, diagnostic.source)
+--   end, result.diagnostics)
+--   vim.lsp.diagnostic.on_publish_diagnostics(_, result, ctx)
+-- end

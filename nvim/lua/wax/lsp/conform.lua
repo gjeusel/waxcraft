@@ -55,7 +55,6 @@ require("conform").setup({
     lua = { "stylua" },
     just = { "just" },
     python = { "ruff_organize_imports", "ruff_fix", "ruff_format" },
-    -- python = { "isort", "black" },
     ["jinja.html"] = { "djhtml" },
     ["jinja"] = { "djhtml" },
     javascript = frontend_cfg,

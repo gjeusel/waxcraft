@@ -136,30 +136,24 @@ local opts = {
       ripgrep = {
         module = "blink-ripgrep",
         name = "rg",
-        min_keyword_length = 3,
-        max_items = 2,
-        score_offset = -0.1,
-        -- should_show_items = function(ctx)
-        --   return ctx.trigger.initial_kind ~= "trigger_character"
-        -- end,
-        transform_items = function(_, items)
-          for _, item in ipairs(items) do
-            item.kind_icon = "®"
-            item.kind_name = "rg"
-          end
-          return items
-        end,
-
         opts = {
           prefix_min_len = 3,
-          context_size = 5,
-          max_filesize = "200K",
-          search_casing = "--smart-case",
-          ignore_paths = { vim.env.HOME },
-          future_features = {
-            issue185_workaround = true, -- https://github.com/mikavilpas/blink-ripgrep.nvim/issues/185
-            -- ☝🏻
+          project_root_marker = { ".git", "pyproject.toml", "package.json" },
+          backend = {
+            ripgrep = {
+              context_size = 5,
+              max_filesize = "200K",
+              search_casing = "--smart-case",
+              ignore_paths = { vim.env.HOME },
+            },
           },
+          transform_items = function(_, items)
+            for _, item in ipairs(items) do
+              item.kind_icon = "®"
+              item.kind_name = "rg"
+            end
+            return items
+          end,
         },
       },
       buffer = {
@@ -191,7 +185,6 @@ local opts = {
       -- return math.floor(#keyword / 4)
     end,
     sorts = { "score", "sort_text" },
-    prebuilt_binaries = { force_version = "v1.1.1", ignore_version_mismatch = true },
   },
 }
 

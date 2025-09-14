@@ -296,9 +296,10 @@ local theme = lush(function(injected_functions)
 
     -- blink-cmp
     BlinkCmpKind              { fg=p.night1.darken(-30) },
-    BlinkCmpSource            { BlinkCmpKind },
+    BlinkCmpSource            { fg=p.night0.lighten(10) },
     BlinkCmpLabelMatch        { fg=p.storm1.darken(10) },
-    BlinkCmpMenu              { fg=p.night1.darken(-50) },
+    BlinkCmpMenu              { fg=p.night1.darken(-50), bg=p.night0 },
+    BlinkCmpMenuSelection     { fg=p.storm1.darken(10), bg=p.night0.lighten(10) },
 
     -- lualine
     LualineA { Comment },
