@@ -37,11 +37,11 @@
       show-recents = false; # do not show recent apps in dock
       persistent-apps = [
         # "${pkgs.ghostty}/Applications/Ghostty.app" # if coming from nixkpgs
+        "/Applications/Marta.app"
         "/Applications/Ghostty.app"
         "/Applications/Brave Browser.app"
         "/Applications/Notion.app"
         "/Applications/Slack.app"
-        "/Applications/Spark Desktop.app"
         "/Applications/Notion Calendar.app"
         "/Applications/Bitwarden.app"
         "/Applications/Mimestream.app"
