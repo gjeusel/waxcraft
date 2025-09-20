@@ -70,6 +70,90 @@ local function make_theme()
   }
 end
 
+local function get_class_function_loc()
+  local ok, node = pcall(vim.treesitter.get_node)
+  if not ok or not node then
+    return ""
+  end
+
+  local class_name = nil
+  local function_name = nil
+
+  -- Walk up the tree to find class and function nodes
+  local current = node
+  while current do
+    local node_type = current:type()
+
+    -- Look for function/method nodes
+    if
+      not function_name
+      and (
+        node_type == "function_declaration"
+        or node_type == "function_definition"
+        or node_type == "method_definition"
+        or node_type == "function_item"
+        or node_type == "method_declaration"
+        or node_type == "arrow_function"
+        or node_type == "function_expression"
+        or node_type == "function"
+      )
+    then
+      -- Try to get the function name from various possible child nodes
+      for child in current:iter_children() do
+        local child_type = child:type()
+        if
+          child_type == "identifier"
+          or child_type == "name"
+          or child_type == "property_identifier"
+        then
+          function_name = vim.treesitter.get_node_text(child, 0)
+          break
+        end
+      end
+    end
+
+    -- Look for class nodes
+    if
+      not class_name
+      and (
+        node_type == "class_declaration"
+        or node_type == "class_definition"
+        or node_type == "class"
+        or node_type == "impl_item"
+        or node_type == "struct_item"
+        or node_type == "interface_declaration"
+      )
+    then
+      -- Try to get the class name from various possible child nodes
+      for child in current:iter_children() do
+        local child_type = child:type()
+        if
+          child_type == "identifier"
+          or child_type == "name"
+          or child_type == "type_identifier"
+        then
+          class_name = vim.treesitter.get_node_text(child, 0)
+          break
+        end
+      end
+    end
+
+    -- Move to parent node
+    current = current:parent()
+  end
+
+  -- Format the result
+  if class_name and function_name then
+    return class_name .. "::" .. function_name
+  elseif function_name then
+    return function_name
+  elseif class_name then
+    return class_name
+  else
+    return ""
+  end
+end
+
 require("lualine").setup({
   options = {
     icons_enabled = true,
@@ -100,6 +184,7 @@ require("lualine").setup({
       function()
         return require("dap").status()
       end,
+      get_class_function_loc,
       -- function()
       --   local ok, node = pcall(vim.treesitter.get_node)
       --   if ok then
