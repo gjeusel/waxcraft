@@ -12,7 +12,7 @@
 vim.g.mapleader = "," -- duck me right ?
 
 require("wax.settings") -- vim.o
-require("wax.userconfig") -- define user configs (waxopts)
+require("wax.waxcfg") -- define user configs (waxopts)
 require("wax.utils") -- utils with globals
 
 require("wax.filetypes")
