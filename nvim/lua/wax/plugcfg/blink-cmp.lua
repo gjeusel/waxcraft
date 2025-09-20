@@ -3,7 +3,7 @@ local blink = require("blink.cmp")
 local keymap = {
   preset = "none",
   --
-  ["<C-e>"] = { "hide" },
+  ["<C-e>"] = false,
   ["<C-c>"] = {
     function(cmp)
       if cmp.is_visible() then
