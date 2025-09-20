@@ -169,7 +169,7 @@ local opts = {
         -- end,
       },
       snippets = {
-        score_offset = 0.1,
+        score_offset = 2,
         min_keyword_length = 2,
         max_items = 2,
         should_show_items = function(ctx)

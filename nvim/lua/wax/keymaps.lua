@@ -175,9 +175,38 @@ vim.keymap.set("n", "<leader>yf", function()
 end, { desc = "Yank current buffer filename" })
 
 vim.keymap.set("n", "<leader>yF", function()
-  local fpath = vim.api.nvim_buf_get_name(0)
-  vim.fn.setreg("+", fpath)
-end, { desc = "Yank current buffer absolute filepath" })
+  local abspath = vim.api.nvim_buf_get_name(0)
+  if abspath == "" then
+    vim.notify("No file associated with current buffer", vim.log.levels.WARN)
+    return
+  end
+
+  local filename = vim.fn.expand("%:t")
+  local workspace = find_root_package()
+
+  local relpath = nil
+  if workspace then
+    local Path = require("wax.path")
+    relpath = Path:new(abspath):make_relative(workspace).path
+  end
+
+  local options = { abspath, filename }
+  if relpath ~= nil then
+    table.insert(options, 1, relpath)
+  end
+
+  vim.ui.select(options, { prompt = "Select filepath to copy > " }, function(selected)
+    if selected then
+      vim.fn.setreg("+", selected)
+      vim.notify(("Copied to clipboard: %s"):format(selected))
+    end
+  end)
+end, { desc = "Propose current file paths to copy in register" })
+
+-- vim.keymap.set("n", "<leader>yF", function()
+--   local fpath = vim.api.nvim_buf_get_name(0)
+--   vim.fn.setreg("+", fpath)
+-- end, { desc = "Yank current buffer absolute filepath" })
 
 local function _get_python_parts()
   vim.cmd([[normal! "wyiw]])
