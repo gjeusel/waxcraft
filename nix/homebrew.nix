@@ -22,6 +22,7 @@
       "google-chrome" # used for webdev
       "tor-browser" # curiosity
       "firefox" # used for shopping
+      "zen" # to try out
 
       "marta" # replacement for finder
 

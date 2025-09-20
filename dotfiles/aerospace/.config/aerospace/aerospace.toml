@@ -231,6 +231,11 @@ if.app-id = 'org.mozilla.firefoxdeveloperedition'
 run = 'move-node-to-workspace 3'
 if.during-aerospace-startup = true
 
+[[on-window-detected]]
+if.app-id = 'app.zen-browser.zen'
+run = 'move-node-to-workspace 3'
+if.during-aerospace-startup = true
+
 
 [[on-window-detected]]
 if.app-id = 'org.jkiss.dbeaver.core.product'
