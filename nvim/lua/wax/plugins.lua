@@ -213,36 +213,23 @@ return {
 
   {
     "nvim-treesitter/nvim-treesitter",
-    -- dev = true, -- use "~/src/nvim-treesitter/"
     event = { "BufReadPost", "BufNewFile" },
     dependencies = {
-      -- { -- playground
-      --   "nvim-treesitter/playground",
-      --   keys = {
-      --     {
-      --       "<leader>xc",
-      --       "<cmd>TSHighlightCapturesUnderCursor<cr>",
-      --       desc = "Show TS higlight under the cursor",
-      --       mode = "n",
-      --     },
-      --   },
-      --   cmd = "TSPlaygroundToggle",
-      -- },
       { "nvim-treesitter/nvim-treesitter-textobjects" },
-      {
-        "nvim-treesitter/nvim-treesitter-context",
-        opts = {
-          enable = true,
-          max_lines = 2,
-          multiline_threshold = 1,
-          trim_scope = "inner",
-          separator = "─",
-          mode = "topline",
-          on_attach = function(bufnr)
-            return vim.tbl_contains({ "python" }, vim.bo[bufnr].filetype)
-          end,
-        },
-      },
+      -- {
+      --   "nvim-treesitter/nvim-treesitter-context",
+      --   opts = {
+      --     enable = true,
+      --     max_lines = 2,
+      --     multiline_threshold = 1,
+      --     trim_scope = "inner",
+      --     separator = "─",
+      --     mode = "topline",
+      --     on_attach = function(bufnr)
+      --       return vim.tbl_contains({ "python" }, vim.bo[bufnr].filetype)
+      --     end,
+      --   },
+      -- },
       { -- nvim-ts-context-commentstring
         "JoosepAlviste/nvim-ts-context-commentstring",
         lazy = true,
