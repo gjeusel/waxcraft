@@ -640,9 +640,10 @@ return {
   {
     "bassamsdata/namu.nvim",
     opts = {
-      namu_symbols = { enable = true },
+      namu_symbols = { enable = true, display = { format = "tree_guides" } },
       ui_select = { enable = false }, -- vim.ui.select() wrapper
     },
+    cmd = { "Namu" },
     keys = {
       {
         "<leader>ss",
