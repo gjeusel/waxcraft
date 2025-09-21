@@ -146,7 +146,9 @@ vim.keymap.set("n", "<leader>l", "<cmd>vs<cr>", { nowait = true })
 vim.keymap.set("n", "<leader>'", "<cmd>sp<cr>", { nowait = true })
 
 -- Open / Close  fold
-vim.keymap.set({ "n", "v" }, "<Space>", "za")
+vim.keymap.set({ "n", "v" }, "<Space>", function()
+  vim.cmd("silent! normal! za")
+end, { desc = "Toggle fold" })
 
 -- quick fix list
 vim.keymap.set("n", "]q", function()

@@ -7,8 +7,6 @@ vim.o.number = true -- display line number column
 vim.o.relativenumber = true -- relative line number
 -- vim.o.termguicolors = true -- enable 24bit colors
 
--- vim.o.laststatus = 3  -- global statusline
-
 vim.o.conceallevel = 0 -- don't conceal anything
 vim.o.colorcolumn = "100" -- Show vertical bar at column 100
 vim.o.signcolumn = "yes" -- always show sign column
@@ -17,7 +15,7 @@ vim.o.ruler = true -- Show the cursor position all the time
 -- vim.o.guicursor=nil         -- disable cursor-styling
 -- vim.o.noshowmode = true     -- do not put a message on the cmdline for the mode ('insert', 'normal', ...)
 
--- vim.o.laststatus = false  -- hide status bar
+-- vim.o.laststatus = 3  -- global statusline
 vim.o.cmdheight = 0  -- hide cmdline  -- waiting for https://github.com/neovim/neovim/issues/20380
 
 vim.o.scrolljump = 5 -- Lines to scroll when cursor leaves screen
