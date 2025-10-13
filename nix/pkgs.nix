@@ -90,6 +90,7 @@
     (wrapHelm kubernetes-helm {
       plugins = [kubernetes-helmPlugins.helm-secrets];
     })
+    kubetail
 
     terraform
     scaleway-cli
