@@ -530,14 +530,14 @@ return {
       },
       ---------- Word Under Cursor ----------
       {
-        "<leader>ff",
+        "<leader>fw",
         function()
           require("wax.plugcfg.fzf").grep_cword(find_root_monorepo())
         end,
         desc = "RipGrep with search being the current word under the cursor (entire monorepo)",
       },
       {
-        "<leader>fF",
+        "<leader>fW",
         function()
           require("wax.plugcfg.fzf").grep_cword(find_root_package())
         end,
@@ -604,13 +604,6 @@ return {
         desc = "Fzf Lsp References of word under cursor",
       },
       ------- Custom -------
-      {
-        "<leader>fw",
-        function()
-          require("wax.plugcfg.fzf").wax_files()
-        end,
-        desc = "Find file among dotfiles",
-      },
       {
         "<leader>q",
         function()
@@ -933,8 +926,12 @@ return {
   --   end,
   -- },
 
-  -- DAP
-  { import = "wax.debugger" },
+  -- {
+  --   "folke/sidekick.nvim", -- to investigate
+  -- },
+
+  -- -- DAP
+  -- { import = "wax.debugger" },
 
   --------- Language Specific ---------
   { "towolf/vim-helm", ft = { "yaml", "smarty" } },

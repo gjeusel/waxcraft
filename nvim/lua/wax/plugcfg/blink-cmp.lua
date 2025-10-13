@@ -132,7 +132,9 @@ local opts = {
       "ripgrep",
     },
     providers = {
-      lsp = {},
+      lsp = {
+        score_offset = 10,
+      },
       ripgrep = {
         module = "blink-ripgrep",
         name = "rg",

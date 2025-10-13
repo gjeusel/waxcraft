@@ -171,12 +171,12 @@ end)
 vim.keymap.set("n", "[w", "<cmd>ccl<cr>") -- quite quick fix list
 
 -- copy in register current buffer absolute filepath
-vim.keymap.set("n", "<leader>yf", function()
+vim.keymap.set("n", "<leader>fF", function()
   local fname = vim.fn.expand("%:t")
   vim.fn.setreg("+", fname)
 end, { desc = "Yank current buffer filename" })
 
-vim.keymap.set("n", "<leader>yF", function()
+vim.keymap.set("n", "<leader>ff", function()
   local abspath = vim.api.nvim_buf_get_name(0)
   if abspath == "" then
     vim.notify("No file associated with current buffer", vim.log.levels.WARN)
@@ -190,6 +190,13 @@ vim.keymap.set("n", "<leader>yF", function()
   if workspace then
     local Path = require("wax.path")
     relpath = Path:new(abspath):make_relative(workspace).path
+  else
+    -- Fallback to git root if workspace not found
+    local git_root = find_root_monorepo()
+    if git_root then
+      local Path = require("wax.path")
+      relpath = Path:new(abspath):make_relative(git_root).path
+    end
   end
 
   local options = { abspath, filename }
