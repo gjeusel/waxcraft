@@ -849,7 +849,7 @@ return {
             "rust_analyzer",
             --
             "ty",
-            "pyright",
+            -- "pyright",
             "ruff",
             --
             "tailwindcss",
