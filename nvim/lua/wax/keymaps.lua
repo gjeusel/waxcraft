@@ -183,25 +183,19 @@ vim.keymap.set("n", "<leader>ff", function()
     return
   end
 
-  local filename = vim.fn.expand("%:t")
-  local workspace = find_root_package()
+  local Path = require("wax.path")
 
-  local relpath = nil
+  local filename = vim.fn.expand("%:t")
+  local options = { abspath, filename }
+
+  local workspace = find_root_package()
   if workspace then
-    local Path = require("wax.path")
-    relpath = Path:new(abspath):make_relative(workspace).path
-  else
-    -- Fallback to git root if workspace not found
-    local git_root = find_root_monorepo()
-    if git_root then
-      local Path = require("wax.path")
-      relpath = Path:new(abspath):make_relative(git_root).path
-    end
+    options.insert(1, Path:new(abspath):make_relative(workspace).path)
   end
 
-  local options = { abspath, filename }
-  if relpath ~= nil then
-    table.insert(options, 1, relpath)
+  local git_root = find_root_monorepo()
+  if git_root then
+    options.insert(1, Path:new(abspath):make_relative(git_root).path)
   end
 
   vim.ui.select(options, { prompt = "Select filepath to copy > " }, function(selected)
@@ -211,11 +205,6 @@ vim.keymap.set("n", "<leader>ff", function()
     end
   end)
 end, { desc = "Propose current file paths to copy in register" })
-
--- vim.keymap.set("n", "<leader>yF", function()
---   local fpath = vim.api.nvim_buf_get_name(0)
---   vim.fn.setreg("+", fpath)
--- end, { desc = "Yank current buffer absolute filepath" })
 
 local function _get_python_parts()
   vim.cmd([[normal! "wyiw]])
