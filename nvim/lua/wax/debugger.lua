@@ -4,8 +4,6 @@
 -- https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/plugins/extras/dap/core.lua
 
 local tmux = require("wax.tmux")
-local dap = require("dap")
-local repl = require("dap.repl")
 
 local js_based_languages =
   { "typescript", "javascript", "typescriptreact", "javascriptreact", "vue" }
@@ -97,6 +95,7 @@ local keymaps = {
   {
     "<leader>fc",
     function()
+      local dap = require("dap")
       if not dap.session() then
         loadVSCodeLaunch()
       end
@@ -122,6 +121,9 @@ return {
     for _, sign in ipairs(signs) do
       vim.fn.sign_define(sign.name, sign)
     end
+
+    local dap = require("dap")
+    local repl = require("dap.repl")
 
     -- local dapui = require("dapui")
     -- dap.listeners.before.attach.dapui_config = function()
@@ -227,6 +229,8 @@ return {
           -- log_console_level = vim.log.levels.DEBUG,
         })
 
+        local dap = require("dap")
+
         -- Configure JS
         for _, language in ipairs(js_based_languages) do
           vim.list_extend(dap.configurations[language] or {}, {
@@ -289,6 +293,8 @@ return {
         -- TODO: setup with a more precise python path / or uv ?
         require("dap-python").setup("python")
         -- require("dap-python").setup("uv")
+
+        local dap = require("dap")
 
         vim.list_extend(dap.configurations.python, {
           { -- Divider for the custom configs

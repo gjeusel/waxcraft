@@ -930,8 +930,8 @@ return {
   --   "folke/sidekick.nvim", -- to investigate
   -- },
 
-  -- -- DAP
-  -- { import = "wax.debugger" },
+  -- DAP
+  { import = "wax.debugger" },
 
   --------- Language Specific ---------
   { "towolf/vim-helm", ft = { "yaml", "smarty" } },
