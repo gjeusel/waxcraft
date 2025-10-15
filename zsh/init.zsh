@@ -189,6 +189,10 @@ zinit snippet OMZP::extract
 # zinit ice wait lucid trigger-load'!aws'
 # zinit snippet OMZP::aws
 
+# NOTE: in case of non-interactive shells (claude code), force load to avoid errors
+if [[ ! $- == *i* ]]; then
+  zinit load path:plugins/git
+fi
 
 # _______ TMUX Plugins _______
 
