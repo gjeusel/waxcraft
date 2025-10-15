@@ -31,9 +31,9 @@ local keymap = {
 }
 
 local source_priority = {
+  "snippets",
   "lsp",
   "path",
-  "snippets",
   "buffer",
   "ripgrep",
 }
@@ -171,7 +171,7 @@ local opts = {
         -- end,
       },
       snippets = {
-        score_offset = 2,
+        score_offset = 20,
         min_keyword_length = 2,
         max_items = 2,
         should_show_items = function(ctx)
