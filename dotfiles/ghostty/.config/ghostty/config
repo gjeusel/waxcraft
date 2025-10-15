@@ -29,3 +29,6 @@ keybind = cmd+enter=text:\x0D
 
 # https://github.com/ghostty-org/ghostty/discussions/3151
 keybind = ctrl+enter=text:\r
+
+# -- disable cmd+, opening the config file
+keybind = super+,=unbind
