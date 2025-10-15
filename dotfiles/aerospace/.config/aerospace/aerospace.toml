@@ -215,6 +215,11 @@ if.app-id = 'com.brave.Browser'
 if.window-title-regex-substring = 'Inloggen - Google Accounts'
 run = ['layout floating']
 
+[[on-window-detected]]
+if.app-id = 'app.zen-browser.zen'
+run = 'move-node-to-workspace 2'
+if.during-aerospace-startup = true
+
 
 [[on-window-detected]]
 if.app-id = 'com.google.Chrome'
@@ -228,11 +233,6 @@ if.during-aerospace-startup = true
 
 [[on-window-detected]]
 if.app-id = 'org.mozilla.firefoxdeveloperedition'
-run = 'move-node-to-workspace 3'
-if.during-aerospace-startup = true
-
-[[on-window-detected]]
-if.app-id = 'app.zen-browser.zen'
 run = 'move-node-to-workspace 3'
 if.during-aerospace-startup = true
 
