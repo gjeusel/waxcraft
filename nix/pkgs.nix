@@ -122,7 +122,9 @@
     stylua
     taplo
     xmlformat
+    sqruff
     sql-formatter
+    pgformatter
 
     # ----- vim LSP -----
     lua-language-server

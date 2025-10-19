@@ -190,12 +190,12 @@ vim.keymap.set("n", "<leader>ff", function()
 
   local workspace = find_root_package()
   if workspace then
-    options.insert(1, Path:new(abspath):make_relative(workspace).path)
+    table.insert(options, 1, Path:new(abspath):make_relative(workspace).path)
   end
 
   local git_root = find_root_monorepo()
   if git_root then
-    options.insert(1, Path:new(abspath):make_relative(git_root).path)
+    table.insert(options, 1, Path:new(abspath):make_relative(git_root).path)
   end
 
   vim.ui.select(options, { prompt = "Select filepath to copy > " }, function(selected)
