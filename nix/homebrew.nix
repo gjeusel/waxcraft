@@ -66,6 +66,9 @@
 
       ## the following apps where put in pkgs.nix
       # "Bear" = 1091189122; # Markdown Notes
+
+      # Mobile Dev
+      "Xcode" = 497799835;
     };
   };
 }

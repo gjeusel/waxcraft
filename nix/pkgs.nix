@@ -165,6 +165,9 @@
 
     mountain-duck
 
+    # ----- mobile dev -----
+    cocoapods
+
     # ----- editors -----
     vscode # because I'm altruist
     zed-editor # neat agentic ai
