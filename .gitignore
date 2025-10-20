@@ -12,3 +12,6 @@ dotfiles/.config/nvim/lua/packer_compiled.lua
 *.DS_store
 
 .luarc.json
+
+# LLM
+CLAUDE.md
