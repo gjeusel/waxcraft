@@ -37,6 +37,7 @@
 
       "karabiner-elements" # keyboards maps
       "aldente" # set Charge Limits and Prolong Battery Lifespan
+      "jordanbaird-ice" # manage the menu bar
 
       # "dbeaver-community" # sql UI
       "tableplus" # sql UI
