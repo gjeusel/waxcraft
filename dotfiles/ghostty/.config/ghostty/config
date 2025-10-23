@@ -32,3 +32,4 @@ keybind = ctrl+enter=text:\r
 
 # -- disable cmd+, opening the config file
 keybind = super+,=unbind
+keybind = shift+enter=text:\x1b\r
