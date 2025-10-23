@@ -23,7 +23,7 @@ return {
       -- https://docs.astral.sh/ty/reference/editor-settings/#rename
       experimental = {
         rename = true,
-        -- autoImport = true,
+        autoImport = true,
       },
     },
   },
