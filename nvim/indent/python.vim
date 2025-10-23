@@ -71,15 +71,16 @@ let s:stop_statement = '^\s*\(break\|continue\|raise\|return\|pass\)\>'
 let s:skip_after_opening_paren = 'synIDattr(synID(line("."), col("."), 0), "name") ' .
             \ '=~? "\\vcomment|jedi\\S"'
 
-let s:special_chars_syn_pattern = "\\vstring|comment|^pythonbytes%(contents)=$|pythonTodo|jedi\\S"
+let s:special_chars_syn_pattern = "\\vstring|comment|^pythonbytes%(content)=$|pythonTodo|jedi\\S"
 
 if !get(g:, 'python_pep8_indent_skip_concealed', 0) || !has('conceal')
     " Skip strings and comments. Return 1 for chars to skip.
     " jedi* refers to syntax definitions from jedi-vim for call signatures, which
     " are inserted temporarily into the buffer.
     function! s:_skip_special_chars(line, col)
-        return synIDattr(synID(a:line, a:col, 0), 'name')
-              \ =~? s:special_chars_syn_pattern
+        return match(map(synstack(a:line, a:col),
+              \ "synIDattr(v:val, 'name')"),
+              \ '\c'.s:special_chars_syn_pattern) != -1
     endfunction
 else
     " Also ignore anything concealed.
@@ -93,9 +94,9 @@ else
     endfunction
 
     function! s:_skip_special_chars(line, col)
-        return synIDattr(synID(a:line, a:col, 0), 'name')
-              \ =~? s:special_chars_syn_pattern
-              \ || s:is_concealed(a:line, a:col)
+        return match(map(synstack(a:line, a:col),
+              \ "synIDattr(v:val, 'name')"),
+              \ '\c'.s:special_chars_syn_pattern) != -1
     endfunction
 endif
 
