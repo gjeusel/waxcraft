@@ -46,6 +46,7 @@
 
       "betterdisplay" # display settings
       "shottr" # screenshot
+      "pika" # equivalent of ColorSlurp (get the hex code of a color)
       "obs" # screen record
 
       "cyberghost-vpn" # VPN
@@ -65,9 +66,6 @@
       ## apps from appstore
       # to find id from cli: `mas search bitwarden`
       # "TeamPaper" = 1199502670;
-
-      ## the following apps where put in pkgs.nix
-      # "Bear" = 1091189122; # Markdown Notes
 
       # # Mobile Dev
       # "Xcode" = 497799835;
