@@ -115,9 +115,9 @@ local function parse_entries(entries, opts)
     local text = entry:match(":%d+:%d?%d?%d?%d?:?(.*)$")
     return {
       filename = file.bufname or file.path,
-      lnum = file.line,
-      col = file.col,
-      text = text,
+      lnum = file.line or 1,
+      col = file.col or 1,
+      text = text or "",
     }
   end, entries)
 end
@@ -140,10 +140,21 @@ local function fn_selected_multi(selected, opts)
   local _, entries = fzf_lua.actions.normalize_selected(selected, opts)
   entries = parse_entries(entries, opts)
 
-  vim.fn.setqflist(entries, "r")
+  -- Set the quickfix list and open it
+  vim.fn.setqflist({}, "r", {
+    title = "FZF Selection",
+    items = entries,
+  })
+
+  -- Open quickfix window and jump to first entry
+  vim.cmd("copen")
   vim.cmd("cfirst")
+
+  -- Add all files to buffers
   for _, item in ipairs(vim.fn.getqflist()) do
-    vim.cmd("badd " .. vim.fn.fnameescape(vim.fn.bufname(item.bufnr)))
+    if item.bufnr > 0 then
+      vim.cmd("badd " .. vim.fn.fnameescape(vim.fn.bufname(item.bufnr)))
+    end
   end
 end
 
@@ -184,6 +195,7 @@ local function rg_files(cwd)
     previewer = "builtin",
     cwd = cwd,
     actions = fzf_actions,
+    fn_selected = fn_selected_multi,
   })
 end
 
@@ -194,8 +206,9 @@ end
 --
 local function lsp_references()
   fzf_lua.lsp_references({
-    async = true,
+    async = false, -- must be false to allow custom fn_selected callback
     file_ignore_patterns = { "miniconda3", "node_modules" }, -- ignore references in env libs
+    fn_selected = fn_selected_multi,
   })
 end
 
@@ -224,6 +237,7 @@ local function wax_files()
     previewer = "builtin",
     cwd = vim.env.HOME,
     actions = fzf_actions,
+    fn_selected = fn_selected_multi,
   })
 end
 
