@@ -435,7 +435,7 @@ return {
   {
     "mbbill/undotree",
     keys = {
-      { "<leader>U", "<cmd>UndotreeToggle<cr>", desc = "UndotreeToggle", mode = "n" },
+      { "<leader>u", "<cmd>UndotreeToggle<cr>", desc = "UndotreeToggle", mode = "n" },
     },
   },
   {
@@ -802,6 +802,7 @@ return {
   },
   {
     "L3MON4D3/LuaSnip",
+    version = "v2.4.0",
     event = "VeryLazy",
     config = function()
       require("wax.plugcfg.luasnip")

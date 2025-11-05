@@ -152,14 +152,20 @@ end, { desc = "Toggle fold" })
 
 -- quick fix list
 vim.keymap.set("n", "]q", function()
-  vim.cmd("silent! cnext")
+  local ok = pcall(vim.cmd, "cnext")
+  if not ok then
+    vim.cmd("cfirst")
+  end
   vim.cmd([[normal! zz]])
-end, { desc = "Goto next qflist item" })
+end, { desc = "Goto next qflist item (cycling)" })
 
 vim.keymap.set("n", "[q", function()
-  vim.cmd("silent! cprev")
+  local ok = pcall(vim.cmd, "cprev")
+  if not ok then
+    vim.cmd("clast")
+  end
   vim.cmd([[normal! zz]])
-end, { desc = "Goto prev qflist item" })
+end, { desc = "Goto prev qflist item (cycling)" })
 
 vim.keymap.set("n", "q][", function()
   vim.cmd("silent! cclose")
