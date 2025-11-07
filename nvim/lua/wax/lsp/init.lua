@@ -100,6 +100,12 @@ vim.api.nvim_create_autocmd("LspAttach", {
   group = vim.api.nvim_create_augroup("wax-lsp-attach", { clear = true }),
   callback = function(event)
     local buffer = event.buf
+    local client = vim.lsp.get_client_by_id(event.data.client_id)
+
+    -- Disable LSP semantic tokens (rely solely on treesitter for highlighting)
+    if client then
+      client.server_capabilities.semanticTokensProvider = nil
+    end
 
     local kmap_opts = { noremap = true, silent = true, buffer = buffer }
 

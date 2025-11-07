@@ -480,12 +480,12 @@ return {
       require("wax.plugcfg.diffview")
     end,
     keys = {
-      {
-        "<leader>gg",
-        "<cmd>DiffviewClose<cr>",
-        desc = "Close diffview",
-        mode = "n",
-      },
+      -- {
+      --   "<leader>gg", -- mapped in keymaps.lua (works both for diffview and gitsigns)
+      --   "<cmd>DiffviewClose<cr>",
+      --   desc = "Close diffview",
+      --   mode = "n",
+      -- },
       {
         "<leader>gH",
         "<cmd>DiffviewFileHistory %<cr>",

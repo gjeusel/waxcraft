@@ -261,6 +261,40 @@ end, {
   desc = "Vertical split help for word under cursor",
 })
 
+--------- Git keymaps ---------
+
+-- Smart git diff close: handles both diffview and gitsigns Gdiff
+vim.keymap.set("n", "<leader>gg", function()
+  -- Check if we're in a diffview by looking at the current tabpage
+  local lib = require("diffview.lib")
+  local view = lib.get_current_view()
+
+  if view then
+    -- We're in a diffview, close it
+    vim.cmd("DiffviewClose")
+    return
+  end
+
+  -- Check if there are any gitsigns diff buffers open
+  local all_bufs = vim.api.nvim_list_bufs()
+  local has_gitsigns_diff = false
+
+  for _, buf in ipairs(all_bufs) do
+    local name = vim.api.nvim_buf_get_name(buf)
+    if name:match("^gitsigns://") then
+      has_gitsigns_diff = true
+      vim.api.nvim_buf_delete(buf, { force = true })
+    end
+  end
+
+  if has_gitsigns_diff then
+    return
+  end
+
+  -- If not in any git diff mode, notify user
+  vim.notify("Not in a git diff view", vim.log.levels.INFO)
+end, { desc = "Close git diff (diffview or gitsigns)" })
+
 --------- Different menues ---------
 vim.keymap.set("n", "<leader>sm", function()
   local options = {
