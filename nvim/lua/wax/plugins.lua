@@ -134,28 +134,51 @@ return {
         end)
 
         -- diffthis
-        map("n", "<leader>gD", function()
-          gs.diffthis("master")
-        end)
-        map("n", "<leader>gd", function()
-          gs.diffthis("~")
+        map("n", "<leader>gf", function()
+          local current_file = vim.api.nvim_buf_get_name(0)
+
+          if current_file == "" then
+            vim.notify("No file associated with current buffer", vim.log.levels.WARN)
+            return
+          end
+
+          -- Check if file has current changes
+          local git_status = vim.fn.system({ "git", "status", "--porcelain", current_file })
+          local has_changes = git_status ~= "" and vim.v.shell_error == 0
+
+          if has_changes then
+            -- File has changes, diff with HEAD
+            gs.diffthis("HEAD")
+            return
+          end
+
+          -- File is clean, diff with the last commit that modified it
+          local last_commit =
+            vim.fn.system({ "git", "log", "-1", "--format=%H", "--", current_file })
+          last_commit = vim.trim(last_commit)
+
+          if vim.v.shell_error ~= 0 or last_commit == "" then
+            vim.notify("No git history found for this file", vim.log.levels.WARN)
+            return
+          end
+
+          -- Get the parent of the last commit
+          local parent_commit = vim.fn.system({ "git", "rev-parse", last_commit .. "^" })
+          parent_commit = vim.trim(parent_commit)
+
+          if vim.v.shell_error ~= 0 then
+            -- This is likely the initial commit, diff against the commit itself
+            vim.notify("Diffing against the initial commit for this file", vim.log.levels.INFO)
+            gs.diffthis(last_commit)
+            return
+          end
+
+          -- Diff with parent commit
+          gs.diffthis(parent_commit)
         end)
       end,
     },
-    keys = {
-      {
-        "<leader>gh",
-        "<cmd>Gdiff head<cr>",
-        desc = "Open Git diff on HEAD",
-        mode = "n",
-      },
-      {
-        "<leader>gm",
-        "<cmd>Gdiff main<cr>",
-        desc = "Open Git diff on main",
-        mode = "n",
-      },
-    },
+    keys = {},
     config = function(_, opts)
       local gs = require("gitsigns")
       gs.setup(opts)
@@ -480,30 +503,25 @@ return {
       require("wax.plugcfg.diffview")
     end,
     keys = {
-      -- {
-      --   "<leader>gg", -- mapped in keymaps.lua (works both for diffview and gitsigns)
-      --   "<cmd>DiffviewClose<cr>",
-      --   desc = "Close diffview",
-      --   mode = "n",
-      -- },
       {
-        "<leader>gH",
+        "<leader>gg",
+        function()
+          require("wax.plugcfg.diffview").close_diffview_and_gitsigns()
+        end,
+        desc = "Close diffview (diffview or gitsigns)",
+        mode = "n",
+      },
+      {
+        "<leader>gh",
         "<cmd>DiffviewFileHistory %<cr>",
         desc = "Open diffview history on current file",
         mode = "n",
       },
-      -- {
-      --   "<leader>gH",
-      --   "<cmd>DiffviewFileHistory<cr>",
-      --   desc = "Open diffview history on repository",
-      --   mode = "n",
-      -- },
       {
-        "<leader>gf",
-        function()
-          require("diffview").open("HEAD", vim.api.nvim_buf_get_name(0))
-        end,
-        desc = "Open diffview merge on current file against HEAD",
+        "<leader>gH",
+        "<cmd>DiffviewFileHistory<cr>",
+        desc = "Open diffview history on repository",
+        mode = "n",
       },
     },
   },

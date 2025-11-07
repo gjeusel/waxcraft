@@ -1,5 +1,6 @@
 local diffview = require("diffview")
 local actions = require("diffview.actions")
+local lib = require("diffview.lib")
 
 local global_keymaps = {
   ["<C-n>"] = actions.select_next_entry, -- Open the diff for the next file
@@ -111,3 +112,37 @@ diffview.setup({
 --   local arg_parser = require("diffview.arg_parser")
 --   diffview.open(arg_parser.scan(ctx.args).args)
 -- end, { nargs = "*", complete = diffview.completion })
+
+local M = {}
+
+function M.close_diffview_and_gitsigns()
+  -- Check if we're in a diffview by looking at the current tabpage
+  local view = lib.get_current_view()
+
+  if view then
+    -- We're in a diffview, close it
+    vim.cmd("DiffviewClose")
+    return
+  end
+
+  -- Check if there are any gitsigns diff buffers open
+  local all_bufs = vim.api.nvim_list_bufs()
+  local has_gitsigns_diff = false
+
+  for _, buf in ipairs(all_bufs) do
+    local name = vim.api.nvim_buf_get_name(buf)
+    if name:match("^gitsigns://") then
+      has_gitsigns_diff = true
+      vim.api.nvim_buf_delete(buf, { force = true })
+    end
+  end
+
+  if has_gitsigns_diff then
+    return
+  end
+
+  -- If not in any git diff mode, notify user
+  vim.notify("Not in a git diff view", vim.log.levels.INFO)
+end
+
+return M
