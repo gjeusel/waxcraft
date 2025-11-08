@@ -236,6 +236,11 @@ if.app-id = 'org.mozilla.firefoxdeveloperedition'
 run = 'move-node-to-workspace 3'
 if.during-aerospace-startup = true
 
+[[on-window-detected]]
+if.app-id = 'org.mozilla.firefoxdeveloperedition'
+if.window-title-regex-substring = 'Developer Tools'
+run = 'move-node-to-workspace 0'
+
 
 [[on-window-detected]]
 if.app-id = 'org.jkiss.dbeaver.core.product'
