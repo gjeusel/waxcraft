@@ -176,6 +176,24 @@ return {
           -- Diff with parent commit
           gs.diffthis(parent_commit)
         end)
+
+        map("n", "<leader>gF", function()
+          -- Determine main branch (main or master)
+          local main_branch = vim.fn.system({ "git", "rev-parse", "--verify", "main" })
+          if vim.v.shell_error ~= 0 then
+            main_branch = vim.fn.system({ "git", "rev-parse", "--verify", "master" })
+            if vim.v.shell_error ~= 0 then
+              vim.notify("Neither 'main' nor 'master' branch found", vim.log.levels.ERROR)
+              return
+            end
+            main_branch = "master"
+          else
+            main_branch = "main"
+          end
+
+          -- Diff with main/master branch
+          gs.diffthis(main_branch)
+        end)
       end,
     },
     keys = {},
