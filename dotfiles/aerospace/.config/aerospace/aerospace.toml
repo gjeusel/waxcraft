@@ -188,15 +188,23 @@ run = 'move-node-to-workspace 0'
 
 [[on-window-detected]]
 if.app-id = 'com.apple.Preview'  # PDF Preview
-run = 'move-node-to-workspace 0'
+run = ['layout floating']
 
 [[on-window-detected]]
 if.app-id = 'com.apple.finder'   # finder
 run = 'move-node-to-workspace 0'
 
 [[on-window-detected]]
-if.app-id = 'com.anthropic.claudefordesktop'   # Claude
+if.app-id = 'com.apple.Notes'
 run = 'move-node-to-workspace 0'
+
+[[on-window-detected]]
+if.app-id = 'com.apple.TV'
+run = 'move-node-to-workspace 0'
+
+[[on-window-detected]]
+if.app-id = 'com.anthropic.claudefordesktop'   # Claude
+run = ['layout floating']
 
 
 [[on-window-detected]]
@@ -257,6 +265,11 @@ run = 'move-node-to-workspace 3'
 if.during-aerospace-startup = true
 
 [[on-window-detected]]
+if.app-id = 'dev.zed.Zed'
+run = 'move-node-to-workspace 3'
+if.during-aerospace-startup = true
+
+[[on-window-detected]]
 if.app-id = 'org.yanex.marta'
 run = 'move-node-to-workspace 3'
 if.during-aerospace-startup = true
@@ -264,6 +277,11 @@ if.during-aerospace-startup = true
 
 [[on-window-detected]]
 if.app-id = 'com.tinyspeck.slackmacgap'
+run = 'move-node-to-workspace 4'
+if.during-aerospace-startup = true
+
+[[on-window-detected]]
+if.app-id = 'com.microsoft.teams2'
 run = 'move-node-to-workspace 4'
 if.during-aerospace-startup = true
 
@@ -276,6 +294,11 @@ if.during-aerospace-startup = true
 
 [[on-window-detected]]
 if.app-id = 'com.microsoft.Excel'
+run = 'move-node-to-workspace 6'
+if.during-aerospace-startup = true
+
+[[on-window-detected]]
+if.app-id = 'com.microsoft.Word'
 run = 'move-node-to-workspace 6'
 if.during-aerospace-startup = true
 
