@@ -545,6 +545,7 @@ return {
   },
   {
     "ibhagwan/fzf-lua",
+    -- commit = "a8458b7",
     config = function()
       require("wax.plugcfg.fzf")
     end,
