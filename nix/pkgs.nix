@@ -11,9 +11,6 @@
     iterm2
     neovim
 
-    jujutsu
-    parallel
-
     tmux
     # TODO: Investiguate how to configure entirely tmux with nix
     #       For now, `cd ~/.tmux/plugins/tmux-thumbs &&  cargo build --release`
@@ -36,8 +33,11 @@
     just
     httpie
     tree
-    python312Packages.watchfiles
+    gh
+    jujutsu
+    parallel
 
+    python312Packages.watchfiles
     unixtools.watch
 
     # ----- setup -----
