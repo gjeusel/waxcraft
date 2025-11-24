@@ -5,6 +5,7 @@ local Path = require("wax.path")
 local rg_ignore_dirs = {
   ".git",
   "**/*orig", -- merge conflicts
+  ".jj",
   --
   "**/postgres-data", -- docker volume
   "**/edgedb-data", -- docker volume

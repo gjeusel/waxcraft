@@ -178,6 +178,13 @@ return {
         end)
 
         map("n", "<leader>gF", function()
+          local current_file = vim.api.nvim_buf_get_name(0)
+
+          if current_file == "" then
+            vim.notify("No file associated with current buffer", vim.log.levels.WARN)
+            return
+          end
+
           -- Determine main branch (main or master)
           local main_branch = vim.fn.system({ "git", "rev-parse", "--verify", "main" })
           if vim.v.shell_error ~= 0 then
@@ -189,6 +196,27 @@ return {
             main_branch = "master"
           else
             main_branch = "main"
+          end
+
+          -- Get the relative path from git root
+          local git_root = vim.fn.system({ "git", "rev-parse", "--show-toplevel" })
+          git_root = vim.trim(git_root)
+
+          if vim.v.shell_error ~= 0 then
+            vim.notify("Not in a git repository", vim.log.levels.ERROR)
+            return
+          end
+
+          local rel_path = current_file:gsub("^" .. vim.pesc(git_root) .. "/", "")
+
+          -- Check if file exists in main/master branch
+          local check_result = vim.fn.system({ "git", "cat-file", "-e", main_branch .. ":" .. rel_path })
+          if vim.v.shell_error ~= 0 then
+            vim.notify(
+              string.format("File '%s' does not exist in '%s' branch", rel_path, main_branch),
+              vim.log.levels.WARN
+            )
+            return
           end
 
           -- Diff with main/master branch
