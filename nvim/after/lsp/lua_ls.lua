@@ -13,6 +13,8 @@ return {
   end,
   settings = {
     Lua = {
+      codeLens = { enable = false },
+      hint = { enable = false },
       telemetry = { enable = false },
       runtime = { version = "LuaJIT" },
       diagnostics = {
