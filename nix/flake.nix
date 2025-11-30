@@ -2,18 +2,15 @@
   description = "Wax Darwin Nix Configuration";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    # nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/25.11-beta";
 
     # ----- Darwin -----
     nix-darwin = {
       url = "github:LnL7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nix-homebrew = {
-      url = "github:zhaofengli/nix-homebrew";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.nix-darwin.follows = "nix-darwin";
-    };
+    nix-homebrew.url = "github:zhaofengli/nix-homebrew";
 
     # ----- Homebrew taps -----
     # https://github.com/zhaofengli/nix-homebrew/issues/5#issuecomment-2565926343

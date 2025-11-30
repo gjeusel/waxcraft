@@ -53,7 +53,9 @@
 
     # python
     uv
-    micromamba
+    # micromamba # https://github.com/NixOS/nixpkgs/issues/456288
+    mamba-cpp
+
     # Note: we install python on system instead of relying on uv for having GNU readline
     # see https://github.com/astral-sh/uv/issues/11039 & https://gregoryszorc.com/docs/python-build-standalone/main/quirks.html
     python310
@@ -142,7 +144,7 @@
     # (ruff.overrideAttrs (old: {version = "0.9.5";}))
     rust-analyzer
     sqls
-    postgres-lsp
+    postgres-language-server
     svelte-language-server
     tailwindcss-language-server
     terraform-ls
@@ -150,7 +152,7 @@
     yaml-language-server
 
     # ----- daily life -----
-    spotify
+    # spotify # https://github.com/NixOS/nixpkgs/issues/465676
     zoom-us # video conferencing application
     discord
 
@@ -170,6 +172,8 @@
 
     # ----- mobile dev -----
     cocoapods
+
+    electron_39
 
     # ----- editors -----
     vscode # because I'm altruist

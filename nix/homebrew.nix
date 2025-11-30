@@ -56,6 +56,8 @@
 
       "modrinth" # minecraft virtual env
 
+      "spotify"
+
       # to lookup:
       # "gifox" # gif maker
       # "homerow" # keyboard for everything instead of pad
