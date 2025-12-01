@@ -210,7 +210,8 @@ return {
           local rel_path = current_file:gsub("^" .. vim.pesc(git_root) .. "/", "")
 
           -- Check if file exists in main/master branch
-          local check_result = vim.fn.system({ "git", "cat-file", "-e", main_branch .. ":" .. rel_path })
+          local check_result =
+            vim.fn.system({ "git", "cat-file", "-e", main_branch .. ":" .. rel_path })
           if vim.v.shell_error ~= 0 then
             vim.notify(
               string.format("File '%s' does not exist in '%s' branch", rel_path, main_branch),
@@ -837,32 +838,7 @@ return {
     "supermaven-inc/supermaven-nvim",
     event = "VeryLazy",
     config = function()
-      require("supermaven-nvim").setup({
-        keymaps = {
-          accept_suggestion = "<C-space>",
-          clear_suggestion = "<C-]>",
-          accept_word = "<C-j>",
-        },
-      })
-
-      -- local enabled_ft = { "lua", "javascript", "typescript", "vue", "tsx", "html" }
-      -- local enabled = vim.tbl_contains(enabled_ft, vim.bo.filetype)
-      -- vim.g.SUPERMAVEN_DISABLED = (not enabled) and 1 or 0
-      vim.g.SUPERMAVEN_DISABLED = 0
-
-      vim.keymap.set("n", "<C-x>", function()
-        require("supermaven-nvim.api").toggle()
-        if vim.g.SUPERMAVEN_DISABLED == 1 then
-          print("supermaven disabled")
-          vim.g.SUPERMAVEN_DISABLED = 0
-        else
-          print("supermaven enabled")
-          vim.g.SUPERMAVEN_DISABLED = 1
-        end
-      end, {
-        silent = true,
-        desc = "Toggle Supermaven",
-      })
+      require("wax.plugcfg.supermaven")
     end,
   },
   {
