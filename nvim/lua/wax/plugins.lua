@@ -941,9 +941,11 @@ return {
 
   {
     "saghen/blink.cmp",
-    version = "v1.7.0",
+    version = "v1.8.0",
     dependencies = {
       "mikavilpas/blink-ripgrep.nvim",
+      "saghen/blink.compat",
+      "rcarriga/cmp-dap",
     },
     config = function()
       require("wax.plugcfg.blink-cmp")
@@ -972,8 +974,8 @@ return {
   --   "folke/sidekick.nvim", -- to investigate
   -- },
 
-  -- -- DAP
-  -- { import = "wax.debugger" },
+  -- DAP
+  { import = "wax.debugger" },
 
   --------- Language Specific ---------
   { "towolf/vim-helm", ft = { "yaml", "smarty" } },

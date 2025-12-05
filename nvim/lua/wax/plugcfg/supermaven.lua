@@ -4,6 +4,7 @@ require("supermaven-nvim").setup({
     clear_suggestion = "<C-]>",
     accept_word = "<C-j>",
   },
+  ignore_filetypes = { ["dap-repl"] = true },
 })
 
 vim.g.SUPERMAVEN_DISABLED = 0

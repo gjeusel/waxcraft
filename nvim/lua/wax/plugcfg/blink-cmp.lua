@@ -131,6 +131,9 @@ local opts = {
       "buffer",
       "ripgrep",
     },
+    per_filetype = {
+      ["dap-repl"] = { "dap" },
+    },
     providers = {
       lsp = {
         score_offset = 10,
@@ -177,6 +180,10 @@ local opts = {
         should_show_items = function(ctx)
           return ctx.trigger.initial_kind ~= "trigger_character"
         end,
+      },
+      dap = {
+        name = "dap",
+        module = "blink.compat.source",
       },
     },
   },

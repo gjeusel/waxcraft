@@ -115,6 +115,9 @@ local theme = lush(function(injected_functions)
     Statusline     { Normal },
     StatuslineNC   { fg=p.night3.darken(-20) },
 
+    WinBar         { fg = p.night3.darken(-20) },
+    WinBarNC       { fg = p.frost0, gui = "bold" },
+
     -- These groups are for the native LSP client and diagnostic system. Some
     -- other LSP clients may use these groups, or use their own. Consult your
     -- LSP client's documentation. (See :h lsp-highlight)
@@ -264,6 +267,44 @@ local theme = lush(function(injected_functions)
 
     -- DAP
     DapStoppedLine { Visual },
+
+    -- nvim-dap-view
+    NvimDapViewControlNC          { fg = p.night3 },
+    NvimDapViewControlPlay        { fg = p.green },
+    NvimDapViewControlPause       { fg = p.yellow },
+    NvimDapViewControlRunLast     { fg = p.frost1 },
+    NvimDapViewControlStepOver    { fg = p.frost2 },
+    NvimDapViewControlStepInto    { fg = p.frost2 },
+    NvimDapViewControlStepOut     { fg = p.frost2 },
+    NvimDapViewControlStepBack    { fg = p.frost2 },
+    NvimDapViewControlDisconnect  { fg = p.orange },
+    NvimDapViewControlTerminate   { fg = p.red },
+
+    NvimDapViewString             { String },
+    NvimDapViewNumber             { Number },
+    NvimDapViewBoolean            { Boolean },
+    NvimDapViewConstant           { fg = p.orange },
+    NvimDapViewFunction           { Function },
+
+    NvimDapViewFileName           { fg = p.frost1 },
+    NvimDapViewLineNumber         { fg = p.night3.darken(-20) },
+
+    NvimDapViewThread             { fg = p.frost2 },
+    NvimDapViewThreadStopped      { fg = p.yellow },
+    NvimDapViewThreadError        { fg = p.red },
+    NvimDapViewFrameCurrent       { fg = p.green },
+
+    NvimDapViewWatchExpr          { fg = p.frost0 },
+    NvimDapViewWatchUpdated       { fg = p.green },
+    NvimDapViewWatchError         { fg = p.red },
+
+    NvimDapViewExceptionFilterEnabled  { fg = p.green },
+    NvimDapViewExceptionFilterDisabled { fg = p.night3 },
+
+    NvimDapViewTab                { fg = p.night3.darken(-20) },
+    NvimDapViewTabSelected        { fg = p.frost0, gui = "bold" },
+    NvimDapViewSeparator          { fg = p.night3 },
+    NvimDapViewMissingData        { fg = p.night3, gui = "italic" },
 
     -- Better floating window
     LspInfoBorder    { FloatBorder },

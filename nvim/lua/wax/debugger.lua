@@ -3,8 +3,6 @@
 --
 -- https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/plugins/extras/dap/core.lua
 
-local tmux = require("wax.tmux")
-
 local js_based_languages =
   { "typescript", "javascript", "typescriptreact", "javascriptreact", "vue" }
 
@@ -83,17 +81,19 @@ local separator_launchjson = { -- Divider for the launch.json derived configs
 
 local keymaps = {
   -- stylua: ignore start
-  { "<leader>fd", function() require("dap").toggle_breakpoint() end, desc = "[DAP] toggle breakpoint" },
+  { "<leader>dd", function() require("dap").toggle_breakpoint() end, desc = "[DAP] toggle breakpoint" },
   -- { "<leader>fo", function() require("dap").step_over() end, desc = "[DAP] step over" },
   -- { "<leader>fO", function() require("dap").step_out() end, desc = "[DAP] step over" },
   -- { "<leader>fi", function() require("dap").step_into() end, desc = "[DAP] step into" },
-  { "<leader>ft", function() require("dap.ui.widgets").hover() end, desc = "[DAP] hover"},
-  { "<leader>fr", function() require("dapui").toggle({}) end, desc = "[DAP] toggle UI" },
+  --
+  { "<leader>dr", "<cmd>DapViewToggle<cr>", desc = "[DAP] toggle view" },
+  { "<leader>dw", "<cmd>DapViewWatch<cr>", desc = "[DAP] watch expr", mode = { "n", "v" } },
+  { "<leader>dj", "<cmd>DapViewJump repl<cr>", desc = "[DAP] jump to repl" },
   {"[p", function () gotoBreakpoint("prev") end, desc = '[DAP] go to prev breakpoint'},
   {"]p", function () gotoBreakpoint("next") end, desc = '[DAP] go to next breakpoint'},
   -- stylua: ignore end
   {
-    "<leader>fc",
+    "<leader>dc",
     function()
       local dap = require("dap")
       if not dap.session() then
@@ -125,19 +125,41 @@ return {
     local dap = require("dap")
     local repl = require("dap.repl")
 
-    -- local dapui = require("dapui")
-    -- dap.listeners.before.attach.dapui_config = function()
-    --   dapui.open()
-    -- end
-    -- dap.listeners.before.launch.dapui_config = function()
-    --   dapui.open()
-    -- end
-    -- dap.listeners.before.event_terminated.dapui_config = function()
-    --   dapui.close()
-    -- end
-    -- dap.listeners.before.event_exited.dapui_config = function()
-    --   dapui.close()
-    -- end
+    -- -- Enable verbose logging (check ~/.cache/nvim/dap.log)
+    -- dap.set_log_level("TRACE")
+
+    -- Prevent "winfixbuf" errors when jumping to source from nvim-dap-view windows
+    dap.defaults.fallback.switchbuf = "usevisible,usetab,newtab"
+
+    -- Custom REPL commands (like pdbrc aliases)
+    -- Helper to create a command that evaluates a Python template
+    local function py_cmd(template)
+      return function(args)
+        local session = dap.session()
+        if session then
+          local code = template:format(args, args) -- double for sql which uses %s twice
+          session:evaluate(code, function(err, resp)
+            if err then
+              repl.append("Error: " .. (err.message or vim.inspect(err)), "$")
+            elseif resp and resp.result then
+              repl.append(resp.result, "$")
+            end
+          end)
+        else
+          repl.append("No active debug session", "$")
+        end
+      end
+    end
+
+    repl.commands.custom_commands = vim.tbl_extend("force", repl.commands.custom_commands or {}, {
+      [".p"] = py_cmd([[print(%s)]]),
+      [".pp"] = py_cmd([[from pathlib import Path;from rich.console import Console;from rich.theme import Theme;Console(theme=Theme.read(Path("~/.config/rich/rich.ini").expanduser().as_posix())).print(%s)]]),
+      [".pi"] = py_cmd([[from pathlib import Path;from rich.console import Console;from rich.theme import Theme;from rich import inspect;inspect(%s, console=Console(theme=Theme.read(Path("~/.config/rich/rich.ini").expanduser().as_posix())))]]),
+      [".piv"] = py_cmd([[from pathlib import Path;from rich.console import Console;from rich.theme import Theme;from rich import inspect;inspect(%s, private=True, methods=True, console=Console(theme=Theme.read(Path("~/.config/rich/rich.ini").expanduser().as_posix())))]]),
+      [".dpp"] = py_cmd([[__import__("devtools").debug(%s)]]),
+      [".t"] = py_cmd([[type(%s)]]),
+      [".sql"] = py_cmd([[print(__import__("sqlparse").format(str(getattr(%s, "statement", %s).compile(dialect=__import__("sqlalchemy").dialects.postgresql.dialect(), compile_kwargs={"literal_binds": True})), reindent=True, keyword_case="upper"))]]),
+    })
 
     -- silence logs "could not read source map"
     dap.defaults.fallback.on_output = function(_, event)
@@ -148,42 +170,46 @@ return {
         repl.append(event.output, "$", { newline = false })
       end
     end
+
+    -- REPL keymaps
+    vim.api.nvim_create_autocmd("FileType", {
+      pattern = "dap-repl",
+      callback = function()
+        vim.keymap.set("i", "<C-w>", "<C-S-w>", { buffer = true })
+
+        vim.keymap.set("i", "<C-p>", function()
+          require("dap.repl").on_up()
+        end, { buffer = true })
+        vim.keymap.set("i", "<C-n>", function()
+          require("dap.repl").on_down()
+        end, { buffer = true })
+
+        vim.keymap.set("i", "<C-a>", "<Home>", { buffer = true })
+        vim.keymap.set("i", "<C-e>", "<End>", { buffer = true })
+      end,
+    })
   end,
   keys = keymaps,
   dependencies = {
     {
-      "rcarriga/nvim-dap-ui", -- fancy UI for the debugger
-      dependencies = { "nvim-neotest/nvim-nio" },
+      "igorlfs/nvim-dap-view",
       opts = {
-        controls = { enabled = false },
-        icons = {
-          collapsed = "⮕ ",
-          current_frame = "⮕ ",
-          expanded = "⤷",
-        },
-        layouts = {
-          -- scopes & breakpoints & stacks are better done by fzf-lua, hence only repl
-          {
-            elements = {
-              { id = "scopes", size = 1 },
-              -- { id = "stacks", size = 0.25 },
-            },
-            position = "bottom",
-            size = 5,
+        winbar = {
+          show = true,
+          sections = {
+            "repl",
+            "scopes",
+            "threads",
+            "watches",
+            "exceptions",
+            "breakpoints",
+            "console",
           },
-          {
-            elements = { { id = "repl", size = 1 } },
-            position = "bottom",
-            size = 10,
-          },
+          default_section = "repl",
         },
-        mappings = {
-          edit = "e",
-          expand = { "<CR>", "<2-LeftMouse>", "<Space>" },
-          open = "o",
-          remove = "dd",
-          repl = "r",
-          toggle = "t",
+        windows = {
+          height = 0.5,
+          position = "right",
         },
       },
     },
@@ -296,25 +322,42 @@ return {
 
         local dap = require("dap")
 
-        vim.list_extend(dap.configurations.python, {
-          { -- Divider for the custom configs
-            name = "----- ↓ custom configs ↓ -----",
-            type = "",
-            request = "launch",
-          },
+        local python_customs = {
+          -- { -- Divider for the custom configs
+          --   name = "----- ↓ custom configs ↓ -----",
+          --   type = "",
+          --   request = "launch",
+          -- },
           {
             type = "python",
             request = "launch",
-            name = "Dagster Dev Server",
-            program = function()
-              local cmd = "dagster dev -p 3001 --log-format rich"
-              tmux.run_in_pane(cmd, { interrupt_before = true, clear_before = true })
-              return vim.fn.getcwd() .. "/__dummy__.py" -- Return dummy program path (required by DAP)
+            justMyCode = true,
+            subProcess = true,
+            cwd = function()
+              return find_root_package(vim.api.nvim_buf_get_name(0)) or vim.fn.getcwd()
             end,
-            justMyCode = false,
-            cwd = "${workspaceFolder}",
+            name = "Dagster Dev Server",
+            module = "dagster",
+            args = { "dev", "-p", "3001", "--log-format", "rich" },
+
+            --
+            -- name = "Dagster Dev Server (tmux)",
+            -- connect = { host = "127.0.0.1", port = 5678 },
+            -- request = "attach",
+            -- preLaunchTask = function()
+            --   local tmux = require("wax.tmux")
+            --   local cwd = find_root_package(vim.api.nvim_buf_get_name(0)) or vim.fn.getcwd()
+            --   local cmd = ("cd %s && python -m debugpy --listen 5678 --configure-subProcess true -m dagster dev -p 3001 --log-format rich"):format(cwd)
+            --   tmux.run_in_pane(cmd, { interrupt_before = true, clear_before = true })
+            --   -- Give debugpy time to start listening
+            --   vim.wait(2000)
+            -- end,
           },
-        })
+        }
+
+        -- vim.list_extend(dap.configurations.python, python_customs)
+        dap.configurations.python = python_customs
+
         vim.list_extend(dap.configurations.python, { separator_launchjson })
       end,
     },
