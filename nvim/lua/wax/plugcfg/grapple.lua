@@ -100,9 +100,11 @@ local function orderby_grapple_tags()
 end
 
 vim.keymap.set("n", "<leader>tt", function()
+  grapple.unload()
   grapple.toggle()
 end)
 vim.keymap.set("n", "<leader>tl", function()
+  grapple.unload()
   grapple.toggle_tags()
 end)
 
