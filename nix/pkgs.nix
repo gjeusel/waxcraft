@@ -161,7 +161,8 @@
     #       See: https://github.com/nix-darwin/nix-darwin/issues/1255
     #       For now, if we want them in Login Items, we need to pass by brew.
     # raycast
-    pkgs-unstable.aerospace
+    aerospace
+    # pkgs-unstable.aerospace
     # karabiner-elements
 
     slack
