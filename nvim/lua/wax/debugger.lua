@@ -81,19 +81,19 @@ local separator_launchjson = { -- Divider for the launch.json derived configs
 
 local keymaps = {
   -- stylua: ignore start
-  { "<leader>dd", function() require("dap").toggle_breakpoint() end, desc = "[DAP] toggle breakpoint" },
+  { "<leader>fd", function() require("dap").toggle_breakpoint() end, desc = "[DAP] toggle breakpoint" },
   -- { "<leader>fo", function() require("dap").step_over() end, desc = "[DAP] step over" },
   -- { "<leader>fO", function() require("dap").step_out() end, desc = "[DAP] step over" },
   -- { "<leader>fi", function() require("dap").step_into() end, desc = "[DAP] step into" },
   --
-  { "<leader>dr", "<cmd>DapViewToggle<cr>", desc = "[DAP] toggle view" },
-  { "<leader>dw", "<cmd>DapViewWatch<cr>", desc = "[DAP] watch expr", mode = { "n", "v" } },
-  { "<leader>dj", "<cmd>DapViewJump repl<cr>", desc = "[DAP] jump to repl" },
+  { "<leader>fr", "<cmd>DapViewToggle<cr>", desc = "[DAP] toggle view" },
+  -- { "<leader>dw", "<cmd>DapViewWatch<cr>", desc = "[DAP] watch expr", mode = { "n", "v" } },
+  { "<leader>fj", "<cmd>DapViewJump repl<cr>", desc = "[DAP] jump to repl" },
   {"[p", function () gotoBreakpoint("prev") end, desc = '[DAP] go to prev breakpoint'},
   {"]p", function () gotoBreakpoint("next") end, desc = '[DAP] go to next breakpoint'},
   -- stylua: ignore end
   {
-    "<leader>dc",
+    "<leader>fc",
     function()
       local dap = require("dap")
       if not dap.session() then

@@ -1,3 +1,8 @@
+local log_level = "off"
+if vim.tbl_contains({ "trace", "debug", "info" }, waxopts.loglevel) then
+  log_level = waxopts.loglevel
+end
+
 require("supermaven-nvim").setup({
   keymaps = {
     accept_suggestion = "<C-space>",
@@ -5,6 +10,7 @@ require("supermaven-nvim").setup({
     accept_word = "<C-j>",
   },
   ignore_filetypes = { ["dap-repl"] = true },
+  log_level = log_level,
 })
 
 vim.g.SUPERMAVEN_DISABLED = 0
