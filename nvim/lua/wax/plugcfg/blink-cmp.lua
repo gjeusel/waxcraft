@@ -193,6 +193,9 @@ local opts = {
       return 0 -- 0 means same behaviour as fzf
       -- return math.floor(#keyword / 4)
     end,
+    frecency = {
+      enabled = false,
+    },
     sorts = { "score", "sort_text" },
   },
 }

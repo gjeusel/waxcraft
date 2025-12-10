@@ -41,6 +41,8 @@
     python312Packages.watchfiles
     unixtools.watch
 
+    yaak # postman replacement
+
     # ----- setup -----
     duti # help to switch default app handler for macos
 
