@@ -210,8 +210,7 @@ return {
           local rel_path = current_file:gsub("^" .. vim.pesc(git_root) .. "/", "")
 
           -- Check if file exists in main/master branch
-          local check_result =
-            vim.fn.system({ "git", "cat-file", "-e", main_branch .. ":" .. rel_path })
+          vim.fn.system({ "git", "cat-file", "-e", main_branch .. ":" .. rel_path })
           if vim.v.shell_error ~= 0 then
             vim.notify(
               string.format("File '%s' does not exist in '%s' branch", rel_path, main_branch),
@@ -824,7 +823,6 @@ return {
           require("ts_context_commentstring.internal").update_commentstring()
           return vim.o.commentstring
         end
-
         -- if vim.bo.filetype == "typescriptreact" then
         --   local fn = require("ts_context_commentstring.integrations.comment_nvim").create_pre_hook()
         --   return fn()
@@ -951,28 +949,6 @@ return {
       require("wax.plugcfg.blink-cmp")
     end,
   },
-
-  -- {
-  --   "hrsh7th/nvim-cmp",
-  --   event = "InsertEnter",
-  --   dependencies = {
-  --     "onsails/lspkind-nvim",
-  --     "hrsh7th/cmp-buffer",
-  --     "hrsh7th/cmp-path",
-  --     "hrsh7th/cmp-nvim-lua",
-  --     "hrsh7th/cmp-nvim-lsp",
-  --     { "lukas-reineke/cmp-rg", dev = true, pin = true },
-  --     "saadparwaiz1/cmp_luasnip",
-  --     "rcarriga/cmp-dap",
-  --   },
-  --   config = function()
-  --     require("wax.plugcfg.nvim-cmp")
-  --   end,
-  -- },
-
-  -- {
-  --   "folke/sidekick.nvim", -- to investigate
-  -- },
 
   -- DAP
   { import = "wax.debugger" },
