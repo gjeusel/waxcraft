@@ -75,7 +75,7 @@
   },
   "languages": {
     "Python": {
-      "language_servers": ["pyright", "ruff"],
+      "language_servers": ["ty", "ruff"],
       // "language_servers": ["pyright", "pylsp", "ruff"],
       "format_on_save": "on",
       "formatter": [
@@ -154,15 +154,15 @@
     //     }
     //   }
     // }
-    "pyright": {
-      "enabled": true,
-      "settings": {
-        "python.analysis": {
-          "diagnosticMode": "off",
-          "typeCheckingMode": "off"
-        },
-        "python.pythonPath": "${HOME}/opt/miniconda3/envs/zefire/bin/python"
-      }
-    }
+    // "pyright": {
+    //   "enabled": true,
+    //   "settings": {
+    //     "python.analysis": {
+    //       "diagnosticMode": "off",
+    //       "typeCheckingMode": "off"
+    //     },
+    //     "python.pythonPath": "${HOME}/opt/miniconda3/envs/zefire/bin/python"
+    //   }
+    // }
   }
 }
