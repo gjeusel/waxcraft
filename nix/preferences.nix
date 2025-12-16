@@ -126,4 +126,32 @@
       };
     };
   };
+
+  # Spotlight exclusions for Electron apps (reduces mds_stores CPU usage)
+  # Note: postActivation runs as root, so we must use absolute paths
+  system.activationScripts.postActivation.text = ''
+    USER_HOME="/Users/${config.system.primaryUser}"
+    SPOTLIGHT_EXCLUSIONS=(
+      "$USER_HOME/Library/Application Support/Notion"
+      "$USER_HOME/Library/Application Support/Slack"
+      "$USER_HOME/Library/Application Support/Code"
+      "$USER_HOME/Library/Application Support/BraveSoftware"
+      "$USER_HOME/Library/Application Support/Google/Chrome"
+      "$USER_HOME/Library/Application Support/Discord"
+      "$USER_HOME/Library/Caches"
+      "$USER_HOME/.cargo"
+      "$USER_HOME/.rustup"
+      "$USER_HOME/.npm"
+      "$USER_HOME/.pnpm"
+      "$USER_HOME/opt/miniconda3"
+      "$USER_HOME/src"
+    )
+
+    for dir in "''${SPOTLIGHT_EXCLUSIONS[@]}"; do
+      if [ -d "$dir" ]; then
+        # Add .metadata_never_index file to prevent Spotlight indexing
+        touch "$dir/.metadata_never_index"
+      fi
+    done
+  '';
 }
