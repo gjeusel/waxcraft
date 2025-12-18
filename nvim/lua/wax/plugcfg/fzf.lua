@@ -29,7 +29,7 @@ local rg_ignore_dirs = {
   --
   "**/.dist/*",
   "**/dist/*",
-  "**/.nuxt/dist/*",
+  "**/.nuxt/*",
   "**/.output/*",
   "**/node_modules/*",
   "**/.vercel/output/*",
