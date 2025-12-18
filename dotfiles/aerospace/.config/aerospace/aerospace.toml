@@ -290,10 +290,6 @@ if.window-title-regex-substring = 'Appel|Huddle|Call|🎤'
 run = ['layout floating']
 
 [[on-window-detected]]
-if.app-id = 'com.tinyspeck.slackmacgap'
-run = 'move-node-to-workspace 4'
-
-[[on-window-detected]]
 if.app-id = 'com.microsoft.teams2'
 run = 'move-node-to-workspace 4'
 if.during-aerospace-startup = true
