@@ -23,7 +23,7 @@ theme = "nord"
 window-padding-x = 10
 
 macos-titlebar-style = "hidden"
-window-decoration = false
+window-decoration = "none"
 window-show-tab-bar = never
 
 keybind = cmd+enter=text:\x0D
@@ -34,3 +34,6 @@ keybind = ctrl+enter=text:\r
 # -- disable cmd+, opening the config file
 keybind = super+,=unbind
 keybind = shift+enter=text:\x1b\r
+
+# -- disable cmd+t opening new tabs
+keybind = super+t=unbind
