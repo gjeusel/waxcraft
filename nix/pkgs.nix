@@ -35,6 +35,7 @@
     httpie
     tree
     gh
+    glab
     jujutsu
     parallel
 
