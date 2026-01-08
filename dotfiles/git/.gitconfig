@@ -16,21 +16,8 @@
 
 [difftool]
 	prompt=false
-[diff]
-	path = vimdiff
-
 [diff "sopsdiffer"]
 	textconv = sops -d
-
-# [diff]
-# 	tool = difftastic
-# 	external = difft
-# [difftool "difftastic"]
-# 	cmd = difft --display inline --color always "$LOCAL" "$REMOTE"
-
-
-[pager]
-	difftool = true
 
 [pull]
 	rebase = false
@@ -40,3 +27,14 @@
 
 [push]
 	autoSetupRemote = true
+[diff]
+	tool = vimdiff
+[difftool "vimdiff"]
+	cmd = nvim -d \"$LOCAL\" \"$REMOTE\"
+
+# [diff]
+# 	tool = difftastic
+# 	external = difft
+# [difftool "difftastic"]
+# 	cmd = difft --display inline --color always "$LOCAL" "$REMOTE"
+

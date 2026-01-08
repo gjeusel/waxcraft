@@ -208,7 +208,7 @@ return {
           default_section = "repl",
         },
         windows = {
-          height = 0.5,
+          size = 0.5,
           position = "right",
         },
       },
