@@ -30,129 +30,6 @@ local keymap = {
   ["<C-k>"] = { "snippet_backward", "fallback" },
 }
 
-local source_priority = {
-  "snippets",
-  "lsp",
-  "path",
-  "buffer",
-  "ripgrep",
-}
-
--- Prioritize ty LSP auto-imports from Python stdlib (set to nil to disable)
--- stylua: ignore
-local python_stdlib_priority = {
-  typing = 1, typing_extensions = 2, collections = 3, abc = 4, functools = 5,
-  itertools = 6, dataclasses = 7, enum = 8, re = 9, os = 10, sys = 11,
-  pathlib = 12, json = 13, datetime = 14, contextlib = 15, io = 16, copy = 17, math = 18,
-  pydantic = 19,
-}
-
-local function get_ty_item_priority(item)
-  if item.client_name ~= "ty" then
-    return nil
-  end
-  local ld = item.labelDetails
-  if not ld then
-    return nil
-  end
-  local detail = ld.detail
-  if not detail then
-    return nil
-  end
-  local start = detail:find("(import ", 1, true)
-  if not start then
-    return nil
-  end
-  local mod_start = start + 8
-  local dot = detail:find(".", mod_start, true)
-  local paren = detail:find(")", mod_start, true)
-  local mod_end = (dot and paren and (dot < paren and dot or paren)) or dot or paren
-  if not mod_end or mod_end <= mod_start then
-    return nil
-  end
-  return python_stdlib_priority[detail:sub(mod_start, mod_end - 1)]
-end
-
-local function dedupe_lsp_items(lsp_items)
-  local by_label, prio_cache = {}, {}
-  local n = #lsp_items
-  local get_prio = get_ty_item_priority
-  -- local get_prio = nil
-
-  for i = 1, n do
-    local item = lsp_items[i]
-    local label = item.label
-    local existing = by_label[label]
-    if not existing then
-      by_label[label] = item
-      if get_prio then
-        prio_cache[label] = get_prio(item)
-      end
-    elseif get_prio then
-      local item_prio = get_prio(item)
-      if item_prio and (not prio_cache[label] or item_prio < prio_cache[label]) then
-        by_label[label] = item
-        prio_cache[label] = item_prio
-      end
-    end
-  end
-
-  local filtered, j = {}, 0
-  for i = 1, n do
-    local label = lsp_items[i].label
-    local best = by_label[label]
-    if best then
-      j = j + 1
-      filtered[j] = best
-      by_label[label] = nil
-    end
-  end
-  return filtered
-end
-
-local function dedupe_sources(items_by_source)
-  local seen = {}
-  local lsp = items_by_source["lsp"]
-  if lsp then
-    for i = 1, #lsp do
-      seen[lsp[i].label] = true
-    end
-  end
-
-  local sp = source_priority
-  for i = 1, #sp do
-    local id = sp[i]
-    if id ~= "lsp" then
-      local items = items_by_source[id]
-      if items then
-        local filtered, j = {}, 0
-        for k = 1, #items do
-          local item = items[k]
-          local label = item.label
-          if not seen[label] then
-            seen[label] = true
-            j = j + 1
-            filtered[j] = item
-          end
-        end
-        items_by_source[id] = filtered
-      end
-    end
-  end
-end
-
--- https://github.com/Saghen/blink.cmp/issues/1222
-local original = require("blink.cmp.completion.list").show
----@diagnostic disable-next-line: duplicate-set-field
-require("blink.cmp.completion.list").show = function(ctx, items_by_source)
-  local lsp_items = items_by_source["lsp"]
-  if lsp_items then
-    items_by_source["lsp"] = dedupe_lsp_items(lsp_items)
-  end
-  dedupe_sources(items_by_source)
-  return original(ctx, items_by_source)
-end
-
 ---@module 'blink.cmp'
 ---@diagnostic disable-next-line: undefined-doc-name
 ---@type blink.cmp.Config
@@ -164,10 +41,9 @@ local opts = {
   keymap = keymap,
   completion = {
     trigger = {
+      prefetch_on_insert = true,
       show_on_keyword = true,
       show_on_trigger_character = true,
-      -- show_on_accept_on_trigger_character = true,
-      -- show_on_insert_on_trigger_character = true,
     },
     menu = {
       border = "none",
@@ -233,10 +109,13 @@ local opts = {
     providers = {
       lsp = {
         score_offset = 10,
+        async = true,
       },
       ripgrep = {
         module = "blink-ripgrep",
         name = "rg",
+        async = true,
+        min_keyword_length = 3,
         opts = {
           prefix_min_len = 4,
           debounce = 200,
@@ -259,21 +138,14 @@ local opts = {
         },
       },
       buffer = {
-        opts = {
-          get_bufnrs = function()
-            return vim.tbl_filter(function(bufnr)
-              return vim.bo[bufnr].buftype == ""
-            end, vim.api.nvim_list_bufs())
-          end,
-        },
-        -- should_show_items = function(ctx)
-        --   return ctx.trigger.initial_kind ~= "trigger_character"
-        -- end,
+        min_keyword_length = 2,
+        async = true,
       },
       snippets = {
         score_offset = 20,
         min_keyword_length = 2,
         max_items = 2,
+        async = true,
         should_show_items = function(ctx)
           return ctx.trigger.initial_kind ~= "trigger_character"
         end,
@@ -281,14 +153,15 @@ local opts = {
       dap = {
         name = "dap",
         module = "blink.compat.source",
+        async = true,
       },
     },
   },
   fuzzy = {
+    implementation = "prefer_rust_with_warning",
     ---@diagnostic disable-next-line: unused-local
     max_typos = function(keyword)
       return 0 -- 0 means same behaviour as fzf
-      -- return math.floor(#keyword / 4)
     end,
     frecency = {
       enabled = false,
