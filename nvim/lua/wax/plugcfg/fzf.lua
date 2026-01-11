@@ -257,9 +257,10 @@ local function pick_project(fn)
   end, projects)
 
   vim.ui.select(projects, { prompt = "Select project> " }, function(choice, _)
-    vim.cmd("stopinsert")
     if choice then
-      fn(src_path:join(choice):absolute())
+      vim.schedule(function()
+        fn(src_path:join(choice):absolute())
+      end)
     end
   end)
 end

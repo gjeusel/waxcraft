@@ -737,8 +737,8 @@ return {
     },
   },
   {
-    "echasnovski/mini.pairs",
-    event = "VeryLazy",
+    "windwp/nvim-autopairs",
+    event = "InsertEnter",
     opts = {},
   },
   {
@@ -760,7 +760,7 @@ return {
       local ai = require("mini.ai")
       return {
         search_method = "cover_or_nearest",
-        n_lines = 500,
+        n_lines = 5,
         mappings = {
           -- Main textobject prefixes
           around = "a",
