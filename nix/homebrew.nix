@@ -49,7 +49,8 @@
       "pika" # equivalent of ColorSlurp (get the hex code of a color)
       "obs" # screen record
 
-      "cyberghost-vpn" # VPN
+      # "cyberghost-vpn" # VPN
+      "protonvpn" # VPN
       "transmission" # torrent downloader
 
       "calibre" # e-book

@@ -56,6 +56,10 @@
     ni # Use the right package manager (npm / pnpm / bun)
     typescript-language-server
 
+    prek
+    git-secrets
+    gitleaks
+
     # python
     uv
     # micromamba # https://github.com/NixOS/nixpkgs/issues/456288
