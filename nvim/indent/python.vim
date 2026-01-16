@@ -73,11 +73,34 @@ let s:skip_after_opening_paren = 'synIDattr(synID(line("."), col("."), 0), "name
 
 let s:special_chars_syn_pattern = "\\vstring|comment|^pythonbytes%(content)=$|pythonTodo|jedi\\S"
 
+" Check if position is in string/comment using treesitter (for Neovim with TS)
+function! s:_is_ts_string_or_comment(line, col)
+    if !has('nvim')
+        return 0
+    endif
+    try
+        let captures = luaeval('vim.treesitter.get_captures_at_pos(0, _A.row, _A.col)', {'row': a:line - 1, 'col': a:col - 1})
+        for capture in captures
+            if has_key(capture, 'capture') && (capture.capture =~# 'string' || capture.capture =~# 'comment')
+                return 1
+            endif
+        endfor
+    catch
+        " Treesitter not available or error, fall through
+    endtry
+    return 0
+endfunction
+
 if !get(g:, 'python_pep8_indent_skip_concealed', 0) || !has('conceal')
     " Skip strings and comments. Return 1 for chars to skip.
     " jedi* refers to syntax definitions from jedi-vim for call signatures, which
     " are inserted temporarily into the buffer.
     function! s:_skip_special_chars(line, col)
+        " Try treesitter first (for Neovim with treesitter highlighting)
+        if s:_is_ts_string_or_comment(a:line, a:col)
+            return 1
+        endif
+        " Fall back to traditional vim syntax check
         return match(map(synstack(a:line, a:col),
               \ "synIDattr(v:val, 'name')"),
               \ '\c'.s:special_chars_syn_pattern) != -1
@@ -94,6 +117,11 @@ else
     endfunction
 
     function! s:_skip_special_chars(line, col)
+        " Try treesitter first (for Neovim with treesitter highlighting)
+        if s:_is_ts_string_or_comment(a:line, a:col)
+            return 1
+        endif
+        " Fall back to traditional vim syntax check
         return match(map(synstack(a:line, a:col),
               \ "synIDattr(v:val, 'name')"),
               \ '\c'.s:special_chars_syn_pattern) != -1
