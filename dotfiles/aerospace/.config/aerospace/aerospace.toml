@@ -1,4 +1,4 @@
-start-at-login = false
+start-at-login = true
 
 after-login-command = []
 
@@ -49,7 +49,7 @@ key-mapping.preset = 'qwerty'
 # See https://nikitabobko.github.io/AeroSpace/guide#on-focus-changed-callbacks
 # See https://nikitabobko.github.io/AeroSpace/commands#move-mouse
 # Fallback value (if you omit the key): on-focused-monitor-changed = []
-on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
+# on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
 
 [gaps]
 inner.horizontal = 8
@@ -75,6 +75,10 @@ outer.top = 0
 # All possible commands: https://nikitabobko.github.io/AeroSpace/commands
 
 [mode.main.binding]
+
+# Disable cmd-h (hide application) - prevents accidental hiding in tiling context
+cmd-h = []
+cmd-alt-h = []
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#layout
 ctrl-alt-d = 'layout v_accordion h_tiles'
@@ -224,7 +228,6 @@ run = 'move-node-to-workspace 1'
 if.app-id = 'com.brave.Browser'
 if.window-title-regex-substring = 'Brave - Renewex'
 run = 'move-node-to-workspace 2'
-if.during-aerospace-startup = true
 
 [[on-window-detected]]
 if.app-id = 'com.brave.Browser'
@@ -234,18 +237,15 @@ run = ['layout floating']
 [[on-window-detected]]
 if.app-id = 'app.zen-browser.zen'
 run = 'move-node-to-workspace 2'
-if.during-aerospace-startup = true
 
 
 [[on-window-detected]]
 if.app-id = 'com.google.Chrome'
-run = 'move-node-to-workspace 3'
-if.during-aerospace-startup = true
+run = ['layout floating', 'move-node-to-workspace 3']
 
 [[on-window-detected]]
 if.app-id = 'org.mozilla.firefox'
 run = 'move-node-to-workspace 3'
-if.during-aerospace-startup = true
 
 [[on-window-detected]]
 if.app-id = 'org.mozilla.firefoxdeveloperedition'
@@ -255,33 +255,27 @@ run = 'move-node-to-workspace 0'
 [[on-window-detected]]
 if.app-id = 'org.mozilla.firefoxdeveloperedition'
 run = 'move-node-to-workspace 3'
-if.during-aerospace-startup = true
 
 
 [[on-window-detected]]
 if.app-id = 'org.jkiss.dbeaver.core.product'
 run = 'move-node-to-workspace 3'
-if.during-aerospace-startup = true
 
 [[on-window-detected]]
 if.app-id = 'com.tinyapp.TablePlus'
 run = 'move-node-to-workspace 3'
-if.during-aerospace-startup = true
 
 [[on-window-detected]]
 if.app-id = 'dev.zed.Zed'
 run = 'move-node-to-workspace 3'
-if.during-aerospace-startup = true
 
 [[on-window-detected]]
 if.app-id = 'org.yanex.marta'
 run = 'move-node-to-workspace 3'
-if.during-aerospace-startup = true
 
 
 [[on-window-detected]]
 if.app-id = 'com.tinyspeck.slackmacgap'
-if.during-aerospace-startup = true
 run = 'move-node-to-workspace 4'
 
 [[on-window-detected]]
@@ -292,24 +286,25 @@ run = ['layout floating']
 [[on-window-detected]]
 if.app-id = 'com.microsoft.teams2'
 run = 'move-node-to-workspace 4'
-if.during-aerospace-startup = true
+
+[[on-window-detected]]
+if.app-id = 'com.microsoft.teams2'
+if.window-title-regex-substring = 'Meeting|Call|Appel'
+run = ['layout floating']
 
 
 [[on-window-detected]]
 if.app-id = 'com.mimestream.Mimestream'
 run = 'move-node-to-workspace 5'
-if.during-aerospace-startup = true
 
 
 [[on-window-detected]]
 if.app-id = 'com.microsoft.Excel'
 run = 'move-node-to-workspace 6'
-if.during-aerospace-startup = true
 
 [[on-window-detected]]
 if.app-id = 'com.microsoft.Word'
 run = 'move-node-to-workspace 6'
-if.during-aerospace-startup = true
 
 
 [[on-window-detected]]
@@ -320,7 +315,6 @@ run = 'move-node-to-workspace 9'
 if.app-id = 'com.brave.Browser'
 if.window-title-regex-substring = 'Brave - Perso'
 run = 'move-node-to-workspace 9'
-if.during-aerospace-startup = true
 
 [[on-window-detected]]
 if.app-id = 'com.parallels.desktop.console' # Parallel base
