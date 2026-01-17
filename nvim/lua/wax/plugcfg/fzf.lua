@@ -71,11 +71,47 @@ local rg_grep_cmd = ("rg --line-number --column --no-ignore-vcs %s %s %s"):forma
 )
 local rg_files_cmd = ("rg --no-ignore-vcs --files %s %s"):format(rg_base_opts, rg_ignore_arg)
 
+-- Wrapper: builtin file_edit_or_qf + jump to first qf entry + add files to buffers
+local function file_edit_or_qf_cfirst(selected, opts)
+  if #selected <= 2 then -- single select (first element is keybind)
+    fzf_lua.actions.file_edit_or_qf(selected, opts)
+    return
+  end
+
+  -- Multi-select: parse entries and populate quickfix
+  local items = {}
+  for i = 1, #selected do
+    local entry = selected[i]
+    local file = fzf_lua.path.entry_to_file(entry, opts)
+    local text = entry:match(":%d+:%d?%d?%d?%d?:?(.*)$") or ""
+    table.insert(items, {
+      filename = file.bufname or file.path,
+      lnum = file.line or 1,
+      col = file.col or 1,
+      text = text,
+    })
+  end
+
+  -- Load all files into buffers first
+  for _, item in ipairs(items) do
+    vim.fn.bufadd(item.filename)
+  end
+
+  vim.fn.setqflist({}, "r", { title = "FZF Selection", items = items })
+  vim.cmd("copen")
+  vim.cmd("cfirst")
+end
+
 local fzf_actions = {
-  ["default"] = fzf_lua.actions.file_edit,
+  ["default"] = file_edit_or_qf_cfirst,
   ["ctrl-s"] = fzf_lua.actions.file_split,
   ["ctrl-v"] = fzf_lua.actions.file_vsplit,
-  -- ["ctrl-r"] = fzf_lua.actions.file_sel_to_qf,  -- not working in multiselect
+}
+
+-- fzf keybinds for fzf_exec (doesn't inherit from setup)
+local fzf_exec_opts = {
+  ["--multi"] = "", -- enable multi-select
+  ["--bind"] = "ctrl-r:select-all+accept",
 }
 
 fzf_lua.setup({
@@ -112,6 +148,7 @@ fzf_lua.setup({
     git_icons = false,
     file_icons = false,
     multiprocess = true,
+    rg_glob = true, -- enable inline glob filtering: `pattern -- *.lua !*test*`
     -- debug = true,
     cwd_header = false,
     rg_opts = table.concat({
@@ -134,68 +171,6 @@ fzf_lua.register_ui_select({ winopts = { height = 0.33, width = 0.33 } }, true)
 -- fzf_lua.deregister_ui_select({}, true)
 
 --
-------- utils funcs -------
---
-
----@class FzfFileEntry
----@field filename string
----@field lnum number
----@field col number
----@field text string
-
----@param entries table<string>
----@param opts table<any>
----@return table<FzfFileEntry>
-local function parse_entries(entries, opts)
-  return vim.tbl_map(function(entry)
-    local file = fzf_lua.path.entry_to_file(entry, opts)
-    local text = entry:match(":%d+:%d?%d?%d?%d?:?(.*)$")
-    return {
-      filename = file.bufname or file.path,
-      lnum = file.line or 1,
-      col = file.col or 1,
-      text = text or "",
-    }
-  end, entries)
-end
-
-local function fn_selected_multi(selected, opts)
-  if not selected then
-    return
-  end
-
-  -- first element of "selected" is the keybind pressed
-  if #selected <= 2 then
-    if selected[1] == "esc" then
-      return
-    else
-      return fzf_lua.actions.act(selected, opts)
-    end
-  end
-
-  -- here we multi-selected ("select-all+accept" on fzf lua view point)
-  local _, entries = fzf_lua.actions.normalize_selected(selected, opts)
-  entries = parse_entries(entries, opts)
-
-  -- Set the quickfix list and open it
-  vim.fn.setqflist({}, "r", {
-    title = "FZF Selection",
-    items = entries,
-  })
-
-  -- Open quickfix window and jump to first entry
-  vim.cmd("copen")
-  vim.cmd("cfirst")
-
-  -- Add all files to buffers
-  for _, item in ipairs(vim.fn.getqflist()) do
-    if item.bufnr > 0 then
-      vim.cmd("badd " .. vim.fn.fnameescape(vim.fn.bufname(item.bufnr)))
-    end
-  end
-end
-
---
 ---------- Grep ----------
 --
 -- Fzf Grep
@@ -205,7 +180,6 @@ local function fzf_grep(cwd)
     cmd = rg_grep_cmd,
     cwd = cwd,
     search = "",
-    fn_selected = fn_selected_multi,
   })
 end
 
@@ -218,7 +192,6 @@ local function grep_cword(cwd)
     winopts = { title = ("  %s   -   %s  "):format(word, cwd), title_flags = false },
     cmd = rg_grep_cmd,
     cwd = cwd,
-    fn_selected = fn_selected_multi,
   })
 end
 
@@ -228,10 +201,10 @@ end
 local function rg_files(cwd)
   return fzf_lua.fzf_exec(rg_files_cmd, {
     winopts = { title = ("  %s  "):format(cwd) },
+    fzf_opts = fzf_exec_opts,
     previewer = "builtin",
     cwd = cwd,
     actions = fzf_actions,
-    fn_selected = fn_selected_multi,
   })
 end
 
@@ -242,9 +215,7 @@ end
 --
 local function lsp_references()
   fzf_lua.lsp_references({
-    async = false, -- must be false to allow custom fn_selected callback
     file_ignore_patterns = { "miniconda3", "node_modules" }, -- ignore references in env libs
-    fn_selected = fn_selected_multi,
   })
 end
 
@@ -266,14 +237,18 @@ local function wax_files()
     return home .. "/" .. path
   end, paths)
 
-  local cmd = ("rg %s %s --files %s"):format(rg_base_opts, rg_ignore_arg, table.concat(abs_paths, " "))
+  local cmd = ("rg %s %s --files %s"):format(
+    rg_base_opts,
+    rg_ignore_arg,
+    table.concat(abs_paths, " ")
+  )
 
   return fzf_lua.fzf_exec(cmd, {
     prompt = "WaxFiles > ",
+    fzf_opts = fzf_exec_opts,
     previewer = "builtin",
     cwd = vim.env.HOME,
     actions = fzf_actions,
-    fn_selected = fn_selected_multi,
   })
 end
 
