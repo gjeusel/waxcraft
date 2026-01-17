@@ -33,15 +33,43 @@ local rg_ignore_dirs = {
   "**/.output/*",
   "**/node_modules/*",
   "**/.vercel/output/*",
+  --
+  "**/coverage/*", -- test coverage reports
+  "**/.next/*", -- Next.js build output
+  "**/.turbo/*", -- Turborepo cache
+  "**/target/*", -- Rust/Maven target
+  "**/.cargo/*", -- Rust cargo cache
+  "**/vendor/*", -- Go/PHP vendor
 }
 
-local rg_ignore_files =
-  { "*.min.css", "*.svg", "*.pdf", "pnpm-lock.yaml", "package-lock.json", "edgedb.toml" }
+local rg_ignore_files = {
+  "*.min.css",
+  "*.min.js", -- minified JS
+  "*.chunk.js", -- webpack chunks
+  "*.bundle.js", -- bundles
+  "*.svg",
+  "*.pdf",
+  "pnpm-lock.yaml",
+  "package-lock.json",
+  "edgedb.toml",
+}
 
 local rg_ignore_arg = ("--glob '!{%s}' --glob '!{%s}'"):format(
   table.concat(rg_ignore_dirs, ","),
   table.concat(rg_ignore_files, ",")
 )
+
+-- Reusable rg option groups
+local rg_base_opts = "--hidden"
+local rg_perf_opts = "--max-filesize=2M"
+
+-- Full command bases
+local rg_grep_cmd = ("rg --line-number --column --no-ignore-vcs %s %s %s"):format(
+  rg_base_opts,
+  rg_perf_opts,
+  rg_ignore_arg
+)
+local rg_files_cmd = ("rg --no-ignore-vcs --files %s %s"):format(rg_base_opts, rg_ignore_arg)
 
 local fzf_actions = {
   ["default"] = fzf_lua.actions.file_edit,
@@ -87,7 +115,15 @@ fzf_lua.setup({
     -- debug = true,
     cwd_header = false,
     rg_opts = table.concat({
-      "--hidden --column --line-number --no-heading --color=always --smart-case",
+      rg_base_opts,
+      "--column",
+      "--line-number",
+      "--no-heading",
+      "--color=always",
+      "--smart-case",
+      "--max-columns=512",
+      "--max-columns-preview",
+      rg_perf_opts,
       rg_ignore_arg,
     }, " "),
   },
@@ -166,7 +202,7 @@ end
 local function fzf_grep(cwd)
   return fzf_lua.grep({
     winopts = { title = ("  %s  "):format(cwd), title_flags = false },
-    cmd = ("rg --line-number --column --no-ignore-vcs --hidden %s"):format(rg_ignore_arg),
+    cmd = rg_grep_cmd,
     cwd = cwd,
     search = "",
     fn_selected = fn_selected_multi,
@@ -180,7 +216,7 @@ local function grep_cword(cwd)
 
   return fzf_lua.grep_cword({
     winopts = { title = ("  %s   -   %s  "):format(word, cwd), title_flags = false },
-    cmd = ("rg --line-number --column --no-ignore-vcs --hidden %s"):format(rg_ignore_arg),
+    cmd = rg_grep_cmd,
     cwd = cwd,
     fn_selected = fn_selected_multi,
   })
@@ -190,8 +226,7 @@ end
 ---------- Files ----------
 --
 local function rg_files(cwd)
-  local rg_cmd = ("rg --no-ignore-vcs --files --hidden %s"):format(rg_ignore_arg)
-  return fzf_lua.fzf_exec(rg_cmd, {
+  return fzf_lua.fzf_exec(rg_files_cmd, {
     winopts = { title = ("  %s  "):format(cwd) },
     previewer = "builtin",
     cwd = cwd,
@@ -231,7 +266,7 @@ local function wax_files()
     return home .. "/" .. path
   end, paths)
 
-  local cmd = ("rg --hidden %s --files %s"):format(rg_ignore_arg, table.concat(abs_paths, " "))
+  local cmd = ("rg %s %s --files %s"):format(rg_base_opts, rg_ignore_arg, table.concat(abs_paths, " "))
 
   return fzf_lua.fzf_exec(cmd, {
     prompt = "WaxFiles > ",
