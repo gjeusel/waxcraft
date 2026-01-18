@@ -602,11 +602,27 @@ return {
         desc = "RipGrep with search being the current word under the cursor (entire monorepo)",
       },
       {
+        "<leader>fw",
+        function()
+          require("wax.plugcfg.fzf").grep_visual(find_root_monorepo())
+        end,
+        mode = "v",
+        desc = "RipGrep with visual selection (entire monorepo)",
+      },
+      {
         "<leader>fW",
         function()
           require("wax.plugcfg.fzf").grep_cword(find_root_package())
         end,
         desc = "RipGrep with search being the current word under the cursor (package first)",
+      },
+      {
+        "<leader>fW",
+        function()
+          require("wax.plugcfg.fzf").grep_visual(find_root_package())
+        end,
+        mode = "v",
+        desc = "RipGrep with visual selection (package first)",
       },
       ---------- Files ----------
       {

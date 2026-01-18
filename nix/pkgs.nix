@@ -179,7 +179,7 @@
     bitwarden-desktop
     # bitwarden-cli
 
-    mountain-duck
+    # mountain-duck # outdated event in nixos unstable
 
     # ----- mobile dev -----
     cocoapods

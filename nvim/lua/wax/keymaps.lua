@@ -208,6 +208,16 @@ vim.keymap.set("n", "<leader>ff", function()
     table.insert(options, 1, Path:new(abspath):make_relative(git_root).path)
   end
 
+  -- Deduplicate options while preserving order
+  local seen = {}
+  options = vim.tbl_filter(function(v)
+    if seen[v] then
+      return false
+    end
+    seen[v] = true
+    return true
+  end, options)
+
   vim.ui.select(options, { prompt = "Select filepath to copy > " }, function(selected)
     if selected then
       vim.fn.setreg("+", selected)

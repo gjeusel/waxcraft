@@ -195,6 +195,15 @@ local function grep_cword(cwd)
   })
 end
 
+-- Fzf Grep visual selection
+local function grep_visual(cwd)
+  return fzf_lua.grep_visual({
+    winopts = { title = ("  %s  "):format(cwd), title_flags = false },
+    cmd = rg_grep_cmd,
+    cwd = cwd,
+  })
+end
+
 --
 ---------- Files ----------
 --
@@ -291,6 +300,7 @@ return {
   -- grep
   fzf_grep = fzf_grep,
   grep_cword = grep_cword,
+  grep_visual = grep_visual,
   -- files
   rg_files = rg_files,
   -- lsp

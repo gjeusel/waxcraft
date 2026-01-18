@@ -28,6 +28,8 @@
 
       "mimestream" # email
 
+      "mountain-duck" # s3 mount
+
       "notion" # does not exists in nixpkgs
       "notion-calendar"
 
