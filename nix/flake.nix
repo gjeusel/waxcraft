@@ -57,6 +57,7 @@
       nix.enable = false; # let nix-darwin take full control over "Determinate"
 
       nixpkgs = {
+        overlays = builtins.attrValues (import "${self}/overlays.nix");
         config = {
           allowUnfree = true;
           allowBroken = true;

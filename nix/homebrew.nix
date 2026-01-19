@@ -24,11 +24,7 @@
       "firefox" # used for shopping
       "zen" # to try out
 
-      "marta" # replacement for finder
-
       "mimestream" # email
-
-      "mountain-duck" # s3 mount
 
       "notion" # does not exists in nixpkgs
       "notion-calendar"
