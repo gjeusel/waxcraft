@@ -37,7 +37,6 @@
       show-recents = false; # do not show recent apps in dock
       persistent-apps = [
         # "${pkgs.ghostty}/Applications/Ghostty.app" # if coming from nixkpgs
-        "/Applications/Marta.app"
         "/Applications/Ghostty.app"
         "/Applications/Brave Browser.app"
         "/Applications/Notion.app"
@@ -45,6 +44,9 @@
         "/Applications/Notion Calendar.app"
         "/Applications/Bitwarden.app"
         "/Applications/Mimestream.app"
+        "/Applications/Claude.app"
+        "/Applications/Spotify.app"
+        "/Applications/WhatsApp.app"
       ];
       wvous-tl-corner = null; # top-left
       wvous-tr-corner = null; # top-right
