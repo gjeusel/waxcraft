@@ -127,7 +127,8 @@
     };
   };
 
-  # Spotlight exclusions for Electron apps (reduces mds_stores CPU usage)
+  # Spotlight exclusions to reduce mds_stores CPU usage
+  # Includes: Electron apps, cache folders, package managers, and source code
   # Note: postActivation runs as root, so we must use absolute paths
   system.activationScripts.postActivation.text = ''
     USER_HOME="/Users/${config.system.primaryUser}"
@@ -145,6 +146,7 @@
       "$USER_HOME/.pnpm"
       "$USER_HOME/opt/miniconda3"
       "$USER_HOME/src"
+      "$USER_HOME/Library/Group Containers/G69SCX94XU.duck"
     )
 
     for dir in "''${SPOTLIGHT_EXCLUSIONS[@]}"; do
