@@ -17,6 +17,8 @@
       "ghostty" # broken in nixpkgs
       "raycast"
 
+      "claude"
+
       "brave-browser" # default
       "firefox@developer-edition" # used for webdev
       "google-chrome" # used for webdev
@@ -43,9 +45,11 @@
       "vlc"
 
       "betterdisplay" # display settings
-      "shottr" # screenshot
       "pika" # equivalent of ColorSlurp (get the hex code of a color)
       "obs" # screen record
+
+      "shottr" # screenshot
+      # "cleanshot" # better screenshot ?
 
       # "cyberghost-vpn" # VPN
       "protonvpn" # VPN
