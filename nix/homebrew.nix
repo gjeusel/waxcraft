@@ -27,6 +27,7 @@
       "zen" # to try out
 
       "mimestream" # email
+      "readdle-spark" # other email client
 
       "notion" # does not exists in nixpkgs
       "notion-calendar"
@@ -49,7 +50,6 @@
       "obs" # screen record
 
       "shottr" # screenshot
-      # "cleanshot" # better screenshot ?
 
       # "cyberghost-vpn" # VPN
       "protonvpn" # VPN
