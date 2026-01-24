@@ -60,6 +60,7 @@
       "modrinth" # minecraft virtual env
 
       "spotify"
+      "ytmdesktop-youtube-music"
 
       # to lookup:
       # "gifox" # gif maker

@@ -47,6 +47,7 @@
         "/Applications/Mimestream.app"
         "/Applications/Claude.app"
         "/Applications/Spotify.app"
+        "/Applications/YouTube Music Desktop App.app"
         "/Applications/WhatsApp.app"
       ];
       # Disable all hot corners (1 = no action)
