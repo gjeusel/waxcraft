@@ -34,6 +34,7 @@
       autohide-time-modifier = 0.1; # time modifier for autohide
       magnification = true; # magnify the dock
       tilesize = 38;
+      largesize = 42; # subtle magnification (tilesize is 38)
       show-recents = false; # do not show recent apps in dock
       persistent-apps = [
         # "${pkgs.ghostty}/Applications/Ghostty.app" # if coming from nixkpgs

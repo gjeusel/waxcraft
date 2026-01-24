@@ -15,6 +15,7 @@
   # Users and databases to create
   dbUsers = ["postgres" "zefire" "venturi" "peregreen" "cloud_admin" "neon_superuser"];
   databases = [
+    "gjeusel"
     "zefire"
     "zefire_unittest"
     "venturi"
@@ -54,9 +55,9 @@
 
     echo "Creating users..."
     ${builtins.concatStringsSep "\n" (map (u: ''
-      if ! $PSQL -h ${socketDir} -U ${user} -tAc "SELECT 1 FROM pg_roles WHERE rolname='${u}'" | grep -q 1; then
+      if ! $PSQL -h ${socketDir} -U ${user} -d postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname='${u}'" | grep -q 1; then
         echo "Creating user: ${u}"
-        $PSQL -h ${socketDir} -U ${user} -c "CREATE USER \"${u}\" WITH SUPERUSER CREATEDB CREATEROLE;"
+        $PSQL -h ${socketDir} -U ${user} -d postgres -c "CREATE USER \"${u}\" WITH SUPERUSER CREATEDB CREATEROLE;"
       else
         echo "User ${u} already exists"
       fi
@@ -64,9 +65,9 @@
 
     echo "Creating databases..."
     ${builtins.concatStringsSep "\n" (map (db: ''
-      if ! $PSQL -h ${socketDir} -U ${user} -tAc "SELECT 1 FROM pg_database WHERE datname='${db}'" | grep -q 1; then
+      if ! $PSQL -h ${socketDir} -U ${user} -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='${db}'" | grep -q 1; then
         echo "Creating database: ${db}"
-        $PSQL -h ${socketDir} -U ${user} -c "CREATE DATABASE \"${db}\";"
+        $PSQL -h ${socketDir} -U ${user} -d postgres -c "CREATE DATABASE \"${db}\";"
       else
         echo "Database ${db} already exists"
       fi
@@ -76,6 +77,7 @@
     ${builtins.concatStringsSep "\n" (map (db: ''
       $PSQL -h ${socketDir} -U ${user} -d "${db}" -c "CREATE EXTENSION IF NOT EXISTS vector;" 2>/dev/null || true
       $PSQL -h ${socketDir} -U ${user} -d "${db}" -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;" 2>/dev/null || true
+      $PSQL -h ${socketDir} -U ${user} -d "${db}" -c "CREATE EXTENSION IF NOT EXISTS btree_gist;" 2>/dev/null || true
     '') databases)}
 
     # Mark as initialized
@@ -112,6 +114,12 @@ in {
       "--no-locale"
       "--encoding=UTF8"
     ];
+    authentication = ''
+      # Allow all local connections without password
+      local all all              trust
+      host  all all 127.0.0.1/32 trust
+      host  all all ::1/128      trust
+    '';
     settings = {
       max_connections = 1000;
       log_statement = "all";

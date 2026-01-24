@@ -24,8 +24,7 @@
 - install nix determinate (fast, friendly & reliable, what to ask more ?)
 
 ```bash
-curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | \
-  sh -s -- install
+curl -fsSL https://install.determinate.systems/nix | sh -s -- install
 ```
 
 - install brew (maybe shall be done by nix using home-manager ? -> rabbit hole)
@@ -37,7 +36,7 @@ curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix 
 - install the flake
 
 ```bash
-nix run nix-darwin/master#darwin-rebuild -- switch --impure --flake ~/src/waxcraft/nix#wax
+sudo nix run nix-darwin/master#darwin-rebuild -- switch --impure --flake ~/src/waxcraft/nix#wax
 ```
 
 - symlink dotfiles
