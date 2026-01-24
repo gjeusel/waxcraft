@@ -168,6 +168,10 @@ if.app-id = 'com.spotify.client'
 run = 'move-node-to-workspace 0'
 
 [[on-window-detected]]
+if.app-id = 'com.electron.youtube-music-desktop-app'
+run = 'move-node-to-workspace 0'
+
+[[on-window-detected]]
 if.app-id = 'com.bitwarden.desktop'
 run = 'move-node-to-workspace 0'
 
