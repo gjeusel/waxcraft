@@ -8,7 +8,7 @@
     };
     brews = [
       "mas"
-      "postgresql@16"
+      # postgresql@16 now managed via nix-darwin (see postgres.nix)
       "redis"
       "meilisearch"
       "libomp" # openmp on macos

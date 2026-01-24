@@ -48,10 +48,11 @@
         "/Applications/Spotify.app"
         "/Applications/WhatsApp.app"
       ];
-      wvous-tl-corner = null; # top-left
-      wvous-tr-corner = null; # top-right
-      wvous-bl-corner = null; # bottom-left
-      wvous-br-corner = null; # bottom-right
+      # Disable all hot corners (1 = no action)
+      wvous-tl-corner = 1; # top-left
+      wvous-tr-corner = 1; # top-right
+      wvous-bl-corner = 1; # bottom-left
+      wvous-br-corner = 1; # bottom-right
     };
 
     # customize spaces
@@ -129,7 +130,8 @@
           "60" = { enabled = false; }; # Select previous input source (Ctrl+Space)
           "61" = { enabled = false; }; # Select next input source (Ctrl+Option+Space)
 
-          # Disable Dock hide/show shortcut
+          # Disable Dock shortcuts
+          "27" = { enabled = false; }; # Minimize window (Cmd+M)
           "52" = { enabled = false; }; # Turn Dock Hiding On/Off (Opt+Cmd+D)
 
           # Disable display brightness shortcuts
