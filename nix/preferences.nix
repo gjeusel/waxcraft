@@ -40,9 +40,9 @@
         "/Applications/Ghostty.app"
         "/Applications/Brave Browser.app"
         "/Applications/Notion.app"
-        "/Applications/Slack.app"
+        "/Applications/Nix Apps/Slack.app"
         "/Applications/Notion Calendar.app"
-        "/Applications/Bitwarden.app"
+        "/Applications/Nix Apps/Bitwarden.app"
         "/Applications/Mimestream.app"
         "/Applications/Claude.app"
         "/Applications/Spotify.app"
@@ -76,12 +76,12 @@
     NSGlobalDomain = {
       "com.apple.sound.beep.feedback" = 0; # disable beep sound when pressing volume up/down key
 
-      # If you press and hold certain keyboard keys when in a text area, the key’s character begins to repeat.
+      # If you press and hold certain keyboard keys when in a text area, the key's character begins to repeat.
       # This is very useful for vim users, they use `hjkl` to move cursor.
       # sets how long it takes before it starts repeating.
-      InitialKeyRepeat = 15; # normal minimum is 15 (225 ms), maximum is 120 (1800 ms)
+      InitialKeyRepeat = 10; # fastest (150 ms), normal minimum is 15 (225 ms)
       # sets how fast it repeats once it starts.
-      KeyRepeat = 2; # normal minimum is 2 (30 ms), maximum is 120 (1800 ms)
+      KeyRepeat = 1; # fastest (15 ms), normal minimum is 2 (30 ms)
 
       AppleMeasurementUnits = "Centimeters";
       AppleMetricUnits = 1;
@@ -97,11 +97,66 @@
     # Incomplete list of macOS `defaults` commands :
     #   https://github.com/yannbertrand/macos-defaults
     CustomUserPreferences = {
-      # NOTE: Some options are not supported by nix-darwin directly, manually set them:
-      #   1. To avoid conflicts with neovim, disable ctrl + up/down/left/right to switch spaces in:
-      #     [System Preferences] -> [Keyboard] -> [Keyboard Shortcuts] -> [Mission Control]
-      #   2. Disable use Caps Lock as 中/英 switch in:
-      #     [System Preferences] -> [Keyboard] -> [Input Sources] -> [Edit] -> [Use 中/英 key to switch ] -> [Disable]
+      # Disable macOS keyboard shortcuts (Spotlight, Mission Control, etc.)
+      # These conflict with Raycast, neovim, and terminal apps
+      # Reference: https://web.archive.org/web/20141112224103/http://hintsforums.macworld.com/showthread.php?t=114785
+      "com.apple.symbolichotkeys" = {
+        AppleSymbolicHotKeys = {
+          # Disable Spotlight shortcuts (using Raycast instead)
+          "64" = { enabled = false; }; # Show Spotlight search (Cmd+Space)
+          "65" = { enabled = false; }; # Show Finder search window (Cmd+Option+Space)
+
+          # Disable all Mission Control shortcuts (conflicts with neovim/terminal)
+          "32" = { enabled = false; }; # Mission Control (Ctrl+Up)
+          "33" = { enabled = false; }; # Application windows (Ctrl+Down)
+          "34" = { enabled = false; }; # Move left a space (Ctrl+Left)
+          "35" = { enabled = false; }; # Move right a space (Ctrl+Right)
+          "36" = { enabled = false; }; # Show Desktop (F11)
+          "37" = { enabled = false; }; # Show Dashboard (F12)
+          "62" = { enabled = false; }; # Show Dashboard (alternative)
+          "79" = { enabled = false; }; # Move window to space on left (Ctrl+Shift+Left)
+          "80" = { enabled = false; }; # Move window to space on right (Ctrl+Shift+Right)
+          "81" = { enabled = false; }; # Move window to Desktop 1
+          "82" = { enabled = false; }; # Move window to Desktop 2
+
+          # Disable Switch to Desktop shortcuts (Ctrl+1/2/3/4)
+          "118" = { enabled = false; }; # Switch to Desktop 1
+          "119" = { enabled = false; }; # Switch to Desktop 2
+          "120" = { enabled = false; }; # Switch to Desktop 3
+          "121" = { enabled = false; }; # Switch to Desktop 4
+
+          # Disable Input Source shortcuts (conflicts with IDE/terminal shortcuts)
+          "60" = { enabled = false; }; # Select previous input source (Ctrl+Space)
+          "61" = { enabled = false; }; # Select next input source (Ctrl+Option+Space)
+
+          # Disable Dock hide/show shortcut
+          "52" = { enabled = false; }; # Turn Dock Hiding On/Off (Opt+Cmd+D)
+
+          # Disable display brightness shortcuts
+          "53" = { enabled = false; }; # Decrease display brightness
+          "54" = { enabled = false; }; # Increase display brightness
+          "55" = { enabled = false; }; # Decrease display brightness (slow)
+          "56" = { enabled = false; }; # Increase display brightness (slow)
+
+          # Disable "Move focus to..." shortcuts (conflicts with terminal/IDE)
+          "7" = { enabled = false; };  # Move focus to menu bar (Ctrl+F2)
+          "8" = { enabled = false; };  # Move focus to Dock (Ctrl+F3)
+          "9" = { enabled = false; };  # Move focus to active/next window (Ctrl+F4)
+          "10" = { enabled = false; }; # Move focus to window toolbar (Ctrl+F5)
+          "11" = { enabled = false; }; # Move focus to floating window (Ctrl+F6)
+          "12" = { enabled = false; }; # Turn keyboard access on/off (Ctrl+F1)
+          "13" = { enabled = false; }; # Change way Tab moves focus (Ctrl+F7)
+
+          # Disable Accessibility shortcuts
+          "15" = { enabled = false; }; # Turn zoom on/off
+          "17" = { enabled = false; }; # Zoom in
+          "19" = { enabled = false; }; # Zoom out
+          "21" = { enabled = false; }; # Invert colors (Ctrl+Opt+Cmd+8)
+          "23" = { enabled = false; }; # Turn image smoothing on/off
+          "25" = { enabled = false; }; # Increase Contrast (Ctrl+Opt+Cmd+.)
+          "26" = { enabled = false; }; # Decrease Contrast (Ctrl+Opt+Cmd+,)
+        };
+      };
 
       "com.apple.finder" = {
         AppleShowAllFiles = true;
@@ -125,6 +180,9 @@
       };
       "com.apple.AdLib" = {
         allowApplePersonalizedAdvertising = false;
+      };
+      "com.apple.HIToolbox" = {
+        AppleFnUsageType = 0; # 0=Do Nothing, 1=Change Input Source, 2=Show Emoji & Symbols, 3=Start Dictation
       };
     };
   };
@@ -157,5 +215,10 @@
         touch "$dir/.metadata_never_index"
       fi
     done
+
+    # Force macOS to re-read symbolic hotkeys settings immediately
+    # This applies changes from CustomUserPreferences com.apple.symbolichotkeys
+    # without requiring logout/restart
+    /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
   '';
 }

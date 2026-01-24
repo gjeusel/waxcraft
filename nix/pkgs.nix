@@ -52,9 +52,9 @@
     rustup
 
     # js
+    nodejs # includes npm
     pnpm_10
     ni # Use the right package manager (npm / pnpm / bun)
-    typescript-language-server
 
     prek
     git-secrets
@@ -140,26 +140,6 @@
     sqruff
     sql-formatter
     pgformatter
-
-    # ----- vim LSP -----
-    lua-language-server
-    bash-language-server
-    # eslint-lsp # not available
-    helm-ls
-    # html-lsp # not available
-    # json-lsp # not available
-    pyright
-    python312Packages.python-lsp-server
-    ruff
-    # (ruff.overrideAttrs (old: {version = "0.9.5";}))
-    rust-analyzer
-    sqls
-    postgres-language-server
-    svelte-language-server
-    tailwindcss-language-server
-    terraform-ls
-    vtsls
-    yaml-language-server
 
     # ----- daily life -----
     # spotify # https://github.com/NixOS/nixpkgs/issues/465676

@@ -2,8 +2,7 @@
   description = "Wax Darwin Nix Configuration";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/25.11-beta";
-    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
     # ----- Darwin -----
     nix-darwin = {
@@ -36,7 +35,6 @@
   outputs = inputs @ {
     self,
     nixpkgs,
-    nixpkgs-unstable,
     nix-darwin,
     #
     nix-homebrew,
@@ -91,7 +89,7 @@
     # $ darwin-rebuild build --flake .#simple
     darwinConfigurations."wax" = nix-darwin.lib.darwinSystem {
       specialArgs = {
-        pkgs-unstable = import nixpkgs-unstable {
+        pkgs-unstable = import nixpkgs {
           system = "aarch64-darwin";
           config = {allowUnfree = true;};
         };
