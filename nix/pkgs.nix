@@ -4,6 +4,11 @@
   pkgs-unstable,
   ...
 }: {
+  # Environment variables for building software with nix-provided libs (e.g. neovim)
+  environment.variables = {
+    CMAKE_INCLUDE_PATH = "${pkgs.gettext}/include:${pkgs.libiconv}/include";
+    CMAKE_LIBRARY_PATH = "${pkgs.gettext}/lib:${pkgs.libiconv}/lib";
+  };
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
   environment.systemPackages = with pkgs; [
@@ -124,7 +129,8 @@
     # ----- build nvim from sources -----
     ninja
     cmake
-    gettext
+    gettext # required for msgfmt
+    libiconv # required for libintl
     curl
 
     # ----- vim formatters for conform -----
