@@ -184,6 +184,62 @@
       "com.apple.HIToolbox" = {
         AppleFnUsageType = 0; # 0=Do Nothing, 1=Change Input Source, 2=Show Emoji & Symbols, 3=Start Dictation
       };
+      "com.mimestream.Mimestream" = {
+        DeleteKeyAction = "archive";
+        ListStyle = "compact";
+        MarkReadBehavior = "afterDelay";
+        MarkReadDelay = 2;
+        BlockRemoteImages = false;
+        DisableTrackingPrevention = false;
+        HideBadgeForDrafts = true;
+        HideBadgeForSpam = true;
+        AttachmentOpeningLocation = "downloadsFolder";
+      };
+      # Ice (Menu Bar Manager)
+      "com.jordanbaird.Ice" = {
+        AutoRehide = 1;
+        HideApplicationMenus = 1;
+        ShowOnClick = 1;
+        ShowOnScroll = 1;
+        ShowSectionDividers = 0;
+        ShowOnHover = 0;
+        RehideInterval = 15;
+        UseIceBar = 0;
+      };
+      # AlDente Pro (Battery Management)
+      "com.apphousekitchen.aldente-pro" = {
+        chargeVal = 80;
+        launchAtLogin = 1;
+        showDockIcon = 0;
+        noMenubarIcon = 0;
+        automaticDischarge = 0;
+        heatProtectMode = 0;
+        sailingMode = 0;
+      };
+      # Activity Monitor
+      "com.apple.ActivityMonitor" = {
+        ShowCategory = 100; # All Processes
+        DisplayType = 0; # CPU tab
+        OpenMainWindow = 1;
+      };
+      # Transmission
+      "org.m0k.transmission" = {
+        WarningDonate = 0;
+        WarningLegal = 0;
+        CheckQuitDownloading = 1;
+        CheckRemoveDownloading = 1;
+      };
+      # Calibre
+      "net.kovidgoyal.calibre" = {
+        NSDisabledCharacterPaletteMenuItem = 1;
+        NSDisabledDictationMenuItem = 1;
+      };
+      # Screenshot Configuration
+      "com.apple.screencapture" = {
+        location = "~/Pictures/Screenshots";
+        type = "png";
+        disable-shadow = true;
+      };
     };
   };
 
