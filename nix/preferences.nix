@@ -159,6 +159,13 @@
           "23" = { enabled = false; }; # Turn image smoothing on/off
           "25" = { enabled = false; }; # Increase Contrast (Ctrl+Opt+Cmd+.)
           "26" = { enabled = false; }; # Decrease Contrast (Ctrl+Opt+Cmd+,)
+
+          # Disable Screenshot shortcuts (using Cleanshot X instead)
+          "28" = { enabled = false; };  # Save picture of screen as file (Cmd+Shift+3)
+          "29" = { enabled = false; };  # Save picture of selected area as file (Cmd+Shift+4)
+          "30" = { enabled = false; };  # Copy picture of screen to clipboard (Cmd+Ctrl+Shift+3)
+          "31" = { enabled = false; };  # Copy picture of selected area to clipboard (Cmd+Ctrl+Shift+4)
+          "184" = { enabled = false; }; # Screenshot and recording options (Cmd+Shift+5)
         };
       };
 

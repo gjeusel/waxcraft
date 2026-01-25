@@ -43,6 +43,8 @@
       # "dbeaver-community" # sql UI
       "tableplus" # sql UI
 
+      "orbstack" # docker & linux VMs
+
       "vlc"
 
       "betterdisplay" # display settings
