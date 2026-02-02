@@ -35,6 +35,7 @@
       "whatsapp"
       "signal"
       "viber" # phone calls
+      "telegram"
 
       "karabiner-elements" # keyboards maps
       "aldente" # set Charge Limits and Prolong Battery Lifespan
