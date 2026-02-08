@@ -111,6 +111,7 @@
     scaleway-cli
     pgcli
     openssl
+    nmap
 
     google-cloud-sdk
 

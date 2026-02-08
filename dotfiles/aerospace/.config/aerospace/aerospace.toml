@@ -181,6 +181,14 @@ run = 'move-node-to-workspace 0'
 
 [[on-window-detected]]
 if.app-id = 'org.m0k.transmission' # Transmission - torrent download
+run = 'move-node-to-workspace 7'
+
+[[on-window-detected]]
+if.app-id = 'ch.protonvpn.mac'
+run = 'move-node-to-workspace 7'
+
+[[on-window-detected]]
+if.app-id = 'ru.keepcoder.Telegram'
 run = 'move-node-to-workspace 0'
 
 [[on-window-detected]]
@@ -332,7 +340,11 @@ run = ['layout floating']
 
 [[on-window-detected]]
 if.app-id = 'org.videolan.vlc'
-run = ['layout floating']
+run = ['layout floating', 'move-node-to-workspace 8']
+
+[[on-window-detected]]
+if.app-id = 'com.apple.FaceTime'
+run = 'move-node-to-workspace 8'
 
 
 # ----
