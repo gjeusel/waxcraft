@@ -102,9 +102,11 @@ vim.api.nvim_create_autocmd("LspAttach", {
     local buffer = event.buf
     local client = vim.lsp.get_client_by_id(event.data.client_id)
 
-    -- Disable LSP semantic tokens (rely solely on treesitter for highlighting)
+    -- Disable LSP highlighting (rely solely on treesitter)
     if client then
       client.server_capabilities.semanticTokensProvider = nil
+      client.server_capabilities.documentHighlightProvider = nil
+      vim.lsp.semantic_tokens.enable(false, { bufnr = buffer })
     end
 
     local kmap_opts = { noremap = true, silent = true, buffer = buffer }
