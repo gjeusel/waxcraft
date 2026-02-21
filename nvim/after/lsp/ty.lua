@@ -1,8 +1,4 @@
 return {
-  on_attach = function(client, _)
-    client.server_capabilities.documentHighlightProvider = false
-    client.server_capabilities.semanticTokensProvider = false
-  end,
   -- init_options = {
   --   logFile = vim.fn.stdpath("cache") .. "/ty.log",
   -- },

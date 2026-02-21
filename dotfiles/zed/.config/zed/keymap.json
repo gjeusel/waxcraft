@@ -2,16 +2,16 @@
   // Defaults can be found here: https://zed.dev/ref/default.json
   {
     "bindings": {
-      "alt-q": "pane::ActivatePrevItem",
+      "alt-q": "pane::ActivatePreviousItem",
       "alt-w": "pane::ActivateNextItem",
-      "alt-a": "editor::GoToPrevDiagnostic",
+      "alt-a": "editor::GoToPreviousDiagnostic",
       "alt-s": "editor::GoToDiagnostic",
       "alt-r": "pane::CloseActiveItem",
       //
-      "ctrl-h": ["workspace::ActivatePaneInDirection", "Left"],
-      "ctrl-l": ["workspace::ActivatePaneInDirection", "Right"],
-      "ctrl-k": ["workspace::ActivatePaneInDirection", "Up"],
-      "ctrl-j": ["workspace::ActivatePaneInDirection", "Down"],
+      "ctrl-h": "workspace::ActivatePaneLeft",
+      "ctrl-l": "workspace::ActivatePaneRight",
+      "ctrl-k": "workspace::ActivatePaneUp",
+      "ctrl-j": "workspace::ActivatePaneDown",
       //
       "ctrl-s": "workspace::Save"
     }

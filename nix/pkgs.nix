@@ -116,10 +116,13 @@
     scaleway-cli
     pgcli
     openssl
+    nmap
 
     google-cloud-sdk
 
     cmake
+
+    coreutils
 
     ghostscript # pdf compression
     pngquant # png compression

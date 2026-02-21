@@ -776,7 +776,7 @@ return {
       local ai = require("mini.ai")
       return {
         search_method = "cover_or_nearest",
-        n_lines = 200,
+        n_lines = 300,
         mappings = {
           -- Main textobject prefixes
           around = "a",
