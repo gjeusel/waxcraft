@@ -51,4 +51,5 @@ return {
   s("zclause", fmt("m.Clause.query.filter_by({0}).one()", { [0] = i(0, "") })),
   s("zinvoice", fmt("m.Invoice.query.filter_by({0}).one()", { [0] = i(0, "") })),
   s("zdocument", fmt("m.Document.query.filter_by({0}).one()", { [0] = i(0, "") })),
+  s("ztimeseries", fmt("m.TS.query.filter_by({0}).one()", { [0] = i(0, "") })),
 }

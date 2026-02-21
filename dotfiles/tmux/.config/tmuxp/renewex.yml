@@ -4,20 +4,21 @@
 session_name: renewex
 
 windows:
+  - window_name: rnx-cli
+    layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
+    shell_command_before:
+      - mamba activate rnx-cli
+      - cd ~/src/rnx-cli
+    panes:
+      - focus: true
+      -
+
   - window_name: zefire
     focus: true
     layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
     shell_command_before:
       - mamba activate zefire
       - cd ~/src/zefire
-    panes:
-      - focus: true
-      -
-
-  - window_name: zf-spa
-    layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
-    shell_command_before:
-      - cd ~/src/rnux/apps/zefire-spa/
     panes:
       - focus: true
       -
@@ -31,11 +32,10 @@ windows:
       - focus: true
       -
 
-  - window_name: rnx-cli
+  - window_name: zf-spa
     layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
     shell_command_before:
-      - mamba activate rnx-cli
-      - cd ~/src/rnx-cli
+      - cd ~/src/rnux/apps/zefire-spa/
     panes:
       - focus: true
       -

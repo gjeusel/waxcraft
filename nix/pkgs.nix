@@ -117,6 +117,8 @@
 
     cmake
 
+    coreutils
+
     ghostscript # pdf compression
     pngquant # png compression
     jbig2enc # jpeg compression
