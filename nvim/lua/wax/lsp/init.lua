@@ -118,12 +118,12 @@ vim.api.nvim_create_autocmd("LspAttach", {
 
     vim.keymap.set("n", "<leader>D", vim.lsp.buf.type_definition, kmap_opts)
 
-    vim.keymap.set("n", "K", vim.lsp.buf.hover, kmap_opts)
+    vim.keymap.set("n", "K", function() vim.lsp.buf.hover({ border = "rounded", focusable = true }) end, kmap_opts)
 
     vim.keymap.set("n", "<leader>i", vim.lsp.buf.implementation, kmap_opts)
     vim.keymap.set("n", "<leader>I", vim.lsp.buf.declaration, kmap_opts)
 
-    vim.keymap.set("i", "<C-s>", vim.lsp.buf.signature_help)
+    vim.keymap.set("i", "<C-s>", function() vim.lsp.buf.signature_help({ border = "rounded", max_height = 3, focusable = false }) end)
 
     vim.keymap.set("n", "<leader>R", vim.lsp.buf.rename, kmap_opts)
 
