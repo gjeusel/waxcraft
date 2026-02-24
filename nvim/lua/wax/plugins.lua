@@ -740,16 +740,21 @@ return {
   {
     "kylechui/nvim-surround",
     event = "VeryLazy",
+    init = function()
+      vim.g.nvim_surround_no_normal_mappings = true
+      vim.g.nvim_surround_no_normal_cur_line_mappings = true
+      vim.g.nvim_surround_no_visual_mappings = true
+    end,
     opts = {
       move_cursor = "begin",
       indent_lines = false,
-      keymaps = {
-        normal = "s",
-        normal_line = "S",
-        visual = "S",
-        delete = "ds",
-        change = "cs",
-      },
+    },
+    keys = {
+      { "s", "<Plug>(nvim-surround-normal)", desc = "Surround" },
+      { "S", "<Plug>(nvim-surround-normal-line)", desc = "Surround line" },
+      { "S", "<Plug>(nvim-surround-visual)", mode = "x", desc = "Surround selection" },
+      { "ds", "<Plug>(nvim-surround-delete)", desc = "Delete surround" },
+      { "cs", "<Plug>(nvim-surround-change)", desc = "Change surround" },
     },
   },
   {

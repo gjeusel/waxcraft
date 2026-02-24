@@ -305,6 +305,10 @@ run = ['layout floating']
 if.app-id = 'com.mimestream.Mimestream'
 run = 'move-node-to-workspace 5'
 
+[[on-window-detected]]
+if.app-id = 'com.readdle.SparkDesktop'
+run = 'move-node-to-workspace 5'
+
 
 [[on-window-detected]]
 if.app-id = 'com.microsoft.Excel'
