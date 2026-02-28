@@ -198,6 +198,8 @@
     # obs-studio
     # vlc
 
+    protonmail-desktop
+
     # ----- experiments -----
     temporal
     temporal-cli
