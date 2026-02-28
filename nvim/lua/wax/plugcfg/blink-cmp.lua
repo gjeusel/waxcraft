@@ -92,7 +92,31 @@ local opts = {
       -- auto_show_delay_ms = 500,
     },
   },
-  cmdline = { enabled = false },
+  cmdline = {
+    enabled = true,
+    keymap = { preset = "cmdline" },
+    completion = {
+      list = { selection = { preselect = false, auto_insert = true } },
+      menu = {
+        auto_show = function(ctx, _)
+          return ctx.mode == "cmdwin"
+        end,
+      },
+      ghost_text = { enabled = true },
+    },
+    sources = function()
+      local type = vim.fn.getcmdtype()
+      -- Search forward and backward
+      if type == "/" or type == "?" then
+        return { "buffer" }
+      end
+      -- Commands
+      if type == ":" or type == "@" then
+        return { "cmdline", "buffer" }
+      end
+      return {}
+    end,
+  },
   signature = { enabled = true, trigger = { enabled = false }, window = { border = "rounded" } },
   snippets = { preset = "luasnip" },
   sources = {
