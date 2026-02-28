@@ -48,31 +48,6 @@ local function gotoBreakpoint(dir)
   vim.cmd(("buffer +%s %s"):format(nextPoint.line, nextPoint.bufnr))
 end
 
-local function loadVSCodeLaunch()
-  local workspace = find_root_dir(vim.api.nvim_buf_get_name(0))
-  if workspace == nil then
-    return
-  end
-
-  local vscode_launch_fpath = workspace .. "/.vscode/launch.json"
-  if not vim.fn.filereadable(vscode_launch_fpath) then
-    return
-  end
-
-  local dap_vscode = require("dap.ext.vscode")
-
-  if vim.fn.filereadable(workspace .. "/package.json") then
-    dap_vscode.load_launchjs(vscode_launch_fpath, {
-      ["pwa-node"] = js_based_languages,
-      ["chrome"] = js_based_languages,
-      ["pwa-chrome"] = js_based_languages,
-    })
-  end
-  if vim.fn.filereadable(workspace .. "/pyproject.toml") then
-    dap_vscode.load_launchjs(vscode_launch_fpath, { python = { "python" } })
-  end
-end
-
 local separator_launchjson = { -- Divider for the launch.json derived configs
   name = "----- ↓ launch.json configs ↓ -----",
   type = "",
@@ -96,10 +71,6 @@ local keymaps = {
     "<leader>fc",
     function()
       local dap = require("dap")
-      if not dap.session() then
-        loadVSCodeLaunch()
-      end
-
       dap.continue()
     end,
     desc = "[DAP] continue",
@@ -130,6 +101,20 @@ return {
 
     -- Prevent "winfixbuf" errors when jumping to source from nvim-dap-view windows
     dap.defaults.fallback.switchbuf = "usevisible,usetab,newtab"
+
+    -- Override launch.json provider to use find_root_dir instead of cwd
+    dap.providers.configs["dap.launch.json"] = function()
+      local root = find_root_dir(vim.api.nvim_buf_get_name(0))
+      if not root then
+        return {}
+      end
+      local launch_path = root .. "/.vscode/launch.json"
+      local ok, configs = pcall(require("dap.ext.vscode").getconfigs, launch_path)
+      if not ok then
+        return {}
+      end
+      return configs
+    end
 
     -- Custom REPL commands (like pdbrc aliases)
     -- Helper to create a command that evaluates a Python template
@@ -225,6 +210,10 @@ return {
       version = "1.*",
     },
     {
+      "Joakker/lua-json5", -- lua json parser
+      build = "./install.sh",
+    },
+    {
       "mxsdev/nvim-dap-vscode-js", -- nvim dap vscode js
       config = function()
         require("dap-vscode-js").setup({
@@ -308,10 +297,6 @@ return {
           vim.list_extend(dap.configurations[language] or {}, separator_launchjson)
         end
       end,
-    },
-    {
-      "Joakker/lua-json5", -- lua json parser
-      build = "./install.sh",
     },
     {
       "mfussenegger/nvim-dap-python",
