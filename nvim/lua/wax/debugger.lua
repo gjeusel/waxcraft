@@ -54,27 +54,52 @@ local separator_launchjson = { -- Divider for the launch.json derived configs
   request = "launch",
 }
 
+local dap_hover_view = nil
+
+local function dap_hover_toggle()
+  if dap_hover_view then
+    dap_hover_view.close()
+    dap_hover_view = nil
+    return
+  end
+  dap_hover_view = require("dap.ui.widgets").hover()
+  vim.api.nvim_create_autocmd("WinLeave", {
+    buffer = dap_hover_view.buf,
+    once = true,
+    callback = function()
+      if dap_hover_view then
+        dap_hover_view.close()
+        dap_hover_view = nil
+      end
+    end,
+  })
+end
+
 local keymaps = {
   -- stylua: ignore start
+
+  -- stepping
+  { "<leader>fo", function() require("dap").step_over() end, desc = "[DAP] step over" },
+  { "<leader>fn", function() require("dap").step_into() end, desc = "[DAP] step into" },
+  { "<leader>fO", function() require("dap").step_out() end, desc = "[DAP] step out" },
+  { "<leader>ft", function() require("dap").run_to_cursor() end, desc = "[DAP] run to cursor" },
+
+  -- session lifecycle
+  { "<leader>fc", function() require("dap").continue() end, desc = "[DAP] continue" },
+  { "<leader>fq", function() require("dap").terminate(); vim.cmd("DapViewClose") end, desc = "[DAP] terminate" },
+
+  -- breakpoints
   { "<leader>fd", function() require("dap").toggle_breakpoint() end, desc = "[DAP] toggle breakpoint" },
-  -- { "<leader>fo", function() require("dap").step_over() end, desc = "[DAP] step over" },
-  -- { "<leader>fO", function() require("dap").step_out() end, desc = "[DAP] step over" },
-  -- { "<leader>fi", function() require("dap").step_into() end, desc = "[DAP] step into" },
-  --
-  { "<leader>fr", "<cmd>DapViewToggle<cr>", desc = "[DAP] toggle view" },
-  -- { "<leader>dw", "<cmd>DapViewWatch<cr>", desc = "[DAP] watch expr", mode = { "n", "v" } },
+  { "<leader>fD", function() require("dap").set_breakpoint(vim.fn.input("Breakpoint condition: ")) end, desc = "[DAP] conditional breakpoint" },
+  { "[p", function() gotoBreakpoint("prev") end, desc = "[DAP] go to prev breakpoint" },
+  { "]p", function() gotoBreakpoint("next") end, desc = "[DAP] go to next breakpoint" },
+
+  -- ui & eval
+  { "<leader>fv", "<cmd>DapViewToggle<cr>", desc = "[DAP] toggle view" },
   { "<leader>fj", "<cmd>DapViewJump repl<cr>", desc = "[DAP] jump to repl" },
-  {"[p", function () gotoBreakpoint("prev") end, desc = '[DAP] go to prev breakpoint'},
-  {"]p", function () gotoBreakpoint("next") end, desc = '[DAP] go to next breakpoint'},
+  { "<leader>fu", dap_hover_toggle, desc = "[DAP] eval under cursor", mode = { "n", "v" } },
+
   -- stylua: ignore end
-  {
-    "<leader>fc",
-    function()
-      local dap = require("dap")
-      dap.continue()
-    end,
-    desc = "[DAP] continue",
-  },
 }
 
 return {
@@ -299,51 +324,216 @@ return {
       end,
     },
     {
-      "mfussenegger/nvim-dap-python",
+      -- Custom Python DAP: launches debugpy in a tmux pane so the command output is visible,
+      -- then connects nvim-dap via TCP.
+      "wax-dap-python",
+      virtual = true,
       config = function()
-        -- TODO: setup with a more precise python path / or uv ?
-        require("dap-python").setup("python")
-        -- require("dap-python").setup("uv")
-
         local dap = require("dap")
+        local python_utils = require("wax.lsp.python-utils")
+        local tmux = require("wax.tmux")
 
-        local python_customs = {
-          -- { -- Divider for the custom configs
-          --   name = "----- ↓ custom configs ↓ -----",
-          --   type = "",
-          --   request = "launch",
-          -- },
+        local DEBUGPY_PORT_MIN = 50000
+
+        --- Discover running debugpy listeners via lsof.
+        --- Returns list of { pid = string, port = number, cmd = string }
+        local function get_debugpy_ports()
+          local result = vim.system(
+            { "lsof", "-iTCP", "-sTCP:LISTEN", "-P", "-n", "-F", "pcn" },
+            { text = true }
+          ):wait()
+          if result.code ~= 0 or not result.stdout then
+            return {}
+          end
+
+          -- Parse lsof -F output: p<pid>\nc<cmd>\nn<name> (repeated per entry)
+          local entries = {}
+          local cur = {}
+          for line in result.stdout:gmatch("[^\n]+") do
+            local tag, val = line:sub(1, 1), line:sub(2)
+            if tag == "p" then
+              if cur.pid then
+                table.insert(entries, cur)
+              end
+              cur = { pid = val }
+            elseif tag == "c" then
+              cur.cmd = val
+            elseif tag == "n" then
+              local port = val:match(":(%d+)$")
+              if port then
+                cur.port = tonumber(port)
+              end
+            end
+          end
+          if cur.pid then
+            table.insert(entries, cur)
+          end
+
+          -- Filter to debugpy processes: Python command on high ports with debugpy in cmdline
+          return vim.tbl_filter(function(e)
+            if not (e.port and e.port >= DEBUGPY_PORT_MIN and e.cmd and e.cmd:lower():find("python")) then
+              return false
+            end
+            local ps = vim.system({ "ps", "-p", e.pid, "-o", "command=" }, { text = true }):wait()
+            if ps.code == 0 and ps.stdout then
+              e.cmdline = vim.trim(ps.stdout)
+              return e.cmdline:find("debugpy") ~= nil
+            end
+            return false
+          end, entries)
+        end
+
+        local function get_free_port()
+          local tcp = vim.uv.new_tcp()
+          tcp:bind("127.0.0.1", 0)
+          local port = tcp:getsockname().port
+          tcp:close()
+          -- Ensure port is in the debugpy range (>=50000)
+          if port < DEBUGPY_PORT_MIN then
+            return get_free_port()
+          end
+          return port
+        end
+
+        --- Run a command in tmux, then call on_sent after the command is dispatched.
+        ---@param cmd string
+        ---@param on_sent fun()
+        local function run_in_tmux_then(cmd, on_sent)
+          local send_opts = { interrupt_before = true, clear_before = true }
+
+          if tmux.target_pane ~= nil and #tmux.previous_panes == #tmux.get_panes() then
+            tmux.send(tmux.target_pane, cmd, send_opts)
+            on_sent()
+            return
+          end
+
+          tmux.select_target_pane(function(selected_pane)
+            tmux.send(selected_pane, cmd, send_opts)
+            on_sent()
+          end)
+        end
+
+        dap.adapters.python = function(callback, config)
+          if config.request == "attach" then
+            callback({
+              type = "server",
+              host = config.connect and config.connect.host or "127.0.0.1",
+              port = config.connect and config.connect.port or 5678,
+              options = { source_filetype = "python" },
+            })
+            return
+          end
+
+          -- "launch" request: run debugpy in a tmux pane, then connect via TCP
+          local python_path = python_utils.get_python_path()
+          local port = get_free_port()
+
+          local cmd_parts = { python_path, "-m", "debugpy", "--listen", tostring(port), "--wait-for-client" }
+
+          if config.subProcess then
+            table.insert(cmd_parts, "--configure-subProcess")
+            table.insert(cmd_parts, "true")
+          end
+
+          if config.module then
+            table.insert(cmd_parts, "-m")
+            table.insert(cmd_parts, config.module)
+          elseif config.program then
+            local program = config.program
+            if type(program) == "function" then
+              program = program()
+            end
+            program = program:gsub("%${file}", vim.fn.expand("%:p"))
+            table.insert(cmd_parts, program)
+          end
+
+          if config.args then
+            for _, arg in ipairs(config.args) do
+              table.insert(cmd_parts, arg)
+            end
+          end
+
+          local cwd = find_root_package(vim.api.nvim_buf_get_name(0)) or vim.fn.getcwd()
+
+          local full_cmd = "cd " .. cwd .. " && " .. table.concat(cmd_parts, " ")
+
+          run_in_tmux_then(full_cmd, function()
+            vim.defer_fn(function()
+              callback({
+                type = "server",
+                host = "127.0.0.1",
+                port = port,
+                enrich_config = function(final_config, on_config)
+                  final_config.request = "attach"
+                  if not final_config.pythonPath then
+                    final_config.pythonPath = python_path
+                  end
+                  on_config(final_config)
+                end,
+                options = { source_filetype = "python" },
+              })
+            end, 2000)
+          end)
+        end
+
+        -- Default Python configurations
+        dap.configurations.python = {
           {
             type = "python",
             request = "launch",
+            name = "Launch file",
+            program = "${file}",
             justMyCode = true,
-            subProcess = true,
-            cwd = function()
-              return find_root_package(vim.api.nvim_buf_get_name(0)) or vim.fn.getcwd()
-            end,
-            name = "Dagster Dev Server",
-            module = "dagster",
-            args = { "dev", "-p", "3001", "--log-format", "rich" },
-
-            --
-            -- name = "Dagster Dev Server (tmux)",
-            -- connect = { host = "127.0.0.1", port = 5678 },
-            -- request = "attach",
-            -- preLaunchTask = function()
-            --   local tmux = require("wax.tmux")
-            --   local cwd = find_root_package(vim.api.nvim_buf_get_name(0)) or vim.fn.getcwd()
-            --   local cmd = ("cd %s && python -m debugpy --listen 5678 --configure-subProcess true -m dagster dev -p 3001 --log-format rich"):format(cwd)
-            --   tmux.run_in_pane(cmd, { interrupt_before = true, clear_before = true })
-            --   -- Give debugpy time to start listening
-            --   vim.wait(2000)
-            -- end,
           },
+          -- {
+          --   type = "python",
+          --   request = "launch",
+          --   name = "Launch file with args",
+          --   program = "${file}",
+          --   justMyCode = true,
+          --   args = function()
+          --     local input = vim.fn.input("Arguments: ")
+          --     return vim.split(input, " ", { trimempty = true })
+          --   end,
+          -- },
+          {
+            type = "python",
+            request = "attach",
+            name = "Attach (connect)",
+            connect = function()
+              local ports = get_debugpy_ports()
+              local host = "127.0.0.1"
+
+              if #ports == 0 then
+                -- Fallback to manual input
+                return {
+                  host = vim.fn.input("Host [127.0.0.1]: ", "127.0.0.1"),
+                  port = tonumber(vim.fn.input("Port [5678]: ", "5678")),
+                }
+              elseif #ports == 1 then
+                vim.notify(("Attaching to debugpy on port %d (pid %s)"):format(ports[1].port, ports[1].pid))
+                return { host = host, port = ports[1].port }
+              else
+                -- Multiple: use coroutine + vim.ui.select
+                local co = coroutine.running()
+                vim.ui.select(ports, {
+                  prompt = "Select debugpy process> ",
+                  format_item = function(e)
+                    return ("port %d | pid %s | %s"):format(e.port, e.pid, e.cmdline or e.cmd)
+                  end,
+                }, function(choice)
+                  if choice then
+                    coroutine.resume(co, { host = host, port = choice.port })
+                  else
+                    coroutine.resume(co, nil)
+                  end
+                end)
+                return coroutine.yield()
+              end
+            end,
+          },
+          separator_launchjson,
         }
-
-        -- vim.list_extend(dap.configurations.python, python_customs)
-        dap.configurations.python = python_customs
-
-        vim.list_extend(dap.configurations.python, { separator_launchjson })
       end,
     },
   },
