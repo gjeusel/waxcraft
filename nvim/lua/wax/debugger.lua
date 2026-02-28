@@ -48,8 +48,8 @@ local function gotoBreakpoint(dir)
   vim.cmd(("buffer +%s %s"):format(nextPoint.line, nextPoint.bufnr))
 end
 
-local separator_launchjson = { -- Divider for the launch.json derived configs
-  name = "----- ↓ launch.json configs ↓ -----",
+local separator_commons = { -- Divider for the common configs
+  name = "----- ↓ commons ↓ -----",
   type = "",
   request = "launch",
 }
@@ -75,6 +75,13 @@ local function dap_hover_toggle()
   })
 end
 
+local function ensure_dap_view_open()
+  local state = require("dap-view.state")
+  if not (state.winnr and vim.api.nvim_win_is_valid(state.winnr)) then
+    vim.cmd("DapViewOpen")
+  end
+end
+
 local keymaps = {
   -- stylua: ignore start
 
@@ -96,7 +103,15 @@ local keymaps = {
 
   -- ui & eval
   { "<leader>fv", "<cmd>DapViewToggle<cr>", desc = "[DAP] toggle view" },
-  { "<leader>fj", "<cmd>DapViewJump repl<cr>", desc = "[DAP] jump to repl" },
+  { "<leader>fr", function()
+    ensure_dap_view_open()
+    vim.cmd("DapViewJump repl")
+    vim.schedule(function() vim.cmd("startinsert") end)
+  end, desc = "[DAP] jump to repl" },
+  { "<leader>fs", function()
+    ensure_dap_view_open()
+    vim.cmd("DapViewJump scopes")
+  end, desc = "[DAP] jump to scopes" },
   { "<leader>fu", dap_hover_toggle, desc = "[DAP] eval under cursor", mode = { "n", "v" } },
 
   -- stylua: ignore end
@@ -107,11 +122,11 @@ return {
   lazy = false,
   config = function()
     local signs = {
-      { name = "DapStopped", text = "→ ", texthl = "DiagnosticWarn" },
-      { name = "DapBreakpoint", text = " ", texthl = "DiagnosticHint" },
-      { name = "DapBreakpointRejected", text = "╳", texthl = "DiagnosticError" },
-      { name = "DapBreakpointCondition", text = " ", texthl = "DiagnosticInfo" },
-      { name = "DapLogPoint", text = " ", texthl = "DiagnosticInfo" },
+      { name = "DapStopped", text = "▶ ", texthl = "DiagnosticWarn" },
+      { name = "DapBreakpoint", text = "● ", texthl = "DiagnosticHint" },
+      { name = "DapBreakpointRejected", text = "○ ", texthl = "DiagnosticError" },
+      { name = "DapBreakpointCondition", text = "◆ ", texthl = "DiagnosticInfo" },
+      { name = "DapLogPoint", text = "◈ ", texthl = "DiagnosticInfo" },
     }
 
     for _, sign in ipairs(signs) do
@@ -128,7 +143,12 @@ return {
     dap.defaults.fallback.switchbuf = "usevisible,usetab,newtab"
 
     -- Override launch.json provider to use find_root_dir instead of cwd
+    -- Replace built-in launch.json provider with one that uses find_root_dir.
+    -- Key "dap.a.launch.json" sorts before "dap.global" so project configs appear first.
     dap.providers.configs["dap.launch.json"] = function()
+      return {}
+    end
+    dap.providers.configs["dap.a.launch.json"] = function()
       local root = find_root_dir(vim.api.nvim_buf_get_name(0))
       if not root then
         return {}
@@ -163,12 +183,20 @@ return {
 
     repl.commands.custom_commands = vim.tbl_extend("force", repl.commands.custom_commands or {}, {
       [".p"] = py_cmd([[print(%s)]]),
-      [".pp"] = py_cmd([[from pathlib import Path;from rich.console import Console;from rich.theme import Theme;Console(theme=Theme.read(Path("~/.config/rich/rich.ini").expanduser().as_posix())).print(%s)]]),
-      [".pi"] = py_cmd([[from pathlib import Path;from rich.console import Console;from rich.theme import Theme;from rich import inspect;inspect(%s, console=Console(theme=Theme.read(Path("~/.config/rich/rich.ini").expanduser().as_posix())))]]),
-      [".piv"] = py_cmd([[from pathlib import Path;from rich.console import Console;from rich.theme import Theme;from rich import inspect;inspect(%s, private=True, methods=True, console=Console(theme=Theme.read(Path("~/.config/rich/rich.ini").expanduser().as_posix())))]]),
+      [".pp"] = py_cmd(
+        [[from pathlib import Path;from rich.console import Console;from rich.theme import Theme;Console(theme=Theme.read(Path("~/.config/rich/rich.ini").expanduser().as_posix())).print(%s)]]
+      ),
+      [".pi"] = py_cmd(
+        [[from pathlib import Path;from rich.console import Console;from rich.theme import Theme;from rich import inspect;inspect(%s, console=Console(theme=Theme.read(Path("~/.config/rich/rich.ini").expanduser().as_posix())))]]
+      ),
+      [".piv"] = py_cmd(
+        [[from pathlib import Path;from rich.console import Console;from rich.theme import Theme;from rich import inspect;inspect(%s, private=True, methods=True, console=Console(theme=Theme.read(Path("~/.config/rich/rich.ini").expanduser().as_posix())))]]
+      ),
       [".dpp"] = py_cmd([[__import__("devtools").debug(%s)]]),
       [".t"] = py_cmd([[type(%s)]]),
-      [".sql"] = py_cmd([[print(__import__("sqlparse").format(str(getattr(%s, "statement", %s).compile(dialect=__import__("sqlalchemy").dialects.postgresql.dialect(), compile_kwargs={"literal_binds": True})), reindent=True, keyword_case="upper"))]]),
+      [".sql"] = py_cmd(
+        [[print(__import__("sqlparse").format(str(getattr(%s, "statement", %s).compile(dialect=__import__("sqlalchemy").dialects.postgresql.dialect(), compile_kwargs={"literal_binds": True})), reindent=True, keyword_case="upper"))]]
+      ),
     })
 
     -- silence logs "could not read source map"
@@ -274,6 +302,7 @@ return {
         -- Configure JS
         for _, language in ipairs(js_based_languages) do
           vim.list_extend(dap.configurations[language] or {}, {
+            separator_commons,
             { -- Debug nodejs processes (make sure to add --inspect when you run the process)
               type = "pwa-node",
               request = "attach",
@@ -316,11 +345,6 @@ return {
             },
           })
         end
-
-        -- add separator
-        for _, language in ipairs(js_based_languages) do
-          vim.list_extend(dap.configurations[language] or {}, separator_launchjson)
-        end
       end,
     },
     {
@@ -338,10 +362,9 @@ return {
         --- Discover running debugpy listeners via lsof.
         --- Returns list of { pid = string, port = number, cmd = string }
         local function get_debugpy_ports()
-          local result = vim.system(
-            { "lsof", "-iTCP", "-sTCP:LISTEN", "-P", "-n", "-F", "pcn" },
-            { text = true }
-          ):wait()
+          local result = vim
+            .system({ "lsof", "-iTCP", "-sTCP:LISTEN", "-P", "-n", "-F", "pcn" }, { text = true })
+            :wait()
           if result.code ~= 0 or not result.stdout then
             return {}
           end
@@ -371,7 +394,9 @@ return {
 
           -- Filter to debugpy processes: Python command on high ports with debugpy in cmdline
           return vim.tbl_filter(function(e)
-            if not (e.port and e.port >= DEBUGPY_PORT_MIN and e.cmd and e.cmd:lower():find("python")) then
+            if
+              not (e.port and e.port >= DEBUGPY_PORT_MIN and e.cmd and e.cmd:lower():find("python"))
+            then
               return false
             end
             local ps = vim.system({ "ps", "-p", e.pid, "-o", "command=" }, { text = true }):wait()
@@ -428,7 +453,8 @@ return {
           local python_path = python_utils.get_python_path()
           local port = get_free_port()
 
-          local cmd_parts = { python_path, "-m", "debugpy", "--listen", tostring(port), "--wait-for-client" }
+          local cmd_parts =
+            { python_path, "-m", "debugpy", "--listen", tostring(port), "--wait-for-client" }
 
           if config.subProcess then
             table.insert(cmd_parts, "--configure-subProcess")
@@ -477,7 +503,10 @@ return {
         end
 
         -- Default Python configurations
+        -- launch.json configs appear first (via "dap.a.launch.json" provider),
+        -- then these common configs after the separator
         dap.configurations.python = {
+          separator_commons,
           {
             type = "python",
             request = "launch",
@@ -485,17 +514,6 @@ return {
             program = "${file}",
             justMyCode = true,
           },
-          -- {
-          --   type = "python",
-          --   request = "launch",
-          --   name = "Launch file with args",
-          --   program = "${file}",
-          --   justMyCode = true,
-          --   args = function()
-          --     local input = vim.fn.input("Arguments: ")
-          --     return vim.split(input, " ", { trimempty = true })
-          --   end,
-          -- },
           {
             type = "python",
             request = "attach",
@@ -511,7 +529,9 @@ return {
                   port = tonumber(vim.fn.input("Port [5678]: ", "5678")),
                 }
               elseif #ports == 1 then
-                vim.notify(("Attaching to debugpy on port %d (pid %s)"):format(ports[1].port, ports[1].pid))
+                vim.notify(
+                  ("Attaching to debugpy on port %d (pid %s)"):format(ports[1].port, ports[1].pid)
+                )
                 return { host = host, port = ports[1].port }
               else
                 -- Multiple: use coroutine + vim.ui.select
@@ -532,7 +552,6 @@ return {
               end
             end,
           },
-          separator_launchjson,
         }
       end,
     },

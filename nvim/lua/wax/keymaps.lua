@@ -1,5 +1,5 @@
 -- Reload
-vim.keymap.set("n", "<leader>fr", function()
+vim.keymap.set("n", "<leader>fR", function()
   -- reload snippets
   require("wax.plugcfg.luasnip").reload()
 end, { desc = "Reload Luasnip snippets" })
