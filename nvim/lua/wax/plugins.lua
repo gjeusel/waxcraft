@@ -655,6 +655,13 @@ return {
         desc = "Fzf Lua Highlights",
       },
       {
+        "<leader>fx",
+        function()
+          require("wax.plugcfg.fzf").wax_files()
+        end,
+        desc = "Find waxcraft dotfiles",
+      },
+      {
         "∂", -- option + d
         function()
           require("fzf-lua").command_history()
