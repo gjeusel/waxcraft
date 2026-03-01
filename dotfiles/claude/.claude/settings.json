@@ -1,0 +1,191 @@
+{
+  "env": {
+    "USE_BUILTIN_RIPGREP": "0",
+    "ENABLE_TOOL_SEARCH": "true"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(cd *)",
+
+      "Bash(git status *)",
+      "Bash(git log *)",
+      "Bash(git diff *)",
+      "Bash(git branch *)",
+      "Bash(git show *)",
+      "Bash(git blame *)",
+      "Bash(git stash *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git rev-parse *)",
+
+      "Bash(glab issue create *)",
+      "Bash(glab issue update *)",
+      "Bash(glab mr view *)",
+
+      "Bash(gh pr view *)",
+      "Bash(gh pr diff *)",
+      "Bash(gh pr list *)",
+      "Bash(gh pr checks *)",
+      "Bash(gh pr status *)",
+      "Bash(gh issue list *)",
+      "Bash(gh issue view *)",
+      "Bash(gh issue search *)",
+      "Bash(gh api *)",
+      "Bash(gh repo view *)",
+      "Bash(gh run list *)",
+      "Bash(gh run view *)",
+      "Bash(gh search *)",
+
+      "Bash(make *)",
+      "Bash(pytest *)",
+      "Bash(ruff *)",
+
+      "Bash(pnpm lint)",
+      "Bash(pnpm format)",
+      "Bash(pnpm list)",
+      "Bash(pnpm typecheck)",
+      "Bash(pnpm build)",
+      "Bash(pnpm run *)",
+      "Bash(pnpm test *)",
+      "Bash(npm run lint)",
+      "Bash(npm run format)",
+      "Bash(npm run list)",
+      "Bash(npm run typecheck)",
+      "Bash(npm run build)",
+      "Bash(npm test *)",
+      "Bash(npm list *)",
+      "Bash(npx vitest *)",
+      "Bash(npx vue-tsc *)",
+      "Bash(npx prettier *)",
+      "Bash(npx eslint *)",
+      "Bash(npx nuxi *)",
+      "Bash(npx nuxt *)",
+      "Bash(npx tsc *)",
+
+      "Bash(uv run pytest *)",
+      "Bash(uv run ruff *)",
+      "Bash(uv run mypy *)",
+      "Bash(uv pip check *)",
+      "Bash(uv pip list *)",
+      "Bash(uv pip show *)",
+      "Bash(uv pip tree *)",
+
+      "Bash(pwd)",
+      "Bash(which *)",
+      "Bash(whereis *)",
+      "Bash(ps *)",
+      "Bash(df *)",
+      "Bash(du *)",
+      "Bash(env)",
+      "Bash(printenv *)",
+      "Bash(uname *)",
+      "Bash(id)",
+      "Bash(whoami)",
+
+      "Bash(cat *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(wc *)",
+      "Bash(diff *)",
+      "Bash(sort *)",
+      "Bash(uniq *)",
+      "Bash(jq *)",
+      "Bash(stat *)",
+      "Bash(file *)",
+      "Bash(realpath *)",
+      "Bash(dirname *)",
+      "Bash(basename *)",
+      "Bash(ls *)",
+      "Bash(tree *)",
+      "Bash(find *)",
+      "Bash(grep *)",
+      "Bash(rg *)",
+
+      "Bash(date *)",
+      "Bash(echo *)",
+      "Bash(sleep *)",
+      "Bash(tar *)",
+      "Bash(zip *)",
+      "Bash(unzip *)",
+      "Bash(xargs *)",
+      "Bash(sed *)",
+      "Bash(awk *)",
+      "Bash(cut *)",
+      "Bash(tr *)",
+      "Bash(tee *)",
+      "Bash(column *)",
+
+      "mcp__plugin_context7_context7__resolve-library-id",
+      "mcp__plugin_context7_context7__query-docs",
+      "mcp__plugin_sentry_sentry__get_issue_details",
+      "mcp__sentry__get_issue_details",
+      "mcp__gitlab__get_users",
+      "mcp__gitlab__list_projects",
+      "mcp__gitlab__search_repositories",
+      "mcp__gitlab__list_project_members",
+      "mcp__gitlab__list_labels",
+      "mcp__gitlab__list_issues",
+      "mcp__gitlab__create_issue",
+      "mcp__plugin_Notion_notion__notion-search",
+      "mcp__plugin_Notion_notion__notion-fetch",
+      "mcp__GitLab__search",
+
+      "WebFetch(domain:docs.sqlalchemy.org)",
+      "Read(~/src/**)",
+      "Read(~/.claude/skills/**)",
+      "Read(~/.local/share/nvim/lazy/**)",
+      "Read(/tmp)",
+      "Write(/tmp)",
+
+      "Skill(skill-creator)",
+      "Skill(zefire-model)",
+      "Skill(slack-gif-creator)",
+      "Skill(gitlab)"
+    ],
+    "deny": [
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Edit(**/.env)",
+      "Edit(**/.env.*)",
+      "Read(**/*.tfvars)",
+      "Edit(**/*.tfvars)",
+      "Read(~/src/ops/**)",
+      "Bash(sudo *)"
+    ],
+    "ask": [
+      "Bash(rm *)",
+      "Bash(curl *)",
+      "Bash(wget *)",
+      "Bash(http *)",
+      "Bash(httpx *)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "FILE_PATH=$(jq -r '.tool_input.file_path // .tool_input.filePath // empty' <<< \"$HOOK_INPUT\"); if [[ -z \"$FILE_PATH\" ]] || [[ ! \"$FILE_PATH\" =~ \\.py$ ]] || [[ ! \"$(basename \"$FILE_PATH\")\" =~ ^test_.*\\.py$|_test\\.py$ ]]; then exit 0; fi; VIOLATIONS=$(grep -n '^[[:space:]]\\+\\(import \\|from .* import \\)' \"$FILE_PATH\" 2>/dev/null || true); if [[ -n \"$VIOLATIONS\" ]]; then echo \"Dynamic imports detected in test file $FILE_PATH:\" >&2; echo \"$VIOLATIONS\" >&2; echo \"\" >&2; echo \"Move these imports to module level (top of file).\" >&2; exit 2; fi"
+          }
+        ]
+      }
+    ]
+  },
+  "enabledPlugins": {
+    "frontend-design@claude-plugins-official": true,
+    "pyright-lsp@claude-plugins-official": false,
+    "context7@claude-plugins-official": true,
+    "commit-commands@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "sentry@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "lua-lsp@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true,
+    "ralph-loop@claude-plugins-official": true,
+    "astral@astral-sh": true
+  },
+  "promptSuggestionEnabled": false,
+  "effortLevel": "medium"
+}

@@ -25,7 +25,7 @@ alias ga='git add'
 alias glog="git log --graph --no-merges --abbrev-commit --pretty='%C(dim red)%h%C(reset) - %s %C(yellow)%d%C(reset) %C(dim green)(%cr) %C(dim blue)<%aN>%C(reset)'"
 
 # ls colorized output
-alias ls='ls -G'
+alias ls='ls --color'
 
 # Docker & Kubernetes
 alias dk="docker"
