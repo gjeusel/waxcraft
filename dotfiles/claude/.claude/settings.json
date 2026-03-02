@@ -37,8 +37,6 @@
       "Bash(gh search *)",
 
       "Bash(make *)",
-      "Bash(pytest *)",
-      "Bash(ruff *)",
 
       "Bash(pnpm lint)",
       "Bash(pnpm format)",
@@ -47,6 +45,7 @@
       "Bash(pnpm build)",
       "Bash(pnpm run *)",
       "Bash(pnpm test *)",
+
       "Bash(npm run lint)",
       "Bash(npm run format)",
       "Bash(npm run list)",
@@ -54,21 +53,32 @@
       "Bash(npm run build)",
       "Bash(npm test *)",
       "Bash(npm list *)",
+
       "Bash(npx vitest *)",
       "Bash(npx vue-tsc *)",
       "Bash(npx prettier *)",
+      "Bash(npx oxfmt *)",
       "Bash(npx eslint *)",
+      "Bash(npx oxlint *)",
       "Bash(npx nuxi *)",
       "Bash(npx nuxt *)",
       "Bash(npx tsc *)",
 
       "Bash(uv run pytest *)",
+      "Bash(pytest *)",
       "Bash(uv run ruff *)",
+      "Bash(ruff *)",
       "Bash(uv run mypy *)",
+      "Bash(mypy *)",
+
       "Bash(uv pip check *)",
       "Bash(uv pip list *)",
       "Bash(uv pip show *)",
       "Bash(uv pip tree *)",
+      "Bash(pip check *)",
+      "Bash(pip list *)",
+      "Bash(pip show *)",
+      "Bash(pip tree *)",
 
       "Bash(pwd)",
       "Bash(which *)",
@@ -81,7 +91,6 @@
       "Bash(uname *)",
       "Bash(id)",
       "Bash(whoami)",
-
       "Bash(cat *)",
       "Bash(head *)",
       "Bash(tail *)",
@@ -100,7 +109,6 @@
       "Bash(find *)",
       "Bash(grep *)",
       "Bash(rg *)",
-
       "Bash(date *)",
       "Bash(echo *)",
       "Bash(sleep *)",
@@ -117,8 +125,10 @@
 
       "mcp__plugin_context7_context7__resolve-library-id",
       "mcp__plugin_context7_context7__query-docs",
+
       "mcp__plugin_sentry_sentry__get_issue_details",
       "mcp__sentry__get_issue_details",
+
       "mcp__gitlab__get_users",
       "mcp__gitlab__list_projects",
       "mcp__gitlab__search_repositories",
@@ -126,14 +136,18 @@
       "mcp__gitlab__list_labels",
       "mcp__gitlab__list_issues",
       "mcp__gitlab__create_issue",
+
       "mcp__plugin_Notion_notion__notion-search",
       "mcp__plugin_Notion_notion__notion-fetch",
+
       "mcp__GitLab__search",
 
       "WebFetch(domain:docs.sqlalchemy.org)",
+
       "Read(~/src/**)",
       "Read(~/.claude/skills/**)",
       "Read(~/.local/share/nvim/lazy/**)",
+
       "Read(/tmp)",
       "Write(/tmp)",
 
@@ -152,13 +166,7 @@
       "Read(~/src/ops/**)",
       "Bash(sudo *)"
     ],
-    "ask": [
-      "Bash(rm *)",
-      "Bash(curl *)",
-      "Bash(wget *)",
-      "Bash(http *)",
-      "Bash(httpx *)"
-    ]
+    "ask": ["Bash(rm *)", "Bash(curl *)", "Bash(wget *)", "Bash(http *)", "Bash(httpx *)"]
   },
   "hooks": {
     "PostToolUse": [
@@ -187,5 +195,6 @@
     "astral@astral-sh": true
   },
   "promptSuggestionEnabled": false,
-  "effortLevel": "medium"
+  "effortLevel": "medium",
+  "skipDangerousModePermissionPrompt": true
 }
