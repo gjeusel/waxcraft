@@ -94,9 +94,23 @@ local opts = {
   },
   cmdline = {
     enabled = true,
-    keymap = { preset = "cmdline" },
+    keymap = {
+      preset = "cmdline",
+      ["<CR>"] = {
+        function(cmp)
+          if cmp.select_and_accept() then
+            vim.schedule(function()
+              local cr = vim.api.nvim_replace_termcodes("<CR>", true, false, true)
+              vim.api.nvim_feedkeys(cr, "n", false)
+            end)
+            return true
+          end
+        end,
+        "fallback",
+      },
+    },
     completion = {
-      list = { selection = { preselect = false, auto_insert = true } },
+      list = { selection = { preselect = false, auto_insert = false } },
       menu = {
         auto_show = function(ctx, _)
           return ctx.mode == "cmdwin"
