@@ -144,6 +144,9 @@
     sql-formatter
     pgformatter
 
+    pkgs-unstable.oxfmt
+    pkgs-unstable.oxlint
+
     # ----- vim LSP -----
     lua-language-server
     bash-language-server
