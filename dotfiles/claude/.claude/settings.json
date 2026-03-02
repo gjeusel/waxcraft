@@ -43,8 +43,12 @@
       "Bash(pnpm list)",
       "Bash(pnpm typecheck)",
       "Bash(pnpm build)",
-      "Bash(pnpm run *)",
       "Bash(pnpm test *)",
+      "Bash(pnpm add *)",
+      "Bash(pnpm install *)",
+      "Bash(pnpm info *)",
+      "Bash(pnpm why *)",
+      "Bash(pnpm vitest run *)",
 
       "Bash(npm run lint)",
       "Bash(npm run format)",
@@ -53,8 +57,13 @@
       "Bash(npm run build)",
       "Bash(npm test *)",
       "Bash(npm list *)",
+      "Bash(npm install *)",
+      "Bash(npm uninstall *)",
+      "Bash(npm view *)",
 
       "Bash(npx vitest *)",
+      "Bash(npx vitest run *)",
+      "Bash(npx nuxt prepare *)",
       "Bash(npx vue-tsc *)",
       "Bash(npx prettier *)",
       "Bash(npx oxfmt *)",
@@ -66,10 +75,21 @@
 
       "Bash(uv run pytest *)",
       "Bash(pytest *)",
+      "Bash(python -m pytest *)",
+
       "Bash(uv run ruff *)",
       "Bash(ruff *)",
       "Bash(uv run mypy *)",
       "Bash(mypy *)",
+      "Bash(python -m mypy *)",
+
+      "Bash(pre-commit run *)",
+      "Bash(uv run pre-commit *)",
+      "Bash(prek run *)",
+      "Bash(uv run prek *)",
+
+      "Bash(uv sync *)",
+      "Bash(pip install *)",
 
       "Bash(uv pip check *)",
       "Bash(uv pip list *)",
@@ -123,6 +143,14 @@
       "Bash(tee *)",
       "Bash(column *)",
 
+      "Bash(kubectl get *)",
+      "Bash(kubectl logs *)",
+      "Bash(kubectl describe *)",
+      "Bash(kubectl top *)",
+      "Bash(kubectl explain *)",
+      "Bash(helm lint *)",
+      "Bash(helm template *)",
+
       "mcp__plugin_context7_context7__resolve-library-id",
       "mcp__plugin_context7_context7__query-docs",
 
@@ -142,6 +170,16 @@
 
       "mcp__GitLab__search",
 
+      "mcp__postgres__execute_sql",
+      "mcp__postgres__list_objects",
+      "mcp__postgres__list_schemas",
+      "mcp__postgres__get_object_details",
+      "mcp__postgres__explain_query",
+      "mcp__postgres__analyze_workload_indexes",
+      "mcp__postgres__analyze_query_indexes",
+      "mcp__postgres__analyze_db_health",
+      "mcp__postgres__get_top_queries",
+
       "WebFetch(domain:docs.sqlalchemy.org)",
 
       "Read(~/src/**)",
@@ -154,7 +192,10 @@
       "Skill(skill-creator)",
       "Skill(zefire-model)",
       "Skill(slack-gif-creator)",
-      "Skill(gitlab)"
+      "Skill(gitlab)",
+      "Skill(zefire-sqla-migration)",
+      "Skill(agent-browser)",
+      "Skill(ralph-loop:ralph-loop)"
     ],
     "deny": [
       "Read(**/.env)",
