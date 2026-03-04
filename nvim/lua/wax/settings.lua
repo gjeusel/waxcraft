@@ -3,6 +3,9 @@ vim.keymap.set({ "n", "x", "v" }, ",,", ",", { remap = false })
 vim.o.mouse = "a" -- Automatically enable mouse usage
 vim.o.mousescroll = "ver:3,hor:0" -- Disable horizontal scrolling
 
+-- Disable right-click menu
+vim.keymap.set({ "n", "i", "v" }, "<RightMouse>", "<Nop>")
+
 vim.o.number = true -- display line number column
 vim.o.relativenumber = true -- relative line number
 -- vim.o.termguicolors = true -- enable 24bit colors
@@ -100,9 +103,9 @@ vim.o.incsearch = true -- show the pattern matches while typing
 -- cmdline autocomplete
 vim.o.wildignore = "**/*.egg-info,**/__pycache__,**/node_modules" -- ignore those pattern
 vim.o.wildignorecase = true -- ignore case on :e
-vim.o.wildmenu = false
--- vim.o.wildoptions = "fuzzy"
-vim.o.wildmode = "list:longest,full" -- first list matches, then longest common part, then all.
+vim.o.wildmenu = true
+vim.o.wildoptions = "fuzzy,pum"
+vim.o.wildmode = "longest:full,full" -- first longest common match with popup, then cycle through full matches
 
 -- Clipboard
 if vim.fn.has("clipboard") == 1 and vim.fn.has("unnamedplus") == 1 then

@@ -185,6 +185,7 @@
       "Read(~/src/**)",
       "Read(~/.claude/skills/**)",
       "Read(~/.local/share/nvim/lazy/**)",
+      "Read(~/opt/miniconda3/**)",
 
       "Read(/tmp)",
       "Write(/tmp)",

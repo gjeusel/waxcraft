@@ -92,45 +92,7 @@ local opts = {
       -- auto_show_delay_ms = 500,
     },
   },
-  cmdline = {
-    enabled = true,
-    keymap = {
-      preset = "cmdline",
-      ["<CR>"] = {
-        function(cmp)
-          if cmp.select_and_accept() then
-            vim.schedule(function()
-              local cr = vim.api.nvim_replace_termcodes("<CR>", true, false, true)
-              vim.api.nvim_feedkeys(cr, "n", false)
-            end)
-            return true
-          end
-        end,
-        "fallback",
-      },
-    },
-    completion = {
-      list = { selection = { preselect = false, auto_insert = false } },
-      menu = {
-        auto_show = function(ctx, _)
-          return ctx.mode == "cmdwin"
-        end,
-      },
-      ghost_text = { enabled = true },
-    },
-    sources = function()
-      local type = vim.fn.getcmdtype()
-      -- Search forward and backward
-      if type == "/" or type == "?" then
-        return { "buffer" }
-      end
-      -- Commands
-      if type == ":" or type == "@" then
-        return { "cmdline", "buffer" }
-      end
-      return {}
-    end,
-  },
+  cmdline = { enabled = false },
   signature = { enabled = true, trigger = { enabled = false }, window = { border = "rounded" } },
   snippets = { preset = "luasnip" },
   sources = {
