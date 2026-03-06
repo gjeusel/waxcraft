@@ -106,8 +106,6 @@
       "Bash(ps *)",
       "Bash(df *)",
       "Bash(du *)",
-      "Bash(env)",
-      "Bash(printenv *)",
       "Bash(uname *)",
       "Bash(id)",
       "Bash(whoami)",
@@ -126,9 +124,6 @@
       "Bash(basename *)",
       "Bash(ls *)",
       "Bash(tree *)",
-      "Bash(find *)",
-      "Bash(grep *)",
-      "Bash(rg *)",
       "Bash(date *)",
       "Bash(echo *)",
       "Bash(sleep *)",
@@ -184,8 +179,15 @@
 
       "Read(~/src/**)",
       "Read(~/.claude/skills/**)",
+      "Read(~/.claude/settings.json)",
       "Read(~/.local/share/nvim/lazy/**)",
       "Read(~/opt/miniconda3/**)",
+
+      "Grep(~/src/**)",
+      "Grep(~/.claude/skills/**)",
+      "Grep(~/.claude/settings.json)",
+      "Grep(~/.local/share/nvim/lazy/**)",
+      "Grep(~/opt/miniconda3/**)",
 
       "Read(/tmp)",
       "Write(/tmp)",
@@ -206,18 +208,36 @@
       "Read(**/*.tfvars)",
       "Edit(**/*.tfvars)",
       "Read(~/src/ops/**)",
-      "Bash(sudo *)"
+      "Bash(sudo *)",
+      "Bash(find *)",
+      "Bash(grep *)",
+      "Bash(rg *)"
     ],
     "ask": ["Bash(rm *)", "Bash(curl *)", "Bash(wget *)", "Bash(http *)", "Bash(httpx *)"]
   },
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/block_secrets.sh"
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Edit|Write",
         "hooks": [
           {
             "type": "command",
-            "command": "FILE_PATH=$(jq -r '.tool_input.file_path // .tool_input.filePath // empty' <<< \"$HOOK_INPUT\"); if [[ -z \"$FILE_PATH\" ]] || [[ ! \"$FILE_PATH\" =~ \\.py$ ]] || [[ ! \"$(basename \"$FILE_PATH\")\" =~ ^test_.*\\.py$|_test\\.py$ ]]; then exit 0; fi; VIOLATIONS=$(grep -n '^[[:space:]]\\+\\(import \\|from .* import \\)' \"$FILE_PATH\" 2>/dev/null || true); if [[ -n \"$VIOLATIONS\" ]]; then echo \"Dynamic imports detected in test file $FILE_PATH:\" >&2; echo \"$VIOLATIONS\" >&2; echo \"\" >&2; echo \"Move these imports to module level (top of file).\" >&2; exit 2; fi"
+            "command": "~/.claude/hooks/check_python_dynamic_import.sh"
+          },
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/format_code.sh"
           }
         ]
       }
