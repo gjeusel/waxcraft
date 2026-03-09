@@ -17,4 +17,13 @@ if echo "$COMMAND" | grep -qE 'python[23]?\s+-c\s+' && \
   exit 2
 fi
 
+# Block python -c "import X; print(X.__version__)" patterns
+if echo "$COMMAND" | grep -qE 'python[23]?\s+-c\s+' && \
+   echo "$COMMAND" | grep -qE '__version__'; then
+  echo "BLOCKED: Do not use 'python -c' one-liners to check package versions." >&2
+  echo "" >&2
+  echo "Instead use: uv pip freeze | grep <pkg>" >&2
+  exit 2
+fi
+
 exit 0

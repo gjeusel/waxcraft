@@ -249,6 +249,8 @@ return {
           size = 0.5,
           position = "right",
         },
+        auto_toggle = false,
+        follow_tab = false,
       },
     },
     {

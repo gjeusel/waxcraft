@@ -100,6 +100,8 @@
       "Bash(pip show *)",
       "Bash(pip tree *)",
 
+      "Bash(uvx --python 3.12 cruft *)",
+
       "Bash(pwd)",
       "Bash(which *)",
       "Bash(whereis *)",
