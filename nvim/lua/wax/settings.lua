@@ -103,9 +103,9 @@ vim.o.incsearch = true -- show the pattern matches while typing
 -- cmdline autocomplete
 vim.o.wildignore = "**/*.egg-info,**/__pycache__,**/node_modules" -- ignore those pattern
 vim.o.wildignorecase = true -- ignore case on :e
-vim.o.wildmenu = true
-vim.o.wildoptions = "fuzzy,pum"
-vim.o.wildmode = "longest:full,full" -- first longest common match with popup, then cycle through full matches
+vim.o.wildmenu = false
+-- vim.o.wildoptions = "fuzzy"
+vim.o.wildmode = "list:longest,full" -- first list matches, then longest common part, then all.
 
 -- Clipboard
 if vim.fn.has("clipboard") == 1 and vim.fn.has("unnamedplus") == 1 then

@@ -10,7 +10,7 @@ local js_based_languages =
 local function gotoBreakpoint(dir)
   -- https://github.com/mfussenegger/nvim-dap/issues/792
   local breakpoints = require("dap.breakpoints").get()
-  if #breakpoints == 0 then
+  if vim.tbl_isempty(breakpoints) then
     vim.notify("No breakpoints set", vim.log.levels.WARN)
     return
   end
