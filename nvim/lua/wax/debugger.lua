@@ -139,6 +139,11 @@ return {
     -- -- Enable verbose logging (check ~/.cache/nvim/dap.log)
     -- dap.set_log_level("TRACE")
 
+    -- Disable dap-view's SessionLoadPost handler: on neovim 0.12+, `loadview`
+    -- fires SessionLoadPost, causing dap-view to reopen on every buffer switch
+    -- during a debug session (because [dap-repl-N] buffers exist).
+    require("dap-view.vim-sessions").load_session_hook = function() end
+
     -- Prevent "winfixbuf" errors when jumping to source from nvim-dap-view windows
     dap.defaults.fallback.switchbuf = "usevisible,usetab,newtab"
 
