@@ -59,7 +59,8 @@ return {
       maximum_padding = 1,
       -- avoid scratch buffer display from null-ls:
       no_name_title = "",
-      exclude_name = { "", "[dap-repl]" },
+      exclude_name = { "", },
+      exclude_ft = {"dap-repl", "dap-view"}
     },
     keys = {
       { "œ", "<cmd>BufferPrevious<cr>", desc = "Previous buffer", mode = { "n", "i" } },
@@ -653,6 +654,13 @@ return {
           require("fzf-lua/providers/colorschemes").highlights()
         end,
         desc = "Fzf Lua Highlights",
+      },
+      {
+        "<leader>fx",
+        function()
+          require("wax.plugcfg.fzf").wax_files()
+        end,
+        desc = "Find waxcraft dotfiles",
       },
       {
         "∂", -- option + d

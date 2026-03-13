@@ -1,5 +1,5 @@
 -- Reload
-vim.keymap.set("n", "<leader>fr", function()
+vim.keymap.set("n", "<leader>fR", function()
   -- reload snippets
   require("wax.plugcfg.luasnip").reload()
 end, { desc = "Reload Luasnip snippets" })
@@ -256,7 +256,7 @@ end, { desc = "Yank current file python word as import" })
 vim.keymap.set("n", "<leader>yp", function()
   local module, word_under_cursor = _get_python_parts()
   vim.fn.setreg("+", ("%s.%s"):format(module, word_under_cursor))
-end, { desc = "Yank current file python word as modle" })
+end, { desc = "Yank current file python word as module" })
 
 -- set foldlevel
 for i = 0, 9, 1 do

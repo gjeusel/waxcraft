@@ -3,6 +3,9 @@ vim.keymap.set({ "n", "x", "v" }, ",,", ",", { remap = false })
 vim.o.mouse = "a" -- Automatically enable mouse usage
 vim.o.mousescroll = "ver:3,hor:0" -- Disable horizontal scrolling
 
+-- Disable right-click menu
+vim.keymap.set({ "n", "i", "v" }, "<RightMouse>", "<Nop>")
+
 vim.o.number = true -- display line number column
 vim.o.relativenumber = true -- relative line number
 -- vim.o.termguicolors = true -- enable 24bit colors

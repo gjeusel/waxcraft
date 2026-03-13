@@ -7,6 +7,14 @@ return {
   },
   on_attach = function(client, bufnr)
     local bufname = vim.api.nvim_buf_get_name(bufnr)
+
+    -- Disable eslint when oxlint is available for this project
+    local oxlint_root = util.root_pattern(".oxlintrc.json")(bufname)
+    if oxlint_root then
+      vim.lsp.buf_detach_client(bufnr, client.id)
+      return
+    end
+
     local root_dir = util.root_pattern("eslint.config.*")(bufname)
     if not root_dir then
       vim.notify("No ESLint flatfile config found, disabling for this buffer.", vim.log.levels.WARN)

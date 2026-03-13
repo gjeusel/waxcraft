@@ -3,14 +3,26 @@ local utils = require("wax.utils")
 -- Handle Views
 local group_view = "Views"
 vim.api.nvim_create_augroup(group_view, { clear = true })
-vim.api.nvim_create_autocmd(
-  { "BufWinEnter" },
-  { desc = "Load view", pattern = "*", command = "silent! loadview" }
-)
-vim.api.nvim_create_autocmd(
-  { "BufWrite", "BufLeave" },
-  { desc = "Save view", pattern = "*", command = "silent! mkview" }
-)
+vim.api.nvim_create_autocmd({ "BufWinEnter" }, {
+  desc = "Load view",
+  pattern = "*",
+  callback = function(opts)
+    if vim.bo[opts.buf].buftype ~= "" then return end
+    local name = vim.api.nvim_buf_get_name(opts.buf)
+    if name == "" or name:find("://") then return end
+    vim.cmd("silent! loadview")
+  end,
+})
+vim.api.nvim_create_autocmd({ "BufWrite", "BufLeave" }, {
+  desc = "Save view",
+  pattern = "*",
+  callback = function(opts)
+    if vim.bo[opts.buf].buftype ~= "" then return end
+    local name = vim.api.nvim_buf_get_name(opts.buf)
+    if name == "" or name:find("://") then return end
+    vim.cmd("silent! mkview")
+  end,
+})
 
 -- Diff
 local previous_foldmethod = nil

@@ -150,6 +150,9 @@
     sql-formatter
     pgformatter
 
+    pkgs-unstable.oxfmt
+    pkgs-unstable.oxlint
+
     # ----- daily life -----
     # spotify # https://github.com/NixOS/nixpkgs/issues/465676
     zoom-us # video conferencing application
@@ -183,6 +186,8 @@
     # calibre
     # obs-studio
     # vlc
+
+    protonmail-desktop
 
     # ----- experiments -----
     temporal
