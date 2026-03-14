@@ -82,7 +82,7 @@ return {
     lazy = false,
     opts = {
       builtin = { enabled = false },
-      select = { enabled = true, fzf_lua = { winopts = { height = 0.5, width = 0.5 } } },
+      select = { enabled = false }, -- use fzf-lua register_ui_select instead
       input = { enabled = true, win_options = { winblend = 0 } },
     },
   },
