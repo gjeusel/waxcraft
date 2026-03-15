@@ -575,6 +575,7 @@ return {
   {
     "ibhagwan/fzf-lua",
     -- commit = "a8458b7",
+    lazy = false, -- needed so register_ui_select runs before first vim.ui.select call
     config = function()
       require("wax.plugcfg.fzf")
     end,
