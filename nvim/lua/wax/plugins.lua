@@ -957,7 +957,7 @@ return {
     keys = {
       {
         "<leader>m",
-        "<cmd>lua require('conform').format({lsp_fallback=true})<cr>",
+        "<cmd>lua require('conform').format({lsp_fallback=true, timeout_ms=30000})<cr>",
         desc = "Conform Format",
         mode = { "n", "v" },
       },
@@ -992,7 +992,10 @@ return {
     cmd = "StartupTime",
   },
   {
-    "stevearc/profile.nvim", -- profiler with flamegraph
+    -- Profiler outputting Chrome Trace Format JSON.
+    -- Usage: NVIM_PROFILE=start nvim, then <leader>fP to stop & save.
+    -- Read the trace: open https://ui.perfetto.dev and drag-drop the JSON file.
+    "stevearc/profile.nvim",
     lazy = false,
     config = function()
       local should_profile = os.getenv("NVIM_PROFILE")

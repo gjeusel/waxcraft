@@ -9,7 +9,10 @@ require("supermaven-nvim").setup({
     clear_suggestion = "<C-]>",
     accept_word = "<C-j>",
   },
-  ignore_filetypes = { ["dap-repl"] = true },
+  ignore_filetypes = { ["dap-repl"] = true, jsonc = true, json = true },
+  condition = function()
+    return is_big_file(vim.api.nvim_buf_get_name(0))
+  end,
   log_level = log_level,
 })
 
