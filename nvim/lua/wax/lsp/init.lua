@@ -140,11 +140,11 @@ vim.api.nvim_set_option_value("omnifunc", "v:lua.vim.lsp.omnifunc", {})
 require("wax.lsp.ui")
 
 -- Customization of the publishDiagnostics:
---   - remove all pyright & ty diagnostics
+--   - remove all pyright diagnostics (ty diagnostics handled in after/lsp/ty.lua)
 vim.lsp.handlers[ms.textDocument_publishDiagnostics] = function(_, result, ctx)
   result.diagnostics = vim.tbl_filter(function(diagnostic)
     -- Filter out all diagnostics from pyright
-    return not vim.tbl_contains({ "Pyright", "ty" }, diagnostic.source)
+    return not vim.tbl_contains({ "Pyright" }, diagnostic.source)
   end, result.diagnostics)
   vim.lsp.diagnostic.on_publish_diagnostics(_, result, ctx)
 end
