@@ -66,6 +66,27 @@ export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS'
     --color=marker:#a3be8b,spinner:#b48dac,header:#a3be8b
     --color=gutter:-1'
 
+# FZF configuration with fd
+export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow \
+  --exclude .git \
+  --exclude node_modules \
+  --exclude .cache \
+  --exclude .venv \
+  --exclude .mypy \
+  --exclude venv \
+  --exclude __pycache__ \
+  --exclude '*.pyc' \
+  --exclude '*.pyo' \
+  --exclude '*.class' \
+  --exclude '*.o' \
+  --exclude '*.so' \
+  --exclude '*.swp' \
+  --exclude '*.swo' \
+  --exclude '.DS_Store' \
+  --exclude '*.log'"
+
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+
 # Disable homebrew auto update on install
 export HOMEBREW_NO_AUTO_UPDATE=1
 export HOMEBREW_NO_INSTALL_CLEANUP=1

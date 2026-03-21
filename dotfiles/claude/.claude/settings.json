@@ -6,7 +6,6 @@
   "permissions": {
     "allow": [
       "Bash(cd *)",
-
       "Bash(git status *)",
       "Bash(git log *)",
       "Bash(git diff *)",
@@ -17,11 +16,9 @@
       "Bash(git add *)",
       "Bash(git commit *)",
       "Bash(git rev-parse *)",
-
       "Bash(glab issue create *)",
       "Bash(glab issue update *)",
       "Bash(glab mr view *)",
-
       "Bash(gh pr view *)",
       "Bash(gh pr diff *)",
       "Bash(gh pr list *)",
@@ -35,9 +32,7 @@
       "Bash(gh run list *)",
       "Bash(gh run view *)",
       "Bash(gh search *)",
-
       "Bash(make *)",
-
       "Bash(pnpm lint)",
       "Bash(pnpm format)",
       "Bash(pnpm list)",
@@ -49,7 +44,6 @@
       "Bash(pnpm info *)",
       "Bash(pnpm why *)",
       "Bash(pnpm vitest run *)",
-
       "Bash(npm run lint)",
       "Bash(npm run format)",
       "Bash(npm run list)",
@@ -60,7 +54,6 @@
       "Bash(npm install *)",
       "Bash(npm uninstall *)",
       "Bash(npm view *)",
-
       "Bash(npx vitest *)",
       "Bash(npx vitest run *)",
       "Bash(npx nuxt prepare *)",
@@ -72,25 +65,20 @@
       "Bash(npx nuxi *)",
       "Bash(npx nuxt *)",
       "Bash(npx tsc *)",
-
       "Bash(uv run pytest *)",
       "Bash(pytest *)",
       "Bash(python -m pytest *)",
-
       "Bash(uv run ruff *)",
       "Bash(ruff *)",
       "Bash(uv run mypy *)",
       "Bash(mypy *)",
       "Bash(python -m mypy *)",
-
       "Bash(pre-commit run *)",
       "Bash(uv run pre-commit *)",
       "Bash(prek run *)",
       "Bash(uv run prek *)",
-
       "Bash(uv sync *)",
       "Bash(pip install *)",
-
       "Bash(uv pip check *)",
       "Bash(uv pip list *)",
       "Bash(uv pip show *)",
@@ -99,9 +87,7 @@
       "Bash(pip list *)",
       "Bash(pip show *)",
       "Bash(pip tree *)",
-
       "Bash(uvx --python 3.12 cruft *)",
-
       "Bash(pwd)",
       "Bash(which *)",
       "Bash(whereis *)",
@@ -139,7 +125,6 @@
       "Bash(tr *)",
       "Bash(tee *)",
       "Bash(column *)",
-
       "Bash(kubectl get *)",
       "Bash(kubectl logs *)",
       "Bash(kubectl describe *)",
@@ -147,13 +132,10 @@
       "Bash(kubectl explain *)",
       "Bash(helm lint *)",
       "Bash(helm template *)",
-
       "mcp__plugin_context7_context7__resolve-library-id",
       "mcp__plugin_context7_context7__query-docs",
-
       "mcp__plugin_sentry_sentry__get_issue_details",
       "mcp__sentry__get_issue_details",
-
       "mcp__gitlab__get_users",
       "mcp__gitlab__list_projects",
       "mcp__gitlab__search_repositories",
@@ -161,12 +143,9 @@
       "mcp__gitlab__list_labels",
       "mcp__gitlab__list_issues",
       "mcp__gitlab__create_issue",
-
       "mcp__plugin_Notion_notion__notion-search",
       "mcp__plugin_Notion_notion__notion-fetch",
-
       "mcp__GitLab__search",
-
       "mcp__postgres__execute_sql",
       "mcp__postgres__list_objects",
       "mcp__postgres__list_schemas",
@@ -176,9 +155,7 @@
       "mcp__postgres__analyze_query_indexes",
       "mcp__postgres__analyze_db_health",
       "mcp__postgres__get_top_queries",
-
       "WebFetch(domain:docs.sqlalchemy.org)",
-
       "Read(~/src/**)",
       "Read(~/src)",
       "Read(~/.claude/skills/**)",
@@ -188,7 +165,6 @@
       "Read(~/.local/share/nvim/lazy)",
       "Read(~/opt/miniconda3/**)",
       "Read(~/opt/miniconda3)",
-
       "Grep(~/src/**)",
       "Grep(~/src)",
       "Grep(~/.claude/skills/**)",
@@ -198,10 +174,8 @@
       "Grep(~/.local/share/nvim/lazy)",
       "Grep(~/opt/miniconda3/**)",
       "Grep(~/opt/miniconda3)",
-
       "Read(/tmp)",
       "Write(/tmp)",
-
       "Skill(skill-creator)",
       "Skill(zefire-model)",
       "Skill(slack-gif-creator)",
@@ -224,8 +198,15 @@
       "Bash(grep *)",
       "Bash(rg *)"
     ],
-    "ask": ["Bash(rm *)", "Bash(curl *)", "Bash(wget *)", "Bash(http *)", "Bash(httpx *)"]
+    "ask": [
+      "Bash(rm *)",
+      "Bash(curl *)",
+      "Bash(wget *)",
+      "Bash(http *)",
+      "Bash(httpx *)"
+    ]
   },
+  "model": "opus[1m]",
   "hooks": {
     "PreToolUse": [
       {
@@ -276,7 +257,7 @@
     "ralph-loop@claude-plugins-official": true,
     "astral@astral-sh": true
   },
-  "promptSuggestionEnabled": false,
   "effortLevel": "medium",
+  "promptSuggestionEnabled": false,
   "skipDangerousModePermissionPrompt": true
 }
