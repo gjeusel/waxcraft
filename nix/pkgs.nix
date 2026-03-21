@@ -2,6 +2,7 @@
   config,
   pkgs,
   pkgs-unstable,
+  googleworkspace-cli,
   ...
 }: {
   # List packages installed in system profile. To search by name, run:
@@ -202,6 +203,9 @@
     # vlc
 
     protonmail-desktop
+
+    # ----- google workspace -----
+    googleworkspace-cli.packages.${pkgs.stdenv.hostPlatform.system}.default
 
     # ----- experiments -----
     temporal

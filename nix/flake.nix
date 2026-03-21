@@ -31,6 +31,12 @@
       url = "github:homebrew/homebrew-bundle";
       flake = false;
     };
+
+    # ----- External flakes -----
+    googleworkspace-cli = {
+      url = "github:googleworkspace/cli";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs @ {
@@ -45,6 +51,7 @@
     homebrew-services,
     homebrew-bundle,
     # nikitabobko-tap,
+    googleworkspace-cli,
   }: let
     user = "gjeusel";
 
@@ -95,6 +102,7 @@
           system = "aarch64-darwin";
           config = {allowUnfree = true;};
         };
+        inherit googleworkspace-cli;
       };
       modules = [
         configuration
