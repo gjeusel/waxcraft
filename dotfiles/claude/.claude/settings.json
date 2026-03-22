@@ -112,6 +112,7 @@
       "Bash(basename *)",
       "Bash(ls *)",
       "Bash(tree *)",
+      "Bash(find *)",
       "Bash(date *)",
       "Bash(echo *)",
       "Bash(sleep *)",
@@ -193,10 +194,7 @@
       "Edit(**/*.tfvars)",
       "Read(~/src/ops/**)",
       "Read(~/src/ops)",
-      "Bash(sudo *)",
-      "Bash(find *)",
-      "Bash(grep *)",
-      "Bash(rg *)"
+      "Bash(sudo *)"
     ],
     "ask": [
       "Bash(rm *)",
@@ -259,5 +257,13 @@
   },
   "effortLevel": "medium",
   "promptSuggestionEnabled": false,
-  "skipDangerousModePermissionPrompt": true
+  "skipDangerousModePermissionPrompt": true,
+  "extraKnownMarketplaces": {
+    "cloudflare": {
+      "source": {
+        "source": "github",
+        "repo": "cloudflare/skills"
+      }
+    }
+  }
 }
