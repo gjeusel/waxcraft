@@ -59,8 +59,8 @@ return {
       maximum_padding = 1,
       -- avoid scratch buffer display from null-ls:
       no_name_title = "",
-      exclude_name = { "", },
-      exclude_ft = {"dap-repl", "dap-view"}
+      exclude_name = { "" },
+      exclude_ft = { "dap-repl", "dap-view" },
     },
     keys = {
       { "œ", "<cmd>BufferPrevious<cr>", desc = "Previous buffer", mode = { "n", "i" } },
@@ -570,6 +570,8 @@ return {
         desc = "Open diffview history on repository",
         mode = "n",
       },
+      { "<leader>gh", "<cmd>DiffviewFileHistory %<cr>", desc = "File history" },
+      { "<leader>gh", ":'<,'>DiffviewFileHistory<cr>", mode = "v", desc = "Line range history" },
     },
   },
   {
