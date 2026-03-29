@@ -90,7 +90,7 @@ vim.keymap.set("n", "<leader>sf", ":luafile %<CR>")
 -- vim.keymap.set("n", "<leader>;", ":nohl<cr>") -- done in hlslens plugin
 
 -- copy to clipboard :
-vim.keymap.set("v", "<leader>y", '"+y')
+-- vim.keymap.set("v", "<leader>y", '"+y')
 
 -- Easy save
 vim.keymap.set("n", "<C-s>", ":w<CR>")
@@ -246,17 +246,6 @@ local function _get_python_parts()
 
   return module, word_under_cursor
 end
-
-vim.keymap.set("n", "<leader>yP", function()
-  local module, word_under_cursor = _get_python_parts()
-
-  vim.fn.setreg("+", ("from %s import %s"):format(module, word_under_cursor))
-end, { desc = "Yank current file python word as import" })
-
-vim.keymap.set("n", "<leader>yp", function()
-  local module, word_under_cursor = _get_python_parts()
-  vim.fn.setreg("+", ("%s.%s"):format(module, word_under_cursor))
-end, { desc = "Yank current file python word as module" })
 
 -- set foldlevel
 for i = 0, 9, 1 do
