@@ -971,7 +971,7 @@ return {
 
   {
     "saghen/blink.cmp",
-    version = "v1.8.0",
+    version = "v1.10.1",
     dependencies = {
       "mikavilpas/blink-ripgrep.nvim",
       "saghen/blink.compat",
