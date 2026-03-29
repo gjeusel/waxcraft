@@ -23,6 +23,8 @@
     ripgrep
     silver-searcher
     fzf
+    television
+    fd
     jq
     htop
     rclone
