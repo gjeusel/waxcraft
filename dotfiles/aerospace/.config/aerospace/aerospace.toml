@@ -346,6 +346,9 @@ run = 'move-node-to-workspace 9'
 
 
 # --- Floating ---
+[[on-window-detected]]
+if.app-id = 'org.openemu.OpenEmu'
+run = ['move-node-to-workspace 0', 'layout floating']
 
 [[on-window-detected]]
 if.app-id = 'cc.ffitch.shottr'
