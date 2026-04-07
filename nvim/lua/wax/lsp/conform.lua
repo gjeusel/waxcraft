@@ -43,6 +43,14 @@ local function oxc_or(bufnr, fallback)
   return fallback
 end
 
+local function json_fmt(bufnr)
+  local size = vim.fn.getfsize(vim.api.nvim_buf_get_name(bufnr))
+  if size > 0 and size < 100 * 1024 then
+    return { "oxfmt" }
+  end
+  return { "jq" }
+end
+
 require("conform").setup({
   formatters = {
     ruff_fix = to_python_cmd("ruff", {
@@ -86,6 +94,12 @@ require("conform").setup({
       stdin = true,
       timeout_ms = 10000,
     },
+    jq = {
+      command = "jq",
+      args = { "." },
+      stdin = true,
+      timeout_ms = 10000,
+    },
     oxlint_fix = {
       command = "oxlint",
       args = { "--fix", "$FILENAME" },
@@ -117,7 +131,8 @@ require("conform").setup({
     css = { "oxfmt" },
     yaml = { "oxfmt" },
     markdown = { "oxfmt" },
-    jsonc = { "oxfmt", "jq", stop_after_first = true },
+    json = json_fmt,
+    jsonc = json_fmt,
     --
     xml = { "xmlformat" },
     rust = { "rustfmt" },

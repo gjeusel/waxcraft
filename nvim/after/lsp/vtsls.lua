@@ -25,10 +25,31 @@ return {
 
   -- https://github.com/yioneko/vtsls/issues/148
   filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue" },
-  on_attach = function(client, _)
+  on_attach = function(client, bufnr)
     client.server_capabilities.semanticTokensProvider = nil
     client.server_capabilities.documentFormattingProvider = false
     client.server_capabilities.documentRangeFormattingProvider = false
+
+    -- Workaround for TS 5.9.x bug: "Expected applicable refactor info" crash
+    -- when resolving "Convert between named and default export" in Vue files.
+    -- Filter out the broken refactoring from code action results.
+    local orig_request = client.request
+    client.request = function(method, params, handler, ...)
+      if method == "textDocument/codeAction" then
+        local orig_handler = handler
+        handler = function(err, result, ...)
+          if result then
+            result = vim.tbl_filter(function(action)
+              local title = action.title or ""
+              return not title:find("Convert named export to default export")
+                and not title:find("Convert default export to named export")
+            end, result)
+          end
+          return orig_handler(err, result, ...)
+        end
+      end
+      return orig_request(method, params, handler, ...)
+    end
 
     -- improve file renaming:
     -- https://github.com/vuejs/language-tools/issues/4500

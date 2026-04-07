@@ -69,6 +69,9 @@ return {
       includeLanguages = {
         ["jinja.html"] = "html",
       },
+      -- lint = {
+      --   suggestCanonicalClasses = false,
+      -- },
       classAttributes = { "class", "className", "ngClass", "ui" },
       experimental = {
         classRegex = {

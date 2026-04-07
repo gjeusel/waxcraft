@@ -2,6 +2,7 @@
   config,
   pkgs,
   pkgs-unstable,
+  googleworkspace-cli,
   ...
 }: {
   # Environment variables for building software with nix-provided libs (e.g. neovim)
@@ -27,6 +28,8 @@
     ripgrep
     silver-searcher
     fzf
+    television
+    fd
     jq
     htop
     rclone
@@ -188,6 +191,9 @@
     # vlc
 
     protonmail-desktop
+
+    # ----- google workspace -----
+    googleworkspace-cli.packages.${pkgs.stdenv.hostPlatform.system}.default
 
     # ----- experiments -----
     temporal

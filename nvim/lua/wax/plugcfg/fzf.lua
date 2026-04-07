@@ -166,9 +166,9 @@ fzf_lua.setup({
   },
 })
 
--- -- Register fzf-lua for vim.ui.select
--- fzf_lua.register_ui_select({ winopts = { height = 0.33, width = 0.33 } }, true)
--- fzf_lua.deregister_ui_select({}, true)
+-- Register fzf-lua for vim.ui.select (instead of dressing.nvim, which has a
+-- stuck-queue bug when fzf is cancelled with ctrl+c before the callback fires)
+fzf_lua.register_ui_select({ winopts = { height = 0.5, width = 0.5 } }, true)
 
 --
 ---------- Grep ----------

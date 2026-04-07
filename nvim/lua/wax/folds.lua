@@ -19,6 +19,27 @@ vim.o.foldenable = true -- Open all folds while not set.
 vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 vim.opt.foldmethod = "expr"
 
+-- Fix: treesitter folds not ready on initial file open.
+-- foldexpr is evaluated before nvim-treesitter starts the parser,
+-- so vim.treesitter.foldexpr() returns "0" for all lines.
+-- Force recomputation once the parser is available.
+vim.api.nvim_create_autocmd("BufReadPost", {
+  group = vim.api.nvim_create_augroup("wax_treesitter_folds", { clear = true }),
+  callback = function(opts)
+    vim.schedule(function()
+      if not vim.api.nvim_buf_is_valid(opts.buf) then return end
+      if vim.bo[opts.buf].buftype ~= "" then return end
+      local win = vim.fn.bufwinid(opts.buf)
+      if win == -1 then return end
+      if vim.wo[win].foldmethod ~= "expr" then return end
+      local ok = pcall(vim.treesitter.get_parser, opts.buf)
+      if not ok then return end
+      -- Force fold recomputation
+      vim.wo[win].foldmethod = "expr"
+    end)
+  end,
+})
+
 _G.custom_fold_text = function()
   local line = vim.fn.getline(vim.v.foldstart)
   if vim.list_contains({ "{" }, line:gsub("%s", "")) then

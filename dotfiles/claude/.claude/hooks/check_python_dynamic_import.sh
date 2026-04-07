@@ -12,7 +12,7 @@ if [[ ! "$basename" =~ ^test_.*\.py$|_test\.py$ ]]; then
   exit 0
 fi
 
-VIOLATIONS=$(grep -n '^[[:space:]]\+\(import \|from .* import \)' "$FILE_PATH" 2>/dev/null || true)
+VIOLATIONS=$(grep -En '^[[:space:]]+(import |from .* import )' "$FILE_PATH" 2>/dev/null || true)
 
 if [[ -n "$VIOLATIONS" ]]; then
   echo "Dynamic imports detected in test file $FILE_PATH:" >&2

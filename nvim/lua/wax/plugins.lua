@@ -59,8 +59,8 @@ return {
       maximum_padding = 1,
       -- avoid scratch buffer display from null-ls:
       no_name_title = "",
-      exclude_name = { "", },
-      exclude_ft = {"dap-repl", "dap-view"}
+      exclude_name = { "" },
+      exclude_ft = { "dap-repl", "dap-view" },
     },
     keys = {
       { "œ", "<cmd>BufferPrevious<cr>", desc = "Previous buffer", mode = { "n", "i" } },
@@ -82,7 +82,7 @@ return {
     lazy = false,
     opts = {
       builtin = { enabled = false },
-      select = { enabled = true, fzf_lua = { winopts = { height = 0.5, width = 0.5 } } },
+      select = { enabled = false }, -- use fzf-lua register_ui_select instead
       input = { enabled = true, win_options = { winblend = 0 } },
     },
   },
@@ -542,11 +542,14 @@ return {
         desc = "Open diffview history on repository",
         mode = "n",
       },
+      { "<leader>gh", "<cmd>DiffviewFileHistory %<cr>", desc = "File history" },
+      { "<leader>gh", ":'<,'>DiffviewFileHistory<cr>", mode = "v", desc = "Line range history" },
     },
   },
   {
     "ibhagwan/fzf-lua",
     -- commit = "a8458b7",
+    lazy = false, -- needed so register_ui_select runs before first vim.ui.select call
     config = function()
       require("wax.plugcfg.fzf")
     end,
@@ -928,7 +931,7 @@ return {
     keys = {
       {
         "<leader>m",
-        "<cmd>lua require('conform').format({lsp_fallback=true})<cr>",
+        "<cmd>lua require('conform').format({lsp_fallback=true, timeout_ms=30000})<cr>",
         desc = "Conform Format",
         mode = { "n", "v" },
       },
@@ -940,7 +943,7 @@ return {
 
   {
     "saghen/blink.cmp",
-    version = "v1.8.0",
+    version = "v1.10.1",
     dependencies = {
       "mikavilpas/blink-ripgrep.nvim",
       "saghen/blink.compat",
@@ -963,7 +966,10 @@ return {
     cmd = "StartupTime",
   },
   {
-    "stevearc/profile.nvim", -- profiler with flamegraph
+    -- Profiler outputting Chrome Trace Format JSON.
+    -- Usage: NVIM_PROFILE=start nvim, then <leader>fP to stop & save.
+    -- Read the trace: open https://ui.perfetto.dev and drag-drop the JSON file.
+    "stevearc/profile.nvim",
     lazy = false,
     config = function()
       local should_profile = os.getenv("NVIM_PROFILE")
