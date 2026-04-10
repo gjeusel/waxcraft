@@ -194,7 +194,7 @@
     protonmail-desktop
 
     # ----- google workspace -----
-    googleworkspace-cli.packages.${pkgs.stdenv.hostPlatform.system}.default
+    # googleworkspace-cli.packages.${pkgs.stdenv.hostPlatform.system}.default
 
     # ----- experiments -----
     temporal

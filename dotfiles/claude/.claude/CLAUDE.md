@@ -1,29 +1,52 @@
 # Development Guidelines
 
-- All changes must be tested. If you're not testing your changes, you're not done.
-- Use comments purposefully. Don't use comments to narrate code, but do use them to explain invariants and why something unusual was done a particular way.
-- NEVER add claude code references in commits
+## Philosophy
 
-### Python only
+- Incremental progress - small changes that compile and pass tests
+- Learn from existing code before implementing
+- Pragmatic over dogmatic - adapt to project reality
+- Boring and obvious over clever
 
-- When working with Python, invoke the relevant /astral:<skill> for uv, ty, and ruff to ensure best practices are followed. The /astral:ty is providing you LSP capabilities.
-- NEVER use `python -c "import X; ..."` one-liners to discover package locations or inspect modules. To inspect use the ty LSP. To find location of source code, use `uv pip show X`.
+## Technical Standards
+
+- Composition over inheritance (use DI)
+- Explicit over implicit - clear data flow
+- Fail fast with descriptive context
+- Never silently swallow exceptions
+
+## Decision Priority
+
+1. Testability
+2. Readability (understandable in 6 months)
+3. Consistency with project patterns
+4. Simplicity
+5. Reversibility
+
+## Quality Gates
+
+- Tests written and passing
+- Code follows project conventions
+- No linter/formatter warnings
+
+## Rules
+
+**NEVER**:
+- Disable tests - fix them
+- Add claude code references in commits
+- Add obvious comments explaining self-explanatory code
+- Nitpick variable names when refactoring - focus on logic simplification
+
+**ALWAYS**:
+- Find similar features before implementing
+- Use project's existing tools/libraries
+- Stop after 3 failed attempts and reassess
+- Use `jq` for JSON parsing in bash
+
+## Python
+
+**Testing**:
 - NEVER use dynamic imports inside test functions - all imports must be at module level
 
-## AI Tools
-
+## Tools
 - For any interaction with sentry, use the MCP
-
-## File Operations — Use Native Tools
-
-- ALWAYS use the **Grep** tool for searching file contents — never `grep`, `rg`, `awk`, or `sed` via Bash
-- ALWAYS use the **Read** tool for reading files — never `cat`, `head`, `tail`, or `less` via Bash
-- ALWAYS use the **Glob** tool for finding files by pattern — never `find` or `ls` via Bash
-- ALWAYS use the **Edit** tool for modifying files — never `sed`, `awk`, or `perl` via Bash
-- ALWAYS use the **Write** tool for creating files — never `echo >`, `tee`, or heredocs via Bash
-
-- ALWAYS use `jq` for JSON parsing, filtering, and transformation in Bash
-
-# Explore settings
-
-- When trying to explore external codebase, check first if it is not available in ~/src
+- Prefer using bat to read line ranges from files (`bat --plain --line-range 10:20 filename.txt`)
