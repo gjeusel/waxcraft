@@ -25,9 +25,37 @@ case ".$extension" in
   .go)
     gofmt -w "$file_path" 2>/dev/null && echo "gofmt $file_path"
     ;;
-  .js|.ts|.jsx|.tsx)
-    if prettier --write "$file_path" 2>/dev/null; then
+  .js|.ts|.jsx|.tsx|.vue)
+    # Walk up to find the project root (nearest package.json)
+    project_root=""
+    dir=$(dirname "$file_path")
+    while [[ "$dir" != "/" ]]; do
+      if [[ -f "$dir/package.json" ]]; then
+        project_root="$dir"
+        break
+      fi
+      dir=$(dirname "$dir")
+    done
+
+    use_oxfmt=false
+    use_oxlint=false
+    if [[ -n "$project_root" ]]; then
+      if jq -e '.devDependencies.oxfmt // .dependencies.oxfmt' "$project_root/package.json" >/dev/null 2>&1; then
+        use_oxfmt=true
+      fi
+      if jq -e '.devDependencies.oxlint // .dependencies.oxlint' "$project_root/package.json" >/dev/null 2>&1; then
+        use_oxlint=true
+      fi
+    fi
+
+    if $use_oxfmt; then
+      oxfmt "$file_path" 2>/dev/null && echo "oxfmt $file_path"
+    elif prettier --write "$file_path" 2>/dev/null; then
       echo "prettier --write $file_path"
+    fi
+
+    if $use_oxlint; then
+      oxlint --fix "$file_path" 2>/dev/null && echo "oxlint --fix $file_path"
     elif eslint --fix "$file_path" 2>/dev/null; then
       echo "eslint --fix $file_path"
     fi

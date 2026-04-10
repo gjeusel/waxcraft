@@ -17,6 +17,7 @@
     # ghostty # broken for now
     iterm2
     neovim
+    tree-sitter
 
     tmux
     # TODO: Investiguate how to configure entirely tmux with nix
