@@ -230,27 +230,6 @@ vim.keymap.set("n", "<leader>ff", function()
   end)
 end, { desc = "Propose current file paths to copy in register" })
 
-local function _get_python_parts()
-  vim.cmd([[normal! "wyiw]])
-  local word_under_cursor = vim.fn.getreg('"')
-
-  local abspath = vim.api.nvim_buf_get_name(0)
-  local workspace = find_root_dir(abspath, { "pyproject.toml" })
-  if not workspace then
-    return
-  end
-
-  local Path = require("wax.path")
-  local relpath = Path:new(abspath):make_relative(workspace).path
-  if not string.match(relpath, ".py$") then
-    return
-  end
-
-  local module = string.gsub(relpath, "/", "."):gsub("%.py$", "")
-
-  return module, word_under_cursor
-end
-
 -- set foldlevel
 for i = 0, 9, 1 do
   vim.keymap.set("n", ("<leader>f%s"):format(i), function()
