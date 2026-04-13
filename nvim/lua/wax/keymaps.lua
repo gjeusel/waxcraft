@@ -141,6 +141,10 @@ vim.keymap.set("v", "<leader>p", '"_dP')
 --   vim.cmd("stopinsert")
 -- end)
 
+-- Neovim 0.12 built-in commenting remapped to <leader>c
+vim.keymap.set("n", "<leader>cc", "gcc", { remap = true, desc = "Toggle comment line" })
+vim.keymap.set({ "n", "x" }, "<leader>c", "gc", { remap = true, desc = "Toggle comment" })
+
 -- Split panes
 vim.keymap.set("n", "<leader>l", "<cmd>vs<cr>", { nowait = true })
 vim.keymap.set("n", "<leader>'", "<cmd>sp<cr>", { nowait = true })

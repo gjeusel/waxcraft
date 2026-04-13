@@ -212,7 +212,7 @@
 
 ["for" "while" "break" "continue"] @keyword.repeat
 
-["try" "except" "except*" "raise" "finally"] @keyword.exception
+["try" "except" "raise" "finally"] @keyword.exception
 
 (raise_statement
   "from" @keyword.exception)
