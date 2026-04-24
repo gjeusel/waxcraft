@@ -1,0 +1,95 @@
+# ~/.codex/config.toml
+
+# ── Model ──────────────────────────────────────────────────────────────
+model = "o3"
+model_provider = "openai"
+model_reasoning_effort = "medium"
+
+# ── Approval & Sandbox ─────────────────────────────────────────────────
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+
+[sandbox_workspace_write]
+writable_roots = ["."]
+network_access = false
+
+# ── Shell Environment ──────────────────────────────────────────────────
+[shell_environment_policy]
+inherit = "core"
+exclude = [
+  "AWS_*",
+  "OPENAI_API_KEY",
+  "ANTHROPIC_API_KEY",
+  "GITHUB_TOKEN",
+  "GITLAB_TOKEN",
+  "SENTRY_*",
+  "SECRET_*",
+  "SCW_*",
+]
+ignore_default_excludes = false
+
+# ── AGENTS.md ──────────────────────────────────────────────────────────
+project_doc_max_bytes = 65536
+
+# ── Features ───────────────────────────────────────────────────────────
+[features]
+shell_snapshot = true
+multi_agent = true
+web_search = true
+undo = true
+memories = true
+
+# ── Multi-Agent ────────────────────────────────────────────────────────
+[agents]
+max_depth = 5
+max_threads = 6
+
+# ── TUI ────────────────────────────────────────────────────────────────
+[tui]
+theme = "auto"
+notifications = ["agent-turn-complete"]
+
+# ── History ────────────────────────────────────────────────────────────
+[history]
+persistence = true
+size_limit_mb = 200
+
+# ── MCP Servers ────────────────────────────────────────────────────────
+[mcp_servers.context7]
+command = "npx"
+args = ["-y", "@upstash/context7-mcp"]
+enabled = true
+startup_timeout_sec = 10
+tool_timeout_sec = 60
+default_tools_approval_mode = "never"
+
+[mcp_servers.postgres]
+command = "uvx"
+args = ["postgres-mcp", "--access-mode=unrestricted"]
+env = { DATABASE_URI = "postgresql://postgres@localhost:5432/zefire" }
+enabled = true
+default_tools_approval_mode = "never"
+
+[mcp_servers.gitlab]
+url = "https://gitlab.com/api/v4/mcp"
+enabled = false
+
+[mcp_servers.cloudflare-api]
+url = "https://mcp.cloudflare.com/mcp"
+enabled = true
+
+[mcp_servers.sentry]
+command = "npx"
+args = ["-y", "@sentry/mcp-server"]
+enabled = true
+default_tools_approval_mode = "never"
+
+# ── Profiles ───────────────────────────────────────────────────────────
+[profiles.deep]
+model = "o3"
+model_reasoning_effort = "high"
+
+[profiles.quick]
+model = "gpt-4.1"
+model_reasoning_effort = "low"
+approval_policy = "never"

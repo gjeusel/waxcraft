@@ -196,6 +196,9 @@
       "Edit(**/*.tfvars)",
       "Read(~/src/ops/**)",
       "Read(~/src/ops)",
+      "Bash(printenv*)",
+      "Bash(env)",
+      "Bash(*dotenv*)",
       "Bash(sudo *)"
     ],
     "ask": [
@@ -204,7 +207,8 @@
       "Bash(wget *)",
       "Bash(http *)",
       "Bash(httpx *)"
-    ]
+    ],
+    "defaultMode": "auto"
   },
   "model": "opus[1m]",
   "hooks": {
