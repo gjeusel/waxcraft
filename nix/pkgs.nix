@@ -61,7 +61,6 @@
     typescript-language-server
 
     prek
-    git-secrets
     gitleaks
 
     # python
