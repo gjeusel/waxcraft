@@ -13,7 +13,7 @@ network_access = false
 
 # ── Shell Environment ──────────────────────────────────────────────────
 [shell_environment_policy]
-inherit = "core"
+inherit = "all"
 exclude = [
   "AWS_*",
   "OPENAI_API_KEY",
@@ -60,13 +60,6 @@ startup_timeout_sec = 10
 tool_timeout_sec = 60
 default_tools_approval_mode = "auto"
 
-[mcp_servers.postgres]
-command = "uvx"
-args = ["postgres-mcp", "--access-mode=unrestricted"]
-env = { DATABASE_URI = "postgresql://postgres@localhost:5432/zefire" }
-enabled = true
-default_tools_approval_mode = "auto"
-
 [mcp_servers.sentry]
 command = "npx"
 args = ["-y", "@sentry/mcp-server", "--agent"]
@@ -75,7 +68,7 @@ default_tools_approval_mode = "auto"
 
 [mcp_servers.gitlab]
 url = "https://gitlab.com/api/v4/mcp"
-enabled = false
+enabled = true
 
 [mcp_servers.cloudflare-api]
 url = "https://mcp.cloudflare.com/mcp"
@@ -92,9 +85,26 @@ model_reasoning_effort = "low"
 approval_policy = "never"
 
 # ── Project Trust ──────────────────────────────────────────────────────
-[projects]
-"/Users/gjeusel/src/peregreen" = { trust_level = "trusted" }
-"/Users/gjeusel/src/venturi" = { trust_level = "trusted" }
-"/Users/gjeusel/src/zefire" = { trust_level = "trusted" }
-"/Users/gjeusel/src/waxcraft" = { trust_level = "trusted" }
-"/Users/gjeusel/src/rnx-cli" = { trust_level = "trusted" }
+[projects."/Users/gjeusel/src/peregreen"]
+trust_level = "trusted"
+
+[projects."/Users/gjeusel/src/venturi"]
+trust_level = "trusted"
+
+[projects."/Users/gjeusel/src/zefire"]
+trust_level = "trusted"
+
+[projects."/Users/gjeusel/src/waxcraft"]
+trust_level = "trusted"
+
+[projects."/Users/gjeusel/src/rnx-cli"]
+trust_level = "trusted"
+
+[projects."/Users/gjeusel/src/raycast-rnx"]
+trust_level = "trusted"
+
+[projects."/Users/gjeusel/src/anthracit"]
+trust_level = "trusted"
+
+[projects."/Users/gjeusel/src/python-rnxcookie"]
+trust_level = "trusted"

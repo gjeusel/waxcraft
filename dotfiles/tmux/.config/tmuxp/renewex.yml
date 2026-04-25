@@ -17,7 +17,7 @@ windows:
     focus: true
     layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
     shell_command_before:
-      - mamba activate zefire
+      - mamba activate zefire-prev
       - cd ~/src/zefire
     panes:
       - focus: true
