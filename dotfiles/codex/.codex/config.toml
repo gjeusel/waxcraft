@@ -1,7 +1,5 @@
-# ~/.codex/config.toml
-
 # ── Model ──────────────────────────────────────────────────────────────
-model = "o3"
+model = "gpt-5.5"
 model_provider = "openai"
 model_reasoning_effort = "medium"
 
@@ -35,7 +33,6 @@ project_doc_max_bytes = 65536
 [features]
 shell_snapshot = true
 multi_agent = true
-web_search = true
 undo = true
 memories = true
 
@@ -46,13 +43,13 @@ max_threads = 6
 
 # ── TUI ────────────────────────────────────────────────────────────────
 [tui]
-theme = "auto"
+theme = "nord"
 notifications = ["agent-turn-complete"]
 
 # ── History ────────────────────────────────────────────────────────────
 [history]
-persistence = true
-size_limit_mb = 200
+persistence = "save-all"
+max_bytes = 209715200
 
 # ── MCP Servers ────────────────────────────────────────────────────────
 [mcp_servers.context7]
@@ -61,14 +58,20 @@ args = ["-y", "@upstash/context7-mcp"]
 enabled = true
 startup_timeout_sec = 10
 tool_timeout_sec = 60
-default_tools_approval_mode = "never"
+default_tools_approval_mode = "auto"
 
 [mcp_servers.postgres]
 command = "uvx"
 args = ["postgres-mcp", "--access-mode=unrestricted"]
 env = { DATABASE_URI = "postgresql://postgres@localhost:5432/zefire" }
 enabled = true
-default_tools_approval_mode = "never"
+default_tools_approval_mode = "auto"
+
+[mcp_servers.sentry]
+command = "npx"
+args = ["-y", "@sentry/mcp-server", "--agent"]
+enabled = true
+default_tools_approval_mode = "auto"
 
 [mcp_servers.gitlab]
 url = "https://gitlab.com/api/v4/mcp"
@@ -76,20 +79,22 @@ enabled = false
 
 [mcp_servers.cloudflare-api]
 url = "https://mcp.cloudflare.com/mcp"
-enabled = true
-
-[mcp_servers.sentry]
-command = "npx"
-args = ["-y", "@sentry/mcp-server"]
-enabled = true
-default_tools_approval_mode = "never"
+enabled = false
 
 # ── Profiles ───────────────────────────────────────────────────────────
 [profiles.deep]
-model = "o3"
+model = "gpt-5.5"
 model_reasoning_effort = "high"
 
 [profiles.quick]
-model = "gpt-4.1"
+model = "gpt-5.4-mini"
 model_reasoning_effort = "low"
 approval_policy = "never"
+
+# ── Project Trust ──────────────────────────────────────────────────────
+[projects]
+"/Users/gjeusel/src/peregreen" = { trust_level = "trusted" }
+"/Users/gjeusel/src/venturi" = { trust_level = "trusted" }
+"/Users/gjeusel/src/zefire" = { trust_level = "trusted" }
+"/Users/gjeusel/src/waxcraft" = { trust_level = "trusted" }
+"/Users/gjeusel/src/rnx-cli" = { trust_level = "trusted" }
