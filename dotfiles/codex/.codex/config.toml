@@ -6,6 +6,7 @@ model_reasoning_effort = "medium"
 # ── Approval & Sandbox ─────────────────────────────────────────────────
 approval_policy = "on-request"
 sandbox_mode = "workspace-write"
+personality = "pragmatic"
 
 [sandbox_workspace_write]
 writable_roots = ["."]
@@ -107,4 +108,7 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [projects."/Users/gjeusel/src/python-rnxcookie"]
+trust_level = "trusted"
+
+[projects."/Users/gjeusel/src/cloud-renewex"]
 trust_level = "trusted"
