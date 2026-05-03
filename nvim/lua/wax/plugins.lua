@@ -356,6 +356,29 @@ return {
         lazy = true,
         branch = "main",
         ft = { "html", "vue", "typescriptreact", "svelte", "lua", "vim", "tsx" },
+        init = function()
+          vim.g.skip_ts_context_commentstring_module = true
+        end,
+        opts = { enable_autocmd = false },
+        config = function(_, opts)
+          require("ts_context_commentstring").setup(opts)
+
+          -- Refresh `commentstring` on demand instead of every CursorHold
+          -- (the polling autocmd was walking every injected language tree).
+          local function update()
+            require("ts_context_commentstring.internal").update_commentstring()
+          end
+
+          vim.keymap.set({ "n", "x" }, "gc", function()
+            update()
+            return require("vim._comment").operator()
+          end, { expr = true, desc = "Toggle comment" })
+
+          vim.keymap.set("n", "gcc", function()
+            update()
+            return require("vim._comment").operator() .. "_"
+          end, { expr = true, desc = "Toggle comment line" })
+        end,
       },
       { -- vim-matchup - better %
         "andymass/vim-matchup",
