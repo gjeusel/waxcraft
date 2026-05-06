@@ -259,13 +259,20 @@
     "lua-lsp@claude-plugins-official": true,
     "code-simplifier@claude-plugins-official": true,
     "astral@astral-sh": true,
-    "rust-analyzer-lsp@claude-plugins-official": true
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "chrome-devtools-mcp@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "cloudflare": {
       "source": {
         "source": "github",
         "repo": "cloudflare/skills"
+      }
+    },
+    "chrome-devtools-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "ChromeDevTools/chrome-devtools-mcp"
       }
     }
   },
