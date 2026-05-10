@@ -197,7 +197,7 @@
 
     # ----- editors -----
     vscode # because I'm altruist
-    zed-editor # neat agentic ai
+    pkgs-unstable.zed-editor # neat agentic ai (unstable: stable's aarch64-darwin build isn't cached)
 
     # ----- not available on aarch64-darwin (yet) -----
     # calibre

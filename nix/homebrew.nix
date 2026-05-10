@@ -18,6 +18,7 @@
       "raycast"
 
       "claude"
+      "macwhisper"
 
       "brave-browser" # default
       "firefox@developer-edition" # used for webdev
