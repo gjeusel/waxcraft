@@ -1,7 +1,7 @@
 # ── Model ──────────────────────────────────────────────────────────────
 model = "gpt-5.5"
 model_provider = "openai"
-model_reasoning_effort = "medium"
+model_reasoning_effort = "low"
 
 # ── Approval & Sandbox ─────────────────────────────────────────────────
 approval_policy = "on-request"
@@ -46,6 +46,9 @@ max_threads = 6
 [tui]
 theme = "nord"
 notifications = ["agent-turn-complete"]
+
+[tui.model_availability_nux]
+"gpt-5.5" = 2
 
 # ── History ────────────────────────────────────────────────────────────
 [history]
@@ -111,4 +114,7 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [projects."/Users/gjeusel/src/cloud-renewex"]
+trust_level = "trusted"
+
+[projects."/Users/gjeusel/src/pydantic-ai"]
 trust_level = "trusted"
