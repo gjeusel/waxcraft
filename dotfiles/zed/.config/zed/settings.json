@@ -7,6 +7,11 @@
 // custom settings, run the `open default settings` command
 // from the command palette or from `Zed` application menu.
 {
+  "icon_theme": {
+    "mode": "dark",
+    "light": "Zed (Default)",
+    "dark": "Zed (Default)"
+  },
   "show_edit_predictions": false,
   "agent": {
     "play_sound_when_agent_done": true,
@@ -19,7 +24,11 @@
   // "features": { "edit_prediction_provider": "supermaven" },
   "edit_predictions": { "mode": "eager" },
   "base_keymap": "VSCode",
-  "theme": "Nord Dark",
+  "theme": {
+    "mode": "dark",
+    "light": "One Light",
+    "dark": "Nord Dark"
+  },
   "buffer_font_size": 14,
   "vim_mode": true,
   "cursor_blink": false, // disable cursor blink

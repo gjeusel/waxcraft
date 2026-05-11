@@ -98,7 +98,8 @@
       "Bash(wget:*)",
       "Bash(http:*)",
       "Bash(httpx:*)"
-    ]
+    ],
+    "defaultMode": "auto"
   },
   "hooks": {
     "PostToolUse": [
@@ -126,5 +127,6 @@
     "lua-lsp@claude-plugins-official": true,
     "code-simplifier@claude-plugins-official": true,
     "ty-lsp@local": true
-  }
+  },
+  "skipAutoPermissionPrompt": true
 }
