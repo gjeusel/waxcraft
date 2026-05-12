@@ -98,6 +98,25 @@ local function path_is_sensitive(fpath)
   return false
 end
 
+local function should_disable()
+  local bufname = vim.api.nvim_buf_get_name(0)
+
+  -- Resolve symlinks so ~/.zshrc -> ~/.config/zsh/.zshrc is also caught.
+  local realpath = bufname
+  if bufname ~= "" then
+    local ok, resolved = pcall(vim.uv.fs_realpath, bufname)
+    if ok and resolved then
+      realpath = resolved
+    end
+  end
+
+  if path_is_sensitive(bufname) or path_is_sensitive(realpath) then
+    return true
+  end
+
+  return is_big_file(bufname)
+end
+
 require("supermaven-nvim").setup({
   keymaps = {
     accept_suggestion = "<C-space>",
@@ -105,26 +124,18 @@ require("supermaven-nvim").setup({
     accept_word = "<C-j>",
   },
   ignore_filetypes = sensitive_filetypes,
-  condition = function()
-    local bufname = vim.api.nvim_buf_get_name(0)
-
-    -- Resolve symlinks so ~/.zshrc -> ~/.config/zsh/.zshrc is also caught.
-    local realpath = bufname
-    if bufname ~= "" then
-      local ok, resolved = pcall(vim.uv.fs_realpath, bufname)
-      if ok and resolved then
-        realpath = resolved
-      end
-    end
-
-    if path_is_sensitive(bufname) or path_is_sensitive(realpath) then
-      return true
-    end
-
-    return is_big_file(bufname)
-  end,
+  condition = should_disable,
   log_level = log_level,
 })
+
+-- supermaven-nvim only consults `condition` on BufEnter, and since we load on
+-- VeryLazy, the BufEnter for the file passed on the CLI (e.g. `nvim big.csv`)
+-- has already fired by the time the listener registers. Without this, the
+-- plugin keeps running on the initial buffer and CursorMoved triggers a
+-- full-buffer get_text on every move. Re-run the check once for the current buf.
+if should_disable() then
+  require("supermaven-nvim.api").stop()
+end
 
 -- Use custom highlight group for inline suggestions
 local preview = require("supermaven-nvim.completion_preview")
