@@ -70,9 +70,8 @@
 
     # python
     uv
-    # micromamba # https://github.com/NixOS/nixpkgs/issues/456288
-    mamba-cpp
-    pyright
+    pixi
+    micromamba
 
     # Note: we install python on system instead of relying on uv for having GNU readline
     # see https://github.com/astral-sh/uv/issues/11039 & https://gregoryszorc.com/docs/python-build-standalone/main/quirks.html

@@ -42,6 +42,7 @@
   outputs = inputs @ {
     self,
     nixpkgs,
+    nixpkgs-unstable,
     nix-darwin,
     #
     nix-homebrew,
@@ -97,7 +98,7 @@
     # $ darwin-rebuild build --flake .#simple
     darwinConfigurations."wax" = nix-darwin.lib.darwinSystem {
       specialArgs = {
-        pkgs-unstable = import nixpkgs {
+        pkgs-unstable = import nixpkgs-unstable {
           system = "aarch64-darwin";
           config = {allowUnfree = true;};
         };

@@ -82,9 +82,9 @@
       # If you press and hold certain keyboard keys when in a text area, the key's character begins to repeat.
       # This is very useful for vim users, they use `hjkl` to move cursor.
       # sets how long it takes before it starts repeating.
-      InitialKeyRepeat = 10; # fastest (150 ms), normal minimum is 15 (225 ms)
+      InitialKeyRepeat = 15; # fastest (150 ms), normal minimum is 15 (225 ms)
       # sets how fast it repeats once it starts.
-      KeyRepeat = 1; # fastest (15 ms), normal minimum is 2 (30 ms)
+      KeyRepeat = 2; # fastest (15 ms), normal minimum is 2 (30 ms)
 
       AppleMeasurementUnits = "Centimeters";
       AppleMetricUnits = 1;
