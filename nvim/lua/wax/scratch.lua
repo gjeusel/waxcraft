@@ -104,11 +104,10 @@ function M.float_win(opts)
     end
   end
 
-  vim.api.nvim_win_set_option(win, "winhl", ("Normal:%s"):format(opts.winhl))
-  vim.api.nvim_win_set_option(win, "winhl", ("FloatBorder:%s"):format(opts.borderhl))
-  vim.api.nvim_win_set_option(win, "winblend", opts.winblend)
+  vim.wo[win].winhl = ("Normal:%s,FloatBorder:%s"):format(opts.winhl, opts.borderhl)
+  vim.wo[win].winblend = opts.winblend
 
-  vim.api.nvim_buf_set_option(bufnr, "filetype", "scratch")
+  vim.bo[bufnr].filetype = "scratch"
 
   return { bufnr = bufnr, win = win }
 end

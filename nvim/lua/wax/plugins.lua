@@ -356,6 +356,29 @@ return {
         lazy = true,
         branch = "main",
         ft = { "html", "vue", "typescriptreact", "svelte", "lua", "vim", "tsx" },
+        init = function()
+          vim.g.skip_ts_context_commentstring_module = true
+        end,
+        opts = { enable_autocmd = false },
+        config = function(_, opts)
+          require("ts_context_commentstring").setup(opts)
+
+          -- Refresh `commentstring` on demand instead of every CursorHold
+          -- (the polling autocmd was walking every injected language tree).
+          local function update()
+            require("ts_context_commentstring.internal").update_commentstring()
+          end
+
+          vim.keymap.set({ "n", "x" }, "gc", function()
+            update()
+            return require("vim._comment").operator()
+          end, { expr = true, desc = "Toggle comment" })
+
+          vim.keymap.set("n", "gcc", function()
+            update()
+            return require("vim._comment").operator() .. "_"
+          end, { expr = true, desc = "Toggle comment line" })
+        end,
       },
       { -- vim-matchup - better %
         "andymass/vim-matchup",
@@ -391,19 +414,26 @@ return {
       },
     },
     init = function()
-      -- vim.treesitter.language.register("jinja.html", "html")
       vim.treesitter.language.register("bash", "zsh")
+
+      -- Disable built-in ftplugin mappings that conflict with treesitter textobjects ([[ ]] etc.)
+      vim.g.no_python_maps = true
     end,
     config = function()
       -- Neovim 0.12: highlight/indent/incremental_selection are built-in.
-      local ts_indent_disabled = { lua = true, vim = true, python = true, json = true, typescript = true, nix = true }
+      local ts_indent_disabled =
+        { lua = true, vim = true, python = true, json = true, typescript = true, nix = true }
 
       vim.api.nvim_create_autocmd("FileType", {
         callback = function(args)
           local buf = args.buf
           local ft = vim.bo[buf].filetype
-          if ft == "vim" then return end
-          if is_big_file(vim.api.nvim_buf_get_name(buf)) then return end
+          if ft == "vim" then
+            return
+          end
+          if is_big_file(vim.api.nvim_buf_get_name(buf)) then
+            return
+          end
           pcall(vim.treesitter.start, buf)
           if not ts_indent_disabled[ft] then
             vim.bo[buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
@@ -754,46 +784,6 @@ return {
     config = function(_, opts)
       require("mini.ai").setup(opts)
     end,
-  },
-  {
-    "numToStr/Comment.nvim",
-    lazy = false,
-    opts = {
-      ignore = "^$", -- ignore empty lines
-      sticky = true,
-      toggler = {
-        -- line-comment keymap
-        line = "<leader>cc",
-        ---block-comment keymap
-        -- block = "<leader>bc",
-      },
-      opleader = {
-        -- line-comment keymap
-        line = "<leader>c",
-        -- block-comment keymap
-        -- block = "<leader>b",
-      },
-      mappings = {
-        basic = true,
-        extra = false,
-        extended = false,
-      },
-      -- pre_hook = function()
-      --   require("ts_context_commentstring.integrations.comment_nvim").create_pre_hook()
-      -- end,
-      pre_hook = function()
-        -- https://github.com/numToStr/Comment.nvim/pull/62#issuecomment-972790418
-        -- Fix builtin Comment behaviour by using ts_context_commentstring:
-        if vim.tbl_contains({ "vue", "svelte", "scss", "typescriptreact" }, vim.bo.filetype) then
-          require("ts_context_commentstring.internal").update_commentstring()
-          return vim.o.commentstring
-        end
-        -- if vim.bo.filetype == "typescriptreact" then
-        --   local fn = require("ts_context_commentstring.integrations.comment_nvim").create_pre_hook()
-        --   return fn()
-        -- end
-      end,
-    },
   },
 
   --------- LSP ---------

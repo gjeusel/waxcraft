@@ -72,21 +72,23 @@ local function goto_first_definition()
 end
 
 -- mappings diagnostics
+local goto_float_opts = {
+  format = function(diag)
+    return ("[%s] %s"):format(diag.source, diag.message)
+  end,
+  relative = "cursor",
+  style = "minimal",
+  border = "rounded",
+  focusable = true,
+  scope = "cursor",
+  header = "",
+  focus = false,
+}
+
 local goto_win_opts = {
-  float = {
-    format = function(diag)
-      return ("[%s] %s"):format(diag.source, diag.message)
-    end,
-    -- nvim_open_win generic:
-    relative = "cursor",
-    style = "minimal",
-    border = "rounded",
-    -- open_floating_preview generic:
-    focusable = true,
-    -- lsp win specific:
-    scope = "cursor",
-    header = "",
-  },
+  on_jump = function(_, bufnr)
+    vim.diagnostic.open_float(vim.tbl_extend("keep", goto_float_opts, { bufnr = bufnr }))
+  end,
 }
 vim.keymap.set("n", "å", function()
   vim.diagnostic.jump(vim.tbl_extend("error", goto_win_opts, { count = -1 }))

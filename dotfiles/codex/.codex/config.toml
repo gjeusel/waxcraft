@@ -1,0 +1,120 @@
+# ── Model ──────────────────────────────────────────────────────────────
+model = "gpt-5.5"
+model_provider = "openai"
+model_reasoning_effort = "low"
+
+# ── Approval & Sandbox ─────────────────────────────────────────────────
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+personality = "pragmatic"
+
+[sandbox_workspace_write]
+writable_roots = ["."]
+network_access = false
+
+# ── Shell Environment ──────────────────────────────────────────────────
+[shell_environment_policy]
+inherit = "all"
+exclude = [
+  "AWS_*",
+  "OPENAI_API_KEY",
+  "ANTHROPIC_API_KEY",
+  "GITHUB_TOKEN",
+  "GITLAB_TOKEN",
+  "SENTRY_*",
+  "SECRET_*",
+  "SCW_*",
+]
+ignore_default_excludes = false
+
+# ── AGENTS.md ──────────────────────────────────────────────────────────
+project_doc_max_bytes = 65536
+
+# ── Features ───────────────────────────────────────────────────────────
+[features]
+shell_snapshot = true
+multi_agent = true
+undo = true
+memories = true
+
+# ── Multi-Agent ────────────────────────────────────────────────────────
+[agents]
+max_depth = 5
+max_threads = 6
+
+# ── TUI ────────────────────────────────────────────────────────────────
+[tui]
+theme = "nord"
+notifications = ["agent-turn-complete"]
+
+[tui.model_availability_nux]
+"gpt-5.5" = 2
+
+# ── History ────────────────────────────────────────────────────────────
+[history]
+persistence = "save-all"
+max_bytes = 209715200
+
+# ── MCP Servers ────────────────────────────────────────────────────────
+[mcp_servers.context7]
+command = "npx"
+args = ["-y", "@upstash/context7-mcp"]
+enabled = true
+startup_timeout_sec = 10
+tool_timeout_sec = 60
+default_tools_approval_mode = "auto"
+
+[mcp_servers.sentry]
+command = "npx"
+args = ["-y", "@sentry/mcp-server", "--agent"]
+enabled = true
+default_tools_approval_mode = "auto"
+
+[mcp_servers.gitlab]
+url = "https://gitlab.com/api/v4/mcp"
+enabled = true
+
+[mcp_servers.cloudflare-api]
+url = "https://mcp.cloudflare.com/mcp"
+enabled = false
+
+# ── Profiles ───────────────────────────────────────────────────────────
+[profiles.deep]
+model = "gpt-5.5"
+model_reasoning_effort = "high"
+
+[profiles.quick]
+model = "gpt-5.4-mini"
+model_reasoning_effort = "low"
+approval_policy = "never"
+
+# ── Project Trust ──────────────────────────────────────────────────────
+[projects."/Users/gjeusel/src/peregreen"]
+trust_level = "trusted"
+
+[projects."/Users/gjeusel/src/venturi"]
+trust_level = "trusted"
+
+[projects."/Users/gjeusel/src/zefire"]
+trust_level = "trusted"
+
+[projects."/Users/gjeusel/src/waxcraft"]
+trust_level = "trusted"
+
+[projects."/Users/gjeusel/src/rnx-cli"]
+trust_level = "trusted"
+
+[projects."/Users/gjeusel/src/raycast-rnx"]
+trust_level = "trusted"
+
+[projects."/Users/gjeusel/src/anthracit"]
+trust_level = "trusted"
+
+[projects."/Users/gjeusel/src/python-rnxcookie"]
+trust_level = "trusted"
+
+[projects."/Users/gjeusel/src/cloud-renewex"]
+trust_level = "trusted"
+
+[projects."/Users/gjeusel/src/pydantic-ai"]
+trust_level = "trusted"
