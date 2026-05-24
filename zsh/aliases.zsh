@@ -10,6 +10,9 @@ alias vim="nvim"
 alias v="nvim"
 alias vimdiff="nvim -d"
 
+# prefer mamba over conda
+alias conda=mamba
+
 # Terraform
 alias tf="terraform"
 

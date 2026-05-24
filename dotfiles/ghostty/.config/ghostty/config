@@ -37,3 +37,6 @@ keybind = shift+enter=text:\x1b\r
 
 # -- disable cmd+t opening new tabs
 keybind = super+t=unbind
+
+# -- fix option
+macos-option-as-alt = false

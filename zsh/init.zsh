@@ -87,9 +87,8 @@ fi
 # Notes:
 #   We prefer to manually re-build the cache (found no good automated solution)
 autoload -Uz compinit
-#
-# to rebuild cache, run:
-# > compinit
+# rebuild cache:
+compinit -C  # -C: skip security check for speed, use `compinit` to rebuild cache
 
 # --- Fine tuning completion ---
 # https://thevaluable.dev/zsh-completion-guide-examples/
@@ -159,7 +158,7 @@ zinit light zsh-users/zsh-syntax-highlighting       # syntax highlight
 
 # load zsh-completion on (see: https://github.com/zdharma-continuum/zinit/discussions/515)
 zinit for \
-    atload"zicompinit; zicdreplay" \
+    atload"zicdreplay" \
     blockf \
     lucid \
     wait \

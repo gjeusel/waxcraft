@@ -7,7 +7,7 @@ default:
 # Run darwin-rebuild and switch
 [group('nix')]
 up:
-    nix run nix-darwin/master#darwin-rebuild -- switch --impure --flake {{ justfile_dir }}/nix#wax
+    sudo nix run nix-darwin/master#darwin-rebuild -- switch --impure --flake {{ justfile_dir }}/nix#wax
 
 # List all generations of the system profile
 [group('nix')]

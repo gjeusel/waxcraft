@@ -11,6 +11,9 @@
     # Disable Cmd+M minimize window shortcut
     /usr/bin/defaults write -g NSUserKeyEquivalents -dict-add "Minimize" "\\0"
 
+    # Remove quarantine attribute from unsigned apps
+    xattr -cr "/Applications/YouTube Music Desktop App.app" 2>/dev/null || true
+
     # --- Setup Default App for file extensions ---
     # note: get the id with `osascript -e 'id of app "VLC"'
 

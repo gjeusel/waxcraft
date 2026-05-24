@@ -8,7 +8,7 @@
     };
     brews = [
       "mas"
-      "postgresql@16"
+      # postgresql@16 now managed via nix-darwin (see postgres.nix)
       "redis"
       "meilisearch"
       "libomp" # openmp on macos
@@ -45,6 +45,8 @@
       # "dbeaver-community" # sql UI
       "tableplus" # sql UI
 
+      "orbstack" # docker & linux VMs
+
       "vlc"
 
       "betterdisplay" # display settings
@@ -62,6 +64,7 @@
       "modrinth" # minecraft virtual env
 
       "spotify"
+      "ytmdesktop-youtube-music"
 
       # to lookup:
       # "gifox" # gif maker

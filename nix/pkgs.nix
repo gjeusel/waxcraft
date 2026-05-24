@@ -5,6 +5,11 @@
   googleworkspace-cli,
   ...
 }: {
+  # Environment variables for building software with nix-provided libs (e.g. neovim)
+  environment.variables = {
+    CMAKE_INCLUDE_PATH = "${pkgs.gettext}/include:${pkgs.libiconv}/include";
+    CMAKE_LIBRARY_PATH = "${pkgs.gettext}/lib:${pkgs.libiconv}/lib";
+  };
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
   environment.systemPackages = with pkgs; [
@@ -56,9 +61,9 @@
     rustup
 
     # js
+    nodejs # includes npm
     pnpm_10
     ni # Use the right package manager (npm / pnpm / bun)
-    typescript-language-server
 
     prek
     gitleaks
@@ -67,7 +72,7 @@
     uv
     # micromamba # https://github.com/NixOS/nixpkgs/issues/456288
     mamba-cpp
-    pyright
+    pixi
 
     # Note: we install python on system instead of relying on uv for having GNU readline
     # see https://github.com/astral-sh/uv/issues/11039 & https://gregoryszorc.com/docs/python-build-standalone/main/quirks.html
@@ -130,7 +135,8 @@
     # ----- build nvim from sources -----
     ninja
     cmake
-    gettext
+    gettext # required for msgfmt
+    libiconv # required for libintl
     curl
 
     # ----- vim formatters for conform -----
@@ -149,26 +155,6 @@
 
     pkgs-unstable.oxfmt
     pkgs-unstable.oxlint
-
-    # ----- vim LSP -----
-    lua-language-server
-    bash-language-server
-    # eslint-lsp # not available
-    helm-ls
-    # html-lsp # not available
-    # json-lsp # not available
-    pyright
-    python312Packages.python-lsp-server
-    ruff
-    # (ruff.overrideAttrs (old: {version = "0.9.5";}))
-    rust-analyzer
-    sqls
-    postgres-language-server
-    svelte-language-server
-    tailwindcss-language-server
-    terraform-ls
-    vtsls
-    yaml-language-server
 
     # ----- daily life -----
     # spotify # https://github.com/NixOS/nixpkgs/issues/465676
@@ -207,7 +193,7 @@
     protonmail-desktop
 
     # ----- google workspace -----
-    googleworkspace-cli.packages.${pkgs.stdenv.hostPlatform.system}.default
+    # googleworkspace-cli.packages.${pkgs.stdenv.hostPlatform.system}.default
 
     # ----- experiments -----
     temporal
