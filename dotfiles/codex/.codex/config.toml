@@ -7,6 +7,7 @@ model_reasoning_effort = "low"
 approval_policy = "on-request"
 sandbox_mode = "workspace-write"
 personality = "pragmatic"
+plan_mode_reasoning_effort = "high"
 
 [sandbox_workspace_write]
 writable_roots = ["."]
@@ -48,7 +49,7 @@ theme = "nord"
 notifications = ["agent-turn-complete"]
 
 [tui.model_availability_nux]
-"gpt-5.5" = 2
+"gpt-5.5" = 4
 
 # ── History ────────────────────────────────────────────────────────────
 [history]
@@ -117,4 +118,7 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [projects."/Users/gjeusel/src/pydantic-ai"]
+trust_level = "trusted"
+
+[projects."/Users/gjeusel/src/fohn"]
 trust_level = "trusted"

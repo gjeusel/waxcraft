@@ -13,7 +13,7 @@
   socketDir = "/tmp";
 
   # Users and databases to create
-  dbUsers = ["postgres" "zefire" "venturi" "peregreen" "cloud_admin" "neon_superuser"];
+  dbUsers = ["postgres" "zefire" "venturi" "peregreen" "cloud_admin" "neon_superuser" "anthracit_owner"];
   databases = [
     "gjeusel"
     "zefire"
@@ -55,30 +55,33 @@
 
     echo "Creating users..."
     ${builtins.concatStringsSep "\n" (map (u: ''
-      if ! $PSQL -h ${socketDir} -U ${user} -d postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname='${u}'" | grep -q 1; then
-        echo "Creating user: ${u}"
-        $PSQL -h ${socketDir} -U ${user} -d postgres -c "CREATE USER \"${u}\" WITH SUPERUSER CREATEDB CREATEROLE;"
-      else
-        echo "User ${u} already exists"
-      fi
-    '') dbUsers)}
+        if ! $PSQL -h ${socketDir} -U ${user} -d postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname='${u}'" | grep -q 1; then
+          echo "Creating user: ${u}"
+          $PSQL -h ${socketDir} -U ${user} -d postgres -c "CREATE USER \"${u}\" WITH SUPERUSER CREATEDB CREATEROLE;"
+        else
+          echo "User ${u} already exists"
+        fi
+      '')
+      dbUsers)}
 
     echo "Creating databases..."
     ${builtins.concatStringsSep "\n" (map (db: ''
-      if ! $PSQL -h ${socketDir} -U ${user} -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='${db}'" | grep -q 1; then
-        echo "Creating database: ${db}"
-        $PSQL -h ${socketDir} -U ${user} -d postgres -c "CREATE DATABASE \"${db}\";"
-      else
-        echo "Database ${db} already exists"
-      fi
-    '') databases)}
+        if ! $PSQL -h ${socketDir} -U ${user} -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='${db}'" | grep -q 1; then
+          echo "Creating database: ${db}"
+          $PSQL -h ${socketDir} -U ${user} -d postgres -c "CREATE DATABASE \"${db}\";"
+        else
+          echo "Database ${db} already exists"
+        fi
+      '')
+      databases)}
 
     echo "Enabling extensions..."
     ${builtins.concatStringsSep "\n" (map (db: ''
-      $PSQL -h ${socketDir} -U ${user} -d "${db}" -c "CREATE EXTENSION IF NOT EXISTS vector;" 2>/dev/null || true
-      $PSQL -h ${socketDir} -U ${user} -d "${db}" -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;" 2>/dev/null || true
-      $PSQL -h ${socketDir} -U ${user} -d "${db}" -c "CREATE EXTENSION IF NOT EXISTS btree_gist;" 2>/dev/null || true
-    '') databases)}
+        $PSQL -h ${socketDir} -U ${user} -d "${db}" -c "CREATE EXTENSION IF NOT EXISTS vector;" 2>/dev/null || true
+        $PSQL -h ${socketDir} -U ${user} -d "${db}" -c "CREATE EXTE;SION IF NOT EXISTS pg_trgm;" 2>/dev/null || true
+        $PSQL -h ${socketDir} -U ${user} -d "${db}" -c "CREATE EXTENSION IF NOT EXISTS btree_gist;" 2>/dev/null || true
+      '')
+      databases)}
 
     # Mark as initialized
     touch "$MARKER_FILE"
@@ -122,11 +125,18 @@ in {
     '';
     settings = {
       max_connections = 1000;
+      shared_buffers = "128MB"; # min 128kB
+      maintenance_work_mem = "3GB"; # min 1MB
+      max_parallel_maintenance_workers = 8; # limited by max_parallel_workers
+      max_parallel_workers = 14; # number of max_worker_processes that
+
       log_statement = "all";
       log_timezone = "Europe/Brussels";
       datestyle = "iso, mdy";
       timezone = "Europe/Brussels";
+
       shared_preload_libraries = "vector,timescaledb,pg_stat_statements,pg_trgm";
+
       unix_socket_directories = socketDir;
     };
   };

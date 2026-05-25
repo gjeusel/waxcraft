@@ -9,6 +9,7 @@
   environment.variables = {
     CMAKE_INCLUDE_PATH = "${pkgs.gettext}/include:${pkgs.libiconv}/include";
     CMAKE_LIBRARY_PATH = "${pkgs.gettext}/lib:${pkgs.libiconv}/lib";
+    CMAKE_PREFIX_PATH = "${pkgs.gettext}:${pkgs.libiconv}";
   };
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
