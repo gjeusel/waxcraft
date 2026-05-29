@@ -116,7 +116,7 @@ end
 vim.opt.diffopt:append({
   "vertical", -- vertial diff, easier to scan, especially for long lines
   "internal", -- Neovim’s internal diff algorithm
-  "algorithm:patience", -- with patience which gives more human-readable diffs for reordered blocks (like refactors)
+  "algorithm:histogram", -- extension of patience: same readability for reordered blocks (refactors), faster, usually better on real code
   "indent-heuristic", -- improves diffs by aligning on indentation changes—makes a big difference with Python, YAML, etc
   "hiddenoff", -- don’t open hidden buffers when diffing—stops unwanted buffer noise
   "linematch:60", -- enhances intra-line diffs by aligning similar lines—60 is the maximum "effort", feel free to tune it down if perf is a concern

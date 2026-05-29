@@ -98,20 +98,22 @@ return {
         -- Navigation with ]c & [c
         vim.keymap.set("n", "]c", function()
           if vim.wo.diff then
-            return "]c"
+            return "]czz"
           end
           vim.schedule(function()
             gs.next_hunk()
+            vim.cmd("normal! zz")
           end)
           return "<Ignore>"
         end, { expr = true, buffer = buffer, desc = "Next Hunk/Diff" })
 
         vim.keymap.set("n", "[c", function()
           if vim.wo.diff then
-            return "[c"
+            return "[czz"
           end
           vim.schedule(function()
             gs.prev_hunk()
+            vim.cmd("normal! zz")
           end)
           return "<Ignore>"
         end, { expr = true, buffer = buffer, desc = "Prev Hunk/Diff" })
@@ -512,6 +514,15 @@ return {
     config = function()
       require("wax.plugcfg.diffview")
     end,
+    cmd = {
+      "DiffviewOpen",
+      "DiffviewClose",
+      "DiffviewFileHistory",
+      "DiffviewToggleFiles",
+      "DiffviewFocusFiles",
+      "DiffviewRefresh",
+      "DiffviewLog",
+    },
     keys = {
       {
         "<leader>gg",

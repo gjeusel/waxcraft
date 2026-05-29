@@ -46,6 +46,10 @@ diffview.setup({
       end
     end,
     diff_buf_win_enter = function(bufnr, winid, ctx)
+      -- diffview re-applies foldenable=true (its file winopts, vcs/file.lua) on
+      -- every window (re)open, including the refresh after a save. Override it
+      -- here, inside diffview's own flow, so folds stay open across saves.
+      vim.wo[winid].foldenable = false
       log.debug("bufnr=", bufnr, "winid=", winid, "ctx=", ctx)
       if ctx.layout_name == "diff2_horizontal" and ctx.symbol == "b" then
         vim.schedule(function()

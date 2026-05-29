@@ -24,24 +24,34 @@ vim.api.nvim_create_autocmd({ "BufWrite", "BufLeave" }, {
   end,
 })
 
--- Diff
-local previous_foldmethod = nil
+-- Diff: folds are noise in diff mode, keep everything unfolded.
 
+-- OptionSet (below) doesn't fire for diff mode set at startup, so handle
+-- command-line diffs (git difftool / nvim -d) here. Diffview windows and the
+-- post-save refold are handled by the diff_buf_win_enter hook in plugcfg/diffview.lua.
+vim.api.nvim_create_autocmd("VimEnter", {
+  desc = "Disable folds for diff mode started at launch",
+  callback = function()
+    for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+      if vim.wo[win].diff then
+        vim.wo[win].foldenable = false
+      end
+    end
+  end,
+})
+
+-- Handles runtime :diffthis and, crucially, re-enables folds when diff is turned off.
 vim.api.nvim_create_autocmd("OptionSet", {
-  desc = "Disable folds & views in diff buffers",
+  desc = "Toggle folds & views as diff mode is entered/left",
   pattern = "diff",
   callback = function()
-    if vim.opt.diff then
-      vim.opt_local.viewoptions = nil
+    local entering = vim.v.option_new == "1" -- v:option_new is "1"/"0" for boolean options
+    if entering then
+      vim.opt_local.viewoptions = nil -- stop saved views re-applying stale folds
       vim.opt_local.viewdir = nil
-
-      vim.opt_local.foldenable = false
-
-      previous_foldmethod = vim.opt.foldmethod
-    elseif previous_foldmethod then
-      vim.opt.foldmethod = previous_foldmethod -- set back previous foldmethod when leaving diff mode
-      previous_foldmethod = nil
     end
+    -- neovim restores foldmethod itself on exit
+    vim.wo.foldenable = not entering
   end,
 })
 
