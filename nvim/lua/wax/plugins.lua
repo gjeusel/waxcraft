@@ -746,6 +746,28 @@ return {
     "windwp/nvim-autopairs",
     event = "InsertEnter",
     opts = {},
+    config = function(_, opts)
+      local npairs = require("nvim-autopairs")
+      npairs.setup(opts)
+
+      -- For Python only, the default <CR> expansion
+      -- ('<c-g>u<CR><CMD>normal! ====<CR><up><end><CR>') reindents twice and round-trips
+      -- the cursor with <up><end>, which fights Python's indentexpr/indentkeys (the `0)`
+      -- indentkey reindents the closing-paren line mid-sequence) and leaves the cursor
+      -- below the closing bracket. Use a plain split that defers to indentexpr instead:
+      -- open one line above ). Other filetypes keep the stock behavior.
+      local default_cr = "<c-g>u<CR><CMD>normal! ====<CR><up><end><CR>"
+      for _, pair in ipairs({ "(", "[", "{" }) do
+        for _, rule in ipairs(npairs.get_rules(pair)) do
+          rule:replace_map_cr(function()
+            if vim.bo.filetype == "python" then
+              return "<c-g>u<CR><Esc>O"
+            end
+            return default_cr
+          end)
+        end
+      end
+    end,
   },
   {
     "echasnovski/mini.align",
