@@ -12,6 +12,8 @@
       "redis"
       "meilisearch"
       "libomp" # openmp on macos
+      "googleworkspace-cli" # CLI (unavailable in nixpkgs)
+      "py-spy" # CLI to profile python (unavailable in nixpkgs for ARM arch)
     ];
     casks = [
       "ghostty" # broken in nixpkgs
