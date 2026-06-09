@@ -490,7 +490,6 @@ return {
   },
   {
     "janko/vim-test",
-    lazy = false,
     -- dev = true,
     pin = true,
     event = "VeryLazy",

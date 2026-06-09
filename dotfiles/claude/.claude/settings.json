@@ -210,7 +210,7 @@
     ],
     "defaultMode": "auto"
   },
-  "model": "opus[1m]",
+  "model": "claude-fable-5[1m]",
   "hooks": {
     "PreToolUse": [
       {
@@ -260,7 +260,8 @@
     "code-simplifier@claude-plugins-official": true,
     "astral@astral-sh": true,
     "rust-analyzer-lsp@claude-plugins-official": true,
-    "chrome-devtools-mcp@claude-plugins-official": true
+    "chrome-devtools-mcp@claude-plugins-official": true,
+    "ty-lsp@local": true
   },
   "extraKnownMarketplaces": {
     "cloudflare": {

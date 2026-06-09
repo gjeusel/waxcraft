@@ -56,8 +56,6 @@ kmap("n", "<leader>5", function()
       vim.api.nvim_set_var(varname, before)
     end, 3000)
 
-    vim.cmd("stopinsert")
-
     if vim.list_contains({ "pdb-fast", "pdb-module" }, choice.name) then
       vim.cmd(":TestFile")
     else

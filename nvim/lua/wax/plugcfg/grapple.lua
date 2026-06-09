@@ -16,7 +16,7 @@ end
 
 local function git_branch_resolver()
   -- TODO: this will stop on submodules, needs fixing
-  local git_files = vim.fs.find(".git", { upward = true, stop = vim.loop.os_homedir() })
+  local git_files = vim.fs.find(".git", { upward = true, stop = vim.uv.os_homedir() })
   if #git_files == 0 then
     return
   end

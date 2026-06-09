@@ -31,8 +31,7 @@ local function open_scratch_win(content)
   end
 
   content = vim.tbl_map(split_line_return, content)
-  content = vim.tbl_flatten(content)
-  -- content = vim.flatten(content) -- but is null the fucker !
+  content = vim.iter(content):flatten():totable()
 
   vim.api.nvim_buf_set_lines(bufnr, 0, 0, false, content)
 end
@@ -82,6 +81,7 @@ function _G.is_module_available(name)
   if package.loaded[name] then
     return true
   else
+    -- LuaJIT (Lua 5.1) only has package.loaders; package.searchers is 5.2+
     for _, searcher in ipairs(package.loaders) do
       local loader = searcher(name)
       if type(loader) == "function" then
@@ -196,7 +196,7 @@ _G.find_root_dir = wax_cache_buf_fn(
 
     local default_patterns = { ".git" }
     patterns = patterns or default_patterns
-    path = path or vim.loop.cwd()
+    path = path or vim.uv.cwd()
 
     local root_dir = Path:new(path):find_root_dir(patterns)
     if root_dir ~= nil then
@@ -211,7 +211,7 @@ _G.find_root_dir = wax_cache_buf_fn(
 ---@param path string | nil
 ---@return string | nil
 _G.find_root_monorepo = function(path)
-  path = path or vim.loop.cwd()
+  path = path or vim.uv.cwd()
   return _G.find_root_dir(path, { ".git" })
 end
 
@@ -219,7 +219,7 @@ end
 ---@param path string | nil
 ---@return string | nil
 _G.find_root_package = function(path)
-  path = path or vim.loop.cwd()
+  path = path or vim.uv.cwd()
   return _G.find_root_dir(path, { "package.json", "pyproject.toml" })
 end
 
@@ -228,7 +228,7 @@ _G.is_monorepo = wax_cache_buf_fn(
   ---@param cwd string | nil
   ---@return string | nil
   function(cwd)
-    cwd = cwd or vim.loop.cwd()
+    cwd = cwd or vim.uv.cwd()
     local root_dir = _G.find_root_monorepo(nil)
     local root_subproject = _G.find_root_package(nil)
     local is_monorepo = root_dir and root_subproject and root_dir ~= root_subproject
