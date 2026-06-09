@@ -115,15 +115,21 @@ local fzf_exec_opts = {
 }
 
 fzf_lua.setup({
-  winopts = {
-    height = 0.8,
-    width = 0.9,
-    treesitter = { enabled = false },
-    preview = {
-      flip_columns = 200, -- number of cols to switch to horizontal on flex
-      wrap = "wrap",
-    },
-  },
+  -- function: re-evaluated on each picker open, so `hidden` tracks window size
+  winopts = function()
+    return {
+      height = 0.8,
+      width = 0.9,
+      treesitter = { enabled = false },
+      preview = {
+        flip_columns = 200, -- number of cols to switch to horizontal on flex
+        wrap = "wrap",
+        -- fzf-lua computes a preview height of 0 on tiny windows, which
+        -- nvim_open_win rejects (win.lua: "Invalid 'height'")
+        hidden = vim.o.lines < 15,
+      },
+    }
+  end,
   fzf_opts = {
     ["--cycle"] = "", -- enable cycling
   },
