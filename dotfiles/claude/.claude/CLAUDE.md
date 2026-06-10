@@ -8,6 +8,7 @@
 
 - NEVER use `python -c "import X; ..."` one-liners to discover package locations or inspect modules. Use `uv pip show X` instead.
 - NEVER use dynamic imports inside test functions - all imports must be at module level
+- Keep unit-test fake data minimal: specify only what affects the assertion or code path under test, and rely on factory defaults for the rest.
 
 ## File Operations — Use Native Tools
 

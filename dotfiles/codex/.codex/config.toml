@@ -71,13 +71,13 @@ args = ["-y", "@sentry/mcp-server", "--agent"]
 enabled = true
 default_tools_approval_mode = "auto"
 
-[mcp_servers.gitlab]
-url = "https://gitlab.com/api/v4/mcp"
-enabled = true
+# [mcp_servers.gitlab]
+# url = "https://gitlab.com/api/v4/mcp"
+# enabled = true
 
-[mcp_servers.cloudflare-api]
-url = "https://mcp.cloudflare.com/mcp"
-enabled = false
+# [mcp_servers.cloudflare-api]
+# url = "https://mcp.cloudflare.com/mcp"
+# enabled = false
 
 # ── Profiles ───────────────────────────────────────────────────────────
 [profiles.deep]
@@ -121,4 +121,7 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [projects."/Users/gjeusel/src/fohn"]
+trust_level = "trusted"
+
+[projects."/Users/gjeusel/src/enedis-gridconn"]
 trust_level = "trusted"

@@ -45,7 +45,7 @@ vim.api.nvim_create_autocmd("OptionSet", {
   desc = "Toggle folds & views as diff mode is entered/left",
   pattern = "diff",
   callback = function()
-    local entering = vim.v.option_new == "1" -- v:option_new is "1"/"0" for boolean options
+    local entering = vim.v.option_new == true -- v:option_new is a boolean for boolean options
     if entering then
       vim.opt_local.viewoptions = nil -- stop saved views re-applying stale folds
       vim.opt_local.viewdir = nil
