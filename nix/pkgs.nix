@@ -104,6 +104,7 @@
 
     # ----- infra -----
     sops
+    certbot
 
     # kubectl
     # krew
