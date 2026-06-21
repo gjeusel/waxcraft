@@ -69,32 +69,40 @@ local function orderby_grapple_tags()
   local state = require("barbar.state")
   local render = require("barbar.ui.render")
 
-  local tagged_files = vim.tbl_map(function(tag)
-    return tag.path
-  end, grapple.tags())
+  -- grapple tag path -> position in the tag list
+  local tag_index = {}
+  for i, tag in ipairs(grapple.tags() or {}) do
+    tag_index[tag.path] = i
+  end
 
-  local function index_of(tbl, val)
-    for i, v in ipairs(tbl) do
-      if v == val then
-        return i
+  -- Capture the current order so untagged buffers keep their relative position.
+  -- table.sort is NOT stable; without this, untagged buffers reshuffle on every
+  -- call (and a comparator that mixes criteria isn't a strict-weak-ordering),
+  -- which is what makes the bar flicker.
+  local current = {}
+  for i, bufnr in ipairs(state.buffers) do
+    current[bufnr] = i
+  end
+
+  -- Rank: tagged buffers first by grapple index, everything else after them
+  -- in its existing order. Returns a (primary, secondary) tuple for a total order.
+  local function rank(bufnr)
+    if vim.api.nvim_buf_is_valid(bufnr) then
+      local idx = tag_index[vim.api.nvim_buf_get_name(bufnr)]
+      if idx then
+        return idx, 0
       end
     end
-    return 1000
+    return math.huge, current[bufnr] or math.huge
   end
 
   table.sort(state.buffers, function(left, right)
-    if vim.api.nvim_buf_is_valid(left) and vim.api.nvim_buf_is_valid(right) then
-      local left_name = vim.api.nvim_buf_get_name(left)
-      local right_name = vim.api.nvim_buf_get_name(right)
-      local left_index = index_of(tagged_files, left_name)
-      local right_index = index_of(tagged_files, right_name)
-      if left_index == 1000 and right_index == 1000 then
-        return left_name < right_name
-      else
-        return left_index < right_index
-      end
+    local left_primary, left_secondary = rank(left)
+    local right_primary, right_secondary = rank(right)
+    if left_primary ~= right_primary then
+      return left_primary < right_primary
     end
-    return left < right
+    return left_secondary < right_secondary
   end)
   render.update()
 end
