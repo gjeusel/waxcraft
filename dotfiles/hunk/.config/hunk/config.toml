@@ -1,0 +1,50 @@
+# hunk — terminal diff viewer (https://github.com/modem-dev/hunk)
+# Config search path: ~/.config/hunk/config.toml  or  .hunk/config.toml (per-repo)
+
+theme = "nord"                # built-in theme id, "auto", or "custom"
+mode = "split"                # auto | split | stack  (auto = responsive)
+vcs = "git"                   # git | jj | sl  (overrides auto-detection)
+watch = true                  # auto-reload when the diff input changes
+exclude_untracked = false     # hide untracked files in working-tree reviews
+line_numbers = true           # show line numbers
+wrap_lines = false            # wrap (true) or truncate (false) long lines
+agent_notes = false           # show inline agent/AI notes by default
+transparent_background = true # let the terminal background show through
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CHEATSHEET — press `?` in the app for this overlay, `F10` to open the menu bar.
+#
+# Navigation
+#   ↑ / ↓          move line-by-line
+#   Space / f      page down
+#   b / Shift+Space page up
+#   d / u          half page down / up
+#   [ / ]          previous / next hunk
+#   , / .          previous / next file        ← yes, jump files easily!
+#   { / }          previous / next comment
+#   ← / →          scroll code left / right  (Shift = faster)
+#   Home / End     jump to top / bottom
+#   g / G          jump to top / bottom (less-style)
+#
+# Mouse
+#   Wheel          scroll vertically
+#   Shift+Wheel    scroll code horizontally
+#
+# View
+#   1 / 2 / 0      layout: split / stack / auto
+#   s             toggle sidebar (file list)
+#   t             open theme selector
+#   a             toggle AI / agent notes
+#   z             toggle unchanged context lines
+#   l / w / m     toggle line numbers / wrap / hunk metadata
+#   e             open current file in $EDITOR
+#
+# Review
+#   /             focus file filter
+#   c             create a review note
+#   Tab           toggle focus between files list / filter
+#   F10           open menus
+#   r             reload   (when refreshable)
+#   q             quit
+#   ?             toggle this help overlay
+# ─────────────────────────────────────────────────────────────────────────────
