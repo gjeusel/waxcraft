@@ -225,7 +225,7 @@ vim.keymap.set("n", "<leader>ff", function()
   vim.ui.select(options, { prompt = "Select filepath to copy > " }, function(selected)
     if selected then
       vim.fn.setreg("+", selected)
-      vim.notify(("Copied to clipboard: %s"):format(selected))
+      noops_notify(("Copied to clipboard: %s"):format(selected))
     end
   end)
 end, { desc = "Propose current file paths to copy in register" })

@@ -256,6 +256,21 @@ end
 
 -------- Utilities --------
 
+---Echo a message without triggering the "Press ENTER" hit-enter prompt.
+---The message is truncated (keeping its tail) to fit within `v:echospace`,
+---which is the number of screen cells available before Neovim would otherwise
+---pause for a keypress.
+---@param msg string
+---@param hl? string highlight group (defaults to no highlight)
+---@return nil
+function _G.noops_notify(msg, hl)
+  local max = vim.v.echospace
+  if vim.fn.strdisplaywidth(msg) > max then
+    msg = "…" .. msg:sub(-(max - 1))
+  end
+  vim.api.nvim_echo({ { msg, hl } }, false, {})
+end
+
 ---Check if the bufnr should be considered a big file
 ---@param fpath string
 ---@return boolean

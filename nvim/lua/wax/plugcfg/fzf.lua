@@ -10,6 +10,7 @@ local rg_ignore_dirs = {
   "**/postgres-data", -- docker volume
   "**/edgedb-data", -- docker volume
   "**/.vscode", -- vscode ? Nop
+  "**/.playwright-mcp", -- playwright mcp artifacts
   "**/playground/*", -- messy
   --
   "data.ms", -- meilisearch
