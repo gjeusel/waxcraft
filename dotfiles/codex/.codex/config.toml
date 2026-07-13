@@ -1,7 +1,7 @@
 # ── Model ──────────────────────────────────────────────────────────────
-model = "gpt-5.5"
+model = "gpt-5.6-sol"
 model_provider = "openai"
-model_reasoning_effort = "low"
+model_reasoning_effort = "high"
 
 # ── Approval & Sandbox ─────────────────────────────────────────────────
 approval_policy = "on-request"
@@ -50,6 +50,7 @@ notifications = ["agent-turn-complete"]
 
 [tui.model_availability_nux]
 "gpt-5.5" = 4
+"gpt-5.6-sol" = 4
 
 # ── History ────────────────────────────────────────────────────────────
 [history]
@@ -65,11 +66,11 @@ startup_timeout_sec = 10
 tool_timeout_sec = 60
 default_tools_approval_mode = "auto"
 
-[mcp_servers.sentry]
-command = "npx"
-args = ["-y", "@sentry/mcp-server", "--agent"]
-enabled = true
-default_tools_approval_mode = "auto"
+# [mcp_servers.sentry]
+# command = "npx"
+# args = ["-y", "@sentry/mcp-server", "--agent"]
+# enabled = true
+# default_tools_approval_mode = "auto"
 
 # [mcp_servers.gitlab]
 # url = "https://gitlab.com/api/v4/mcp"
