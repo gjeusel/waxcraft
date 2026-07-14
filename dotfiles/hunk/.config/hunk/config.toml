@@ -9,7 +9,7 @@ exclude_untracked = false     # hide untracked files in working-tree reviews
 line_numbers = true           # show line numbers
 wrap_lines = false            # wrap (true) or truncate (false) long lines
 agent_notes = false           # show inline agent/AI notes by default
-transparent_background = false # let the terminal background show through
+transparent_background = true # let the terminal background show through
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CHEATSHEET — press `?` in the app for this overlay, `F10` to open the menu bar.
