@@ -132,8 +132,16 @@
           "60" = { enabled = false; }; # Select previous input source (Ctrl+Space)
           "61" = { enabled = false; }; # Select next input source (Ctrl+Option+Space)
 
+          # Re-enable "Move focus to next window" (Cmd+`) - was wrongly disabled as "Minimize window"
+          "27" = {
+            enabled = true;
+            value = {
+              parameters = [ 96 50 1048576 ]; # ` (ascii 96), keycode 50, Cmd modifier
+              type = "standard";
+            };
+          };
+
           # Disable Dock shortcuts
-          "27" = { enabled = false; }; # Minimize window (Cmd+M)
           "52" = { enabled = false; }; # Turn Dock Hiding On/Off (Opt+Cmd+D)
 
           # Disable display brightness shortcuts

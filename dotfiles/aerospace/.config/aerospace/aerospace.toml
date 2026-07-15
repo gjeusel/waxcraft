@@ -80,6 +80,9 @@ outer.top = 0
 cmd-h = []
 cmd-alt-h = []
 
+# Disable cmd-m (minimize window) - minimized windows break tiling
+cmd-m = []
+
 # See: https://nikitabobko.github.io/AeroSpace/commands#layout
 ctrl-alt-d = 'layout v_accordion h_tiles'
 ctrl-alt-f = 'layout tiling floating'
