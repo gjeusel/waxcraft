@@ -44,10 +44,10 @@
 
   aerospace = final: prev: {
     aerospace = prev.aerospace.overrideAttrs (old: rec {
-      version = "0.20.3-Beta";
+      version = "0.21.2-Beta";
       src = prev.fetchzip {
         url = "https://github.com/nikitabobko/AeroSpace/releases/download/v${version}/AeroSpace-v${version}.zip";
-        hash = "sha256-wrBcslp1W/lOmudMcW+SREL9LZY+wTwidh6Hot5ShGE=";
+        hash = "sha256-+4n9di1NbPs5pttSEHPDzpHinfuSyWSx5CjNA9IOH+Q=";
       };
     });
   };
