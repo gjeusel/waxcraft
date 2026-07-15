@@ -78,8 +78,9 @@
     echo "Enabling extensions..."
     ${builtins.concatStringsSep "\n" (map (db: ''
         $PSQL -h ${socketDir} -U ${user} -d "${db}" -c "CREATE EXTENSION IF NOT EXISTS vector;" 2>/dev/null || true
-        $PSQL -h ${socketDir} -U ${user} -d "${db}" -c "CREATE EXTE;SION IF NOT EXISTS pg_trgm;" 2>/dev/null || true
+        $PSQL -h ${socketDir} -U ${user} -d "${db}" -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;" 2>/dev/null || true
         $PSQL -h ${socketDir} -U ${user} -d "${db}" -c "CREATE EXTENSION IF NOT EXISTS btree_gist;" 2>/dev/null || true
+        $PSQL -h ${socketDir} -U ${user} -d "${db}" -c "CREATE EXTENSION IF NOT EXISTS pg_stat_statements;" 2>/dev/null || true
       '')
       databases)}
 
