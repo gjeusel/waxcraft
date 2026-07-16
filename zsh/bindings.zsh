@@ -2,13 +2,13 @@ _CUSTOM_WORDCHARS='*?_[]~=&;!#$%^(){}<>'
 
 # backward and forward word with option+left/right
 tcsh-backward-word () {
-  local WORDCHARS=_CUSTOM_WORDCHARS
+  local WORDCHARS=$_CUSTOM_WORDCHARS
   zle backward-word
 }
 zle -N tcsh-backward-word
 bindkey '^[b' tcsh-backward-word
 tcsh-forward-word () {
-  local WORDCHARS=_CUSTOM_WORDCHARS
+  local WORDCHARS=$_CUSTOM_WORDCHARS
   zle forward-word
 }
 zle -N tcsh-forward-word
@@ -25,7 +25,7 @@ bindkey '^W' backward-kill-word
 # Delete word with option+backspace with more word delimiters
 # https://www.zsh.org/mla/users/2001/msg00870.html
 tcsh-backward-delete-word () {
-  local WORDCHARS=_CUSTOM_WORDCHARS
+  local WORDCHARS=$_CUSTOM_WORDCHARS
   zle backward-delete-word
 }
 zle -N tcsh-backward-delete-word
@@ -44,8 +44,7 @@ bindkey '^E' end-of-line
 # edit command line in $EDITOR
 bindkey '^X' edit-command-line
 
-# Hist search
-bindkey '^r' history-incremental-search-backward
+# Hist search (^r and ^R are the same control char, only one binding possible)
 bindkey '^R' history-incremental-pattern-search-backward
 
 # Hist search completion of line with arrows up and down using ohmyzsh history-substring-search

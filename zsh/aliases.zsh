@@ -46,7 +46,8 @@ kvdebug() {
       return
   fi
 
-  sanename=debug-`echo $1 | sed "s/\(.*\):.*/\1/" | sed "s:/:-:g"`
+  local sanename
+  sanename=debug-`echo "$1" | sed "s/\(.*\):.*/\1/" | sed "s:/:-:g"`
 
   k run -i --tty --rm $sanename \
   --image=$1 --restart=Never \
@@ -84,17 +85,17 @@ kvdebug() {
 }
 
 function fuzzy_gco() {
-  branch=`git branch -a| fzf`
-  pattern_to_exclude="remotes/origin/"
-  local_branch=`echo "$branch"| sed "s:$pattern_to_exclude::"`
-  git checkout `echo $local_branch`
+  local branch
+  branch="$(git branch -a | fzf | sed 's/^[* ]*//; s#^remotes/origin/##')"
+  [ -n "$branch" ] && git checkout "$branch"
 }
 alias gcos=fuzzy_gco
 
 function fopen() {
-  filepath=`fzf`
+  local filepath
+  filepath="$(fzf)"
   if [ -f "$filepath" ]; then
-    open $filepath
+    open "$filepath"
   fi
 }
 
@@ -111,18 +112,8 @@ alias deact='mamba deactivate'
 # alias lsp_python_deps='pip install -U ruff "python-lsp-server[rope]" jedi pylsp-mypy' # ty replaced
 
 # Fuzzy finders
-vag() {
-  regex=${1}
-  files=$(ag --recurse --files-with-matches $regex)
-
-  if [ $files ]; then
-    $EDITOR +/"$regex" $(echo $files)
-  else;
-    echo "$regex not found in any file here."
-  fi;
-}
-
 vfzf() {
+  local _match_fzf
   _match_fzf="$(fzf --preview '[[ $(file --mime {}) =~ binary ]] &&
     echo {} is a binary file ||
     (bat --style=numbers --color=always {} ||
@@ -151,12 +142,12 @@ alias sudo='sudo TMUX="${TMUX}" '
 
 # move to trash instead of rm
 function del() {
-    mv $* ~/.Trash
+    mv "$@" ~/.Trash
 }
 
 # alias to get resilient shit
 function resilient() {
-  while true; do $* && break; done
+  while true; do "$@" && break; done
 }
 
 # alias to launch Brave
@@ -207,10 +198,6 @@ alias d64=decode64
 function generate_fernet_key() {
   # https://stackoverflow.com/questions/44432945/generating-own-key-with-python-fernet
   dd if=/dev/urandom bs=32 count=1 2>/dev/null | openssl base64
-}
-
-function realpath() {
-  [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
 }
 
 function webp2gitlab() {

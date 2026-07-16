@@ -69,29 +69,8 @@ _cdf() {
   cd "$(dirname "$file")" || return
 }
 
-# _zz - selectable cd to frecency directory
-_zz() {
-  local dir
-
-  dir="$(
-    fasd -dl \
-      | fzf \
-          --tac \
-          --reverse \
-          --select-1 \
-          --no-sort \
-          --no-multi \
-          --tiebreak=index \
-          --bind=ctrl-x:toggle-sort \
-          --query "$*" \
-      | grep -o '/.*'
-  )" || return
-
-  cd "$dir" || return
-}
-
 # zd - cd into selected directory with options
-# The super function of _fd, _fda, _fdr, _fst, _cdf, _zz
+# The super function of _fd, _fda, _fdr, _fst, _cdf
 zd() {
   read -r -d '' helptext <<EOF
 usage: zd [OPTIONS]
@@ -102,7 +81,6 @@ OPTIONS:
   -r [path]: Parent directory
   -s [query]: Directory from stack
   -f [query]: Directory of the selected file
-  -z [query]: Frecency directory
   -h: Print this usage
 EOF
 
@@ -126,14 +104,13 @@ EOF
     _fd "$(realpath "$1")"
   else
     # args is start from '-'
-    while getopts darfszh OPT; do
+    while getopts darfsh OPT; do
       case "$OPT" in
         d) shift; _fd  "$1";;
         a) shift; _fda "$1";;
         r) shift; _fdr "$1";;
         s) shift; _fst "$*";;
         f) shift; _cdf "$*";;
-        z) shift; _zz  "$*";;
         h) usage; return 0;;
         *) usage; return 1;;
       esac
@@ -188,17 +165,6 @@ fo() {
     "${EDITOR:-vim}" "$file"
   fi
 }
-
-# fzf-locate-widget - paste selected entry from locate output into cmdline
-fzf-locate-widget() {
-  local selected
-  if selected=$(locate / | fzf -q "$LBUFFER"); then
-    LBUFFER=$selected
-  fi
-  zle redisplay
-}
-zle -N fzf-locate-widget
-bindkey '\ei' fzf-locate-widget
 
 # -----------------------------------------------------------------------------
 # git
@@ -362,9 +328,9 @@ fstash() {
           --print-query \
           --expect=ctrl-d,ctrl-b
   )"; do
-    mapfile -t out <<< "$out"
-    q="${out[0]}"
-    k="${out[1]}"
+    out=("${(@f)out}")
+    q="${out[1]}"
+    k="${out[2]}"
     sha="${out[-1]}"
     sha="${sha%% *}"
     [[ -z "$sha" ]] && continue

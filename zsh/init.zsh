@@ -84,11 +84,16 @@ if type brew &>/dev/null; then
   fpath+="$(brew --prefix)/share/zsh/site-functions"
 fi
 
-# Notes:
-#   We prefer to manually re-build the cache (found no good automated solution)
 autoload -Uz compinit
-# rebuild cache:
-compinit -C  # -C: skip security check for speed, use `compinit` to rebuild cache
+# Rebuild the completion dump at most once a day, otherwise reuse it
+# without the security check (-C) for speed
+_zcompdump="${ZDOTDIR:-$HOME}/.zcompdump"
+if [ -n "$(find "$_zcompdump" -mtime -1 2>/dev/null)" ]; then
+  compinit -C
+else
+  compinit
+fi
+unset _zcompdump
 
 # --- Fine tuning completion ---
 # https://thevaluable.dev/zsh-completion-guide-examples/
@@ -215,8 +220,15 @@ if command -v fzf &> /dev/null; then
     source <(fzf --zsh)
 fi
 
-# kubectl conf
+# kubectl conf: generating the completion costs ~100ms, so cache it to a file
+# and only regenerate when the kubectl binary is newer than the cache
 if command -v kubectl &> /dev/null; then
-  source <(kubectl completion zsh)
+  _kubectl_comp="${ZDOTDIR:-$HOME}/.zcompcache/kubectl-completion.zsh"
+  if [[ ! -s $_kubectl_comp || $commands[kubectl] -nt $_kubectl_comp ]]; then
+    mkdir -p "${_kubectl_comp:h}"
+    kubectl completion zsh > "$_kubectl_comp"
+  fi
+  source "$_kubectl_comp"
+  unset _kubectl_comp
 fi
 

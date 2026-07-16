@@ -3,6 +3,7 @@
 - All changes must be tested. If you're not testing your changes, you're not done.
 - Use comments purposefully. Don't use comments to narrate code, but do use them to explain invariants and why something unusual was done a particular way.
 - NEVER add AI agent references in commits
+- NEVER PUSH YOURSELF ON THE MASTER/MAIN BRANCH
 
 ### Python only
 

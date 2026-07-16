@@ -53,6 +53,12 @@ stow-install:
 stow-delete:
     stow --verbose --no-folding --dir {{ justfile_dir }}/dotfiles/ --target ~/ --delete $(ls {{ justfile_dir }}/dotfiles)
 
+# Check zsh config: syntax check every file + interactive startup smoke test
+[group('zsh')]
+zsh-check:
+    for f in {{ justfile_dir }}/zsh/*.zsh {{ justfile_dir }}/zsh/functions/*; do zsh -n "$f" || exit 1; done
+    zsh -i -c 'echo "zsh config loaded OK"'
+
 # Check nvim config: formatting + headless load smoke test
 [group('nvim')]
 nvim-check:
