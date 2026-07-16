@@ -27,13 +27,23 @@ vim.api.nvim_create_autocmd("BufReadPost", {
   group = vim.api.nvim_create_augroup("wax_treesitter_folds", { clear = true }),
   callback = function(opts)
     vim.schedule(function()
-      if not vim.api.nvim_buf_is_valid(opts.buf) then return end
-      if vim.bo[opts.buf].buftype ~= "" then return end
+      if not vim.api.nvim_buf_is_valid(opts.buf) then
+        return
+      end
+      if vim.bo[opts.buf].buftype ~= "" then
+        return
+      end
       local win = vim.fn.bufwinid(opts.buf)
-      if win == -1 then return end
-      if vim.wo[win].foldmethod ~= "expr" then return end
+      if win == -1 then
+        return
+      end
+      if vim.wo[win].foldmethod ~= "expr" then
+        return
+      end
       local ok = pcall(vim.treesitter.get_parser, opts.buf)
-      if not ok then return end
+      if not ok then
+        return
+      end
       -- Force fold recomputation
       vim.wo[win].foldmethod = "expr"
     end)

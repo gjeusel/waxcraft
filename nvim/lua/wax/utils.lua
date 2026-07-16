@@ -106,14 +106,6 @@ function _G.safe_require(name)
   end
 end
 
--------- FilePaths --------
-
--- debug.getinfo to get the filepath of the current lua script
--- then get its parent directory
-
----@type Wax.Path
-_G.lua_waxdir = Path:new(vim.fn.fnamemodify(debug.getinfo(1, "S").short_src, ":p:h")) -- "$HOME/.config/nvim/lua/wax"
-
 -------- Cache --------
 ---Buffer-specific function memoization
 ---@generic T : function
@@ -154,17 +146,6 @@ _G.log = require("wax.logs").new({
 })
 
 -------- WorkSpace --------
-
-_G.is_git = wax_cache_buf_fn(
-  ---Check if cwd is git versioned
-  ---@param cwd string | nil
-  ---@return boolean
-  function(cwd)
-    local cmd = { "git", "-C", cwd or vim.uv.cwd(), "rev-parse", "--is-inside-work-tree" }
-    local result = vim.system(cmd, { stderr = false }):wait()
-    return result.code == 0 and result.stdout and result.stdout:match("true") ~= nil
-  end
-)
 
 _G.find_root_dir = wax_cache_buf_fn(
   ---Return the root directory
@@ -222,19 +203,6 @@ _G.find_root_package = function(path)
   path = path or vim.uv.cwd()
   return _G.find_root_dir(path, { "package.json", "pyproject.toml" })
 end
-
-_G.is_monorepo = wax_cache_buf_fn(
-  ---Return the root directory
-  ---@param cwd string | nil
-  ---@return string | nil
-  function(cwd)
-    cwd = cwd or vim.uv.cwd()
-    local root_dir = _G.find_root_monorepo(nil)
-    local root_subproject = _G.find_root_package(nil)
-    local is_monorepo = root_dir and root_subproject and root_dir ~= root_subproject
-    return is_monorepo
-  end
-)
 
 ---Convert the path of the workspace to its name
 ---@param path string
@@ -306,7 +274,7 @@ function M.insert_new_line_in_current_buffer(str, opts)
   local n_space = vim.fn.indent(n_line)
 
   -- special cases depending on filetype
-  local filetype = vim.api.nvim_buf_get_option(bufnr, "filetype")
+  local filetype = vim.bo[bufnr].filetype
   if filetype == "python" then
     n_space = vim.fn.GetPythonPEPIndent(n_insert_line)
     if n_space == -1 then -- but fix it when can't find

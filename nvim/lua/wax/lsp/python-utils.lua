@@ -16,8 +16,10 @@ end
 M.find_python_cmd = wax_cache_buf_fn(function(workspace, cmd)
   -- https://github.com/neovim/nvim-lspconfig/issues/500#issuecomment-851247107
 
-  -- If conda env is activated, use it
-  if vim.env.CONDA_PREFIX and vim.env.CONDA_PREFIX ~= M.basepath_conda.filename then
+  -- If conda env is activated, use it (unless it is the conda base env)
+  if
+    vim.env.CONDA_PREFIX and vim.env.CONDA_PREFIX ~= (M.basepath_conda and M.basepath_conda.path)
+  then
     return Path:new(vim.env.CONDA_PREFIX):join("bin"):join(cmd):absolute()
   end
 
@@ -64,12 +66,16 @@ M.get_python_path = wax_cache_buf_fn(function(workspace, cmd)
   local python_path = nil
 
   local function pattern_to_python_path(pattern)
-    return Path:new(workspace):find_root_dir({ pattern }):join("bin", cmd):absolute()
+    local root = Path:new(workspace):find_root_dir({ pattern })
+    if root == nil then
+      return nil
+    end
+    return root:join("bin", cmd):absolute()
   end
 
   if M.basepath_conda_venv and string.find(workspace, M.basepath_conda_venv.path) then
     -- In case of jump to definition inside dependency with conda venv:
-    python_path = pattern_to_python_path("conda-meta")
+    python_path = pattern_to_python_path("conda-meta") or M.find_python_cmd(workspace, cmd)
   else
     python_path = M.find_python_cmd(workspace, cmd)
   end

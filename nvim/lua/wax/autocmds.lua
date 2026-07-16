@@ -7,9 +7,13 @@ vim.api.nvim_create_autocmd({ "BufWinEnter" }, {
   desc = "Load view",
   pattern = "*",
   callback = function(opts)
-    if vim.bo[opts.buf].buftype ~= "" then return end
+    if vim.bo[opts.buf].buftype ~= "" then
+      return
+    end
     local name = vim.api.nvim_buf_get_name(opts.buf)
-    if name == "" or name:find("://") then return end
+    if name == "" or name:find("://") then
+      return
+    end
     vim.cmd("silent! loadview")
   end,
 })
@@ -17,9 +21,13 @@ vim.api.nvim_create_autocmd({ "BufWrite", "BufLeave" }, {
   desc = "Save view",
   pattern = "*",
   callback = function(opts)
-    if vim.bo[opts.buf].buftype ~= "" then return end
+    if vim.bo[opts.buf].buftype ~= "" then
+      return
+    end
     local name = vim.api.nvim_buf_get_name(opts.buf)
-    if name == "" or name:find("://") then return end
+    if name == "" or name:find("://") then
+      return
+    end
     vim.cmd("silent! mkview")
   end,
 })

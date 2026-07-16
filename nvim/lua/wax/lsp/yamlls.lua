@@ -1,3 +1,5 @@
+-- Shared yamlls settings, used both by the yamlls server config (after/lsp/yamlls.lua)
+-- and folded into helm-ls' embedded yamlls (after/lsp/helm_ls.lua).
 return {
   settings = {
     yaml = {

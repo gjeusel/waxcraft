@@ -45,11 +45,16 @@ end
 
 vim.keymap.set("n", "<leader>yP", function()
   local module, word_under_cursor = _get_python_parts()
-
+  if not module then
+    return
+  end
   vim.fn.setreg("+", ("from %s import %s"):format(module, word_under_cursor))
 end, { desc = "Yank current file python word as import" })
 
 vim.keymap.set("n", "<leader>yp", function()
   local module, word_under_cursor = _get_python_parts()
+  if not module then
+    return
+  end
   vim.fn.setreg("+", ("%s.%s"):format(module, word_under_cursor))
 end, { desc = "Yank current file python word as module" })

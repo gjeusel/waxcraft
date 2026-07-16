@@ -37,10 +37,14 @@ local function goto_alias_definition()
 
         local line_num = location["targetRange"]["end"]["line"]
         local lines = vim.api.nvim_buf_get_lines(tmp_buf, line_num, line_num + 1, false)
+        if lines[1] == nil then
+          vim.lsp.util.show_document(location, "utf-8")
+          return
+        end
         local line_length = #lines[1] - 1
 
         local nested_position = { line = line_num, character = line_length - 1 }
-        local nested_resp = client.request_sync(ms.textDocument_definition, {
+        local nested_resp = client:request_sync(ms.textDocument_definition, {
           position = nested_position,
           textDocument = { uri = uri },
         }, timeout * 5, bufnr)
@@ -120,12 +124,16 @@ vim.api.nvim_create_autocmd("LspAttach", {
 
     vim.keymap.set("n", "<leader>D", vim.lsp.buf.type_definition, kmap_opts)
 
-    vim.keymap.set("n", "K", function() vim.lsp.buf.hover({ border = "rounded", focusable = true }) end, kmap_opts)
+    vim.keymap.set("n", "K", function()
+      vim.lsp.buf.hover({ border = "rounded", focusable = true })
+    end, kmap_opts)
 
     vim.keymap.set("n", "<leader>i", vim.lsp.buf.implementation, kmap_opts)
     vim.keymap.set("n", "<leader>I", vim.lsp.buf.declaration, kmap_opts)
 
-    vim.keymap.set("i", "<C-s>", function() vim.lsp.buf.signature_help({ border = "rounded", max_height = 3, focusable = false }) end)
+    vim.keymap.set("i", "<C-s>", function()
+      vim.lsp.buf.signature_help({ border = "rounded", max_height = 3, focusable = false })
+    end)
 
     vim.keymap.set("n", "<leader>R", vim.lsp.buf.rename, kmap_opts)
 
@@ -140,13 +148,3 @@ vim.api.nvim_create_autocmd("LspAttach", {
 vim.api.nvim_set_option_value("omnifunc", "v:lua.vim.lsp.omnifunc", {})
 
 require("wax.lsp.ui")
-
--- Customization of the publishDiagnostics:
---   - remove all pyright diagnostics (ty diagnostics handled in after/lsp/ty.lua)
-vim.lsp.handlers[ms.textDocument_publishDiagnostics] = function(_, result, ctx)
-  result.diagnostics = vim.tbl_filter(function(diagnostic)
-    -- Filter out all diagnostics from pyright
-    return not vim.tbl_contains({ "Pyright" }, diagnostic.source)
-  end, result.diagnostics)
-  vim.lsp.diagnostic.on_publish_diagnostics(_, result, ctx)
-end

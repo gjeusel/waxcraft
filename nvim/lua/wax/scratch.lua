@@ -29,10 +29,10 @@ local function _dimensions(opts)
   }
 end
 
-local function _resize(opts)
+local function _resize(win, opts)
   local dim = _dimensions(opts)
 
-  vim.api.nvim_win_set_config(M.win, {
+  vim.api.nvim_win_set_config(win, {
     style = "minimal",
     relative = "editor",
     border = opts.border,
@@ -63,7 +63,11 @@ function M.float_win(opts)
 
   -- Handle auto-resize
   vim.api.nvim_create_autocmd("VimResized", {
-    callback = _resize,
+    callback = function()
+      if vim.api.nvim_win_is_valid(win) then
+        _resize(win, opts)
+      end
+    end,
     buffer = bufnr,
     desc = "Auto resize floating window",
   })

@@ -1,3 +1,13 @@
+-- root_dir can be nil under the vim.lsp.config model; fall back to the first
+-- workspace folder so [tool.ty] detection keeps working.
+local function client_root(client)
+  if client.root_dir then
+    return client.root_dir
+  end
+  local folder = client.workspace_folders and client.workspace_folders[1]
+  return folder and vim.uri_to_fname(folder.uri) or nil
+end
+
 -- Check if pyproject.toml contains [tool.ty] section, cached per root_dir
 local _cache = {}
 local function has_tool_ty(root_dir)
@@ -30,13 +40,13 @@ return {
     -- Only show diagnostics when [tool.ty] is configured in pyproject.toml
     ["textDocument/publishDiagnostics"] = function(err, result, ctx)
       local client = vim.lsp.get_client_by_id(ctx.client_id)
-      if client and has_tool_ty(client.root_dir) then
+      if client and has_tool_ty(client_root(client)) then
         vim.lsp.diagnostic.on_publish_diagnostics(err, result, ctx)
       end
     end,
     ["textDocument/diagnostic"] = function(err, result, ctx)
       local client = vim.lsp.get_client_by_id(ctx.client_id)
-      if client and has_tool_ty(client.root_dir) then
+      if client and has_tool_ty(client_root(client)) then
         return vim.lsp.diagnostic.on_diagnostic(err, result, ctx)
       end
       return { kind = "full", items = {} }

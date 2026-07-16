@@ -1,7 +1,4 @@
 ---@diagnostic disable: duplicate-set-field
--- Investigate:
--- https://github.com/cshuaimin/ssr.nvim
--- https://github.com/monaqa/dial.nvim
 
 return {
   --------- UI ---------
@@ -57,7 +54,7 @@ return {
         inactive = { button = "" },
       },
       maximum_padding = 1,
-      -- avoid scratch buffer display from null-ls:
+      -- hide empty-named scratch buffers:
       no_name_title = "",
       exclude_name = { "" },
       exclude_ft = { "dap-repl", "dap-view" },
@@ -79,7 +76,7 @@ return {
   },
   {
     "stevearc/dressing.nvim",
-    lazy = false,
+    event = "VeryLazy",
     opts = {
       builtin = { enabled = false },
       select = { enabled = false }, -- use fzf-lua register_ui_select instead
@@ -240,7 +237,7 @@ return {
   },
   {
     "echasnovski/mini.indentscope",
-    lazy = false,
+    event = { "BufReadPre", "BufNewFile" },
     opts = {
       mappings = {},
       draw = {
@@ -489,9 +486,7 @@ return {
     end,
   },
   {
-    "janko/vim-test",
-    -- dev = true,
-    pin = true,
+    "vim-test/vim-test",
     event = "VeryLazy",
     config = function()
       require("wax.plugcfg.vim-test")
@@ -499,6 +494,7 @@ return {
   },
   {
     "tpope/vim-sleuth", -- heuristic for setting shiftwidth and expandtab
+    event = { "BufReadPre", "BufNewFile" },
   },
   {
     "tpope/vim-eunuch", -- sugar for shell commands
@@ -543,13 +539,11 @@ return {
         desc = "Open diffview history on repository",
         mode = "n",
       },
-      { "<leader>gh", "<cmd>DiffviewFileHistory %<cr>", desc = "File history" },
       { "<leader>gh", ":'<,'>DiffviewFileHistory<cr>", mode = "v", desc = "Line range history" },
     },
   },
   {
     "ibhagwan/fzf-lua",
-    -- commit = "a8458b7",
     lazy = false, -- needed so register_ui_select runs before first vim.ui.select call
     config = function()
       require("wax.plugcfg.fzf")
@@ -687,8 +681,7 @@ return {
   },
   {
     "cbochs/grapple.nvim",
-    tag = "v0.30.0",
-    -- dev = true, -- use "~/src/grapple.nvim/"
+    tag = "v0.30.0", -- pinned: last known-good tag; bump deliberately and test scope switching
     lazy = false,
     config = function()
       require("wax.plugcfg.grapple")
@@ -828,7 +821,7 @@ return {
   },
   {
     "L3MON4D3/LuaSnip",
-    version = "v2.4.0",
+    version = "v2.4.0", -- pinned: stay on stable releases; bump deliberately and test snippets
     event = "VeryLazy",
     config = function()
       require("wax.plugcfg.luasnip")
@@ -841,7 +834,7 @@ return {
     dependencies = {
       { "linrongbin16/lsp-progress.nvim", opts = {} },
       { "saghen/blink.cmp" },
-      { "folke/neodev.nvim", opts = { experimental = { pathStrict = true } } },
+      { "folke/lazydev.nvim", ft = "lua", opts = {} },
       { -- mason
         "williamboman/mason.nvim",
         lazy = true,
@@ -926,7 +919,7 @@ return {
 
   {
     "saghen/blink.cmp",
-    version = "v1.10.1",
+    version = "v1.10.1", -- pinned: stay on stable releases; bump deliberately and test completion
     dependencies = {
       "mikavilpas/blink-ripgrep.nvim",
       "saghen/blink.compat",
@@ -953,7 +946,8 @@ return {
     -- Usage: NVIM_PROFILE=start nvim, then <leader>fP to stop & save.
     -- Read the trace: open https://ui.perfetto.dev and drag-drop the JSON file.
     "stevearc/profile.nvim",
-    lazy = false,
+    lazy = false, -- must instrument from startup, but only when profiling is requested
+    cond = os.getenv("NVIM_PROFILE") ~= nil,
     config = function()
       local should_profile = os.getenv("NVIM_PROFILE")
       if should_profile then

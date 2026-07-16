@@ -1,4 +1,4 @@
-local yamlls_settings = require("wax.lsp.servers.yamlls")
+local yamlls_settings = require("wax.lsp.yamlls")
 
 return {
   settings = {

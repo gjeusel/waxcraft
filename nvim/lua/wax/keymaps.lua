@@ -262,9 +262,6 @@ vim.keymap.set("n", "<leader>sm", function()
     ["Lazy Profile"] = function()
       require("lazy").profile()
     end,
-    ["Null-ls Info"] = function()
-      vim.cmd("NullLsInfo")
-    end,
     ["checkhealth"] = function()
       vim.cmd("checkhealth")
     end,

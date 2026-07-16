@@ -5,3 +5,11 @@ repos:
     rev: v8.24.2
     hooks:
       - id: gitleaks
+  - repo: local
+    hooks:
+      - id: stylua-check
+        name: stylua --check (nvim config)
+        language: system
+        entry: stylua --check nvim/
+        files: ^nvim/.*\.lua$
+        pass_filenames: false

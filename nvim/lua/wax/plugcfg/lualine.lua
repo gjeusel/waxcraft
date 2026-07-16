@@ -154,6 +154,22 @@ local function get_class_function_loc()
   end
 end
 
+-- Walking the treesitter tree is not free and runs on every statusline
+-- refresh: cache per (buffer, cursor line, changedtick).
+local _loc_cache = {}
+local function cached_class_function_loc()
+  local buf = vim.api.nvim_get_current_buf()
+  local line = vim.api.nvim_win_get_cursor(0)[1]
+  local tick = vim.b[buf].changedtick
+  local c = _loc_cache
+  if c.buf == buf and c.line == line and c.tick == tick then
+    return c.val
+  end
+  local val = get_class_function_loc()
+  _loc_cache = { buf = buf, line = line, tick = tick, val = val }
+  return val
+end
+
 require("lualine").setup({
   options = {
     icons_enabled = true,
@@ -184,7 +200,7 @@ require("lualine").setup({
       function()
         return require("dap").status()
       end,
-      get_class_function_loc,
+      cached_class_function_loc,
       -- function()
       --   local ok, node = pcall(vim.treesitter.get_node)
       --   if ok then

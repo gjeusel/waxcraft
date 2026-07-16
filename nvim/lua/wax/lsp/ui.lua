@@ -27,7 +27,6 @@ vim.lsp.protocol.CompletionItemKind = {
   "   (TypeParameter)",
 }
 
-
 vim.diagnostic.config({
   -- virtual_text = {
   --   prefix = "‣",

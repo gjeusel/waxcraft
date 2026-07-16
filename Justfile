@@ -46,3 +46,9 @@ stow-install:
 [group('dotfiles')]
 stow-delete:
     stow --verbose --no-folding --dir {{ justfile_dir }}/dotfiles/ --target ~/ --delete $(ls {{ justfile_dir }}/dotfiles)
+
+# Check nvim config: formatting + headless load smoke test
+[group('nvim')]
+nvim-check:
+    stylua --check {{ justfile_dir }}/nvim/
+    nvim --headless +'lua print("config loaded OK")' +qa!

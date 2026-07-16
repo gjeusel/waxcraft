@@ -1,1 +1,1 @@
-lua/wax/lsp/servers/yamlls.lua
+return require("wax.lsp.yamlls")
