@@ -1,18 +1,26 @@
 #!/usr/bin/env bash
 
-FILE_PATH=$(jq -r '.tool_input.file_path // .tool_input.filePath // empty' <<< "$HOOK_INPUT")
+# PostToolUse hook (Edit|Write): flag imports inside test functions.
+# Hook input is JSON on stdin.
+FILE_PATH=$(jq -r '.tool_input.file_path // empty' 2>/dev/null)
 
 # Only check Python test files
-if [[ -z "$FILE_PATH" || ! "$FILE_PATH" =~ \.py$ ]]; then
+if [[ -z "$FILE_PATH" || ! -f "$FILE_PATH" ]]; then
   exit 0
 fi
 
-basename=$(basename "$FILE_PATH")
-if [[ ! "$basename" =~ ^test_.*\.py$|_test\.py$ ]]; then
+filename=$(basename "$FILE_PATH")
+if ! echo "$filename" | grep -qE '^(test_.*|.*_test)\.py$'; then
   exit 0
 fi
 
-VIOLATIONS=$(grep -En '^[[:space:]]+(import |from .* import )' "$FILE_PATH" 2>/dev/null || true)
+# Flag indented imports, skipping known-legitimate blocks
+# (if TYPE_CHECKING: and try/except ImportError guards).
+VIOLATIONS=$(awk '
+  /^if TYPE_CHECKING:/ || /^try:/ { guard = 1 }
+  /^[^[:space:]]/ && !/^if TYPE_CHECKING:/ && !/^try:/ { guard = 0 }
+  !guard && /^[[:space:]]+(import |from [^[:space:]]+ import )/ { print NR": "$0 }
+' "$FILE_PATH")
 
 if [[ -n "$VIOLATIONS" ]]; then
   echo "Dynamic imports detected in test file $FILE_PATH:" >&2

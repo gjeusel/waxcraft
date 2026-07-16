@@ -1,12 +1,8 @@
 #!/usr/bin/env bash
 
-# Only format if the file was actually modified by Write, Edit, or MultiEdit tools
-case "$CLAUDE_TOOL_NAME" in
-  Write|Edit|MultiEdit) ;;
-  *) exit 0 ;;
-esac
-
-file_path=$(echo "$CLAUDE_TOOL_ARGS" | jq -r '.file_path // empty')
+# PostToolUse hook (Edit|Write): auto-format the edited file.
+# Hook input is JSON on stdin.
+file_path=$(jq -r '.tool_input.file_path // empty' 2>/dev/null)
 
 if [[ -z "$file_path" || ! -f "$file_path" ]]; then
   exit 0
@@ -16,8 +12,16 @@ extension="${file_path##*.}"
 
 case ".$extension" in
   .py)
-    ruff check --fix "$file_path" 2>/dev/null && echo "ruff check --fix $file_path"
-    ruff format "$file_path" 2>/dev/null && echo "ruff format $file_path"
+    # ruff may not be installed globally; fall back to uvx
+    if command -v ruff >/dev/null 2>&1; then
+      RUFF=(ruff)
+    elif command -v uvx >/dev/null 2>&1; then
+      RUFF=(uvx ruff)
+    else
+      exit 0
+    fi
+    "${RUFF[@]}" check --fix "$file_path" >/dev/null 2>&1 && echo "ruff check --fix $file_path"
+    "${RUFF[@]}" format "$file_path" >/dev/null 2>&1 && echo "ruff format $file_path"
     ;;
   .rs)
     rustfmt "$file_path" 2>/dev/null && echo "rustfmt $file_path"
@@ -37,27 +41,22 @@ case ".$extension" in
       dir=$(dirname "$dir")
     done
 
-    use_oxfmt=false
-    use_oxlint=false
+    has_dep() {
+      jq -e --arg d "$1" '.devDependencies[$d] // .dependencies[$d]' "$project_root/package.json" >/dev/null 2>&1
+    }
+
     if [[ -n "$project_root" ]]; then
-      if jq -e '.devDependencies.oxfmt // .dependencies.oxfmt' "$project_root/package.json" >/dev/null 2>&1; then
-        use_oxfmt=true
+      if has_dep oxfmt; then
+        oxfmt "$file_path" >/dev/null 2>&1 && echo "oxfmt $file_path"
+      elif has_dep prettier; then
+        prettier --write "$file_path" >/dev/null 2>&1 && echo "prettier --write $file_path"
       fi
-      if jq -e '.devDependencies.oxlint // .dependencies.oxlint' "$project_root/package.json" >/dev/null 2>&1; then
-        use_oxlint=true
+
+      if has_dep oxlint; then
+        oxlint --fix "$file_path" >/dev/null 2>&1 && echo "oxlint --fix $file_path"
+      elif has_dep eslint; then
+        eslint --fix "$file_path" >/dev/null 2>&1 && echo "eslint --fix $file_path"
       fi
-    fi
-
-    if $use_oxfmt; then
-      oxfmt "$file_path" 2>/dev/null && echo "oxfmt $file_path"
-    elif prettier --write "$file_path" 2>/dev/null; then
-      echo "prettier --write $file_path"
-    fi
-
-    if $use_oxlint; then
-      oxlint --fix "$file_path" 2>/dev/null && echo "oxlint --fix $file_path"
-    elif eslint --fix "$file_path" 2>/dev/null; then
-      echo "eslint --fix $file_path"
     fi
     ;;
 esac

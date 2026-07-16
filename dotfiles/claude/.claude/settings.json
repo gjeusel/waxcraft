@@ -18,7 +18,7 @@
       "Bash(git rev-parse *)",
       "Bash(glab issue create *)",
       "Bash(glab issue update *)",
-      "Bash(glab mr view *)",
+      "Bash(glab mr *)",
       "Bash(gh pr view *)",
       "Bash(gh pr diff *)",
       "Bash(gh pr list *)",
@@ -133,6 +133,7 @@
       "Bash(kubectl explain *)",
       "Bash(helm lint *)",
       "Bash(helm template *)",
+      "Bash(rm * /tmp/*)",
       "mcp__plugin_context7_context7__resolve-library-id",
       "mcp__plugin_context7_context7__query-docs",
       "mcp__plugin_sentry_sentry__get_issue_details",
@@ -176,7 +177,7 @@
       "Grep(~/opt/miniconda3/**)",
       "Grep(~/opt/miniconda3)",
       "Read(/tmp)",
-      "Write(/tmp)",
+      "Edit(/tmp)",
       "Skill(skill-creator)",
       "Skill(zefire-model)",
       "Skill(slack-gif-creator)",
@@ -203,6 +204,7 @@
     ],
     "ask": [
       "Bash(rm *)",
+      "Bash(mv *)",
       "Bash(curl *)",
       "Bash(wget *)",
       "Bash(http *)",
@@ -277,7 +279,7 @@
       }
     }
   },
-  "effortLevel": "low",
+  "effortLevel": "high",
   "promptSuggestionEnabled": false,
   "tui": "fullscreen",
   "skipDangerousModePermissionPrompt": true,
