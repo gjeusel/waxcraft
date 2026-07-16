@@ -293,7 +293,7 @@
 
     # Force macOS to re-read symbolic hotkeys settings immediately
     # This applies changes from CustomUserPreferences com.apple.symbolichotkeys
-    # without requiring logout/restart
-    /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
+    # without requiring logout/restart (must run in the user's session, not root's)
+    launchctl asuser "$(id -u -- ${config.system.primaryUser})" sudo --user=${config.system.primaryUser} -- /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
   '';
 }

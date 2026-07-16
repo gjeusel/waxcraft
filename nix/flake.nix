@@ -23,10 +23,6 @@
       url = "github:homebrew/homebrew-cask";
       flake = false;
     };
-    homebrew-services = {
-      url = "github:homebrew/homebrew-services";
-      flake = false;
-    };
     homebrew-bundle = {
       url = "github:homebrew/homebrew-bundle";
       flake = false;
@@ -48,7 +44,6 @@
     nix-homebrew,
     homebrew-core,
     homebrew-cask,
-    homebrew-services,
     homebrew-bundle,
     # nikitabobko-tap,
     googleworkspace-cli,
@@ -67,7 +62,6 @@
         overlays = builtins.attrValues (import "${self}/overlays.nix");
         config = {
           allowUnfree = true;
-          allowBroken = true;
         };
         hostPlatform = "aarch64-darwin"; # The platform the configuration will be used on.
       };

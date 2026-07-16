@@ -18,7 +18,7 @@ The main `flake.nix` serves as the entry point and imports modular configuration
 - **preferences.nix**: macOS system defaults (dock, finder, NSGlobalDomain, security settings)
 - **system-scripts.nix**: Activation scripts that run on system rebuild (file associations, app aliases)
 - **keymaps.nix**: Keyboard remapping configuration (currently empty but available for custom mappings)
-- **postgres.nix**: PostgreSQL configuration (commented out in main flake due to nix-darwin limitations)
+- **postgres.nix**: PostgreSQL 16 via nix-darwin `services.postgresql`, with a one-shot launchd agent that creates users/databases/extensions (workaround for missing `ensureDatabases`/`ensureUsers` support)
 
 ### Key Design Decisions
 
@@ -34,7 +34,7 @@ Packages are split by installation method:
 
 - **Nix packages** (pkgs.nix): Development tools, formatters, LSPs, some GUI apps
 - **Homebrew casks** (homebrew.nix): Apps requiring launchd integration or not available in nixpkgs
-- **Homebrew brews** (homebrew.nix): Services like postgresql@16, redis, meilisearch
+- **Homebrew brews** (homebrew.nix): Services like redis, meilisearch (postgresql runs via nix-darwin, see postgres.nix)
 - **Mac App Store** (homebrew.nix): Apps only available via App Store (currently just Xcode)
 
 **Note on launchd**: Due to nix-darwin launchd issues on macOS Sequoia (see [issue #1255](https://github.com/nix-darwin/nix-darwin/issues/1255)), apps requiring Login Items (raycast, aerospace, karabiner-elements, ghostty) are installed via Homebrew instead of nixpkgs.
@@ -90,12 +90,7 @@ Common use cases:
 
 ### PostgreSQL Configuration
 
-`postgres.nix` is commented out in the main flake because nix-darwin doesn't fully support:
-- `initialScript`
-- `ensureDatabases`
-- `ensureUsers`
-
-See [nix-darwin#339](https://github.com/nix-darwin/nix-darwin/issues/339). PostgreSQL is currently managed via Homebrew brew (`postgresql@16`).
+PostgreSQL 16 is managed by nix-darwin via `postgres.nix` (imported in `flake.nix`); the Homebrew `postgresql@16` brew is commented out. Since nix-darwin doesn't support `initialScript`, `ensureDatabases`, or `ensureUsers` (see [nix-darwin#339](https://github.com/nix-darwin/nix-darwin/issues/339)), a separate one-shot launchd agent (`postgresql-init`) creates the users, databases, and extensions after postgres starts. It runs once and drops a `.databases_initialized` marker file in the data dir; delete the marker to re-run it.
 
 ### Keyboard Shortcuts
 

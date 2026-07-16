@@ -2,12 +2,11 @@
   config,
   pkgs,
   ...
-}: {
-  # NOTE: - nix-darwin is only letting a limited activationScripts namespaces
-  #         see: https://github.com/nix-darwin/nix-darwin/blob/73d59580d01e9b9f957ba749f336a272869c42dd/modules/system/activation-scripts.nix#L149
-  #       - we use "postUserActivation" to not launch the commands as root, but rather as the user
-
-  system.activationScripts.postActivation.text = ''
+}: let
+  # NOTE: postActivation runs as root, but defaults/duti/xattr are per-user tools.
+  #       Re-enter the primary user's context the same way nix-darwin does for
+  #       system.defaults (launchctl asuser + sudo --user).
+  userActivationScript = pkgs.writeShellScript "user-post-activation" ''
     # Disable Cmd+M minimize window shortcut
     /usr/bin/defaults write -g NSUserKeyEquivalents -dict-add "Minimize" "\\0"
 
@@ -51,5 +50,8 @@
       ${pkgs.duti}/bin/duti -s com.microsoft.Excel "$ext" all
     done
   '';
-
+in {
+  system.activationScripts.postActivation.text = ''
+    launchctl asuser "$(id -u -- ${config.system.primaryUser})" sudo --user=${config.system.primaryUser} -- ${userActivationScript}
+  '';
 }

@@ -129,14 +129,12 @@
 
     coreutils
 
-    ghostscript # pdf compression
     pngquant # png compression
     jbig2enc # jpeg compression
     ocrmypdf # pdf compression
 
     # ----- build nvim from sources -----
     ninja
-    cmake
     gettext # required for msgfmt
     libiconv # required for libintl
     curl

@@ -23,6 +23,12 @@
 - For any interaction with sentry, use the MCP
 - ALWAYS use `jq` for JSON parsing, filtering, and transformation in shell commands
 
+### Gmail — two mailboxes, two access paths
+
+- `support@renewex.co` → use the **Gmail MCP** tools (`mcp__claude_ai_Gmail__*`)
+- `guillaume.jeusel@renewex.co` → use the **gws CLI** (`gws gmail ...`, see gws-gmail skills)
+- If a message/thread ID is "not found" with one path, it likely belongs to the other mailbox — try the other tool before concluding the email is inaccessible.
+
 # Explore settings
 
 - When trying to explore external codebase, check first if it is not available in ~/src

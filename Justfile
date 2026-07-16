@@ -4,6 +4,12 @@ justfile_dir := justfile_directory()
 default:
     @just --list
 
+# Evaluate and build the system without switching (safe pre-flight for `just up`)
+[group('nix')]
+check:
+    nix flake check {{ justfile_dir }}/nix
+    nix build {{ justfile_dir }}/nix#darwinConfigurations.wax.system --no-link
+
 # Run darwin-rebuild and switch
 [group('nix')]
 up:
