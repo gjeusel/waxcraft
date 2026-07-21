@@ -715,6 +715,13 @@ return {
     event = "VeryLazy",
   },
   {
+    "monaqa/dial.nvim",
+    keys = { "<C-a>", "<C-x>", { "<C-a>", mode = "v" }, { "<C-x>", mode = "v" } },
+    config = function()
+      require("wax.plugcfg.dial")
+    end,
+  },
+  {
     "kylechui/nvim-surround",
     event = "VeryLazy",
     init = function()
