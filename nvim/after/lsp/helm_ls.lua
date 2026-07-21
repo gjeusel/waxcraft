@@ -5,9 +5,11 @@ return {
     ["helm-ls"] = {
       yamlls = {
         enabled = true,
-        config = vim.tbl_extend("keep", {
-          schemas = { kubernetes = "templates/**" },
-        }, yamlls_settings.settings.yaml),
+        config = vim.tbl_deep_extend("force", yamlls_settings.settings.yaml, {
+          schemas = {
+            ["https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master-standalone/_definitions.json"] = "templates/**",
+          },
+        }),
       },
     },
   },

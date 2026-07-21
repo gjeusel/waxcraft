@@ -14,7 +14,12 @@ return {
       },
       -- schemaStore = { enable = true },
       schemas = {
-        kubernetes = { "cloud-renewex/**/*.yaml", "!cloud-renewex/**/*values.yaml" },
+        -- non-strict variant: the "-strict" schema rejects any property not in
+        -- core k8s kinds, which breaks on CRDs and Helm-rendered custom fields.
+        ["https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master-standalone/_definitions.json"] = {
+          "cloud-renewex/**/*.yaml",
+          "!cloud-renewex/**/*values.yaml",
+        },
         ["http://json.schemastore.org/github-workflow"] = ".github/workflows/*",
         ["http://json.schemastore.org/github-action"] = ".github/action.{yml,yaml}",
         ["http://json.schemastore.org/ansible-stable-2.9"] = "roles/tasks/*.{yml,yaml}",
