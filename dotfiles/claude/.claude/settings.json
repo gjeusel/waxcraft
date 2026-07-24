@@ -198,6 +198,8 @@
       "Edit(**/*.tfvars)",
       "Read(~/src/ops/**)",
       "Read(~/src/ops)",
+      "Read(**/.*history)",
+      "Bash(*.*history*)",
       "Bash(printenv*)",
       "Bash(env)",
       "Bash(*dotenv*)",
@@ -213,7 +215,7 @@
     ],
     "defaultMode": "auto"
   },
-  "model": "claude-fable-5[1m]",
+  "model": "opus[1m]",
   "hooks": {
     "PreToolUse": [
       {
