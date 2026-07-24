@@ -25,6 +25,24 @@ local p = {
   purple = hsl("#b48ead"),
 }
 
+-- Simulate an alpha channel: blend `color` at `alpha` opacity over `base`.
+-- Done in RGB space because lush's .mix() interpolates in HSL and rotates
+-- the hue (red mixed toward the bluish night0 turns violet).
+local function blend(color, base, alpha)
+  local function rgb(c)
+    local hex = tostring(c)
+    return tonumber(hex:sub(2, 3), 16), tonumber(hex:sub(4, 5), 16), tonumber(hex:sub(6, 7), 16)
+  end
+  local r1, g1, b1 = rgb(color)
+  local r2, g2, b2 = rgb(base)
+  return hsl(string.format(
+    "#%02x%02x%02x",
+    math.floor(r1 * alpha + r2 * (1 - alpha) + 0.5),
+    math.floor(g1 * alpha + g2 * (1 - alpha) + 0.5),
+    math.floor(b1 * alpha + b2 * (1 - alpha) + 0.5)
+  ))
+end
+
 local theme = lush(function(injected_functions)
   local sym = injected_functions.sym
 
@@ -42,10 +60,13 @@ local theme = lush(function(injected_functions)
     Substitute     { bg=p.orange.darken(55)}, -- |:substitute| replacement text highlighting
 
     -- Git
-    DiffAdd        { bg=p.green.darken(75), blend=80 }, -- Diff mode: Added line |diff.txt|
-    DiffChange     { bg=p.yellow.darken(75) }, -- Diff mode: Changed line |diff.txt|
-    DiffDelete     { bg=p.red.darken(75) }, -- Diff mode: Deleted line |diff.txt|
-    DiffText       { bg=p.frost2.darken(70) }, -- Diff mode: Changed text within a changed line |diff.txt|
+    DiffAdd        { bg=blend(p.green, p.night0, 0.20) }, -- Diff mode: Added line |diff.txt|
+    DiffChange     { }, -- Diff mode: Changed line |diff.txt|
+    DiffDelete     { bg=blend(p.red, p.night0, 0.20) }, -- Diff mode: Deleted line |diff.txt|
+    DiffText       { bg=blend(p.yellow, p.night0, 0.30) }, -- Diff mode: Changed text within a changed line |diff.txt|
+    -- Classic diff look: tint the whole changed line, emphasize changed text in blue
+    -- DiffChange  { bg=blend(p.yellow, p.night0, 0.15) },
+    -- DiffText    { bg=blend(p.frost2, p.night0, 0.30) },
 
     ErrorMsg       { fg=p.red }, -- Error messages on the command line
     VertSplit      { fg=p.storm0 }, -- Column separating vertically split windows
