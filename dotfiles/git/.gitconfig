@@ -1,7 +1,13 @@
 [user]
-	# email = jeusel.guillaume@gmail.com
-	email = guillaume.jeusel@renewex.co
 	name = Jeusel Guillaume
+	email = jeusel.guillaume@gmail.com
+
+# Professional identity: work is hosted on gitlab.com only.
+# Overrides user.email with the renewex one (see ~/.gitconfig-work).
+[includeIf "hasconfig:remote.*.url:git@gitlab.com:*/**"]
+	path = ~/.gitconfig-work
+[includeIf "hasconfig:remote.*.url:https://gitlab.com/**"]
+	path = ~/.gitconfig-work
 
 [core]
 	editor = nvim
@@ -9,10 +15,14 @@
 
 [merge]
 	tool = vimdiff
+	# conflict markers with a 3rd section showing the common ancestor
+	conflictstyle = zdiff3
 [mergetool]
 	prompt = false
+	# don't litter *.orig backup files after resolving conflicts
+	keepBackup = false
 [mergetool "vimdiff"]
-	cmd = nvim -d $LOCAL $REMOTE $MERGED -c '$wincmd w' -c 'wincmd J'
+	cmd = nvim -d \"$LOCAL\" \"$REMOTE\" \"$MERGED\" -c '$wincmd w' -c 'wincmd J'
 
 [difftool]
 	prompt=false
@@ -22,19 +32,45 @@
 [pull]
 	rebase = false
 
+[rebase]
+	# auto stash/unstash uncommitted changes around a rebase
+	autostash = true
+
+[rerere]
+	# remember how conflicts were resolved and replay the resolution if seen again
+	enabled = true
+
+[branch]
+	# `git branch` sorted by most recent commit instead of alphabetically
+	sort = -committerdate
+
 [init]
 	defaultBranch = main
 
 [push]
 	autoSetupRemote = true
+
+[alias]
+    # `git log` with patches shown with difftastic.
+    dl = -c diff.external=difft log -p --ext-diff
+
+    # Show the most recent commit with difftastic.
+    ds = -c diff.external=difft show --ext-diff
+
+    # `git diff` with difftastic.
+    dft = -c diff.external=difft diff
+
 [diff]
 	tool = vimdiff
-[difftool "vimdiff"]
-	cmd = nvim -d \"$LOCAL\" \"$REMOTE\"
+	# slower but more readable hunks than the default myers algorithm
+	algorithm = histogram
 
 # [diff]
 # 	tool = difftastic
 # 	external = difft
-# [difftool "difftastic"]
-# 	cmd = difft --display inline --color always "$LOCAL" "$REMOTE"
 
+[difftool "vimdiff"]
+	cmd = nvim -d \"$LOCAL\" \"$REMOTE\"
+
+[difftool "difftastic"]
+	cmd = difft --display inline --color always "$LOCAL" "$REMOTE"
