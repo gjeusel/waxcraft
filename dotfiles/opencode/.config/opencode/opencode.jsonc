@@ -1,0 +1,438 @@
+// opencode global config — https://opencode.ai/docs/config/
+//
+// Differences from Claude Code worth knowing:
+// - JSONC is natively supported (comments + trailing commas), unlike
+//   ~/.claude/settings.json which is strict JSON.
+// - Configs are *merged*, not replaced: remote < this file < OPENCODE_CONFIG
+//   < project opencode.json < .opencode dirs. Project config can be committed.
+// - Rules file is AGENTS.md (global: ~/.config/opencode/AGENTS.md). When no
+//   native file exists, opencode falls back to ~/.claude/CLAUDE.md — so the
+//   stowed Claude instructions are picked up as-is, nothing to duplicate here.
+// - Custom commands live in ~/.config/opencode/command/*.md (vs ~/.claude/commands),
+//   custom agents in ~/.config/opencode/agent/*.md (vs ~/.claude/agents).
+// - package.json / bun.lock / node_modules in this directory are managed by
+//   opencode itself (plugin deps) — they stay unmanaged real files, only this
+//   config and themes/ are stowed from waxcraft.
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  // Models are namespaced "provider/model" — opencode is provider-agnostic
+  // (75+ providers via models.dev), unlike Claude Code's Anthropic-only "opus".
+  // Kimi K3 via Moonshot's own API: run `opencode auth login` → moonshotai
+  // (also on bedrock, but only K2.x is listed there as of now).
+  "model": "moonshotai/kimi-k3",
+  // Cheap model used for title generation & other small internal tasks.
+  // Luna = smallest tier of the GPT-5.6 family (Sol > Terra > Luna).
+  "small_model": "openai/gpt-5.6-luna",
+
+  // TUI-only settings (theme, keybinds, ...) live in ~/.config/opencode/tui.json
+  // — the custom "rnx-nord" theme (themes/rnx-nord.json) is set there.
+
+  // Sessions can be shared as public links (opencode.ai/s/...) — a feature
+  // Claude Code doesn't have. Keep it opt-in per session via /share.
+  "share": "manual",
+
+  // opencode ships as a standalone binary and self-updates by default.
+  "autoupdate": true,
+
+  // Permission model differs from Claude Code:
+  // - values are "allow" | "ask" | "deny" per tool, with glob patterns on the
+  //   tool input; the LAST matching rule wins (Claude Code: deny > ask > allow).
+  // - most tools default to "allow" (Claude Code defaults to asking), so the
+  //   "*": "ask" entries below re-create the cautious Claude Code behavior.
+  // - .env / .env.* files are blocked by default (except *.env.example) — no
+  //   need for the explicit env-file deny rules carried in Claude settings.
+  //   The envsitter-guard plugin hardens this further and adds safe env
+  //   inspection tools (list keys, validate) that never reveal values.
+  "permission": {
+    "bash": {
+      "*": "ask",
+      // git: read + local write ops, never push (mirrors claude settings.json)
+      "git status *": "allow",
+      "git log *": "allow",
+      "git diff *": "allow",
+      "git branch *": "allow",
+      "git show *": "allow",
+      "git blame *": "allow",
+      "git stash *": "allow",
+      "git add *": "allow",
+      "git commit *": "allow",
+      "git rev-parse *": "allow",
+      // forges (read-mostly)
+      "gh pr *": "allow",
+      "gh issue *": "allow",
+      "gh api *": "allow",
+      "gh repo view *": "allow",
+      "gh run *": "allow",
+      "gh search *": "allow",
+      "glab mr *": "allow",
+      "glab issue *": "allow",
+      // js toolchain
+      "pnpm *": "allow",
+      "npm *": "allow",
+      "npx vitest *": "allow",
+      "npx tsc *": "allow",
+      "npx vue-tsc *": "allow",
+      "npx eslint *": "allow",
+      "npx oxlint *": "allow",
+      "npx prettier *": "allow",
+      "npx oxfmt *": "allow",
+      "npx nuxt *": "allow",
+      "npx nuxi *": "allow",
+      // python toolchain
+      "uv *": "allow",
+      "uvx *": "allow",
+      "pytest *": "allow",
+      "ruff *": "allow",
+      "mypy *": "allow",
+      "pre-commit *": "allow",
+      "prek *": "allow",
+      "pip install *": "allow",
+      "pip show *": "allow",
+      "pip list *": "allow",
+      // k8s: deny-by-default FIRST, read verbs re-allowed after (last
+      // matching rule wins) — no mutation ever runs, not even via "ask"
+      "kubectl *": "deny",
+      "kubectl get *": "allow",
+      "kubectl logs *": "allow",
+      "kubectl describe *": "allow",
+      "kubectl top *": "allow",
+      "kubectl explain *": "allow",
+      "kubectl version*": "allow",
+      "helm *": "deny",
+      "helm lint *": "allow",
+      "helm template *": "allow",
+      "helm list *": "allow",
+      "helm get *": "allow",
+      "helm status *": "allow",
+      "helm history *": "allow",
+      // misc read-only / harmless
+      "make *": "allow",
+      "jq *": "allow",
+      "which *": "allow",
+      "pwd": "allow",
+      "ls *": "allow",
+      "tree *": "allow",
+      "find *": "allow",
+      "grep *": "allow",
+      "rg *": "allow",
+      "cat *": "allow",
+      "head *": "allow",
+      "tail *": "allow",
+      "wc *": "allow",
+      "diff *": "allow",
+      "sort *": "allow",
+      "uniq *": "allow",
+      "cut *": "allow",
+      "tr *": "allow",
+      "sed *": "allow",
+      "awk *": "allow",
+      "xargs *": "allow",
+      "stat *": "allow",
+      "file *": "allow",
+      "echo *": "allow",
+      "date *": "allow",
+      // destructive / network / secret-leaking — last rules win over the above
+      "rm *": "ask",
+      "mv *": "ask",
+      "curl *": "ask",
+      "wget *": "ask",
+      "sudo *": "deny",
+      "env": "deny",
+      "printenv *": "deny",
+      // env-dump synonyms — same secrets, different spelling
+      "set": "deny",
+      "export": "deny",
+      "export -p*": "deny",
+      "declare -p*": "deny",
+      "typeset -p*": "deny",
+      // shell history can contain pasted tokens (mirrors claude settings)
+      "*.*history*": "deny",
+      // credential stores — substring matches: any command mentioning these
+      // paths is blocked whatever the binary (cat/grep/jq/...); placed last
+      // so they win over the allows above
+      "*.ssh/*": "deny",
+      "*.aws/*": "deny",
+      "*.gnupg/*": "deny",
+      "*.kube/config*": "deny",
+      "*.netrc*": "deny",
+      "*.npmrc*": "deny",
+      "*.pypirc*": "deny",
+      "*.git-credentials*": "deny",
+      "*.docker/config.json*": "deny",
+      "*.password-store/*": "deny",
+      "*gcloud/*": "deny",
+      "*gh/hosts.yml*": "deny",
+      "*glab-cli/*": "deny",
+      "*.claude.json*": "deny",
+      "*opencode/auth.json*": "deny",
+      "*Keychains/*": "deny",
+      // macOS keychain CLI can print stored passwords
+      "security find*": "deny",
+      "security dump*": "deny",
+      "security export*": "deny",
+      "*.tfvars*": "deny",
+      // private file — read/edit already deny it, but bash allows cat/head/jq
+      // etc.; this substring match closes the hole for any command mentioning
+      // it (placed last: last matching rule wins)
+      "*renewex.yaml*": "deny"
+    },
+    // Forbidden files are defined HERE (single source of truth): the
+    // opencode-ignore plugin only reads a project-root `.ignore` file
+    // (gitignore syntax) — use that for per-repo excludes, but these
+    // user-level paths can't live there.
+    // Path patterns are matched against the path AS PASSED to the tool
+    // (verified empirically): "**/x" misses relative "x" in the cwd, and
+    // "~/..."-anchored rules miss relative references. Leading-* patterns
+    // match both spellings since * crosses slashes — same trick as the
+    // built-in .env rules.
+    "edit": {
+      "*": "allow",
+      "*.tfvars": "deny",
+      "*renewex.yaml": "deny",
+      // don't let a session plant credentials or ssh access
+      "*.ssh/*": "deny",
+      "*.aws/*": "deny",
+      "*.claude.json": "deny",
+      "*opencode/auth.json": "deny",
+      "*.*history": "deny"
+    },
+    "read": {
+      "*": "allow",
+      "*.tfvars": "deny",
+      "*renewex.yaml": "deny",
+      "*src/ops/*": "deny",
+      // shell history can contain pasted tokens
+      "*.*history": "deny",
+      // credential stores & secret-bearing files
+      "*.ssh/*": "deny",
+      "*.aws/*": "deny",
+      "*.gnupg/*": "deny",
+      "*.kube/*": "deny",
+      "*.netrc": "deny",
+      "*.npmrc": "deny",
+      "*.pypirc": "deny",
+      "*.git-credentials": "deny",
+      "*.docker/config.json": "deny",
+      "*.password-store/*": "deny",
+      "*gcloud/*": "deny",
+      "*gh/hosts.yml": "deny",
+      "*glab-cli/*": "deny",
+      "*.claude.json": "deny",
+      "*.claude/.credentials.json": "deny",
+      "*opencode/auth.json": "deny",
+      "*Keychains/*": "deny",
+      // private keys & cert bundles wherever they live
+      "*.pem": "deny",
+      "*.p12": "deny",
+      "*.pfx": "deny",
+      "*id_rsa*": "deny",
+      "*id_ed25519*": "deny",
+      "*id_ecdsa*": "deny"
+    },
+    // Paths outside the project default to "ask" in opencode (Claude Code has
+    // no such concept — it relies on Read()/Grep() path rules instead).
+    "external_directory": {
+      "*": "ask",
+      "~/src/**": "allow",
+      "~/.claude/skills/**": "allow",
+      // macOS: /tmp is a symlink to /private/tmp — cover both spellings
+      "/tmp/**": "allow",
+      "/private/tmp/**": "allow"
+    },
+    "webfetch": "ask"
+  },
+
+  // Claude Code "auto mode" equivalent: Tab cycles primary agents in the TUI,
+  // so switch build → auto mid-session to stop the permission prompts, and
+  // Tab back for risky stretches. Everything is auto-approved EXCEPT the
+  // explicit denies, which are redeclared here (agent permissions may replace
+  // the global block per tool, so don't rely on inheritance for denies).
+  "agent": {
+    "auto": {
+      "mode": "primary",
+      "description": "Auto-approve mode — asks nothing, denies still apply",
+      // Agent rules are APPENDED AFTER the global ones and last match wins
+      // (verified empirically): this agent's "*": "allow" entries override
+      // every global deny — so all denies must be re-declared here, keep
+      // both lists in sync.
+      "permission": {
+        "bash": {
+          "*": "allow",
+          // non-read kubectl/helm stay blocked even in auto
+          "kubectl *": "deny",
+          "kubectl get *": "allow",
+          "kubectl logs *": "allow",
+          "kubectl describe *": "allow",
+          "kubectl top *": "allow",
+          "kubectl explain *": "allow",
+          "kubectl version*": "allow",
+          "helm *": "deny",
+          "helm lint *": "allow",
+          "helm template *": "allow",
+          "helm list *": "allow",
+          "helm get *": "allow",
+          "helm status *": "allow",
+          "helm history *": "allow",
+          "sudo *": "deny",
+          "env": "deny",
+          "printenv *": "deny",
+          "set": "deny",
+          "export": "deny",
+          "export -p*": "deny",
+          "declare -p*": "deny",
+          "typeset -p*": "deny",
+          "*.*history*": "deny",
+          "*.ssh/*": "deny",
+          "*.aws/*": "deny",
+          "*.gnupg/*": "deny",
+          "*.kube/config*": "deny",
+          "*.netrc*": "deny",
+          "*.npmrc*": "deny",
+          "*.pypirc*": "deny",
+          "*.git-credentials*": "deny",
+          "*.docker/config.json*": "deny",
+          "*.password-store/*": "deny",
+          "*gcloud/*": "deny",
+          "*gh/hosts.yml*": "deny",
+          "*glab-cli/*": "deny",
+          "*.claude.json*": "deny",
+          "*opencode/auth.json*": "deny",
+          "*Keychains/*": "deny",
+          "security find*": "deny",
+          "security dump*": "deny",
+          "security export*": "deny",
+          "*.tfvars*": "deny",
+          "*renewex.yaml*": "deny"
+        },
+        "edit": {
+          "*": "allow",
+          "*.tfvars": "deny",
+          "*renewex.yaml": "deny",
+          "*.ssh/*": "deny",
+          "*.aws/*": "deny",
+          "*.claude.json": "deny",
+          "*opencode/auth.json": "deny",
+          "*.*history": "deny"
+        },
+        "read": {
+          "*": "allow",
+          "*.tfvars": "deny",
+          "*renewex.yaml": "deny",
+          "*src/ops/*": "deny",
+          "*.*history": "deny",
+          "*.ssh/*": "deny",
+          "*.aws/*": "deny",
+          "*.gnupg/*": "deny",
+          "*.kube/*": "deny",
+          "*.netrc": "deny",
+          "*.npmrc": "deny",
+          "*.pypirc": "deny",
+          "*.git-credentials": "deny",
+          "*.docker/config.json": "deny",
+          "*.password-store/*": "deny",
+          "*gcloud/*": "deny",
+          "*gh/hosts.yml": "deny",
+          "*glab-cli/*": "deny",
+          "*.claude.json": "deny",
+          "*.claude/.credentials.json": "deny",
+          "*opencode/auth.json": "deny",
+          "*Keychains/*": "deny",
+          "*.pem": "deny",
+          "*.p12": "deny",
+          "*.pfx": "deny",
+          "*id_rsa*": "deny",
+          "*id_ed25519*": "deny",
+          "*id_ecdsa*": "deny"
+        },
+        "external_directory": "allow",
+        "webfetch": "allow"
+      }
+    }
+  },
+
+  // Formatters are BUILT-IN and run automatically after edits (prettier, ruff,
+  // gofmt, ... auto-detected per project) — this replaces the format_code.sh
+  // PostToolUse hook used in the Claude Code setup. Disable one like so:
+  // "formatter": { "prettier": { "disabled": true } },
+
+  // LSP servers are also built-in and auto-enabled per language (Claude Code
+  // needs the *-lsp plugins for this). Override/disable under "lsp": {...}.
+
+  // MCP servers — same as Claude Code's `claude mcp add` (user scope in
+  // ~/.claude.json), but declared here: "local" = stdio, "remote" = http/sse.
+  // Mirrors the Claude Code user-scope servers. Project-scoped ones
+  // (zefire, rnx-cli, ...) belong in each repo's own opencode.json.
+  // Claude.ai-hosted connectors (Gmail, Notion, Slack, ...) have no opencode
+  // equivalent — they live inside the claude.ai platform.
+  "mcp": {
+    "excalidraw": {
+      "type": "remote",
+      "url": "https://api.excalidraw.com/api/v1/mcp",
+      // config is committed to waxcraft → never inline the token; opencode
+      // substitutes {env:...}/{file:...} at load time (Claude Code can't).
+      "headers": {
+        "Authorization": "Bearer {env:EXCALIDRAW_MCP_TOKEN}"
+      }
+    },
+    "postgres": {
+      "type": "local",
+      "command": ["uvx", "postgres-mcp", "--access-mode=unrestricted"],
+      "environment": {
+        "DATABASE_URI": "postgresql://postgres@localhost:5432/zefire"
+      }
+    },
+    "chrome-devtools": {
+      "type": "local",
+      "command": ["npx", "-y", "chrome-devtools-mcp@latest"]
+    },
+    "playwright": {
+      "type": "local",
+      "command": ["npx", "@playwright/mcp@latest"]
+    }
+  },
+
+  // Agents: "build" (default, all tools) and "plan" (read-only-ish) are
+  // built-in *primary* agents — Tab switches between them in the TUI, similar
+  // to Claude Code's plan mode. Subagents (general/explore/scout) are invoked
+  // via @-mention or the task tool. Define extra ones here or as markdown in
+  // ~/.config/opencode/agent/<name>.md.
+  // "agent": {
+  //   "review": {
+  //     "mode": "subagent",
+  //     "description": "Reviews code for quality without making edits",
+  //     "permission": { "edit": "deny" }
+  //   }
+  // },
+
+  // Extra instruction files merged into context on top of AGENTS.md/CLAUDE.md;
+  // supports globs and URLs.
+  // "instructions": ["~/.claude/CLAUDE.md"],
+
+  // Plugins are npm packages (or local files in ~/.config/opencode/plugins/)
+  // hooking the event bus — the closest equivalent to Claude Code hooks +
+  // plugins. See plugins/skill-commands.js for the local one exposing skills
+  // as slash commands.
+  // Deps land in package.json next to this file, managed by opencode.
+  "plugin": [
+    // Loads Claude-style skill directories (reuses ~/.claude/skills).
+    "opencode-agent-skills",
+    // Runs the Claude Code hooks from ~/.claude/settings.json inside opencode
+    // (block_secrets.sh & co). NB: format_code.sh may double up with
+    // opencode's built-in formatters — disable one side if it gets noisy.
+    "opencode-hooks-plugin",
+    // Blocks destructive git/filesystem commands before execution.
+    "cc-safety-net",
+    // Real-time token usage & cost toasts (Kimi K3 is pay-per-token).
+    "opencode-token-tracker",
+    // Prunes obsolete tool outputs from context — cuts per-token costs.
+    "@tarquinen/opencode-dcp",
+    // Claude Code-compatible persistent memory (shared recall habits).
+    "opencode-claude-memory",
+    // Hides files matching a project-root `.ignore` (gitignore syntax) from
+    // read/edit/glob/grep/list — per-repo complement to the deny rules above.
+    "opencode-ignore",
+    // Blocks .env* access at the tool layer + safe inspection tools.
+    "envsitter-guard"
+  ]
+}
