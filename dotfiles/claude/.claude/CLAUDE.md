@@ -4,6 +4,7 @@
 - Use comments purposefully. Don't use comments to narrate code, but do use them to explain invariants and why something unusual was done a particular way.
 - NEVER add AI agent references in commits
 - NEVER PUSH YOURSELF ON THE MASTER/MAIN BRANCH
+- NEVER take git initiatives on your own — no creating branches, staging, committing, stashing, rebasing, or pushing unless I explicitly ask for it. Read-only git (status, diff, log) is fine.
 
 ### Python only
 
@@ -23,6 +24,12 @@
 
 - For any interaction with sentry, use the MCP
 - ALWAYS use `jq` for JSON parsing, filtering, and transformation in shell commands
+
+### Claude Code config files
+
+- `~/.claude/settings.json` is **strict JSON** — no JSONC, no comments.
+- Permission syntax is `Bash(cmd *)` (space-asterisk); `Bash(cmd:*)` (colon-asterisk) is the deprecated form.
+- Compound commands (`cd /path && git log`) need `Bash(cd *)` in the allow list too.
 
 ### Gmail — two mailboxes, two access paths
 
