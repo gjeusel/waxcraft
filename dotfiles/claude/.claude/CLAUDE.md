@@ -3,7 +3,7 @@
 - All changes must be tested. If you're not testing your changes, you're not done.
 - Use comments purposefully. Don't use comments to narrate code, but do use them to explain invariants and why something unusual was done a particular way.
 - NEVER add AI agent references in commits
-- NEVER PUSH YOURSELF ON THE MASTER/MAIN BRANCH
+- NEVER TAKE THE INITIATIVE TO PUSH YOURSELF ON THE MASTER/MAIN BRANCH. This is allowed only when the user explicitly asks for it.
 - NEVER take git initiatives on your own — no creating branches, staging, committing, stashing, rebasing, or pushing unless I explicitly ask for it. Read-only git (status, diff, log) is fine.
 
 ### Python only

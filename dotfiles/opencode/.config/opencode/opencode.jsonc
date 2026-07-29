@@ -48,6 +48,9 @@
     "bash": {
       "*": "ask",
       // git: read + local write ops, never push (mirrors claude settings.json)
+      // NB: patterns support only `*`/`?` — brace alternation
+      // ("git {log,diff} *") is NOT expanded and silently matches nothing, so
+      // every subcommand needs its own line.
       "git status *": "allow",
       "git log *": "allow",
       "git diff *": "allow",
@@ -58,6 +61,16 @@
       "git add *": "allow",
       "git commit *": "allow",
       "git rev-parse *": "allow",
+      // same read ops through `git -C <repo>` (patterns match the literal
+      // command string, so the -C form needs its own entries). Enumerated per
+      // subcommand on purpose: a blanket "git -C *" would also allow push.
+      "git -C * status *": "allow",
+      "git -C * log *": "allow",
+      "git -C * diff *": "allow",
+      "git -C * branch *": "allow",
+      "git -C * show *": "allow",
+      "git -C * blame *": "allow",
+      "git -C * rev-parse *": "allow",
       // forges (read-mostly)
       "gh pr *": "allow",
       "gh issue *": "allow",
@@ -365,30 +378,24 @@
   // (zefire, rnx-cli, ...) belong in each repo's own opencode.json.
   // Claude.ai-hosted connectors (Gmail, Notion, Slack, ...) have no opencode
   // equivalent — they live inside the claude.ai platform.
+  // Keep this list SHORT: every server's tool schemas ride along on EVERY
+  // request whether used or not. chrome-devtools (29 tools) + playwright (24)
+  // cost ~10k tokens/turn between them and were dropped for that reason;
+  // re-add behind "allowedTools": [...] to ship only the handful needed.
+  // For a remote server needing a token, never inline it — opencode substitutes
+  // {env:...}/{file:...} in headers at load time (Claude Code can't):
+  //   "excalidraw": {
+  //     "type": "remote",
+  //     "url": "https://api.excalidraw.com/api/v1/mcp",
+  //     "headers": { "Authorization": "Bearer {env:EXCALIDRAW_MCP_TOKEN}" }
+  //   },
   "mcp": {
-    "excalidraw": {
-      "type": "remote",
-      "url": "https://api.excalidraw.com/api/v1/mcp",
-      // config is committed to waxcraft → never inline the token; opencode
-      // substitutes {env:...}/{file:...} at load time (Claude Code can't).
-      "headers": {
-        "Authorization": "Bearer {env:EXCALIDRAW_MCP_TOKEN}"
-      }
-    },
     "postgres": {
       "type": "local",
       "command": ["uvx", "postgres-mcp", "--access-mode=unrestricted"],
       "environment": {
         "DATABASE_URI": "postgresql://postgres@localhost:5432/zefire"
       }
-    },
-    "chrome-devtools": {
-      "type": "local",
-      "command": ["npx", "-y", "chrome-devtools-mcp@latest"]
-    },
-    "playwright": {
-      "type": "local",
-      "command": ["npx", "@playwright/mcp@latest"]
     }
   },
 
@@ -415,8 +422,12 @@
   // as slash commands.
   // Deps land in package.json next to this file, managed by opencode.
   "plugin": [
-    // Loads Claude-style skill directories (reuses ~/.claude/skills).
-    "opencode-agent-skills",
+    // NB: "opencode-agent-skills" was removed — opencode 1.18 has native skills
+    // (<available_skills> + the `skill` tool), so the plugin was injecting a
+    // SECOND full skill listing (~4k tokens, 31 names duplicated) plus 4 extra
+    // tools. Cost: skills under ~/.claude/plugins/marketplaces/*/skills are no
+    // longer discovered (sentry-*, codex-*) — native only scans ~/.agents/skills
+    // and ~/.claude/skills. Symlink any of those in if they're needed.
     // Runs the Claude Code hooks from ~/.claude/settings.json inside opencode
     // (block_secrets.sh & co). NB: format_code.sh may double up with
     // opencode's built-in formatters — disable one side if it gets noisy.

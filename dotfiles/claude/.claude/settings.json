@@ -21,6 +21,7 @@
       "Bash(glab issue create *)",
       "Bash(glab issue update *)",
       "Bash(glab mr *)",
+      "Bash(glab api *)",
       "Bash(gh pr view *)",
       "Bash(gh pr diff *)",
       "Bash(gh pr list *)",
@@ -217,7 +218,7 @@
     ],
     "defaultMode": "auto"
   },
-  "model": "opus[1m]",
+  "model": "claude-fable-5[1m]",
   "hooks": {
     "PreToolUse": [
       {
@@ -268,7 +269,8 @@
     "astral@astral-sh": true,
     "rust-analyzer-lsp@claude-plugins-official": true,
     "chrome-devtools-mcp@claude-plugins-official": true,
-    "ty-lsp@local": true
+    "ty-lsp@local": true,
+    "codex@openai-codex": true
   },
   "extraKnownMarketplaces": {
     "cloudflare": {
@@ -284,7 +286,7 @@
       }
     }
   },
-  "effortLevel": "high",
+  "effortLevel": "low",
   "promptSuggestionEnabled": false,
   "tui": "fullscreen",
   "skipDangerousModePermissionPrompt": true,
