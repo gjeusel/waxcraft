@@ -57,7 +57,8 @@
       "pika" # equivalent of ColorSlurp (get the hex code of a color)
       "obs" # screen record
 
-      "shottr" # screenshot
+      # "shottr" # screenshot
+      "macshot" # screenshot
 
       # "cyberghost-vpn" # VPN
       "protonvpn" # VPN
