@@ -1,5 +1,21 @@
 {
   "nodes": {
+    "agavra-tap": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1783983652,
+        "narHash": "sha256-+EI8lcrIZmnwwifJfpyMiqRfnDge/gyN3inWlXfUxkg=",
+        "owner": "agavra",
+        "repo": "homebrew-tap",
+        "rev": "fddc928f4a7f90ba02a67a6239698f7ec80447c3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "agavra",
+        "repo": "homebrew-tap",
+        "type": "github"
+      }
+    },
     "brew-src": {
       "flake": false,
       "locked": {
@@ -176,6 +192,7 @@
     },
     "root": {
       "inputs": {
+        "agavra-tap": "agavra-tap",
         "googleworkspace-cli": "googleworkspace-cli",
         "homebrew-bundle": "homebrew-bundle",
         "homebrew-cask": "homebrew-cask",

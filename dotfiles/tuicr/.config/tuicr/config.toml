@@ -1,0 +1,44 @@
+# tuicr — code review TUI (https://github.com/agavra/tuicr)
+# Config path: ~/.config/tuicr/config.toml
+# Full reference: https://github.com/agavra/tuicr/blob/main/docs/CONFIG.md
+
+theme = "nord-dark"
+diff_view = "side-by-side"    # or "unified", toggle in-app with :diff
+transparent_background = true # let the terminal background show through
+show_file_list = true         # file list panel on startup, toggle with <leader>e
+mouse = true
+wrap = false                  # toggle with :set wrap!
+cursor_line = true
+scroll_offset = 5             # like vim's scrolloff
+comment_vim = true            # vim modal editing in the comment box, toggle with :vim
+leader = ","                  # prefix for panel focus & sidebar toggles
+ignore_whitespace = false
+
+comment_types = [
+  { id = "issue", definition = "problems that must be fixed", color = "#bf616a" },
+  { id = "suggestion", definition = "possible improvements", color = "#88c0d0" },
+  { id = "question", definition = "ask for clarification", color = "#ebcb8b" },
+  { id = "nit", label = "nitpick", definition = "small optional tweaks", color = "#d08770" },
+  { id = "praise", definition = "positive feedback", color = "#a3be8c" },
+]
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CHEATSHEET — press `?` in the app for the full reference.
+#
+# Navigation
+#   j / k          move line-by-line
+#   Ctrl+d / u     half page down / up
+#   [ / ]          previous / next hunk
+#   { / }          previous / next file
+#   gg / G         jump to top / bottom
+#   ;e             toggle file list panel
+#
+# Review
+#   c              comment on current line (V for range first)
+#   Tab            cycle comment type (issue/suggestion/question/nit/praise)
+#   m              mark file/hunk as reviewed
+#   y / :clip      copy review as markdown to clipboard
+#   :submit        push review to GitHub / GitLab
+#   :diff          toggle unified / side-by-side
+#   q              quit
+# ─────────────────────────────────────────────────────────────────────────────

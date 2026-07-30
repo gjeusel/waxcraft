@@ -14,6 +14,7 @@
       "libomp" # openmp on macos
       "googleworkspace-cli" # CLI (unavailable in nixpkgs)
       "py-spy" # CLI to profile python (unavailable in nixpkgs for ARM arch)
+      "agavra/tap/tuicr" # code review TUI (unavailable in nixpkgs)
     ];
     casks = [
       "ghostty" # broken in nixpkgs

@@ -27,6 +27,10 @@
       url = "github:homebrew/homebrew-bundle";
       flake = false;
     };
+    agavra-tap = {
+      url = "github:agavra/homebrew-tap"; # tuicr
+      flake = false;
+    };
 
     # ----- External flakes -----
     googleworkspace-cli = {
@@ -45,6 +49,7 @@
     homebrew-core,
     homebrew-cask,
     homebrew-bundle,
+    agavra-tap,
     # nikitabobko-tap,
     googleworkspace-cli,
   }: let
@@ -115,6 +120,7 @@
               "homebrew/homebrew-core" = homebrew-core;
               "homebrew/homebrew-cask" = homebrew-cask;
               "homebrew/homebrew-bundle" = homebrew-bundle;
+              "agavra/homebrew-tap" = agavra-tap;
             };
             mutableTaps = false;
           };
