@@ -20,6 +20,11 @@
 - ALWAYS use the **Edit** tool for modifying files — never `sed`, `awk`, or `perl` via shell
 - ALWAYS use the **Write** tool for creating files — never `echo >`, `tee`, or heredocs via shell
 
+## Deleting Files
+
+- ALWAYS use `trash` (macOS built-in) instead of `rm` to delete files or directories — it moves them to the Finder Trash, so mistakes are recoverable. Example: `trash file.txt dir/`.
+- `trash` has no `-r` flag; it handles directories natively.
+
 ## AI Tools
 
 - For any interaction with sentry, use the MCP
