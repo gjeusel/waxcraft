@@ -43,9 +43,14 @@ gc:
 gcroot:
     ls -al /nix/var/nix/gcroots/auto/
 
+# Junk that tools drop inside stow packages; trashed before stowing so it never
+# gets symlinked into ~. The claude package's own top-level `.claude` dir is kept.
+stow_junk_patterns := ".claude .ruff_cache .DS_Store"
+
 # Symlink all dotfiles
 [group('dotfiles')]
 stow-install:
+    for pat in {{ stow_junk_patterns }}; do find {{ justfile_dir }}/dotfiles -mindepth 2 -name "$pat" -not -path "{{ justfile_dir }}/dotfiles/claude/.claude" -prune -exec trash {} +; done
     stow --verbose --no-folding --dir {{ justfile_dir }}/dotfiles/ --target ~/ --adopt $(ls {{ justfile_dir }}/dotfiles)
 
 # Remove stow symblinks
