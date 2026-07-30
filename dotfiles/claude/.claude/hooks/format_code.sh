@@ -20,7 +20,9 @@ case ".$extension" in
     else
       exit 0
     fi
-    "${RUFF[@]}" check --fix "$file_path" >/dev/null 2>&1 && echo "ruff check --fix $file_path"
+    # Ignore rules whose autofix would surprise an LLM mid-write (e.g. removing
+    # not-yet-used variables/imports): unused vars, unused imports, etc.
+    "${RUFF[@]}" check --fix --ignore "E203,F841,F401,RUF100,B007,PERF102" "$file_path" >/dev/null 2>&1 && echo "ruff check --fix $file_path"
     "${RUFF[@]}" format "$file_path" >/dev/null 2>&1 && echo "ruff format $file_path"
     ;;
   .rs)
