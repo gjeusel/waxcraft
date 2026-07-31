@@ -1,4 +1,4 @@
-_CUSTOM_WORDCHARS='*?_[]~=&;!#$%^(){}<>'
+_CUSTOM_WORDCHARS='*?_[]~&;!#$%^(){}<>'
 
 # backward and forward word with option+left/right
 tcsh-backward-word () {
@@ -18,9 +18,13 @@ bindkey '^[f' tcsh-forward-word
 bindkey '^[[1;5D' backward-word
 bindkey '^[[1;5C' forward-word
 
-# https://superuser.com/questions/1421423/how-to-bind-option-delete-to-backward-delete-word-in-zsh-vi-mode-in-tmux-and-ala
-# Ensure having same behaviour in tmux
-bindkey '^W' backward-kill-word
+# ctrl+backspace deletes a whole whitespace-delimited chunk (bash-like unix-word-rubout)
+unix-word-rubout () {
+  local WORDCHARS='*?_-.[]~=/&;!#$%^(){}<>|@:,"'"'"
+  zle backward-kill-word
+}
+zle -N unix-word-rubout
+bindkey '^W' unix-word-rubout
 
 # Delete word with option+backspace with more word delimiters
 # https://www.zsh.org/mla/users/2001/msg00870.html
