@@ -392,7 +392,10 @@
   "mcp": {
     "postgres": {
       "type": "local",
-      "command": ["uvx", "postgres-mcp", "--access-mode=unrestricted"],
+      // https://github.com/crystaldba/postgres-mcp/issues/187
+      // postgres-mcp imports mcp.server.fastmcp, removed in mcp>=2 — pin the
+      // SDK below 2 or the server crashes on startup (ModuleNotFoundError).
+      "command": ["uvx", "--with", "mcp<2", "postgres-mcp", "--access-mode=unrestricted"],
       "environment": {
         "DATABASE_URI": "postgresql://postgres@localhost:5432/zefire"
       }

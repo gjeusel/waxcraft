@@ -1,7 +1,7 @@
 # ── Model ──────────────────────────────────────────────────────────────
 model = "gpt-5.6-sol"
 model_provider = "openai"
-model_reasoning_effort = "high"
+model_reasoning_effort = "medium"
 
 # ── Approval & Sandbox ─────────────────────────────────────────────────
 approval_policy = "on-request"
@@ -125,4 +125,7 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [projects."/Users/gjeusel/src/enedis-gridconn"]
+trust_level = "trusted"
+
+[projects."/Users/gjeusel/src/rnux"]
 trust_level = "trusted"

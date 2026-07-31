@@ -292,7 +292,7 @@
   },
   "effortLevel": "low",
   "promptSuggestionEnabled": false,
-  "tui": "fullscreen",
+  "tui": "default",
   "skipDangerousModePermissionPrompt": true,
   "skipAutoPermissionPrompt": true
 }
