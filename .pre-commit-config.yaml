@@ -13,3 +13,8 @@ repos:
         entry: stylua --check nvim/
         files: ^nvim/.*\.lua$
         pass_filenames: false
+      - id: oxfmt
+        name: oxfmt (pi agent config)
+        language: system
+        entry: oxfmt
+        files: ^dotfiles/pi/.*\.(ts|tsx|js|jsx|mts|cts|mjs|cjs)$
