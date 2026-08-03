@@ -45,7 +45,7 @@ ignores `README.*` by default, so this file is never symlinked into `~`.
   color indicates the level (see theme `thinking*` tokens).
 - No `defaultProvider`/`defaultModel` pinned: pick with Ctrl+Shift+L (remapped, see
   below) after authenticating; pi persists the last used model per project.
-- `packages` beyond the mcp/permissions pair:
+- `packages` beyond `pi-mcp-adapter` (permissions is vendored, see below):
   - `pi-subagents` — Agent-tool equivalent (delegation, parallel, chains)
   - `@plannotator/pi-extension` — interactive plan review with annotations
   - `@narumitw/pi-lsp` — LSP diagnostics/fix tools, configured via `pi-lsp.json` (below)
@@ -63,10 +63,15 @@ Deliberately NOT here: **oxlint** has no standalone language server on npm (the 
 LSP binary only ships inside the VS Code extension) and **oxfmt** is a formatter with
 no LSP at all — both stay CLI commands run by the agent.
 
-## permissions.json (pi-permissions package)
+## permissions.json (extensions/permissions/ — vendored pi-permissions)
 
-Pi has **no built-in permission system** — the `pi-permissions` extension provides it.
-Semantics differ from Claude Code:
+Pi has **no built-in permission system** — `extensions/permissions/` provides it:
+a vendored fork of `npm:pi-permissions@1.0.4` (164 lines, MIT). Vendored for one
+reason: the npm package hardcodes a "Permissions loaded: N allow, M deny rules"
+chat notification on every session start with no way to silence it. The fork
+replaces that with `ctx.ui.setStatus("permissions", "⛨N")`, rendered by the
+statusbar extension (see below). `rules.ts` is untouched upstream code; check
+the npm package occasionally for upstream fixes. Semantics differ from Claude Code:
 
 - There is **no "ask"** tier — rules only `allow` or `deny` (matching deny = hard
   block before execution). Combined with pi's no-popup philosophy this *is* the
@@ -151,6 +156,22 @@ hatch for false positives). Fail-open: if `gitleaks` is missing or errors, the
 prompt goes through with a warning. Requires `gitleaks` on PATH (installed via
 nix). Uses `spawnSync` rather than `pi.exec` because the latter can't feed stdin.
 
+## extensions/statusbar.ts
+
+Replaces the built-in footer (2–3 lines: pwd+branch, token/cost stats, extension
+statuses such as the MCP adapter's) with a single minimalist line via
+`ctx.ui.setFooter()` on `session_start`:
+`<repo path> (<branch>)`, `<model> · <thinking level>`, `<context %>`
+justify-between'd across the width, everything in the same dim gray. Token counts, cost,
+cache stats, and MCP/extension statuses are deliberately dropped — with one
+exception: the `permissions` status key (the `⛨N` deny-rule count from the
+vendored permissions extension) is shown next to the context %. `⛨0` there
+means permissions.json failed to load — investigate.
+`@earendil-works/pi-tui` (`truncateToWidth`/`visibleWidth`) is a runtime import —
+fine, the extension loader aliases it to pi's bundled copy.
+
+## Editor tooling for extensions/
+
 For editor/LSP comfort the extensions dir carries a `tsconfig.json` (NodeNext,
 strict, noEmit — mirrors pi's own tsconfig.base), a `package.json` declaring
 `@earendil-works/pi-coding-agent` + `@types/node` as devDependencies, and the
@@ -177,10 +198,10 @@ intentionally not stowed.
 
 ```bash
 npm i -g @earendil-works/pi   # or: brew install pi (check their docs)
-pi                            # first run: auto-installs pi-mcp-adapter + pi-permissions
+pi                            # first run: auto-installs the npm packages from settings.json
 /login                        # authenticate provider(s) — writes ~/.pi/agent/auth.json
 # LSP types for custom extensions (in the repo, not in ~):
 (cd ~/src/waxcraft/dotfiles/pi/.pi/agent/extensions && npm install)
 ```
 
-Expected startup line: `Permissions loaded: 0 allow, N deny rules`.
+Startup is fully quiet; the statusbar's `⛨N` confirms the deny rules loaded.

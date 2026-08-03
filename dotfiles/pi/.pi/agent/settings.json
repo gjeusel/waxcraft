@@ -23,7 +23,6 @@
   ],
   "packages": [
     "npm:pi-mcp-adapter",
-    "npm:pi-permissions",
     "npm:pi-subagents",
     "npm:@plannotator/pi-extension",
     "npm:@narumitw/pi-lsp",
