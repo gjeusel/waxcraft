@@ -1,0 +1,21 @@
+{
+  "app.editor.external": ["ctrl+g", "ctrl+x"],
+  "app.message.copy": ["ctrl+shift+x"],
+
+  "tui.editor.cursorUp": ["up", "ctrl+k", "ctrl+p"],
+  "tui.editor.cursorDown": ["down", "ctrl+j", "ctrl+n"],
+  "tui.select.up": ["up", "ctrl+p"],
+  "tui.select.down": ["down", "ctrl+n"],
+  "app.model.cycleForward": ["ctrl+shift+p"],
+  "app.model.cycleBackward": ["ctrl+shift+n"],
+  "app.session.togglePath": ["ctrl+shift+t"],
+  "app.session.toggleNamedFilter": ["ctrl+shift+f"],
+  "tui.editor.cursorLeft": ["left", "ctrl+h"],
+  "tui.editor.cursorRight": ["right", "ctrl+l"],
+  "tui.editor.cursorWordLeft": ["ctrl+left", "ctrl+b"],
+  "tui.editor.cursorWordRight": ["ctrl+right", "ctrl+f"],
+
+  "tui.input.newLine": ["shift+enter"],
+  "tui.editor.deleteToLineEnd": ["ctrl+shift+k"],
+  "app.model.select": ["ctrl+shift+l"]
+}

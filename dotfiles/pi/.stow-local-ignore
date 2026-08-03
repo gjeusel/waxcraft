@@ -1,0 +1,13 @@
+# Presence of this file REPLACES stow's default ignore list, so the defaults
+# we rely on (README.*, this file itself) are re-declared below.
+# Patterns are Perl regexes; with a "/" they match the full path (anchored),
+# otherwise the basename.
+README.*
+\.stow-local-ignore
+# TypeScript tooling for extensions — editor comfort only, not pi config:
+^/\.pi/agent/extensions/package\.json$
+^/\.pi/agent/extensions/package-lock\.json$
+^/\.pi/agent/extensions/pnpm-lock\.yaml$
+^/\.pi/agent/extensions/tsconfig\.json$
+^/\.pi/agent/extensions/\.oxfmtrc\.json$
+node_modules

@@ -12,3 +12,9 @@ dotfiles/.config/nvim/lua/packer_compiled.lua
 *.DS_store
 
 .luarc.json
+
+node_modules/
+
+# Editor-tooling lockfile only (deps are devDependencies for LSP types)
+dotfiles/pi/.pi/agent/extensions/pnpm-lock.yaml
+dotfiles/pi/.pi/agent/extensions/package-lock.json
