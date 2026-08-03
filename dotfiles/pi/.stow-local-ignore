@@ -10,4 +10,5 @@ README.*
 ^/\.pi/agent/extensions/pnpm-lock\.yaml$
 ^/\.pi/agent/extensions/tsconfig\.json$
 ^/\.pi/agent/extensions/\.oxfmtrc\.json$
+^/\.pi/agent/extensions/tests$
 node_modules

@@ -36,14 +36,10 @@ export default function (pi: ExtensionAPI) {
           const usage = ctx.getContextUsage();
           const pct = usage?.percent ?? null;
           const pctPlain = pct === null ? '?%' : `${pct.toFixed(0)}%`;
-          // Only the vendored permissions extension's status is surfaced;
-          // everything else published via setStatus (MCP, etc.) stays hidden.
-          const perms = footerData.getExtensionStatuses().get('permissions');
-          const rightPlain = perms ? `${perms} ${pctPlain}` : pctPlain;
-          const right = theme.fg('dim', rightPlain);
+          const right = theme.fg('dim', pctPlain);
 
           const centerW = visibleWidth(center);
-          const rightW = visibleWidth(rightPlain);
+          const rightW = visibleWidth(pctPlain);
           // Truncate the path first if the three parts can't coexist.
           const maxLeft = Math.max(0, width - centerW - rightW - 4);
           if (visibleWidth(left) > maxLeft) left = truncateToWidth(left, maxLeft, '…');

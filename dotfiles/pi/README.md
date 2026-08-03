@@ -49,7 +49,7 @@ ignores `README.*` by default, so this file is never symlinked into `~`.
   - `pi-subagents` — Agent-tool equivalent (delegation, parallel, chains)
   - `@plannotator/pi-extension` — interactive plan review with annotations
   - `@narumitw/pi-lsp` — LSP diagnostics/fix tools, configured via `pi-lsp.json` (below)
-  - `pi-web-search` — provider-native web search (pi has no built-in WebSearch)
+  - `pi-web-access` — web search + page fetching (pi has no built-in WebSearch)
   - `@ayulab/pi-rewind` — /rewind with file checkpoints (see above)
 
 ## pi-lsp.json (@narumitw/pi-lsp package)
@@ -83,10 +83,11 @@ the npm package occasionally for upstream fixes. Semantics differ from Claude Co
 - Rules are `Tool(glob)` with tools `Bash|Read|Write|Edit`; `*` crosses everything
   including `/`. `Bash(*.ssh/*)` therefore blocks *any* command string mentioning
   the path (cat/grep/jq/...), same substring trick as the opencode config.
-- The deny list mirrors `~/.claude/settings.json` + opencode: git push, sudo,
-  env-dumping, kubectl/helm mutations (reads stay allowed by omission),
-  credential stores, key material, shell history, `*renewex.yaml`, `*.tfvars`,
-  and the agents' own credential files (including pi's `auth.json`).
+- The deny list mirrors `~/.claude/settings.json` + opencode: git push, direct
+  `rm`/`mv` (including `git rm`/`git mv`), sudo, env-dumping, kubectl/helm
+  mutations (reads stay allowed by omission), credential stores, key material,
+  shell history, `*renewex.yaml`, `*.tfvars`, and the agents' own credential
+  files (including pi's `auth.json`).
 - Loaded once at session start — `/reload` after edits.
 
 ## mcp.json (pi-mcp-adapter package)
@@ -156,6 +157,18 @@ hatch for false positives). Fail-open: if `gitleaks` is missing or errors, the
 prompt goes through with a warning. Requires `gitleaks` on PATH (installed via
 nix). Uses `spawnSync` rather than `pi.exec` because the latter can't feed stdin.
 
+## extensions/safe-trash.ts
+
+Native pi equivalent of Claude's `hooks/safe_trash.sh`. It injects a system-prompt
+rule telling the model to use macOS `trash` instead of `rm`, and blocks direct or
+compound `rm`, `mv`, `git rm`, and `git mv` Bash calls. Common nested shell,
+`find`, and `xargs` forms are blocked too. Every direct `trash` target is validated.
+Temp paths are exempt; filesystem roots, system paths, top-level home paths, and
+protected home config directories are denied. Dynamic paths, traversal, command
+substitutions, quotes, braces, wrappers, and `cd … && trash …` fail closed. Both
+lexical and symlink-resolved paths are checked. The matching permission rules
+provide defense in depth for simple direct commands.
+
 ## extensions/statusbar.ts
 
 Replaces the built-in footer (2–3 lines: pwd+branch, token/cost stats, extension
@@ -176,8 +189,9 @@ For editor/LSP comfort the extensions dir carries a `tsconfig.json` (NodeNext,
 strict, noEmit — mirrors pi's own tsconfig.base), a `package.json` declaring
 `@earendil-works/pi-coding-agent` + `@types/node` as devDependencies, and the
 `.oxfmtrc.json` formatter config. These are **editor tooling, not pi config**,
-so `.stow-local-ignore` keeps them (plus lockfiles and `node_modules/`) out of
-`~/.pi/agent/extensions/` — only the `*.ts` extensions themselves are stowed.
+so `.stow-local-ignore` keeps them (plus lockfiles, `node_modules/`, and the
+`tests/` directory) out of `~/.pi/agent/extensions/` — only runtime extension
+files are stowed.
 Run the install **in this repo directory** (`npm install` or `pnpm install`
 here) so the LSP resolves types when editing the source files.
 `tsc -p . --noEmit` passes clean.

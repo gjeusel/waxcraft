@@ -4,6 +4,10 @@
     "deny": [
       "Bash(git push*)",
       "Bash(git * push*)",
+      "Bash(rm *)",
+      "Bash(mv *)",
+      "Bash(git rm *)",
+      "Bash(git mv *)",
       "Bash(sudo *)",
       "Bash(rm -rf /*)",
 
@@ -44,7 +48,7 @@
       "Bash(*.ssh/*)",
       "Bash(*.aws/*)",
       "Bash(*.gnupg/*)",
-      "Bash(*.kube/config*)",
+      "Bash(*.kube/*)",
       "Bash(*.netrc*)",
       "Bash(*.npmrc*)",
       "Bash(*.pypirc*)",
@@ -62,6 +66,13 @@
       "Bash(*.*history*)",
       "Bash(*.tfvars*)",
       "Bash(*renewex.yaml*)",
+      "Bash(*src/ops/*)",
+      "Bash(*.pem*)",
+      "Bash(*.p12*)",
+      "Bash(*.pfx*)",
+      "Bash(*id_rsa*)",
+      "Bash(*id_ed25519*)",
+      "Bash(*id_ecdsa*)",
 
       "Read(*.tfvars)",
       "Read(*renewex.yaml)",
