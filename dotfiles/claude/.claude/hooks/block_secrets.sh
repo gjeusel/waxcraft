@@ -1,8 +1,25 @@
 #!/usr/bin/env bash
 
-# PreToolUse hook (Read|Edit|Write): block access to credential-bearing files.
-# Hook input is JSON on stdin.
-file_path=$(jq -r '.tool_input.file_path // empty' 2>/dev/null)
+# Dual-purpose secrets guard. Hook input is JSON on stdin.
+# - PreToolUse (Read|Edit|Write): block access to credential-bearing files.
+# - UserPromptSubmit: scan the prompt text with gitleaks; block if a secret is found.
+input=$(cat)
+event=$(jq -r '.hook_event_name // empty' <<<"$input" 2>/dev/null)
+
+if [[ "$event" == "UserPromptSubmit" ]]; then
+  # Fail-open if gitleaks is missing — the guard must never brick the session.
+  command -v gitleaks >/dev/null || exit 0
+  findings=$(jq -r '.prompt // empty' <<<"$input" |
+    gitleaks stdin --no-banner --no-color --redact -v 2>/dev/null)
+  if [[ $? -eq 1 && -n "$findings" ]]; then
+    echo "SECURITY_POLICY_VIOLATION: prompt blocked — gitleaks detected secret(s):" >&2
+    echo "$findings" >&2
+    exit 2
+  fi
+  exit 0
+fi
+
+file_path=$(jq -r '.tool_input.file_path // empty' <<<"$input" 2>/dev/null)
 
 if [[ -z "$file_path" ]]; then
   exit 0
