@@ -1,0 +1,12 @@
+{
+  "askClaude": {
+    "enabled": true,
+    "allowFullMode": true,
+    "defaultIsolated": false
+  },
+  "provider": {
+    "plan": "max",
+    "longContextExtraUsage": false,
+    "strictMcpConfig": true
+  }
+}

@@ -46,6 +46,8 @@ ignores `README.*` by default, so this file is never symlinked into `~`.
 - No `defaultProvider`/`defaultModel` pinned: pick with Ctrl+Shift+L (remapped, see
   below) after authenticating; pi persists the last used model per project.
 - `packages` beyond `pi-mcp-adapter` (permissions is vendored, see below):
+  - `pi-claude-bridge` — exposes Claude Code subscription models under the
+    `claude-bridge/*` provider and adds the `AskClaude` delegation tool
   - `pi-subagents` — Agent-tool equivalent (delegation, parallel, chains)
   - `@plannotator/pi-extension` — interactive plan review with annotations
   - `@narumitw/pi-lsp` — LSP diagnostics/fix tools, configured via `pi-lsp.json` (below)
@@ -57,6 +59,23 @@ ignores `README.*` by default, so this file is never symlinked into `~`.
     survives `/reload` and conversation compaction
   - `@ff-labs/pi-fff` — FFF-powered fuzzy file/content search and `@` file
     autocomplete with background indexing and frecency ranking
+
+## claude-bridge.json (pi-claude-bridge package)
+
+The `pi` shell function in `zsh/aliases.zsh` unsets `ANTHROPIC_API_KEY` for the
+Pi process so Claude Code uses its `claude.ai` OAuth session. Otherwise an exported
+API key takes precedence, and an invalid/stale key causes repeated 401 retries that
+look like a hung request. Authenticate or verify the subscription session with
+`claude auth login` and `claude auth status`.
+
+`provider.plan: "max"` enables the entitled 1M context for Opus 4.6 without Extra
+Usage. `longContextExtraUsage: false` avoids paid Extra Usage; Fable 5, Opus 5,
+Opus 4.8/4.7, and Sonnet 5 still use their default 1M context. In pi, select a
+`claude-bridge/*` entry with `/model` (Ctrl+Shift+L), then prompt normally. The
+same package also exposes `AskClaude` while another provider is selected.
+Set `CLAUDE_BRIDGE_DEBUG=1` before launching pi to write bridge diagnostics to
+`~/.pi/agent/claude-bridge.log` and Claude CLI logs to
+`~/.pi/agent/cc-cli-logs/`.
 
 ## pi-lsp.json (@narumitw/pi-lsp package)
 
