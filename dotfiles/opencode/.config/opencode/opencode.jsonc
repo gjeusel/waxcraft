@@ -129,6 +129,7 @@
       "find *": "allow",
       "grep *": "allow",
       "rg *": "allow",
+      "fd *": "allow",
       "cat *": "allow",
       "head *": "allow",
       "tail *": "allow",

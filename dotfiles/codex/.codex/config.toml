@@ -1,13 +1,15 @@
 # ── Model ──────────────────────────────────────────────────────────────
 model = "gpt-5.6-sol"
 model_provider = "openai"
-model_reasoning_effort = "medium"
+model_reasoning_effort = "high"
 
 # ── Approval & Sandbox ─────────────────────────────────────────────────
 approval_policy = "on-request"
+approvals_reviewer = "auto_review"
 sandbox_mode = "workspace-write"
 personality = "pragmatic"
 plan_mode_reasoning_effort = "high"
+service_tier = "fast"
 
 [sandbox_workspace_write]
 writable_roots = ["."]
@@ -66,6 +68,17 @@ startup_timeout_sec = 10
 tool_timeout_sec = 60
 default_tools_approval_mode = "auto"
 
+[mcp_servers.postgres]
+command = "uvx"
+args = ["--with", "mcp<2", "postgres-mcp", "--access-mode=unrestricted"]
+enabled = true
+startup_timeout_sec = 10
+tool_timeout_sec = 60
+default_tools_approval_mode = "approve"
+
+[mcp_servers.postgres.env]
+DATABASE_URI = "postgresql://postgres@localhost:5432/zefire"
+
 # [mcp_servers.sentry]
 # command = "npx"
 # args = ["-y", "@sentry/mcp-server", "--agent"]
@@ -91,6 +104,15 @@ model_reasoning_effort = "low"
 approval_policy = "never"
 
 # ── Project Trust ──────────────────────────────────────────────────────
+# Machine state, not hand-written config: codex appends an entry here each
+# time the "do you trust this folder?" prompt is accepted, and this is the
+# ONLY place trust can live (verified in codex-rs source, v0.146):
+# - lookup is exact-match on cwd / project root / git repo root — no globs,
+#   so trusting "~/src" does NOT cover the repos under it;
+# - trust is machine-local: it can't go in a project's .codex/config.toml
+#   (only loaded once trusted) and there is no include/config.d mechanism.
+# Deleting entries just brings back the per-repo prompt, whose answer gets
+# written straight back into this (stowed) file. Churn here is expected.
 [projects."/Users/gjeusel/src/peregreen"]
 trust_level = "trusted"
 
