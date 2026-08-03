@@ -51,6 +51,12 @@ ignores `README.*` by default, so this file is never symlinked into `~`.
   - `@narumitw/pi-lsp` — LSP diagnostics/fix tools, configured via `pi-lsp.json` (below)
   - `pi-web-access` — web search + page fetching (pi has no built-in WebSearch)
   - `@ayulab/pi-rewind` — /rewind with file checkpoints (see above)
+  - `@juicesharp/rpiv-ask-user-question` — structured interactive questionnaires
+    so the model can clarify decisions instead of guessing
+  - `@juicesharp/rpiv-todo` — a persistent todo tool and live task overlay that
+    survives `/reload` and conversation compaction
+  - `@ff-labs/pi-fff` — FFF-powered fuzzy file/content search and `@` file
+    autocomplete with background indexing and frecency ranking
 
 ## pi-lsp.json (@narumitw/pi-lsp package)
 
@@ -136,8 +142,9 @@ Key format is single `modifier+key` combos — **no chord/sequence support** (ch
 - **`ctrl+p`/`ctrl+n` = previous/next** everywhere: cursor up/down in the editor
   (`tui.editor.*`) AND list navigation in pickers/autocomplete (`tui.select.*`).
   Displaced defaults: model cycle (was ctrl+p / ctrl+shift+p) → `ctrl+shift+p` /
-  `ctrl+shift+n`; in the /resume picker, path toggle (was ctrl+p) → `ctrl+shift+t`
-  and named-filter (was ctrl+n) → `ctrl+shift+f`.
+  `ctrl+shift+n`; in the /resume picker, path toggle (was ctrl+p) → `ctrl+shift+r`
+  and named-filter (was ctrl+n) → `ctrl+shift+f`. The path toggle avoids
+  `ctrl+shift+t`, which `rpiv-todo` uses to collapse its overlay.
 - Everything else keeps defaults: Escape interrupt, double-Escape tree/rewind,
   `shift+tab` thinking level, `ctrl+o` expand tools, `!` prefix for bash mode.
 - **Real vim editing**: the `pi-vim` package (npm:pi-vim) turns the prompt into a

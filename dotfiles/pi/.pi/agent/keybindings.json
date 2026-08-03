@@ -8,7 +8,7 @@
   "tui.select.down": ["down", "ctrl+n"],
   "app.model.cycleForward": ["ctrl+shift+p"],
   "app.model.cycleBackward": ["ctrl+shift+n"],
-  "app.session.togglePath": ["ctrl+shift+t"],
+  "app.session.togglePath": ["ctrl+shift+r"],
   "app.session.toggleNamedFilter": ["ctrl+shift+f"],
   "tui.editor.cursorLeft": ["left", "ctrl+h"],
   "tui.editor.cursorRight": ["right", "ctrl+l"],

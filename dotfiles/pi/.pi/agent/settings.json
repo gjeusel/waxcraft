@@ -27,7 +27,10 @@
     "npm:@plannotator/pi-extension",
     "npm:@narumitw/pi-lsp",
     "npm:pi-web-access",
-    "npm:@ayulab/pi-rewind"
+    "npm:@ayulab/pi-rewind",
+    "npm:@juicesharp/rpiv-ask-user-question",
+    "npm:@juicesharp/rpiv-todo",
+    "npm:@ff-labs/pi-fff"
   ],
   "compaction": {
     "enabled": true
