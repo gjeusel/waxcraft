@@ -201,7 +201,6 @@ zinit snippet OMZP::extract
 # _______ TMUX Plugins _______
 
 # Auto install tpm (tmux plugin)
-[ -n "$TMUX" ] && export TERM=screen-256color
 if [ ! -e "$HOME/.tmux/plugins/tpm" ]; then
   git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 fi
