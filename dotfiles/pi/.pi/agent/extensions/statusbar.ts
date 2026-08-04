@@ -36,8 +36,6 @@ export default function (pi: ExtensionAPI) {
           const usage = ctx.getContextUsage();
           const pct = usage?.percent ?? null;
           const pctPlain = pct === null ? '?%' : `${pct.toFixed(0)}%`;
-          const right = theme.fg('dim', pctPlain);
-
           const centerW = visibleWidth(center);
           const rightW = visibleWidth(pctPlain);
           // Truncate the path first if the three parts can't coexist.
@@ -49,8 +47,11 @@ export default function (pi: ExtensionAPI) {
           const free = Math.max(2, width - leftW - centerW - rightW);
           const padL = Math.max(1, Math.floor(free / 2));
           const padR = Math.max(1, free - padL);
-          const line = theme.fg('dim', left + ' '.repeat(padL) + center + ' '.repeat(padR)) + right;
-          return [truncateToWidth(line, width)];
+          // Truncate before applying the theme color. `truncateToWidth()` resets
+          // ANSI styles before its ellipsis, which would otherwise make the
+          // truncated suffix fall back to the terminal's bright default color.
+          const line = left + ' '.repeat(padL) + center + ' '.repeat(padR) + pctPlain;
+          return [theme.fg('dim', truncateToWidth(line, width))];
         },
       };
     });

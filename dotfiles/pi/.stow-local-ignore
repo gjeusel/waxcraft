@@ -4,7 +4,7 @@
 # otherwise the basename.
 README.*
 \.stow-local-ignore
-# TypeScript tooling for extensions — editor comfort only, not pi config:
+# Extension source tooling and local runtime dependencies — not pi config:
 ^/\.pi/agent/extensions/package\.json$
 ^/\.pi/agent/extensions/package-lock\.json$
 ^/\.pi/agent/extensions/pnpm-lock\.yaml$
