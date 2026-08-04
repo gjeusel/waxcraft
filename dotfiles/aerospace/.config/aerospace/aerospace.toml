@@ -238,6 +238,10 @@ run = 'move-node-to-workspace 1'
 if.app-id = 'com.mitchellh.ghostty'
 run = 'move-node-to-workspace 1'
 
+[[on-window-detected]]
+if.app-id = 'dev.kdrag0n.MacVirt' # OrbStack
+run = 'move-node-to-workspace 0'
+
 
 [[on-window-detected]]
 if.app-id = 'com.brave.Browser'
