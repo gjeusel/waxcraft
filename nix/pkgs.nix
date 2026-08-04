@@ -50,6 +50,7 @@
     parallel
 
     python312Packages.watchfiles
+    pkgs-unstable.python314Packages.pydantic-monty
     unixtools.watch
 
     yaak # postman replacement

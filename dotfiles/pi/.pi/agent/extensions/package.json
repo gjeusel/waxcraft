@@ -1,6 +1,11 @@
 {
   "name": "pi-user-extensions",
   "private": true,
+  "type": "module",
+  "dependencies": {
+    "@pydantic/monty": "^0.0.19",
+    "typebox": "^1.3.7"
+  },
   "devDependencies": {
     "@earendil-works/pi-coding-agent": "^0.83.0",
     "@earendil-works/pi-tui": "^0.83.0",

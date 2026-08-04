@@ -209,17 +209,28 @@ means permissions.json failed to load — investigate.
 `@earendil-works/pi-tui` (`truncateToWidth`/`visibleWidth`) is a runtime import —
 fine, the extension loader aliases it to pi's bundled copy.
 
-## Editor tooling for extensions/
+## extensions/python-code.ts
 
-For editor/LSP comfort the extensions dir carries a `tsconfig.json` (NodeNext,
-strict, noEmit — mirrors pi's own tsconfig.base), a `package.json` declaring
-`@earendil-works/pi-coding-agent` + `@types/node` as devDependencies, and the
-`.oxfmtrc.json` formatter config. These are **editor tooling, not pi config**,
-so `.stow-local-ignore` keeps them (plus lockfiles, `node_modules/`, and the
-`tests/` directory) out of `~/.pi/agent/extensions/` — only runtime extension
-files are stowed.
-Run the install **in this repo directory** (`npm install` or `pnpm install`
-here) so the LSP resolves types when editing the source files.
+Registers the `python` tool (shown as **Python Code Tool**) for self-contained,
+dependency-free Python snippets. Source is passed directly in the tool's `code`
+argument (stdin-style); callers must not create a `.py` file. Every call uses a
+fresh crash-isolated Monty worker session with no filesystem, network, environment,
+host-tool, or third-party package access. Runs are capped at 10 seconds, 64 MiB, and 50 KB / 2000 output
+lines. Monty limitation-like errors tell the model to retry with normal Python via
+`bash`; ordinary Python errors keep their traceback and do not trigger that fallback.
+
+## Editor tooling and runtime dependencies for extensions/
+
+The extensions dir carries a `tsconfig.json` (NodeNext, strict, noEmit — mirrors
+pi's own tsconfig.base), a `package.json` declaring pi's packages and TypeScript
+types for editor/LSP comfort, and the Monty/TypeBox runtime dependencies used by
+`python-code.ts`. The `.oxfmtrc.json` supplies formatter config. These files are
+**source tooling, not pi config**, so `.stow-local-ignore` keeps them (plus
+lockfiles, `node_modules/`, and the `tests/` directory) out of
+`~/.pi/agent/extensions/` — only runtime extension files are stowed.
+Run the install **in this repo directory** (`npm install` or `pnpm install` here).
+The Python Code Tool resolves its dependencies beside the real (pre-symlink)
+extension source, while the install also gives the LSP all required types.
 `tsc -p . --noEmit` passes clean.
 
 ## Stow gotcha: --adopt vs pi's own writes
