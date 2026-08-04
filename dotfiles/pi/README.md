@@ -209,6 +209,15 @@ means permissions.json failed to load — investigate.
 `@earendil-works/pi-tui` (`truncateToWidth`/`visibleWidth`) is a runtime import —
 fine, the extension loader aliases it to pi's bundled copy.
 
+## extensions/exit-resume-command.ts
+
+Rewrites pi's verbose exit hint from `To resume this session: pi --session <id>`
+to the single dim-gray line `pi --session <id>`. Pi emits the built-in hint only
+after extension shutdown has completed and exposes no setting or renderer for it,
+so the extension installs a narrowly scoped stdout interceptor during a real quit.
+Only the exact built-in resume-hint shape is rewritten; other shutdown output and
+non-quit session replacements pass through unchanged.
+
 ## extensions/pane-focus.ts
 
 Adds tmux focus feedback to pi's input editor. While this tmux pane, its window,
