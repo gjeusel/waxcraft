@@ -10,26 +10,23 @@
   "enabledModels": [
     "moonshotai/kimi-k3",
     "openai-codex/gpt-5.6-luna",
-    "openai-codex/gpt-5.6-terra",
     "openai-codex/gpt-5.6-sol",
     "claude-bridge/claude-fable-5",
     "claude-bridge/claude-opus-5",
-    "claude-bridge/claude-opus-4-8",
-    "claude-bridge/claude-sonnet-5",
-    "claude-bridge/claude-haiku-4-5"
+    "claude-bridge/claude-opus-4-8"
   ],
   "skills": ["~/.claude/skills"],
   "packages": [
-    "npm:pi-mcp-adapter",
-    "npm:pi-claude-bridge",
-    "npm:pi-subagents",
-    "npm:@plannotator/pi-extension",
-    "npm:@narumitw/pi-lsp",
-    "npm:pi-web-access",
-    "npm:@ayulab/pi-rewind",
-    "npm:@juicesharp/rpiv-ask-user-question",
-    "npm:@juicesharp/rpiv-todo",
-    "npm:@ff-labs/pi-fff"
+    "npm:pi-mcp-adapter@2.19.0",
+    "npm:pi-claude-bridge@0.6.3",
+    "npm:pi-subagents@0.40.0",
+    "npm:@plannotator/pi-extension@0.25.1",
+    "npm:@narumitw/pi-lsp@0.46.0",
+    "npm:pi-web-access@0.18.0",
+    "npm:@ayulab/pi-rewind@0.4.6",
+    "npm:@juicesharp/rpiv-ask-user-question@2.3.1",
+    "npm:@juicesharp/rpiv-todo@2.3.1",
+    "npm:@ff-labs/pi-fff@0.10.1"
   ],
   "compaction": {
     "enabled": true

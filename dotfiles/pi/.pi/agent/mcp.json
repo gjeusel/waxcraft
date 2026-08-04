@@ -4,6 +4,21 @@
       "command": "npx",
       "args": ["-y", "@upstash/context7-mcp"]
     },
+    "gmail": {
+      "url": "https://gmailmcp.googleapis.com/mcp/v1",
+      "auth": "oauth"
+    },
+    "notion": {
+      "url": "https://mcp.notion.com/mcp",
+      "auth": "oauth"
+    },
+    "pappers": {
+      "url": "https://mcp.pappers.fr/${PAPPERS_API_KEY}"
+    },
+    "logfire": {
+      "url": "https://logfire-eu.pydantic.dev/mcp",
+      "auth": "oauth"
+    },
     "postgres": {
       "command": "uvx",
       "args": ["--with", "mcp<2", "postgres-mcp", "--access-mode=unrestricted"],
