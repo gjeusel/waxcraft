@@ -15,6 +15,7 @@
       "googleworkspace-cli" # CLI (unavailable in nixpkgs)
       "py-spy" # CLI to profile python (unavailable in nixpkgs for ARM arch)
       "agavra/tap/tuicr" # code review TUI (unavailable in nixpkgs)
+      "zereight/gitlab-mcp/zereight-mcp-gitlab" # gitlab MCP server (used by pi)
     ];
     casks = [
       "ghostty" # broken in nixpkgs

@@ -27,8 +27,12 @@
       "args": ["@playwright/mcp@latest"]
     },
     "GitLab": {
-      "url": "https://gitlab.com/api/v4/mcp",
-      "disabled": true
+      "command": "zereight-mcp-gitlab",
+      "env": {
+        "GITLAB_PERSONAL_ACCESS_TOKEN": "${GITLAB_PERSONAL_ACCESS_TOKEN}",
+        "GITLAB_API_URL": "https://gitlab.com/api/v4",
+        "GITLAB_PERMISSION_MODE": "modify"
+      }
     },
     "cloudflare-api": {
       "url": "https://mcp.cloudflare.com/mcp",

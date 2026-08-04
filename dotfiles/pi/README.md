@@ -133,10 +133,16 @@ call.
 - `postgres` pins `mcp<2` (postgres-mcp crashes on mcp>=2 — see
   https://github.com/crystaldba/postgres-mcp/issues/187, same pin as codex/opencode).
 - `/mcp` lists servers, `/mcp disable <server>` persists to project `.pi/mcp.json`.
-- `GitLab` and `cloudflare-api` are `"disabled": true`: both are OAuth-protected
-  remote servers (401 without a token — Claude Code runs their OAuth flow
-  transparently). To re-enable, remove the flag and add `"auth": "oauth"` — the
-  adapter then runs the authorization-code flow on first connect.
+- `cloudflare-api` is `"disabled": true`: OAuth-protected remote server (401
+  without a token — Claude Code runs their OAuth flow transparently). To
+  re-enable, remove the flag and add `"auth": "oauth"` — the adapter then runs
+  the authorization-code flow on first connect.
+- `GitLab` uses [zereight/gitlab-mcp](https://github.com/zereight/gitlab-mcp)
+  (the builtin `gitlab.com/api/v4/mcp` OAuth flow didn't work). The
+  `zereight-mcp-gitlab` binary is installed via its homebrew tap (pinned in
+  `nix/flake.nix`, brew in `nix/homebrew.nix`). Requires
+  `GITLAB_PERSONAL_ACCESS_TOKEN` (scope `api`) in the environment; runs with
+  `GITLAB_PERMISSION_MODE=modify` (create/update allowed, all delete tools blocked).
 - Since the adapter is one cheap proxy tool, keeping chrome-devtools + playwright
   listed costs ~nothing (unlike opencode where they were dropped for ~10k tokens/turn).
 

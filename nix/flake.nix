@@ -31,6 +31,10 @@
       url = "github:agavra/homebrew-tap"; # tuicr
       flake = false;
     };
+    zereight-gitlab-mcp-tap = {
+      url = "github:zereight/gitlab-mcp"; # gitlab MCP server (repo is its own tap)
+      flake = false;
+    };
 
     # ----- External flakes -----
     googleworkspace-cli = {
@@ -50,6 +54,7 @@
     homebrew-cask,
     homebrew-bundle,
     agavra-tap,
+    zereight-gitlab-mcp-tap,
     # nikitabobko-tap,
     googleworkspace-cli,
   }: let
@@ -121,6 +126,7 @@
               "homebrew/homebrew-cask" = homebrew-cask;
               "homebrew/homebrew-bundle" = homebrew-bundle;
               "agavra/homebrew-tap" = agavra-tap;
+              "zereight/homebrew-gitlab-mcp" = zereight-gitlab-mcp-tap;
             };
             mutableTaps = false;
           };

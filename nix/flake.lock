@@ -200,7 +200,8 @@
         "nix-darwin": "nix-darwin",
         "nix-homebrew": "nix-homebrew",
         "nixpkgs": "nixpkgs",
-        "nixpkgs-unstable": "nixpkgs-unstable"
+        "nixpkgs-unstable": "nixpkgs-unstable",
+        "zereight-gitlab-mcp-tap": "zereight-gitlab-mcp-tap"
       }
     },
     "systems": {
@@ -215,6 +216,22 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
+        "type": "github"
+      }
+    },
+    "zereight-gitlab-mcp-tap": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1785731776,
+        "narHash": "sha256-icvTnZFuz2yDfe+d2X5pL76zhelYYbGnPGu8uBV9d2I=",
+        "owner": "zereight",
+        "repo": "gitlab-mcp",
+        "rev": "926d42c8780cb9ec0cf3b5e187575bc3db205ff0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "zereight",
+        "repo": "gitlab-mcp",
         "type": "github"
       }
     }
