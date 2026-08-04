@@ -40,7 +40,11 @@ export default function (pi: ExtensionAPI) {
           const rightW = visibleWidth(pctPlain);
           // Truncate the path first if the three parts can't coexist.
           const maxLeft = Math.max(0, width - centerW - rightW - 4);
-          if (visibleWidth(left) > maxLeft) left = truncateToWidth(left, maxLeft, '…');
+          if (visibleWidth(left) > maxLeft) {
+            // The TUI truncator surrounds its ellipsis with full ANSI resets,
+            // even for plain input. Remove those before styling the whole line.
+            left = truncateToWidth(left, maxLeft, '…').replaceAll('\x1b[0m', '');
+          }
           const leftW = visibleWidth(left);
 
           // justify-between: distribute the remaining space evenly across the two gaps.

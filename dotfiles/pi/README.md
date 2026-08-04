@@ -209,6 +209,18 @@ means permissions.json failed to load — investigate.
 `@earendil-works/pi-tui` (`truncateToWidth`/`visibleWidth`) is a runtime import —
 fine, the extension loader aliases it to pi's bundled copy.
 
+## extensions/pane-focus.ts
+
+Adds tmux focus feedback to pi's input editor. While this tmux pane, its window,
+and its client are focused, the two horizontal editor borders keep the active
+thinking level (or bash mode) color. On `FocusOut`, only those borders switch to
+the same `dim` gray used by the custom status bar; `FocusIn` restores the live
+mode color. The extension enables terminal focus reporting (`DECSET 1004`),
+consumes the resulting escape sequences through `ctx.ui.onTerminalInput()`, and
+composes with any editor factory installed before it. `focus-events on` must
+also be set in tmux so pane changes are forwarded to pi (configured in
+`.tmux.conf`); run `tmux source-file ~/.tmux.conf` once for an existing server.
+
 ## extensions/python-code.ts
 
 Registers the `python` tool (shown as **Python Code Tool**) for self-contained,
