@@ -11,6 +11,14 @@
     "typescript": {
       "command": ["npx", "-y", "typescript-language-server", "--stdio"],
       "extensions": [".ts", ".tsx", ".mts", ".cts", ".js", ".jsx", ".mjs", ".cjs"]
+    },
+    "oxfmt": {
+      "command": ["oxfmt", "--lsp"],
+      "extensions": [
+        ".js", ".jsx", ".mjs", ".cjs", ".ts", ".tsx", ".mts", ".cts",
+        ".json", ".jsonc", ".json5", ".css", ".scss", ".less", ".pcss", ".postcss",
+        ".graphql", ".gql", ".graphqls", ".toml"
+      ]
     }
   }
 }
