@@ -1,22 +1,28 @@
 import { SettingsManager, type ExtensionAPI } from '@earendil-works/pi-coding-agent';
 
 /**
- * Pi persists every model switch as the global default. Keep model selection
- * session-local by suppressing that one settings-manager write.
+ * Pi persists every model and thinking-level switch as global defaults. Keep
+ * both selections session-local by suppressing those settings-manager writes.
  *
- * This patches a pi implementation detail because the extension API exposes no
- * session-only model setter. Restore the original method during /reload and
- * session replacement so stale extension instances do not retain the patch.
+ * This patches pi implementation details because the extension API exposes no
+ * session-only setters. Restore the original methods during /reload and session
+ * replacement so stale extension instances do not retain the patches.
  */
 export default function sessionOnlyModelSelection(pi: ExtensionAPI): void {
-  const original = SettingsManager.prototype.setDefaultModelAndProvider;
+  const originalModelSetter = SettingsManager.prototype.setDefaultModelAndProvider;
+  const originalThinkingSetter = SettingsManager.prototype.setDefaultThinkingLevel;
   const skipDefaultModelUpdate = (): void => {};
+  const skipDefaultThinkingUpdate = (): void => {};
 
   SettingsManager.prototype.setDefaultModelAndProvider = skipDefaultModelUpdate;
+  SettingsManager.prototype.setDefaultThinkingLevel = skipDefaultThinkingUpdate;
 
   pi.on('session_shutdown', () => {
     if (SettingsManager.prototype.setDefaultModelAndProvider === skipDefaultModelUpdate) {
-      SettingsManager.prototype.setDefaultModelAndProvider = original;
+      SettingsManager.prototype.setDefaultModelAndProvider = originalModelSetter;
+    }
+    if (SettingsManager.prototype.setDefaultThinkingLevel === skipDefaultThinkingUpdate) {
+      SettingsManager.prototype.setDefaultThinkingLevel = originalThinkingSetter;
     }
   });
 }

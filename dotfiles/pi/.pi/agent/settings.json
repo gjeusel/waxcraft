@@ -12,10 +12,13 @@
     "openai-codex/gpt-5.6-luna",
     "openai-codex/gpt-5.6-sol",
     "claude-bridge/claude-fable-5",
-    "claude-bridge/claude-opus-5",
-    "claude-bridge/claude-opus-4-8"
+    "claude-bridge/claude-opus-4-8",
+    "claude-bridge/claude-sonnet-5",
+    "claude-bridge/claude-haiku-4-5"
   ],
-  "skills": ["~/.claude/skills"],
+  "skills": [
+    "~/.claude/skills"
+  ],
   "packages": [
     "npm:pi-mcp-adapter@2.19.0",
     "npm:pi-claude-bridge@0.6.3",
