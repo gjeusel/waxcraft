@@ -4,10 +4,6 @@
       "command": "npx",
       "args": ["-y", "@upstash/context7-mcp"]
     },
-    "gmail": {
-      "url": "https://gmailmcp.googleapis.com/mcp/v1",
-      "auth": "oauth"
-    },
     "notion": {
       "url": "https://mcp.notion.com/mcp",
       "auth": "oauth"
@@ -25,10 +21,6 @@
       "env": {
         "DATABASE_URI": "postgresql://postgres@localhost:5432/zefire"
       }
-    },
-    "chrome-devtools": {
-      "command": "npx",
-      "args": ["-y", "chrome-devtools-mcp@latest"]
     },
     "playwright": {
       "command": "npx",
