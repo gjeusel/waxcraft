@@ -11,4 +11,7 @@ README.*
 ^/\.pi/agent/extensions/tsconfig\.json$
 ^/\.pi/agent/extensions/\.oxfmtrc\.json$
 ^/\.pi/agent/extensions/tests$
+# Unit tests and fixtures colocated with extensions:
+.+\.test\.ts
+^/\.pi/agent/extensions/[^/]+/data$
 node_modules

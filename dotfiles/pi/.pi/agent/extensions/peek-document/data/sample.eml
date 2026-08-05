@@ -1,0 +1,25 @@
+From: Alice Dupont <alice@example.com>
+To: Bob Martin <bob@example.com>
+Cc: carol@example.com
+Subject: Rapport mensuel production
+Date: Mon, 27 Jul 2026 10:00:00 +0000
+Message-ID: <sample-fixture@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="BOUNDARY"
+
+--BOUNDARY
+Content-Type: text/plain; charset=utf-8
+
+Bonjour Bob,
+
+Veuillez trouver ci-joint le rapport de production mensuel.
+
+Cordialement,
+Alice
+--BOUNDARY
+Content-Type: text/csv; name="production.csv"
+Content-Disposition: attachment; filename="production.csv"
+Content-Transfer-Encoding: base64
+
+c2l0ZSxwcm9kdWN0aW9uX213aAplb2xpZW5uZS1ub3JkLDEyNTAuNQo=
+--BOUNDARY--
