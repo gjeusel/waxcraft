@@ -60,6 +60,10 @@ ignores `README.*` by default, so this file is never symlinked into `~`.
   - `@ff-labs/pi-fff` — FFF-powered fuzzy file/content search and `@` file
     autocomplete with background indexing and frecency ranking
 
+`patches/apply-pi-patches.zsh` reapplies the tracked FFF patch around every `pi`
+invocation. This keeps the generated package under `~/.pi/agent/npm/` patched
+after `pi install` or `pi update` without tracking `node_modules`.
+
 ## claude-bridge.json (pi-claude-bridge package)
 
 The `pi` shell function in `zsh/aliases.zsh` unsets `ANTHROPIC_API_KEY` for the

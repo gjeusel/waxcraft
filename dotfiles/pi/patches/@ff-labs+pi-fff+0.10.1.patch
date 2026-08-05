@@ -1,0 +1,59 @@
+--- a/node_modules/@ff-labs/pi-fff/src/aux-finders.ts
++++ b/node_modules/@ff-labs/pi-fff/src/aux-finders.ts
+@@ -97,6 +97,22 @@
+ // remainder usable as a fuzzy path constraint relative to that root. Glob and
+ // nonexistent segments both go into the suffix: we walk up to the nearest
+ // existing ancestor so partially-wrong paths still resolve to a search root.
++function findGitRoot(start: string): string | null {
++  let current = start;
++  while (true) {
++    try {
++      // `.git` may be either a directory or a file (worktrees/submodules).
++      if (fs.existsSync(path.join(current, ".git"))) return current;
++    } catch {
++      // Keep resolving the path even when an ancestor is not accessible.
++    }
++
++    const parent = path.dirname(current);
++    if (parent === current) return null;
++    current = parent;
++  }
++}
++
+ export function resolveAuxRoot(
+   absPath: string,
+ ): { root: string; suffix: string } | null {
+@@ -117,13 +133,29 @@
+     } catch {
+       continue;
+     }
+-    if (stat.isFile()) {
++
++    const root = stat.isFile()
++      ? parts.slice(0, i - 1).join(path.sep) || path.sep
++      : candidate;
++    const gitRoot = findGitRoot(root);
++
++    // FFF loads gitignore rules relative to its basePath.  When an auxiliary
++    // finder is rooted in a nested directory, that skips .gitignore files in
++    // the repository's ancestors.  Index from the repository root instead and
++    // keep the requested path as a query suffix so all inherited rules apply.
++    if (gitRoot && gitRoot !== root) {
+       return {
+-        root: parts.slice(0, i - 1).join(path.sep) || path.sep,
+-        suffix: parts.slice(i - 1).join("/"),
++        root: gitRoot,
++        suffix: path.relative(gitRoot, trimmed).split(path.sep).join("/"),
+       };
+     }
+-    return { root: candidate, suffix: parts.slice(i).join("/") };
++
++    return {
++      root,
++      suffix: stat.isFile()
++        ? parts.slice(i - 1).join("/")
++        : parts.slice(i).join("/"),
++    };
+   }
+   return null;
+ }
