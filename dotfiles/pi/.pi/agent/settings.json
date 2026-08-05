@@ -1,7 +1,7 @@
 {
   "lastChangelogVersion": "0.83.0",
-  "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-5.6-luna",
+  "defaultProvider": "deepseek",
+  "defaultModel": "deepseek-v4-pro",
   "theme": "nord",
   "defaultThinkingLevel": "high",
   "defaultProjectTrust": "ask",
@@ -16,8 +16,8 @@
     "claude-bridge/claude-opus-4-6",
     "claude-bridge/claude-sonnet-5",
     "claude-bridge/claude-haiku-4-5",
-    "deepseek-v4-flash",
-    "deepseek-v4-pro"
+    "deepseek/deepseek-v4-flash",
+    "deepseek/deepseek-v4-pro"
   ],
   "skills": [
     "~/.claude/skills"
