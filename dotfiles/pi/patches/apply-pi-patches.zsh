@@ -2,6 +2,7 @@
 
 # Keep the FFF fix reproducible without committing changes under ~/.pi/agent/npm.
 # Pi installs packages into that directory and may replace them during updates.
+# Upstream issue: https://github.com/dmtrKovalenko/fff/issues/747
 
 setopt no_unset
 

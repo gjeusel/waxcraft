@@ -54,7 +54,8 @@ ignores `README.*` by default, so this file is never symlinked into `~`.
   - `pi-web-access` — web search + page fetching (pi has no built-in WebSearch)
   - `@ayulab/pi-rewind` — /rewind with file checkpoints (see above)
   - `@juicesharp/rpiv-ask-user-question` — structured interactive questionnaires
-    so the model can clarify decisions instead of guessing
+    so the model can clarify decisions instead of guessing; its prompt guidance is
+    tracked in the sibling `dotfiles/rpiv-ask-user-question` stow package
   - `@juicesharp/rpiv-todo` — a persistent todo tool and live task overlay that
     survives `/reload` and conversation compaction
   - `@ff-labs/pi-fff` — FFF-powered fuzzy file/content search and `@` file
@@ -62,7 +63,9 @@ ignores `README.*` by default, so this file is never symlinked into `~`.
 
 `patches/apply-pi-patches.zsh` reapplies the tracked FFF patch around every `pi`
 invocation. This keeps the generated package under `~/.pi/agent/npm/` patched
-after `pi install` or `pi update` without tracking `node_modules`.
+after `pi install` or `pi update` without tracking `node_modules`. Drop the
+patch once [dmtrKovalenko/fff#747](https://github.com/dmtrKovalenko/fff/issues/747)
+is fixed upstream.
 
 ## claude-bridge.json (pi-claude-bridge package)
 
