@@ -50,7 +50,6 @@ ignores `README.*` by default, so this file is never symlinked into `~`.
   - `pi-claude-bridge` — exposes Claude Code subscription models under the
     `claude-bridge/*` provider and adds the `AskClaude` delegation tool
   - `pi-subagents` — Agent-tool equivalent (delegation, parallel, chains)
-  - `@plannotator/pi-extension` — interactive plan review with annotations
   - `@narumitw/pi-lsp` — LSP diagnostics/fix tools, configured via `pi-lsp.json` (below)
   - `pi-web-access` — web search + page fetching (pi has no built-in WebSearch)
   - `@ayulab/pi-rewind` — /rewind with file checkpoints (see above)

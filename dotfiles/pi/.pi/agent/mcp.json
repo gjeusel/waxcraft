@@ -43,6 +43,9 @@
       "headers": {
         "Authorization": "Bearer ${EXCALIDRAW_MCP_TOKEN}"
       }
+    },
+    "sentry": {
+      "url": "https://mcp.sentry.dev/mcp"
     }
   }
 }

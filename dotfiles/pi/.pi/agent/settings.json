@@ -26,7 +26,6 @@
     "npm:pi-mcp-adapter@2.19.0",
     "npm:pi-claude-bridge@0.6.3",
     "npm:pi-subagents",
-    "npm:@plannotator/pi-extension@0.25.1",
     "npm:@narumitw/pi-lsp@0.46.0",
     "npm:pi-web-access@0.18.0",
     "npm:@ayulab/pi-rewind@0.4.6",
