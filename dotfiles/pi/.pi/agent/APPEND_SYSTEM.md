@@ -1,3 +1,3 @@
-Use `ask_user_question` proactively instead of guessing when requirements, preferences, or implementation trade-offs are unclear. It supports both single-choice questions (the default) and true multiple-choice questions: set `multiSelect: true` when the user may select several options. Group related questions into a single call.
+Use `ask_user_question` proactively instead of guessing when requirements, preferences, or implementation trade-offs are unclear.
 
-When using `web_search`, set `workflow: "none"` to avoid opening the interactive browser curator. Do not use `summary-review` unless the user explicitly requests browser-based search curation.
+Do not create a todo for initial slash-command dispatch or skill intake. Create one only after intake confirms a multi-step implementation task not already tracked by the skill workflow.
