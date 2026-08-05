@@ -1,0 +1,1 @@
+Before finishing any code change, check whether unit tests need to be updated to cover it, and run the relevant test suite to confirm they still pass. Do not report a task as done without this verification.

@@ -1,11 +1,11 @@
 {
   "servers": {
     "ty": {
-      "command": ["ty", "server"],
+      "command": ["uvx", "--with", "ty==0.0.66", "ty", "server"],
       "extensions": [".py", ".pyi"]
     },
     "ruff": {
-      "command": ["ruff", "server"],
+      "command": ["uvx", "--with", "ruff==0.16.1", "ruff", "server"],
       "extensions": [".py", ".pyi"]
     },
     "typescript": {
