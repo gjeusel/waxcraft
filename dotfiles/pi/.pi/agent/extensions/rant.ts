@@ -36,14 +36,9 @@ export function formatRantEntry(thought: string, cwd: string, now: Date, trigger
   return [`## ${formatTimestamp(now)}${trigger ? ` — ${trigger}` : ''}`, '', `cwd: ${cwd}`, '', thought, ''].join('\n');
 }
 
-async function fileExists(path: string): Promise<boolean> {
-  try {
-    await readFile(path, 'utf8');
-    return true;
-  } catch (error: unknown) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return false;
-    throw error;
-  }
+function entrySeparator(existingContent: string | undefined): string {
+  if (existingContent === undefined || existingContent.length === 0 || existingContent.endsWith('\n\n')) return '';
+  return existingContent.endsWith('\n') ? '\n' : '\n\n';
 }
 
 export default function (pi: ExtensionAPI) {
@@ -73,10 +68,16 @@ export default function (pi: ExtensionAPI) {
       const entry = formatRantEntry(thought, ctx.cwd, now, trigger);
 
       return withFileMutationQueue(rantPath, async () => {
-        if (!(await fileExists(rantPath))) {
+        let existingContent: string | undefined;
+        try {
+          existingContent = await readFile(rantPath, 'utf8');
+        } catch (error: unknown) {
+          if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
           await writeFile(rantPath, HEADING, 'utf8');
         }
-        await appendFile(rantPath, entry, 'utf8');
+
+        // Keep each Markdown heading separated from the previous entry.
+        await appendFile(rantPath, `${entrySeparator(existingContent)}${entry}`, 'utf8');
 
         return {
           content: [{ type: 'text' as const, text: `Appended rant entry to ~/.pi/RANT.md (${timestamp}).` }],
