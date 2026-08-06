@@ -1,9 +1,9 @@
 {
   "guidance": {
-    "promptSnippet": "Clarify ambiguous requirements via ask_user_question. Hard limits: 1-4 questions, header ≤16 chars, 2-4 options, label ≤60 chars.",
+    "promptSnippet": "Clarify ambiguous requirements via ask_user_question. Every question object MUST have a `header` field (≤16 chars). Hard limits: 1-4 questions, 2-4 options per question, label ≤60 chars.",
     "promptGuidelines": [
       "Batch all clarifications into one call (1-4 questions) instead of guessing.",
-      "header: ≤16 chars — a short chip like 'Auth method'. question: full sentence ending in '?'.",
+      "Every question MUST include a required `header` (≤16 chars, e.g. 'Auth method') plus a `question` (full sentence ending in '?').",
       "options: 2-4 per question; label ≤60 chars (1-5 words) + description. Reserved labels — never author: 'Other', 'Type something.', 'Next'.",
       "multiSelect: true for non-exclusive choices. preview: single-select only, for comparing mockups/code/configs. Recommended option first, label suffixed '(Recommended)'."
     ]
