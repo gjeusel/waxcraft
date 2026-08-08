@@ -1,5 +1,6 @@
 import { realpathSync } from 'node:fs';
 import { createRequire } from 'node:module';
+import { dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { inspect } from 'node:util';
 import { DEFAULT_MAX_BYTES, DEFAULT_MAX_LINES, truncateHead, type ExtensionAPI } from '@earendil-works/pi-coding-agent';
@@ -7,11 +8,45 @@ import type { Monty, ResourceLimits } from '@pydantic/monty';
 
 type MontyModule = typeof import('@pydantic/monty');
 
-const localRequire = createRequire(realpathSync(fileURLToPath(import.meta.url)));
+const extensionPath = realpathSync(fileURLToPath(import.meta.url));
+const extensionDirectory = dirname(extensionPath);
+const localRequire = createRequire(extensionPath);
+const runtimePackages = ['@pydantic/monty', 'typebox'] as const;
+type RuntimePackage = (typeof runtimePackages)[number];
+type PackageResolver = (specifier: string) => string;
+
 let montyModulePromise: Promise<MontyModule> | undefined;
 
+function resolveLocalPackage(specifier: string): string {
+  return localRequire.resolve(specifier);
+}
+
 function importLocalPackage<T>(specifier: string): Promise<T> {
-  return import(pathToFileURL(localRequire.resolve(specifier)).href) as Promise<T>;
+  return import(pathToFileURL(resolveLocalPackage(specifier)).href) as Promise<T>;
+}
+
+function findMissingRuntimePackage(resolvePackage: PackageResolver): RuntimePackage | undefined {
+  for (const specifier of runtimePackages) {
+    try {
+      resolvePackage(specifier);
+    } catch (error) {
+      const code = error && typeof error === 'object' && 'code' in error ? error.code : undefined;
+      if (code === 'MODULE_NOT_FOUND' || code === 'ERR_MODULE_NOT_FOUND') return specifier;
+      throw error;
+    }
+  }
+  return undefined;
+}
+
+function registerMissingDependencyWarning(pi: ExtensionAPI, specifier: RuntimePackage): void {
+  const message =
+    `Python Code Tool disabled: required package "${specifier}" is not installed. ` +
+    `Run "npm install" in ${extensionDirectory}.`;
+
+  pi.on('session_start', (_event, ctx) => {
+    if (ctx.hasUI) ctx.ui.notify(message, 'warning');
+    else console.warn(`Warning: ${message}`);
+  });
 }
 
 function loadMonty(): Promise<MontyModule> {
@@ -147,7 +182,16 @@ export async function runPythonCode(
   }
 }
 
-export default async function (pi: ExtensionAPI) {
+export async function initializePythonCodeExtension(
+  pi: ExtensionAPI,
+  resolvePackage: PackageResolver = resolveLocalPackage,
+): Promise<void> {
+  const missingPackage = findMissingRuntimePackage(resolvePackage);
+  if (missingPackage) {
+    registerMissingDependencyWarning(pi, missingPackage);
+    return;
+  }
+
   const [{ Type }, monty] = await Promise.all([importLocalPackage<typeof import('typebox')>('typebox'), loadMonty()]);
   let poolPromise: Promise<Monty> | undefined;
 
@@ -206,3 +250,5 @@ export default async function (pi: ExtensionAPI) {
     },
   });
 }
+
+export default initializePythonCodeExtension;

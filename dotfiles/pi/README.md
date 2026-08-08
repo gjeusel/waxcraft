@@ -272,7 +272,9 @@ lockfiles, `node_modules/`, and the `tests/` directory) out of
 `~/.pi/agent/extensions/` — only runtime extension files are stowed.
 Run the install **in this repo directory** (`npm install` or `pnpm install` here).
 The Python Code Tool resolves its dependencies beside the real (pre-symlink)
-extension source, while the install also gives the LSP all required types.
+extension source, while the install also gives the LSP all required types. If a
+runtime dependency is absent, the extension still loads, disables the tool, and
+shows a startup warning with the install location instead of failing pi startup.
 `tsc -p . --noEmit` passes clean.
 
 ## Stow gotcha: --adopt vs pi's own writes

@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { after, before, test } from 'node:test';
+import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
 import { Monty } from '@pydantic/monty';
-import { PythonCodeExecutionError, runPythonCode } from '../python-code.ts';
+import { initializePythonCodeExtension, PythonCodeExecutionError, runPythonCode } from '../python-code.ts';
 
 let pool: Monty;
 
@@ -15,6 +16,47 @@ before(async () => {
 
 after(async () => {
   await pool.close();
+});
+
+test('warns instead of failing when a runtime dependency is missing', async () => {
+  type SessionStartHandler = (
+    event: unknown,
+    ctx: { hasUI: boolean; ui: { notify(message: string, level: string): void } },
+  ) => void;
+
+  let sessionStartHandler: SessionStartHandler | undefined;
+  let registeredTool = false;
+  let warning: { message: string; level: string } | undefined;
+  const pi = {
+    on(event: string, handler: SessionStartHandler) {
+      if (event === 'session_start') sessionStartHandler = handler;
+    },
+    registerTool() {
+      registeredTool = true;
+    },
+  } as unknown as ExtensionAPI;
+
+  await initializePythonCodeExtension(pi, (specifier) => {
+    throw Object.assign(new Error(`Cannot find module '${specifier}'`), { code: 'MODULE_NOT_FOUND' });
+  });
+
+  assert.equal(registeredTool, false);
+  assert.ok(sessionStartHandler);
+  sessionStartHandler(
+    {},
+    {
+      hasUI: true,
+      ui: {
+        notify(message, level) {
+          warning = { message, level };
+        },
+      },
+    },
+  );
+  assert.ok(warning);
+  assert.equal(warning.level, 'warning');
+  assert.match(warning.message, /Python Code Tool disabled: required package "@pydantic\/monty" is not installed/);
+  assert.match(warning.message, /Run "npm install" in .*extensions\.$/);
 });
 
 test('returns printed output and the final expression value', async () => {
