@@ -61,7 +61,8 @@ pi-extensions-install:
 stow-install:
     for pat in {{ stow_junk_patterns }}; do find {{ justfile_dir }}/dotfiles -mindepth 2 -name "$pat" -not -path "{{ justfile_dir }}/dotfiles/claude/.claude" -prune -exec trash {} +; done
     if test ! -f {{ pi_extensions_dir }}/python-code/node_modules/@pydantic/monty/package.json; then cd {{ pi_extensions_dir }}/python-code && npm ci || echo "warning: Pi extension runtime dependencies could not be installed; python-code will be disabled" >&2; fi
-    stow --verbose --no-folding --restow --dir {{ justfile_dir }}/dotfiles/ --target ~/ --adopt $(ls {{ justfile_dir }}/dotfiles)
+    stow --verbose --no-folding --delete --dir {{ justfile_dir }}/dotfiles/ --target ~/ $(ls {{ justfile_dir }}/dotfiles)
+    stow --verbose --no-folding --dir {{ justfile_dir }}/dotfiles/ --target ~/ --adopt $(ls {{ justfile_dir }}/dotfiles)
 
 # Remove stow symblinks
 [group('dotfiles')]

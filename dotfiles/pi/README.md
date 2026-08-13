@@ -43,7 +43,7 @@ ignores `README.*` by default, so this file is never symlinked into `~`.
   unless `--verbose` is passed. Everything still loads, it's just not printed.
 - `defaultThinkingLevel: "high"` — initial level for new sessions. Cycle at runtime
   with Shift+Tab; the editor border color indicates the level (see theme `thinking*`
-  tokens). Runtime changes stay session-local via `session-only-model-selection.ts`.
+  tokens). Runtime changes stay session-local via `pi-builtin-adjustments/index.ts`.
 - No `defaultProvider`/`defaultModel` pinned: pick with Ctrl+Shift+L (remapped, see
   below) after authenticating; pi persists the last used model per project.
 - `packages` beyond `pi-mcp-adapter` (permissions is vendored, see below):
@@ -185,20 +185,17 @@ Key format is single `modifier+key` combos — **no chord/sequence support** (ch
   (`:tree`, `:model opus`, `:!git status`) with draft snapshot/restore. Esc enters
   NORMAL instead of interrupting; the keybindings above still apply in INSERT mode.
 
-## extensions/session-only-model-selection/index.ts
+## extensions/pi-builtin-adjustments/index.ts
 
-Keeps model and thinking-level changes session-local. Pi normally writes each runtime
-selection back to `defaultProvider`, `defaultModel`, and `defaultThinkingLevel` in
-`settings.json`; this extension suppresses those settings-manager writes while still
-letting session history record and restore the active selections. The authored defaults
-therefore remain stable across Shift+Tab thinking changes and model picker selections.
+Collects three small adjustments to Pi's built-in behavior:
 
-## extensions/optional-model-warnings/index.ts
-
-Keeps optional unauthenticated models in `enabledModels` without printing Pi's startup
-`No models match pattern` warning. Only `claude-bridge/*` and `openai-codex/*` are
-mandatory and retain their warnings; every other provider is optional. Pi still excludes
-unavailable optional models from the active scope.
+- Keeps model and thinking-level changes session-local by suppressing writes to
+  `defaultProvider`, `defaultModel`, and `defaultThinkingLevel`; session history
+  still records and restores active selections.
+- Suppresses startup `No models match pattern` warnings for optional providers.
+  Only `claude-bridge/*` and `openai-codex/*` remain mandatory and retain warnings.
+- Rewrites the verbose exit hint to the single dim-gray `pi --session <id>` line
+  using a narrowly scoped stdout interceptor during a real quit.
 
 ## extensions/gitleaks-guard/index.ts
 
@@ -236,15 +233,6 @@ vendored permissions extension) is shown next to the context %. `⛨0` there
 means permissions.json failed to load — investigate.
 `@earendil-works/pi-tui` (`truncateToWidth`/`visibleWidth`) is a runtime import —
 fine, the extension loader aliases it to pi's bundled copy.
-
-## extensions/exit-resume-command/index.ts
-
-Rewrites pi's verbose exit hint from `To resume this session: pi --session <id>`
-to the single dim-gray line `pi --session <id>`. Pi emits the built-in hint only
-after extension shutdown has completed and exposes no setting or renderer for it,
-so the extension installs a narrowly scoped stdout interceptor during a real quit.
-Only the exact built-in resume-hint shape is rewritten; other shutdown output and
-non-quit session replacements pass through unchanged.
 
 ## extensions/pane-focus/index.ts
 
@@ -295,7 +283,7 @@ package, silently overwriting the authored config — exactly what happened on f
 stow. Rule of thumb: stow BEFORE the first `pi` launch, or check `git diff` on this
 package right after stowing. Also note pi rewrites `settings.json` in place at runtime
 (`lastChangelogVersion`, `/settings` changes; model/thinking persistence is suppressed
-by `session-only-model-selection.ts`) — through
+by `pi-builtin-adjustments/index.ts`) — through
 the symlink, so churn in this file is expected, same as codex's trust table.
 `auth.json`, `models-store.json`, `sessions/`, `trust.json` are machine state and
 intentionally not stowed.
