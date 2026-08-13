@@ -193,6 +193,13 @@ selection back to `defaultProvider`, `defaultModel`, and `defaultThinkingLevel` 
 letting session history record and restore the active selections. The authored defaults
 therefore remain stable across Shift+Tab thinking changes and model picker selections.
 
+## extensions/optional-model-warnings.ts
+
+Keeps optional unauthenticated models in `enabledModels` without printing Pi's startup
+`No models match pattern` warning. Only `claude-bridge/*` and `openai-codex/*` are
+mandatory and retain their warnings; every other provider is optional. Pi still excludes
+unavailable optional models from the active scope.
+
 ## extensions/gitleaks-guard.ts
 
 Custom extension (auto-discovered from `~/.pi/agent/extensions/*.ts`, hot-reload
