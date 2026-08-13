@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { SettingsManager, type ExtensionAPI } from '@earendil-works/pi-coding-agent';
-import sessionOnlyModelSelection from '../session-only-model-selection.ts';
+import sessionOnlyModelSelection from './index.ts';
 
 test('keeps model and thinking-level defaults unchanged during a session', () => {
   type ShutdownHandler = () => void;

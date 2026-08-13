@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { checkBashCommand } from '../safe-trash.ts';
+import { checkBashCommand } from './index.ts';
 
 const home = '/Users/test';
 const cwd = '/Users/test/src/project';

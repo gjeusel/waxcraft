@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { after, before, test } from 'node:test';
 import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
 import { Monty } from '@pydantic/monty';
-import { initializePythonCodeExtension, PythonCodeExecutionError, runPythonCode } from '../python-code.ts';
+import { initializePythonCodeExtension, PythonCodeExecutionError, runPythonCode } from './index.ts';
 
 let pool: Monty;
 
@@ -56,7 +56,7 @@ test('warns instead of failing when a runtime dependency is missing', async () =
   assert.ok(warning);
   assert.equal(warning.level, 'warning');
   assert.match(warning.message, /Python Code Tool disabled: required package "@pydantic\/monty" is not installed/);
-  assert.match(warning.message, /Run "npm install" in .*extensions\.$/);
+  assert.match(warning.message, /Run "npm install" in .*extensions\/python-code\.$/);
 });
 
 test('returns printed output and the final expression value', async () => {

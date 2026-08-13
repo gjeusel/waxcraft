@@ -47,11 +47,21 @@ gcroot:
 # gets symlinked into ~. The claude package's own top-level `.claude` dir is kept.
 stow_junk_patterns := ".claude .ruff_cache .DS_Store"
 
-# Symlink all dotfiles
+pi_extensions_dir := justfile_dir / "dotfiles/pi/.pi/agent/extensions"
+
+# Recreate the complete Pi extension development and runtime dependency trees.
+[group('dotfiles')]
+pi-extensions-install:
+    cd {{ pi_extensions_dir }} && npm ci
+    cd {{ pi_extensions_dir }}/python-code && npm ci
+
+# Symlink all dotfiles. Pi runtime dependencies are installed best-effort when
+# missing; use `just pi-extensions-install` to force a deterministic refresh.
 [group('dotfiles')]
 stow-install:
     for pat in {{ stow_junk_patterns }}; do find {{ justfile_dir }}/dotfiles -mindepth 2 -name "$pat" -not -path "{{ justfile_dir }}/dotfiles/claude/.claude" -prune -exec trash {} +; done
-    stow --verbose --no-folding --dir {{ justfile_dir }}/dotfiles/ --target ~/ --adopt $(ls {{ justfile_dir }}/dotfiles)
+    if test ! -f {{ pi_extensions_dir }}/python-code/node_modules/@pydantic/monty/package.json; then cd {{ pi_extensions_dir }}/python-code && npm ci || echo "warning: Pi extension runtime dependencies could not be installed; python-code will be disabled" >&2; fi
+    stow --verbose --no-folding --restow --dir {{ justfile_dir }}/dotfiles/ --target ~/ --adopt $(ls {{ justfile_dir }}/dotfiles)
 
 # Remove stow symblinks
 [group('dotfiles')]

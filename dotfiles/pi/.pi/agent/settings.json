@@ -1,7 +1,7 @@
 {
   "lastChangelogVersion": "0.83.0",
-  "defaultProvider": "deepseek",
-  "defaultModel": "deepseek-v4-pro",
+  "defaultProvider": "openai-codex",
+  "defaultModel": "gpt-5.6-luna",
   "theme": "nord",
   "defaultThinkingLevel": "high",
   "defaultProjectTrust": "ask",

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import guard, { redact, scan, type Finding } from '../gitleaks-guard.ts';
+import guard, { redact, scan, type Finding } from './index.ts';
 
 // Built at runtime so the raw string never sits in the repo and cannot
 // itself trip secret scanners on this test file.

@@ -9,7 +9,7 @@ import perModelPrompt, {
   buildRephrasePrompt,
   loadModelPrompt,
   promptFileName,
-} from '../per-model-prompt.ts';
+} from './index.ts';
 
 type Handler = (
   event: { systemPrompt: string },

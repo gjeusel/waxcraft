@@ -185,7 +185,7 @@ Key format is single `modifier+key` combos — **no chord/sequence support** (ch
   (`:tree`, `:model opus`, `:!git status`) with draft snapshot/restore. Esc enters
   NORMAL instead of interrupting; the keybindings above still apply in INSERT mode.
 
-## extensions/session-only-model-selection.ts
+## extensions/session-only-model-selection/index.ts
 
 Keeps model and thinking-level changes session-local. Pi normally writes each runtime
 selection back to `defaultProvider`, `defaultModel`, and `defaultThinkingLevel` in
@@ -193,14 +193,14 @@ selection back to `defaultProvider`, `defaultModel`, and `defaultThinkingLevel` 
 letting session history record and restore the active selections. The authored defaults
 therefore remain stable across Shift+Tab thinking changes and model picker selections.
 
-## extensions/optional-model-warnings.ts
+## extensions/optional-model-warnings/index.ts
 
 Keeps optional unauthenticated models in `enabledModels` without printing Pi's startup
 `No models match pattern` warning. Only `claude-bridge/*` and `openai-codex/*` are
 mandatory and retain their warnings; every other provider is optional. Pi still excludes
 unavailable optional models from the active scope.
 
-## extensions/gitleaks-guard.ts
+## extensions/gitleaks-guard/index.ts
 
 Custom extension (auto-discovered from `~/.pi/agent/extensions/*.ts`, hot-reload
 with `/reload`). Hooks the `input` event: every message headed for the prompt —
@@ -211,7 +211,7 @@ hatch for false positives). Fail-open: if `gitleaks` is missing or errors, the
 prompt goes through with a warning. Requires `gitleaks` on PATH (installed via
 nix). Uses `spawnSync` rather than `pi.exec` because the latter can't feed stdin.
 
-## extensions/safe-trash.ts
+## extensions/safe-trash/index.ts
 
 Native pi equivalent of Claude's `hooks/safe_trash.sh`. It injects a system-prompt
 rule telling the model to use macOS `trash` instead of `rm`, and blocks direct or
@@ -223,7 +223,7 @@ substitutions, quotes, braces, wrappers, and `cd … && trash …` fail closed. 
 lexical and symlink-resolved paths are checked. The matching permission rules
 provide defense in depth for simple direct commands.
 
-## extensions/statusbar.ts
+## extensions/statusbar/index.ts
 
 Replaces the built-in footer (2–3 lines: pwd+branch, token/cost stats, extension
 statuses such as the MCP adapter's) with a single minimalist line via
@@ -237,7 +237,7 @@ means permissions.json failed to load — investigate.
 `@earendil-works/pi-tui` (`truncateToWidth`/`visibleWidth`) is a runtime import —
 fine, the extension loader aliases it to pi's bundled copy.
 
-## extensions/exit-resume-command.ts
+## extensions/exit-resume-command/index.ts
 
 Rewrites pi's verbose exit hint from `To resume this session: pi --session <id>`
 to the single dim-gray line `pi --session <id>`. Pi emits the built-in hint only
@@ -246,7 +246,7 @@ so the extension installs a narrowly scoped stdout interceptor during a real qui
 Only the exact built-in resume-hint shape is rewritten; other shutdown output and
 non-quit session replacements pass through unchanged.
 
-## extensions/pane-focus.ts
+## extensions/pane-focus/index.ts
 
 Adds tmux focus feedback to pi's input editor. While this tmux pane, its window,
 and its client are focused, the two horizontal editor borders keep the active
@@ -258,7 +258,7 @@ composes with any editor factory installed before it. `focus-events on` must
 also be set in tmux so pane changes are forwarded to pi (configured in
 `.tmux.conf`); run `tmux source-file ~/.tmux.conf` once for an existing server.
 
-## extensions/python-code.ts
+## extensions/python-code/index.ts
 
 Registers the `python` tool (shown as **Python Code Tool**) for self-contained,
 dependency-free Python snippets. Source is passed directly in the tool's `code`
@@ -270,19 +270,22 @@ lines. Monty limitation-like errors tell the model to retry with normal Python v
 
 ## Editor tooling and runtime dependencies for extensions/
 
-The extensions dir carries a `tsconfig.json` (NodeNext, strict, noEmit — mirrors
-pi's own tsconfig.base), a `package.json` declaring pi's packages and TypeScript
-types for editor/LSP comfort, and the Monty/TypeBox runtime dependencies used by
-`python-code.ts`. The `.oxfmtrc.json` supplies formatter config. These files are
-**source tooling, not pi config**, so `.stow-local-ignore` keeps them (plus
-lockfiles, `node_modules/`, and the `tests/` directory) out of
-`~/.pi/agent/extensions/` — only runtime extension files are stowed.
-Run the install **in this repo directory** (`npm install` or `pnpm install` here).
-The Python Code Tool resolves its dependencies beside the real (pre-symlink)
-extension source, while the install also gives the LSP all required types. If a
-runtime dependency is absent, the extension still loads, disables the tool, and
-shows a startup warning with the install location instead of failing pi startup.
-`tsc -p . --noEmit` passes clean.
+Every extension lives in its own directory with an `index.ts`; tests are colocated
+as `<extension>.test.ts`. The root `package.json` and lockfile contain only editor,
+test, and typecheck tooling. Extensions get their own manifest only for external
+npm runtime dependencies: currently `python-code/package.json` owns Monty, while
+Pi supplies TypeBox and its own packages. Manifests, lockfiles, tests, fixtures,
+and `node_modules/` remain repo-only via `.stow-local-ignore`.
+
+`just stow-install` runs `npm ci` for the Python Code Tool only when Monty is
+missing and warns rather than blocking unrelated dotfile deployment on failure.
+Run `just pi-extensions-install` to force-refresh both the root tooling and nested
+runtime dependency trees, then run `npm test` in the extensions directory for the
+recursive typecheck and all colocated tests. The Python Code Tool resolves Monty
+beside its real (pre-symlink) source; if absent, it disables itself and reports the
+nested install location. `extensions/subagent/config.json` is a deliberate
+exception to the directory convention: it configures the npm-installed
+`pi-subagents` package and is not an auto-discovered extension.
 
 ## Stow gotcha: --adopt vs pi's own writes
 
@@ -303,8 +306,8 @@ intentionally not stowed.
 npm i -g @earendil-works/pi   # or: brew install pi (check their docs)
 pi                            # first run: auto-installs the npm packages from settings.json
 /login                        # authenticate provider(s) — writes ~/.pi/agent/auth.json
-# LSP types for custom extensions (in the repo, not in ~):
-(cd ~/src/waxcraft/dotfiles/pi/.pi/agent/extensions && npm install)
+# Extension tooling + runtime dependencies (in the repo, not in ~):
+(cd ~/src/waxcraft && just pi-extensions-install)
 ```
 
 Startup is fully quiet; the statusbar's `⛨N` confirms the deny rules loaded.

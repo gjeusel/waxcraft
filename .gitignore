@@ -15,6 +15,5 @@ dotfiles/.config/nvim/lua/packer_compiled.lua
 
 node_modules/
 
-# Editor-tooling lockfile only (deps are devDependencies for LSP types)
+# npm lockfiles under Pi extensions are tracked for reproducible tooling/runtime installs.
 dotfiles/pi/.pi/agent/extensions/pnpm-lock.yaml
-dotfiles/pi/.pi/agent/extensions/package-lock.json

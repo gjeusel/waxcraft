@@ -5,13 +5,14 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { inspect } from 'node:util';
 import { DEFAULT_MAX_BYTES, DEFAULT_MAX_LINES, truncateHead, type ExtensionAPI } from '@earendil-works/pi-coding-agent';
 import type { Monty, ResourceLimits } from '@pydantic/monty';
+import { Type } from 'typebox';
 
 type MontyModule = typeof import('@pydantic/monty');
 
 const extensionPath = realpathSync(fileURLToPath(import.meta.url));
 const extensionDirectory = dirname(extensionPath);
 const localRequire = createRequire(extensionPath);
-const runtimePackages = ['@pydantic/monty', 'typebox'] as const;
+const runtimePackages = ['@pydantic/monty'] as const;
 type RuntimePackage = (typeof runtimePackages)[number];
 type PackageResolver = (specifier: string) => string;
 
@@ -192,7 +193,7 @@ export async function initializePythonCodeExtension(
     return;
   }
 
-  const [{ Type }, monty] = await Promise.all([importLocalPackage<typeof import('typebox')>('typebox'), loadMonty()]);
+  const monty = await loadMonty();
   let poolPromise: Promise<Monty> | undefined;
 
   const getPool = (): Promise<Monty> => {

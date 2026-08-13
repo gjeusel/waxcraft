@@ -8,9 +8,11 @@ README.*
 ^/\.pi/agent/extensions/package\.json$
 ^/\.pi/agent/extensions/package-lock\.json$
 ^/\.pi/agent/extensions/pnpm-lock\.yaml$
+^/\.pi/agent/extensions/[^/]+/package\.json$
+^/\.pi/agent/extensions/[^/]+/package-lock\.json$
+^/\.pi/agent/extensions/[^/]+/pnpm-lock\.yaml$
 ^/\.pi/agent/extensions/tsconfig\.json$
 ^/\.pi/agent/extensions/\.oxfmtrc\.json$
-^/\.pi/agent/extensions/tests$
 # Unit tests and fixtures colocated with extensions:
 .+\.test\.ts
 ^/\.pi/agent/extensions/[^/]+/data$

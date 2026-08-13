@@ -12,5 +12,6 @@
     "allowImportingTsExtensions": true,
     "types": ["node"]
   },
-  "include": ["*.ts", "*/index.ts"]
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules"]
 }

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
-import exitResumeCommand, { extractResumeCommand } from '../exit-resume-command.ts';
+import exitResumeCommand, { extractResumeCommand } from './index.ts';
 
 test('extracts the command from the built-in exit message', () => {
   assert.equal(
