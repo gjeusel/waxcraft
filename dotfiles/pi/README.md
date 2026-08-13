@@ -210,15 +210,25 @@ nix). Uses `spawnSync` rather than `pi.exec` because the latter can't feed stdin
 
 ## extensions/safe-trash/index.ts
 
-Native pi equivalent of Claude's `hooks/safe_trash.sh`. It injects a system-prompt
-rule telling the model to use macOS `trash` instead of `rm`, and blocks direct or
-compound `rm`, `mv`, `git rm`, and `git mv` Bash calls. Common nested shell,
-`find`, and `xargs` forms are blocked too. Every direct `trash` target is validated.
-Temp paths are exempt; filesystem roots, system paths, top-level home paths, and
-protected home config directories are denied. Dynamic paths, traversal, command
-substitutions, quotes, braces, wrappers, and `cd … && trash …` fail closed. Both
-lexical and symlink-resolved paths are checked. The matching permission rules
-provide defense in depth for simple direct commands.
+Redirects `rm` to the macOS Trash instead of blocking it. On load the extension
+prepends `bin/` (shim scripts for `rm` and `trash`) to `process.env.PATH`; pi's
+bash tool builds its child environment from `process.env`, so every spawned
+command — including nested `bash -c`, `find -exec`, `xargs`, and scripts —
+resolves `rm` to the shim. The `rm` shim absorbs `-r`/`-f`-style flags (keeping
+`-f`'s ignore-missing semantics) and delegates to the `trash` shim, which
+validates the fully shell-expanded argv (no quoting/glob/variable guesswork):
+temp paths are exempt; `/`, top-level paths, system paths, `$HOME`, its direct
+children, and protected config dirs (`~/.ssh`, `~/.config`, …) are refused;
+symlinks are trashed as links, never their targets. It then execs the real
+`trash` found later in PATH. A tree-sitter-bash (WASM) static check blocks the
+shim bypasses — path-invoked rm (`/bin/rm`), `git rm` (except `--cached`),
+`find -delete`, `sudo rm`, `env -i`/`PATH=` tricks, full PATH replacement — and
+permanently destructive commands: `git clean -f` (without `-n`), `git reset
+--hard`, `git checkout`/`git restore` forms that overwrite the worktree,
+`git stash drop|clear`, `shred`/`srm`/`unlink`, `crontab -r`, `rsync --delete`,
+`dd of=/dev/*`, `diskutil erase*`, `mkfs*`/`newfs*`, and `tmutil delete*`. A
+regex fallback covers the worst of these if the parser packages are missing
+(`npm install` in the extension dir). `mv` and `git mv` are allowed.
 
 ## extensions/statusbar/index.ts
 

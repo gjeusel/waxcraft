@@ -1,0 +1,143 @@
+#!/bin/bash
+# safe-trash shim: validates fully shell-expanded targets against a small deny
+# policy, then delegates to the real trash binary found later in PATH.
+# Option-looking arguments are dropped: the macOS trash needs none, and agents
+# habitually pass rm-style -rf flags.
+set -o pipefail
+
+self_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P) || exit 1
+
+find_real_trash() {
+  local IFS=':' entry resolved
+  for entry in $PATH; do
+    [ -n "$entry" ] || continue
+    resolved=$(cd -- "$entry" 2>/dev/null && pwd -P) || continue
+    [ "$resolved" = "$self_dir" ] && continue
+    if [ -f "$entry/trash" ] && [ -x "$entry/trash" ]; then
+      printf '%s\n' "$entry/trash"
+      return 0
+    fi
+  done
+  if [ -x /usr/bin/trash ]; then
+    printf '/usr/bin/trash\n'
+    return 0
+  fi
+  return 1
+}
+
+# Resolve to an absolute path, normalizing .. and symlinks in the parent
+# directory. The final component is deliberately NOT resolved: trashing a
+# symlink only removes the link, never its target.
+resolve_path() {
+  local p=$1 dir base parent
+  case $p in
+    /*) ;;
+    *) p="$PWD/$p" ;;
+  esac
+  if [ "$p" = / ]; then
+    printf '/\n'
+    return 0
+  fi
+  dir=$(dirname -- "$p")
+  base=$(basename -- "$p")
+  if [ "$base" = . ] || [ "$base" = .. ]; then
+    parent=$(cd -- "$p" 2>/dev/null && pwd -P) || return 1
+    printf '%s\n' "$parent"
+  else
+    parent=$(cd -- "$dir" 2>/dev/null && pwd -P) || return 1
+    if [ "$parent" = / ]; then
+      printf '/%s\n' "$base"
+    else
+      printf '%s/%s\n' "$parent" "$base"
+    fi
+  fi
+}
+
+# Prints a refusal reason for a resolved absolute path, or nothing if allowed.
+judge() {
+  local p=$1 prefix rel name
+  if [ "$p" = "$HOME" ]; then
+    echo "refusing to trash the home directory"
+    return 0
+  fi
+  case $p in
+    "$HOME"/*)
+      rel=${p#"$HOME"/}
+      case $rel in
+        */*) ;;
+        *)
+          echo "refusing to trash top-level home path ~/$rel"
+          return 0
+          ;;
+      esac
+      for name in .ssh .gnupg .aws .kube .config .claude; do
+        case $rel in
+          "$name" | "$name"/*)
+            echo "refusing to trash path under protected ~/$name"
+            return 0
+            ;;
+        esac
+      done
+      return 0
+      ;;
+  esac
+  for prefix in /tmp /private/tmp /var/tmp /private/var/tmp /var/folders /private/var/folders; do
+    case $p in
+      "$prefix" | "$prefix"/*) return 0 ;;
+    esac
+  done
+  if [ "$p" = / ]; then
+    echo "refusing to trash /"
+    return 0
+  fi
+  case $p in
+    /*/*) ;;
+    /*)
+      echo "refusing to trash top-level path $p"
+      return 0
+      ;;
+  esac
+  for prefix in /System /Library /Applications /usr /bin /sbin /etc /private/etc /opt /nix /Volumes; do
+    case $p in
+      "$prefix" | "$prefix"/*)
+        echo "refusing to trash system path $p"
+        return 0
+        ;;
+    esac
+  done
+  return 0
+}
+
+paths=()
+seen_dashdash=0
+for arg in "$@"; do
+  if [ "$seen_dashdash" = 1 ]; then
+    paths+=("$arg")
+    continue
+  fi
+  case $arg in
+    --) seen_dashdash=1 ;;
+    -*) ;;
+    *) paths+=("$arg") ;;
+  esac
+done
+
+if [ ${#paths[@]} -eq 0 ]; then
+  echo "usage: trash file ..." >&2
+  exit 1
+fi
+
+for p in "${paths[@]}"; do
+  resolved=$(resolve_path "$p") || continue
+  reason=$(judge "$resolved")
+  if [ -n "$reason" ]; then
+    echo "safe-trash: $reason" >&2
+    exit 1
+  fi
+done
+
+real_trash=$(find_real_trash) || {
+  echo "safe-trash: no real trash binary found on PATH" >&2
+  exit 1
+}
+exec "$real_trash" "${paths[@]}"

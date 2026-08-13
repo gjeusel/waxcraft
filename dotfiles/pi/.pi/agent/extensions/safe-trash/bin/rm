@@ -1,0 +1,47 @@
+#!/bin/bash
+# safe-trash shim: rm is transparently redirected to the trash shim next to
+# this script. rm-style flags are absorbed (trash handles directories without
+# -r); -f keeps its "ignore missing operands" meaning.
+set -o pipefail
+
+self_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P) || exit 1
+
+force=0
+seen_dashdash=0
+paths=()
+for arg in "$@"; do
+  if [ "$seen_dashdash" = 1 ]; then
+    paths+=("$arg")
+    continue
+  fi
+  case $arg in
+    --) seen_dashdash=1 ;;
+    --force) force=1 ;;
+    --*) ;;
+    -*f*) force=1 ;;
+    -*) ;;
+    *) paths+=("$arg") ;;
+  esac
+done
+
+if [ ${#paths[@]} -eq 0 ]; then
+  [ "$force" = 1 ] && exit 0
+  echo "usage: rm [-f | -i] [-dIPRrvWx] file ..." >&2
+  exit 1
+fi
+
+status=0
+existing=()
+for p in "${paths[@]}"; do
+  if [ -e "$p" ] || [ -L "$p" ]; then
+    existing+=("$p")
+  elif [ "$force" != 1 ]; then
+    echo "rm: $p: No such file or directory" >&2
+    status=1
+  fi
+done
+
+if [ ${#existing[@]} -gt 0 ]; then
+  "$self_dir/trash" -- "${existing[@]}" || status=$?
+fi
+exit $status
