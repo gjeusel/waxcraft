@@ -30,8 +30,8 @@
     "npm:@narumitw/pi-lsp@0.46.0",
     "npm:pi-web-access@0.18.0",
     "npm:@ayulab/pi-rewind@0.4.6",
-    "npm:@juicesharp/rpiv-ask-user-question@2.4.0",
-    "npm:@juicesharp/rpiv-todo@2.3.1",
+    "npm:@juicesharp/rpiv-ask-user-question@2.6.2",
+    "npm:@juicesharp/rpiv-todo@2.6.2",
     "npm:@ff-labs/pi-fff@0.10.5"
   ],
   "compaction": {
