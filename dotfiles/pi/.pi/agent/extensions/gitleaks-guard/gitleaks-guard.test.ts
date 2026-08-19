@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import guard, { redact, scan, type Finding } from './index.ts';
+import guard, { redact, redactWithCount, scan, type Finding } from './index.ts';
 
 // Built at runtime so the raw string never sits in the repo and cannot
 // itself trip secret scanners on this test file.
@@ -26,6 +26,28 @@ test('redact: replaces every occurrence, keeps the rest', () => {
   assert.equal(out.split('[REDACTED:generic-api-key]').length, 3);
   assert.ok(out.includes('x = 1'));
   assert.ok(out.includes('y = 2'));
+});
+
+test('redactWithCount counts actual replacements instead of overlapping findings', () => {
+  const text = 'token=abcdefghijk';
+  const findings: Finding[] = [
+    { RuleID: 'generic-api-key', StartLine: 1, Secret: 'abcdefghijk' },
+    { RuleID: 'generic-api-key', StartLine: 1, Secret: 'defgh' },
+  ];
+
+  assert.deepEqual(redactWithCount(text, findings), {
+    text: 'token=[REDACTED:generic-api-key]',
+    count: 1,
+  });
+});
+
+test('redactWithCount counts repeated occurrences of one finding', () => {
+  const findings: Finding[] = [{ RuleID: 'generic-api-key', StartLine: 1, Secret: 'abcdefghijk' }];
+
+  assert.deepEqual(redactWithCount('abcdefghijk and abcdefghijk', findings), {
+    text: '[REDACTED:generic-api-key] and [REDACTED:generic-api-key]',
+    count: 2,
+  });
 });
 
 type Handler = (event: any, ctx: any) => Promise<any>;

@@ -56,12 +56,39 @@ export function scan(text: string): ScanResult {
 // Findings summary that never echoes the secret itself.
 export const describe = (findings: Finding[]) => findings.map((f) => `  ${f.RuleID} (line ${f.StartLine})`).join('\n');
 
-export function redact(text: string, findings: Finding[]): string {
+export interface RedactionResult {
+  text: string;
+  count: number;
+}
+
+export function redactWithCount(text: string, findings: Finding[]): RedactionResult {
   let out = text;
-  for (const f of findings) {
-    if (f.Secret) out = out.split(f.Secret).join(`[REDACTED:${f.RuleID}]`);
+  let count = 0;
+
+  // Gitleaks can report overlapping findings for one secret. Process each
+  // unique candidate longest-first so a nested match is not counted twice.
+  const uniqueFindings = new Map<string, Finding>();
+  for (const finding of findings) {
+    if (finding.Secret && !uniqueFindings.has(finding.Secret)) {
+      uniqueFindings.set(finding.Secret, finding);
+    }
   }
-  return out;
+
+  const orderedFindings = [...uniqueFindings.values()].sort((a, b) => b.Secret.length - a.Secret.length);
+  for (const finding of orderedFindings) {
+    const parts = out.split(finding.Secret);
+    const occurrences = parts.length - 1;
+    if (occurrences === 0) continue;
+
+    count += occurrences;
+    out = parts.join(`[REDACTED:${finding.RuleID}]`);
+  }
+
+  return { text: out, count };
+}
+
+export function redact(text: string, findings: Finding[]): string {
+  return redactWithCount(text, findings).text;
 }
 
 export default function (pi: ExtensionAPI) {
@@ -103,8 +130,9 @@ export default function (pi: ExtensionAPI) {
       const result = scan(block.text);
 
       if (result.status === 'leaks') {
-        redactedCount += result.findings.length;
-        return { ...block, text: redact(block.text, result.findings) };
+        const redaction = redactWithCount(block.text, result.findings);
+        redactedCount += redaction.count;
+        return { ...block, text: redaction.text };
       }
 
       if (result.status === 'error') {
