@@ -51,6 +51,8 @@ vim.filetype.add({
     --
     [".nuxtrc"] = "config",
     ["config"] = "config",
+    ["Justfile"] = "just",
+    ["justfile"] = "just",
   },
   -- pattern = map_pattern_ft,
   pattern = {

@@ -446,7 +446,7 @@ return {
         -- Generic:
         "nix", "bash", "json", "yaml", "lua", "ql", "query", "regex",
         "toml", "markdown", "git_config", "git_rebase", "gitcommit",
-        "diff", "make", "jinja",
+        "diff", "make", "jinja", "just",
         -- Frontend:
         "graphql", "html", "css", "scss", "javascript", "typescript",
         "tsx", "svelte", "vue",
