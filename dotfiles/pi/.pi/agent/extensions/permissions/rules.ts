@@ -13,7 +13,9 @@ export interface ParsedRule {
 
 export function globToRegex(glob: string): RegExp {
   const escaped = glob.replace(/([.+?^${}()|[\]\\])/g, '\\$1').replace(/\*/g, '.*');
-  return new RegExp(`^${escaped}$`);
+  // Bash tool inputs may contain heredocs or other multiline shell syntax.
+  // Dot-all makes glob wildcards cover the complete input, including newlines.
+  return new RegExp(`^${escaped}$`, 's');
 }
 
 export function parseRule(rule: string): ParsedRule | null {

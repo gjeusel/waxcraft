@@ -1,8 +1,8 @@
 /**
  * permissions — vendored fork of npm:pi-permissions@1.0.4 (MIT, badlogic).
- * Identical rule loading/evaluation (rules.ts untouched); the only change is
- * startup reporting: instead of the chat notification ("Permissions loaded:
- * 0 allow, N deny rules") it publishes a deny-rule count via
+ * Rule evaluation includes a local fix for multiline Bash inputs. Startup
+ * reporting publishes a deny-rule count via the status bar instead of the
+ * original chat notification ("Permissions loaded: 0 allow, N deny rules"):
  * ctx.ui.setStatus("permissions", ...), which the statusbar extension picks up.
  * A count of 0 in the statusbar signals a missing/broken permissions.json.
  */

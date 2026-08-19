@@ -47,6 +47,24 @@ extensions/
 └── whimsical/              playful working messages
 ```
 
+## Packages
+
+Third-party packages are pinned in `settings.json`.
+
+```text
+packages/
+├── pi-mcp-adapter/                         MCP server integration
+├── pi-claude-bridge/                       Claude Code model provider
+├── pi-subagents/                           delegated agent workflows
+├── pi-intercom/                            cross-session communication
+├── @narumitw/pi-lsp/                       language-server diagnostics and fixes
+├── pi-web-access/                          web search and content retrieval
+├── @ayulab/pi-rewind/                      conversation checkpoints and rewinding
+├── @juicesharp/rpiv-ask-user-question/     structured user prompts
+├── @juicesharp/rpiv-todo/                  task tracking
+├── @ff-labs/pi-fff/                        fast file and content search
+```
+
 ## Maintenance
 
 ```bash

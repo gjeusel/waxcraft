@@ -24,7 +24,7 @@
   ],
   "packages": [
     "npm:pi-mcp-adapter@2.19.0",
-    "npm:pi-claude-bridge@0.6.3",
+    "npm:pi-claude-bridge@0.7.0",
     "npm:pi-subagents@0.45.1",
     "npm:pi-intercom@0.10.1",
     "npm:@narumitw/pi-lsp@0.46.0",
@@ -32,7 +32,7 @@
     "npm:@ayulab/pi-rewind@0.4.6",
     "npm:@juicesharp/rpiv-ask-user-question@2.4.0",
     "npm:@juicesharp/rpiv-todo@2.3.1",
-    "npm:@ff-labs/pi-fff@0.10.2-nightly.086044f"
+    "npm:@ff-labs/pi-fff@0.10.5"
   ],
   "compaction": {
     "enabled": true
