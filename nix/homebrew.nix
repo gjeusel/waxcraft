@@ -12,23 +12,31 @@
       "redis"
       "meilisearch"
       "libomp" # openmp on macos
-      "googleworkspace-cli" # CLI (unavailable in nixpkgs)
       "py-spy" # CLI to profile python (unavailable in nixpkgs for ARM arch)
       "agavra/tap/tuicr" # code review TUI (unavailable in nixpkgs)
       "zereight/gitlab-mcp/zereight-mcp-gitlab" # gitlab MCP server (used by pi)
+
+      # ----- Tools without prebuilt ARM substitutes in nixpkgs -----
+      # Use Homebrew bottles/upstream binaries instead of compiling locally.
+      "googleworkspace-cli"
+      "hashicorp/tap/terraform"
+      "ocrmypdf"
     ];
     casks = [
       "ghostty" # broken in nixpkgs
       "raycast"
 
-      "claude"
+      "claude" # claude app
+      "chatgpt" # OpenAI's coding agent desktop app
       "macwhisper"
+
+      "linear"
 
       "brave-browser" # default
       "firefox@developer-edition" # used for webdev
+      "firefox" # used for shopping
       "google-chrome" # used for webdev
       "tor-browser" # curiosity
-      "firefox" # used for shopping
       "zen" # to try out
 
       "mimestream" # email
@@ -53,11 +61,8 @@
 
       "orbstack" # docker & linux VMs
 
-      "vlc"
-
       "betterdisplay" # display settings
       "pika" # equivalent of ColorSlurp (get the hex code of a color)
-      "obs" # screen record
 
       # "shottr" # screenshot
       "macshot" # screenshot
@@ -66,12 +71,15 @@
       "protonvpn" # VPN
       "transmission" # torrent downloader
 
-      "calibre" # e-book
-
       "modrinth" # minecraft virtual env
 
       "spotify"
       "ytmdesktop-youtube-music"
+
+      # ----- Tools without prebuilt ARM substitutes in nixpkgs -----
+      "calibre" # e-book
+      "obs" # screen record
+      "vlc"
 
       # to lookup:
       # "gifox" # gif maker

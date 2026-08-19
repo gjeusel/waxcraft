@@ -2,12 +2,14 @@
   description = "Wax Darwin Nix Configuration";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+    # Keep the Nixpkgs and nix-darwin release branches in sync.
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-26.05-darwin";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs-outdated.url = "github:NixOS/nixpkgs/nixpkgs-25.11-darwin";
 
     # ----- Darwin -----
     nix-darwin = {
-      url = "github:LnL7/nix-darwin";
+      url = "github:nix-darwin/nix-darwin/nix-darwin-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nix-homebrew.url = "github:zhaofengli/nix-homebrew";
@@ -35,6 +37,10 @@
       url = "github:zereight/gitlab-mcp"; # gitlab MCP server (repo is its own tap)
       flake = false;
     };
+    hashicorp-tap = {
+      url = "github:hashicorp/homebrew-tap";
+      flake = false;
+    };
 
     # ----- External flakes -----
     googleworkspace-cli = {
@@ -47,6 +53,7 @@
     self,
     nixpkgs,
     nixpkgs-unstable,
+    nixpkgs-outdated,
     nix-darwin,
     #
     nix-homebrew,
@@ -55,6 +62,7 @@
     homebrew-bundle,
     agavra-tap,
     zereight-gitlab-mcp-tap,
+    hashicorp-tap,
     # nikitabobko-tap,
     googleworkspace-cli,
   }: let
@@ -81,6 +89,9 @@
 
       system.primaryUser = user;
 
+      # Do not let nix-darwin generate or manage SSH server host keys.
+      services.openssh.hostKeys = [];
+
       fonts.packages = [
         # https://search.nixos.org/packages?channel=unstable&from=0&size=50&sort=relevance&type=packages&query=nerd-fonts+hack
         pkgs.nerd-fonts.jetbrains-mono
@@ -106,6 +117,10 @@
           system = "aarch64-darwin";
           config = {allowUnfree = true;};
         };
+        pkgs-outdated = import nixpkgs-outdated {
+          system = "aarch64-darwin";
+          config = {allowUnfree = true;};
+        };
         inherit googleworkspace-cli;
       };
       modules = [
@@ -127,6 +142,7 @@
               "homebrew/homebrew-bundle" = homebrew-bundle;
               "agavra/homebrew-tap" = agavra-tap;
               "zereight/homebrew-gitlab-mcp" = zereight-gitlab-mcp-tap;
+              "hashicorp/homebrew-tap" = hashicorp-tap;
             };
             mutableTaps = false;
           };

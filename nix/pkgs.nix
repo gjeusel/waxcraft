@@ -2,6 +2,7 @@
   config,
   pkgs,
   pkgs-unstable,
+  pkgs-outdated,
   googleworkspace-cli,
   ...
 }: {
@@ -49,7 +50,7 @@
     jujutsu
     parallel
 
-    python312Packages.watchfiles
+    python314Packages.watchfiles
     pkgs-unstable.python314Packages.pydantic-monty
     unixtools.watch
 
@@ -72,13 +73,17 @@
 
     # python
     uv
-    # micromamba # https://github.com/NixOS/nixpkgs/issues/456288
-    mamba-cpp
+    # The nixpkgs wrapper renames the real executable to `.mamba-wrapped`, but Mamba's shell hook requires the executable basename to be `mamba`.
+    (pkgs.runCommand "mamba-cpp-unwrapped-${pkgs-unstable.mamba-cpp.version}" {} ''
+      mkdir -p "$out/bin"
+      cp ${pkgs-unstable.mamba-cpp}/bin/.mamba-wrapped "$out/bin/mamba"
+      chmod +x "$out/bin/mamba"
+    '')
     pixi
 
     # Note: we install python on system instead of relying on uv for having GNU readline
     # see https://github.com/astral-sh/uv/issues/11039 & https://gregoryszorc.com/docs/python-build-standalone/main/quirks.html
-    python310
+    pkgs-outdated.python310
     python311
     python312
     python313
@@ -118,13 +123,11 @@
     })
     kubetail
 
-    terraform
     scaleway-cli
     pgcli
     openssl
     nmap
-
-    google-cloud-sdk
+    pkgs-outdated.google-cloud-sdk # cached ARM build; avoids rebuilding its Python dependency stack
 
     cmake
 
@@ -132,8 +135,6 @@
 
     pngquant # png compression
     jbig2enc # jpeg compression
-    ocrmypdf # pdf compression
-
     # ----- build nvim from sources -----
     ninja
     gettext # required for msgfmt
@@ -144,9 +145,9 @@
     alejandra
     djhtml
     eslint_d
-    nodePackages.prettier
+    prettier
     prettierd
-    python312Packages.sqlfmt
+    python314Packages.sqlfmt
     stylua
     taplo
     xmlformat
@@ -167,12 +168,11 @@
     #       For now, if we want them in Login Items, we need to pass by brew.
     # raycast
     aerospace
-    # pkgs-unstable.aerospace
     # karabiner-elements
 
     slack
 
-    bitwarden-desktop
+    pkgs-unstable.bitwarden-desktop
     # bitwarden-cli
 
     mountain-duck
@@ -180,21 +180,13 @@
     # ----- mobile dev -----
     cocoapods
 
-    electron_39
+    electron
 
     # ----- editors -----
     vscode # because I'm altruist
     pkgs-unstable.zed-editor # neat agentic ai (unstable: stable's aarch64-darwin build isn't cached)
 
-    # ----- not available on aarch64-darwin (yet) -----
-    # calibre
-    # obs-studio
-    # vlc
-
     protonmail-desktop
-
-    # ----- google workspace -----
-    # googleworkspace-cli.packages.${pkgs.stdenv.hostPlatform.system}.default
 
     # ----- experiments -----
     temporal

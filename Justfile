@@ -13,7 +13,7 @@ check:
 # Run darwin-rebuild and switch
 [group('nix')]
 up:
-    sudo nix run nix-darwin/master#darwin-rebuild -- switch --impure --flake {{ justfile_dir }}/nix#wax
+    sudo nix run nix-darwin/nix-darwin-26.05#darwin-rebuild -- switch --impure --flake {{ justfile_dir }}/nix#wax
 
 # List all generations of the system profile
 [group('nix')]

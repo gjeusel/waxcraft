@@ -36,7 +36,7 @@ curl -fsSL https://install.determinate.systems/nix | sh -s -- install
 - install the flake
 
 ```bash
-sudo nix run nix-darwin/master#darwin-rebuild -- switch --impure --flake ~/src/waxcraft/nix#wax
+sudo nix run nix-darwin/nix-darwin-26.05#darwin-rebuild -- switch --impure --flake ~/src/waxcraft/nix#wax
 ```
 
 - symlink dotfiles
