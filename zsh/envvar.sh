@@ -46,6 +46,9 @@ export PSQL_HISTORY="$HOME/.cache/psql_history"
 # Bat for color in terminal
 export BAT_THEME="gruvbox-dark"
 
+# FFF
+export FFF_ENABLE_HOME_SCAN=0
+
 # FZF theme (nord)
 export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS'
     --pointer=''
