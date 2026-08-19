@@ -93,35 +93,9 @@ export function adjustSessionOnlyModelSelection(pi: ExtensionAPI): void {
   });
 }
 
-/** Add Ctrl+M as an alias for Pi's built-in /model selector. */
-export function adjustModelSelectionShortcut(pi: ExtensionAPI): void {
-  let restoreKeybindings: (() => void) | undefined;
-
-  pi.on('session_start', (_event, ctx) => {
-    if (ctx.mode !== 'tui') return;
-
-    const keybindings = getKeybindings();
-    const previousUserBindings = keybindings.getUserBindings();
-    const modelSelectionKeys = keybindings.getKeys('app.model.select');
-    if (modelSelectionKeys.includes('ctrl+m')) return;
-
-    keybindings.setUserBindings({
-      ...previousUserBindings,
-      'app.model.select': [...modelSelectionKeys, 'ctrl+m'],
-    });
-    restoreKeybindings = () => keybindings.setUserBindings(previousUserBindings);
-  });
-
-  pi.on('session_shutdown', () => {
-    restoreKeybindings?.();
-    restoreKeybindings = undefined;
-  });
-}
-
 /** Apply small behavior corrections to Pi's built-in UX and persistence. */
 export default function piBuiltinAdjustments(pi: ExtensionAPI): void {
   adjustExitResumeCommand(pi);
   adjustOptionalModelWarnings(pi);
   adjustSessionOnlyModelSelection(pi);
-  adjustModelSelectionShortcut(pi);
 }
