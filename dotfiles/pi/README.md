@@ -45,6 +45,16 @@ extensions/
 └── whimsical/              playful working messages
 ```
 
+### To Checkup
+
+- [pi-black](https://github.com/paoloanzn/pi-black) to replace pi-claude-bridge
+- [pi-agents-tmux](https://github.com/vanillagreencom/kendex/tree/main/pi-extensions/pi-agents-tmux)
+
+### Already Tested
+
+- [pi-intercom](https://github.com/nicobailon/pi-intercom) not great, polluting more than anything
+- [pi-subagents](https://github.com/nicobailon/pi-subagents) not great, unsure it's the proper way to do it
+
 ## Packages
 
 Third-party packages are pinned in `settings.json`.
