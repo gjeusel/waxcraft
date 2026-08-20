@@ -46,7 +46,7 @@ end
 local function json_fmt(bufnr)
   local size = vim.fn.getfsize(vim.api.nvim_buf_get_name(bufnr))
   if size > 0 and size < 100 * 1024 then
-    return { "oxfmt" }
+    return { "oxfmt_json" }
   end
   return { "jq" }
 end
@@ -91,6 +91,17 @@ require("conform").setup({
     oxfmt = {
       command = "oxfmt",
       args = { "--stdin-filepath", "$FILENAME" },
+      stdin = true,
+      timeout_ms = 10000,
+    },
+    oxfmt_json = {
+      command = "oxfmt",
+      args = {
+        "--config=" .. vim.fn.stdpath("config") .. "/lua/wax/lsp/oxfmt-json.json",
+        "--disable-nested-config",
+        "--stdin-filepath",
+        "$FILENAME",
+      },
       stdin = true,
       timeout_ms = 10000,
     },
