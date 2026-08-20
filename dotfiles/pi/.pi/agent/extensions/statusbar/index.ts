@@ -2,7 +2,7 @@
  * statusbar — minimalist single-line footer.
  * Replaces the built-in two/three-line footer (pwd+branch / token stats /
  * extension statuses, e.g. MCP info) with one line:
- *   <repo path> (<branch>)        <model> · <effort>        <context %>
+ *   <repo path>                   <model> · <effort>        <context %>
  * left-aligned / centered / right-aligned. Extension statuses (MCP, etc.)
  * and token/cost stats are deliberately not shown.
  */
@@ -20,15 +20,13 @@ function shortenCwd(cwd: string, home: string | undefined): string {
 
 export default function (pi: ExtensionAPI) {
   pi.on('session_start', async (_event, ctx) => {
-    ctx.ui.setFooter((tui, theme, footerData) => {
-      const unsub = footerData.onBranchChange(() => tui.requestRender());
+    ctx.ui.setFooter((_tui, theme, _footerData) => {
       return {
-        dispose: unsub,
+        dispose() {},
         invalidate() {},
         render(width: number): string[] {
           const cwd = shortenCwd(ctx.sessionManager.getCwd(), process.env.HOME);
-          const branch = footerData.getGitBranch();
-          let left = branch ? `${cwd} (${branch})` : cwd;
+          let left = cwd;
 
           const model = ctx.model?.id ?? 'no-model';
           const center = ctx.model?.reasoning ? `${model} · ${ctx.thinkingLevel ?? 'off'}` : model;
