@@ -3,11 +3,34 @@
   // may be read but must remain immutable. Paths must start with / or ~/.
   "filesystem": {
     "denyRead": [
-      // Business data and infrastructure metadata remain sensitive after
-      // gitleaks removes recognizable credential values.
-      "~/.config/renewex.yaml",
+      // Credential stores and tool-specific authentication files migrated from the former permissions.json policy.
+      "~/**/*.env*",
       "~/**/*.tfvars",
-      "~/src/ops/**",
+      "~/**/.ssh/**",
+      "~/**/.aws/**",
+      "~/**/.gnupg/**",
+      "~/**/.kube/**",
+      "~/**/.netrc",
+      "~/**/.npmrc",
+      "~/**/.pypirc",
+      "~/**/.git-credentials",
+      "~/**/.docker/config.json",
+      "~/**/.password-store/**",
+      "~/.config/gcloud/**",
+      "~/.config/gh/hosts.yml",
+      "~/.config/glab-cli/**",
+      "~/.claude.json",
+      "~/.claude/.credentials.json",
+      "~/.config/opencode/auth.json",
+      "~/.config/renewex.yaml",
+
+      // Private keys and certificate bundles can live outside the standard credential directories.
+      "~/**/*.pem",
+      "~/**/*.p12",
+      "~/**/*.pfx",
+      "~/**/id_rsa*",
+      "~/**/id_ed25519*",
+      "~/**/id_ecdsa*",
 
       // Shell, REPL, database, navigation, and AI-assistant histories.
       "~/.*history*",
@@ -29,6 +52,7 @@
       "~/Library/Application Support/Firefox/Profiles/**",
 
       // Local communications and personal-information databases.
+      "~/Library/Keychains/**",
       "~/Library/Mail/**",
       "~/Library/Messages/**",
       "~/Library/Calendars/**",
