@@ -14,6 +14,8 @@
       "libomp" # openmp on macos
       "py-spy" # CLI to profile python (unavailable in nixpkgs for ARM arch)
 
+      "pango" # native runtime used by WeasyPrint in uv-managed Python environments
+
       # "agavra/tap/tuicr" # code review TUI (unavailable in nixpkgs)
 
       # ----- Tools without prebuilt ARM substitutes in nixpkgs -----

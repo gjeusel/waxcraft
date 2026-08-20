@@ -11,6 +11,8 @@
     CMAKE_INCLUDE_PATH = "${pkgs.gettext}/include:${pkgs.libiconv}/include";
     CMAKE_LIBRARY_PATH = "${pkgs.gettext}/lib:${pkgs.libiconv}/lib";
     CMAKE_PREFIX_PATH = "${pkgs.gettext}:${pkgs.libiconv}";
+    # Let uv-managed Python discover WeasyPrint's Homebrew libraries.
+    DYLD_FALLBACK_LIBRARY_PATH = "/opt/homebrew/lib";
   };
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
