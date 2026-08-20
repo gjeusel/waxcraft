@@ -4,15 +4,6 @@ alias vimrc="vim $WAXPATH/dotfiles/nvim/.config/nvim/lua/wax/plugins.lua"
 alias zshrc="vim ${ZDOTDIR:-$HOME}/.zshrc"
 alias czshrc="vim $WAXPATH/zsh/init.zsh"
 
-# Let pi-claude-bridge use Claude Code's claude.ai OAuth session. Claude Code
-# otherwise prefers the shell's API key over its existing subscription login.
-function pi() {
-  (
-    unset ANTHROPIC_API_KEY
-    command pi "$@"
-  )
-}
-
 # definitly swhich to nvim:
 alias vi="nvim"
 alias vim="nvim"

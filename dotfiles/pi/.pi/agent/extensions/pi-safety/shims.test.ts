@@ -37,7 +37,7 @@ function makeSandbox(): Sandbox {
   };
 }
 
-function run(sandbox: Sandbox, shim: 'rm' | 'trash', args: string[], cwd?: string) {
+function run(sandbox: Sandbox, shim: 'rm' | 'rmdir' | 'trash', args: string[], cwd?: string) {
   const result = spawnSync(join(shimDirectory, shim), args, {
     cwd: cwd ?? sandbox.root,
     env: sandbox.env,
@@ -178,7 +178,7 @@ test('rm is shimmed through nested invocations (bash -c, find -exec, xargs)', ()
     'set -e',
     'touch a.txt b.pyc "c d.txt" f.txt',
     'rm a.txt',
-    "bash -c 'rm \"c d.txt\"'",
+    'bash -c \'rm "c d.txt"\'',
     "find . -name '*.pyc' -exec rm {} +",
     'printf "f.txt\\n" | xargs rm',
   ].join('\n');
@@ -198,4 +198,31 @@ test('trash on a symlink targets the link, not its destination', () => {
   const { status } = run(sandbox, 'trash', [link]);
   assert.equal(status, 0);
   assert.deepEqual(trashedPaths(sandbox), [link]);
+});
+
+test('rmdir redirects an empty directory to trash', () => {
+  const sandbox = makeSandbox();
+  mkdirSync(join(sandbox.root, 'empty'));
+  const { status } = run(sandbox, 'rmdir', ['empty']);
+  assert.equal(status, 0);
+  assert.deepEqual(trashedPaths(sandbox), ['empty']);
+});
+
+test('rmdir retains the empty-directory requirement', () => {
+  const sandbox = makeSandbox();
+  mkdirSync(join(sandbox.root, 'nonempty'));
+  writeFileSync(join(sandbox.root, 'nonempty', 'file.txt'), 'content');
+  const { status, stderr } = run(sandbox, 'rmdir', ['nonempty']);
+  assert.equal(status, 1);
+  assert.match(stderr, /Directory not empty/);
+  assert.deepEqual(trashedPaths(sandbox), []);
+});
+
+test('rmdir refuses --parents rather than deleting extra ancestors', () => {
+  const sandbox = makeSandbox();
+  mkdirSync(join(sandbox.root, 'parent', 'empty'), { recursive: true });
+  const { status, stderr } = run(sandbox, 'rmdir', ['--parents', 'parent/empty']);
+  assert.equal(status, 1);
+  assert.match(stderr, /--parents is not supported/);
+  assert.deepEqual(trashedPaths(sandbox), []);
 });

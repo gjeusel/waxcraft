@@ -13,8 +13,8 @@
       "meilisearch"
       "libomp" # openmp on macos
       "py-spy" # CLI to profile python (unavailable in nixpkgs for ARM arch)
-      "agavra/tap/tuicr" # code review TUI (unavailable in nixpkgs)
-      "zereight/gitlab-mcp/zereight-mcp-gitlab" # gitlab MCP server (used by pi)
+
+      # "agavra/tap/tuicr" # code review TUI (unavailable in nixpkgs)
 
       # ----- Tools without prebuilt ARM substitutes in nixpkgs -----
       # Use Homebrew bottles/upstream binaries instead of compiling locally.

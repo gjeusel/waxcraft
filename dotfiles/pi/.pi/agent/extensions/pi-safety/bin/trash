@@ -128,7 +128,10 @@ if [ ${#paths[@]} -eq 0 ]; then
 fi
 
 for p in "${paths[@]}"; do
-  resolved=$(resolve_path "$p") || continue
+  resolved=$(resolve_path "$p") || {
+    echo "safe-trash: cannot resolve target $p" >&2
+    exit 1
+  }
   reason=$(judge "$resolved")
   if [ -n "$reason" ]; then
     echo "safe-trash: $reason" >&2

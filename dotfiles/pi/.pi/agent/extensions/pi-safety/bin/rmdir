@@ -1,0 +1,75 @@
+#!/bin/bash
+# safe-trash shim: rmdir is transparently redirected to Trash, but only for
+# empty directories so it retains rmdir's key safety property.
+set -o pipefail
+
+self_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P) || exit 1
+
+ignore_non_empty=0
+verbose=0
+seen_dashdash=0
+paths=()
+for arg in "$@"; do
+  if [ "$seen_dashdash" = 1 ]; then
+    paths+=("$arg")
+    continue
+  fi
+  case $arg in
+    --) seen_dashdash=1 ;;
+    --ignore-fail-on-non-empty) ignore_non_empty=1 ;;
+    --verbose | -v) verbose=1 ;;
+    --parents | -p)
+      echo "rmdir: --parents is not supported by the Trash shim; specify each directory explicitly" >&2
+      exit 1
+      ;;
+    --*)
+      echo "rmdir: illegal option -- ${arg#--}" >&2
+      exit 1
+      ;;
+    -*)
+      echo "rmdir: illegal option -- ${arg#-}" >&2
+      exit 1
+      ;;
+    *) paths+=("$arg") ;;
+  esac
+done
+
+if [ ${#paths[@]} -eq 0 ]; then
+  echo "usage: rmdir directory ..." >&2
+  exit 1
+fi
+
+status=0
+for p in "${paths[@]}"; do
+  if [ ! -e "$p" ] && [ ! -L "$p" ]; then
+    echo "rmdir: $p: No such file or directory" >&2
+    status=1
+    continue
+  fi
+  if [ ! -d "$p" ] || [ -L "$p" ]; then
+    echo "rmdir: $p: Not a directory" >&2
+    status=1
+    continue
+  fi
+
+  first_entry=$(/usr/bin/find "$p" -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null) || {
+    echo "rmdir: $p: cannot inspect directory" >&2
+    status=1
+    continue
+  }
+  if [ -n "$first_entry" ]; then
+    if [ "$ignore_non_empty" != 1 ]; then
+      echo "rmdir: $p: Directory not empty" >&2
+      status=1
+    fi
+    continue
+  fi
+
+  if "$self_dir/trash" -- "$p"; then
+    [ "$verbose" = 1 ] && printf '%s\n' "$p"
+  else
+    status=$?
+  fi
+done
+
+exit $status

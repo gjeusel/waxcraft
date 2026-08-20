@@ -9,7 +9,6 @@ Run this **before the first Pi launch** so `stow --adopt` cannot replace the tra
 ```bash
 cd ~/src/waxcraft
 npm install -g --ignore-scripts @earendil-works/pi-coding-agent
-just pi-extensions-install
 just stow-install
 pi
 ```
@@ -36,11 +35,10 @@ extensions/
 ├── pane-focus/             dim unfocused panes
 ├── peek-document/          read PDF and Office files
 ├── per-model-prompt/       model-specific directives
-├── permissions/            deny dangerous operations
 ├── pi-builtin-adjustments/ quieter built-ins
+├── pi-safety/              sandboxed filesystem and shell safety policy
 ├── python-code/            sandboxed Python
 ├── rant/                   log preventable failures
-├── safe-trash/             recoverable file deletion
 ├── statusbar/              minimal one-line footer
 ├── subagent/               subagent configuration
 ├── unified-edit/           flexible patch editing
@@ -69,9 +67,27 @@ packages/
 
 ```bash
 cd ~/src/waxcraft
-just pi-extensions-install
+just pi-install
 (cd dotfiles/pi/.pi/agent/extensions && npm test)
 pi update --all
 ```
 
-After editing configuration or extensions, run `/reload` inside Pi.
+`just nix-up` switches the Nix system first, then runs `just pi-install`. The
+installer uses the flake's supported Node.js version for `npm ci`, installs the
+safety runtime, and stows `~/.local/bin/pi`. The wrapper runs the entire Pi
+process under a deny-only macOS Seatbelt profile generated from
+`~/.pi/agent/pi-safety.jsonc`.
+
+If the current shell still resolves the pnpm launcher, prepend `~/.local/bin`
+and clear Zsh's command cache with
+`export PATH="$HOME/.local/bin:$PATH"; rehash`. Shell-command rules are a
+best-effort guardrail: tree-sitter evaluates literal command names, while
+dynamically constructed executable names remain intentionally unresolved.
+
+Use `/no-safety` to disable tree-sitter command checks for the current session.
+The rm/rmdir-to-trash routing and whole-process filesystem Seatbelt remain active;
+macOS cannot remove Seatbelt from a running process.
+
+After editing shell rules or extension code, run `/reload` inside Pi. Restart
+Pi after editing filesystem rules because a running process cannot replace its
+Seatbelt profile.
