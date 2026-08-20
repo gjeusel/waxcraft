@@ -9,10 +9,12 @@ import { fileURLToPath } from 'node:url';
 const extensionDirectory = dirname(fileURLToPath(import.meta.url));
 const agentDirectory = resolve(extensionDirectory, '../..');
 const wrapper = resolve(extensionDirectory, '../../../../.local/bin/pi');
+const canApplySeatbelt = process.platform === 'darwin' && process.env.PI_SAFETY_SANDBOXED !== '1';
 
 function launch(configPath: string, script: string, args: string[] = [], envOverrides: NodeJS.ProcessEnv = {}) {
   const env = { ...process.env };
   delete env.PI_SAFETY_SANDBOXED;
+  delete env.PI_SAFETY_DISABLE_FILESYSTEM_SANDBOX;
   delete env.PI_SAFETY_FS_POLICY_HASH;
   return spawnSync(wrapper, ['-c', script, 'sh', ...args], {
     encoding: 'utf8',
@@ -33,44 +35,52 @@ test('wrapper removes ANTHROPIC_API_KEY for Claude Code OAuth', () => {
 
   const result = launch(configPath, 'test -z "${ANTHROPIC_API_KEY+x}"', [], {
     ANTHROPIC_API_KEY: 'must-not-reach-pi',
+    PI_SAFETY_DISABLE_FILESYSTEM_SANDBOX: '1',
   });
   assert.equal(result.status, 0, result.stderr);
 });
 
-test(
-  'launcher applies denyRead and implied denyWrite to the whole child process',
-  { skip: process.platform !== 'darwin' },
-  () => {
-    const directory = realpathSync(mkdtempSync(join(tmpdir(), 'pi-safety-launcher-')));
-    const secret = join(directory, 'secret.txt');
-    const allowed = join(directory, 'allowed.txt');
-    const configPath = join(directory, 'config.jsonc');
-    writeFileSync(secret, 'secret');
-    writeFileSync(allowed, 'allowed');
-    writeFileSync(
-      configPath,
-      JSON.stringify({ filesystem: { denyRead: [secret], denyWrite: [] }, shell: { deny: [] } }),
-    );
+test('PI_SAFETY_DISABLE_FILESYSTEM_SANDBOX bypasses only the Seatbelt launch', () => {
+  const directory = realpathSync(mkdtempSync(join(tmpdir(), 'pi-safety-launcher-')));
+  const secret = join(directory, 'secret.txt');
+  const configPath = join(directory, 'config.jsonc');
+  writeFileSync(secret, 'secret');
+  writeFileSync(configPath, JSON.stringify({ filesystem: { denyRead: [secret], denyWrite: [] }, shell: { deny: [] } }));
 
-    const blockedRead = launch(configPath, 'cat "$1"', [secret]);
-    assert.notEqual(blockedRead.status, 0);
-    assert.match(blockedRead.stderr, /Operation not permitted/);
+  const result = launch(configPath, 'cat "$1" && test -z "${PI_SAFETY_SANDBOXED+x}"', [secret], {
+    PI_SAFETY_DISABLE_FILESYSTEM_SANDBOX: '1',
+  });
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.stdout, 'secret');
+});
 
-    const blockedWrite = launch(configPath, 'printf changed > "$1"', [secret]);
-    assert.notEqual(blockedWrite.status, 0);
-    assert.match(blockedWrite.stderr, /Operation not permitted/);
+test('launcher applies denyRead and implied denyWrite to the whole child process', { skip: !canApplySeatbelt }, () => {
+  const directory = realpathSync(mkdtempSync(join(tmpdir(), 'pi-safety-launcher-')));
+  const secret = join(directory, 'secret.txt');
+  const allowed = join(directory, 'allowed.txt');
+  const configPath = join(directory, 'config.jsonc');
+  writeFileSync(secret, 'secret');
+  writeFileSync(allowed, 'allowed');
+  writeFileSync(configPath, JSON.stringify({ filesystem: { denyRead: [secret], denyWrite: [] }, shell: { deny: [] } }));
 
-    const allowedRead = launch(configPath, 'cat "$1"', [allowed]);
-    assert.equal(allowedRead.status, 0, allowedRead.stderr);
-    assert.equal(allowedRead.stdout, 'allowed');
+  const blockedRead = launch(configPath, 'cat "$1"', [secret]);
+  assert.notEqual(blockedRead.status, 0);
+  assert.match(blockedRead.stderr, /Operation not permitted/);
 
-    const blockedPolicyWrite = launch(configPath, 'printf disabled > "$1"', [configPath]);
-    assert.notEqual(blockedPolicyWrite.status, 0);
-    assert.match(blockedPolicyWrite.stderr, /Operation not permitted/);
-  },
-);
+  const blockedWrite = launch(configPath, 'printf changed > "$1"', [secret]);
+  assert.notEqual(blockedWrite.status, 0);
+  assert.match(blockedWrite.stderr, /Operation not permitted/);
 
-test('denyWrite leaves reads available', { skip: process.platform !== 'darwin' }, () => {
+  const allowedRead = launch(configPath, 'cat "$1"', [allowed]);
+  assert.equal(allowedRead.status, 0, allowedRead.stderr);
+  assert.equal(allowedRead.stdout, 'allowed');
+
+  const blockedPolicyWrite = launch(configPath, 'printf disabled > "$1"', [configPath]);
+  assert.notEqual(blockedPolicyWrite.status, 0);
+  assert.match(blockedPolicyWrite.stderr, /Operation not permitted/);
+});
+
+test('denyWrite leaves reads available', { skip: !canApplySeatbelt }, () => {
   const directory = realpathSync(mkdtempSync(join(tmpdir(), 'pi-safety-launcher-')));
   const immutable = join(directory, 'immutable.txt');
   const configPath = join(directory, 'config.jsonc');
@@ -89,7 +99,7 @@ test('denyWrite leaves reads available', { skip: process.platform !== 'darwin' }
   assert.match(write.stderr, /Operation not permitted/);
 });
 
-test('glob rules and hardlink attempts are enforced by Seatbelt', { skip: process.platform !== 'darwin' }, () => {
+test('glob rules and hardlink attempts are enforced by Seatbelt', { skip: !canApplySeatbelt }, () => {
   const directory = realpathSync(mkdtempSync(join(tmpdir(), 'pi-safety-launcher-')));
   const protectedDirectory = join(directory, 'private');
   const secret = join(protectedDirectory, 'secret.txt');

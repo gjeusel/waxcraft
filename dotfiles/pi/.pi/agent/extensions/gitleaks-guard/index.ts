@@ -24,7 +24,11 @@ import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
 export interface Finding {
   RuleID: string;
   StartLine: number;
+  EndLine: number;
+  StartColumn: number;
+  EndColumn: number;
   Secret: string;
+  Tags: string[];
 }
 
 export type ScanResult =
@@ -35,7 +39,7 @@ export type ScanResult =
 export function scan(text: string): ScanResult {
   const result = spawnSync(
     'gitleaks',
-    ['stdin', '--no-banner', '--report-format', 'json', '--report-path', '/dev/stdout'],
+    ['stdin', '--no-banner', '--max-decode-depth', '5', '--report-format', 'json', '--report-path', '/dev/stdout'],
     { input: text, encoding: 'utf8', timeout: 10_000, maxBuffer: 64 * 1024 * 1024 },
   );
 
@@ -59,32 +63,119 @@ export const describe = (findings: Finding[]) => findings.map((f) => `  ${f.Rule
 export interface RedactionResult {
   text: string;
   count: number;
+  suppressed?: true;
+}
+
+interface RedactionRange {
+  start: number;
+  end: number;
+  ruleIds: Set<string>;
+}
+
+const UNMAPPABLE_REDACTION = '[REDACTED:gitleaks-unmappable-finding]';
+
+function lineStartOffsets(buffer: Buffer): number[] {
+  const offsets = [0];
+  for (let index = 0; index < buffer.length; index += 1) {
+    if (buffer[index] === 0x0a) offsets.push(index + 1);
+  }
+  return offsets;
+}
+
+function sourceRange(buffer: Buffer, lineStarts: number[], finding: Finding): RedactionRange | undefined {
+  const startLine = lineStarts[finding.StartLine - 1];
+  const endLine = lineStarts[finding.EndLine - 1];
+  if (
+    startLine === undefined ||
+    endLine === undefined ||
+    !Number.isInteger(finding.StartColumn) ||
+    !Number.isInteger(finding.EndColumn) ||
+    finding.StartColumn < 1 ||
+    finding.EndColumn < 1
+  ) {
+    return undefined;
+  }
+
+  // Gitleaks reports UTF-8 byte columns. Its location calculation uses the
+  // previous newline byte as the origin, so lines after the first carry an
+  // extra column that must be removed when mapping back to the source.
+  const startAdjustment = finding.StartLine > 1 ? 1 : 0;
+  const endAdjustment = finding.EndLine > 1 ? 1 : 0;
+  const start = startLine + finding.StartColumn - 1 - startAdjustment;
+  const end = endLine + finding.EndColumn - endAdjustment;
+  const endLineBoundary = lineStarts[finding.EndLine] === undefined ? buffer.length : lineStarts[finding.EndLine] - 1;
+  if (start < startLine || end <= start || end > endLineBoundary) return undefined;
+
+  return { start, end, ruleIds: new Set([finding.RuleID]) };
+}
+
+function literalRanges(buffer: Buffer, finding: Finding): RedactionRange[] {
+  if (!finding.Secret) return [];
+
+  const secret = Buffer.from(finding.Secret, 'utf8');
+  if (secret.length === 0) return [];
+
+  const ranges: RedactionRange[] = [];
+  let offset = 0;
+  while (offset <= buffer.length - secret.length) {
+    const start = buffer.indexOf(secret, offset);
+    if (start < 0) break;
+    ranges.push({ start, end: start + secret.length, ruleIds: new Set([finding.RuleID]) });
+    offset = start + secret.length;
+  }
+  return ranges;
+}
+
+function mergeRanges(ranges: RedactionRange[]): RedactionRange[] {
+  const ordered = ranges.sort((a, b) => a.start - b.start || b.end - a.end);
+  const merged: RedactionRange[] = [];
+
+  for (const range of ordered) {
+    const previous = merged.at(-1);
+    if (!previous || range.start >= previous.end) {
+      merged.push({ ...range, ruleIds: new Set(range.ruleIds) });
+      continue;
+    }
+
+    previous.end = Math.max(previous.end, range.end);
+    for (const ruleId of range.ruleIds) previous.ruleIds.add(ruleId);
+  }
+
+  return merged;
 }
 
 export function redactWithCount(text: string, findings: Finding[]): RedactionResult {
-  let out = text;
-  let count = 0;
+  if (findings.length === 0) return { text: UNMAPPABLE_REDACTION, count: 1, suppressed: true };
 
-  // Gitleaks can report overlapping findings for one secret. Process each
-  // unique candidate longest-first so a nested match is not counted twice.
-  const uniqueFindings = new Map<string, Finding>();
+  const buffer = Buffer.from(text, 'utf8');
+  const lineStarts = lineStartOffsets(buffer);
+  const ranges: RedactionRange[] = [];
+
   for (const finding of findings) {
-    if (finding.Secret && !uniqueFindings.has(finding.Secret)) {
-      uniqueFindings.set(finding.Secret, finding);
+    const literal = literalRanges(buffer, finding);
+    if (literal.length > 0) {
+      ranges.push(...literal);
+      continue;
     }
+
+    const positional = sourceRange(buffer, lineStarts, finding);
+    if (!positional) {
+      return { text: UNMAPPABLE_REDACTION, count: findings.length, suppressed: true };
+    }
+    ranges.push(positional);
   }
 
-  const orderedFindings = [...uniqueFindings.values()].sort((a, b) => b.Secret.length - a.Secret.length);
-  for (const finding of orderedFindings) {
-    const parts = out.split(finding.Secret);
-    const occurrences = parts.length - 1;
-    if (occurrences === 0) continue;
+  const merged = mergeRanges(ranges);
+  if (merged.length === 0) return { text: UNMAPPABLE_REDACTION, count: findings.length, suppressed: true };
 
-    count += occurrences;
-    out = parts.join(`[REDACTED:${finding.RuleID}]`);
+  let out = buffer;
+  for (const range of [...merged].reverse()) {
+    const ruleIds = [...range.ruleIds].sort().join('+');
+    const replacement = Buffer.from(`[REDACTED:${ruleIds}]`, 'utf8');
+    out = Buffer.concat([out.subarray(0, range.start), replacement, out.subarray(range.end)]);
   }
 
-  return { text: out, count };
+  return { text: out.toString('utf8'), count: merged.length };
 }
 
 export function redact(text: string, findings: Finding[]): string {

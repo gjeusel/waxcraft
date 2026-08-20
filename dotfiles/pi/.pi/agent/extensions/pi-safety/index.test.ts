@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import test from 'node:test';
 import safety from './index.ts';
 
-async function setup(sandboxed: boolean) {
+async function setup(sandboxed: boolean, filesystemSandboxDisabled = false) {
   const directory = mkdtempSync(join(tmpdir(), 'pi-safety-index-'));
   const configPath = join(directory, 'config.jsonc');
   writeFileSync(
@@ -18,10 +18,13 @@ async function setup(sandboxed: boolean) {
 
   const previous = {
     sandboxed: process.env.PI_SAFETY_SANDBOXED,
+    filesystemSandboxDisabled: process.env.PI_SAFETY_DISABLE_FILESYSTEM_SANDBOX,
     config: process.env.PI_SAFETY_CONFIG,
   };
   if (sandboxed) process.env.PI_SAFETY_SANDBOXED = '1';
   else delete process.env.PI_SAFETY_SANDBOXED;
+  if (filesystemSandboxDisabled) process.env.PI_SAFETY_DISABLE_FILESYSTEM_SANDBOX = '1';
+  else delete process.env.PI_SAFETY_DISABLE_FILESYSTEM_SANDBOX;
   process.env.PI_SAFETY_CONFIG = configPath;
 
   const handlers = new Map<string, (...args: any[]) => any>();
@@ -38,6 +41,8 @@ async function setup(sandboxed: boolean) {
     restore() {
       if (previous.sandboxed === undefined) delete process.env.PI_SAFETY_SANDBOXED;
       else process.env.PI_SAFETY_SANDBOXED = previous.sandboxed;
+      if (previous.filesystemSandboxDisabled === undefined) delete process.env.PI_SAFETY_DISABLE_FILESYSTEM_SANDBOX;
+      else process.env.PI_SAFETY_DISABLE_FILESYSTEM_SANDBOX = previous.filesystemSandboxDisabled;
       if (previous.config === undefined) delete process.env.PI_SAFETY_CONFIG;
       else process.env.PI_SAFETY_CONFIG = previous.config;
     },
@@ -50,6 +55,25 @@ test('blocks every model tool when Pi bypasses the launcher', async () => {
     const result = await handlers.get('tool_call')!({ type: 'tool_call', toolName: 'read', input: { path: '/tmp/x' } });
     assert.equal(result.block, true);
     assert.match(result.reason, /not running under sandbox-exec/);
+  } finally {
+    restore();
+  }
+});
+
+test('filesystem sandbox bypass keeps shell rules active', async () => {
+  const { handlers, restore } = await setup(false, true);
+  try {
+    const toolCall = handlers.get('tool_call')!;
+    const read = await toolCall({ type: 'tool_call', toolName: 'read', input: { path: '/tmp/x' } });
+    assert.equal(read, undefined);
+
+    const denied = await toolCall({ type: 'tool_call', toolName: 'bash', input: { command: 'sudo echo nope' } });
+    assert.equal(denied.block, true);
+    assert.match(denied.reason, /sudo denied in test/);
+
+    const allowedEvent = { type: 'tool_call', toolName: 'bash', input: { command: 'rm file.txt' } };
+    assert.equal(await toolCall(allowedEvent), undefined);
+    assert.match(allowedEvent.input.command, /^export PATH=.*pi-safety\/bin/);
   } finally {
     restore();
   }

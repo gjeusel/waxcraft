@@ -35,6 +35,12 @@ export function launchPi(args: string[]): never {
     return exec(realPi, [realPi, ...args], process.env);
   }
 
+  // This escape hatch disables only the filesystem Seatbelt. The extension
+  // still enforces shell-command rules and routes rm/rmdir through Trash.
+  if (process.env.PI_SAFETY_DISABLE_FILESYSTEM_SANDBOX === '1') {
+    return exec(realPi, [realPi, ...args], { ...process.env, PI_REAL_PI: realPi });
+  }
+
   if (process.platform !== 'darwin') throw new Error('pi-safety currently supports macOS only');
   const sandboxExec = executable('/usr/bin/sandbox-exec', 'sandbox-exec');
   const loaded = loadSafetyConfig(process.env.PI_SAFETY_CONFIG);

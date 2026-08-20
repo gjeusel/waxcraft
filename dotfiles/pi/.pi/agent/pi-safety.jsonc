@@ -25,7 +25,6 @@
       "~/.config/renewex.yaml",
 
       // Private keys and certificate bundles can live outside the standard credential directories.
-      "~/**/*.pem",
       "~/**/*.p12",
       "~/**/*.pfx",
       "~/**/id_rsa*",
