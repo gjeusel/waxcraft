@@ -54,6 +54,18 @@ test('PI_SAFETY_DISABLE_FILESYSTEM_SANDBOX bypasses only the Seatbelt launch', (
   assert.equal(result.stdout, 'secret');
 });
 
+test('PI_SAFETY_DISABLE_FILESYSTEM_SANDBOX suppresses launcher warnings', () => {
+  const directory = realpathSync(mkdtempSync(join(tmpdir(), 'pi-safety-launcher-')));
+  const configPath = join(directory, 'config.jsonc');
+  writeFileSync(configPath, '{ invalid config');
+
+  const result = launch(configPath, 'true', [], {
+    PI_SAFETY_DISABLE_FILESYSTEM_SANDBOX: '1',
+  });
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.stderr, '');
+});
+
 test('launcher applies denyRead and implied denyWrite to the whole child process', { skip: !canApplySeatbelt }, () => {
   const directory = realpathSync(mkdtempSync(join(tmpdir(), 'pi-safety-launcher-')));
   const secret = join(directory, 'secret.txt');
