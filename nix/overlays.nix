@@ -29,9 +29,9 @@
 # 4. Add the overlay below following the pattern, then rebuild: just up
 #
 # All overlays defined here are automatically applied via:
-#   nixpkgs.overlays = builtins.attrValues (import "${self}/overlays.nix");
+#   nixpkgs.overlays = builtins.attrValues (import "${self}/overlays.nix" {inherit nixpkgs-unstable;});
 #
-{
+{nixpkgs-unstable}: {
   mountain-duck = final: prev: {
     mountain-duck = prev.mountain-duck.overrideAttrs (old: rec {
       version = "5.1.1.28444";
@@ -50,5 +50,9 @@
         hash = "sha256-+4n9di1NbPs5pttSEHPDzpHinfuSyWSx5CjNA9IOH+Q=";
       };
     });
+  };
+
+  atuin = final: prev: {
+    atuin = nixpkgs-unstable.legacyPackages.${final.stdenv.hostPlatform.system}.atuin;
   };
 }

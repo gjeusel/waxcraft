@@ -33,10 +33,6 @@
       url = "github:agavra/homebrew-tap"; # tuicr
       flake = false;
     };
-    zereight-gitlab-mcp-tap = {
-      url = "github:zereight/gitlab-mcp"; # gitlab MCP server (repo is its own tap)
-      flake = false;
-    };
     hashicorp-tap = {
       url = "github:hashicorp/homebrew-tap";
       flake = false;
@@ -61,7 +57,6 @@
     homebrew-cask,
     homebrew-bundle,
     agavra-tap,
-    zereight-gitlab-mcp-tap,
     hashicorp-tap,
     # nikitabobko-tap,
     googleworkspace-cli,
@@ -77,7 +72,7 @@
       nix.enable = false; # let nix-darwin take full control over "Determinate"
 
       nixpkgs = {
-        overlays = builtins.attrValues (import "${self}/overlays.nix");
+        overlays = builtins.attrValues (import "${self}/overlays.nix" {inherit nixpkgs-unstable;});
         config = {
           allowUnfree = true;
         };
@@ -141,7 +136,6 @@
               "homebrew/homebrew-cask" = homebrew-cask;
               "homebrew/homebrew-bundle" = homebrew-bundle;
               "agavra/homebrew-tap" = agavra-tap;
-              "zereight/homebrew-gitlab-mcp" = zereight-gitlab-mcp-tap;
               "hashicorp/homebrew-tap" = hashicorp-tap;
             };
             mutableTaps = false;

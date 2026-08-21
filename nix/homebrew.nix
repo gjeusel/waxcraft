@@ -13,6 +13,7 @@
       "meilisearch"
       "libomp" # openmp on macos
       "py-spy" # CLI to profile python (unavailable in nixpkgs for ARM arch)
+      "ios-deploy" # Install and debug iPhone apps from the command-line
 
       "pango" # native runtime used by WeasyPrint in uv-managed Python environments
 
@@ -63,7 +64,6 @@
       "handy" # speech to text
 
       "orbstack" # docker & linux VMs
-      "ios-deploy" # Install and debug iPhone apps from the command-line
 
       "betterdisplay" # display settings
       "pika" # equivalent of ColorSlurp (get the hex code of a color)

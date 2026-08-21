@@ -1,0 +1,19 @@
+[theme]
+name = "nord"
+
+[colors]
+AlertInfo = "#D8DEE9"
+AlertWarn = "#5E81AC"
+AlertError = "#D8DEE9"
+Annotation = "#D8DEE9"
+Base = "#D8DEE9"
+Guidance = "#D8DEE9"
+Important = "#D8DEE9"
+Title = "#D8DEE9"
+Muted = "#D8DEE9"
+SyntaxCommand = "#D8DEE9"
+SyntaxFlag = "#D8DEE9"
+SyntaxString = "#D8DEE9"
+SyntaxVariable = "#D8DEE9"
+SyntaxOperator = "#D8DEE9"
+SyntaxComment = "#D8DEE9"

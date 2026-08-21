@@ -49,6 +49,8 @@ extensions/
 
 - [pi-black](https://github.com/paoloanzn/pi-black) to replace pi-claude-bridge
 - [pi-agents-tmux](https://github.com/vanillagreencom/kendex/tree/main/pi-extensions/pi-agents-tmux)
+- [deputies](https://github.com/sidpalas/deputies)
+- [dsh-import-agents](https://github.com/Chang-Tong/dsh-import-agents)
 
 ### Already Tested
 
