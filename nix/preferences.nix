@@ -40,14 +40,13 @@
         # "${pkgs.ghostty}/Applications/Ghostty.app" # if coming from nixkpgs
         "/Applications/Ghostty.app"
         "/Applications/Brave Browser.app"
+        "/Applications/Firefox Developer Edition.app"
         "/Applications/Notion.app"
         "/Applications/Nix Apps/Slack.app"
         "/Applications/Notion Calendar.app"
         "/Applications/Nix Apps/Bitwarden.app"
         "/Applications/Mimestream.app"
-        "/Applications/Claude.app"
         "/Applications/Spotify.app"
-        "/Applications/YouTube Music Desktop App.app"
         "/Applications/WhatsApp.app"
       ];
       # Disable all hot corners (1 = no action)
@@ -106,74 +105,74 @@
       "com.apple.symbolichotkeys" = {
         AppleSymbolicHotKeys = {
           # Disable Spotlight shortcuts (using Raycast instead)
-          "64" = { enabled = false; }; # Show Spotlight search (Cmd+Space)
-          "65" = { enabled = false; }; # Show Finder search window (Cmd+Option+Space)
+          "64" = {enabled = false;}; # Show Spotlight search (Cmd+Space)
+          "65" = {enabled = false;}; # Show Finder search window (Cmd+Option+Space)
 
           # Disable all Mission Control shortcuts (conflicts with neovim/terminal)
-          "32" = { enabled = false; }; # Mission Control (Ctrl+Up)
-          "33" = { enabled = false; }; # Application windows (Ctrl+Down)
-          "34" = { enabled = false; }; # Move left a space (Ctrl+Left)
-          "35" = { enabled = false; }; # Move right a space (Ctrl+Right)
-          "36" = { enabled = false; }; # Show Desktop (F11)
-          "37" = { enabled = false; }; # Show Dashboard (F12)
-          "62" = { enabled = false; }; # Show Dashboard (alternative)
-          "79" = { enabled = false; }; # Move window to space on left (Ctrl+Shift+Left)
-          "80" = { enabled = false; }; # Move window to space on right (Ctrl+Shift+Right)
-          "81" = { enabled = false; }; # Move window to Desktop 1
-          "82" = { enabled = false; }; # Move window to Desktop 2
+          "32" = {enabled = false;}; # Mission Control (Ctrl+Up)
+          "33" = {enabled = false;}; # Application windows (Ctrl+Down)
+          "34" = {enabled = false;}; # Move left a space (Ctrl+Left)
+          "35" = {enabled = false;}; # Move right a space (Ctrl+Right)
+          "36" = {enabled = false;}; # Show Desktop (F11)
+          "37" = {enabled = false;}; # Show Dashboard (F12)
+          "62" = {enabled = false;}; # Show Dashboard (alternative)
+          "79" = {enabled = false;}; # Move window to space on left (Ctrl+Shift+Left)
+          "80" = {enabled = false;}; # Move window to space on right (Ctrl+Shift+Right)
+          "81" = {enabled = false;}; # Move window to Desktop 1
+          "82" = {enabled = false;}; # Move window to Desktop 2
 
           # Disable Switch to Desktop shortcuts (Ctrl+1/2/3/4)
-          "118" = { enabled = false; }; # Switch to Desktop 1
-          "119" = { enabled = false; }; # Switch to Desktop 2
-          "120" = { enabled = false; }; # Switch to Desktop 3
-          "121" = { enabled = false; }; # Switch to Desktop 4
+          "118" = {enabled = false;}; # Switch to Desktop 1
+          "119" = {enabled = false;}; # Switch to Desktop 2
+          "120" = {enabled = false;}; # Switch to Desktop 3
+          "121" = {enabled = false;}; # Switch to Desktop 4
 
           # Disable Input Source shortcuts (conflicts with IDE/terminal shortcuts)
-          "60" = { enabled = false; }; # Select previous input source (Ctrl+Space)
-          "61" = { enabled = false; }; # Select next input source (Ctrl+Option+Space)
+          "60" = {enabled = false;}; # Select previous input source (Ctrl+Space)
+          "61" = {enabled = false;}; # Select next input source (Ctrl+Option+Space)
 
           # Re-enable "Move focus to next window" (Cmd+`) - was wrongly disabled as "Minimize window"
           "27" = {
             enabled = true;
             value = {
-              parameters = [ 96 50 1048576 ]; # ` (ascii 96), keycode 50, Cmd modifier
+              parameters = [96 50 1048576]; # ` (ascii 96), keycode 50, Cmd modifier
               type = "standard";
             };
           };
 
           # Disable Dock shortcuts
-          "52" = { enabled = false; }; # Turn Dock Hiding On/Off (Opt+Cmd+D)
+          "52" = {enabled = false;}; # Turn Dock Hiding On/Off (Opt+Cmd+D)
 
           # Disable display brightness shortcuts
-          "53" = { enabled = false; }; # Decrease display brightness
-          "54" = { enabled = false; }; # Increase display brightness
-          "55" = { enabled = false; }; # Decrease display brightness (slow)
-          "56" = { enabled = false; }; # Increase display brightness (slow)
+          "53" = {enabled = false;}; # Decrease display brightness
+          "54" = {enabled = false;}; # Increase display brightness
+          "55" = {enabled = false;}; # Decrease display brightness (slow)
+          "56" = {enabled = false;}; # Increase display brightness (slow)
 
           # Disable "Move focus to..." shortcuts (conflicts with terminal/IDE)
-          "7" = { enabled = false; };  # Move focus to menu bar (Ctrl+F2)
-          "8" = { enabled = false; };  # Move focus to Dock (Ctrl+F3)
-          "9" = { enabled = false; };  # Move focus to active/next window (Ctrl+F4)
-          "10" = { enabled = false; }; # Move focus to window toolbar (Ctrl+F5)
-          "11" = { enabled = false; }; # Move focus to floating window (Ctrl+F6)
-          "12" = { enabled = false; }; # Turn keyboard access on/off (Ctrl+F1)
-          "13" = { enabled = false; }; # Change way Tab moves focus (Ctrl+F7)
+          "7" = {enabled = false;}; # Move focus to menu bar (Ctrl+F2)
+          "8" = {enabled = false;}; # Move focus to Dock (Ctrl+F3)
+          "9" = {enabled = false;}; # Move focus to active/next window (Ctrl+F4)
+          "10" = {enabled = false;}; # Move focus to window toolbar (Ctrl+F5)
+          "11" = {enabled = false;}; # Move focus to floating window (Ctrl+F6)
+          "12" = {enabled = false;}; # Turn keyboard access on/off (Ctrl+F1)
+          "13" = {enabled = false;}; # Change way Tab moves focus (Ctrl+F7)
 
           # Disable Accessibility shortcuts
-          "15" = { enabled = false; }; # Turn zoom on/off
-          "17" = { enabled = false; }; # Zoom in
-          "19" = { enabled = false; }; # Zoom out
-          "21" = { enabled = false; }; # Invert colors (Ctrl+Opt+Cmd+8)
-          "23" = { enabled = false; }; # Turn image smoothing on/off
-          "25" = { enabled = false; }; # Increase Contrast (Ctrl+Opt+Cmd+.)
-          "26" = { enabled = false; }; # Decrease Contrast (Ctrl+Opt+Cmd+,)
+          "15" = {enabled = false;}; # Turn zoom on/off
+          "17" = {enabled = false;}; # Zoom in
+          "19" = {enabled = false;}; # Zoom out
+          "21" = {enabled = false;}; # Invert colors (Ctrl+Opt+Cmd+8)
+          "23" = {enabled = false;}; # Turn image smoothing on/off
+          "25" = {enabled = false;}; # Increase Contrast (Ctrl+Opt+Cmd+.)
+          "26" = {enabled = false;}; # Decrease Contrast (Ctrl+Opt+Cmd+,)
 
           # Disable Screenshot shortcuts (using Cleanshot X instead)
-          "28" = { enabled = false; };  # Save picture of screen as file (Cmd+Shift+3)
-          "29" = { enabled = false; };  # Save picture of selected area as file (Cmd+Shift+4)
-          "30" = { enabled = false; };  # Copy picture of screen to clipboard (Cmd+Ctrl+Shift+3)
-          "31" = { enabled = false; };  # Copy picture of selected area to clipboard (Cmd+Ctrl+Shift+4)
-          "184" = { enabled = false; }; # Screenshot and recording options (Cmd+Shift+5)
+          "28" = {enabled = false;}; # Save picture of screen as file (Cmd+Shift+3)
+          "29" = {enabled = false;}; # Save picture of selected area as file (Cmd+Shift+4)
+          "30" = {enabled = false;}; # Copy picture of screen to clipboard (Cmd+Ctrl+Shift+3)
+          "31" = {enabled = false;}; # Copy picture of selected area to clipboard (Cmd+Ctrl+Shift+4)
+          "184" = {enabled = false;}; # Screenshot and recording options (Cmd+Shift+5)
         };
       };
 
