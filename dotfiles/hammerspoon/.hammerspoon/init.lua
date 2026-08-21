@@ -15,28 +15,40 @@ hs.hotkey.bind({ "cmd", "ctrl" }, "R", function()
   end)
 end)
 
--- local map_ctrl_key_app = {
---   ["1"] = "Ghostty",
---   ["2"] = "Brave Browser",
---   ["3"] = "Firefox Developer Edition",
---   ["4"] = "Slack",
---   ["5"] = "Mimestream",
---   ["9"] = "Notion",
---   ["0"] = "Spotify",
--- }
--- for key, appname in pairs(map_ctrl_key_app) do
---   hs.hotkey.bind({ "ctrl", "cmd" }, key, function()
---     hs.application.launchOrFocus(appname)
---   end)
--- end
+local macshotBundleID = "com.sw33tlie.macshot.macshot"
+local macshotCopyAndClose
+macshotCopyAndClose = hs.hotkey.new({ "cmd" }, "C", function()
+  local focusedWindow = hs.window.focusedWindow()
+  local editorWindowID
+  if focusedWindow and focusedWindow:title():match("^macshot Editor") then
+    editorWindowID = focusedWindow:id()
+  end
 
-local function applicationWatcher(appName, eventType, appObject)
-  if eventType == hs.application.watcher.activated then
-    if appName == "Finder" then
-      -- Bring all Finder windows forward when one gets activated
-      appObject:selectMenuItem({ "Window", "Bring All to Front" })
+  macshotCopyAndClose:disable()
+  hs.eventtap.keyStroke({ "cmd" }, "C", 0)
+  macshotCopyAndClose:enable()
+
+  hs.timer.doAfter(0.1, function()
+    local currentWindow = hs.window.focusedWindow()
+    if editorWindowID and currentWindow and currentWindow:id() == editorWindowID then
+      currentWindow:close()
     end
+  end)
+end)
+
+local function updateMacshotHotkey(application)
+  if application and application:bundleID() == macshotBundleID then
+    macshotCopyAndClose:enable()
+  else
+    macshotCopyAndClose:disable()
   end
 end
-local appWatcher = hs.application.watcher.new(applicationWatcher)
+
+updateMacshotHotkey(hs.application.frontmostApplication())
+
+local appWatcher = hs.application.watcher.new(function(_, eventType, application)
+  if eventType == hs.application.watcher.activated then
+    updateMacshotHotkey(application)
+  end
+end)
 appWatcher:start()

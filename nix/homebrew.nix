@@ -27,6 +27,7 @@
     casks = [
       "ghostty" # broken in nixpkgs
       "raycast"
+      "hammerspoon"
 
       "claude" # claude app
       "chatgpt" # OpenAI's coding agent desktop app
@@ -62,6 +63,7 @@
       "handy" # speech to text
 
       "orbstack" # docker & linux VMs
+      "ios-deploy" # Install and debug iPhone apps from the command-line
 
       "betterdisplay" # display settings
       "pika" # equivalent of ColorSlurp (get the hex code of a color)
