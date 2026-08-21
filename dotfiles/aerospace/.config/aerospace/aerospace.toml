@@ -187,7 +187,7 @@ if.app-id = 'notion.id'
 run = 'move-node-to-workspace 0'
 
 [[on-window-detected]]
-if.app-id = 'org.m0k.transmission' # Transmission - torrent download
+if.app-id = 'org.m0k.transmission'                    # Transmission - torrent download
 run = ['move-node-to-workspace 7', 'layout floating']
 
 [[on-window-detected]]
@@ -206,7 +206,7 @@ if.app-id = 'org.whispersystems.signal-desktop'
 run = 'move-node-to-workspace 0'
 
 [[on-window-detected]]
-if.app-id = 'com.apple.Preview'  # PDF Preview
+if.app-id = 'com.apple.Preview'    # PDF Preview
 run = ['move-node-to-workspace 0']
 
 [[on-window-detected]]
@@ -222,12 +222,24 @@ if.app-id = 'com.apple.TV'
 run = 'move-node-to-workspace 0'
 
 [[on-window-detected]]
-if.app-id = 'com.anthropic.claudefordesktop'   # Claude
+if.app-id = 'com.anthropic.claudefordesktop' # Claude
 run = ['move-node-to-workspace 0']
+
+[[on-window-detected]]
+if.app-id = 'com.openai.codex'     # ChatGPT (ex. codex)
+run = ['move-node-to-workspace 0']
+
+[[on-window-detected]]
+if.app-id = 'com.linear'         # Linear
+run = 'move-node-to-workspace 0'
 
 [[on-window-detected]]
 if.app-id = 'com.electron.dockerdesktop'
 run = ['move-node-to-workspace 0']
+
+[[on-window-detected]]
+if.app-id = 'dev.kdrag0n.MacVirt' # OrbStack
+run = 'move-node-to-workspace 0'
 
 
 [[on-window-detected]]
@@ -237,10 +249,6 @@ run = 'move-node-to-workspace 1'
 [[on-window-detected]]
 if.app-id = 'com.mitchellh.ghostty'
 run = 'move-node-to-workspace 1'
-
-[[on-window-detected]]
-if.app-id = 'dev.kdrag0n.MacVirt' # OrbStack
-run = 'move-node-to-workspace 0'
 
 
 [[on-window-detected]]
