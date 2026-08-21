@@ -143,7 +143,8 @@
     libiconv # required for libintl
     curl
 
-    # ----- vim formatters for conform -----
+    # ----- language servers and vim formatters -----
+    lua-language-server
     alejandra
     djhtml
     eslint_d

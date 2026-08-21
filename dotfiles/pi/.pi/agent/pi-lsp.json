@@ -12,6 +12,10 @@
       "command": ["npx", "-y", "typescript-language-server", "--stdio"],
       "extensions": [".ts", ".tsx", ".mts", ".cts", ".js", ".jsx", ".mjs", ".cjs"]
     },
+    "lua": {
+      "command": ["lua-language-server"],
+      "extensions": [".lua"]
+    },
     "json": {
       "command": ["npx", "-y", "vscode-json-languageserver", "--stdio"],
       "extensions": [".json", ".jsonc"]
