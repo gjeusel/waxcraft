@@ -9,6 +9,7 @@
   "enableSkillCommands": true,
   "enabledModels": [
     "moonshotai/kimi-k3",
+    "openrouter/stealth/ox-alpha",
     "openai-codex/gpt-5.6-sol",
     "openai-codex/gpt-5.6-luna",
     "claude-bridge/claude-fable-5",
