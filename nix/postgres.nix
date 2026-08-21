@@ -13,7 +13,7 @@
   socketDir = "/tmp";
 
   # Users and databases to create
-  dbUsers = ["postgres" "zefire" "venturi" "peregreen" "cloud_admin" "neon_superuser" "anthracit_owner"];
+  dbUsers = ["postgres" "_rdb_superadmin" "zefire" "venturi" "peregreen" "cloud_admin" "neon_superuser" "anthracit_owner"];
   databases = [
     "gjeusel"
     "zefire"
@@ -26,19 +26,12 @@
     "peregreen_test"
   ];
 
-  # Init script that runs after postgres starts
+  # Reconcile users, databases, and extensions after postgres starts.
   postgresInitScript = pkgs.writeShellScript "postgres-init.sh" ''
     set -e
 
-    MARKER_FILE="${dataDir}/.databases_initialized"
     PSQL="${pkgs.postgresql_16}/bin/psql"
     PG_ISREADY="${pkgs.postgresql_16}/bin/pg_isready"
-
-    # Exit if already initialized
-    if [ -f "$MARKER_FILE" ]; then
-      echo "Databases already initialized, skipping."
-      exit 0
-    fi
 
     echo "Waiting for PostgreSQL to be ready..."
     for i in $(seq 1 30); do
@@ -84,9 +77,7 @@
       '')
       databases)}
 
-    # Mark as initialized
-    touch "$MARKER_FILE"
-    echo "Database initialization complete!"
+    echo "Database configuration complete!"
   '';
 in {
   environment.systemPackages = with pkgs; [
@@ -126,11 +117,23 @@ in {
     '';
     settings = {
       max_connections = 1000;
-      shared_buffers = "128MB"; # min 128kB
-      maintenance_work_mem = "3GB"; # min 1MB
-      max_parallel_maintenance_workers = 8; # limited by max_parallel_workers
-      max_parallel_workers = 14; # number of max_worker_processes that
+      shared_buffers = "2GB";
+      effective_cache_size = "12GB";
+      maintenance_work_mem = "1GB";
+      max_worker_processes = 16;
+      max_parallel_maintenance_workers = 8;
+      max_parallel_workers = 14;
 
+      max_wal_size = "8GB";
+      min_wal_size = "2GB";
+      checkpoint_timeout = "15min";
+      wal_compression = "on";
+
+      logging_collector = true;
+      log_directory = "log";
+      log_filename = "postgresql-%Y-%m-%d_%H%M%S.log";
+      log_rotation_age = "1d";
+      log_rotation_size = "1GB";
       log_statement = "all";
       log_timezone = "Europe/Brussels";
       datestyle = "iso, mdy";

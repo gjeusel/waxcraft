@@ -90,7 +90,7 @@ Common use cases:
 
 ### PostgreSQL Configuration
 
-PostgreSQL 16 is managed by nix-darwin via `postgres.nix` (imported in `flake.nix`); the Homebrew `postgresql@16` brew is commented out. Since nix-darwin doesn't support `initialScript`, `ensureDatabases`, or `ensureUsers` (see [nix-darwin#339](https://github.com/nix-darwin/nix-darwin/issues/339)), a separate one-shot launchd agent (`postgresql-init`) creates the users, databases, and extensions after postgres starts. It runs once and drops a `.databases_initialized` marker file in the data dir; delete the marker to re-run it.
+PostgreSQL 16 is managed by nix-darwin via `postgres.nix` (imported in `flake.nix`); the Homebrew `postgresql@16` brew is commented out. Since nix-darwin doesn't support `initialScript`, `ensureDatabases`, or `ensureUsers` (see [nix-darwin#339](https://github.com/nix-darwin/nix-darwin/issues/339)), a separate idempotent one-shot launchd agent (`postgresql-init`) reconciles the configured users, databases, and extensions after postgres starts.
 
 ### Keyboard Shortcuts
 
