@@ -22,6 +22,7 @@
     iterm2
     neovim
     tree-sitter
+    atuin
 
     tmux
     # TODO: Investiguate how to configure entirely tmux with nix
