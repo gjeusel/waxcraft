@@ -69,10 +69,7 @@ export default async function (pi: ExtensionAPI) {
       return;
     }
     if (filesystemSandboxDisabled()) {
-      ctx.ui.notify(
-        'pi-safety: filesystem Seatbelt is disabled by PI_SAFETY_DISABLE_FILESYSTEM_SANDBOX=1; shell checks and rm/rmdir-to-trash routing remain active',
-        'warning',
-      );
+      ctx.ui.notify('pi-safety: sandbox is disabled');
     }
     if (parserError) {
       ctx.ui.notify(`pi-safety: tree-sitter initialization failed; Bash is disabled (${parserError})`, 'error');
