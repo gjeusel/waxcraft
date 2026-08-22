@@ -284,7 +284,8 @@
     "rust-analyzer-lsp@claude-plugins-official": true,
     "chrome-devtools-mcp@claude-plugins-official": true,
     "ty-lsp@local": true,
-    "codex@openai-codex": true
+    "codex@openai-codex": true,
+    "claude-security@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "cloudflare": {
