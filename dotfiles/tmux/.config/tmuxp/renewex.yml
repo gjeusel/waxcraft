@@ -56,8 +56,8 @@ windows:
   - window_name: anthracit
     layout: 21f2,158x47,0,0[158x36,0,0{79x36,0,0,0,78x36,80,0,2},158x10,0,37,1]
     shell_command_before:
-      - mamba activate anthracit
       - cd ~/src/anthracit
+      - source .venv/bin/activate
     panes:
       - focus: true
       - pi
@@ -78,14 +78,6 @@ windows:
   #   shell_command_before:
   #     - mamba activate peregreen
   #     - cd ~/src/peregreen
-  #   panes:
-  #     - focus: true
-  #     -
-
-  # - window_name: gofolio
-  #   layout: 7066,158x47,0,0[158x36,0,0,1,158x10,0,37,2]
-  #   shell_command_before:
-  #     - cd ~/src/rnux/apps/gofolio/
   #   panes:
   #     - focus: true
   #     -
