@@ -4,6 +4,12 @@ alias vimrc="vim $WAXPATH/dotfiles/nvim/.config/nvim/lua/wax/plugins.lua"
 alias zshrc="vim ${ZDOTDIR:-$HOME}/.zshrc"
 alias czshrc="vim $WAXPATH/zsh/init.zsh"
 
+# Claude Code prefers ANTHROPIC_API_KEY over account authentication. Keep the
+# key in the interactive shell while preventing Pi's Claude bridge from inheriting it.
+pi() {
+  env -u ANTHROPIC_API_KEY pi "$@"
+}
+
 # definitly swhich to nvim:
 alias vi="nvim"
 alias vim="nvim"
