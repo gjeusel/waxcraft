@@ -57,7 +57,7 @@ pi_extensions_dir := dotfiles_dir / "pi/.pi/agent/extensions"
 pi_python_dir := pi_extensions_dir / "python-code"
 pi_node_package := "path:" + justfile_dir + "/nix#darwinPackages.nodejs_22"
 
-# Install and configure Pi dependencies, safety files, package, and launcher.
+# Install and configure Pi dependencies and dotfiles.
 [group('pi')]
 pi-install:
     nix shell {{ pi_node_package }} --command npm --prefix {{ pi_extensions_dir }} ci
@@ -67,7 +67,7 @@ pi-install:
     test -x "$HOME/.local/bin/pi"
     PATH="$HOME/.local/bin:$PATH"; export PATH; test "$(command -v pi)" = "$HOME/.local/bin/pi"
     @resolved_pi="$(command -v pi 2>/dev/null || true)"; if test "$resolved_pi" != "$HOME/.local/bin/pi"; then echo "warning: this shell resolves pi to ${resolved_pi:-nothing}; run 'export PATH=\"\$HOME/.local/bin:\$PATH\"; rehash'" >&2; fi
-    @echo "pi-safety launcher ready at ~/.local/bin/pi"
+    @echo "Pi launcher ready at ~/.local/bin/pi"
 
 # Symlink all dotfiles. This also runs the complete Pi setup first.
 [group('stow')]

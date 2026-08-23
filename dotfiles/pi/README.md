@@ -36,7 +36,7 @@ extensions/
 ├── peek-document/          read PDF and Office files
 ├── per-model-prompt/       model-specific directives
 ├── pi-builtin-adjustments/ quieter built-ins
-├── pi-safety/              sandboxed filesystem and shell safety policy
+├── pi-safety/              Bash command checks and safe deletion shims
 ├── python-code/            sandboxed Python
 ├── rant/                   log preventable failures
 ├── statusbar/              minimal one-line footer
@@ -85,10 +85,8 @@ pi update --all
 ```
 
 `just nix-up` switches the Nix system first, then runs `just pi-install`. The
-installer uses the flake's supported Node.js version for `npm ci`, installs the
-safety runtime, and stows `~/.local/bin/pi`. The wrapper runs the entire Pi
-process under a deny-only macOS Seatbelt profile generated from
-`~/.pi/agent/pi-safety.jsonc`.
+installer uses the flake's supported Node.js version for `npm ci` and stows
+`~/.local/bin/pi`.
 
 If the current shell still resolves the pnpm launcher, prepend `~/.local/bin`
 and clear Zsh's command cache with
@@ -97,9 +95,5 @@ best-effort guardrail: tree-sitter evaluates literal command names, while
 dynamically constructed executable names remain intentionally unresolved.
 
 Use `/no-safety` to disable tree-sitter command checks for the current session.
-The rm/rmdir-to-trash routing and whole-process filesystem Seatbelt remain active;
-macOS cannot remove Seatbelt from a running process.
-
-After editing shell rules or extension code, run `/reload` inside Pi. Restart
-Pi after editing filesystem rules because a running process cannot replace its
-Seatbelt profile.
+The rm/rmdir-to-trash routing remains active. After editing shell rules or
+extension code, run `/reload` inside Pi.
