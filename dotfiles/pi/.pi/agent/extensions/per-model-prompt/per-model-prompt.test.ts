@@ -4,12 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
-import perModelPrompt, {
-  appendDirective,
-  buildRephrasePrompt,
-  loadModelPrompt,
-  promptFileName,
-} from './index.ts';
+import perModelPrompt, { appendDirective, buildRephrasePrompt, loadModelPrompt, promptFileName } from './index.ts';
 
 type Handler = (
   event: { systemPrompt: string },
