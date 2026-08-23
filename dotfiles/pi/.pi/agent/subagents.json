@@ -1,0 +1,13 @@
+{
+  "maxConcurrent": 6,
+  "defaultMaxTurns": 15,
+  "graceTurns": 5,
+  "defaultJoinMode": "smart",
+  "backgroundByDefault": true,
+  "scopeModels": true,
+  "strictAgentFiles": true,
+  "toolDescriptionMode": "custom",
+  "fallbackSubagent": "none",
+  "reportUsage": true,
+  "showCost": true
+}

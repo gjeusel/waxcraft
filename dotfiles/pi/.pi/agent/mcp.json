@@ -1,9 +1,9 @@
 {
   "mcpServers": {
-    "context7": {
-      "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp"]
-    },
+    // "context7": {
+    //   "command": "npx",
+    //   "args": ["-y", "@upstash/context7-mcp"]
+    // },
     "notion": {
       "url": "https://mcp.notion.com/mcp",
       "auth": "oauth"
