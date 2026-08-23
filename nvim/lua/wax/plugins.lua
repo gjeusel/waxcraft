@@ -185,42 +185,35 @@ return {
             return
           end
 
-          -- Determine main branch (main or master)
-          local main_branch = vim.fn.system({ "git", "rev-parse", "--verify", "main" })
+          -- Prefer the remote's default branch when both main and master exist.
+          local default_branch = vim.trim(vim.fn.system({
+            "git",
+            "symbolic-ref",
+            "--quiet",
+            "--short",
+            "refs/remotes/origin/HEAD",
+          }))
+
           if vim.v.shell_error ~= 0 then
-            main_branch = vim.fn.system({ "git", "rev-parse", "--verify", "master" })
-            if vim.v.shell_error ~= 0 then
-              vim.notify("Neither 'main' nor 'master' branch found", vim.log.levels.ERROR)
-              return
+            for _, candidate in ipairs({ "main", "master" }) do
+              vim.fn.system({ "git", "rev-parse", "--verify", candidate })
+              if vim.v.shell_error == 0 then
+                default_branch = candidate
+                break
+              end
             end
-            main_branch = "master"
-          else
-            main_branch = "main"
           end
 
-          -- Get the relative path from git root
-          local git_root = vim.fn.system({ "git", "rev-parse", "--show-toplevel" })
-          git_root = vim.trim(git_root)
-
-          if vim.v.shell_error ~= 0 then
-            vim.notify("Not in a git repository", vim.log.levels.ERROR)
-            return
-          end
-
-          local rel_path = current_file:gsub("^" .. vim.pesc(git_root) .. "/", "")
-
-          -- Check if file exists in main/master branch
-          vim.fn.system({ "git", "cat-file", "-e", main_branch .. ":" .. rel_path })
-          if vim.v.shell_error ~= 0 then
+          if default_branch == "" then
             vim.notify(
-              string.format("File '%s' does not exist in '%s' branch", rel_path, main_branch),
-              vim.log.levels.WARN
+              "Neither a default remote branch nor 'main'/'master' was found",
+              vim.log.levels.ERROR
             )
             return
           end
 
-          -- Diff with main/master branch
-          gs.diffthis(main_branch)
+          -- Let gitsigns resolve the file's former path when it was renamed.
+          gs.diffthis(default_branch)
         end)
       end,
     },
