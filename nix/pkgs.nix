@@ -37,6 +37,7 @@
     television
     fd
     jq
+    yq
     htop
     rclone
     tealdeer
