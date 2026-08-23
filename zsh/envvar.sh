@@ -29,6 +29,11 @@ export PATH="$GOPATH/bin:$PATH"
 # Rust
 export PATH="$HOME/.cargo/bin:$PATH"
 
+# Node.js package managers
+export NPM_CONFIG_PREFIX="$HOME/.local"
+export PNPM_HOME="$HOME/Library/pnpm"
+export PATH="$HOME/.local/bin:$PNPM_HOME/bin:$PNPM_HOME:$PATH"
+
 # CONDA
 export CONDARC=$HOME/.config/conda/condarc
 

@@ -67,8 +67,8 @@
     rustup
 
     # js
-    nodejs # includes npm
-    pnpm_10
+    pnpm_11
+    nodejs_24
     ni # Use the right package manager (npm / pnpm / bun)
 
     prek
@@ -191,6 +191,9 @@
     pkgs-unstable.zed-editor # neat agentic ai (unstable: stable's aarch64-darwin build isn't cached)
 
     protonmail-desktop
+
+    # ----- LLM tools -----
+    agent-browser
 
     # ----- experiments -----
     temporal
