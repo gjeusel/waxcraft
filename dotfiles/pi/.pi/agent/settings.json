@@ -22,20 +22,18 @@
     "deepseek/deepseek-v4-flash",
     "deepseek/deepseek-v4-pro"
   ],
-  "skills": [
-    "~/.claude/skills"
-  ],
+  "skills": ["~/.claude/skills"],
   "packages": [
     "npm:pi-mcp-adapter@2.19.0",
     "npm:pi-claude-bridge@0.7.0",
-    "https://github.com/tintinweb/pi-subagents@v0.18.0",
+    "npm:@tintinweb/pi-subagents@v0.18.0",
+    "npm:@tintinweb/pi-tasks@0.8.0",
+    "npm:@juicesharp/rpiv-todo@2.6.2",
     "npm:@narumitw/pi-lsp@0.46.0",
     "npm:@narumitw/pi-codex-compact@0.51.0",
     "npm:@narumitw/pi-usage@0.52.1",
     "npm:pi-web-access@0.18.0",
     "npm:@ayulab/pi-rewind@0.4.6",
-    "npm:@juicesharp/rpiv-ask-user-question@2.6.2",
-    "npm:@juicesharp/rpiv-todo@2.6.2",
     "npm:@ff-labs/pi-fff@0.10.5"
   ],
   "compaction": {

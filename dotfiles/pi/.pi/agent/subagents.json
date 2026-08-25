@@ -1,6 +1,6 @@
 {
   "maxConcurrent": 6,
-  "defaultMaxTurns": 15,
+  "defaultMaxTurns": 30,
   "graceTurns": 5,
   "defaultJoinMode": "smart",
   "backgroundByDefault": true,

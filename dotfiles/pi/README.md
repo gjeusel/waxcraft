@@ -51,11 +51,13 @@ extensions/
 - [pi-agents-tmux](https://github.com/vanillagreencom/kendex/tree/main/pi-extensions/pi-agents-tmux)
 - [deputies](https://github.com/sidpalas/deputies)
 - [dsh-import-agents](https://github.com/Chang-Tong/dsh-import-agents)
+- [tintinweb/pi-tasks](https://github.com/tintinweb/pi-tasks)
 
 ### Already Tested
 
 - [pi-intercom](https://github.com/nicobailon/pi-intercom) not great, polluting more than anything
 - [pi-subagents](https://github.com/nicobailon/pi-subagents) not great, unsure it's the proper way to do it
+- [juicesharp/rpiv-todo](https://github.com/juicesharp/rpiv-mono/tree/main/packages/rpiv-todo) very good !
 
 ## Packages
 

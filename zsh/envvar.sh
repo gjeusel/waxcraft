@@ -93,12 +93,17 @@ export HOMEBREW_NO_ENV_HINTS=1
 export DISABLE_AUTO_TITLE='true'
 
 # Annoying tools
-export PI_SKIP_VERSION_CHECK=true
 export PYARROW_IGNORE_TIMEZONE=1
 export SCW_DISABLE_CHECK_VERSION=true
 export TURBO_NO_UPDATE_NOTIFIER=true
 export VITE_CJS_IGNORE_WARNING=true
 export ESLINT_USE_FLAT_CONFIG=true
+
+# Pi Agent
+export PI_SKIP_VERSION_CHECK=true
+
+# @tintinweb/pi-tasks
+export PI_TASKS="/tmp/pi-tasks-${USER}.json"
 
 # # Cargo restrict
 # export CARGO_BUILD_JOBS=6
