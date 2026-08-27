@@ -2,7 +2,6 @@
   "lastChangelogVersion": "0.84.2",
   "theme": "nord",
   "defaultProjectTrust": "never",
-  "quietStartup": true,
   "enableSkillCommands": true,
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.6-sol",
@@ -12,7 +11,7 @@
     "openai-codex/gpt-5.6-luna",
     "vercel-ai-gateway/openai/gpt-5.6-sol",
     "vercel-ai-gateway/zai/glm-5.3",
-    "openrouter/stealth/ox-alpha",
+    "vercel-ai-gateway/zai/glm-5.3-flash",
     "openrouter/z-ai/glm-5.3-flash",
     "moonshotai/kimi-k3",
     "deepseek/deepseek-v4-flash",
@@ -48,5 +47,8 @@
   "retry": {
     "enabled": true,
     "maxRetries": 3
-  }
+  },
+  "treeFilterMode": "user-only",
+  "quietStartup": true,
+  "collapseChangelog": true
 }

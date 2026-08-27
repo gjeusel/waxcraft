@@ -17,7 +17,14 @@
     },
     "postgres": {
       "command": "uvx",
-      "args": ["--with", "mcp<2", "postgres-mcp", "--access-mode=unrestricted"],
+      "args": [
+        "--python",
+        "3.13",
+        "--with",
+        "mcp[cli]==1.29.0",
+        "postgres-mcp",
+        "--access-mode=unrestricted"
+      ],
       "env": {
         "DATABASE_URI": "postgresql://postgres@localhost:5432/zefire"
       }
