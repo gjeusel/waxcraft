@@ -12,16 +12,20 @@
     "openai-codex/gpt-5.6-luna",
     "vercel-ai-gateway/openai/gpt-5.6-sol",
     "vercel-ai-gateway/zai/glm-5.3",
-    "moonshotai/kimi-k3",
     "openrouter/stealth/ox-alpha",
-    "claude-bridge/claude-fable-5",
-    "claude-bridge/claude-opus-4-8",
-    "claude-bridge/claude-opus-4-6",
-    "claude-bridge/claude-sonnet-5",
-    "claude-bridge/claude-haiku-4-5",
+    "openrouter/z-ai/glm-5.3-flash",
+    "moonshotai/kimi-k3",
     "deepseek/deepseek-v4-flash",
-    "deepseek/deepseek-v4-pro"
+    "deepseek/deepseek-v4-pro",
+    "claude-bridge/claude-sonnet-5",
+    "claude-bridge/claude-opus-4-8",
+    "claude-bridge/claude-fable-5"
   ],
+  "modelEffortDefaults": {
+    "*flash": "high",
+    "gpt-5.6-luna": "high",
+    "gpt-5.6-sol": "low"
+  },
   "skills": [
     "~/.claude/skills"
   ],
@@ -29,7 +33,6 @@
     "npm:pi-mcp-adapter@2.19.0",
     "npm:pi-claude-bridge@0.7.0",
     "npm:@tintinweb/pi-subagents@v0.18.0",
-    "npm:@tintinweb/pi-tasks@0.8.0",
     "npm:@juicesharp/rpiv-todo@2.6.2",
     "npm:@juicesharp/rpiv-ask-user-question@2.6.2",
     "npm:@narumitw/pi-lsp@0.46.0",

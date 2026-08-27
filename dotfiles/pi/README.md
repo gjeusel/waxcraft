@@ -32,6 +32,7 @@ claude auth status
 ```text
 extensions/
 ├── gitleaks-guard/         scan and redact secrets
+├── model-effort/           model-specific default effort levels
 ├── pane-focus/             dim unfocused panes
 ├── peek-document/          read PDF and Office files
 ├── per-model-prompt/       model-specific directives
