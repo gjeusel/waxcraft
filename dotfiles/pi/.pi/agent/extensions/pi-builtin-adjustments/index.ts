@@ -1,3 +1,5 @@
+import { existsSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
 import { SettingsManager, type ExtensionAPI } from '@earendil-works/pi-coding-agent';
 import { getKeybindings } from '@earendil-works/pi-tui';
 
@@ -6,6 +8,44 @@ const RESUME_MESSAGE_PREFIX = 'To resume this session:';
 const STYLE_PLACEHOLDER = '__PI_RESUME_COMMAND__';
 const MANDATORY_MODEL_PREFIXES = ['claude-bridge/', 'openai-codex/'] as const;
 const NO_MATCH_WARNING = /Warning: No models match pattern "([^"]+)"/;
+const PROJECT_SKILL_LOCATIONS = [
+  ['.claude', 'skills'],
+  ['.agents', 'skills'],
+] as const;
+
+function findGitRepoRoot(startDir: string): string | undefined {
+  let directory = resolve(startDir);
+
+  while (true) {
+    if (existsSync(join(directory, '.git'))) return directory;
+
+    const parent = dirname(directory);
+    if (parent === directory) return undefined;
+    directory = parent;
+  }
+}
+
+/** Find existing project skill directories from cwd through the Git root. */
+export function collectAncestorSkillPaths(cwd: string): string[] {
+  const skillPaths: string[] = [];
+  const gitRepoRoot = findGitRepoRoot(cwd);
+  let directory = resolve(cwd);
+
+  while (true) {
+    for (const location of PROJECT_SKILL_LOCATIONS) {
+      const skillPath = join(directory, ...location);
+      if (existsSync(skillPath)) skillPaths.push(skillPath);
+    }
+
+    if (directory === gitRepoRoot) break;
+
+    const parent = dirname(directory);
+    if (parent === directory) break;
+    directory = parent;
+  }
+
+  return skillPaths;
+}
 
 export function extractResumeCommand(chunk: unknown): string | undefined {
   if (typeof chunk !== 'string') return undefined;
@@ -93,9 +133,19 @@ export function adjustSessionOnlyModelSelection(pi: ExtensionAPI): void {
   });
 }
 
+/** Load Claude and Agent Skills from every trusted project ancestor. */
+export function adjustMonorepoSkillDiscovery(pi: ExtensionAPI): void {
+  pi.on('resources_discover', (event, ctx) => {
+    if (!ctx.isProjectTrusted()) return;
+
+    return { skillPaths: collectAncestorSkillPaths(event.cwd) };
+  });
+}
+
 /** Apply small behavior corrections to Pi's built-in UX and persistence. */
 export default function piBuiltinAdjustments(pi: ExtensionAPI): void {
   adjustExitResumeCommand(pi);
   adjustOptionalModelWarnings(pi);
   adjustSessionOnlyModelSelection(pi);
+  adjustMonorepoSkillDiscovery(pi);
 }

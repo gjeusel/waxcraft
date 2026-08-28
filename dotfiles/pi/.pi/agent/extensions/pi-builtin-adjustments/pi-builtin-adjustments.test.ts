@@ -1,12 +1,63 @@
 import assert from 'node:assert/strict';
+import { mkdirSync, mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import test from 'node:test';
 import { SettingsManager, type ExtensionAPI } from '@earendil-works/pi-coding-agent';
 import {
   adjustExitResumeCommand,
+  adjustMonorepoSkillDiscovery,
   adjustOptionalModelWarnings,
   adjustSessionOnlyModelSelection,
+  collectAncestorSkillPaths,
   extractResumeCommand,
 } from './index.ts';
+
+test('collects Claude and Agent skill directories from cwd through the Git root', () => {
+  const repository = mkdtempSync(join(tmpdir(), 'pi-monorepo-skills-'));
+  const application = join(repository, 'apps', 'example');
+  const nestedDirectory = join(application, 'src', 'components');
+
+  mkdirSync(join(repository, '.git'));
+  mkdirSync(join(repository, '.claude', 'skills'), { recursive: true });
+  mkdirSync(join(repository, '.agents', 'skills'), { recursive: true });
+  mkdirSync(join(application, '.claude', 'skills'), { recursive: true });
+  mkdirSync(join(application, '.agents', 'skills'), { recursive: true });
+  mkdirSync(nestedDirectory, { recursive: true });
+
+  assert.deepEqual(collectAncestorSkillPaths(nestedDirectory), [
+    join(application, '.claude', 'skills'),
+    join(application, '.agents', 'skills'),
+    join(repository, '.claude', 'skills'),
+    join(repository, '.agents', 'skills'),
+  ]);
+});
+
+test('only contributes ancestor skills for trusted projects', () => {
+  type ResourcesHandler = (
+    event: { cwd: string },
+    ctx: { isProjectTrusted: () => boolean },
+  ) => { skillPaths?: string[] } | undefined;
+
+  const repository = mkdtempSync(join(tmpdir(), 'pi-trusted-skills-'));
+  const skillPath = join(repository, '.claude', 'skills');
+  mkdirSync(join(repository, '.git'));
+  mkdirSync(skillPath, { recursive: true });
+
+  let resourcesHandler: ResourcesHandler | undefined;
+  const pi = {
+    on(event: string, handler: ResourcesHandler) {
+      if (event === 'resources_discover') resourcesHandler = handler;
+    },
+  } as unknown as ExtensionAPI;
+  adjustMonorepoSkillDiscovery(pi);
+  assert.ok(resourcesHandler);
+
+  assert.equal(resourcesHandler({ cwd: repository }, { isProjectTrusted: () => false }), undefined);
+  assert.deepEqual(resourcesHandler({ cwd: repository }, { isProjectTrusted: () => true }), {
+    skillPaths: [skillPath],
+  });
+});
 
 test('extracts the command from the built-in exit message', () => {
   assert.equal(
