@@ -44,6 +44,17 @@ test('scan: detects a generic api key', () => {
   assert.deepEqual(result.findings[0].Tags, []);
 });
 
+test('scan and redact: detects a secret in a Python type-annotated default', () => {
+  const annotatedSecret = ['k7R9_mN2', 'pQ4_vX8', 'zB6_hJ3', 'sW5_tC1'].join('-');
+  const text = `client_secret: str = "${annotatedSecret}"`;
+  const result = scan(text);
+  assert.equal(result.status, 'leaks');
+  assert.ok(result.status === 'leaks');
+  assert.equal(result.findings[0].RuleID, 'python-annotated-secret');
+  assert.equal(result.findings[0].Secret, annotatedSecret);
+  assert.equal(redact(text, result.findings), 'client_secret: str = "[REDACTED:python-annotated-secret]"');
+});
+
 for (const [encoding, encode] of encodedCases) {
   test(`scan and redact: ${encoding}-encoded secret`, () => {
     const encoded = encode(leakyText);

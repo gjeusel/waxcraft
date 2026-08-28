@@ -36,11 +36,30 @@ export type ScanResult =
   | { status: 'leaks'; findings: Finding[] }
   | { status: 'error'; reason: string };
 
+// The default generic-api-key rule does not allow a Python type annotation
+// between a credential name and its value.
+const GITLEAKS_CONFIG = String.raw`
+[extend]
+useDefault = true
+
+[[rules]]
+id = "python-annotated-secret"
+description = "Python type-annotated secret"
+regex = '''(?i)[a-z0-9_.-]*(?:secret|token|api[_-]?key|password|passwd|pwd|credential)[a-z0-9_.-]*\s*:\s*(?:str|bytes)\s*=\s*["']([a-z0-9_.=:/+_-]{10,150})["']'''
+secretGroup = 1
+entropy = 3.5
+keywords = ["secret", "token", "api", "key", "password", "passwd", "pwd", "credential"]
+`;
+
 export function scan(text: string): ScanResult {
+  // Pin the guard's rules independently of the project Pi was launched from.
+  const env: NodeJS.ProcessEnv = { ...process.env, GITLEAKS_CONFIG_TOML: GITLEAKS_CONFIG };
+  delete env.GITLEAKS_CONFIG;
+
   const result = spawnSync(
     'gitleaks',
     ['stdin', '--no-banner', '--max-decode-depth', '5', '--report-format', 'json', '--report-path', '/dev/stdout'],
-    { input: text, encoding: 'utf8', timeout: 10_000, maxBuffer: 64 * 1024 * 1024 },
+    { input: text, encoding: 'utf8', timeout: 10_000, maxBuffer: 64 * 1024 * 1024, env },
   );
 
   if (result.status === 0) return { status: 'clean' };
