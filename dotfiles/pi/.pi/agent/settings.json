@@ -26,7 +26,8 @@
     "gpt-5.6-sol": "low"
   },
   "skills": [
-    "~/.claude/skills"
+    "~/.claude/skills",
+    "~/.local/lib/node_modules/hunkdiff/skills/hunk-review/SKILL.md"
   ],
   "packages": [
     "npm:pi-mcp-adapter@2.19.0",

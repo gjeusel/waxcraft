@@ -1,28 +1,45 @@
 # hunk — terminal diff viewer (https://github.com/modem-dev/hunk)
 # Config search path: ~/.config/hunk/config.toml  or  .hunk/config.toml (per-repo)
 
-theme = "nord"                # built-in theme id, "auto", or "custom"
-mode = "split"                # auto | split | stack  (auto = responsive)
-vcs = "git"                   # git | jj | sl  (overrides auto-detection)
-watch = true                  # auto-reload when the diff input changes
-exclude_untracked = false     # hide untracked files in working-tree reviews
-line_numbers = true           # show line numbers
-wrap_lines = false            # wrap (true) or truncate (false) long lines
-agent_notes = false           # show inline agent/AI notes by default
-transparent_background = true # let the terminal background show through
+theme = "nord"                       # built-in theme id, "auto", or "custom"
+mode = "auto"                        # auto | split | stack  (auto = responsive)
+vcs = "git"                          # git | jj | sl  (overrides auto-detection)
+watch = true                         # auto-reload when the diff input changes
+exclude_untracked = false            # hide untracked files in working-tree reviews
+line_numbers = true                  # show line numbers
+cursor_line = "number"               # mark the active line in the line-number column
+hunk_gap = 1                         # add a blank row between consecutive hunks
+wrap_lines = false                   # wrap (true) or truncate (false) long lines
+menu_bar = false                     # hide the menu bar until toggled with M
+agent_notes = true                   # show inline agent/AI notes by default
+color_moved = true                   # highlight moved lines when supported
+transparent_background = true        # let the terminal background show through
+prompt_save_view_preferences = false
+
+[keybindings]
+"hunk.review.stepDown" = ["j", "down", "ctrl+e"]
+"hunk.review.stepUp" = ["k", "up", "ctrl+y"]
+"hunk.review.halfPageDown" = "ctrl+d"
+"hunk.review.halfPageUp" = "ctrl+u"
+"hunk.review.pageDown" = ["ctrl+f", "pagedown"]
+"hunk.review.pageUp" = ["ctrl+b", "pageup"]
+"hunk.review.toggleHunkGap" = ["space", "z"]
+"hunk.review.previousFile" = [",", "ctrl+p"]
+"hunk.review.nextFile" = [".", "ctrl+n"]
+"hunk.review.previousAnnotatedHunk" = ["N", "{"]
+"hunk.review.nextAnnotatedHunk" = ["n", "}"]
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CHEATSHEET — press `?` in the app for this overlay, `F10` to open the menu bar.
 #
 # Navigation
-#   ↑ / ↓          move line-by-line
-#   Space / f      page down
-#   b / Shift+Space page up
-#   d / u          half page down / up
-#   [ / ]          previous / next hunk
-#   , / .          previous / next file        ← yes, jump files easily!
-#   { / }          previous / next comment
-#   ← / →          scroll code left / right  (Shift = faster)
+#   ↑ / ↓, k / j, Ctrl+Y / Ctrl+E  move line-by-line
+#   Ctrl+B / Ctrl+F, PgUp / PgDn   page up / down
+#   Ctrl+U / Ctrl+D                 half page up / down
+#   [ / ]                           previous / next hunk
+#   , / ., Ctrl+P / Ctrl+N          previous / next file
+#   { / }, N / n                    previous / next comment
+#   ← / →                           scroll code left / right  (Shift = faster)
 #   Home / End     jump to top / bottom
 #   g / G          jump to top / bottom (less-style)
 #
@@ -35,7 +52,7 @@ transparent_background = true # let the terminal background show through
 #   s             toggle sidebar (file list)
 #   t             open theme selector
 #   a             toggle AI / agent notes
-#   z             toggle unchanged context lines
+#   Space / z     toggle unchanged context lines
 #   l / w / m     toggle line numbers / wrap / hunk metadata
 #   e             open current file in $EDITOR
 #

@@ -20,6 +20,14 @@ Then, inside Pi:
 /model
 ```
 
+The Hunk review skill is loaded directly from the installed `hunkdiff` package so it stays aligned with Hunk upgrades. Verify its configured path after changing Hunk's installation method:
+
+```bash
+hunk skill path
+```
+
+After upgrading Hunk, start a new Pi session or run `/reload` before reviewing a live Hunk session.
+
 Pi installs the packages from `settings.json` on first launch. For the Claude bridge:
 
 ```bash

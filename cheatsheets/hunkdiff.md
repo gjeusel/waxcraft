@@ -4,18 +4,17 @@ TUI diff review tool (`~/src/hunk`).
 
 ## Navigation
 
-| Key                          | Action                                                |
-| ---------------------------- | ----------------------------------------------------- |
-| `↑` / `↓`, `k` / `j`         | Move line-by-line                                     |
-| `Space` / `f`                | Page down                                             |
-| `b` / `Shift+Space` / `PgUp` | Page up                                               |
-| `d` / `u`                    | Half page down / up                                   |
-| `[` / `]`                    | Previous / next hunk                                  |
-| `,` / `.`                    | Previous / next file                                  |
-| `{` / `}`                    | Previous / next annotated hunk (comment)              |
-| `←` / `→`                    | Scroll code left / right (`Shift` = 8 cols at a time) |
-| `g` / `G`                    | Jump to top / bottom (less-style)                     |
-| `Home` / `End`               | Jump to top / bottom                                  |
+| Key                              | Action                                                |
+| -------------------------------- | ----------------------------------------------------- |
+| `↑` / `↓`, `k` / `j`, `Ctrl+Y/E` | Move line-by-line                                     |
+| `Ctrl+B/F`, `PgUp` / `PgDn`      | Page up / down                                        |
+| `Ctrl+U/D`                       | Half page up / down                                   |
+| `[` / `]`                        | Previous / next hunk                                  |
+| `,` / `.`, `Ctrl+P/N`            | Previous / next file                                  |
+| `{` / `}`, `N` / `n`             | Previous / next annotated hunk (comment)              |
+| `←` / `→`                        | Scroll code left / right (`Shift` = 8 cols at a time) |
+| `g` / `G`                        | Jump to top / bottom (less-style)                     |
+| `Home` / `End`                   | Jump to top / bottom                                  |
 
 ## Mouse
 
@@ -32,7 +31,7 @@ TUI diff review tool (`~/src/hunk`).
 | `s`             | Toggle sidebar                             |
 | `t`             | Theme selector                             |
 | `a`             | Toggle AI (agent) notes                    |
-| `z`             | Toggle unchanged context for selected hunk |
+| `Space` / `z`   | Toggle unchanged context for selected hunk |
 | `l`             | Toggle line numbers                        |
 | `w`             | Toggle line wrap                           |
 | `m`             | Toggle hunk headers (metadata)             |
@@ -63,4 +62,4 @@ TUI diff review tool (`~/src/hunk`).
 
 ## Pager mode
 
-Reduced key set: scrolling (`j`/`k`, `f`/`b`, `d`/`u`, `g`/`G`, arrows, `Home`/`End`), `w` wrap, `s` sidebar, `q` quit.
+Reduced key set: scrolling (`j`/`k`, `Ctrl+E`/`Ctrl+Y`, `Ctrl+F`/`Ctrl+B`, `Ctrl+D`/`Ctrl+U`, `g`/`G`, arrows, `Home`/`End`), `w` wrap, `s` sidebar, `q` quit.
