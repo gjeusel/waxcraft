@@ -1,6 +1,8 @@
 justfile_dir := justfile_directory()
 dotfiles_dir := justfile_dir / "dotfiles"
 stow_options := "--verbose --no-folding --dir " + dotfiles_dir + " --target ~/"
+agents_stow_options := "--verbose --dir " + dotfiles_dir + " --target ~/"
+agents_skills_dir := dotfiles_dir / "agents/.agents/skills"
 
 # List all the just commands
 default:
@@ -69,12 +71,15 @@ pi-install:
     @resolved_pi="$(command -v pi 2>/dev/null || true)"; if test "$resolved_pi" != "$HOME/.local/bin/pi"; then echo "warning: this shell resolves pi to ${resolved_pi:-nothing}; run 'export PATH=\"\$HOME/.local/bin:\$PATH\"; rehash'" >&2; fi
     @echo "Pi launcher ready at ~/.local/bin/pi"
 
-# Symlink all dotfiles. This also runs the complete Pi setup first.
+# Symlink all dotfiles.
 [group('stow')]
 stow-install:
     for pat in {{ stow_junk_patterns }}; do find {{ dotfiles_dir }} -mindepth 2 -name "$pat" -not -path "{{ dotfiles_dir }}/claude/.claude" -prune -exec trash {} +; done
     stow {{ stow_options }} --delete $(ls {{ dotfiles_dir }})
-    stow {{ stow_options }} --adopt $(ls {{ dotfiles_dir }})
+    # Codex follows symlinked skill directories but ignores symlinked SKILL.md files, so install agents without --no-folding.
+    for package_dir in {{ dotfiles_dir }}/*; do package="${package_dir##*/}"; if test "$package" != agents; then stow {{ stow_options }} --adopt "$package"; fi; done
+    for skill_dir in {{ agents_skills_dir }}/*; do skill="${skill_dir##*/}"; target="$HOME/.agents/skills/$skill"; if test -d "$target" && test ! -L "$target"; then if test -n "$(ls -A "$target")"; then echo "refusing to replace non-empty skill directory: $target" >&2; exit 1; fi; trash "$target"; fi; done
+    stow {{ agents_stow_options }} --adopt agents
 
 # Remove Stow symlinks
 [group('stow')]
