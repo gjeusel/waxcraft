@@ -8,6 +8,11 @@ after(() => parser.delete());
 
 const configuredRules: ShellDenyRule[] = [
   { command: 'kubectl', argv: { containsAny: ['exec', 'apply', 'delete'] }, reason: 'kubectl denied' },
+  {
+    command: 'kubectl',
+    argv: { contains: ['rollout'], containsAny: ['pause', 'restart', 'resume', 'undo'] },
+    reason: 'kubectl rollout denied',
+  },
   { command: 'sudo', reason: 'sudo denied' },
   { command: 'env', argv: { empty: true }, reason: 'environment listing denied' },
   { command: 'security', argv: { startsWithAny: ['find-', 'dump-', 'export'] }, reason: 'keychain denied' },
@@ -77,6 +82,8 @@ const blockedCommands: Array<[command: string, rule: ShellDenialRule]> = [
   ['sudo echo ok', 'configured'],
   ['env', 'configured'],
   ['command kubectl exec pod -- sh', 'configured'],
+  ['kubectl rollout restart deployment/pdf-tika', 'configured'],
+  ['kubectl rollout undo deployment/pdf-tika', 'configured'],
   ["kubectl exec pod -- python - <<'PY'\nprint('ok')\nPY", 'configured'],
   ['security find-generic-password -a user', 'configured'],
   ['security dump-keychain', 'configured'],
@@ -149,6 +156,8 @@ const allowedCommands = [
   'git commit -m "alias.p=push shortcut"',
   'git commit -m "$message"',
   'kubectl get pods',
+  'kubectl rollout status deployment/pdf-tika --namespace default --timeout=3m',
+  'kubectl rollout history deployment/pdf-tika',
   'env FOO=bar printenv FOO',
   'env echo PATH=/bin',
   'security help',

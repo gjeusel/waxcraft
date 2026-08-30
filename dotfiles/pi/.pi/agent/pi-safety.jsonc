@@ -16,7 +16,6 @@
             "edit",
             "patch",
             "scale",
-            "rollout",
             "drain",
             "cordon",
             "uncordon",
@@ -30,6 +29,14 @@
           ]
         },
         "reason": "mutating or remote-execution kubectl operation is user-controlled"
+      },
+      {
+        "command": "kubectl",
+        "argv": {
+          "contains": ["rollout"],
+          "containsAny": ["pause", "restart", "resume", "undo"]
+        },
+        "reason": "mutating kubectl rollout operation is user-controlled"
       },
       {
         "command": "helm",
