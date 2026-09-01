@@ -6,7 +6,7 @@
 
 - Text editor: [Neovim](https://neovim.io/)
 - Terminal Multiplexer: [tmux](https://github.com/tmux/tmux) and [tmuxp](https://github.com/tmux-python/tmuxp)
-- Shell: zsh with [zinit](https://github.com/zdharma-continuum/zinit) plugin manager
+- Default shell: zsh with [zinit](https://github.com/zdharma-continuum/zinit) plugin manager; Nushell is installed and configured as an opt-in shell
 - Package Manager: Nix [Determinate](https://github.com/DeterminateSystems/nix-installer) & [Darwin](https://github.com/nix-darwin/nix-darwin)
 - Symlink Farm Manager: [GNU Stow](https://www.gnu.org/software/stow/)
 

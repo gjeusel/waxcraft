@@ -9,7 +9,7 @@ default:
     @just --list
 
 # Run all checks
-check: nix-check nvim-check zsh-check
+check: nix-check nvim-check zsh-check nu-check
 
 # Evaluate and build the system without switching (safe pre-flight for `just nix-up`)
 [group('nix')]
@@ -91,6 +91,11 @@ stow-uninstall:
 zsh-check:
     for f in {{ justfile_dir }}/zsh/*.zsh {{ justfile_dir }}/zsh/functions/*; do zsh -n "$f" || exit 1; done
     zsh -i -c 'echo "zsh config loaded OK"'
+
+# Check Nushell config: load the environment and interactive configuration
+[group('nushell')]
+nu-check:
+    nix shell {{ justfile_dir }}/nix#darwinPackages.nushell --command nu --no-history --env-config {{ dotfiles_dir }}/nushell/.config/nushell/env.nu --config {{ dotfiles_dir }}/nushell/.config/nushell/config.nu --commands 'print "Nushell config loaded OK"'
 
 # Check nvim config: formatting + headless load smoke test
 [group('nvim')]

@@ -23,6 +23,7 @@
     neovim
     tree-sitter
     atuin
+    nushell
 
     tmux
     # TODO: Investiguate how to configure entirely tmux with nix
