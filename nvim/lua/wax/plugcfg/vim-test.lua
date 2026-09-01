@@ -4,9 +4,20 @@ local kmap = vim.keymap.set
 
 local kopts = { silent = true }
 
+local function use_conda_pytest(cmd)
+  if not vim.env.CONDA_PREFIX then
+    return cmd
+  end
+  if cmd ~= "uv run pytest" and not vim.startswith(cmd, "uv run pytest ") then
+    return cmd
+  end
+
+  return cmd:sub(#"uv run " + 1)
+end
+
 vim.api.nvim_set_var("test#custom_strategies", {
   wax_tmux = function(cmd)
-    tmux.run_in_pane(cmd, { interrupt_before = true, clear_before = true })
+    tmux.run_in_pane(use_conda_pytest(cmd), { interrupt_before = true, clear_before = true })
   end,
 })
 vim.api.nvim_set_var("test#strategy", "wax_tmux")

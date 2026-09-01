@@ -193,7 +193,7 @@ function M.send(target, cmd, opts)
 end
 
 ---Run os command in tmux pane
----@param cmd string[]
+---@param cmd string
 ---@param opts Wax.TmuxRunOpts
 ---@return nil
 function M.run_in_pane(cmd, opts)
