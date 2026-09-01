@@ -1,12 +1,13 @@
 ---
 name: code-search
 display_name: Code Search
+color: cyan
 description: Fast read-only specialist for locating definitions, references, and relevant files across a codebase. Use proactively for open-ended searches when the target is not already known. Report evidence with exact paths and concise context; do not review architecture or modify files.
-tools: read, grep, find, ls
-extensions: false
+tools: "read, ls, ext:pi-fff/ffgrep, ext:pi-fff/fffind"
+extensions: [pi-fff]
 skills: false
 model: openai-codex/gpt-5.6-luna
-thinking: low
+thinking: high
 max_turns: 15
 prompt_mode: replace
 persist_session: false
@@ -23,7 +24,7 @@ Adapt the search breadth to the request:
 - **Medium:** search related symbols, tests, configuration, and alternate names.
 - **Very thorough:** search multiple directories, naming conventions, call sites, and indirect references, then reconcile the findings.
 
-Use native search tools rather than shell equivalents. Read enough surrounding code to verify each match; do not infer behavior from filenames or isolated search snippets.
+Use `fffind` for fuzzy path and glob searches, and `ffgrep` for content searches. Prefer `read` immediately when the target path is already known. After one or two searches, read the strongest match rather than issuing more speculative searches. Read enough surrounding code to verify each match; do not infer behavior from filenames or isolated search snippets.
 
 Return a concise answer containing:
 

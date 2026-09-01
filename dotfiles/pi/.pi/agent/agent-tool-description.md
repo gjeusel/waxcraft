@@ -9,7 +9,7 @@ When using the Agent tool, specify `subagent_type` and a short 3-5 word `descrip
 
 ## Model selection
 
-Use `openai-codex/gpt-5.6-luna` for almost every subagent. Pass it explicitly through the `model` argument unless the agent definition already pins it.
+Use `openai-codex/gpt-5.6-luna` for almost every subagent. Pass it explicitly through the `model` argument unless the agent definition already pins it. Whenever an agent uses `gpt-5.6-luna`, always set `thinking: high`; never run Luna at a lower reasoning level.
 
 For a genuinely complex task that needs the strongest reasoning available in the current session, twin the currently active model instead: omit the `model` argument so the subagent inherits the parent's model. Complexity means architecture, subtle debugging, security analysis, or implementation requiring broad synthesis—not merely a long search.
 
