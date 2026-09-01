@@ -15,6 +15,10 @@
       "url": "https://logfire-eu.pydantic.dev/mcp",
       "auth": "oauth"
     },
+    "brandfetch": {
+      "url": "https://mcp.brandfetch.io/mcp",
+      "auth": "oauth"
+    },
     "postgres": {
       "command": "uvx",
       "args": [
