@@ -1,6 +1,6 @@
 {
   "maxConcurrent": 6,
-  "defaultMaxTurns": 30,
+  "defaultMaxTurns": 0,
   "graceTurns": 5,
   "defaultJoinMode": "smart",
   "backgroundByDefault": true,
@@ -9,5 +9,6 @@
   "toolDescriptionMode": "custom",
   "fallbackSubagent": "none",
   "reportUsage": true,
-  "showCost": true
+  "showCost": false,
+  "showModel": true
 }
