@@ -7,6 +7,11 @@
 - Keep changes surgical: avoid unrelated refactoring, formatting, or cleanup, and match the existing codebase's conventions.
 - Use comments to explain invariants or non-obvious decisions, not to narrate code. Preserve existing comments while they remain relevant.
 
+## Code Layout
+
+- Define functions top to bottom in dependency order: a helper must appear above the function that calls it, so a file reads without forward references.
+- Avoid a proliferation of tiny helpers: inline logic that is used only once unless it names a genuinely distinct step.
+
 ## Testing
 
 - Test all code changes using the project's appropriate checks.

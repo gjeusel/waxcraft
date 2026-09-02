@@ -39,6 +39,7 @@ claude auth status
 
 ```text
 extensions/
+├── ask-user-question-format/ compact structured questionnaire results
 ├── gitleaks-guard/         scan and redact secrets
 ├── model-effort/           model-specific default effort levels
 ├── pane-focus/             dim unfocused panes
