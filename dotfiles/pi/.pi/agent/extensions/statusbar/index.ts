@@ -20,7 +20,7 @@ function shortenCwd(cwd: string, home: string | undefined): string {
 
 export default function (pi: ExtensionAPI) {
   pi.on('session_start', async (_event, ctx) => {
-    ctx.ui.setFooter((_tui, theme, _footerData) => {
+    ctx.ui.setFooter((_tui, theme, footerData) => {
       return {
         dispose() {},
         invalidate() {},
@@ -29,7 +29,10 @@ export default function (pi: ExtensionAPI) {
           let left = cwd;
 
           const model = ctx.model?.id ?? 'no-model';
-          const center = ctx.model?.reasoning ? `${model} · ${ctx.thinkingLevel ?? 'off'}` : model;
+          const effort = ctx.model?.reasoning ? ` · ${ctx.thinkingLevel ?? 'off'}` : '';
+          const usageStatus = footerData.getExtensionStatuses().get('usage');
+          const fast = usageStatus && /^codex fast(?:\s|$)/u.test(usageStatus) ? ' · fast' : '';
+          const center = `${model}${effort}${fast}`;
 
           const usage = ctx.getContextUsage();
           const pct = usage?.percent ?? null;

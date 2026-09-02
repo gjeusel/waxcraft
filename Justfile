@@ -57,6 +57,7 @@ stow_junk_patterns := ".claude .ruff_cache .DS_Store"
 
 pi_extensions_dir := dotfiles_dir / "pi/.pi/agent/extensions"
 pi_python_dir := pi_extensions_dir / "python-code"
+pi_patch_script := dotfiles_dir / "pi/.pi/agent/patches/apply.sh"
 pi_node_package := "path:" + justfile_dir + "/nix#darwinPackages.nodejs_22"
 
 # Install and configure Pi dependencies and dotfiles.
@@ -67,6 +68,8 @@ pi-install:
     for legacy in "$HOME/.pi/agent/permissions.json" "$HOME/.pi/agent/extensions/permissions" "$HOME/.pi/agent/extensions/safe-trash"; do if test -e "$legacy" || test -L "$legacy"; then trash "$legacy"; fi; done
     stow {{ stow_options }} --restow pi
     test -x "$HOME/.local/bin/pi"
+    PATH="$HOME/.local/bin:$PATH"; export PATH; pi update --extensions
+    nix shell {{ pi_node_package }} --command {{ pi_patch_script }}
     PATH="$HOME/.local/bin:$PATH"; export PATH; test "$(command -v pi)" = "$HOME/.local/bin/pi"
     @resolved_pi="$(command -v pi 2>/dev/null || true)"; if test "$resolved_pi" != "$HOME/.local/bin/pi"; then echo "warning: this shell resolves pi to ${resolved_pi:-nothing}; run 'export PATH=\"\$HOME/.local/bin:\$PATH\"; rehash'" >&2; fi
     @echo "Pi launcher ready at ~/.local/bin/pi"

@@ -1,0 +1,56 @@
+--- a/package.json
++++ b/package.json
+@@ -33,7 +33,7 @@
+   },
+   "type": "module",
+   "dependencies": {
+-    "@anthropic-ai/claude-agent-sdk": "^0.2.141",
++    "@anthropic-ai/claude-agent-sdk": "0.3.251",
+     "@modelcontextprotocol/sdk": "^1.29.0",
+     "cc-session-io": "^0.4.0",
+     "change-case": "^5.4.4"
+@@ -45,7 +45,7 @@
+     "typebox": "*"
+   },
+   "devDependencies": {
+-    "@anthropic-ai/sdk": "^0.73.0",
++    "@anthropic-ai/sdk": "^0.93.0",
+     "@earendil-works/pi-ai": "^0.83.0",
+     "@earendil-works/pi-coding-agent": "^0.83.0",
+     "@earendil-works/pi-tui": "^0.83.0",
+--- a/src/models.ts
++++ b/src/models.ts
+@@ -2,14 +2,21 @@
+ // `resolveModel` returns the first partial match, so `opus` resolves to the first-listed opus entry.
+ // Extracted from index.ts so tests can import without activating the extension.
+ 
+-export const MODEL_IDS_IN_ORDER = ["claude-fable-5", "claude-opus-5", "claude-opus-4-8", "claude-opus-4-7", "claude-opus-4-6", "claude-sonnet-5", "claude-sonnet-4-6", "claude-haiku-4-5"];
++export const MODEL_IDS_IN_ORDER = ["claude-fable-5-1", "claude-fable-5", "claude-opus-5", "claude-opus-4-8", "claude-opus-4-7", "claude-opus-4-6", "claude-sonnet-5", "claude-sonnet-4-6", "claude-haiku-4-5"];
+ 
+ // Project pi-ai's model entries down to the fields pi's registerProvider expects,
+-// and keep MODEL_IDS_IN_ORDER ordering. IDs missing from pi-ai are silently dropped.
++// and keep MODEL_IDS_IN_ORDER ordering. IDs missing from pi-ai are silently dropped,
++// except for newly released models that the bridge supports ahead of pi-ai's catalog.
+ // Context-dependent display labels are applied after plan/long-context config is known.
+ export function buildModels<T extends { id: string; [key: string]: any }>(piAiModels: T[]) {
+ 	return MODEL_IDS_IN_ORDER
+-		.map((id) => piAiModels.find((m) => m.id === id))
++		.map((id) => {
++			const model = piAiModels.find((candidate) => candidate.id === id);
++			if (model) return model;
++			if (id !== "claude-fable-5-1") return undefined;
++			const fable5 = piAiModels.find((candidate) => candidate.id === "claude-fable-5");
++			return fable5 ? { ...fable5, id, name: "Claude Fable 5.1" } : undefined;
++		})
+ 		.filter((m) => m != null)
+ 		// Forward thinkingLevelMap so pi-ai's per-model overrides (e.g. opus-4-8
+ 		// mapping xhigh→xhigh and max→max) are visible to the effort lookup.
+@@ -53,6 +60,8 @@
+ 				contextWindow: useOneM ? ONE_M_CONTEXT : TWO_HUNDRED_K_CONTEXT,
+ 			};
+ 		}
++		case "claude-fable-5-1":
++			return { cliModelId: "claude-fable-5-1[1m]", contextWindow: ONE_M_CONTEXT };
+ 		case "claude-fable-5":
+ 			return { cliModelId: "claude-fable-5[1m]", contextWindow: ONE_M_CONTEXT };
+ 		case "claude-sonnet-5":
