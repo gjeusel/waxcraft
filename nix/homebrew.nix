@@ -61,7 +61,8 @@
       # "dbeaver-community" # sql UI
       "tableplus" # sql UI
 
-      "handy" # speech to text
+      # "handy" # speech to text
+      "wispr-flow" # speech to text
 
       "orbstack" # docker & linux VMs
 
