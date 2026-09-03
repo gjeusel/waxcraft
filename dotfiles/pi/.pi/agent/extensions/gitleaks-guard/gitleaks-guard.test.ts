@@ -52,7 +52,7 @@ test('scan and redact: detects a secret in a Python type-annotated default', () 
   assert.ok(result.status === 'leaks');
   assert.equal(result.findings[0].RuleID, 'python-annotated-secret');
   assert.equal(result.findings[0].Secret, annotatedSecret);
-  assert.equal(redact(text, result.findings), 'client_secret: str = "[REDACTED:python-annotated-secret]"');
+  assert.equal(redact(text, result.findings), 'client_secret: str = "[REDACTED:python-annotated-secret]"'); // gitleaks:allow
 });
 
 for (const [encoding, encode] of encodedCases) {
