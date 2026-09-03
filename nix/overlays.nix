@@ -55,4 +55,23 @@
   atuin = final: prev: {
     atuin = nixpkgs-unstable.legacyPackages.${final.stdenv.hostPlatform.system}.atuin;
   };
+
+  # v8.30.1 has a regression that prevents the default rules from matching.
+  gitleaks = final: prev: {
+    gitleaks = prev.gitleaks.overrideAttrs (old: rec {
+      version = "8.29.1";
+      src = prev.fetchFromGitHub {
+        owner = "gitleaks";
+        repo = "gitleaks";
+        tag = "v${version}";
+        hash = "sha256-u0zKX4Hd3t/J/TfUQPT2UOM8ftXlAfirpu75ixCjh9g=";
+      };
+      vendorHash = "sha256-whJtl34dNltH/dk9qWSThcCYXC0x9PzbAUOO97Int+k=";
+      ldflags = [
+        "-s"
+        "-w"
+        "-X=github.com/zricethezav/gitleaks/v${prev.lib.versions.major version}/version.Version=${version}"
+      ];
+    });
+  };
 }
