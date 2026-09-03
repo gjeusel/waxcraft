@@ -1,10 +1,12 @@
 fail_fast: false
+default_stages: [pre-push]
 
 repos:
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.29.1
     hooks:
       - id: gitleaks
+        stages: [pre-commit]
 
   - repo: local
     hooks:

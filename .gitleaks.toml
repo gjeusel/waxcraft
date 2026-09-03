@@ -2,39 +2,3 @@ minVersion = "8.25.0"
 
 [extend]
 useDefault = true
-
-[[rules]]
-id = "python-annotated-secret"
-description = "Secret assigned to a type-annotated Python setting"
-regex = '''(?i)[a-z0-9_.-]*(?:secret|token|api[_-]?key|password|passwd|pwd|credential)[a-z0-9_.-]*\s*:\s*(?:str|bytes|(?:pydantic\.)?SecretStr)(?:\s*\|\s*None)?\s*=\s*(?:(?:pydantic\.)?(?:SecretStr|Field)\s*\(\s*(?:default\s*=\s*)?)?["']([^"'\r\n]{10,150})["']'''
-secretGroup = 1
-keywords = ["secret", "token", "api", "key", "password", "passwd", "pwd", "credential"]
-
-[[rules.allowlists]]
-description = "Ignore URLs assigned to token or credential URL settings"
-regexTarget = "secret"
-regexes = ['''(?i)^https?://''']
-
-[[rules]]
-id = "hardcoded-password"
-description = "Hardcoded password assignment"
-regex = '''(?i)\b(?:password|passwd|pwd)["']?\s*[:=]\s*["']([^"'\r\n]{8,150})["']'''
-secretGroup = 1
-keywords = ["password", "passwd", "pwd"]
-
-[[rules.allowlists]]
-description = "Ignore explicit placeholder passwords"
-regexTarget = "secret"
-regexes = ['''(?i)^(?:changeme|example|dummy|test|redacted|placeholder|notasecret)$''']
-
-[[rules]]
-id = "hardcoded-basic-auth"
-description = "Hardcoded password in an HTTP basic-auth tuple"
-regex = '''(?i)\bauth\s*[=:]\s*[\(\[]\s*["'][^"'\r\n]+["']\s*,\s*["']([^"'\r\n]{8,150})["']'''
-secretGroup = 1
-keywords = ["auth"]
-
-[[rules.allowlists]]
-description = "Ignore explicit placeholder passwords"
-regexTarget = "secret"
-regexes = ['''(?i)^(?:changeme|example|dummy|test|redacted|placeholder|notasecret)$''']
