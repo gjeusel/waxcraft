@@ -19,6 +19,10 @@
       "url": "https://mcp.brandfetch.io/mcp",
       "auth": "oauth"
     },
+    "plain": {
+      "url": "https://mcp.plain.com/mcp",
+      "auth": "oauth"
+    },
     "postgres": {
       "command": "uvx",
       "args": [
