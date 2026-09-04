@@ -8,7 +8,7 @@ extensions: [pi-fff]
 skills: false
 model: openai-codex/gpt-5.6-luna
 thinking: high
-max_turns: 15
+max_turns: 25
 prompt_mode: replace
 persist_session: false
 output_transcript: false

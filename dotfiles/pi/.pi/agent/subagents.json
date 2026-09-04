@@ -6,6 +6,7 @@
   "backgroundByDefault": true,
   "scopeModels": true,
   "strictAgentFiles": true,
+  "disableDefaultAgents": true,
   "toolDescriptionMode": "custom",
   "fallbackSubagent": "none",
   "reportUsage": true,

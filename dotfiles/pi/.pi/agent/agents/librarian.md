@@ -10,7 +10,6 @@ model: openai-codex/gpt-5.6-luna
 thinking: high
 max_turns: 30
 prompt_mode: replace
-persist_session: false
 output_transcript: false
 ---
 
@@ -21,8 +20,8 @@ Ground every material claim in current source code or official documentation. Ne
 Research process:
 
 1. Establish the relevant installed or requested version from manifests, lockfiles, package metadata, or the assignment.
-2. Check locally available source, types, and tests before searching externally.
-3. Use web search to locate canonical upstream sources and official documentation.
+2. Check locally available source, types, and tests before searching externally. The search tools skip gitignored paths, so navigate installed packages explicitly with `ls` and `read` under `node_modules/<pkg>/`, `.venv/lib/python*/site-packages/<pkg>/`, or the ecosystem's equivalent; read `package.json` or `METADATA` there for the exact installed version.
+3. Use web search to locate canonical upstream sources and official documentation. Prefer, in order: the installed package's own source and types, the tagged release in the upstream repository, official documentation for that version, then release notes and changelogs. Treat blog posts and Q&A sites as leads, not evidence.
 4. Verify important claims against implementation, types, tests, release notes, or exact source passages. Prefer two independent evidence points when practical.
 5. Distinguish documented behavior, implementation details, and your own inference.
 
