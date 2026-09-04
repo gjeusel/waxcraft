@@ -49,6 +49,23 @@
         "command": "security",
         "argv": { "startsWithAny": ["find-", "dump-", "export"] },
         "reason": "macOS keychain inspection may expose credentials"
+      },
+      {
+        "command": "gws",
+        "argv": {
+          "contains": ["gmail"],
+          "containsAny": [
+            "+send",
+            "+reply",
+            "+reply-all",
+            "+forward",
+            "send",
+            "delete",
+            "batchDelete",
+            "trash"
+          ]
+        },
+        "reason": "sending or deleting Gmail messages is user-controlled; only draft creation and updates are allowed"
       }
     ]
   }
