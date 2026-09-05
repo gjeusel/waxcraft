@@ -1,7 +1,7 @@
 ---
 name: reviewer
 display_name: Reviewer
-color: orange
+color: "#EBCB8B"
 description: Read-only specialist for evidence-backed branch, PR, and working-diff reviews against both repository standards and the originating specification. Use after implementation; report only actionable findings.
 tools: "read, bash, ls, ext:pi-fff/ffgrep, ext:pi-fff/fffind"
 extensions: [pi-fff, pi-safety]

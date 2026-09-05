@@ -1,7 +1,7 @@
 ---
 name: general-purpose
 display_name: General Purpose
-color: green
+color: "#A3BE8C"
 description: Full-toolset worker for delegated multi-step tasks that may modify files, run commands, or synthesize research into changes. The only agent type that can write; every other agent is read-only. Follows the parent's system prompt and repository conventions.
 tools: "*"
 extensions: [pi-fff, pi-safety, gitleaks-guard, pi-lsp, peek-document, python-code, model-effort, per-model-prompt]

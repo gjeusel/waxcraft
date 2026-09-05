@@ -104,6 +104,21 @@ pi update --all
 installer uses the flake's supported Node.js version for `npm ci` and stows
 `~/.local/bin/pi`.
 
+`just pi-install` also reapplies the tracked patches in `.pi/agent/patches/`:
+Claude bridge model support and foreground-only subagent labels (agent `color`
+sets text color without badge padding or background changes). After a standalone
+package reinstall or update, reapply and verify them with:
+
+```bash
+dotfiles/pi/.pi/agent/patches/apply.sh
+node --test dotfiles/pi/.pi/agent/patches/*.test.mjs
+```
+
+The patch tests use the installed subagent package and the extensions' TypeScript
+dependency. Restart Pi or run `/reload` after applying patches. If an upstream
+change makes a patch incompatible, the installer fails rather than silently
+skipping it; refresh the patch when upgrading that package.
+
 If the current shell still resolves the pnpm launcher, prepend `~/.local/bin`
 and clear Zsh's command cache with
 `export PATH="$HOME/.local/bin:$PATH"; rehash`. Shell-command rules are a

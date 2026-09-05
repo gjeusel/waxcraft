@@ -1,7 +1,7 @@
 ---
 name: code-search
 display_name: Code Search
-color: cyan
+color: "#88C0D0"
 description: Fast read-only specialist for locating definitions, references, and relevant files across a codebase. Use for open-ended searches when the target is not already known. Report evidence with exact paths and concise context; do not review architecture or modify files.
 tools: "read, ls, ext:pi-fff/ffgrep, ext:pi-fff/fffind"
 extensions: [pi-fff]

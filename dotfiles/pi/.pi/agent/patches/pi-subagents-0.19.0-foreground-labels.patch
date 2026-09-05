@@ -1,0 +1,79 @@
+--- a/src/agent-color.ts
++++ b/src/agent-color.ts
+@@ -1,10 +1,8 @@
+ /**
+- * agent-color.ts — Claude Code-compatible agent name badges.
++ * agent-color.ts — Foreground-only agent name labels.
+  *
+- * Claude Code renders a subagent's name as a badge: the configured color is the
+- * background, the text an inverse foreground. Its eight named colors are
+- * reproduced here, along with six-digit hex and the extra palette names Agency
+- * Agents uses, so those definitions render as written.
++ * Keep the surrounding background unchanged while using the configured color
++ * for the name text. Accept Claude Code and Agency Agents palette names and hex.
+  */
+ 
+ import { getConfig } from "./agent-types.js";
+@@ -39,8 +37,6 @@
+ 
+ const CUBE_VALUES = [0, 95, 135, 175, 215, 255];
+ const GRAY_VALUES = Array.from({ length: 24 }, (_, i) => 8 + i * 10);
+-const BLACK = { r: 0, g: 0, b: 0 };
+-const WHITE = { r: 255, g: 255, b: 255 };
+ 
+ type Rgb = { r: number; g: number; b: number };
+ type ColorMode = "truecolor" | "256color";
+@@ -54,7 +50,7 @@
+ export interface AgentNameStyle {
+   /** Existing theme foreground used when no valid agent color is configured. */
+   fallbackColor?: string;
+-  /** Reapply an enclosing background after the badge instead of resetting it. */
++  /** Retained for callers; foreground-only labels leave the background untouched. */
+   restoreBackground?: string;
+   bold?: boolean;
+ }
+@@ -105,20 +101,7 @@
+     : `\u001b[${code};2;${color.r};${color.g};${color.b}m`;
+ }
+ 
+-function relativeLuminance({ r, g, b }: Rgb): number {
+-  const linear = (value: number) => {
+-    const channel = value / 255;
+-    return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+-  };
+-  return 0.2126 * linear(r) + 0.7152 * linear(g) + 0.0722 * linear(b);
+-}
+-
+-/**
+- * Render one name as a padded background badge when `color` is valid. Claude
+- * Code uses one inverse color for every badge's text; black or white is picked
+- * by WCAG contrast here instead, so each palette entry stays readable. Invalid
+- * or omitted colors preserve the caller's existing theme styling.
+- */
++/** Render a colored name without padding or changes to the enclosing background. */
+ export function renderAgentNameLabel(
+   name: string,
+   color: string | undefined,
+@@ -133,18 +116,14 @@
+ 
+   const rgb = parseHex(resolved);
+   const quantized = (theme.getColorMode?.() ?? "truecolor") === "256color" ? rgbTo256(rgb) : undefined;
+-  const shown = quantized?.rgb ?? rgb;
+-  const contrasting = relativeLuminance(shown) > 0.179 ? BLACK : WHITE;
+-  const label = style.bold ? theme.bold(` ${name} `) : ` ${name} `;
++  const label = style.bold ? theme.bold(name) : name;
+ 
+-  return ansiColor("background", quantized?.index ?? rgb)
+-    + ansiColor("foreground", quantized ? rgbTo256(contrasting).index : contrasting)
++  return ansiColor("foreground", quantized?.index ?? rgb)
+     + label
+-    + "\u001b[39m"
+-    + (style.restoreBackground ?? "\u001b[49m");
++    + "\u001b[39m";
+ }
+ 
+-/** Whether an agent renders as a badge — i.e. it has a valid configured color. */
++/** Compatibility predicate: whether an agent has a valid configured color. */
+ export function hasAgentBadge(type: string | undefined): boolean {
+   return type !== undefined && resolveAgentColor(getConfig(type).color) !== undefined;
+ }
