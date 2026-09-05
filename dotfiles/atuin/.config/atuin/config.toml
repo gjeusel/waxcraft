@@ -28,3 +28,9 @@ max_depth = 10
 [ui]
 columns = ["command"]
 syntax_highlight = false
+
+search_mode = "daemon-fuzzy"
+
+[daemon]
+enabled = true
+autostart = true

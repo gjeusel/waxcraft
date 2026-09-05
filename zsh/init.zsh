@@ -219,10 +219,10 @@ if command -v fzf &> /dev/null; then
     source <(fzf --zsh)
 fi
 
-# Initialize after fzf so Atuin owns Ctrl-R. Keep the existing Up/Down search.
-if command -v atuin &> /dev/null; then
-  eval "$(atuin init zsh --disable-up-arrow)"
-fi
+# # Initialize after fzf so Atuin owns Ctrl-R. Keep the existing Up/Down search.
+# if command -v atuin &> /dev/null; then
+#   eval "$(atuin init zsh --disable-up-arrow)"
+# fi
 
 # kubectl conf: generating the completion costs ~100ms, so cache it to a file
 # and only regenerate when the kubectl binary is newer than the cache
