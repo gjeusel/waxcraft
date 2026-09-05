@@ -1,31 +1,90 @@
 local utils = require("wax.utils")
 
--- Handle Views
-local group_view = "Views"
-vim.api.nvim_create_augroup(group_view, { clear = true })
-vim.api.nvim_create_autocmd({ "BufWinEnter" }, {
-  desc = "Load view",
-  pattern = "*",
+-- Views contain window-local fold state, so each restore belongs to one
+-- buffer/window visit. Leaving before parsing finishes must not save empty folds.
+local group_view = vim.api.nvim_create_augroup("Views", { clear = true })
+local pending_views = {}
+
+local function can_initialize_folds(buf, win)
+  return vim.api.nvim_win_is_valid(win)
+    and vim.api.nvim_win_get_buf(win) == buf
+    and vim.bo[buf].buftype == ""
+    and not vim.wo[win].diff
+    and not is_big_file(vim.api.nvim_buf_get_name(buf))
+end
+
+local function has_view_name(buf)
+  local name = vim.api.nvim_buf_get_name(buf)
+  return name ~= "" and not name:find("://")
+end
+
+vim.api.nvim_create_autocmd("BufWinEnter", {
+  group = group_view,
+  desc = "Load view after folds are ready",
   callback = function(opts)
-    if vim.bo[opts.buf].buftype ~= "" then
+    local buf, win = opts.buf, vim.api.nvim_get_current_win()
+    if not can_initialize_folds(buf, win) then
       return
     end
-    local name = vim.api.nvim_buf_get_name(opts.buf)
-    if name == "" or name:find("://") then
-      return
-    end
-    vim.cmd("silent! loadview")
+    local request = {}
+    pending_views[win] = request
+
+    -- Run after startup's FileType/VimEnter fold-cache invalidation.
+    vim.schedule(function()
+      if pending_views[win] ~= request or not can_initialize_folds(buf, win) then
+        return
+      end
+      local function restore_view()
+        if pending_views[win] ~= request or not can_initialize_folds(buf, win) then
+          return
+        end
+        vim.api.nvim_win_call(win, function()
+          if
+            vim.wo.foldmethod == "expr" and vim.wo.foldexpr == "v:lua.vim.treesitter.foldexpr()"
+          then
+            -- Populate C's window folds from the now-ready Tree-sitter tree
+            -- before loadview replays its manually opened/closed folds.
+            vim.wo.foldmethod = "expr"
+          end
+          -- Unnamed/URI buffers still need folds, but have no persistent view.
+          if has_view_name(buf) then
+            vim.cmd("silent! loadview")
+          end
+        end)
+        if pending_views[win] == request then
+          pending_views[win] = nil
+        end
+      end
+
+      if
+        vim.wo[win].foldmethod == "expr"
+        and vim.wo[win].foldexpr == "v:lua.vim.treesitter.foldexpr()"
+      then
+        local ok, parser = pcall(vim.treesitter.get_parser, buf)
+        if ok and parser then
+          parser:parse(nil, function(_, trees)
+            if trees then
+              vim.schedule(restore_view)
+            end
+            -- On timeout, retain the pending marker to protect the saved view.
+          end)
+          return
+        end
+      end
+      restore_view()
+    end)
   end,
 })
-vim.api.nvim_create_autocmd({ "BufWrite", "BufLeave" }, {
+vim.api.nvim_create_autocmd({ "BufWritePost", "BufWinLeave" }, {
+  group = group_view,
   desc = "Save view",
-  pattern = "*",
   callback = function(opts)
-    if vim.bo[opts.buf].buftype ~= "" then
-      return
+    local win = vim.api.nvim_get_current_win()
+    local pending = pending_views[win]
+    if opts.event == "BufWinLeave" then
+      pending_views[win] = nil
     end
-    local name = vim.api.nvim_buf_get_name(opts.buf)
-    if name == "" or name:find("://") then
+    if pending or not can_initialize_folds(opts.buf, win) or not has_view_name(opts.buf) then
       return
     end
     vim.cmd("silent! mkview")
@@ -54,10 +113,7 @@ vim.api.nvim_create_autocmd("OptionSet", {
   pattern = "diff",
   callback = function()
     local entering = vim.v.option_new == true -- v:option_new is a boolean for boolean options
-    if entering then
-      vim.opt_local.viewoptions = nil -- stop saved views re-applying stale folds
-      vim.opt_local.viewdir = nil
-    end
+    -- View callbacks skip diff windows; viewoptions/viewdir are global options.
     -- neovim restores foldmethod itself on exit
     vim.wo.foldenable = not entering
   end,
