@@ -11,6 +11,7 @@
 
 - Define functions top to bottom in dependency order: a helper must appear above the function that calls it, so a file reads without forward references.
 - Avoid a proliferation of tiny helpers: inline logic that is used only once unless it names a genuinely distinct step.
+- Wrap code comments and docstrings near the 100-character maximum (including indentation), not prematurely at 72 or 80 characters; keep sentences and expressions together when they fit to improve readability and comprehension.
 
 ## Testing
 
