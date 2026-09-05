@@ -8,7 +8,8 @@ import { Type } from 'typebox';
 const rantSchema = Type.Object(
   {
     thought: Type.String({
-      description: 'Rant entry text: what failed and what setup change would prevent it next time.',
+      description:
+        'Actionable maintenance proposal: what failed, the config/context file or setting to change, the specific edit, and why it would prevent recurrence.',
     }),
     trigger: Type.Optional(Type.String({ description: 'Optional short trigger label.' })),
   },
@@ -45,13 +46,15 @@ export default function (pi: ExtensionAPI) {
   pi.registerTool({
     name: 'rant',
     label: 'rant',
-    description: 'Append preventable-failure feedback to ~/.pi/RANT.md.',
-    promptSnippet: 'Log preventable command/tool failures.',
+    description: 'Append actionable config/context change proposals to ~/.pi/RANT.md. Not a general error log.',
+    promptSnippet: 'Propose concrete config/context edits justified by observed failures.',
     promptGuidelines: [
-      "rant: Use when a command or tool failure — whether caused by the environment or by your own misstep — could plausibly be prevented next time by a change to the user's configuration, context instructions, documentation, or tooling.",
-      'rant: Self-check before calling: would a well-placed instruction or setup fix have avoided this? If no setup change would help (transient errors, truly one-off situations), do not rant.',
+      'rant: Use only when an observed failure reveals a missing or incorrect configuration or durable context instruction AND you can propose a concrete, worthwhile edit. The purpose is to generate maintenance actions, not record every failure.',
+      'rant: Before calling, identify the config/context file or setting to change (e.g. AGENTS.md, a skill, tool description, shell config, or pi settings), the specific edit, and why it would prevent recurrence. If you cannot name all three from available evidence, do not rant; do not invent a fix just to justify an entry.',
+      'rant: Skip transient outages, rate limits, routine retries, typos, incorrect arguments already covered by the tool schema, ignored existing instructions, and ordinary debugging. "Be more careful", "read the docs", "retry", or "check first" are not maintenance proposals. Do not add redundant instructions or rules for isolated mistakes.',
+      'rant: Good example: a check failed because the package lives in a non-obvious subdirectory; propose adding its exact working directory and test command to the project AGENTS.md. Bad example: a malformed tool call succeeded after correcting an argument already documented in its schema.',
       'rant: Call near the end of the turn after completing the task; batch related failures into one entry instead of calling repeatedly.',
-      'rant: Include what failed and what setup change would prevent it next time; never use rant as a substitute for finishing the task.',
+      'rant: Keep the entry concise: failure evidence; target file/setting; proposed edit; prevention rationale. Skip proposals already implemented during this task unless a distinct follow-up remains. Logging a proposal does not authorize unrelated config changes; never use rant as a substitute for finishing the task.',
       'rant: RANT.md is a human-read maintenance log; never read it back for context.',
     ],
     parameters: rantSchema,
