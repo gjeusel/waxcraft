@@ -64,17 +64,11 @@ local rg_ignore_arg = ("--glob '!{%s}' --glob '!{%s}'"):format(
 local rg_base_opts = "--hidden"
 local rg_perf_opts = "--max-filesize=2M"
 
--- Full command bases
-local rg_grep_cmd = ("rg --line-number --column --no-ignore-vcs %s %s %s"):format(
-  rg_base_opts,
-  rg_perf_opts,
-  rg_ignore_arg
-)
 local rg_files_cmd = ("rg --no-ignore-vcs --files %s %s"):format(rg_base_opts, rg_ignore_arg)
 
 -- Wrapper: builtin file_edit_or_qf + jump to first qf entry + add files to buffers
 local function file_edit_or_qf_cfirst(selected, opts)
-  if #selected <= 2 then -- single select (first element is keybind)
+  if #selected <= 1 then -- fzf-lua has already removed the keybind
     fzf_lua.actions.file_edit_or_qf(selected, opts)
     return
   end
@@ -84,7 +78,11 @@ local function file_edit_or_qf_cfirst(selected, opts)
   for i = 1, #selected do
     local entry = selected[i]
     local file = fzf_lua.path.entry_to_file(entry, opts)
-    local text = entry:match(":%d+:%d?%d?%d?%d?:?(.*)$") or ""
+    -- Skip the parsed path (which may contain colons), not the decorated display prefix.
+    local location = (file.stripped or ""):sub(#(file.path or file.uri or "") + 1)
+    local text = (file.col or 0) > 0 and location:match("^:%d+:%d+:(.*)$")
+      or location:match("^:%d+:(.*)$")
+      or ""
     table.insert(items, {
       filename = file.bufname or file.path,
       lnum = file.line or 1,
@@ -98,15 +96,30 @@ local function file_edit_or_qf_cfirst(selected, opts)
     vim.fn.bufadd(item.filename)
   end
 
-  vim.fn.setqflist({}, "r", { title = "FZF Selection", items = items })
+  vim.fn.setqflist({}, " ", { nr = "$", title = "FZF Selection", items = items })
   vim.cmd("copen")
   vim.cmd("cfirst")
 end
 
+local function with_view_navigation(action)
+  return function(selected, opts)
+    action(selected, opts)
+    for _, item in ipairs(selected) do
+      local entry = fzf_lua.path.entry_to_file(item, opts)
+      if (entry.line or 0) > 0 or (entry.col or 0) > 0 then
+        -- File-only selections still restore their saved cursor; grep/location
+        -- selections must keep their explicit destination after folds load.
+        vim.api.nvim_exec_autocmds("User", { pattern = "WaxViewNavigation" })
+        break
+      end
+    end
+  end
+end
+
 local fzf_actions = {
-  ["default"] = file_edit_or_qf_cfirst,
-  ["ctrl-s"] = fzf_lua.actions.file_split,
-  ["ctrl-v"] = fzf_lua.actions.file_vsplit,
+  ["default"] = with_view_navigation(file_edit_or_qf_cfirst),
+  ["ctrl-s"] = with_view_navigation(fzf_lua.actions.file_split),
+  ["ctrl-v"] = with_view_navigation(fzf_lua.actions.file_vsplit),
 }
 
 -- fzf keybinds for fzf_exec (doesn't inherit from setup)
@@ -123,7 +136,7 @@ fzf_lua.setup({
       width = 0.9,
       treesitter = { enabled = false },
       preview = {
-        flip_columns = 200, -- number of cols to switch to horizontal on flex
+        flip_columns = 70, -- number of cols to switch to horizontal on flex
         wrap = "wrap",
         -- fzf-lua computes a preview height of 0 on tiny windows, which
         -- nvim_open_win rejects (win.lua: "Invalid 'height'")
@@ -160,6 +173,7 @@ fzf_lua.setup({
     cwd_header = false,
     rg_opts = table.concat({
       rg_base_opts,
+      "--no-ignore-vcs",
       "--column",
       "--line-number",
       "--no-heading",
@@ -184,7 +198,6 @@ fzf_lua.register_ui_select({ winopts = { height = 0.5, width = 0.5 } }, true)
 local function fzf_grep(cwd)
   return fzf_lua.grep({
     winopts = { title = ("  %s  "):format(cwd), title_flags = false },
-    cmd = rg_grep_cmd,
     cwd = cwd,
     search = "",
   })
@@ -192,12 +205,10 @@ end
 
 -- Fzf Grep word under cursor
 local function grep_cword(cwd)
-  vim.cmd([[normal! "wyiw]])
-  local word = vim.fn.getreg('"')
+  local word = vim.fn.expand("<cword>")
 
   return fzf_lua.grep_cword({
     winopts = { title = ("  %s   -   %s  "):format(word, cwd), title_flags = false },
-    cmd = rg_grep_cmd,
     cwd = cwd,
   })
 end
@@ -206,7 +217,6 @@ end
 local function grep_visual(cwd)
   return fzf_lua.grep_visual({
     winopts = { title = ("  %s  "):format(cwd), title_flags = false },
-    cmd = rg_grep_cmd,
     cwd = cwd,
   })
 end
@@ -250,7 +260,7 @@ local function wax_files()
   }
   local home = vim.env.HOME
   local abs_paths = vim.tbl_map(function(path)
-    return home .. "/" .. path
+    return vim.fn.shellescape(home .. "/" .. path)
   end, paths)
 
   local cmd = ("rg %s %s --files %s"):format(

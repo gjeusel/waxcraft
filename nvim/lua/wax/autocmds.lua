@@ -26,7 +26,7 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
     if not can_initialize_folds(buf, win) then
       return
     end
-    local request = {}
+    local request = { buf = buf, cursor = vim.api.nvim_win_get_cursor(win) }
     pending_views[win] = request
 
     -- Run after startup's FileType/VimEnter fold-cache invalidation.
@@ -39,6 +39,10 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
           return
         end
         vim.api.nvim_win_call(win, function()
+          local current_view = vim.fn.winsaveview()
+          local keep_cursor = request.keep_cursor
+            or current_view.lnum ~= request.cursor[1]
+            or current_view.col ~= request.cursor[2]
           if
             vim.wo.foldmethod == "expr" and vim.wo.foldexpr == "v:lua.vim.treesitter.foldexpr()"
           then
@@ -49,6 +53,12 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
           -- Unnamed/URI buffers still need folds, but have no persistent view.
           if has_view_name(buf) then
             vim.cmd("silent! loadview")
+          end
+          -- Search/LSP jumps and cursor movement after BufWinEnter take
+          -- precedence over the old view's cursor, but not its other folds.
+          if keep_cursor and pending_views[win] == request and can_initialize_folds(buf, win) then
+            vim.fn.winrestview(current_view)
+            vim.cmd("normal! zv")
           end
         end)
         if pending_views[win] == request then
@@ -73,6 +83,18 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
       end
       restore_view()
     end)
+  end,
+})
+-- Explicit jumps may target the initial cursor position (e.g. grep at 1:1),
+-- so navigation actions can opt out of cursor restoration even without movement.
+vim.api.nvim_create_autocmd("User", {
+  group = group_view,
+  pattern = "WaxViewNavigation",
+  callback = function()
+    local request = pending_views[vim.api.nvim_get_current_win()]
+    if request and request.buf == vim.api.nvim_get_current_buf() then
+      request.keep_cursor = true
+    end
   end,
 })
 vim.api.nvim_create_autocmd({ "BufWritePost", "BufWinLeave" }, {
