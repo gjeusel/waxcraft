@@ -1,1 +1,0 @@
-- When delegating code edits to `general-purpose` subagents, never use `gpt-5.6-luna`; use `gpt-5.6-sol` with a reasoning level appropriate to the task.
