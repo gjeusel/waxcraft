@@ -1,5 +1,6 @@
 import { CustomEditor, type ExtensionAPI } from '@earendil-works/pi-coding-agent';
 import type { EditorComponent, TUI } from '@earendil-works/pi-tui';
+import { observeFocusInput } from './focus-input.ts';
 
 const ENABLE_FOCUS_REPORTING = '\x1b[?1004h';
 const DISABLE_FOCUS_REPORTING = '\x1b[?1004l';
@@ -55,22 +56,25 @@ export default function (pi: ExtensionAPI) {
     let focusEventSeen = false;
     const previousEditorFactory = ctx.ui.getEditorComponent();
 
-    unsubscribe = ctx.ui.onTerminalInput((data) => {
-      let nextFocused = focused;
-      const remaining = data.replace(FOCUS_EVENT_PATTERN, (_sequence, event: string) => {
-        focusEventSeen = true;
-        nextFocused = event === 'I';
-        return '';
-      });
-
-      if (nextFocused === focused && remaining === data) return;
+    const stopObserving = observeFocusInput(process.stdin, (nextFocused) => {
+      focusEventSeen = true;
       if (nextFocused !== focused) {
         focused = nextFocused;
         tui?.requestRender();
       }
+    });
 
+    const stopTerminalInput = ctx.ui.onTerminalInput((data) => {
+      // Regular mode still needs focus reports removed from editor input.
+      const remaining = data.replace(FOCUS_EVENT_PATTERN, '');
+      if (remaining === data) return;
       return remaining.length === 0 ? { consume: true } : { data: remaining };
     });
+
+    unsubscribe = () => {
+      stopObserving();
+      stopTerminalInput();
+    };
 
     ctx.ui.setEditorComponent((nextTui, theme, keybindings) => {
       tui = nextTui;

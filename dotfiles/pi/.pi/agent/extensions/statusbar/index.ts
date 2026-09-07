@@ -2,7 +2,7 @@
  * statusbar — minimalist single-line footer.
  * Replaces the built-in two/three-line footer (pwd+branch / token stats /
  * extension statuses, e.g. MCP info) with one line:
- *   <repo path>                   <model> · <effort>        <context %>
+ *   <repo path>       <model> · <effort> · [fast] · [session]       <context %>
  * left-aligned / centered / right-aligned. Extension statuses (MCP, etc.)
  * and token/cost stats are deliberately not shown.
  */
@@ -28,17 +28,29 @@ export default function (pi: ExtensionAPI) {
           const cwd = shortenCwd(ctx.sessionManager.getCwd(), process.env.HOME);
           let left = cwd;
 
-          const model = ctx.model?.id ?? 'no-model';
-          const effort = ctx.model?.reasoning ? ` · ${ctx.thinkingLevel ?? 'off'}` : '';
           const usageStatus = footerData.getExtensionStatuses().get('usage');
-          const fast = usageStatus && /^codex fast(?:\s|$)/u.test(usageStatus) ? ' · fast' : '';
-          const center = `${model}${effort}${fast}`;
+          const isFast = usageStatus !== undefined && /^codex fast(?:\s|$)/u.test(usageStatus);
+          const sessionName = pi.getSessionName();
+          const truncatedSessionName = sessionName
+            ? truncateToWidth(sessionName, 50, '…').replaceAll('\x1b[0m', '')
+            : undefined;
+          const centerParts = [
+            ctx.model?.id ?? 'no-model',
+            ctx.thinkingLevel ?? 'off',
+            isFast ? 'fast' : undefined,
+            truncatedSessionName,
+          ].filter((part): part is string => part !== undefined);
+          let center = centerParts.join(' · ');
 
           const usage = ctx.getContextUsage();
           const pct = usage?.percent ?? null;
           const pctPlain = pct === null ? '?%' : `${pct.toFixed(0)}%`;
-          const centerW = visibleWidth(center);
           const rightW = visibleWidth(pctPlain);
+          const maxCenter = Math.max(0, width - rightW - 2);
+          if (visibleWidth(center) > maxCenter) {
+            center = truncateToWidth(center, maxCenter, '…').replaceAll('\x1b[0m', '');
+          }
+          const centerW = visibleWidth(center);
           // Truncate the path first if the three parts can't coexist.
           const maxLeft = Math.max(0, width - centerW - rightW - 4);
           if (visibleWidth(left) > maxLeft) {
