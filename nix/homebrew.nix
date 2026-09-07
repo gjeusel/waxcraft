@@ -34,7 +34,8 @@
       "chatgpt" # OpenAI's coding agent desktop app
       "macwhisper"
 
-      "linear"
+      # "linear"
+      # "paseo" # ai agent cockpit
 
       "brave-browser" # default
       "firefox@developer-edition" # used for webdev
