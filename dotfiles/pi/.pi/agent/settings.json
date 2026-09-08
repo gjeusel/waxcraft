@@ -4,7 +4,7 @@
   "defaultProjectTrust": "never",
   "enableSkillCommands": true,
   "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-5.6-sol",
+  "defaultModel": "gpt-6-astra",
   "defaultThinkingLevel": "low",
   "enabledModels": [
     "openai-codex/gpt-6-astra",
@@ -26,7 +26,8 @@
     "claude-fable-5-1": "high",
     "*flash": "high",
     "gpt-5.6-luna": "high",
-    "gpt-5.6-sol": "low"
+    "gpt-5.6-sol": "low",
+    "gpt-6-astra": "low"
   },
   "skills": [
     "~/.claude/skills",
