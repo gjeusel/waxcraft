@@ -2,37 +2,9 @@ start-at-login = true
 
 after-login-command = []
 
-after-startup-command = [
-  'workspace 1',
-  'layout h_accordion',
-  #
-  'workspace 2',
-  'layout h_accordion',
-  #
-  'workspace 3',
-  'layout h_accordion',
-  #
-  'workspace 4',
-  'layout h_accordion',
-  #
-  'workspace 5',
-  'layout h_accordion',
-  #
-  'workspace 6',
-  'layout h_accordion',
-  #
-  'workspace 7',
-  'layout h_accordion',
-  #
-  'workspace 8',
-  'layout h_accordion',
-  #
-  'workspace 9',
-  'layout h_accordion',
-  #
-  'workspace 0',
-  'layout h_accordion',
-]
+# The default root layout below already initializes workspaces as horizontal accordions.
+# Avoid switching through every workspace and resetting layouts at each startup.
+after-startup-command = []
 
 enable-normalization-flatten-containers = true
 enable-normalization-opposite-orientation-for-nested-containers = true
@@ -119,21 +91,21 @@ ctrl-8 = 'workspace 8'
 ctrl-9 = 'workspace 9'
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#move-node-to-workspace
-alt-ctrl-0 = 'move-node-to-workspace 0'
-alt-ctrl-1 = 'move-node-to-workspace 1'
-alt-ctrl-2 = 'move-node-to-workspace 2'
-alt-ctrl-3 = 'move-node-to-workspace 3'
-alt-ctrl-4 = 'move-node-to-workspace 4'
-alt-ctrl-5 = 'move-node-to-workspace 5'
-alt-ctrl-6 = 'move-node-to-workspace 6'
-alt-ctrl-7 = 'move-node-to-workspace 7'
-alt-ctrl-8 = 'move-node-to-workspace 8'
-alt-ctrl-9 = 'move-node-to-workspace 9'
+# Keep focus on the moved window instead of silently selecting the window underneath.
+alt-ctrl-0 = 'move-node-to-workspace --focus-follows-window 0'
+alt-ctrl-1 = 'move-node-to-workspace --focus-follows-window 1'
+alt-ctrl-2 = 'move-node-to-workspace --focus-follows-window 2'
+alt-ctrl-3 = 'move-node-to-workspace --focus-follows-window 3'
+alt-ctrl-4 = 'move-node-to-workspace --focus-follows-window 4'
+alt-ctrl-5 = 'move-node-to-workspace --focus-follows-window 5'
+alt-ctrl-6 = 'move-node-to-workspace --focus-follows-window 6'
+alt-ctrl-7 = 'move-node-to-workspace --focus-follows-window 7'
+alt-ctrl-8 = 'move-node-to-workspace --focus-follows-window 8'
+alt-ctrl-9 = 'move-node-to-workspace --focus-follows-window 9'
 
-# # See: https://nikitabobko.github.io/AeroSpace/commands#workspace-back-and-forth
-# alt-tab = 'workspace-back-and-forth'
-# # See: https://nikitabobko.github.io/AeroSpace/commands#move-workspace-to-monitor
-# alt-shift-tab = 'move-workspace-to-monitor --wrap-around next'
+# Cycle actual windows on this workspace, including floating popups. Cmd-Tab switches apps.
+alt-tab = 'focus --wrap-around dfs-next'
+alt-shift-tab = 'focus --wrap-around dfs-prev'
 
 
 # # 'service' binding mode declaration.
@@ -165,6 +137,14 @@ alt-ctrl-9 = 'move-node-to-workspace 9'
 7 = 'secondary'
 8 = 'secondary'
 9 = 'secondary'
+
+# Rules stop at the first match: popup exceptions must precede general app routing.
+# Float browser authentication windows where they open, rather than sending them to workspace 0.
+# Titles can arrive after detection; Ctrl-Alt-F remains the manual floating toggle.
+# A normal browser window with a matching authentication page title will also float.
+[[on-window-detected]]
+if = '''test %{app-bundle-id} ~= '^(com\.brave\.Browser|com\.google\.Chrome|org\.mozilla\.firefox|org\.mozilla\.firefoxdeveloperedition|app\.zen-browser\.zen|com\.apple\.Safari)$' && test %{window-title} ~= 'Google Accounts|accounts\.google\.com|Sign in|Log in|Login|Inloggen|Connexion|Authenticate|Authentication|OAuth' '''
+run = 'layout floating'
 
 [[on-window-detected]]
 if.app-id = 'com.spotify.client'
@@ -257,11 +237,6 @@ if.window-title-regex-substring = 'Brave - Renewex'
 run = 'move-node-to-workspace 2'
 
 [[on-window-detected]]
-if.app-id = 'com.brave.Browser'
-if.window-title-regex-substring = 'Inloggen - Google Accounts'
-run = ['move-node-to-workspace 0', 'layout floating']
-
-[[on-window-detected]]
 if.app-id = 'app.zen-browser.zen'
 run = 'move-node-to-workspace 2'
 
@@ -301,23 +276,40 @@ if.app-id = 'org.yanex.marta'
 run = 'move-node-to-workspace 3'
 
 
+# The main window must win over call keywords in channel names and floating-popup detection.
+# Hammerspoon separately undoes Slack's automatic minimization while screen sharing.
+[[on-window-detected]]
+if.app-id = 'com.tinyspeck.slackmacgap'
+if.window-title-regex-substring = '- Slack \[(principal|main)\]$'
+run = ['layout tiling', 'move-node-to-workspace 4']
+
+# Send Slack floating popups to workspace 0, even when their titles lack call/share keywords.
+[[on-window-detected]]
+if = '''test %{app-bundle-id} = com.tinyspeck.slackmacgap && test %{window-layout} = floating'''
+run = ['layout floating', 'move-node-to-workspace 0']
+
+[[on-window-detected]]
+if.app-id = 'com.tinyspeck.slackmacgap'
+if.window-title-regex-substring = 'Appel|Huddle|Call|🎤|Screen.?shar|Shar(e|ing).*screen|Partage.*écran'
+run = ['layout floating', 'move-node-to-workspace 0']
+
 [[on-window-detected]]
 if.app-id = 'com.tinyspeck.slackmacgap'
 run = 'move-node-to-workspace 4'
 
+# Keep Teams dialogs and call/share windows floating on their opening workspace.
 [[on-window-detected]]
-if.app-id = 'com.tinyspeck.slackmacgap'
-if.window-title-regex-substring = 'Appel|Huddle|Call|🎤'
-run = ['move-node-to-workspace 0', 'layout floating']
+if = '''test %{app-bundle-id} = com.microsoft.teams2 && test %{window-layout} = floating'''
+run = 'layout floating'
+
+[[on-window-detected]]
+if.app-id = 'com.microsoft.teams2'
+if.window-title-regex-substring = 'Meeting|Call|Appel|Réunion|Screen.?shar|Shar(e|ing).*screen|Partage.*écran'
+run = 'layout floating'
 
 [[on-window-detected]]
 if.app-id = 'com.microsoft.teams2'
 run = 'move-node-to-workspace 4'
-
-[[on-window-detected]]
-if.app-id = 'com.microsoft.teams2'
-if.window-title-regex-substring = 'Meeting|Call|Appel'
-run = ['move-node-to-workspace 0', 'layout floating']
 
 
 [[on-window-detected]]
@@ -371,11 +363,6 @@ run = ['move-node-to-workspace 0', 'layout floating']
 
 [[on-window-detected]]
 if.app-id = 'org.videolan.vlc'
-run = ['move-node-to-workspace 0', 'layout floating']
-
-# Catch-all for common login/auth popups that might disrupt tiling
-[[on-window-detected]]
-if.window-title-regex-substring = 'Sign in|Login|Connexion|Authenticate|OAuth'
 run = ['move-node-to-workspace 0', 'layout floating']
 
 [[on-window-detected]]
