@@ -1,0 +1,1 @@
+- Edit the codebase yourself by default; never delegate implementation to a lone subagent. Reserve coding subagents for rare cases where several large, independent portions of the codebase can be edited concurrently for a substantial speedup. Read-only reviewer subagents remain appropriate, even when used alone.
