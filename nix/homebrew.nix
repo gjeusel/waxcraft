@@ -57,7 +57,7 @@
 
       "karabiner-elements" # keyboards maps
       "aldente" # set Charge Limits and Prolong Battery Lifespan
-      "jordanbaird-ice" # manage the menu bar
+      "jordanbaird-ice" # Stable channel; see nix/README.md before upgrading macOS to Tahoe
 
       # "dbeaver-community" # sql UI
       "tableplus" # sql UI
