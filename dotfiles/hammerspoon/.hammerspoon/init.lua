@@ -91,7 +91,8 @@ end
 
 -- Slack minimizes its main window when screen sharing. Include minimized windows in this filter.
 -- Unminimizing can reinsert it on the current AeroSpace workspace; route it back without following.
--- Intentional minimization of the main Slack window is also undone.
+-- Intentional minimization of the main Slack window is also undone, after a one-second delay.
+local slackMainWindowRestoreTimers = {}
 local slackMainWindowFilter = hs.window.filter.new(false):setAppFilter("Slack", {
   allowTitles = { "%- Slack %[principal%]$", "%- Slack %[main%]$" },
 })
@@ -105,8 +106,27 @@ slackMainWindowFilter:subscribe({
     and application:bundleID() == "com.tinyspeck.slackmacgap"
     and window:isMinimized()
   then
-    window:unminimize()
-    routeRestoredSlackWindow(window:id(), 10)
+    local windowId = window:id()
+    if slackMainWindowRestoreTimers[windowId] then
+      return
+    end
+    slackMainWindowRestoreTimers[windowId] = hs.timer.doAfter(1, function()
+      slackMainWindowRestoreTimers[windowId] = nil
+      local mainWindow = hs.window.get(windowId)
+      local app = mainWindow and mainWindow:application()
+      local title = mainWindow and mainWindow:title() or ""
+      local isMainWindow = title:match("%- Slack %[principal%]$")
+        or title:match("%- Slack %[main%]$")
+      if
+        app
+        and app:bundleID() == "com.tinyspeck.slackmacgap"
+        and isMainWindow
+        and mainWindow:isMinimized()
+      then
+        mainWindow:unminimize()
+        routeRestoredSlackWindow(windowId, 10)
+      end
+    end)
   end
 end, true)
 
@@ -177,14 +197,20 @@ local slackSharingBarFilter = hs.window.filter.new(false):setAppFilter("Slack", 
   allowTitles = "^Slack$",
   visible = true,
 })
-slackSharingBarFilter:subscribe({
-  hs.window.filter.windowAllowed,
-  hs.window.filter.windowMoved,
-}, positionSlackSharingBar, true)
-
-slackSharingBarScreenWatcher = hs.screen.watcher.new(function()
+-- Coalesce move/resize and display-change bursts before launching an AeroSpace query.
+local slackSharingBarDebounce = hs.timer.delayed.new(0.2, function()
   for _, window in ipairs(slackSharingBarFilter:getWindows()) do
     positionSlackSharingBar(window)
   end
+end)
+slackSharingBarFilter:subscribe({
+  hs.window.filter.windowAllowed,
+  hs.window.filter.windowMoved,
+}, function()
+  slackSharingBarDebounce:start()
+end, true)
+
+slackSharingBarScreenWatcher = hs.screen.watcher.new(function()
+  slackSharingBarDebounce:start()
 end)
 slackSharingBarScreenWatcher:start()
