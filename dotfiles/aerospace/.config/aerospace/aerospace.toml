@@ -139,6 +139,52 @@ alt-shift-tab = 'focus --wrap-around dfs-prev'
 9 = 'secondary'
 
 # Rules stop at the first match: popup exceptions must precede general app routing.
+# DevTools only move; do not float them or let inspected-page titles trigger auth rules.
+[[on-window-detected]]
+if = '''test %{app-bundle-id} ~= '^(com\.brave\.Browser|com\.google\.Chrome|org\.mozilla\.firefox|org\.mozilla\.firefoxdeveloperedition|app\.zen-browser\.zen|com\.apple\.Safari)$' && test %{window-title} ~= '^(DevTools|Developer Tools|Outils de développement|Outils pour les développeurs|Web Inspector|Inspecteur web)(\s*[-–—:].*)?$' '''
+run = 'move-node-to-workspace 0'
+
+# Preserve dialogs AeroSpace already recognizes, including unnamed extension and Excel popups.
+# Slack is deliberately excluded: its floating call windows have their own workspace-0 rules.
+[[on-window-detected]]
+if = '''test %{app-bundle-id} ~= '^(com\.brave\.Browser|com\.google\.Chrome|org\.mozilla\.firefox|org\.mozilla\.firefoxdeveloperedition|app\.zen-browser\.zen|com\.apple\.Safari|com\.apple\.mail|com\.mimestream\.Mimestream|com\.readdle\.SparkDesktop|com\.bitwarden\.desktop|com\.microsoft\.Excel)$' && test %{window-layout} = floating'''
+run = 'layout floating'
+
+# Detached mail composition windows; ordinary inbox windows still follow mail app routing.
+# Subject-only compose titles rely on AeroSpace's native dialog detection above.
+[[on-window-detected]]
+if = '''test %{app-bundle-id} ~= '^(com\.apple\.mail|com\.mimestream\.Mimestream|com\.readdle\.SparkDesktop)$' && test %{window-title} ~= '^(New Message|New Email|Compose|Nouveau message|Nouvel e-mail|Nouveau courriel|Rédiger|Rédiger un message)(\s*[-–—:].*)?$' '''
+run = 'layout floating'
+
+# Native app preferences only: avoid floating browser tabs or documents mentioning settings.
+[[on-window-detected]]
+if = '''test %{app-bundle-id} ~= '^(com\.tinyspeck\.slackmacgap|com\.microsoft\.teams2|com\.apple\.mail|com\.mimestream\.Mimestream|com\.readdle\.SparkDesktop|com\.bitwarden\.desktop|com\.mitchellh\.ghostty|org\.alacritty|dev\.zed\.Zed|com\.spotify\.client|notion\.id|com\.tinyapp\.TablePlus|org\.jkiss\.dbeaver\.core\.product|dev\.kdrag0n\.MacVirt|com\.microsoft\.Excel|com\.microsoft\.Word)$' && test %{window-title} ~= '^(Settings|Preferences|Préférences|Paramètres|Réglages|Accounts|Comptes)(\s*[-–—|]\s*(Slack|Microsoft Teams|Mail|Apple Mail|Mimestream|Spark|Bitwarden|Ghostty|Alacritty|Zed|Spotify|Notion|TablePlus|DBeaver|OrbStack|Excel|Microsoft Excel|Word|Microsoft Word))?$' '''
+run = 'layout floating'
+
+# Do not float the main Bitwarden vault just because its generic title is "Bitwarden".
+[[on-window-detected]]
+if.app-id = 'com.bitwarden.desktop'
+if.window-title-regex-substring = '^(Unlock|Unlock vault|Déverrouiller|Déverrouiller le coffre|Authentication|Authentification|Two-step login|Two-factor authentication|Connexion en deux étapes)(\s*[-–—:].*)?$'
+run = 'layout floating'
+
+# Browser utility windows, not normal tabs with a utility name somewhere in the page title.
+[[on-window-detected]]
+if = '''test %{app-bundle-id} ~= '^(com\.brave\.Browser|com\.google\.Chrome|org\.mozilla\.firefox|org\.mozilla\.firefoxdeveloperedition|app\.zen-browser\.zen|com\.apple\.Safari)$' && test %{window-title} ~= '^((Picture[- ]in[- ]Picture|Image dans l.image|Task Manager|Gestionnaire de tâches)(\s*[-–—|].*)?|Extension: .+)$' '''
+run = 'layout floating'
+
+# Excel dialog fallbacks: never send filters, sorting, or formatting dialogs to workspace 6.
+# Native menus/popovers that AeroSpace does not manage need no rule.
+[[on-window-detected]]
+if.app-id = 'com.microsoft.Excel'
+if.window-title-regex-substring = '^(Filter|AutoFilter|Custom AutoFilter|Sort|Custom Sort|Format Cells|Find and Replace|Filtre|Filtre automatique|Filtre automatique personnalisé|Tri|Tri personnalisé|Format de cellule|Format de cellules|Rechercher et remplacer)(\s*[-–—:].*)?$'
+run = 'layout floating'
+
+# Bitwarden extension popouts belong to the browser, not com.bitwarden.desktop.
+# Float them in place and stop before browser/profile workspace routing.
+[[on-window-detected]]
+if = '''test %{app-bundle-id} ~= '^(com\.brave\.Browser|com\.google\.Chrome|org\.mozilla\.firefox|org\.mozilla\.firefoxdeveloperedition|app\.zen-browser\.zen|com\.apple\.Safari)$' && test %{window-title} ~= '^Bitwarden(\s*[-–—|].*)?$' '''
+run = 'layout floating'
+
 # Float browser authentication windows where they open, rather than sending them to workspace 0.
 # Titles can arrive after detection; Ctrl-Alt-F remains the manual floating toggle.
 # A normal browser window with a matching authentication page title will also float.
@@ -251,11 +297,6 @@ run = 'move-node-to-workspace 3'
 
 [[on-window-detected]]
 if.app-id = 'org.mozilla.firefoxdeveloperedition'
-if.window-title-regex-substring = 'Developer Tools'
-run = 'move-node-to-workspace 0'
-
-[[on-window-detected]]
-if.app-id = 'org.mozilla.firefoxdeveloperedition'
 run = 'move-node-to-workspace 3'
 
 
@@ -313,9 +354,8 @@ run = 'move-node-to-workspace 4'
 
 
 [[on-window-detected]]
-if.app-id = 'com.mimestream.Mimestream'
-if.window-title-regex-substring = 'Accounts|Settings|Preferences'
-run = ['move-node-to-workspace 5', 'layout floating']
+if.app-id = 'com.apple.mail'
+run = 'move-node-to-workspace 5'
 
 [[on-window-detected]]
 if.app-id = 'com.mimestream.Mimestream'
