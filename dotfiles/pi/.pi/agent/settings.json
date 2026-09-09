@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.85.0",
+  "lastChangelogVersion": "0.85.1",
   "theme": "nord",
   "defaultProjectTrust": "never",
   "enableSkillCommands": true,
@@ -34,17 +34,16 @@
     "~/.local/lib/node_modules/hunkdiff/skills/hunk-review/SKILL.md"
   ],
   "packages": [
-    "npm:pi-mcp-adapter@2.19.0",
-    "npm:pi-claude-bridge@0.7.0",
+    "npm:pi-mcp-adapter@2.32.1",
+    "git:github.com/elidickinson/pi-claude-bridge@4a7920ac4f4449b546307b3a53d4a4867f8b6cb5",
     "npm:@tintinweb/pi-subagents@v0.19.0",
     "npm:@juicesharp/rpiv-todo@2.8.0",
     "npm:@juicesharp/rpiv-ask-user-question@2.8.0",
-    "npm:@narumitw/pi-lsp@0.46.0",
-    "npm:@narumitw/pi-codex-compact@0.51.0",
-    "npm:@narumitw/pi-usage@0.52.1",
+    "npm:@narumitw/pi-lsp@0.49.7",
+    "npm:@narumitw/pi-codex-compact@0.52.0",
+    "npm:@narumitw/pi-usage@0.60.3",
     "npm:pi-web-access@0.18.0",
-    "npm:@ff-labs/pi-fff@0.10.6",
-    "npm:@ayulab/pi-rewind@0.4.6"
+    "npm:@ff-labs/pi-fff@0.10.6"
   ],
   "compaction": {
     "enabled": true

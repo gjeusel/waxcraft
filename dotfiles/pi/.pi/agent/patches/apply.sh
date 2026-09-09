@@ -34,16 +34,4 @@ apply_patch() (
   fi
 )
 
-apply_patch pi-claude-bridge pi-claude-bridge-0.7.0-fable-5-1.patch package.json src/models.ts
 apply_patch @tintinweb/pi-subagents pi-subagents-0.19.0-foreground-labels.patch src/agent-color.ts
-
-package_dir="$agent_dir/npm/node_modules/pi-claude-bridge"
-sdk_package="$package_dir/node_modules/@anthropic-ai/claude-agent-sdk/package.json"
-sdk_version=
-if [ -f "$sdk_package" ]; then
-  sdk_version=$(node -p "require(process.argv[1]).version" "$sdk_package")
-fi
-
-if [ "$sdk_version" != "0.3.251" ]; then
-  npm install --prefix "$package_dir" --omit=dev --ignore-scripts --no-package-lock --no-audit --no-fund
-fi

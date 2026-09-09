@@ -73,7 +73,9 @@ extensions/
 
 ## Packages
 
-Third-party packages are pinned in `settings.json`.
+Third-party packages are pinned in `settings.json`. The Claude bridge uses a
+commit-pinned GitHub checkout rather than an npm release; Fable 5.1 support comes
+from upstream without a local patch.
 
 ```text
 packages/
@@ -104,10 +106,10 @@ pi update --all
 installer uses the flake's supported Node.js version for `npm ci` and stows
 `~/.local/bin/pi`.
 
-`just pi-install` also reapplies the tracked patches in `.pi/agent/patches/`:
-Claude bridge model support and foreground-only subagent labels (agent `color`
-sets text color without badge padding or background changes). After a standalone
-package reinstall or update, reapply and verify them with:
+`just pi-install` also reapplies the tracked patch in `.pi/agent/patches/` for
+foreground-only subagent labels (agent `color` sets text color without badge
+padding or background changes). After a standalone package reinstall or update,
+reapply and verify it with:
 
 ```bash
 dotfiles/pi/.pi/agent/patches/apply.sh
