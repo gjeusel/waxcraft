@@ -5,51 +5,41 @@ if loglevel == "trace" then
   loglevel = "debug"
 end
 
+-- Grapple loads at startup (lazy = false). Pin the project before autochdir follows other files.
+local startup_cwd = vim.fn.getcwd()
+local result = vim.fn.system({ "git", "-C", startup_cwd, "rev-parse", "--show-toplevel" })
+local project_root = vim.v.shell_error == 0 and vim.trim(result) or startup_cwd
+
 local function project_resolver()
-  local clients = vim.lsp.get_clients({ bufnr = 0 })
-  if #clients > 0 then
-    return clients[1].config.root_dir
-  else
-    return find_root_dir(vim.fn.getcwd()) or vim.fn.getcwd()
-  end
+  return project_root, project_root
 end
 
 local function git_branch_resolver()
-  -- TODO: this will stop on submodules, needs fixing
-  local git_files = vim.fs.find(".git", { upward = true, stop = vim.uv.os_homedir() })
-  if #git_files == 0 then
-    return
+  -- Always query the startup repository, but let branch checkouts switch the active bookmarks.
+  local result = vim.fn.system({ "git", "-C", project_root, "symbolic-ref", "--short", "HEAD" })
+  if vim.v.shell_error ~= 0 then
+    return -- Use the pinned project scope outside Git or with a detached HEAD.
   end
 
-  local root = vim.fn.fnamemodify(git_files[1], ":h")
-
-  -- TODO: Don't use vim.system, it's a nvim-0.10 feature
-  -- TODO: Don't shell out, read the git head or something similar
-  local result = vim.fn.system({ "git", "symbolic-ref", "--short", "HEAD" })
-  local branch = vim.trim(string.gsub(result, "\n", ""))
-
-  local id = string.format("%s:%s", root, branch)
-  local path = root
-
-  return id, path
+  local branch = vim.trim(result)
+  return string.format("%s:%s", project_root, branch), project_root
 end
 
 grapple.setup({
   ---@type "debug" | "info" | "warn" | "error"
   log_level = loglevel,
 
-  scope = "no-cache-gitbranch", -- also try out "git_branch"
+  scope = "no-cache-gitbranch", -- Keep the name so existing branch bookmarks remain available.
   scopes = {
     {
       name = "project",
-      fallback = "cwd",
-      cache = { "DirChanged" },
+      cache = true,
       resolver = project_resolver,
     },
     {
       name = "no-cache-gitbranch",
       fallback = "project",
-      cache = {},
+      cache = { event = { "BufEnter", "FocusGained", "ShellCmdPost", "TermLeave" } },
       resolver = git_branch_resolver,
     },
   },
