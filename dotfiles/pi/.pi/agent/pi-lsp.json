@@ -12,9 +12,21 @@
       "command": ["npx", "-y", "typescript-language-server", "--stdio"],
       "extensions": [".ts", ".tsx", ".mts", ".cts", ".js", ".jsx", ".mjs", ".cjs"]
     },
+    "nix": {
+      "command": ["nixd"],
+      "extensions": [".nix"]
+    },
+    "toml": {
+      "command": ["taplo", "lsp", "stdio"],
+      "extensions": [".toml"]
+    },
     "lua": {
       "command": ["lua-language-server"],
       "extensions": [".lua"]
+    },
+    "yaml": {
+      "command": ["npx", "-y", "yaml-language-server", "--stdio"],
+      "extensions": [".yaml", ".yml"]
     },
     "json": {
       "command": ["npx", "-y", "vscode-json-languageserver", "--stdio"],
