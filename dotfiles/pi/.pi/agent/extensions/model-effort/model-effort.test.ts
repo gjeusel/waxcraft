@@ -65,7 +65,7 @@ test('model-effort', async (t) => {
   await t.test('supports provider-qualified patterns', () => {
     const defaults = { 'anthropic/claude-*': 'max' } as const;
     assert.equal(effortForModel('anthropic', 'claude-opus-4-7', defaults), 'max');
-    assert.equal(effortForModel('claude-bridge', 'claude-opus-4-7', defaults), undefined);
+    assert.equal(effortForModel('other-provider', 'claude-opus-4-7', defaults), undefined);
   });
 
   await t.test('uses no defaults when the setting is absent', async () => {

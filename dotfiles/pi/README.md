@@ -30,12 +30,17 @@ After upgrading Hunk, start a new Pi session or run `/reload` before reviewing a
 
 Subagent `skills:` preloading (`.pi/agent/agents/*.md`, e.g. the reviewer's `code-review`) is resolved by `pi-subagents`, which rejects symlinked skill directories. The symlinks in `~/.pi/agent/skills/` are skipped and resolution falls through to the real directories in `~/.agents/skills/`; keep those real, or the agent silently runs with a `(Skill "…" not found)` placeholder in its prompt.
 
-Pi installs the packages from `settings.json` on first launch. For the Claude bridge:
+Pi installs the packages from `settings.json` on first launch. [Pi Black](https://github.com/paoloanzn/pi-black)
+wraps the native Anthropic provider for Claude subscription OAuth requests; it does not run a
+Claude Code subprocess. Authenticate inside Pi and select an `anthropic/claude-*` model:
 
-```bash
-claude auth login
-claude auth status
+```text
+/login anthropic
+/model
 ```
+
+Pi Black requires Pi 0.84.1 or newer. Its Claude Code request compatibility is version-specific
+and unofficial; revalidate subscription access when upgrading. API-key requests remain unchanged.
 
 ## Extensions
 
@@ -59,7 +64,6 @@ extensions/
 
 ### To Checkup
 
-- [pi-black](https://github.com/paoloanzn/pi-black) to replace pi-claude-bridge
 - [pi-agents-tmux](https://github.com/vanillagreencom/kendex/tree/main/pi-extensions/pi-agents-tmux)
 - [deputies](https://github.com/sidpalas/deputies)
 - [dsh-import-agents](https://github.com/Chang-Tong/dsh-import-agents)
@@ -73,14 +77,14 @@ extensions/
 
 ## Packages
 
-Third-party packages are pinned in `settings.json`. The Claude bridge uses a
-commit-pinned GitHub checkout rather than an npm release; Fable 5.1 support comes
-from upstream without a local patch.
+Third-party packages are pinned in `settings.json`. Pi Black uses the GitHub release
+`v0.84.1-cc2.1.258.1`. Claude model definitions, including Fable 5.1, come from Pi's native
+Anthropic catalog; the reviewer uses `anthropic/claude-fable-5-1`.
 
 ```text
 packages/
 ├── pi-mcp-adapter/                         MCP server integration
-├── pi-claude-bridge/                       Claude Code model provider
+├── pi-black/                               native Anthropic OAuth compatibility
 ├── pi-subagents/                           delegated agent workflows
 ├── pi-intercom/                            cross-session communication
 ├── @narumitw/pi-lsp/                       language-server diagnostics and fixes

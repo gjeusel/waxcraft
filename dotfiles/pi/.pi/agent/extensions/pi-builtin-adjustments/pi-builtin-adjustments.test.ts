@@ -134,12 +134,12 @@ test('suppresses no-match warnings except for mandatory providers during startup
 
     console.warn('Warning: No models match pattern "moonshotai/kimi-k3"');
     console.warn('Warning: No models match pattern "deepseek/deepseek-v4-pro"');
-    console.warn('Warning: No models match pattern "claude-bridge/claude-opus-4-8"');
+    console.warn('Warning: No models match pattern "anthropic/claude-opus-4-8"');
     console.warn('Warning: No models match pattern "openai-codex/gpt-5.6-sol"');
     console.warn('A different warning');
 
     assert.deepEqual(warnings, [
-      ['Warning: No models match pattern "claude-bridge/claude-opus-4-8"'],
+      ['Warning: No models match pattern "anthropic/claude-opus-4-8"'],
       ['Warning: No models match pattern "openai-codex/gpt-5.6-sol"'],
       ['A different warning'],
     ]);

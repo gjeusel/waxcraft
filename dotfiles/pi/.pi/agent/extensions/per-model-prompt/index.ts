@@ -73,8 +73,8 @@ export default function (pi: ExtensionAPI, promptDir = join(homedir(), '.pi', 'a
         return;
       }
 
-      // Stream through the registry provider: extension-registered providers
-      // (e.g. claude-bridge) are unknown to pi-ai's standalone complete().
+      // Stream through the registry provider so extension overrides (e.g. Pi Black's OAuth
+      // compatibility wrapper) are preserved instead of using pi-ai's standalone complete().
       const provider = ctx.modelRegistry.getProvider(model.provider);
       if (!provider) {
         ctx.ui.notify(`No provider registered for ${model.provider}`, 'error');

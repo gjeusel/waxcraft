@@ -17,10 +17,10 @@
     "moonshotai/kimi-k3",
     "deepseek/deepseek-v4-flash",
     "deepseek/deepseek-v4-pro",
-    "claude-bridge/claude-sonnet-5",
-    "claude-bridge/claude-opus-4-8",
-    "claude-bridge/claude-fable-5",
-    "claude-bridge/claude-fable-5-1"
+    "anthropic/claude-sonnet-5",
+    "anthropic/claude-opus-4-8",
+    "anthropic/claude-fable-5",
+    "anthropic/claude-fable-5-1"
   ],
   "modelEffortDefaults": {
     "claude-fable-5-1": "high",
@@ -35,7 +35,7 @@
   ],
   "packages": [
     "npm:pi-mcp-adapter@2.32.1",
-    "git:github.com/elidickinson/pi-claude-bridge@4a7920ac4f4449b546307b3a53d4a4867f8b6cb5",
+    "git:github.com/paoloanzn/pi-black@v0.84.1-cc2.1.258.1",
     "npm:@tintinweb/pi-subagents@v0.19.0",
     "npm:@juicesharp/rpiv-todo@2.8.0",
     "npm:@juicesharp/rpiv-ask-user-question@2.8.0",
@@ -54,5 +54,8 @@
   },
   "treeFilterMode": "user-only",
   "quietStartup": true,
+  "warnings": {
+    "anthropicExtraUsage": false
+  },
   "collapseChangelog": true
 }

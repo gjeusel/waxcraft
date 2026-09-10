@@ -6,7 +6,7 @@ description: Read-only specialist for evidence-backed branch, PR, and working-di
 tools: "read, bash, ls, ext:pi-fff/ffgrep, ext:pi-fff/fffind"
 extensions: [pi-fff, pi-safety]
 skills: code-review
-model: claude-bridge/claude-fable-5-1
+model: anthropic/claude-fable-5-1
 thinking: high
 max_turns: 40
 prompt_mode: append

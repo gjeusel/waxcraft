@@ -6,7 +6,7 @@ import { getKeybindings } from '@earendil-works/pi-tui';
 const ANSI_CSI_PATTERN = /\x1b\[[0-?]*[ -/]*[@-~]/g;
 const RESUME_MESSAGE_PREFIX = 'To resume this session:';
 const STYLE_PLACEHOLDER = '__PI_RESUME_COMMAND__';
-const MANDATORY_MODEL_PREFIXES = ['claude-bridge/', 'openai-codex/'] as const;
+const MANDATORY_MODEL_PREFIXES = ['anthropic/', 'openai-codex/'] as const;
 const NO_MATCH_WARNING = /Warning: No models match pattern "([^"]+)"/;
 const PROJECT_SKILL_LOCATIONS = [
   ['.claude', 'skills'],
