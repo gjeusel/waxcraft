@@ -11,9 +11,11 @@ apply_patch() (
   patch_file="$patch_dir/$2"
   shift 2
 
+  # On a first-time Pi install no sub-agents exist yet, so the package may be
+  # absent. Skip rather than fail: the patch applies once it gets installed.
   if [ ! -d "$package_dir" ]; then
-    echo "$package_name is not installed at $package_dir" >&2
-    exit 1
+    echo "Skipping $package_name; not installed at $package_dir" >&2
+    exit 0
   fi
 
   patch_changed=false

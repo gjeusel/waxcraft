@@ -6,6 +6,10 @@ after-login-command = []
 # Avoid switching through every workspace and resetting layouts at each startup.
 after-startup-command = []
 
+# Hammerspoon pulls floating windows of the newly focused workspace back on screen.
+# Apps that manage their own frame defeat AeroSpace's hide-in-corner restore (see init.lua).
+exec-on-workspace-change = ['/usr/bin/open', '-g', 'hammerspoon://rescue-offscreen-windows']
+
 enable-normalization-flatten-containers = true
 enable-normalization-opposite-orientation-for-nested-containers = true
 
@@ -478,6 +482,12 @@ run = ['move-node-to-workspace 0', 'layout floating']
 
 [[on-window-detected]]
 if.app-id = 'org.videolan.vlc'
+run = ['move-node-to-workspace 0', 'layout floating']
+
+# DaisyDisk animates its own window frame (disk list vs. scan view) and recreates the window,
+# so AeroSpace's dialog heuristic flip-flops and tiling fights the app until it lands offscreen.
+[[on-window-detected]]
+if = '''test %{app-bundle-id} ~= '^com\.daisydiskapp\.' '''
 run = ['move-node-to-workspace 0', 'layout floating']
 
 [[on-window-detected]]
