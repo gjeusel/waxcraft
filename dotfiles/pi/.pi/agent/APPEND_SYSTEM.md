@@ -9,6 +9,7 @@
 
 ## Code Layout
 
+- Prefer "aerated" code: use blank lines between logical steps, after guard clauses, before final returns, and between substantial control-flow branches, while keeping tightly related statements together.
 - Define functions top to bottom in dependency order: a helper must appear above the function that calls it, so a file reads without forward references.
 - Avoid a proliferation of tiny helpers: inline logic that is used only once unless it names a genuinely distinct step.
 - Make complex boolean logic readable by naming meaningful subconditions with descriptive intermediate variables; preserve short-circuit evaluation where it affects behavior or cost.
