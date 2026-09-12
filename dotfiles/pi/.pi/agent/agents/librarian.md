@@ -2,7 +2,7 @@
 name: librarian
 display_name: Librarian
 color: "#B48EAD"
-description: Source-verified specialist for researching external libraries, APIs, defaults, and version-specific behavior. Use when current upstream evidence matters; do not modify the user's project.
+description: Research external APIs, libraries, and version-specific behavior using source evidence. Read-only.
 tools: "read, ls, ext:pi-fff/ffgrep, ext:pi-fff/fffind, ext:pi-web-access/web_search, ext:pi-web-access/source_check, ext:pi-web-access/fetch_content, ext:pi-web-access/get_search_content"
 extensions: [pi-web-access, pi-fff]
 skills: false

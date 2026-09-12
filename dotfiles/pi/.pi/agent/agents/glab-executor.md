@@ -2,7 +2,7 @@
 name: glab-executor
 display_name: GitLab Executor
 color: "#D08770"
-description: Mechanical GitLab publishing via glab and git — create issues, branches and MRs, check out branches, commit, push, and apply explicit auto-merge decisions. Use when content and decisions are finalized; supply repository path, exact titles/descriptions/labels/commit message, test status, and authorized actions. Returns verified results or blockers; leaves planning and code changes to the caller.
+description: Execute GitLab publishing with finalized content and explicit authorization. Supply repo, exact content, test status, and allowed actions.
 tools: "read, bash"
 extensions: [pi-safety, gitleaks-guard]
 skills: glab

@@ -1,138 +1,53 @@
-# CLAUDE.md
+# Nix-darwin configuration
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+The flake targets `aarch64-darwin` and exports `darwinConfigurations.wax` and `darwinPackages`.
+Run commands from the repository root with `./nix`, or use the `just nix-*` recipes.
 
-## Repository Overview
+## Where changes belong
 
-This is a **nix-darwin configuration** repository ("waxcraft/nix") that manages a complete macOS development environment using Nix flakes. It provides declarative configuration for system packages, Homebrew apps, system preferences, and activation scripts.
+| Task | File / guidance |
+| --- | --- |
+| CLI tools, formatters, LSPs | `pkgs.nix`, usually `environment.systemPackages` |
+| Package version overrides | `overlays.nix`; see below |
+| GUI apps needing Login Items/launchd, or unavailable in nixpkgs | `homebrew.nix` casks |
+| Homebrew services and App Store exclusives | `homebrew.nix` brews / `masApps` |
+| macOS defaults | `preferences.nix`; see [README.md](README.md) for manual settings and OS caveats |
+| File associations and user activation | `system-scripts.nix` |
+| Keyboard remapping | `keymaps.nix` |
+| PostgreSQL service and initialization | `postgres.nix` |
+| Inputs, imports, fonts, platform | `flake.nix` |
 
-## Architecture
+Nix management is delegated to Determinate (`nix.enable = false`). Homebrew taps are flake-pinned and
+immutable. Keep the nixpkgs and nix-darwin release branches in sync; `system.stateVersion` is a
+compatibility setting, not a release number to bump during upgrades.
 
-### Flake Structure
+## Package versions
 
-The main `flake.nix` serves as the entry point and imports modular configuration files:
+Check the pinned `nixpkgs-unstable` input before writing a source override. If it already contains the
+requested version, overlay that package directly rather than duplicating its expression with
+`overrideAttrs`; this preserves the required toolchain, features, patches, and dependencies.
 
-- **flake.nix**: Defines inputs (nixpkgs, nix-darwin, nix-homebrew, homebrew taps) and outputs the `darwinConfigurations."wax"` system configuration
-- **pkgs.nix**: Nix packages from nixpkgs (development tools, CLI utilities, LSPs, formatters)
-- **homebrew.nix**: Homebrew brews, casks, and Mac App Store apps
-- **preferences.nix**: macOS system defaults (dock, finder, NSGlobalDomain, security settings)
-- **system-scripts.nix**: Activation scripts that run on system rebuild (file associations, app aliases)
-- **keymaps.nix**: Keyboard remapping configuration (currently empty but available for custom mappings)
-- **postgres.nix**: PostgreSQL 16 via nix-darwin `services.postgresql`, with a one-shot launchd agent that creates users/databases/extensions (workaround for missing `ensureDatabases`/`ensureUsers` support)
+For an unavoidable source-level Rust override, compare the old and new nixpkgs expressions. Update
+`src`, `cargoDeps` (not only `cargoHash`), features/build flags, build inputs, patches, and the toolchain
+required by upstream's `rust-version`. Build the package output before the full system.
 
-### Key Design Decisions
+A missing package is not by itself a reason to update the lockfile: check its name and the pinned
+inputs first, and keep dependency updates within the requested scope.
 
-1. **Nix managed by Determinate Systems**: `nix.enable = false` delegates Nix management to the "Determinate" installer
-2. **Immutable Homebrew taps**: `mutableTaps = false` with flake-pinned homebrew repos
-3. **User ownership**: System is configured for user "gjeusel" with `system.primaryUser`
-4. **aarch64-darwin**: Platform is Apple Silicon
-5. **State version 6**: Used for backwards compatibility
+## Activation hazards
 
-### Package Organization
+- `postActivation` runs as root. Per-user `defaults`, `duti`, and `xattr` operations belong in the
+  existing `userActivationScript`, invoked with `launchctl asuser` and `sudo --user`.
+- For file associations, use the existing `set_handler` helper with `${pkgs.duti}/bin/duti`. Keep each
+  extension in a single handler list to avoid repeated macOS prompts. Obtain bundle IDs with
+  `osascript -e 'id of app "AppName"'`.
+- Homebrew's `onActivation.cleanup = "zap"` removes manually installed brews/casks absent from the
+  configuration. A successful build does not authorize activation.
+- PostgreSQL uses nix-darwin plus an idempotent `postgresql-init` launchd agent to reconcile users,
+  databases, and extensions; it is not the Homebrew PostgreSQL service.
 
-Packages are split by installation method:
+## Validation
 
-- **Nix packages** (pkgs.nix): Development tools, formatters, LSPs, some GUI apps
-- **Homebrew casks** (homebrew.nix): Apps requiring launchd integration or not available in nixpkgs
-- **Homebrew brews** (homebrew.nix): Services like redis, meilisearch (postgresql runs via nix-darwin, see postgres.nix)
-- **Mac App Store** (homebrew.nix): Apps only available via App Store (currently just Xcode)
-
-**Note on launchd**: Due to nix-darwin launchd issues on macOS Sequoia (see [issue #1255](https://github.com/nix-darwin/nix-darwin/issues/1255)), apps requiring Login Items (raycast, aerospace, karabiner-elements, ghostty) are installed via Homebrew instead of nixpkgs.
-
-### File Association Management
-
-The system uses `duti` to set default apps. To add new file associations:
-
-1. Get app identifier: `osascript -e 'id of app "AppName"'`
-2. Add to system-scripts.nix postActivation script
-3. Rebuild system
-
-## Development Workflow
-
-### Adding a New Package
-
-1. **Determine installation method**:
-   - Prefer nixpkgs for CLI tools and development dependencies
-   - Use Homebrew casks for GUI apps requiring launchd or not in nixpkgs
-   - Use Homebrew brews for system services
-   - Use masApps for App Store exclusives
-
-2. **Add to appropriate file**:
-   - Nix: Add to `pkgs.nix` in `environment.systemPackages`
-   - Homebrew: Add to `homebrew.nix` under brews/casks/masApps
-
-
-### Modifying System Preferences
-
-1. Edit `preferences.nix` under appropriate section:
-   - `system.defaults.dock`: Dock configuration
-   - `system.defaults.finder`: Finder preferences
-   - `system.defaults.NSGlobalDomain`: Global macOS settings
-   - `system.defaults.CustomUserPreferences`: Settings not directly supported
-
-2. For new CustomUserPreferences, reference [macos-defaults](https://github.com/yannbertrand/macos-defaults)
-
-3. Rebuild system to apply
-
-### Adding Activation Scripts
-
-Activation scripts run after system rebuild. They're in `system-scripts.nix`:
-
-- `postActivation`: Runs as user (not root) - preferred for most scripts
-- `applications`: Handles app linking to /Applications
-
-Common use cases:
-- Setting file associations with duti
-- Running defaults write commands
-- Creating symlinks or aliases
-
-## Important Notes
-
-### PostgreSQL Configuration
-
-PostgreSQL 16 is managed by nix-darwin via `postgres.nix` (imported in `flake.nix`); the Homebrew `postgresql@16` brew is commented out. Since nix-darwin doesn't support `initialScript`, `ensureDatabases`, or `ensureUsers` (see [nix-darwin#339](https://github.com/nix-darwin/nix-darwin/issues/339)), a separate idempotent one-shot launchd agent (`postgresql-init`) reconciles the configured users, databases, and extensions after postgres starts.
-
-### Keyboard Shortcuts
-
-Some settings must be configured manually via System Preferences:
-1. Disable Ctrl+arrows for Mission Control (conflicts with Neovim)
-2. Disable Caps Lock as input source switcher
-
-### Homebrew Cleanup
-
-`onActivation.cleanup = "zap"` removes manually installed brews/casks not in configuration. Be cautious when testing new packages.
-
-### Font Management
-
-Nerd Fonts are installed via nixpkgs:
-```nix
-fonts.packages = [
-  pkgs.nerd-fonts.jetbrains-mono
-  pkgs.nerd-fonts.hack
-];
-```
-
-### ZSH Configuration
-
-ZSH is configured with `enableGlobalCompInit = false` for faster startup. This requires defining an empty `compdef` in `interactiveShellInit` to avoid error messages.
-
-## Troubleshooting
-
-### Build Failures
-
-1. Check flake syntax: `nix flake check`
-2. Verify all imported files exist
-3. Check for missing closing braces or semicolons
-4. Look for undefined packages: `nix search nixpkgs <package>`
-
-### Package Not Found
-
-1. Update nixpkgs: `nix flake update nixpkgs`
-2. Check package name: `nix search nixpkgs <partial-name>`
-3. Consider Homebrew alternative if unavailable in nixpkgs
-
-### Permission Issues
-
-1. Ensure duti commands in system-scripts.nix use full package path
-2. Check that postActivation scripts run as user, not root
-3. Verify app identifiers are correct: `osascript -e 'id of app "Name"'`
+`just nix-check` evaluates and builds without switching. For new, untracked Nix files, use
+`nix build "path:$PWD/nix#darwinConfigurations.wax.system" --no-link` so they are included without
+staging them. `just nix-up` applies the configuration; use it only when application is requested.
