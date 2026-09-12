@@ -235,7 +235,8 @@
         "nix-homebrew": "nix-homebrew",
         "nixpkgs": "nixpkgs",
         "nixpkgs-outdated": "nixpkgs-outdated",
-        "nixpkgs-unstable": "nixpkgs-unstable"
+        "nixpkgs-unstable": "nixpkgs-unstable",
+        "wallpapper-tap": "wallpapper-tap"
       }
     },
     "systems": {
@@ -250,6 +251,22 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
+        "type": "github"
+      }
+    },
+    "wallpapper-tap": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1676526986,
+        "narHash": "sha256-T7CeDJ51pjZFo2Q4GsZ4esYYe7b82AFqRI1UZqW+lfU=",
+        "owner": "mczachurski",
+        "repo": "homebrew-wallpapper",
+        "rev": "c75be587e8abea6a455d66e34764ac75c785d0df",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mczachurski",
+        "repo": "homebrew-wallpapper",
         "type": "github"
       }
     }

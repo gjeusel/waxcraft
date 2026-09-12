@@ -38,6 +38,11 @@
       flake = false;
     };
 
+    wallpapper-tap = {
+      url = "github:mczachurski/homebrew-wallpapper";
+      flake = false;
+    };
+
     # ----- External flakes -----
     googleworkspace-cli = {
       url = "github:googleworkspace/cli";
@@ -58,6 +63,7 @@
     homebrew-bundle,
     agavra-tap,
     hashicorp-tap,
+    wallpapper-tap,
     # nikitabobko-tap,
     googleworkspace-cli,
   }: let
@@ -125,7 +131,7 @@
           homebrew.taps = builtins.attrNames config.nix-homebrew.taps;
         })
         nix-homebrew.darwinModules.nix-homebrew
-        {
+        ({pkgs, ...}: {
           nix-homebrew = {
             enable = true;
             enableRosetta = true; # Apple Silicon Only
@@ -137,10 +143,17 @@
               "homebrew/homebrew-bundle" = homebrew-bundle;
               "agavra/homebrew-tap" = agavra-tap;
               "hashicorp/homebrew-tap" = hashicorp-tap;
+              "mczachurski/homebrew-wallpapper" = pkgs.runCommand "wallpapper-tap" {} ''
+                cp -R ${wallpapper-tap} $out
+                chmod -R u+w $out
+                # Homebrew removed this legacy macOS requirement; our host is newer than Mojave.
+                substituteInPlace $out/wallpapper.rb \
+                  --replace-fail '  depends_on :macos => :mojave' ""
+              '';
             };
             mutableTaps = false;
           };
-        }
+        })
       ];
     };
 
