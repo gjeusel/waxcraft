@@ -29,12 +29,21 @@
       url = "github:homebrew/homebrew-bundle";
       flake = false;
     };
+    ampcode-tap = {
+      url = "github:ampcode/homebrew-tap";
+      flake = false;
+    };
     agavra-tap = {
       url = "github:agavra/homebrew-tap"; # tuicr
       flake = false;
     };
     hashicorp-tap = {
       url = "github:hashicorp/homebrew-tap";
+      flake = false;
+    };
+
+    timescale-tap = {
+      url = "github:timescale/homebrew-tap";
       flake = false;
     };
 
@@ -61,8 +70,10 @@
     homebrew-core,
     homebrew-cask,
     homebrew-bundle,
+    ampcode-tap,
     agavra-tap,
     hashicorp-tap,
+    timescale-tap,
     wallpapper-tap,
     # nikitabobko-tap,
     googleworkspace-cli,
@@ -141,8 +152,10 @@
               "homebrew/homebrew-core" = homebrew-core;
               "homebrew/homebrew-cask" = homebrew-cask;
               "homebrew/homebrew-bundle" = homebrew-bundle;
+              "ampcode/homebrew-tap" = ampcode-tap;
               "agavra/homebrew-tap" = agavra-tap;
               "hashicorp/homebrew-tap" = hashicorp-tap;
+              "timescale/homebrew-tap" = timescale-tap;
               "mczachurski/homebrew-wallpapper" = pkgs.runCommand "wallpapper-tap" {} ''
                 cp -R ${wallpapper-tap} $out
                 chmod -R u+w $out

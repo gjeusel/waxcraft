@@ -267,7 +267,7 @@ in {
       NSAutomaticDashSubstitutionEnabled = false;
       NSAutomaticSpellingCorrectionEnabled = false;
       NSAutomaticInlinePredictionEnabled = false;
-      ApplePressAndHoldEnabled = true; # Preserve the accent picker for French typing
+      ApplePressAndHoldEnabled = false; # Repeat held keys instead of showing the accent picker
       AppleKeyboardUIMode = 2; # Keyboard navigation on Sonoma and later
       NSNavPanelExpandedStateForSaveMode = true;
       NSNavPanelExpandedStateForSaveMode2 = true;

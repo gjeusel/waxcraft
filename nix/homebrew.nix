@@ -8,6 +8,7 @@
     };
     brews = [
       "mas"
+      "ampcode/tap/ampcode"
       # "postgresql@16" # can be managed via nix-darwin (see postgres.nix)
       "redis"
       "meilisearch"
@@ -62,6 +63,7 @@
 
       # "dbeaver-community" # sql UI
       "tableplus" # sql UI
+      "timescale/tap/tiger-cli"
 
       # "handy" # speech to text
       "wispr-flow" # speech to text

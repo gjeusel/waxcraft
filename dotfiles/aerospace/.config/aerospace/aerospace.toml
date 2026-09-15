@@ -203,7 +203,11 @@ run = ['layout floating', 'move-node-to-workspace 0']
 [[on-window-detected]]
 if.app-id = 'com.electron.wispr-flow'
 if.window-title-regex-substring = '^Meeting Recorder$'
-run = 'layout floating'
+run = ['layout floating', 'move-node-to-workspace 0']
+
+[[on-window-detected]]
+if.app-id = 'com.electron.wispr-flow'
+run = 'move-node-to-workspace 0'
 
 [[on-window-detected]]
 if.app-id = 'net.shinyfrog.bear'

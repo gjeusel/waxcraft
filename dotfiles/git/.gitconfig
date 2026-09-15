@@ -74,3 +74,5 @@
 
 [difftool "difftastic"]
 	cmd = difft --display inline --color always "$LOCAL" "$REMOTE"
+[credential "https://ampcode.com"]
+	helper = !amp git-credential-helper

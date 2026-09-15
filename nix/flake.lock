@@ -16,6 +16,22 @@
         "type": "github"
       }
     },
+    "ampcode-tap": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1789398659,
+        "narHash": "sha256-vj+CC3tdHkhOSlh3P87t3LhN0IrtyRrTSEBncV0UBEA=",
+        "owner": "ampcode",
+        "repo": "homebrew-tap",
+        "rev": "d856ebfb1118ae7e85864c5036a847409145b209",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ampcode",
+        "repo": "homebrew-tap",
+        "type": "github"
+      }
+    },
     "brew-src": {
       "flake": false,
       "locked": {
@@ -226,6 +242,7 @@
     "root": {
       "inputs": {
         "agavra-tap": "agavra-tap",
+        "ampcode-tap": "ampcode-tap",
         "googleworkspace-cli": "googleworkspace-cli",
         "hashicorp-tap": "hashicorp-tap",
         "homebrew-bundle": "homebrew-bundle",
@@ -236,6 +253,7 @@
         "nixpkgs": "nixpkgs",
         "nixpkgs-outdated": "nixpkgs-outdated",
         "nixpkgs-unstable": "nixpkgs-unstable",
+        "timescale-tap": "timescale-tap",
         "wallpapper-tap": "wallpapper-tap"
       }
     },
@@ -251,6 +269,22 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
+        "type": "github"
+      }
+    },
+    "timescale-tap": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1788955697,
+        "narHash": "sha256-9FSJeirA3GlaeKb+e3/CxfjA+9TUBcxBHIDNbbUKRfY=",
+        "owner": "timescale",
+        "repo": "homebrew-tap",
+        "rev": "e521331b4dcf4d14ca52fc654367c840a694dd2a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "timescale",
+        "repo": "homebrew-tap",
         "type": "github"
       }
     },
