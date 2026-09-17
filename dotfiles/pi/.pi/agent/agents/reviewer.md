@@ -8,7 +8,7 @@ extensions: [pi-fff, pi-safety]
 skills: code-review
 model: anthropic/claude-fable-5-1
 thinking: high
-max_turns: 40
+max_turns: 60
 prompt_mode: append
 persist_session: false
 output_transcript: false

@@ -12,6 +12,7 @@
       # "postgresql@16" # can be managed via nix-darwin (see postgres.nix)
       "redis"
       "meilisearch"
+      "neonctl" # Neon CLI
       "libomp" # openmp on macos
       "py-spy" # CLI to profile python (unavailable in nixpkgs for ARM arch)
       "ios-deploy" # Install and debug iPhone apps from the command-line

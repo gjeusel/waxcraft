@@ -56,6 +56,9 @@ outer.top = 0
 cmd-h = []
 cmd-alt-h = []
 
+# Disable Emoji & Symbols picker without relying on localized app menu titles
+ctrl-cmd-space = []
+
 # Disable cmd-m (minimize window) - minimized windows break tiling
 cmd-m = []
 

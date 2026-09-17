@@ -91,7 +91,7 @@ packages/
 ├── @narumitw/pi-codex-compact/             Codex-aware context compaction
 ├── @narumitw/pi-usage/                     provider usage and quota display
 ├── pi-web-access/                          web search and content retrieval
-├── @ayulab/pi-rewind/                      conversation checkpoints and rewinding
+├── arpagon/pi-rewind/                      conversation checkpoints and rewinding
 ├── @juicesharp/rpiv-ask-user-question/     structured user prompts
 ├── @juicesharp/rpiv-todo/                  task tracking
 ├── @ff-labs/pi-fff/                        fast file and content search

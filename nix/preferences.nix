@@ -5,12 +5,14 @@
   ...
 }: let
   userHome = "/Users/${config.system.primaryUser}";
-  # IDs checked in Sequoia's KeyboardSettings.appex/Contents/Resources:
+  # Shortcut table IDs checked in Sequoia's KeyboardSettings.appex/Contents/Resources:
   # en_GB.lproj/DefaultShortcutsTable.xml and DefaultSpacesShortcuts.xml.
   # Unlisted shortcuts and existing key combinations are preserved by the activation script.
   disabledHotkeys = [
     64 # Spotlight search (Cmd+Space)
     65 # Finder search window (Cmd+Option+Space)
+    190 # Quick Note (Fn+Q)
+    164 # Dictation (double-press Fn/Globe, or the configured Dictation shortcut)
 
     32 # Mission Control (Ctrl+Up)
     33 # Application windows (Ctrl+Down)
@@ -280,6 +282,7 @@ in {
     #   https://github.com/yannbertrand/macos-defaults
     CustomUserPreferences = {
       # Symbolic hotkeys are merged during user activation, not written as a whole dictionary here.
+      "com.apple.HIToolbox".AppleDictationAutoEnable = false; # No Fn-triggered Dictation setup prompt
       "com.apple.finder".DisableAllAnimations = true;
       "com.apple.desktopservices" = {
         # Avoid creating .DS_Store files on network or USB volumes

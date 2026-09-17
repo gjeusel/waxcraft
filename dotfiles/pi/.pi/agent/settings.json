@@ -42,6 +42,7 @@
     "npm:@narumitw/pi-codex-compact@0.52.0",
     "npm:@narumitw/pi-usage@0.60.3",
     "npm:pi-web-access@0.18.0",
+    "git:github.com/arpagon/pi-rewind@v0.5.0",
     "npm:@ff-labs/pi-fff@0.10.6"
   ],
   "compaction": {
