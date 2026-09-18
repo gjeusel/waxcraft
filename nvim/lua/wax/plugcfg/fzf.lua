@@ -2,6 +2,7 @@ local fzf_lua = require("fzf-lua")
 
 local Path = require("wax.path")
 
+-- Shared exclusions: omit these from both file listings and content searches.
 local rg_ignore_dirs = {
   ".git",
   "**/*orig", -- merge conflicts
@@ -11,6 +12,8 @@ local rg_ignore_dirs = {
   "**/edgedb-data", -- docker volume
   "**/.vscode", -- vscode ? Nop
   "**/.playwright-mcp", -- playwright mcp artifacts
+  "**/.e2e-artifacts", -- generated end-to-end test artifacts
+  "**/.memray", -- memory profiling captures
   "**/playground/*", -- messy
   --
   "data.ms", -- meilisearch
@@ -24,8 +27,6 @@ local rg_ignore_dirs = {
   "**/.venv",
   ".eggs",
   "**/.ropeproject",
-  -- "**/__snapshots__",
-  -- "**/tests/data",
   "**/.*_cache",
   --
   "**/.dist/*",
@@ -41,6 +42,8 @@ local rg_ignore_dirs = {
   "**/target/*", -- Rust/Maven target
   "**/.cargo/*", -- Rust cargo cache
   "**/vendor/*", -- Go/PHP vendor
+  --
+  "**/data/einvoice/*", -- zf
 }
 
 local rg_ignore_files = {
@@ -55,16 +58,50 @@ local rg_ignore_files = {
   "edgedb.toml",
 }
 
-local rg_ignore_arg = ("--glob '!{%s}' --glob '!{%s}'"):format(
+-- Content-only exclusions: keep these discoverable in file listings.
+local rg_content_ignore_patterns = {
+  "**/__snapshots__", -- includes generated Swagger snapshots
+  "**/vcr_cassettes",
+  "uv.lock",
+  "**/.hypothesis", -- generated property-testing data
+  ".dmypy.json", -- mypy daemon metadata
+  "**/.claude-security-run", -- generated security-scan metadata
+  "**/tests/data/e2e/invoice_pdf/assets", -- content-addressed PDF test assets
+  -- Binary images, datasets, spreadsheets, archives, and fonts.
+  "*.png",
+  "*.jpg",
+  "*.jpeg",
+  "*.gif",
+  "*.webp",
+  "*.ico",
+  "*.parquet",
+  "*.xlsx",
+  "*.xls",
+  "*.gz",
+  "*.zip",
+  "*.woff",
+  "*.woff2",
+  "*.ttf",
+  "*.otf",
+}
+
+local rg_files_ignore_arg = ("--glob '!{%s}' --glob '!{%s}'"):format(
   table.concat(rg_ignore_dirs, ","),
   table.concat(rg_ignore_files, ",")
 )
+
+-- Keep globs separate: slash-containing alternatives would anchor basename patterns to cwd.
+local rg_content_ignore_args = { rg_files_ignore_arg }
+for _, pattern in ipairs(rg_content_ignore_patterns) do
+  table.insert(rg_content_ignore_args, "--glob " .. vim.fn.shellescape("!" .. pattern))
+end
+local rg_content_ignore_arg = table.concat(rg_content_ignore_args, " ")
 
 -- Reusable rg option groups
 local rg_base_opts = "--hidden"
 local rg_perf_opts = "--max-filesize=2M"
 
-local rg_files_cmd = ("rg --no-ignore-vcs --files %s %s"):format(rg_base_opts, rg_ignore_arg)
+local rg_files_cmd = ("rg --no-ignore-vcs --files %s %s"):format(rg_base_opts, rg_files_ignore_arg)
 
 -- Wrapper: builtin file_edit_or_qf + jump to first qf entry + add files to buffers
 local function file_edit_or_qf_cfirst(selected, opts)
@@ -182,7 +219,7 @@ fzf_lua.setup({
       "--max-columns=512",
       "--max-columns-preview",
       rg_perf_opts,
-      rg_ignore_arg,
+      rg_content_ignore_arg,
     }, " "),
   },
 })
@@ -265,7 +302,7 @@ local function wax_files()
 
   local cmd = ("rg %s %s --files %s"):format(
     rg_base_opts,
-    rg_ignore_arg,
+    rg_files_ignore_arg,
     table.concat(abs_paths, " ")
   )
 
