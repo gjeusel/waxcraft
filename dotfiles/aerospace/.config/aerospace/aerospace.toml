@@ -147,6 +147,7 @@ alt-shift-tab = 'focus --wrap-around dfs-prev'
 
 # Rules stop at the first match: popup exceptions must precede general app routing.
 # DevTools only move; do not float them or let inspected-page titles trigger auth rules.
+# Hammerspoon handles late DevTools titles once per newly created window ID.
 [[on-window-detected]]
 if = '''test %{app-bundle-id} ~= '^(com\.brave\.Browser|com\.google\.Chrome|org\.mozilla\.firefox|org\.mozilla\.firefoxdeveloperedition|app\.zen-browser\.zen|com\.apple\.Safari)$' && test %{window-title} ~= '^(DevTools|Developer Tools|Outils de développement|Outils pour les développeurs|Web Inspector|Inspecteur web)(\s*[-–—:].*)?$' '''
 run = 'move-node-to-workspace 0'
@@ -374,7 +375,7 @@ run = 'move-node-to-workspace 3'
 
 
 # The main window must win over call keywords in channel names and floating-popup detection.
-# Hammerspoon separately undoes Slack's automatic minimization while screen sharing.
+# Initial routing only: Hammerspoon undoes Slack's minimization without forcing a workspace.
 [[on-window-detected]]
 if.app-id = 'com.tinyspeck.slackmacgap'
 if.window-title-regex-substring = '- Slack \[(principal|main)\]$'

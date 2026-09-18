@@ -71,26 +71,122 @@ macshotCopyWatcher = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, functi
 end)
 macshotCopyWatcher:start()
 
-local function routeRestoredSlackWindow(windowId, attemptsLeft)
-  hs.task
-    .new("/run/current-system/sw/bin/aerospace", function(exitCode, _, stderr)
-      if exitCode == 0 then
-        return
+local browserBundleIDs = {
+  ["com.brave.Browser"] = true,
+  ["com.google.Chrome"] = true,
+  ["org.mozilla.firefox"] = true,
+  ["org.mozilla.firefoxdeveloperedition"] = true,
+  ["app.zen-browser.zen"] = true,
+  ["com.apple.Safari"] = true,
+}
+local devtoolsTitlePrefixes = {
+  "DevTools",
+  "Developer Tools",
+  "Outils de développement",
+  "Outils pour les développeurs",
+  "Web Inspector",
+  "Inspecteur web",
+}
+local newWindowStates = {}
+
+local function isDevtoolsWindow(window)
+  local application = window:application()
+  if not application or not browserBundleIDs[application:bundleID()] then
+    return false
+  end
+
+  local title = window:title() or ""
+  for _, prefix in ipairs(devtoolsTitlePrefixes) do
+    if title:sub(1, #prefix) == prefix then
+      local suffix = title:sub(#prefix + 1):match("^%s*(.*)")
+      if suffix == "" or suffix:match("^[-:]") or suffix:match("^–") or suffix:match("^—") then
+        return true
       end
-      -- AeroSpace can take a moment to rediscover an unminimized window.
-      if attemptsLeft > 1 then
-        hs.timer.doAfter(0.1, function()
-          routeRestoredSlackWindow(windowId, attemptsLeft - 1)
-        end)
-      else
-        hs.printf("Could not restore Slack to workspace 4: %s", stderr)
-      end
-    end, { "move-node-to-workspace", "--window-id", tostring(windowId), "4" })
-    :start()
+    end
+  end
+
+  return false
 end
 
+local function routeNewDevtoolsWindow(windowId, state, attemptsLeft)
+  local window = hs.window.get(windowId)
+  if newWindowStates[windowId] ~= state or not window or not isDevtoolsWindow(window) then
+    state.routing = false
+    return
+  end
+
+  local function completed(exitCode, _, stderr)
+    if newWindowStates[windowId] ~= state then
+      return
+    end
+    if exitCode == 0 then
+      state.handled = true
+      state.routing = false
+    elseif attemptsLeft > 1 then
+      -- Window creation/title notifications can precede AeroSpace's discovery of the ID.
+      hs.timer.doAfter(0.1, function()
+        routeNewDevtoolsWindow(windowId, state, attemptsLeft - 1)
+      end)
+    else
+      state.handled = true
+      state.routing = false
+      hs.printf("Could not route DevTools window %s: %s", windowId, stderr)
+    end
+  end
+
+  local task = hs.task.new("/run/current-system/sw/bin/aerospace", completed, {
+    "move-node-to-workspace",
+    "--window-id",
+    tostring(windowId),
+    "0",
+  })
+  if not task or not task:start() then
+    completed(-1, "", "could not start AeroSpace")
+  end
+end
+
+local function isTrackedWindow(window)
+  local application = window:application()
+  local bundleID = application and application:bundleID()
+  return bundleID == "com.tinyspeck.slackmacgap" or browserBundleIDs[bundleID] == true
+end
+
+-- Track identity, not current workspace: title changes must never undo a later manual move.
+-- Seed directly from AX: window.filter can defer registering apps without a focused window,
+-- then emit windowCreated for their pre-existing windows after subscriptions have started.
+for _, window in ipairs(hs.window.allWindows()) do
+  local windowId = window:id()
+  if windowId and isTrackedWindow(window) then
+    newWindowStates[windowId] = { handled = true }
+  end
+end
+local newWindowFilter = hs.window.filter.new(isTrackedWindow)
+newWindowFilter:subscribe({
+  hs.window.filter.windowCreated,
+  hs.window.filter.windowTitleChanged,
+  hs.window.filter.windowDestroyed,
+}, function(window, _, event)
+  local windowId = window:id()
+  if not windowId then
+    return
+  end
+  if event == hs.window.filter.windowDestroyed then
+    newWindowStates[windowId] = nil
+    return
+  end
+  if event == hs.window.filter.windowCreated and not newWindowStates[windowId] then
+    newWindowStates[windowId] = {}
+  end
+
+  local state = newWindowStates[windowId]
+  if state and not state.handled and not state.routing and isDevtoolsWindow(window) then
+    state.routing = true
+    routeNewDevtoolsWindow(windowId, state, 10)
+  end
+end)
+
+-- Slack's workspace rules run only at detection in AeroSpace; do not reapply them on restore.
 -- Slack minimizes its main window when screen sharing. Include minimized windows in this filter.
--- Unminimizing can reinsert it on the current AeroSpace workspace; route it back without following.
 -- Intentional minimization of the main Slack window is also undone, after a one-second delay.
 local slackMainWindowRestoreTimers = {}
 local slackMainWindowFilter = hs.window.filter.new(false):setAppFilter("Slack", {
@@ -124,17 +220,17 @@ slackMainWindowFilter:subscribe({
         and mainWindow:isMinimized()
       then
         mainWindow:unminimize()
-        routeRestoredSlackWindow(windowId, 10)
       end
     end)
   end
 end, true)
 
-local slackSharingBarPositioning = {}
 local function positionSlackSharingBar(window)
   local application = window:application()
   local size = window:size()
   local windowId = window:id()
+  local state = newWindowStates[windowId]
+  -- Only position newly created IDs once; existing or manually moved bars must stay put.
   -- The sharing controls have the generic title "Slack"; exclude full-size/loading windows.
   if
     not application
@@ -144,16 +240,25 @@ local function positionSlackSharingBar(window)
     or size.h > 140
     or size.w < 300
     or size.w < size.h * 3
-    or slackSharingBarPositioning[windowId]
+    or not state
+    or state.handled
+    or state.positioning
   then
     return
   end
 
-  slackSharingBarPositioning[windowId] = true
+  state.positioningAttempts = (state.positioningAttempts or 0) + 1
+  if state.positioningAttempts > 10 then
+    state.handled = true
+    hs.printf("Could not position Slack sharing toolbar %s after 10 attempts", windowId)
+    return
+  end
+
+  state.positioning = true
   local task = hs.task.new("/run/current-system/sw/bin/aerospace", function(exitCode, stdout)
-    slackSharingBarPositioning[windowId] = nil
+    state.positioning = false
     local bar = hs.window.get(windowId)
-    if exitCode ~= 0 or not bar or bar:title() ~= "Slack" then
+    if newWindowStates[windowId] ~= state or exitCode ~= 0 or not bar or bar:title() ~= "Slack" then
       return
     end
     local ok, workspaces = pcall(hs.json.decode, stdout)
@@ -176,6 +281,7 @@ local function positionSlackSharingBar(window)
         if math.abs(barFrame.x - x) > 1 or math.abs(barFrame.y - y) > 1 then
           bar:setTopLeft({ x = x, y = y })
         end
+        state.handled = true
         return
       end
     end
@@ -186,8 +292,8 @@ local function positionSlackSharingBar(window)
     "%{workspace} %{monitor-appkit-nsscreen-screens-id}",
     "--json",
   })
-  if not task:start() then
-    slackSharingBarPositioning[windowId] = nil
+  if not task or not task:start() then
+    state.positioning = false
   end
 end
 
