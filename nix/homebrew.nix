@@ -72,6 +72,7 @@
       "orbstack" # docker & linux VMs
 
       "betterdisplay" # display settings
+      "daisydisk" # disk space analyzer
       "pika" # equivalent of ColorSlurp (get the hex code of a color)
 
       # "shottr" # screenshot
@@ -82,6 +83,7 @@
       "transmission" # torrent downloader
 
       "modrinth" # minecraft virtual env
+      "steam"
 
       "spotify"
       "ytmdesktop-youtube-music"

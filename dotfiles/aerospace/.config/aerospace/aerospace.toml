@@ -463,6 +463,14 @@ run = 'move-node-to-workspace 6'
 
 
 [[on-window-detected]]
+if.app-id = 'com.valvesoftware.steam'
+run = ['layout floating', 'move-node-to-workspace 8']
+
+[[on-window-detected]]
+if.app-id = 'com.valvesoftware.steam.helper'
+run = ['layout floating', 'move-node-to-workspace 8']
+
+[[on-window-detected]]
 if.app-id = 'ModrinthApp'        # Minecraft
 run = 'move-node-to-workspace 9'
 

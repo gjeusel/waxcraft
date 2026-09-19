@@ -131,10 +131,13 @@ in {
 
       logging_collector = true;
       log_directory = "log";
-      log_filename = "postgresql-%Y-%m-%d_%H%M%S.log";
-      log_rotation_age = "1d";
-      log_rotation_size = "1GB";
-      log_statement = "all";
+      # Reuse 24 hourly files, overwriting yesterday's log on time-based rotation.
+      # This bounds the file count, not total bytes; legacy dated logs need manual cleanup.
+      log_filename = "postgresql-%H.log";
+      log_rotation_age = "1h";
+      log_rotation_size = 0;
+      log_truncate_on_rotation = true;
+      log_statement = "none";
       log_timezone = "Europe/Brussels";
       datestyle = "iso, mdy";
       timezone = "Europe/Brussels";
