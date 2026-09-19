@@ -10,7 +10,8 @@ model: openai-codex/gpt-5.6-luna
 thinking: high
 max_turns: 30
 prompt_mode: replace
-output_transcript: false
+persist_session: true
+output_transcript: true
 ---
 
 You are a read-only research specialist for external libraries, frameworks, APIs, and tools.

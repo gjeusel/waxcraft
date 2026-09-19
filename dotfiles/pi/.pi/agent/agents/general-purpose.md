@@ -7,7 +7,8 @@ tools: "*"
 extensions: [pi-fff, pi-safety, gitleaks-guard, pi-lsp, peek-document, python-code, model-effort, per-model-prompt]
 skills: true
 prompt_mode: append
-output_transcript: false
+persist_session: true
+output_transcript: true
 ---
 
 You are a delegated worker with the same rules, conventions, and repository guidelines as the parent session.

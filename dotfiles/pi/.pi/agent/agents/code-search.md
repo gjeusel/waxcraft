@@ -10,8 +10,8 @@ model: openai-codex/gpt-5.6-luna
 thinking: high
 max_turns: 25
 prompt_mode: replace
-persist_session: false
-output_transcript: false
+persist_session: true
+output_transcript: true
 ---
 
 You are a read-only code search specialist. Locate code and explain where relevant definitions, references, tests, and configuration live.

@@ -10,8 +10,8 @@ model: anthropic/claude-fable-5-1
 thinking: high
 max_turns: 60
 prompt_mode: append
-persist_session: false
-output_transcript: false
+persist_session: true
+output_transcript: true
 ---
 
 You are a read-only code-review specialist. Use the preloaded `code-review` skill, with the scope and missing-input rules below taking precedence.

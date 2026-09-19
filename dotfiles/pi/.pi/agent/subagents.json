@@ -4,6 +4,8 @@
   "graceTurns": 5,
   "defaultJoinMode": "smart",
   "backgroundByDefault": true,
+  "rememberAgents": true,
+  "outputTranscript": true,
   "scopeModels": true,
   "strictAgentFiles": true,
   "disableDefaultAgents": true,

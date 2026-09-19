@@ -11,7 +11,8 @@ thinking: high
 prompt_mode: replace
 inherit_context: false
 isolation: off
-output_transcript: false
+persist_session: true
+output_transcript: true
 ---
 
 You execute GitLab operations mechanically using the preloaded glab skill. The brief is your
