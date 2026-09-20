@@ -160,6 +160,64 @@ function literalText(node: Node | null): string | undefined {
   }
 }
 
+// Describe a path without evaluating expansions. Quoted scalar expansions cannot add argv tokens;
+// unquoted substitutions are accepted only for id's numeric user/group output.
+function findPathShape(node: Node, idShadowed: boolean): string | undefined {
+  const literal = literalText(node);
+  if (literal !== undefined) return literal;
+
+  if (node.type === 'string') {
+    const parts = node.namedChildren.map((child) => {
+      if (child.type === 'string_content') return child.text;
+      if (child.type === 'command_substitution') return '?';
+      if (['simple_expansion', 'expansion'].includes(child.type) && !/[@*]/.test(child.text)) return '?';
+      return undefined;
+    });
+    return parts.every((part) => part !== undefined) ? parts.join('') : undefined;
+  }
+
+  if (node.type === 'concatenation') {
+    const parts = node.namedChildren.map((child) => findPathShape(child, idShadowed));
+    return parts.every((part) => part !== undefined) ? parts.join('') : undefined;
+  }
+
+  if (node.type === 'command_substitution' && node.namedChildCount === 1) {
+    const command = node.namedChildren[0];
+    if (command.type !== 'command' || command.namedChildCount !== 2) return undefined;
+    const name = literalText(command.childForFieldName('name'));
+    const args = command.childrenForFieldName('argument').map(literalText);
+    const numericId = (name === 'id' && !idShadowed) || name === '/usr/bin/id';
+    if (numericId && args.length === 1 && ['-u', '-g'].includes(args[0] ?? '')) {
+      return '0';
+    }
+  }
+
+  return undefined;
+}
+
+function inspectableFindArguments(
+  nodes: Node[],
+  literals: Array<string | undefined>,
+  idShadowed: boolean,
+): Array<string | undefined> {
+  let expressionStarted = false;
+  return literals.map((literal, index) => {
+    if (expressionStarted) return literal;
+    if (literal !== undefined) {
+      const leadingOption = ['-H', '-L', '-P', '-E', '-X', '-s', '-d', '--'].includes(literal);
+      if (!leadingOption && (literal.startsWith('-') || ['!', '('].includes(literal))) {
+        expressionStarted = true;
+      }
+      return literal;
+    }
+
+    const shape = findPathShape(nodes[index], idShadowed);
+    // A literal slash distinguishes an expanded path from a possible find predicate. Keep unknown
+    // predicates and expression operands unresolved so the existing fail-closed checks still apply.
+    return shape?.includes('/') ? shape : undefined;
+  });
+}
+
 function gitSubcommand(args: string[]): { name: string; rest: string[] } | undefined {
   const optionsWithValues = new Set(['-C', '-c', '--git-dir', '--work-tree', '--namespace', '--config-env']);
   const invocation = commandAfterOptions(args, optionsWithValues);
@@ -619,12 +677,23 @@ function redirectedInputScripts(commandNode: Node): ScriptCandidates {
   return { scripts, dynamic };
 }
 
-function inspectTree(parser: Parser, source: string, rules: ShellDenyRule[], depth: number): ShellDenial | undefined {
+function inspectTree(
+  parser: Parser,
+  source: string,
+  rules: ShellDenyRule[],
+  depth: number,
+  inheritedIdShadowed = false,
+): ShellDenial | undefined {
   const tree = parser.parse(source);
   if (!tree) return deny('parse-error', 'tree-sitter returned no syntax tree');
   try {
     if (tree.rootNode.hasError) return deny('parse-error', 'tree-sitter could not parse the Bash script reliably');
 
+    const idShadowed =
+      inheritedIdShadowed ||
+      tree.rootNode
+        .descendantsOfType('function_definition')
+        .some((definition) => literalText(definition.childForFieldName('name')) === 'id');
     let pathReplaced = false;
     let usesPlainRemoval = false;
     const nestedScripts: string[] = [];
@@ -645,7 +714,12 @@ function inspectTree(parser: Parser, source: string, rules: ShellDenyRule[], dep
       const name = literalText(node.childForFieldName('name'));
       if (!name) continue;
       const argumentNodes = node.childrenForFieldName('argument');
-      const literalArguments = argumentNodes.map((argument) => literalText(argument));
+      const literals = argumentNodes.map((argument) => literalText(argument));
+      // Custom find rules may depend on actual path values, so do not substitute shapes for them.
+      const literalArguments =
+        basename(name) === 'find' && !rules.some((rule) => rule.command === 'find')
+          ? inspectableFindArguments(argumentNodes, literals, idShadowed)
+          : literals;
       const args = literalArguments.filter((argument): argument is string => argument !== undefined);
       const rootInvocation: Invocation = {
         name,
@@ -720,7 +794,7 @@ function inspectTree(parser: Parser, source: string, rules: ShellDenyRule[], dep
       return deny('nesting-limit', 'nested shell script depth exceeds the inspection limit');
     }
     for (const script of nestedScripts) {
-      const denial = inspectTree(parser, script, rules, depth + 1);
+      const denial = inspectTree(parser, script, rules, depth + 1, idShadowed);
       if (denial) return denial;
     }
     return undefined;

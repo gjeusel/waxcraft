@@ -128,6 +128,29 @@ const blockedCommands: Array<[command: string, rule: ShellDenialRule]> = [
   ['git "$verb" tracked.txt', 'dynamic-arguments'],
   ['git config alias.d "$payload"', 'dynamic-arguments'],
   ['find . "$predicate"', 'dynamic-arguments'],
+  ['find "$predicate" -print', 'dynamic-arguments'],
+  ['find /tmp/$paths -print', 'dynamic-arguments'],
+  ['find /tmp/$(printf "x -delete") -print', 'dynamic-arguments'],
+  ['find "${roots[@]}/files" -print', 'dynamic-arguments'],
+  ['find "$@/files" -print', 'dynamic-arguments'],
+  ['find "$*/files" -print', 'dynamic-arguments'],
+  ['find /tmp/user-$(./id -u) -print', 'dynamic-arguments'],
+  ['find /tmp/user-$(/tmp/id -u) -print', 'dynamic-arguments'],
+  ["id() { printf 'x -delete'; }; find /tmp/user-$(id -u) -print", 'dynamic-arguments'],
+  [
+    `id() { printf 'x -delete'; }; export -f id; bash -c 'find /tmp/user-$(id -u) -print'`,
+    'dynamic-arguments',
+  ],
+  ['find "$HOME/src" "$predicate"', 'dynamic-arguments'],
+  ['find "$HOME/src" -name "$pattern"', 'dynamic-arguments'],
+  ['find "$HOME/src" -delete', 'find-delete'],
+  ['find /tmp/user-$(id -u) -delete', 'find-delete'],
+  ['find "$HOME/src" -exec /bin/rm {} +', 'removal-path-bypass'],
+  ['find "$HOME/src" -exec "$command" {} +', 'dynamic-arguments'],
+  ['find "$HOME/src" -exec git reset --hard \\;', 'git-reset-hard'],
+  ['find "$HOME/src" -exec bash -c "$SCRIPT" \\;', 'dynamic-arguments'],
+  ['find "/tmp/$(/bin/rm file)" -print', 'removal-path-bypass'],
+  ['find "$HOME/src" -exec kubectl delete pod doomed \\;', 'configured'],
 ];
 
 const allowedCommands = [
@@ -186,6 +209,15 @@ const allowedCommands = [
   'gws gmail users messages get --params userId=me,id=abc',
   'gws drive files delete --params fileId=abc',
   'find src/rm -type f',
+  'find "$HOME/src" -type f',
+  'find -L "$HOME/src" -type f',
+  'find ./"$directory" -print',
+  'find "$(pwd)/src" -print',
+  'find /tmp/user-$(id -u) -print',
+  'find /tmp/group-$(id -g) -print',
+  'find /tmp/user-$(/usr/bin/id -u) -print',
+  'find "$HOME/src" -exec rm {} +',
+  'find "$HOME/src" -exec rg TODO {} +',
   'timeout --preserve-status 5 git status',
   'command -v rm',
   'command -pv rm',
@@ -209,6 +241,21 @@ for (const command of allowedCommands) {
     assert.equal(inspectBashCommand(parser, command, configuredRules), undefined);
   });
 }
+
+test('allows the session lookup with expanded temporary paths and a following command', () => {
+  const command =
+    'find ~/.pi/agent/sessions /tmp/pi-subagents-$(id -u) "${TMPDIR%/}/pi-subagents-$(id -u)" ' +
+    "-type f -name '*01a0bac7-6191-7106-a3f8-d669d4fab338*' 2>/dev/null; " +
+    "rg -n 'export|HTML' " +
+    '/Users/gjeusel/.local/lib/node_modules/@earendil-works/pi-coding-agent/docs/sessions.md ' +
+    '/Users/gjeusel/.local/lib/node_modules/@earendil-works/pi-coding-agent/README.md';
+  assert.equal(inspectBashCommand(parser, command, configuredRules), undefined);
+});
+
+test('expanded find paths do not bypass custom argument rules', () => {
+  const rules: ShellDenyRule[] = [{ command: 'find', argv: { contains: ['/protected'] } }];
+  assert.equal(inspectBashCommand(parser, 'find "$HOME/src" -print', rules)?.rule, 'dynamic-arguments');
+});
 
 test('sudo path-like arguments do not look like a removal command', () => {
   assert.equal(inspectBashCommand(parser, 'sudo ls tools/rm', []), undefined);
