@@ -5,7 +5,7 @@ session_name: renewex
 
 windows:
   - window_name: rnx-cli
-    layout: 21f2,158x47,0,0[158x36,0,0{79x36,0,0,0,78x36,80,0,2},158x10,0,37,1]
+    layout: 2273,159x47,0,0[159x36,0,0{79x36,0,0,0,79x36,80,0,2},159x10,0,37,1]
     shell_command_before:
       - mamba activate rnx-cli
       - cd ~/src/rnx-cli
@@ -16,7 +16,7 @@ windows:
 
   - window_name: zefire
     focus: true
-    layout: 21f2,158x47,0,0[158x36,0,0{79x36,0,0,0,78x36,80,0,2},158x10,0,37,1]
+    layout: 2273,159x47,0,0[159x36,0,0{79x36,0,0,0,79x36,80,0,2},159x10,0,37,1]
     shell_command_before:
       - mamba activate zefire-prev
       - cd ~/src/zefire
@@ -26,7 +26,7 @@ windows:
       -
 
   - window_name: venturi
-    layout: 21f2,158x47,0,0[158x36,0,0{79x36,0,0,0,78x36,80,0,2},158x10,0,37,1]
+    layout: 2273,159x47,0,0[159x36,0,0{79x36,0,0,0,79x36,80,0,2},159x10,0,37,1]
     shell_command_before:
       - mamba activate venturi
       - cd ~/src/venturi
@@ -54,7 +54,7 @@ windows:
       -
 
   - window_name: anthracit
-    layout: 21f2,158x47,0,0[158x36,0,0{79x36,0,0,0,78x36,80,0,2},158x10,0,37,1]
+    layout: 2273,159x47,0,0[159x36,0,0{79x36,0,0,0,79x36,80,0,2},159x10,0,37,1]
     shell_command_before:
       - cd ~/src/anthracit
       - source .venv/bin/activate
