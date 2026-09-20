@@ -14,19 +14,25 @@ local function start()
           return
         end
 
+        local screens = hs.screen.allScreens()
         for _, entry in ipairs(windows) do
-          local window = hs.window.get(entry["window-id"])
           -- Both APIs use the same 1-based NSScreen.screens ordering, not AeroSpace monitor IDs.
-          local screen = hs.screen.allScreens()[entry["monitor-appkit-nsscreen-screens-id"]]
-          if entry["window-layout"] == "floating" and window and screen then
-            local frame = window:frame()
-            local screenFrame = screen:frame()
-            local x =
-              math.max(screenFrame.x, math.min(frame.x, screenFrame.x + screenFrame.w - frame.w))
-            local y =
-              math.max(screenFrame.y, math.min(frame.y, screenFrame.y + screenFrame.h - frame.h))
-            if math.abs(frame.x - x) > 1 or math.abs(frame.y - y) > 1 then
-              window:setTopLeft({ x = x, y = y })
+          local screen = screens[entry["monitor-appkit-nsscreen-screens-id"]]
+          if entry["window-layout"] == "floating" and screen and entry["app-pid"] then
+            -- hs.window.get scans every app through AX. Query only the floating window's owner
+            -- so unrelated slow apps cannot stall input on every workspace change.
+            local application = hs.application.applicationForPID(entry["app-pid"])
+            local window = application and application:getWindow(entry["window-id"])
+            if window then
+              local frame = window:frame()
+              local screenFrame = screen:frame()
+              local x =
+                math.max(screenFrame.x, math.min(frame.x, screenFrame.x + screenFrame.w - frame.w))
+              local y =
+                math.max(screenFrame.y, math.min(frame.y, screenFrame.y + screenFrame.h - frame.h))
+              if math.abs(frame.x - x) > 1 or math.abs(frame.y - y) > 1 then
+                window:setTopLeft({ x = x, y = y })
+              end
             end
           end
         end
@@ -35,7 +41,7 @@ local function start()
         "--workspace",
         "focused",
         "--format",
-        "%{window-id} %{window-layout} %{monitor-appkit-nsscreen-screens-id}",
+        "%{window-id} %{app-pid} %{window-layout} %{monitor-appkit-nsscreen-screens-id}",
         "--json",
       })
       :start()
