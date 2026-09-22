@@ -42,6 +42,34 @@ Claude Code subprocess. Authenticate inside Pi and select an `anthropic/claude-*
 Pi Black requires Pi 0.84.1 or newer. Its Claude Code request compatibility is version-specific
 and unofficial; revalidate subscription access when upgrading. API-key requests remain unchanged.
 
+## Mistral EU inference
+
+`models.json` registers `mistral-eu/zai-glm-5-3` using `MISTRAL_API_KEY` from the environment.
+Select it inside Pi (opening `/model` reloads `models.json`):
+
+```text
+/model mistral-eu/zai-glm-5-3
+```
+
+Or start a new session:
+
+```bash
+pi --provider mistral-eu --model zai-glm-5-3
+```
+
+The separate provider targets only `https://api.eu.mistral.ai`, with no global fallback, and leaves
+Pi's built-in `mistral` provider and default model unchanged. It uses Pi's native
+`mistral-conversations` transport for Chat Completions, including streamed reasoning and function
+calls; this transport appends `/v1/chat/completions`, so the base URL must not include `/v1`.
+
+[GLM 5.3](https://docs.mistral.ai/models/zai-glm-5-3) is text-only, with a 1,048,576-token context
+(confirmed by the EU models API) and 131,072-token maximum output. Configured USD prices per million
+tokens include the [regional 10% surcharge](https://docs.mistral.ai/en/inference/regional-inference):
+$1.54 input, $0.154 cached input, and $4.84 output. Regional inference concerns inference processing,
+not all control-plane data or zero data retention. Model availability is region-specific; recheck
+`GET https://api.eu.mistral.ai/v1/models` before adding models from the
+[Mistral catalog](https://docs.mistral.ai/models).
+
 ## Extensions
 
 ```text
@@ -53,7 +81,7 @@ extensions/
 ├── peek-document/          read PDF and Office files
 ├── per-model-prompt/       model-specific directives
 ├── pi-builtin-adjustments/ quieter built-ins
-├── pi-safety/              Bash command checks and safe deletion shims
+├── pi-safety/              Bash command checks, jev auto mode, and safe deletion shims
 ├── python-code/            sandboxed Python
 ├── rant/                   log preventable failures
 ├── statusbar/              minimal one-line footer
@@ -134,3 +162,18 @@ dynamically constructed executable names remain intentionally unresolved.
 Use `/no-safety` to disable tree-sitter command checks for the current session.
 The rm/rmdir-to-trash routing remains active. After editing shell rules or
 extension code, run `/reload` inside Pi.
+
+### Auto mode
+
+`/toggle-auto-mode` adds a [pi-verdict](https://github.com/jesset/pi-verdict)-style permission
+gate on top of the shell rules: every model-generated Bash command that the rules let through is
+sent, together with a condensed transcript (recent user messages and tool calls, no tool results),
+to TypeSafe's [jev](https://docs.typesafe.ai) decisions model, which answers `allow`, `ask`, or
+`deny` with calibrated probabilities. `allow` runs silently, `deny` blocks with a notification, and
+`ask` opens a confirmation dialog. A verdict below `autoMode.minConfidence` (`pi-safety.jsonc`,
+default `0.5`) is demoted to `ask`, and so is an unreachable classifier; without a UI, `ask`
+becomes a block so nothing runs silently.
+
+Auto mode is off by default and session-scoped; `PI_AUTO_MODE=1` starts it on. It needs
+`TYPESAFE_AI_API_KEY` in the environment. While on, the statusbar shows `auto-mode` before the
+context percentage.

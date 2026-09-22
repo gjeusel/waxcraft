@@ -1,5 +1,26 @@
 {
   "providers": {
+    "mistral-eu": {
+      "baseUrl": "https://api.eu.mistral.ai",
+      "api": "mistral-conversations",
+      "apiKey": "$MISTRAL_API_KEY",
+      "models": [
+        {
+          "id": "zai-glm-5-3",
+          "name": "GLM 5.3 (Mistral EU)",
+          "reasoning": true,
+          "input": ["text"],
+          "contextWindow": 1048576,
+          "maxTokens": 131072,
+          "cost": {
+            "input": 1.54,
+            "output": 4.84,
+            "cacheRead": 0.154,
+            "cacheWrite": 0
+          }
+        }
+      ]
+    },
     "openrouter": {
       "apiKey": "$OPENROUTER_API_KEY",
       "models": [

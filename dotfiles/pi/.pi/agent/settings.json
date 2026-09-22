@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.86.1",
+  "lastChangelogVersion": "0.87.0",
   "theme": "nord",
   "shellPath": "/run/current-system/sw/bin/bash",
   "defaultProjectTrust": "never",
@@ -13,6 +13,7 @@
     "openai-codex/gpt-5.6-luna",
     "vercel-ai-gateway/openai/gpt-5.6-sol",
     "vercel-ai-gateway/zai/glm-5.3",
+    "mistral-eu/zai-glm-5-3",
     "vercel-ai-gateway/zai/glm-5.3-flash",
     "openrouter/z-ai/glm-5.3-flash",
     "moonshotai/kimi-k3",

@@ -2,9 +2,10 @@
  * statusbar — minimalist single-line footer.
  * Replaces the built-in two/three-line footer (pwd+branch / token stats /
  * extension statuses, e.g. MCP info) with one line:
- *   <repo path>       <model> · <effort> · [fast] · [session]       <context %>
+ *   <repo path>       <model> · <effort> · [fast] · [session]       [auto-mode ·] <context %>
  * left-aligned / centered / right-aligned. Extension statuses (MCP, etc.)
- * and token/cost stats are deliberately not shown.
+ * and token/cost stats are deliberately not shown, except pi-safety's
+ * auto-mode indicator, which is displayed before the context size while on.
  */
 import { isAbsolute, relative, resolve, sep } from 'node:path';
 import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
@@ -28,7 +29,8 @@ export default function (pi: ExtensionAPI) {
           const cwd = shortenCwd(ctx.sessionManager.getCwd(), process.env.HOME);
           let left = cwd;
 
-          const usageStatus = footerData.getExtensionStatuses().get('usage');
+          const extensionStatuses = footerData.getExtensionStatuses();
+          const usageStatus = extensionStatuses.get('usage');
           const isFast = usageStatus !== undefined && /^codex fast(?:\s|$)/u.test(usageStatus);
           const sessionName = pi.getSessionName();
           const truncatedSessionName = sessionName
@@ -45,7 +47,9 @@ export default function (pi: ExtensionAPI) {
           const usage = ctx.getContextUsage();
           const pct = usage?.percent ?? null;
           const pctPlain = pct === null ? '?%' : `${pct.toFixed(0)}%`;
-          const rightW = visibleWidth(pctPlain);
+          const autoModeStatus = extensionStatuses.get('auto-mode');
+          const right = autoModeStatus ? `${autoModeStatus} · ${pctPlain}` : pctPlain;
+          const rightW = visibleWidth(right);
           const maxCenter = Math.max(0, width - rightW - 2);
           if (visibleWidth(center) > maxCenter) {
             center = truncateToWidth(center, maxCenter, '…').replaceAll('\x1b[0m', '');
@@ -67,7 +71,7 @@ export default function (pi: ExtensionAPI) {
           // Truncate before applying the theme color. `truncateToWidth()` resets
           // ANSI styles before its ellipsis, which would otherwise make the
           // truncated suffix fall back to the terminal's bright default color.
-          const line = left + ' '.repeat(padL) + center + ' '.repeat(padR) + pctPlain;
+          const line = left + ' '.repeat(padL) + center + ' '.repeat(padR) + right;
           return [theme.fg('dim', truncateToWidth(line, width))];
         },
       };
