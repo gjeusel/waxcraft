@@ -38,3 +38,10 @@ test('rejects empty argv token predicates', () => {
     assert.match(result.errors.join('\n'), /expected at least one token/);
   }
 });
+
+test('parses autoMode.minConfidence and rejects out-of-range values', () => {
+  assert.equal(validateConfig({}).config.autoMode.minConfidence, 0.5);
+  assert.equal(validateConfig({ autoMode: { minConfidence: 0.7 } }).config.autoMode.minConfidence, 0.7);
+  assert.match(validateConfig({ autoMode: { minConfidence: 1.5 } }).errors.join('\n'), /between 0 and 1/);
+  assert.match(validateConfig({ autoMode: { threshold: 0.5 } }).errors.join('\n'), /unknown property "threshold"/);
+});

@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { parse, printParseErrorCode, type ParseError } from 'jsonc-parser';
+import { DEFAULT_MIN_CONFIDENCE } from './auto-mode.ts';
 
 export interface ArgvPredicate {
   empty?: boolean;
@@ -17,10 +18,16 @@ export interface ShellDenyRule {
   reason?: string;
 }
 
+export interface AutoModeConfig {
+  /** jev verdicts below this confidence (0–1) are demoted to a confirmation prompt. */
+  minConfidence: number;
+}
+
 export interface SafetyConfig {
   shell: {
     deny: ShellDenyRule[];
   };
+  autoMode: AutoModeConfig;
 }
 
 export interface LoadedSafetyConfig {
@@ -30,7 +37,8 @@ export interface LoadedSafetyConfig {
   errors: string[];
 }
 
-const EMPTY_CONFIG: SafetyConfig = { shell: { deny: [] } };
+const DEFAULT_AUTO_MODE: AutoModeConfig = { minConfidence: DEFAULT_MIN_CONFIDENCE };
+const EMPTY_CONFIG: SafetyConfig = { shell: { deny: [] }, autoMode: DEFAULT_AUTO_MODE };
 
 function agentDirectory(): string {
   return process.env.PI_CODING_AGENT_DIR || join(homedir(), '.pi', 'agent');
@@ -142,15 +150,37 @@ function parseShellRules(value: unknown, location: string, errors: string[]): Sh
   return rules;
 }
 
+function parseAutoMode(value: unknown, location: string, errors: string[]): AutoModeConfig {
+  if (value === undefined) return DEFAULT_AUTO_MODE;
+  if (!isRecord(value)) {
+    errors.push(`${location}: expected an object`);
+    return DEFAULT_AUTO_MODE;
+  }
+  rejectUnknownKeys(value, ['minConfidence'], location, errors);
+  const minConfidence = value.minConfidence;
+  if (minConfidence === undefined) return DEFAULT_AUTO_MODE;
+  if (typeof minConfidence !== 'number' || !(minConfidence >= 0 && minConfidence <= 1)) {
+    errors.push(`${location}.minConfidence: expected a number between 0 and 1`);
+    return DEFAULT_AUTO_MODE;
+  }
+  return { minConfidence };
+}
+
 export function validateConfig(value: unknown): { config: SafetyConfig; errors: string[] } {
   const errors: string[] = [];
   if (!isRecord(value)) return { config: EMPTY_CONFIG, errors: ['root: expected an object'] };
-  rejectUnknownKeys(value, ['shell'], 'root', errors);
+  rejectUnknownKeys(value, ['shell', 'autoMode'], 'root', errors);
   const shell = value.shell;
   if (shell !== undefined && !isRecord(shell)) errors.push('shell: expected an object');
   const shellRecord = isRecord(shell) ? shell : {};
   rejectUnknownKeys(shellRecord, ['deny'], 'shell', errors);
-  return { config: { shell: { deny: parseShellRules(shellRecord.deny, 'shell.deny', errors) } }, errors };
+  return {
+    config: {
+      shell: { deny: parseShellRules(shellRecord.deny, 'shell.deny', errors) },
+      autoMode: parseAutoMode(value.autoMode, 'autoMode', errors),
+    },
+    errors,
+  };
 }
 
 export function loadSafetyConfig(configPath = defaultConfigPath()): LoadedSafetyConfig {

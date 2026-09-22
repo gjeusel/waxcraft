@@ -71,3 +71,120 @@ test('/no-safety disables shell checks', async () => {
     restore();
   }
 });
+
+function jevFetch(choice: string, confidence: number): typeof fetch {
+  return async () =>
+    new Response(
+      JSON.stringify({
+        answers: { verdict: { type: 'choice', choice, probabilities: { [choice]: 1 }, confidence } },
+      }),
+    );
+}
+
+function autoModeContext(options: { hasUI: boolean; confirm?: boolean }) {
+  const statuses = new Map<string, string | undefined>();
+  const notifications: string[] = [];
+  const confirmations: string[] = [];
+  return {
+    statuses,
+    notifications,
+    confirmations,
+    ctx: {
+      hasUI: options.hasUI,
+      signal: undefined,
+      sessionManager: { getBranch: () => [] },
+      ui: {
+        setStatus: (name: string, status: string | undefined) => statuses.set(name, status),
+        notify: (message: string) => notifications.push(message),
+        confirm: async (_title: string, message: string) => {
+          confirmations.push(message);
+          return options.confirm ?? false;
+        },
+      },
+    },
+  };
+}
+
+test('/toggle-auto-mode requires the API key', async () => {
+  const { commands, restore } = await setup();
+  const previousKey = process.env.TYPESAFE_AI_API_KEY;
+  delete process.env.TYPESAFE_AI_API_KEY;
+  const { ctx, statuses, notifications } = autoModeContext({ hasUI: true });
+  try {
+    await commands.get('toggle-auto-mode')!.handler('', ctx);
+    assert.match(notifications.at(-1) ?? '', /TYPESAFE_AI_API_KEY/);
+    assert.equal(statuses.has('auto-mode'), false);
+  } finally {
+    if (previousKey !== undefined) process.env.TYPESAFE_AI_API_KEY = previousKey;
+    restore();
+  }
+});
+
+test('auto mode gates Bash through jev and toggles the footer status', async () => {
+  const { commands, handlers, restore } = await setup();
+  const previousKey = process.env.TYPESAFE_AI_API_KEY;
+  const previousFetch = globalThis.fetch;
+  process.env.TYPESAFE_AI_API_KEY = 'test-key';
+  const toolCall = handlers.get('tool_call')!;
+  const toggle = commands.get('toggle-auto-mode')!.handler;
+  try {
+    const { ctx, statuses, notifications, confirmations } = autoModeContext({ hasUI: true, confirm: false });
+    await toggle('', ctx);
+    assert.equal(statuses.get('auto-mode'), 'auto-mode');
+
+    // Deterministic rules still run first: no classifier call for a denied command.
+    globalThis.fetch = async () => {
+      throw new Error('classifier must not be called');
+    };
+    const ruleDenied = await toolCall({ type: 'tool_call', toolName: 'bash', input: { command: 'sudo ls' } }, ctx);
+    assert.match(ruleDenied.reason, /sudo denied in test/);
+
+    globalThis.fetch = jevFetch('allow', 0.95);
+    const allowed = { type: 'tool_call', toolName: 'bash', input: { command: 'ls' } };
+    assert.equal(await toolCall(allowed, ctx), undefined);
+    assert.match(allowed.input.command, /\nls$/);
+
+    globalThis.fetch = jevFetch('deny', 0.95);
+    const denied = await toolCall({ type: 'tool_call', toolName: 'bash', input: { command: 'cat ~/.ssh/id_ed25519' } }, ctx);
+    assert.equal(denied.block, true);
+    assert.match(denied.reason, /auto mode denied: jev: deny 100%/);
+    assert.match(notifications.at(-1) ?? '', /auto mode blocked/);
+
+    globalThis.fetch = jevFetch('ask', 0.95);
+    const declined = await toolCall({ type: 'tool_call', toolName: 'bash', input: { command: 'rm -rf build' } }, ctx);
+    assert.equal(declined.block, true);
+    assert.match(declined.reason, /user declined/);
+    assert.match(confirmations.at(-1) ?? '', /^rm -rf build\n\njev: ask 100%/);
+
+    // Low confidence and classifier failures both become a confirmation the user can accept.
+    const accepting = autoModeContext({ hasUI: true, confirm: true });
+    globalThis.fetch = jevFetch('deny', 0.2);
+    const lowConfidence = { type: 'tool_call', toolName: 'bash', input: { command: 'git push' } };
+    assert.equal(await toolCall(lowConfidence, accepting.ctx), undefined);
+    assert.match(accepting.confirmations.at(-1) ?? '', /below confidence floor 50%/);
+
+    globalThis.fetch = async () => new Response('overloaded', { status: 529 });
+    const unavailable = { type: 'tool_call', toolName: 'bash', input: { command: 'ls' } };
+    assert.equal(await toolCall(unavailable, accepting.ctx), undefined);
+    assert.match(accepting.confirmations.at(-1) ?? '', /classifier unavailable \(jev 529/);
+
+    // Without a UI, ask degrades to a block.
+    const headless = autoModeContext({ hasUI: false });
+    globalThis.fetch = jevFetch('ask', 0.95);
+    const blocked = await toolCall({ type: 'tool_call', toolName: 'bash', input: { command: 'ls' } }, headless.ctx);
+    assert.match(blocked.reason, /no UI to confirm/);
+    assert.equal(headless.confirmations.length, 0);
+
+    await toggle('', ctx);
+    assert.equal(statuses.get('auto-mode'), undefined);
+    globalThis.fetch = async () => {
+      throw new Error('classifier must not be called');
+    };
+    assert.equal(await toolCall({ type: 'tool_call', toolName: 'bash', input: { command: 'ls' } }, ctx), undefined);
+  } finally {
+    globalThis.fetch = previousFetch;
+    if (previousKey === undefined) delete process.env.TYPESAFE_AI_API_KEY;
+    else process.env.TYPESAFE_AI_API_KEY = previousKey;
+    restore();
+  }
+});
