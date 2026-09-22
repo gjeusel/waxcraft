@@ -1,6 +1,7 @@
 {
   "lastChangelogVersion": "0.86.1",
   "theme": "nord",
+  "shellPath": "/run/current-system/sw/bin/bash",
   "defaultProjectTrust": "never",
   "enableSkillCommands": true,
   "defaultProvider": "openai-codex",
