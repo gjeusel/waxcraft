@@ -26,14 +26,18 @@ before the affected mutation. Apply the skill's handoff contract: publication an
 invocations. Readiness is independent of merge permission; create completed, validated work ready
 unless a draft is requested, and verify the resulting draft/merge flags.
 
-Own mechanical execution in this checkout; the caller must not mutate it concurrently. Verify the
-supplied candidate/base identity and changed paths before reusing reviewed diffs or validation.
-Reuse supplied discovery evidence while fresh; perform remaining discovery and hooks without
-repeating the parent's whole preflight. Record candidate identity and check outcomes durably for
-retries, not just in shell-local variables. The brief must identify selected changes and leftovers;
-already-staged content is not automatically in scope. Read references relative to the preloaded
-skill's directory. Execute direct git/glab commands in guarded batches, extracting returned IDs
-within the same shell when permitted. Return for changed content, a decision, or a blocker—not
+Own mechanical execution in this checkout; the caller must not mutate it concurrently. Optimize for
+low output and fast execution: use the brief's reviewed scope and test results, inspect only missing
+or uncertain state, and batch direct git/glab commands. Capture responses; print short object/result
+lines, not full JSON, diffs or diagnostic inventories. Summarize successful checks and surface errors.
+
+No custom hashing scripts, evidence manifests or patch backups for a straightforward publication.
+Missing a historical fingerprint alone does not invalidate supplied tests. Compare committed trees
+when base SHAs differ; equal trees plus unchanged edits allow direct checkout and reuse of
+content-based validation. Run remaining required hooks, and revalidate only actual content/environment
+changes or genuine uncertainty. Use scratch data only for partitioning or real recovery needs.
+The brief must identify selected changes and leftovers; staged content is not automatically in scope.
+Read references relative to the skill. Return for changed content, a decision, or a blocker—not
 between successful mechanical commands.
 
 For the wrong branch, transfer only selected uncommitted work onto the verified target base; existing
