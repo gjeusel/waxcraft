@@ -6,8 +6,8 @@ description: Execute GitLab publishing with finalized content and explicit autho
 tools: "read, bash"
 extensions: [pi-safety, gitleaks-guard]
 skills: glab
-model: openai-codex/gpt-5.6-luna
-thinking: medium
+model: openai-codex/gpt-6-luna
+thinking: low
 prompt_mode: replace
 inherit_context: false
 isolation: off

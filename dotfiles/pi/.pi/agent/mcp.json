@@ -57,6 +57,13 @@
     },
     "sentry": {
       "url": "https://mcp.sentry.dev/mcp"
+    },
+    //
+    // One-time setup: `npx -y @auth0/auth0-mcp-server init`
+    // (device login, stores credentials in the macOS Keychain)
+    "auth0": {
+      "command": "npx",
+      "args": ["-y", "@auth0/auth0-mcp-server", "run"]
     }
   }
 }
