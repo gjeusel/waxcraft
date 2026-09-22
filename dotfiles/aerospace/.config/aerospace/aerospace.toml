@@ -375,10 +375,10 @@ run = 'move-node-to-workspace 3'
 
 
 # The main window must win over call keywords in channel names and floating-popup detection.
-# Initial routing only: Hammerspoon undoes Slack's minimization without forcing a workspace.
+# Hammerspoon also restores the main window here once when screen sharing minimizes it.
 [[on-window-detected]]
 if.app-id = 'com.tinyspeck.slackmacgap'
-if.window-title-regex-substring = '- Slack \[(principal|main)\]$'
+if.window-title-regex-substring = '- Slack( \[(principal|main)\])?$'
 run = ['layout tiling', 'move-node-to-workspace 4']
 
 # Send Slack floating popups to workspace 0, even when their titles lack call/share keywords.

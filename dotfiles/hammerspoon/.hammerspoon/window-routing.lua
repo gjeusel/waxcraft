@@ -87,7 +87,8 @@ local function start()
   -- Track identity, not current workspace: title changes must never undo a later manual move.
   -- Seed directly from AX: window.filter can defer registering apps without a focused window,
   -- then emit windowCreated for their pre-existing windows after subscriptions have started.
-  for _, window in ipairs(hs.window.allWindows()) do
+  local initialWindows = hs.window.allWindows()
+  for _, window in ipairs(initialWindows) do
     local windowId = window:id()
     if windowId and isTrackedWindow(window) then
       newWindowStates[windowId] = { handled = true }
@@ -118,65 +119,126 @@ local function start()
     end
   end)
 
-  -- Slack's workspace rules run only at detection in AeroSpace; do not reapply them on restore.
-  -- Slack minimizes its main window when screen sharing. Include minimized windows in this filter.
-  -- Intentional minimization of the main Slack window is also undone, after a one-second delay.
+  local slackMainTitles = { "%- Slack$", "%- Slack %[principal%]$", "%- Slack %[main%]$" }
+  local slackSharingSession
   local slackMainWindowRestoreTimers = {}
   local slackMainWindowFilter = hs.window.filter.new(false):setAppFilter("Slack", {
-    allowTitles = { "%- Slack %[principal%]$", "%- Slack %[main%]$" },
+    allowTitles = slackMainTitles,
   })
+
+  local function isSlackMainWindow(window)
+    local app = window and window:application()
+    if not app or app:bundleID() ~= "com.tinyspeck.slackmacgap" then
+      return false
+    end
+
+    for _, pattern in ipairs(slackMainTitles) do
+      if (window:title() or ""):match(pattern) then
+        return true
+      end
+    end
+
+    return false
+  end
+
+  local function routeRestoredSlackWindow(windowId, session, attemptsLeft)
+    local window = hs.window.get(windowId)
+    if slackSharingSession ~= session or not isSlackMainWindow(window) then
+      return
+    end
+
+    local function completed(exitCode, _, stderr)
+      if exitCode == 0 or slackSharingSession ~= session then
+        return
+      end
+      -- AeroSpace can take a moment to rediscover an unminimized window.
+      if attemptsLeft > 1 then
+        hs.timer.doAfter(0.1, function()
+          routeRestoredSlackWindow(windowId, session, attemptsLeft - 1)
+        end)
+      else
+        hs.printf("Could not restore Slack to workspace 4: %s", stderr)
+      end
+    end
+
+    local task = hs.task.new("/run/current-system/sw/bin/aerospace", completed, {
+      "move-node-to-workspace",
+      "--window-id",
+      tostring(windowId),
+      "4",
+    })
+    if not task or not task:start() then
+      completed(-1, "", "could not start AeroSpace")
+    end
+  end
+
+  local function restoreSlackMainWindow(window)
+    local session = slackSharingSession
+    local windowId = window:id()
+    if
+      not session
+      or not windowId
+      or session.restored[windowId]
+      or slackMainWindowRestoreTimers[windowId]
+      or not isSlackMainWindow(window)
+      or not window:isMinimized()
+    then
+      return
+    end
+
+    -- Consume the restoration before scheduling it: later manual minimization must stay put.
+    session.restored[windowId] = true
+    slackMainWindowRestoreTimers[windowId] = hs.timer.doAfter(1, function()
+      slackMainWindowRestoreTimers[windowId] = nil
+      local mainWindow = hs.window.get(windowId)
+      if
+        slackSharingSession == session
+        and isSlackMainWindow(mainWindow)
+        and mainWindow:isMinimized()
+      then
+        mainWindow:unminimize()
+        routeRestoredSlackWindow(windowId, session, 10)
+      end
+    end)
+  end
+
   slackMainWindowFilter:subscribe({
     hs.window.filter.windowMinimized,
     hs.window.filter.windowTitleChanged,
-  }, function(window)
-    local application = window:application()
-    if
-      application
-      and application:bundleID() == "com.tinyspeck.slackmacgap"
-      and window:isMinimized()
-    then
+    hs.window.filter.windowUnminimized,
+    hs.window.filter.windowDestroyed,
+  }, function(window, _, event)
+    if event == hs.window.filter.windowUnminimized or event == hs.window.filter.windowDestroyed then
       local windowId = window:id()
-      if slackMainWindowRestoreTimers[windowId] then
-        return
-      end
-      slackMainWindowRestoreTimers[windowId] = hs.timer.doAfter(1, function()
+      local timer = slackMainWindowRestoreTimers[windowId]
+      if timer then
+        timer:stop()
         slackMainWindowRestoreTimers[windowId] = nil
-        local mainWindow = hs.window.get(windowId)
-        local app = mainWindow and mainWindow:application()
-        local title = mainWindow and mainWindow:title() or ""
-        local isMainWindow = title:match("%- Slack %[principal%]$")
-          or title:match("%- Slack %[main%]$")
-        if
-          app
-          and app:bundleID() == "com.tinyspeck.slackmacgap"
-          and isMainWindow
-          and mainWindow:isMinimized()
-        then
-          mainWindow:unminimize()
-        end
-      end)
+      end
+      return
     end
-  end, true)
+
+    restoreSlackMainWindow(window)
+  end)
+
+  local function isSlackSharingBar(window)
+    local app = window:application()
+    local size = window:size()
+    -- The sharing controls have a generic title; exclude full-size/loading Slack windows.
+    return app
+      and app:bundleID() == "com.tinyspeck.slackmacgap"
+      and window:title() == "Slack"
+      and size.h >= 30
+      and size.h <= 140
+      and size.w >= 300
+      and size.w >= size.h * 3
+  end
 
   local function positionSlackSharingBar(window)
-    local application = window:application()
-    local size = window:size()
     local windowId = window:id()
     local state = newWindowStates[windowId]
     -- Only position newly created IDs once; existing or manually moved bars must stay put.
-    -- The sharing controls have the generic title "Slack"; exclude full-size/loading windows.
-    if
-      not application
-      or application:bundleID() ~= "com.tinyspeck.slackmacgap"
-      or window:title() ~= "Slack"
-      or size.h < 30
-      or size.h > 140
-      or size.w < 300
-      or size.w < size.h * 3
-      or not state
-      or state.handled
-      or state.positioning
-    then
+    if not isSlackSharingBar(window) or not state or state.handled or state.positioning then
       return
     end
 
@@ -195,7 +257,7 @@ local function start()
         newWindowStates[windowId] ~= state
         or exitCode ~= 0
         or not bar
-        or bar:title() ~= "Slack"
+        or not isSlackSharingBar(bar)
       then
         return
       end
@@ -235,20 +297,61 @@ local function start()
     end
   end
 
+  -- Reloading mid-share must not undo choices made before this listener started.
+  for _, window in ipairs(initialWindows) do
+    if isSlackSharingBar(window) and window:isVisible() then
+      slackSharingSession = slackSharingSession or { restored = {}, bars = {} }
+      slackSharingSession.bars[window:id()] = true
+    end
+  end
+  if slackSharingSession then
+    for _, window in ipairs(initialWindows) do
+      if isSlackMainWindow(window) then
+        slackSharingSession.restored[window:id()] = true
+      end
+    end
+  end
+
   -- AeroSpace ignores this toolbar: position it on workspace 0's display, not in its window tree.
   -- It may remain visible when that display switches workspaces.
   local slackSharingBarFilter = hs.window.filter.new(false):setAppFilter("Slack", {
     allowTitles = "^Slack$",
-    visible = true,
+    allowRoles = "*",
   })
-  -- Coalesce move/resize and display-change bursts before launching an AeroSpace query.
+  -- The toolbar is our share-session signal; minimization alone may be the user's choice.
+  -- Coalesce AX events so either order (main minimized / toolbar created) works.
   local slackSharingBarDebounce = hs.timer.delayed.new(0.2, function()
+    local bars = {}
     for _, window in ipairs(slackSharingBarFilter:getWindows()) do
-      positionSlackSharingBar(window)
+      local app = window:application()
+      local windowId = window:id()
+      local knownBar = slackSharingSession and slackSharingSession.bars[windowId]
+      -- Expanded controls can change shape without starting a new sharing session.
+      if (knownBar or isSlackSharingBar(window)) and (window:isVisible() or app:isHidden()) then
+        bars[windowId] = true
+        positionSlackSharingBar(window)
+      end
+    end
+
+    if next(bars) then
+      slackSharingSession = slackSharingSession or { restored = {} }
+      slackSharingSession.bars = bars
+      for _, window in ipairs(slackMainWindowFilter:getWindows()) do
+        restoreSlackMainWindow(window)
+      end
+    else
+      slackSharingSession = nil
+      for windowId, timer in pairs(slackMainWindowRestoreTimers) do
+        timer:stop()
+        slackMainWindowRestoreTimers[windowId] = nil
+      end
     end
   end)
   slackSharingBarFilter:subscribe({
     hs.window.filter.windowAllowed,
+    hs.window.filter.windowRejected,
+    hs.window.filter.windowVisible,
+    hs.window.filter.windowNotVisible,
     hs.window.filter.windowMoved,
   }, function()
     slackSharingBarDebounce:start()
