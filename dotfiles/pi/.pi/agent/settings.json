@@ -4,8 +4,8 @@
   "shellPath": "/run/current-system/sw/bin/bash",
   "defaultProjectTrust": "never",
   "enableSkillCommands": true,
-  "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-6-astra",
+  "defaultProvider": "anthropic",
+  "defaultModel": "claude-opus-5-5",
   "defaultThinkingLevel": "low",
   "enabledModels": [
     "openai-codex/gpt-6-astra",
@@ -17,17 +17,20 @@
     "deepseek/deepseek-flash",
     "anthropic/claude-sonnet-5",
     "anthropic/claude-opus-4-8",
+    "anthropic/claude-opus-5-5",
     "anthropic/claude-fable-5-1"
   ],
   "modelEffortDefaults": {
     "*flash": "high",
     "zai-glm-5-3": "high",
     "claude-fable-5-1": "high",
+    "claude-opus-5-5": "medium",
     "gpt-5.6-luna": "high",
     "gpt-5.6-sol": "low",
     "gpt-6-astra": "low"
   },
   "skills": [
+    "!../../.claude/skills/synced/**",
     "~/.claude/skills",
     "~/.local/lib/node_modules/hunkdiff/skills/hunk-review/SKILL.md"
   ],

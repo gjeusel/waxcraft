@@ -106,8 +106,22 @@ extensions/
 ## Packages
 
 Third-party packages are pinned in `settings.json`. Pi Black uses the GitHub release
-`v0.84.1-cc2.1.258.1`. Claude model definitions, including Fable 5.1, come from Pi's native
+`v0.84.1-cc2.1.258.1`, with a local protocol-version patch to advertise Claude Code `2.1.280`
+(the minimum required for Opus 5.5). This is an unofficial compatibility override, not an upgrade
+of Claude Code; revalidate it when either service changes. Claude model definitions, including
+Fable 5.1, come from Pi's native
 Anthropic catalog; the reviewer uses `anthropic/claude-fable-5-1`.
+
+`models.json` adds `anthropic/claude-opus-5-5` until it reaches the native catalog, retaining
+existing Anthropic authentication and Pi Black compatibility. It is included in model cycling,
+with medium effort by default and always-on adaptive thinking. The definition uses the
+[official limits](https://platform.claude.com/docs/en/models/opus-5-5/overview) (1M context,
+128K output) and [pricing](https://platform.claude.com/docs/en/about-claude/pricing) ($4 input,
+$20 output, $0.20 cached input, $5 cache write per million tokens). Select it with:
+
+```text
+/model anthropic/claude-opus-5-5
+```
 
 ```text
 packages/
@@ -138,10 +152,13 @@ pi update --all
 installer uses the flake's supported Node.js version for `npm ci` and stows
 `~/.local/bin/pi`.
 
-`just pi-install` also reapplies the tracked patch in `.pi/agent/patches/` for
+`just pi-install` also reapplies the tracked patches in `.pi/agent/patches/` for
 foreground-only subagent labels (agent `color` sets text color without badge
-padding or background changes). After a standalone package reinstall or update,
-reapply and verify it with:
+padding or background changes) and Pi Black's Claude Code `2.1.280` version override.
+The latter updates the shared constant used by the user-agent, billing header, and version
+fingerprint, plus the upstream fingerprint test fixtures; it leaves the billing salt and
+request checksum algorithm unchanged. After a standalone package reinstall or update,
+reapply and verify them with:
 
 ```bash
 dotfiles/pi/.pi/agent/patches/apply.sh

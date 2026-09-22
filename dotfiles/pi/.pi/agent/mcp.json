@@ -23,6 +23,10 @@
       "url": "https://mcp.plain.com/mcp",
       "auth": "oauth"
     },
+    "posthog": {
+      "url": "https://mcp.posthog.com/mcp",
+      "auth": "oauth"
+    },
     "postgres": {
       "command": "uvx",
       "args": [
