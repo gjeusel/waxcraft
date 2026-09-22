@@ -68,5 +68,10 @@
         "reason": "sending or deleting Gmail messages is user-controlled; only draft creation and updates are allowed"
       }
     ]
+  },
+  // /toggle-auto-mode: jev (TypeSafe) adjudicates Bash commands the rules above let through.
+  // Verdicts below minConfidence are demoted to a confirmation prompt.
+  "autoMode": {
+    "minConfidence": 0.5
   }
 }
