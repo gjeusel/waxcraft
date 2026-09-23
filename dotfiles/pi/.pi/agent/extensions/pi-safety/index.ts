@@ -10,10 +10,14 @@ import { createBashParser, inspectBashCommand } from './shell-policy.ts';
 const extensionDirectory = dirname(realpathSync(fileURLToPath(import.meta.url)));
 const shimDirectory = join(extensionDirectory, 'bin');
 
-/** Footer status key read by the statusbar extension. */
+/** Footer status keys read by the statusbar extension. */
 export const AUTO_MODE_STATUS_KEY = 'auto-mode';
+export const SAFETY_STATUS_KEY = 'pi-safety';
 const AUTO_MODE_STATUS_TEXT = 'auto-mode';
 const PROMPT_COMMAND_CHARS = 600;
+const DELETION_SAFETY_SECTION = 'deletion-safety';
+const DELETION_SAFETY_PROMPT =
+  'Plain rm and rmdir are transparently redirected to the macOS Trash for agent Bash calls; use them or trash normally.';
 
 function shellQuote(value: string): string {
   return `'${value.replaceAll("'", `'"'"'`)}'`;
@@ -23,11 +27,17 @@ function ensureShims(): void {
   for (const name of ['rm', 'rmdir', 'trash']) chmodSync(join(shimDirectory, name), 0o755);
 }
 
-function statusText(loaded: LoadedSafetyConfig, parserError: string | undefined, shellChecksDisabled: boolean): string {
+/** Degraded-state indicator for the footer; undefined while the configured checks are in force. */
+function statusText(
+  loaded: LoadedSafetyConfig,
+  parserError: string | undefined,
+  shellChecksDisabled: boolean,
+): string | undefined {
   if (shellChecksDisabled) return '🛡 disabled';
   if (parserError) return '🛡 parser error';
-  const suffix = loaded.status === 'loaded' ? '' : ' defaults';
-  return `🛡 ${loaded.config.shell.deny.length}c${suffix}`;
+  if (loaded.status === 'invalid') return '🛡 config invalid';
+  if (loaded.status === 'missing') return '🛡 defaults';
+  return undefined;
 }
 
 function autoModeApiKey(): string | undefined {
@@ -60,7 +70,7 @@ export default async function (pi: ExtensionAPI) {
     description: 'Disable shell safety checks for the current session',
     handler: async (_args, ctx) => {
       shellChecksDisabled = true;
-      ctx.ui.setStatus('pi-safety', statusText(loaded, parserError, shellChecksDisabled));
+      ctx.ui.setStatus(SAFETY_STATUS_KEY, statusText(loaded, parserError, shellChecksDisabled));
       ctx.ui.notify('pi-safety: shell command checks are disabled for this session', 'warning');
     },
   });
@@ -86,23 +96,26 @@ export default async function (pi: ExtensionAPI) {
 
   pi.on('session_start', (_event, ctx) => {
     loaded = loadSafetyConfig(process.env.PI_SAFETY_CONFIG);
-    ctx.ui.setStatus('pi-safety', statusText(loaded, parserError, shellChecksDisabled));
+    ctx.ui.setStatus(SAFETY_STATUS_KEY, statusText(loaded, parserError, shellChecksDisabled));
     refreshAutoModeStatus(ctx);
 
     if (parserError) {
       ctx.ui.notify(`pi-safety: tree-sitter initialization failed; Bash is disabled (${parserError})`, 'error');
     }
-    if (loaded.status !== 'loaded') {
+    if (loaded.status === 'invalid') {
       ctx.ui.notify(
-        `pi-safety: ${loaded.errors.join('; ')}; using built-in safeguards only`,
-        loaded.status === 'invalid' ? 'error' : 'warning',
+        `pi-safety: invalid ${loaded.configPath}: ${loaded.errors.join('; ')}; Bash is disabled until it is fixed`,
+        'error',
       );
+    } else if (loaded.status === 'missing') {
+      ctx.ui.notify(`pi-safety: ${loaded.errors.join('; ')}; using built-in safeguards only`, 'warning');
     }
   });
 
-  pi.on('before_agent_start', (event) => ({
-    systemPrompt: `${event.systemPrompt}\n\nDeletion safety: plain rm and rmdir are transparently redirected to the macOS Trash for agent Bash calls; use them or trash normally.`,
-  }));
+  // A section, not a returned systemPrompt, so Pi keeps patching the prompt incrementally.
+  pi.on('before_agent_start', (event) => {
+    event.systemPromptOptions.sections[DELETION_SAFETY_SECTION] = DELETION_SAFETY_PROMPT;
+  });
 
   /**
    * Auto mode gate for one Bash command. Returns a block result, or undefined when the command
@@ -152,6 +165,15 @@ export default async function (pi: ExtensionAPI) {
         return {
           block: true,
           reason: `pi-safety: Bash parser unavailable${parserError ? `: ${parserError}` : ''}`,
+        };
+      }
+
+      // Fail closed like a parser failure: an invalid file would otherwise silently drop every
+      // configured deny rule. The user can fix it and /reload, or opt out with /no-safety.
+      if (loaded.status === 'invalid') {
+        return {
+          block: true,
+          reason: `pi-safety: invalid ${loaded.configPath} (${loaded.errors.join('; ')}); Bash is disabled until the user fixes it`,
         };
       }
 

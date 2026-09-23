@@ -228,10 +228,11 @@ export async function initializePythonCodeExtension(
     ].join(' '),
     promptSnippet: 'Execute simple, dependency-free Python in an isolated Monty sandbox',
     promptGuidelines: [
-      'Use python for self-contained calculations, data transformations, or quick checks that do not need files, network access, environment variables, or third-party packages.',
-      'Pass Python source directly to python in its code argument (stdin-style); do not create a temporary .py file.',
-      'If python reports a likely Monty sandbox limitation, retry with normal Python through bash; for ordinary Python errors, fix the code instead.',
-      'Do not use python when the script needs packages that would normally require uv run --with; use normal Python through bash instead.',
+      'monty-python: Prefer it over `python -c` or `python - <<EOF` in bash for pure computation: arithmetic, date/time math, string and regex transforms, parsing or reshaping JSON/CSV text already in context, and quick checks of Python semantics. It runs sandboxed, starts instantly, and needs no interpreter or virtualenv.',
+      'monty-python: Inline any data the snippet needs as literals in code; it cannot read files, stdin, environment variables, or the network.',
+      'monty-python: Pass Python source directly in its code argument (stdin-style); do not create a temporary .py file.',
+      'monty-python: If it reports a likely Monty sandbox limitation, retry with normal Python through bash; for ordinary Python errors, fix the code instead.',
+      'monty-python: Use normal Python through bash instead when the script edits or reads files, imports project or third-party packages (uv run, .venv), or consumes shell output.',
     ],
     parameters: Type.Object({
       code: Type.String({

@@ -109,7 +109,9 @@ export function formatQuestionnaireResult(details: unknown): string | undefined 
 }
 
 export default function askUserQuestionFormat(pi: ExtensionAPI): void {
-  pi.on('tool_result', (event) => {
+  let driftReported = false;
+
+  pi.on('tool_result', (event, ctx) => {
     if (event.toolName !== ASK_USER_QUESTION_TOOL_NAME) return;
 
     const originalText = formatOriginalQuestionnaireResult(event.details);
@@ -119,9 +121,22 @@ export default function askUserQuestionFormat(pi: ExtensionAPI): void {
       originalText === undefined ||
       compactText === undefined ||
       event.content.length !== 1 ||
-      content?.type !== 'text' ||
-      content.text !== originalText
+      content?.type !== 'text'
     ) {
+      return;
+    }
+
+    if (content.text !== originalText) {
+      // Redaction by an earlier middleware is expected; any other mismatch on a valid answered result
+      // means the package's envelope changed, which would otherwise silently disable the rewrite.
+      const redacted = content.text.includes('[REDACTED:');
+      if (!redacted && !driftReported) {
+        driftReported = true;
+        ctx.ui.notify(
+          'ask-user-question-format: the ask_user_question result format changed upstream; results are left uncompacted',
+          'warning',
+        );
+      }
       return;
     }
 

@@ -10,6 +10,9 @@
  *     is scanned before it reaches the model. Detected secrets are redacted
  *     in place ([REDACTED:rule-id]) so the model can still use the rest of
  *     the content.
+ *  3. User-bash guard: `!cmd` runs bypass both hooks above — Pi records them
+ *     as bashExecution messages — so their command and output are redacted
+ *     in the model context instead. `!!cmd` runs never reach the model.
  *
  * spawnSync is used (not pi.exec) because pi.exec hardcodes stdin to "ignore" —
  * gitleaks' stdin mode is what lets us scan text without a temp file. The
@@ -201,6 +204,36 @@ export function redact(text: string, findings: Finding[]): string {
   return redactWithCount(text, findings).text;
 }
 
+/** Scan and redact one text; scan failures are reported and leave the text unchanged. */
+function scanAndRedact(text: string, onError: (reason: string) => void): { text: string; count: number } {
+  const result = scan(text);
+  if (result.status === 'leaks') return redactWithCount(text, result.findings);
+
+  if (result.status === 'error') onError(result.reason);
+  return { text, count: 0 };
+}
+
+interface BashRedaction {
+  command: string;
+  output: string;
+  count: number;
+}
+
+export function redactBashExecution(
+  command: string,
+  output: string,
+  onError: (reason: string) => void,
+): BashRedaction {
+  const redactedCommand = scanAndRedact(command, onError);
+  const redactedOutput = output ? scanAndRedact(output, onError) : { text: output, count: 0 };
+
+  return {
+    command: redactedCommand.text,
+    output: redactedOutput.text,
+    count: redactedCommand.count + redactedOutput.count,
+  };
+}
+
 export default function (pi: ExtensionAPI) {
   let lastBlocked: string | null = null;
 
@@ -237,26 +270,50 @@ export default function (pi: ExtensionAPI) {
     const content = event.content.map((block) => {
       if (block.type !== 'text' || !block.text) return block;
 
-      const result = scan(block.text);
+      const redaction = scanAndRedact(block.text, (reason) =>
+        ctx.ui.notify(`gitleaks-guard: scan failed (${reason}), ${event.toolName} result sent unscanned`, 'warning'),
+      );
+      if (redaction.count === 0) return block;
 
-      if (result.status === 'leaks') {
-        const redaction = redactWithCount(block.text, result.findings);
-        redactedCount += redaction.count;
-        return { ...block, text: redaction.text };
-      }
-
-      if (result.status === 'error') {
-        ctx.ui.notify(
-          `gitleaks-guard: scan failed (${result.reason}), ${event.toolName} result sent unscanned`,
-          'warning',
-        );
-      }
-      return block;
+      redactedCount += redaction.count;
+      return { ...block, text: redaction.text };
     });
 
     if (redactedCount === 0) return undefined;
 
     ctx.ui.notify(`gitleaks-guard: redacted ${redactedCount} secret(s) in ${event.toolName} result`, 'warning');
     return { content };
+  });
+
+  // `context` receives fresh copies before every provider request, so each user-bash message is
+  // scanned once and its outcome (including a failed scan) is replayed from this cache.
+  const bashRedactions = new Map<string, BashRedaction>();
+
+  pi.on('context', async (event, ctx) => {
+    let changed = false;
+
+    const messages = event.messages.map((message) => {
+      if (message.role !== 'bashExecution' || message.excludeFromContext) return message;
+
+      const key = `${message.timestamp}\0${message.command}\0${message.output}`;
+      let redaction = bashRedactions.get(key);
+      if (redaction === undefined) {
+        redaction = redactBashExecution(message.command, message.output, (reason) =>
+          ctx.ui.notify(`gitleaks-guard: scan failed (${reason}), user bash command sent unscanned`, 'warning'),
+        );
+        bashRedactions.set(key, redaction);
+
+        if (redaction.count > 0) {
+          ctx.ui.notify(`gitleaks-guard: redacted ${redaction.count} secret(s) in user bash command`, 'warning');
+        }
+      }
+
+      if (redaction.count === 0) return message;
+
+      changed = true;
+      return { ...message, command: redaction.command, output: redaction.output };
+    });
+
+    return changed ? { messages } : undefined;
   });
 }

@@ -76,7 +76,6 @@ not all control-plane data or zero data retention. Model availability is region-
 extensions/
 ├── ask-user-question-format/ compact structured questionnaire results
 ├── gitleaks-guard/         scan and redact secrets
-├── model-effort/           model-specific default effort levels
 ├── pane-focus/             dim unfocused panes
 ├── peek-document/          read PDF and Office files
 ├── per-model-prompt/       model-specific directives
@@ -85,10 +84,11 @@ extensions/
 ├── python-code/            sandboxed Python
 ├── rant/                   log preventable failures
 ├── statusbar/              minimal one-line footer
-├── subagent/               subagent configuration
-├── unified-edit/           flexible patch editing
 └── whimsical/              playful working messages
 ```
+
+Per-model default effort levels use Pi's native `modelThinkingLevels` setting in `settings.json`,
+keyed by exact `provider/modelId`; it applies at startup and on every model switch.
 
 ### To Checkup
 
@@ -165,6 +165,10 @@ dotfiles/pi/.pi/agent/patches/apply.sh
 node --test dotfiles/pi/.pi/agent/patches/*.test.mjs
 ```
 
+Keep the extensions' `@earendil-works/pi-coding-agent` and `@earendil-works/pi-tui`
+devDependencies on the installed Pi minor version (`pi --version`); otherwise typecheck and
+tests validate an API the runtime no longer has.
+
 The patch tests use the installed subagent package and the extensions' TypeScript
 dependency. Restart Pi or run `/reload` after applying patches. If an upstream
 change makes a patch incompatible, the installer fails rather than silently
@@ -178,7 +182,10 @@ dynamically constructed executable names remain intentionally unresolved.
 
 Use `/no-safety` to disable tree-sitter command checks for the current session.
 The rm/rmdir-to-trash routing remains active. After editing shell rules or
-extension code, run `/reload` inside Pi.
+extension code, run `/reload` inside Pi. An invalid `pi-safety.jsonc` disables Bash, like a
+parser failure, until it is fixed or `/no-safety` is used; a missing one falls back to the
+built-in safeguards. The statusbar shows these degraded states (`🛡 config invalid`,
+`🛡 defaults`, `🛡 disabled`, `🛡 parser error`) before the context percentage.
 
 ### Auto mode
 

@@ -78,8 +78,10 @@ export default function (pi: ExtensionAPI) {
 
     ctx.ui.setEditorComponent((nextTui, theme, keybindings) => {
       tui = nextTui;
+      // Keep the built-in editor-border working status that Pi's default editor uses.
       const editor =
-        previousEditorFactory?.(nextTui, theme, keybindings) ?? new CustomEditor(nextTui, theme, keybindings);
+        previousEditorFactory?.(nextTui, theme, keybindings) ??
+        new CustomEditor(nextTui, theme, keybindings, { embedWorkingStatus: true });
       return createFocusAwareEditor(
         editor,
         (text) => ctx.ui.theme.fg('dim', text),

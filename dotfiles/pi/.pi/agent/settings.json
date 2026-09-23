@@ -6,7 +6,7 @@
   "enableSkillCommands": true,
   "defaultProvider": "anthropic",
   "defaultModel": "claude-opus-5-5",
-  "defaultThinkingLevel": "low",
+  "defaultThinkingLevel": "high",
   "enabledModels": [
     "openai-codex/gpt-6-astra",
     "openai-codex/gpt-6-sol",
@@ -16,18 +16,17 @@
     "moonshotai/kimi-k3",
     "deepseek/deepseek-flash",
     "anthropic/claude-sonnet-5",
-    "anthropic/claude-opus-4-8",
     "anthropic/claude-opus-5-5",
     "anthropic/claude-fable-5-1"
   ],
-  "modelEffortDefaults": {
-    "*flash": "high",
-    "zai-glm-5-3": "high",
-    "claude-fable-5-1": "high",
-    "claude-opus-5-5": "high",
-    "gpt-6-luna": "high",
-    "gpt-6-sol": "low",
-    "gpt-6-astra": "low"
+  "modelThinkingLevels": {
+    "deepseek/deepseek-flash": "high",
+    "mistral-eu/zai-glm-5-3": "high",
+    "anthropic/claude-fable-5-1": "high",
+    "anthropic/claude-opus-5-5": "high",
+    "openai-codex/gpt-6-luna": "high",
+    "openai-codex/gpt-6-sol": "low",
+    "openai-codex/gpt-6-astra": "low"
   },
   "skills": [
     "!../../.claude/skills/synced/**",

@@ -47,7 +47,12 @@ export async function appendDirective(promptDir: string, modelId: string, direct
   return file;
 }
 
+/** System prompt section (XML tag) holding the active model's directives. */
+export const PROMPT_SECTION = 'model-directives';
+
 export default function (pi: ExtensionAPI, promptDir = join(homedir(), '.pi', 'agent', 'per-model-prompt')) {
+  // A section, not a returned systemPrompt: Pi patches only changed sections in place (keeping the
+  // cached prefix), whereas a returned prompt force-replaces the whole prompt for the run.
   pi.on('before_agent_start', async (event, ctx) => {
     const modelId = ctx.model?.id;
     if (!modelId) return;
@@ -55,7 +60,7 @@ export default function (pi: ExtensionAPI, promptDir = join(homedir(), '.pi', 'a
     const prompt = await loadModelPrompt(promptDir, modelId);
     if (!prompt) return;
 
-    return { systemPrompt: `${event.systemPrompt}\n\n${prompt}` };
+    event.systemPromptOptions.sections[PROMPT_SECTION] = prompt;
   });
 
   pi.registerCommand('mfb', {
@@ -73,35 +78,30 @@ export default function (pi: ExtensionAPI, promptDir = join(homedir(), '.pi', 'a
         return;
       }
 
-      // Stream through the registry provider so extension overrides (e.g. Pi Black's OAuth
-      // compatibility wrapper) are preserved instead of using pi-ai's standalone complete().
-      const provider = ctx.modelRegistry.getProvider(model.provider);
-      if (!provider) {
-        ctx.ui.notify(`No provider registered for ${model.provider}`, 'error');
-        return;
-      }
-      const auth = await ctx.modelRegistry.getApiKeyAndHeaders(model);
-      if (!auth.ok) {
-        ctx.ui.notify(auth.error, 'error');
+      ctx.ui.notify(`Rephrasing feedback for ${model.id}...`, 'info');
+
+      // The registry resolves request-time auth and routes through the configured provider, so
+      // extension overrides (e.g. Pi Black's OAuth compatibility wrapper) are preserved.
+      let response: Awaited<ReturnType<typeof ctx.modelRegistry.complete>>;
+      try {
+        response = await ctx.modelRegistry.complete(model, {
+          messages: [
+            {
+              role: 'user',
+              content: [{ type: 'text', text: buildRephrasePrompt(feedback) }],
+              timestamp: Date.now(),
+            },
+          ],
+        });
+      } catch (error) {
+        ctx.ui.notify(`Rephrasing failed: ${error instanceof Error ? error.message : String(error)}`, 'error');
         return;
       }
 
-      ctx.ui.notify(`Rephrasing feedback for ${model.id}...`, 'info');
-      const response = await provider
-        .stream(
-          model,
-          {
-            messages: [
-              {
-                role: 'user',
-                content: [{ type: 'text', text: buildRephrasePrompt(feedback) }],
-                timestamp: Date.now(),
-              },
-            ],
-          },
-          { apiKey: auth.apiKey, headers: auth.headers, env: auth.env },
-        )
-        .result();
+      if (response.stopReason === 'error' || response.stopReason === 'aborted') {
+        ctx.ui.notify(`Rephrasing failed: ${response.errorMessage ?? response.stopReason}`, 'error');
+        return;
+      }
 
       const directive = response.content
         .filter((c): c is { type: 'text'; text: string } => c.type === 'text')

@@ -5,10 +5,12 @@ import { join } from 'node:path';
 import test from 'node:test';
 import safety from './index.ts';
 
-async function setup() {
+async function setup(
+  configText = JSON.stringify({ shell: { deny: [{ command: 'sudo', reason: 'sudo denied in test' }] } }),
+) {
   const directory = mkdtempSync(join(tmpdir(), 'pi-safety-index-'));
   const configPath = join(directory, 'config.jsonc');
-  writeFileSync(configPath, JSON.stringify({ shell: { deny: [{ command: 'sudo', reason: 'sudo denied in test' }] } }));
+  writeFileSync(configPath, configText);
   const previousConfig = process.env.PI_SAFETY_CONFIG;
   process.env.PI_SAFETY_CONFIG = configPath;
 
@@ -44,6 +46,47 @@ test('checks Bash calls and ignores other tools', async () => {
     assert.equal(await toolCall(allowedEvent), undefined);
     assert.match(allowedEvent.input.command, /^export PATH=.*pi-safety\/bin/);
     assert.match(allowedEvent.input.command, /\necho ok$/);
+  } finally {
+    restore();
+  }
+});
+
+test('an invalid configuration disables Bash until /no-safety', async () => {
+  const { commands, handlers, restore } = await setup(JSON.stringify({ shell: { deny: [{ command: 'sudo', typo: 1 }] } }));
+  const statuses = new Map<string, string | undefined>();
+  const notifications: string[] = [];
+  const ctx = {
+    ui: {
+      setStatus: (name: string, status: string | undefined) => statuses.set(name, status),
+      notify: (message: string) => notifications.push(message),
+    },
+  };
+  try {
+    await handlers.get('session_start')!({}, ctx);
+    assert.equal(statuses.get('pi-safety'), '\u{1F6E1} config invalid');
+    assert.match(notifications.at(-1) ?? '', /unknown property "typo".*Bash is disabled until it is fixed/);
+
+    const toolCall = handlers.get('tool_call')!;
+    const blocked = await toolCall({ type: 'tool_call', toolName: 'bash', input: { command: 'echo ok' } });
+    assert.equal(blocked.block, true);
+    assert.match(blocked.reason, /invalid .*config\.jsonc/);
+
+    await commands.get('no-safety')!.handler('', ctx);
+    assert.equal(statuses.get('pi-safety'), '\u{1F6E1} disabled');
+    assert.equal(await toolCall({ type: 'tool_call', toolName: 'bash', input: { command: 'echo ok' } }), undefined);
+  } finally {
+    restore();
+  }
+});
+
+test('a valid configuration clears the footer status', async () => {
+  const { handlers, restore } = await setup();
+  const statuses = new Map<string, string | undefined>();
+  const ctx = { ui: { setStatus: (name: string, status: string | undefined) => statuses.set(name, status), notify() {} } };
+  try {
+    await handlers.get('session_start')!({}, ctx);
+    assert.ok(statuses.has('pi-safety'));
+    assert.equal(statuses.get('pi-safety'), undefined);
   } finally {
     restore();
   }

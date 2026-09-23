@@ -4,12 +4,19 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
-import perModelPrompt, { appendDirective, buildRephrasePrompt, loadModelPrompt, promptFileName } from './index.ts';
+import perModelPrompt, { PROMPT_SECTION, appendDirective, buildRephrasePrompt, loadModelPrompt, promptFileName } from './index.ts';
 
 type Handler = (
-  event: { systemPrompt: string },
+  event: { systemPromptOptions: { sections: Record<string, string> } },
   ctx: { model?: { id: string } },
-) => Promise<{ systemPrompt: string } | undefined>;
+) => Promise<unknown>;
+
+/** Run the handler and return the sections it left on the event. */
+async function sectionsFor(handler: Handler, ctx: { model?: { id: string } }): Promise<Record<string, string>> {
+  const event = { systemPromptOptions: { sections: { existing: 'kept' } as Record<string, string> } };
+  assert.equal(await handler(event, ctx), undefined);
+  return event.systemPromptOptions.sections;
+}
 
 function capture(promptDir: string): { handler: Handler; commands: string[] } {
   let handler: Handler | undefined;
@@ -36,27 +43,31 @@ test('per-model-prompt', async (t) => {
   await writeFile(join(dir, promptFileName('qwen/qwen3-coder')), 'Qwen guidance.', 'utf8');
   const { handler, commands } = capture(dir);
 
-  await t.test('appends the model prompt to the system prompt', async () => {
-    const result = await handler({ systemPrompt: 'base prompt' }, { model: { id: 'claude-opus-4-7' } });
-    assert.deepEqual(result, { systemPrompt: 'base prompt\n\nOpus specific guidance.' });
+  await t.test('adds the model prompt as a system prompt section', async () => {
+    assert.deepEqual(await sectionsFor(handler, { model: { id: 'claude-opus-4-7' } }), {
+      existing: 'kept',
+      [PROMPT_SECTION]: 'Opus specific guidance.',
+    });
   });
 
   await t.test('flattens slashes in model ids', async () => {
     assert.equal(promptFileName('qwen/qwen3-coder'), 'qwen--qwen3-coder.md');
-    const result = await handler({ systemPrompt: 'base' }, { model: { id: 'qwen/qwen3-coder' } });
-    assert.deepEqual(result, { systemPrompt: 'base\n\nQwen guidance.' });
+    assert.deepEqual(await sectionsFor(handler, { model: { id: 'qwen/qwen3-coder' } }), {
+      existing: 'kept',
+      [PROMPT_SECTION]: 'Qwen guidance.',
+    });
   });
 
   await t.test('leaves the prompt untouched when no file exists', async () => {
-    assert.equal(await handler({ systemPrompt: 'base' }, { model: { id: 'unknown-model' } }), undefined);
+    assert.deepEqual(await sectionsFor(handler, { model: { id: 'unknown-model' } }), { existing: 'kept' });
   });
 
   await t.test('ignores whitespace-only prompt files', async () => {
-    assert.equal(await handler({ systemPrompt: 'base' }, { model: { id: 'gpt-5.2' } }), undefined);
+    assert.deepEqual(await sectionsFor(handler, { model: { id: 'gpt-5.2' } }), { existing: 'kept' });
   });
 
   await t.test('does nothing when no model is active', async () => {
-    assert.equal(await handler({ systemPrompt: 'base' }, {}), undefined);
+    assert.deepEqual(await sectionsFor(handler, {}), { existing: 'kept' });
   });
 
   await t.test('loadModelPrompt propagates non-ENOENT errors', async () => {

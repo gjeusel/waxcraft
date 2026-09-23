@@ -4,7 +4,7 @@ display_name: General Purpose
 color: "#A3BE8C"
 description: Handle scoped multi-step work beyond search, research, or review. May edit only when the brief authorizes it.
 tools: "*"
-extensions: [pi-fff, pi-safety, gitleaks-guard, pi-lsp, peek-document, python-code, model-effort, per-model-prompt]
+extensions: [pi-fff, pi-safety, gitleaks-guard, pi-lsp, peek-document, python-code, per-model-prompt]
 skills: true
 prompt_mode: append
 persist_session: true

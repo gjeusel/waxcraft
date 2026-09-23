@@ -202,3 +202,44 @@ test('tool_result handler: clean output passes through untouched', async () => {
   const event = { toolName: 'bash', content: [{ type: 'text', text: 'all good' }] };
   assert.equal(await toolResult(event, ctx), undefined);
 });
+
+function bashMessage(overrides: Record<string, unknown> = {}) {
+  return {
+    role: 'bashExecution',
+    command: 'cat .env',
+    output: leakyText,
+    exitCode: 0,
+    cancelled: false,
+    truncated: false,
+    timestamp: 1,
+    ...overrides,
+  };
+}
+
+test('context handler: redacts user bash command and output, scanning each message once', async () => {
+  const { handlers, notifications, ctx } = setup();
+  const context = handlers.get('context')!;
+  const leakyCommand = `curl -H 'password="${fakeSecret}"' localhost`;
+  const user = { role: 'user', content: 'hello', timestamp: 0 };
+
+  const result = await context({ messages: [user, bashMessage({ command: leakyCommand })] }, ctx);
+  assert.ok(result);
+  assert.deepEqual(result.messages[0], user);
+  assert.ok(!result.messages[1].command.includes(fakeSecret));
+  assert.ok(!result.messages[1].output.includes(fakeSecret));
+  assert.match(result.messages[1].output, /\[REDACTED:[^\]]*generic-api-key/);
+  assert.match(notifications.at(-1)!, /redacted 2 secret\(s\) in user bash command/);
+
+  const notificationCount = notifications.length;
+  const replay = await context({ messages: [user, bashMessage({ command: leakyCommand })] }, ctx);
+  assert.deepEqual(replay, result);
+  assert.equal(notifications.length, notificationCount);
+});
+
+test('context handler: leaves clean and context-excluded user bash untouched', async () => {
+  const { handlers, ctx } = setup();
+  const context = handlers.get('context')!;
+
+  assert.equal(await context({ messages: [bashMessage({ output: 'all good' })] }, ctx), undefined);
+  assert.equal(await context({ messages: [bashMessage({ excludeFromContext: true })] }, ctx), undefined);
+});

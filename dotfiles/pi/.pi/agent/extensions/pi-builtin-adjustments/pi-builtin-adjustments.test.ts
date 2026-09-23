@@ -13,7 +13,7 @@ import {
   extractResumeCommand,
 } from './index.ts';
 
-test('collects Claude and Agent skill directories from cwd through the Git root', () => {
+test('collects Claude skill directories from cwd through the Git root, leaving Agent skills to Pi', () => {
   const repository = mkdtempSync(join(tmpdir(), 'pi-monorepo-skills-'));
   const application = join(repository, 'apps', 'example');
   const nestedDirectory = join(application, 'src', 'components');
@@ -27,9 +27,7 @@ test('collects Claude and Agent skill directories from cwd through the Git root'
 
   assert.deepEqual(collectAncestorSkillPaths(nestedDirectory), [
     join(application, '.claude', 'skills'),
-    join(application, '.agents', 'skills'),
     join(repository, '.claude', 'skills'),
-    join(repository, '.agents', 'skills'),
   ]);
 });
 

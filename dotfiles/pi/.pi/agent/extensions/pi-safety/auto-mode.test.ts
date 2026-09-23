@@ -15,7 +15,7 @@ function userEntry(text: string): SessionEntry {
   return { type: 'message', id: 'u', parentId: null, timestamp: '', message: { role: 'user', content: text, timestamp: 0 } };
 }
 
-function toolCallEntry(name: string, args: Record<string, unknown>): SessionEntry {
+function toolCallEntry(name: string, args: Record<string, string>): SessionEntry {
   return {
     type: 'message',
     id: 'a',

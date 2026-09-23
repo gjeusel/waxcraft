@@ -8,10 +8,8 @@ const RESUME_MESSAGE_PREFIX = 'To resume this session:';
 const STYLE_PLACEHOLDER = '__PI_RESUME_COMMAND__';
 const MANDATORY_MODEL_PREFIXES = ['anthropic/', 'openai-codex/'] as const;
 const NO_MATCH_WARNING = /Warning: No models match pattern "([^"]+)"/;
-const PROJECT_SKILL_LOCATIONS = [
-  ['.claude', 'skills'],
-  ['.agents', 'skills'],
-] as const;
+// Pi already discovers `.agents/skills` from cwd through the Git root; only Claude's location is added.
+const PROJECT_SKILL_DIRECTORY = join('.claude', 'skills');
 
 function findGitRepoRoot(startDir: string): string | undefined {
   let directory = resolve(startDir);
@@ -25,17 +23,15 @@ function findGitRepoRoot(startDir: string): string | undefined {
   }
 }
 
-/** Find existing project skill directories from cwd through the Git root. */
+/** Find existing project Claude skill directories from cwd through the Git root. */
 export function collectAncestorSkillPaths(cwd: string): string[] {
   const skillPaths: string[] = [];
   const gitRepoRoot = findGitRepoRoot(cwd);
   let directory = resolve(cwd);
 
   while (true) {
-    for (const location of PROJECT_SKILL_LOCATIONS) {
-      const skillPath = join(directory, ...location);
-      if (existsSync(skillPath)) skillPaths.push(skillPath);
-    }
+    const skillPath = join(directory, PROJECT_SKILL_DIRECTORY);
+    if (existsSync(skillPath)) skillPaths.push(skillPath);
 
     if (directory === gitRepoRoot) break;
 
@@ -133,7 +129,7 @@ export function adjustSessionOnlyModelSelection(pi: ExtensionAPI): void {
   });
 }
 
-/** Load Claude and Agent Skills from every trusted project ancestor. */
+/** Load Claude skills from every trusted project ancestor. */
 export function adjustMonorepoSkillDiscovery(pi: ExtensionAPI): void {
   pi.on('resources_discover', (event, ctx) => {
     if (!ctx.isProjectTrusted()) return;

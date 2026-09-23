@@ -174,6 +174,18 @@ test('TikaClient enforces the file size cap', async () => {
   }
 });
 
+test('TikaClient reports a cancelled parse', async () => {
+  const client = new TikaClient({ baseUrl: 'http://127.0.0.1:9' });
+  await assert.rejects(
+    client.parse(join(import.meta.dirname, 'data', 'sample.csv'), { signal: AbortSignal.abort() }),
+    (error: unknown) => {
+      assert.ok(error instanceof TikaError);
+      assert.match(error.message, /Tika parse cancelled/);
+      return true;
+    },
+  );
+});
+
 // --- integration against a live Tika server ---
 
 const tikaUrl = process.env.TIKA_URL ?? DEFAULT_TIKA_URL;

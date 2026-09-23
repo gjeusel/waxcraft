@@ -7,6 +7,17 @@ export const DEFAULT_TIKA_URL = 'http://localhost:9998';
 export const DEFAULT_MAX_FILE_BYTES = 100 * 1024 * 1024;
 export const DEFAULT_TIMEOUT_MS = 120_000;
 export const TIKA_DOCKER_IMAGE = 'apache/tika:3.2.3.0-full';
+export const TIKA_CONTAINER_NAME = 'pi-tika';
+/** Publish on loopback only: Tika parses arbitrary uploads and must not be reachable from the LAN. */
+export const TIKA_DOCKER_RUN_ARGS = [
+  'run',
+  '-d',
+  '--name',
+  TIKA_CONTAINER_NAME,
+  '-p',
+  '127.0.0.1:9998:9998',
+  TIKA_DOCKER_IMAGE,
+] as const;
 
 const OCR_LANGUAGES = 'fra+eng';
 
@@ -18,7 +29,7 @@ const EMAIL_EXTENSIONS = new Set(['.eml', '.msg']);
 
 const CONNECT_HINT =
   'Failed to connect to Apache Tika. If no server is running, start one with:\n' +
-  `> docker run -d -p 9998:9998 ${TIKA_DOCKER_IMAGE}`;
+  `> docker ${TIKA_DOCKER_RUN_ARGS.join(' ')}`;
 
 export interface TikaClientOptions {
   /** Defaults to $TIKA_URL, then http://localhost:9998 */
@@ -30,6 +41,8 @@ export interface TikaClientOptions {
 export interface TikaParseOptions {
   /** For emails: also parse attachment contents (default false). */
   recursive?: boolean;
+  /** Cancels the upload and parse, in addition to the client timeout. */
+  signal?: AbortSignal;
 }
 
 export interface TikaAttachment {
@@ -314,6 +327,9 @@ export class TikaClient {
     const email = EMAIL_EXTENSIONS.has(ext);
     const recursive = options.recursive ?? false;
 
+    const timeout = AbortSignal.timeout(this.timeoutMs);
+    const signal = options.signal ? AbortSignal.any([options.signal, timeout]) : timeout;
+
     let response: Response;
     try {
       response = await fetch(`${this.baseUrl}/rmeta/${spreadsheet ? 'html' : 'text'}`, {
@@ -321,9 +337,10 @@ export class TikaClient {
         headers: this.buildHeaders(filePath, !email || recursive),
         body: Readable.toWeb(createReadStream(filePath)) as ReadableStream,
         duplex: 'half',
-        signal: AbortSignal.timeout(this.timeoutMs),
+        signal,
       } as RequestInit);
     } catch (error) {
+      if (options.signal?.aborted) throw new TikaError(`Tika parse cancelled (${filePath})`);
       if (error instanceof Error && error.name === 'TimeoutError') {
         throw new TikaError(`Tika parse timed out after ${this.timeoutMs / 1000}s (${filePath})`);
       }

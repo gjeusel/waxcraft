@@ -6,7 +6,9 @@ import { Text } from '@earendil-works/pi-tui';
 import { Type } from 'typebox';
 import {
   DEFAULT_TIKA_URL,
+  TIKA_CONTAINER_NAME,
   TIKA_DOCKER_IMAGE,
+  TIKA_DOCKER_RUN_ARGS,
   TikaClient,
   TikaError,
   type TikaDocument,
@@ -192,26 +194,30 @@ interface PeekDocumentDetails {
 
 // Generous: the first `docker run` pulls the (large) image before starting it.
 const DOCKER_RUN_TIMEOUT_MS = 10 * 60_000;
+const DOCKER_START_TIMEOUT_MS = 60_000;
 const TIKA_STARTUP_TIMEOUT_MS = 90_000;
 const TIKA_POLL_INTERVAL_MS = 500;
 
 /**
  * Start the local Tika container when the default server is unreachable, then wait until it answers.
- * A custom $TIKA_URL is left alone: a local container would not serve it.
+ * The container is named so a stopped one (e.g. after a Docker restart) is restarted instead of
+ * piling up new containers. A custom $TIKA_URL is left alone: a local container would not serve it.
  */
 async function startTikaServer(pi: ExtensionAPI, client: TikaClient, signal?: AbortSignal): Promise<void> {
   if (client.baseUrl !== DEFAULT_TIKA_URL) return;
 
-  const run = await pi.exec('docker', ['run', '-d', '-p', '9998:9998', TIKA_DOCKER_IMAGE], {
-    signal,
-    timeout: DOCKER_RUN_TIMEOUT_MS,
-  });
+  const start = await pi.exec('docker', ['start', TIKA_CONTAINER_NAME], { signal, timeout: DOCKER_START_TIMEOUT_MS });
+  if (start.code !== 0) {
+    const run = await pi.exec('docker', [...TIKA_DOCKER_RUN_ARGS], { signal, timeout: DOCKER_RUN_TIMEOUT_MS });
 
-  // Another pi session may have started the container concurrently; it is then just booting.
-  const portTaken = /port is already allocated|address already in use/i.test(run.stderr);
-  if (run.code !== 0 && !portTaken) {
-    const cause = (run.stderr || run.stdout).trim() || `exit code ${run.code}`;
-    throw new TikaError(`Failed to start Apache Tika via docker (${TIKA_DOCKER_IMAGE}): ${cause}`);
+    // Another pi session may have created or started the container concurrently; it is then booting.
+    const concurrent = /port is already allocated|address already in use|is already in use by container/i.test(
+      run.stderr,
+    );
+    if (run.code !== 0 && !concurrent) {
+      const cause = (run.stderr || run.stdout).trim() || `exit code ${run.code}`;
+      throw new TikaError(`Failed to start Apache Tika via docker (${TIKA_DOCKER_IMAGE}): ${cause}`);
+    }
   }
 
   const deadline = Date.now() + TIKA_STARTUP_TIMEOUT_MS;
@@ -276,7 +282,7 @@ export default function (pi: ExtensionAPI) {
       const cached = doc !== undefined;
       if (doc === undefined) {
         await ensureTikaServer(signal);
-        doc = await client.parse(filePath, { recursive });
+        doc = await client.parse(filePath, { recursive, signal });
         cache.set(cacheKey, doc);
       }
 

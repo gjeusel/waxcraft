@@ -150,3 +150,28 @@ test('does not overwrite a result changed by an earlier middleware', () => {
 
   assert.equal(toolResultHandler({ toolName: 'ask_user_question', details, content: redactedContent }), undefined);
 });
+
+test('warns once when the upstream envelope no longer matches', () => {
+  let toolResultHandler: ((event: any, ctx: any) => unknown) | undefined;
+  const pi = {
+    on(event: string, handler: (event: any, ctx: any) => unknown) {
+      if (event === 'tool_result') toolResultHandler = handler;
+    },
+  } as unknown as ExtensionAPI;
+
+  askUserQuestionFormat(pi);
+  assert.ok(toolResultHandler);
+
+  const notifications: string[] = [];
+  const ctx = { ui: { notify: (message: string) => notifications.push(message) } };
+  const details = {
+    answers: [{ questionIndex: 0, question: 'Proceed?', kind: 'option', answer: 'Yes' }],
+    cancelled: false,
+  };
+  const event = { toolName: 'ask_user_question', details, content: [{ type: 'text', text: 'Answers: Proceed?=Yes' }] };
+
+  assert.equal(toolResultHandler(event, ctx), undefined);
+  assert.equal(toolResultHandler(event, ctx), undefined);
+  assert.equal(notifications.length, 1);
+  assert.match(notifications[0], /format changed upstream/);
+});
