@@ -3,6 +3,7 @@ import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { parse, printParseErrorCode, type ParseError } from 'jsonc-parser';
 import { DEFAULT_MIN_CONFIDENCE } from './auto-mode.ts';
+import { isAnchoredPattern, type PathRules } from './path-policy.ts';
 
 export interface ArgvPredicate {
   empty?: boolean;
@@ -27,6 +28,8 @@ export interface SafetyConfig {
   shell: {
     deny: ShellDenyRule[];
   };
+  /** Path globs guarding the write and edit tools. */
+  paths: PathRules;
   autoMode: AutoModeConfig;
 }
 
@@ -38,7 +41,7 @@ export interface LoadedSafetyConfig {
 }
 
 const DEFAULT_AUTO_MODE: AutoModeConfig = { minConfidence: DEFAULT_MIN_CONFIDENCE };
-const EMPTY_CONFIG: SafetyConfig = { shell: { deny: [] }, autoMode: DEFAULT_AUTO_MODE };
+const EMPTY_CONFIG: SafetyConfig = { shell: { deny: [] }, paths: { deny: [], ask: [] }, autoMode: DEFAULT_AUTO_MODE };
 
 function agentDirectory(): string {
   return process.env.PI_CODING_AGENT_DIR || join(homedir(), '.pi', 'agent');
@@ -150,6 +153,32 @@ function parseShellRules(value: unknown, location: string, errors: string[]): Sh
   return rules;
 }
 
+function parsePathPatterns(value: unknown, location: string, errors: string[]): string[] {
+  if (value === undefined) return [];
+
+  const patterns = stringArray(value, location, errors);
+  for (const [index, pattern] of patterns.entries()) {
+    if (!isAnchoredPattern(pattern)) {
+      errors.push(`${location}[${index}]: expected a pattern starting with /, ~/, or **/`);
+    }
+  }
+  return patterns;
+}
+
+function parsePaths(value: unknown, location: string, errors: string[]): PathRules {
+  if (value === undefined) return { deny: [], ask: [] };
+  if (!isRecord(value)) {
+    errors.push(`${location}: expected an object`);
+    return { deny: [], ask: [] };
+  }
+
+  rejectUnknownKeys(value, ['deny', 'ask'], location, errors);
+  return {
+    deny: parsePathPatterns(value.deny, `${location}.deny`, errors),
+    ask: parsePathPatterns(value.ask, `${location}.ask`, errors),
+  };
+}
+
 function parseAutoMode(value: unknown, location: string, errors: string[]): AutoModeConfig {
   if (value === undefined) return DEFAULT_AUTO_MODE;
   if (!isRecord(value)) {
@@ -169,7 +198,7 @@ function parseAutoMode(value: unknown, location: string, errors: string[]): Auto
 export function validateConfig(value: unknown): { config: SafetyConfig; errors: string[] } {
   const errors: string[] = [];
   if (!isRecord(value)) return { config: EMPTY_CONFIG, errors: ['root: expected an object'] };
-  rejectUnknownKeys(value, ['shell', 'autoMode'], 'root', errors);
+  rejectUnknownKeys(value, ['shell', 'paths', 'autoMode'], 'root', errors);
   const shell = value.shell;
   if (shell !== undefined && !isRecord(shell)) errors.push('shell: expected an object');
   const shellRecord = isRecord(shell) ? shell : {};
@@ -177,6 +206,7 @@ export function validateConfig(value: unknown): { config: SafetyConfig; errors: 
   return {
     config: {
       shell: { deny: parseShellRules(shellRecord.deny, 'shell.deny', errors) },
+      paths: parsePaths(value.paths, 'paths', errors),
       autoMode: parseAutoMode(value.autoMode, 'autoMode', errors),
     },
     errors,

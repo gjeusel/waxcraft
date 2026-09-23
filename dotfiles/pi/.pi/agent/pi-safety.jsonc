@@ -69,6 +69,23 @@
       }
     ]
   },
+  // Protected paths for the write and edit tools (Bash writes are not covered). Globs anchor at /,
+  // ~/, or **/; ** spans directories, * and ? one path segment. Both the given path and its
+  // symlink-resolved path are checked, so stowed files match through ~ and through the repository.
+  "paths": {
+    // Credentials: the home directories the rm/trash shim also refuses.
+    "deny": ["~/.ssh/**", "~/.gnupg/**", "~/.aws/**", "~/.kube/**"],
+    // Allowed after confirmation: this policy itself, shell startup files, and secret env files.
+    "ask": [
+      "**/.pi/agent/pi-safety.jsonc",
+      "**/.pi/agent/extensions/pi-safety/**",
+      "~/.zshrc",
+      "~/.zshenv",
+      "~/.zprofile",
+      "~/.profile",
+      "**/.env"
+    ]
+  },
   // /toggle-auto-mode: jev (TypeSafe) adjudicates Bash commands the rules above let through.
   // Verdicts below minConfidence are demoted to a confirmation prompt.
   "autoMode": {

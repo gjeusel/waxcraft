@@ -15,5 +15,8 @@ dotfiles/.config/nvim/lua/packer_compiled.lua
 
 node_modules/
 
+# Pi runtime cache of remote model catalogs, regenerated in ~/.pi/agent.
+dotfiles/pi/.pi/agent/models-store.json
+
 # npm lockfiles under Pi extensions are tracked for reproducible tooling/runtime installs.
 dotfiles/pi/.pi/agent/extensions/pnpm-lock.yaml

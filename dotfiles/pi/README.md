@@ -76,7 +76,7 @@ not all control-plane data or zero data retention. Model availability is region-
 extensions/
 ├── ask-user-question-format/ compact structured questionnaire results
 ├── gitleaks-guard/         scan and redact secrets
-├── pane-focus/             dim unfocused panes
+├── pane-focus/             dim the editor in unfocused tmux panes or terminals
 ├── peek-document/          read PDF and Office files
 ├── per-model-prompt/       model-specific directives
 ├── pi-builtin-adjustments/ quieter built-ins
@@ -180,10 +180,16 @@ and clear Zsh's command cache with
 best-effort guardrail: tree-sitter evaluates literal command names, while
 dynamically constructed executable names remain intentionally unresolved.
 
-Use `/no-safety` to disable tree-sitter command checks for the current session.
-The rm/rmdir-to-trash routing remains active. After editing shell rules or
-extension code, run `/reload` inside Pi. An invalid `pi-safety.jsonc` disables Bash, like a
-parser failure, until it is fixed or `/no-safety` is used; a missing one falls back to the
+`paths` rules in `pi-safety.jsonc` guard the `write` and `edit` tools: `deny` globs block
+(credential directories), `ask` globs need a confirmation, blocked without a UI (the safety
+policy itself, shell startup files, `.env`). Both the given path and its symlink-resolved path
+are matched, so stowed files are covered through `~` and the repository. Bash writes to the same
+paths are not inspected.
+
+Use `/no-safety` to disable tree-sitter command and protected-path checks for the current
+session. The rm/rmdir-to-trash routing remains active. After editing shell rules or
+extension code, run `/reload` inside Pi. An invalid `pi-safety.jsonc` disables Bash, `write`, and
+`edit`, like a parser failure, until it is fixed or `/no-safety` is used; a missing one falls back to the
 built-in safeguards. The statusbar shows these degraded states (`🛡 config invalid`,
 `🛡 defaults`, `🛡 disabled`, `🛡 parser error`) before the context percentage.
 

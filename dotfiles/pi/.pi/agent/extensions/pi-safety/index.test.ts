@@ -51,6 +51,46 @@ test('checks Bash calls and ignores other tools', async () => {
   }
 });
 
+test('write and edit: deny and ask protected paths, other paths pass', async () => {
+  const { handlers, restore } = await setup(
+    JSON.stringify({ paths: { deny: ['/protected/**'], ask: ['**/.env'] } }),
+  );
+  const toolCall = handlers.get('tool_call')!;
+  const confirmations: string[] = [];
+  const context = (options: { hasUI: boolean; confirm: boolean }) => ({
+    cwd: '/project',
+    hasUI: options.hasUI,
+    ui: {
+      confirm: async (_title: string, message: string) => {
+        confirmations.push(message);
+        return options.confirm;
+      },
+    },
+  });
+  try {
+    const writeTo = (path: string) => ({ type: 'tool_call', toolName: 'write', input: { path, content: 'x' } });
+    const editOf = (path: string) => ({ type: 'tool_call', toolName: 'edit', input: { path, edits: [] } });
+
+    const denied = await toolCall(writeTo('/protected/key'), context({ hasUI: true, confirm: true }));
+    assert.equal(denied.block, true);
+    assert.match(denied.reason, /write \/protected\/key is denied by protected path rule \/protected\/\*\*/);
+    assert.equal(confirmations.length, 0);
+
+    assert.equal(await toolCall(editOf('.env'), context({ hasUI: true, confirm: true })), undefined);
+    assert.match(confirmations.at(-1) ?? '', /^edit \/project\/\.env\n\nMatches protected path rule \*\*\/\.env/);
+
+    const declined = await toolCall(editOf('.env'), context({ hasUI: true, confirm: false }));
+    assert.match(declined.reason, /the user declined edit \/project\/\.env/);
+
+    const headless = await toolCall(writeTo('.env'), context({ hasUI: false, confirm: true }));
+    assert.match(headless.reason, /needs user confirmation .* no UI/);
+
+    assert.equal(await toolCall(writeTo('src/index.ts'), context({ hasUI: false, confirm: false })), undefined);
+  } finally {
+    restore();
+  }
+});
+
 test('an invalid configuration disables Bash until /no-safety', async () => {
   const { commands, handlers, restore } = await setup(JSON.stringify({ shell: { deny: [{ command: 'sudo', typo: 1 }] } }));
   const statuses = new Map<string, string | undefined>();
@@ -64,12 +104,17 @@ test('an invalid configuration disables Bash until /no-safety', async () => {
   try {
     await handlers.get('session_start')!({}, ctx);
     assert.equal(statuses.get('pi-safety'), '\u{1F6E1} config invalid');
-    assert.match(notifications.at(-1) ?? '', /unknown property "typo".*Bash is disabled until it is fixed/);
+    assert.match(notifications.at(-1) ?? '', /unknown property "typo".*Bash, write, and edit are disabled until it is fixed/);
 
     const toolCall = handlers.get('tool_call')!;
     const blocked = await toolCall({ type: 'tool_call', toolName: 'bash', input: { command: 'echo ok' } });
     assert.equal(blocked.block, true);
     assert.match(blocked.reason, /invalid .*config\.jsonc/);
+    const blockedWrite = await toolCall(
+      { type: 'tool_call', toolName: 'write', input: { path: '/tmp/x', content: '' } },
+      { cwd: '/', hasUI: false },
+    );
+    assert.match(blockedWrite.reason, /Bash, write, and edit are disabled/);
 
     await commands.get('no-safety')!.handler('', ctx);
     assert.equal(statuses.get('pi-safety'), '\u{1F6E1} disabled');
@@ -105,7 +150,7 @@ test('/no-safety disables shell checks', async () => {
   try {
     await commands.get('no-safety')!.handler('', ctx);
     assert.equal(statuses.at(-1), '🛡 disabled');
-    assert.match(notifications.at(-1) ?? '', /shell command checks are disabled/);
+    assert.match(notifications.at(-1) ?? '', /shell command and protected-path checks are disabled/);
     const event = { type: 'tool_call', toolName: 'bash', input: { command: 'sudo rm file.txt' } };
     assert.equal(await handlers.get('tool_call')!(event), undefined);
     assert.match(event.input.command, /^export PATH=.*pi-safety\/bin/);

@@ -5,6 +5,7 @@ import { type ExtensionAPI, type ExtensionContext, isToolCallEventType } from '@
 import type { Parser } from 'web-tree-sitter';
 import { API_KEY_ENV, adjudicate, buildTranscript, describeBashCall } from './auto-mode.ts';
 import { loadSafetyConfig, type LoadedSafetyConfig } from './config.ts';
+import { inspectPath } from './path-policy.ts';
 import { createBashParser, inspectBashCommand } from './shell-policy.ts';
 
 const extensionDirectory = dirname(realpathSync(fileURLToPath(import.meta.url)));
@@ -66,12 +67,19 @@ export default async function (pi: ExtensionAPI) {
     ctx.ui.setStatus(AUTO_MODE_STATUS_KEY, autoModeEnabled ? AUTO_MODE_STATUS_TEXT : undefined);
   }
 
+  function invalidConfigBlock() {
+    return {
+      block: true,
+      reason: `pi-safety: invalid ${loaded.configPath} (${loaded.errors.join('; ')}); Bash, write, and edit are disabled until the user fixes it`,
+    };
+  }
+
   pi.registerCommand('no-safety', {
-    description: 'Disable shell safety checks for the current session',
+    description: 'Disable shell command and protected-path checks for the current session',
     handler: async (_args, ctx) => {
       shellChecksDisabled = true;
       ctx.ui.setStatus(SAFETY_STATUS_KEY, statusText(loaded, parserError, shellChecksDisabled));
-      ctx.ui.notify('pi-safety: shell command checks are disabled for this session', 'warning');
+      ctx.ui.notify('pi-safety: shell command and protected-path checks are disabled for this session', 'warning');
     },
   });
 
@@ -104,7 +112,7 @@ export default async function (pi: ExtensionAPI) {
     }
     if (loaded.status === 'invalid') {
       ctx.ui.notify(
-        `pi-safety: invalid ${loaded.configPath}: ${loaded.errors.join('; ')}; Bash is disabled until it is fixed`,
+        `pi-safety: invalid ${loaded.configPath}: ${loaded.errors.join('; ')}; Bash, write, and edit are disabled until it is fixed`,
         'error',
       );
     } else if (loaded.status === 'missing') {
@@ -157,7 +165,42 @@ export default async function (pi: ExtensionAPI) {
     return { block: true, reason: 'pi-safety auto mode: user declined' };
   }
 
+  /**
+   * Protected-path gate for the write and edit tools. `deny` rules block; `ask` rules need a
+   * confirmation, which degrades to a block without a UI. Bash writes are not covered here.
+   */
+  async function gateFileMutation(toolName: string, path: string, ctx: ExtensionContext) {
+    if (shellChecksDisabled) return undefined;
+    if (loaded.status === 'invalid') return invalidConfigBlock();
+
+    const verdict = inspectPath(path, ctx.cwd, loaded.config.paths);
+    if (!verdict) return undefined;
+
+    const subject = `${toolName} ${verdict.path}`;
+    if (verdict.action === 'deny') {
+      return { block: true, reason: `pi-safety: ${subject} is denied by protected path rule ${verdict.pattern}` };
+    }
+
+    if (!ctx.hasUI) {
+      return {
+        block: true,
+        reason: `pi-safety: ${subject} needs user confirmation (path rule ${verdict.pattern}) but no UI is available`,
+      };
+    }
+
+    const allowed = await ctx.ui.confirm(
+      '🛡 Protected path',
+      `${subject}\n\nMatches protected path rule ${verdict.pattern}.\n\nAllow this change?`,
+    );
+    if (allowed) return undefined;
+
+    return { block: true, reason: `pi-safety: the user declined ${subject}` };
+  }
+
   pi.on('tool_call', async (event, ctx) => {
+    if (isToolCallEventType('write', event) || isToolCallEventType('edit', event)) {
+      return gateFileMutation(event.toolName, event.input.path, ctx);
+    }
     if (!isToolCallEventType('bash', event)) return;
 
     if (!shellChecksDisabled) {
@@ -170,12 +213,7 @@ export default async function (pi: ExtensionAPI) {
 
       // Fail closed like a parser failure: an invalid file would otherwise silently drop every
       // configured deny rule. The user can fix it and /reload, or opt out with /no-safety.
-      if (loaded.status === 'invalid') {
-        return {
-          block: true,
-          reason: `pi-safety: invalid ${loaded.configPath} (${loaded.errors.join('; ')}); Bash is disabled until the user fixes it`,
-        };
-      }
+      if (loaded.status === 'invalid') return invalidConfigBlock();
 
       let denial: ReturnType<typeof inspectBashCommand>;
       try {

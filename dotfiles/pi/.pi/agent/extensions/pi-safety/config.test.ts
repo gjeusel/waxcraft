@@ -45,3 +45,15 @@ test('parses autoMode.minConfidence and rejects out-of-range values', () => {
   assert.match(validateConfig({ autoMode: { minConfidence: 1.5 } }).errors.join('\n'), /between 0 and 1/);
   assert.match(validateConfig({ autoMode: { threshold: 0.5 } }).errors.join('\n'), /unknown property "threshold"/);
 });
+
+test('parses path rules and rejects unanchored patterns', () => {
+  assert.deepEqual(validateConfig({}).config.paths, { deny: [], ask: [] });
+
+  const valid = validateConfig({ paths: { deny: ['~/.ssh/**'], ask: ['**/.env', '/etc/hosts'] } });
+  assert.deepEqual(valid.errors, []);
+  assert.deepEqual(valid.config.paths, { deny: ['~/.ssh/**'], ask: ['**/.env', '/etc/hosts'] });
+
+  assert.match(validateConfig({ paths: { ask: ['.env'] } }).errors.join('\n'), /paths\.ask\[0]: expected a pattern/);
+  assert.match(validateConfig({ paths: { allow: [] } }).errors.join('\n'), /unknown property "allow"/);
+  assert.match(validateConfig({ paths: { deny: '~/.ssh/**' } }).errors.join('\n'), /expected an array of strings/);
+});

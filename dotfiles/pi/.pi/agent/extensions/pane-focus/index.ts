@@ -1,3 +1,4 @@
+import type { Readable } from 'node:stream';
 import { CustomEditor, type ExtensionAPI } from '@earendil-works/pi-coding-agent';
 import type { EditorComponent, TUI } from '@earendil-works/pi-tui';
 import { observeFocusInput } from './focus-input.ts';
@@ -6,7 +7,11 @@ const ENABLE_FOCUS_REPORTING = '\x1b[?1004h';
 const DISABLE_FOCUS_REPORTING = '\x1b[?1004l';
 const FOCUS_EVENT_PATTERN = /\x1b\[([IO])/g;
 
-async function isCurrentTmuxPaneFocused(pi: ExtensionAPI): Promise<boolean> {
+/**
+ * Initial focus state. Only tmux can be queried; a plain terminal is assumed focused until it sends
+ * its first focus report.
+ */
+async function isInitiallyFocused(pi: ExtensionAPI): Promise<boolean> {
   const pane = process.env.TMUX_PANE;
   if (!process.env.TMUX || !pane) return true;
 
@@ -43,20 +48,22 @@ function createFocusAwareEditor(
   return editor;
 }
 
-export default function (pi: ExtensionAPI) {
+export default function (pi: ExtensionAPI, input: Readable = process.stdin) {
   let tui: TUI | undefined;
   let unsubscribe: (() => void) | undefined;
 
   const disableFocusReporting = () => tui?.terminal.write(DISABLE_FOCUS_REPORTING);
 
   pi.on('session_start', async (_event, ctx) => {
-    if (ctx.mode !== 'tui' || !process.env.TMUX || !process.env.TMUX_PANE) return;
+    // Focus reporting (DECSET 1004) works in tmux (with focus-events on) and in terminals such as
+    // Ghostty and iTerm2; terminals without it ignore the request and simply never report.
+    if (ctx.mode !== 'tui') return;
 
     let focused = true;
     let focusEventSeen = false;
     const previousEditorFactory = ctx.ui.getEditorComponent();
 
-    const stopObserving = observeFocusInput(process.stdin, (nextFocused) => {
+    const stopObserving = observeFocusInput(input, (nextFocused) => {
       focusEventSeen = true;
       if (nextFocused !== focused) {
         focused = nextFocused;
@@ -92,7 +99,7 @@ export default function (pi: ExtensionAPI) {
     tui?.terminal.write(ENABLE_FOCUS_REPORTING);
     process.once('exit', disableFocusReporting);
 
-    const initiallyFocused = await isCurrentTmuxPaneFocused(pi);
+    const initiallyFocused = await isInitiallyFocused(pi);
     if (!focusEventSeen && initiallyFocused !== focused) {
       focused = initiallyFocused;
       tui?.requestRender();
