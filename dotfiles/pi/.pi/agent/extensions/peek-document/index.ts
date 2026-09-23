@@ -4,7 +4,13 @@ import { isAbsolute, join, resolve } from 'node:path';
 import { DEFAULT_MAX_BYTES, truncateHead, type ExtensionAPI } from '@earendil-works/pi-coding-agent';
 import { Text } from '@earendil-works/pi-tui';
 import { Type } from 'typebox';
-import { TikaClient, type TikaDocument } from './tika-client.ts';
+import {
+  DEFAULT_TIKA_URL,
+  TIKA_DOCKER_IMAGE,
+  TikaClient,
+  TikaError,
+  type TikaDocument,
+} from './tika-client.ts';
 
 export const DEFAULT_PEEK_LINES = 500;
 
@@ -184,9 +190,55 @@ interface PeekDocumentDetails {
   preview?: boolean;
 }
 
+// Generous: the first `docker run` pulls the (large) image before starting it.
+const DOCKER_RUN_TIMEOUT_MS = 10 * 60_000;
+const TIKA_STARTUP_TIMEOUT_MS = 90_000;
+const TIKA_POLL_INTERVAL_MS = 500;
+
+/**
+ * Start the local Tika container when the default server is unreachable, then wait until it answers.
+ * A custom $TIKA_URL is left alone: a local container would not serve it.
+ */
+async function startTikaServer(pi: ExtensionAPI, client: TikaClient, signal?: AbortSignal): Promise<void> {
+  if (client.baseUrl !== DEFAULT_TIKA_URL) return;
+
+  const run = await pi.exec('docker', ['run', '-d', '-p', '9998:9998', TIKA_DOCKER_IMAGE], {
+    signal,
+    timeout: DOCKER_RUN_TIMEOUT_MS,
+  });
+
+  // Another pi session may have started the container concurrently; it is then just booting.
+  const portTaken = /port is already allocated|address already in use/i.test(run.stderr);
+  if (run.code !== 0 && !portTaken) {
+    const cause = (run.stderr || run.stdout).trim() || `exit code ${run.code}`;
+    throw new TikaError(`Failed to start Apache Tika via docker (${TIKA_DOCKER_IMAGE}): ${cause}`);
+  }
+
+  const deadline = Date.now() + TIKA_STARTUP_TIMEOUT_MS;
+  while (Date.now() < deadline) {
+    signal?.throwIfAborted();
+    if (await client.isAvailable()) return;
+
+    await new Promise((done) => setTimeout(done, TIKA_POLL_INTERVAL_MS));
+  }
+
+  throw new TikaError(`Apache Tika did not become ready within ${TIKA_STARTUP_TIMEOUT_MS / 1000}s`);
+}
+
 export default function (pi: ExtensionAPI) {
   const client = new TikaClient();
   const cache = new DocumentCache();
+
+  // Shared across parallel tool calls so only one container gets started.
+  let starting: Promise<void> | undefined;
+  const ensureTikaServer = async (signal?: AbortSignal) => {
+    if (await client.isAvailable()) return;
+
+    starting ??= startTikaServer(pi, client, signal).finally(() => {
+      starting = undefined;
+    });
+    await starting;
+  };
 
   pi.registerTool<typeof parametersSchema, PeekDocumentDetails>({
     name: 'peek_document',
@@ -211,7 +263,7 @@ export default function (pi: ExtensionAPI) {
     parameters: parametersSchema,
     executionMode: 'parallel',
 
-    async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
+    async execute(_toolCallId, params, signal, _onUpdate, ctx) {
       const filePath = expandPath(params.path, ctx.cwd);
 
       const info = await stat(filePath).catch((error: NodeJS.ErrnoException) => {
@@ -223,6 +275,7 @@ export default function (pi: ExtensionAPI) {
       let doc = cache.get(cacheKey);
       const cached = doc !== undefined;
       if (doc === undefined) {
+        await ensureTikaServer(signal);
         doc = await client.parse(filePath, { recursive });
         cache.set(cacheKey, doc);
       }

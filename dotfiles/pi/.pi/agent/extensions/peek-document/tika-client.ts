@@ -6,6 +6,7 @@ import { Readable } from 'node:stream';
 export const DEFAULT_TIKA_URL = 'http://localhost:9998';
 export const DEFAULT_MAX_FILE_BYTES = 100 * 1024 * 1024;
 export const DEFAULT_TIMEOUT_MS = 120_000;
+export const TIKA_DOCKER_IMAGE = 'apache/tika:3.2.3.0-full';
 
 const OCR_LANGUAGES = 'fra+eng';
 
@@ -17,7 +18,7 @@ const EMAIL_EXTENSIONS = new Set(['.eml', '.msg']);
 
 const CONNECT_HINT =
   'Failed to connect to Apache Tika. If no server is running, start one with:\n' +
-  '> docker run -d -p 9998:9998 apache/tika:3.2.3.0-full';
+  `> docker run -d -p 9998:9998 ${TIKA_DOCKER_IMAGE}`;
 
 export interface TikaClientOptions {
   /** Defaults to $TIKA_URL, then http://localhost:9998 */
@@ -255,6 +256,12 @@ export class TikaClient {
     this.baseUrl = (options.baseUrl ?? process.env.TIKA_URL ?? DEFAULT_TIKA_URL).replace(/\/+$/, '');
     this.maxFileBytes = options.maxFileBytes ?? DEFAULT_MAX_FILE_BYTES;
     this.timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+  }
+
+  async isAvailable(timeoutMs = 1500): Promise<boolean> {
+    return fetch(`${this.baseUrl}/version`, { signal: AbortSignal.timeout(timeoutMs) })
+      .then((response) => response.ok)
+      .catch(() => false);
   }
 
   private buildHeaders(filePath: string, ocr: boolean): Record<string, string> {
