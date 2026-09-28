@@ -56,7 +56,7 @@ function loadMonty(): Promise<MontyModule> {
 }
 
 export const PYTHON_LIMITS: ResourceLimits = {
-  maxDurationSecs: 10,
+  maxFeedDurationSecs: 10,
   maxMemory: 64 * 1024 * 1024,
 };
 

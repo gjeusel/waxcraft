@@ -34,7 +34,7 @@
     "~/.local/lib/node_modules/hunkdiff/skills/hunk-review/SKILL.md"
   ],
   "packages": [
-    "npm:pi-mcp-adapter@2.32.1",
+    "npm:pi-mcp-adapter@3.1.0",
     "git:github.com/paoloanzn/pi-black@v0.84.1-cc2.1.258.1",
     "npm:@tintinweb/pi-subagents@v0.19.0",
     "npm:@juicesharp/rpiv-todo@2.10.1",

@@ -10,7 +10,7 @@ before(async () => {
   pool = await Monty.create({
     maxProcesses: 1,
     requestTimeout: 2,
-    durationLimitGrace: 0.1,
+    feedDurationLimitGrace: 0.1,
   });
 });
 
@@ -107,7 +107,7 @@ test('caps and marks large output', async () => {
 test('enforces the execution timeout', async () => {
   await assert.rejects(
     runPythonCode(pool, 'while True:\n    pass', {
-      limits: { maxDurationSecs: 0.02, maxMemory: 64 * 1024 * 1024 },
+      limits: { maxFeedDurationSecs: 0.02, maxMemory: 64 * 1024 * 1024 },
     }),
     (error: unknown) => {
       assert.ok(error instanceof PythonCodeExecutionError);

@@ -3,6 +3,6 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@pydantic/monty": "^0.0.19"
+    "@pydantic/monty": "^1.0.0"
   }
 }
