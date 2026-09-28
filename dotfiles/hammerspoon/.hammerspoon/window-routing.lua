@@ -119,7 +119,14 @@ local function start()
     end
   end)
 
-  local slackMainTitles = { "%- Slack$", "%- Slack %[principal%]$", "%- Slack %[main%]$" }
+  -- Slack may append status emoji to the title (e.g. " 🏠🔊" during a huddle): allow a trailing
+  -- run of whitespace and non-ASCII bytes after the main-window marker.
+  local slackTitleSuffix = "[%s\128-\255]*$"
+  local slackMainTitles = {
+    "%- Slack" .. slackTitleSuffix,
+    "%- Slack %[principal%]" .. slackTitleSuffix,
+    "%- Slack %[main%]" .. slackTitleSuffix,
+  }
   local slackSharingSession
   local slackMainWindowRestoreTimers = {}
   local slackMainWindowFilter = hs.window.filter.new(false):setAppFilter("Slack", {

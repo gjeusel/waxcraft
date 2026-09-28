@@ -378,7 +378,7 @@ run = 'move-node-to-workspace 3'
 # Hammerspoon also restores the main window here once when screen sharing minimizes it.
 [[on-window-detected]]
 if.app-id = 'com.tinyspeck.slackmacgap'
-if.window-title-regex-substring = '- Slack( \[(principal|main)\])?$'
+if.window-title-regex-substring = '- Slack( \[(principal|main)\])?[\s\x{80}-\x{10FFFF}]*$'
 run = ['layout tiling', 'move-node-to-workspace 4']
 
 # Send Slack floating popups to workspace 0, even when their titles lack call/share keywords.
