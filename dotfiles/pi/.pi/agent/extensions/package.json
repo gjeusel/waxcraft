@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "jsonc-parser": "^3.3.1",
+    "marked": "18.0.11",
     "tree-sitter-bash": "^0.25.1",
     "web-tree-sitter": "^0.26.12"
   }

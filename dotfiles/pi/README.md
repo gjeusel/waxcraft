@@ -74,6 +74,7 @@ not all control-plane data or zero data retention. Model availability is region-
 
 ```text
 extensions/
+├── artifacts/              publish HTML/Markdown pages locally (Claude Code artifacts)
 ├── ask-user-question-format/ compact structured questionnaire results
 ├── gitleaks-guard/         scan and redact secrets
 ├── pane-focus/             dim the editor in unfocused tmux panes or terminals
@@ -86,6 +87,20 @@ extensions/
 ├── statusbar/              minimal one-line footer
 └── whimsical/              playful working messages
 ```
+
+### Artifacts
+
+A local take on [Claude Code artifacts](https://code.claude.com/docs/en/artifacts), which are a
+built-in Claude Code tool hosting pages on claude.ai. The `publish_artifact` tool renders an `.html`,
+`.htm`, or `.md` file into `~/.pi/agent/artifacts/<id>/` and serves it at
+`http://127.0.0.1:7424/<id>/` (the gallery is at `/`). Republishing the same file or `artifact_id`
+updates the page in place and open tabs live-reload. The server lives in whichever Pi session binds
+the port first; later sessions reuse it, and a new one takes over when that session exits.
+
+The first publish opens the browser (`PI_ARTIFACT_AUTO_OPEN=0` disables this), `Ctrl+]` reopens the
+session's latest artifact (so `keybindings.json` unbinds the editor's `jumpForward`), and
+`/artifacts` lists artifacts to open, copy, or attach to the session. The bundled `artifact-design`
+skill carries the page-building guidance.
 
 Per-model default effort levels use Pi's native `modelThinkingLevels` setting in `settings.json`,
 keyed by exact `provider/modelId`; it applies at startup and on every model switch.

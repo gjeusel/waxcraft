@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.87.0",
+  "lastChangelogVersion": "0.87.1",
   "theme": "nord",
   "shellPath": "/run/current-system/sw/bin/bash",
   "defaultProjectTrust": "never",

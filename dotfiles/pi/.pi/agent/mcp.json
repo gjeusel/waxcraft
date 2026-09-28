@@ -49,6 +49,10 @@
       "url": "https://mcp.cloudflare.com/mcp",
       "disabled": true
     },
+    "greptile": {
+      "url": "https://api.greptile.com/mcp",
+      "auth": "oauth"
+    },
     "excalidraw": {
       "url": "https://api.excalidraw.com/api/v1/mcp",
       "headers": {

@@ -12,6 +12,7 @@
   "app.session.toggleNamedFilter": ["ctrl+shift+f"],
   "tui.editor.cursorLeft": ["left", "ctrl+h"],
   "tui.editor.cursorRight": ["right", "ctrl+l"],
+  "tui.editor.jumpForward": [],
   "tui.editor.cursorWordLeft": ["alt+left", "alt+b", "ctrl+left", "ctrl+b"],
   "tui.editor.cursorWordRight": ["alt+right", "alt+f", "ctrl+right", "ctrl+f"],
 
