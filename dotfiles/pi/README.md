@@ -76,6 +76,7 @@ not all control-plane data or zero data retention. Model availability is region-
 extensions/
 ├── artifacts/              publish HTML/Markdown pages locally (Claude Code artifacts)
 ├── ask-user-question-format/ compact structured questionnaire results
+├── auto-name/              name sessions once they get long, or on a bare /name
 ├── gitleaks-guard/         scan and redact secrets
 ├── pane-focus/             dim the editor in unfocused tmux panes or terminals
 ├── peek-document/          read PDF and Office files
@@ -104,6 +105,26 @@ skill carries the page-building guidance.
 
 Per-model default effort levels use Pi's native `modelThinkingLevels` setting in `settings.json`,
 keyed by exact `provider/modelId`; it applies at startup and on every model switch.
+
+### Auto-name
+
+When the context of an unnamed session reaches `thresholdTokens`, a background request sends its user
+and assistant text (no thinking or tool output) to `model` and sets the reply as the session name
+shown in `/resume`, the terminal title, and the statusbar. A reply over six words goes back to the
+model once to drop its secondary part; if still too long, it is cut before a secondary clause (after
+a comma, or at a word such as "and" or "with"). Existing names from `/name <name>`, `--name`, or
+subagents are kept, and a name set while the request runs wins. Each session runtime tries once: a
+failure is reported as a warning and retried only in a later runtime of the session (`/reload`,
+`/resume`, or a restart).
+
+A bare `/name` does the same on demand, at any context size, and replaces the current name; the
+notification shows the previous one. `/name <name>` still sets the name. Pi handles `/name` before
+extension commands, so the extension catches the Enter that submits a bare `/name`, typed in full or
+picked from the autocomplete list; this works in the interactive TUI only.
+
+`auto-name.json` sets `thresholdTokens` (default `50000`) and `model` (default
+`openai-codex/gpt-6-luna`). A missing file uses the defaults; an invalid one disables auto-naming
+with a warning. It is read at session start, so run `/reload` after editing it.
 
 ### To Checkup
 

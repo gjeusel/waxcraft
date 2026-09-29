@@ -1,0 +1,4 @@
+{
+  "thresholdTokens": 50000,
+  "model": "openai-codex/gpt-6-luna"
+}
