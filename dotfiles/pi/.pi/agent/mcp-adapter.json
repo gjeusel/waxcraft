@@ -62,6 +62,15 @@
     "sentry": {
       "url": "https://mcp.sentry.dev/mcp"
     },
+    // ImageKit: DAM (media library) and Admin (origins, URL endpoints, usage) use ImageKit browser sign-in
+    "imagekit-dam": {
+      "url": "https://imagekit.io/mcp/dam",
+      "auth": "oauth"
+    },
+    "imagekit-admin": {
+      "url": "https://imagekit.io/mcp/admin",
+      "auth": "oauth"
+    },
     //
     // One-time setup: `npx -y @auth0/auth0-mcp-server init`
     // (device login, stores credentials in the macOS Keychain)
