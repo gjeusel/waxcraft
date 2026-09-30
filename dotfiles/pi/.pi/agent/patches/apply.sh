@@ -35,6 +35,49 @@ apply_patch() (
   fi
 )
 
+# Pi warns about extension packages that list host-provided modules (TypeBox, Pi's own packages) in
+# `dependencies`. Its loader aliases them to the host copies anyway, so moving them to "*"
+# peerDependencies records what already happens at runtime. Upstream fixes make this a no-op.
+declare_host_peers() {
+  npm_dir="$agent_dir/npm"
+  if [ ! -f "$npm_dir/package.json" ]; then
+    echo "Skipping host peer declarations; no packages at $npm_dir" >&2
+    return 0
+  fi
+
+  node -e '
+const { existsSync, readFileSync, writeFileSync } = require("node:fs");
+const { join } = require("node:path");
+
+const hostPackages = new Set([
+  "@earendil-works/pi-agent-core", "@earendil-works/pi-ai", "@earendil-works/pi-coding-agent",
+  "@earendil-works/pi-tui", "@mariozechner/pi-agent-core", "@mariozechner/pi-ai",
+  "@mariozechner/pi-coding-agent", "@mariozechner/pi-tui", "@sinclair/typebox", "typebox",
+]);
+const npmDir = process.argv[1];
+const installed = Object.keys(JSON.parse(readFileSync(join(npmDir, "package.json"), "utf8")).dependencies ?? {});
+
+for (const name of installed) {
+  const manifestPath = join(npmDir, "node_modules", name, "package.json");
+  if (!existsSync(manifestPath)) continue;
+
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  const moved = Object.keys(manifest.dependencies ?? {}).filter((dep) => hostPackages.has(dep));
+  if (moved.length === 0) continue;
+
+  manifest.peerDependencies ??= {};
+  for (const dep of moved) {
+    delete manifest.dependencies[dep];
+    manifest.peerDependencies[dep] = "*";
+  }
+  writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+  console.log(`Declared ${moved.join(", ")} as host peers of ${name}`);
+}
+' "$npm_dir"
+}
+
+declare_host_peers
+
 apply_patch @tintinweb/pi-subagents npm/node_modules/@tintinweb/pi-subagents \
   pi-subagents-0.19.0-foreground-labels.patch src/agent-color.ts
 apply_patch pi-black git/github.com/paoloanzn/pi-black \

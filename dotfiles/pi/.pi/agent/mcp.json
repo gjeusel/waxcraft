@@ -1,31 +1,30 @@
 {
   "mcpServers": {
-    // "context7": {
-    //   "command": "npx",
-    //   "args": ["-y", "@upstash/context7-mcp"]
-    // },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"],
+      "enabled": false
+    },
     "notion": {
-      "url": "https://mcp.notion.com/mcp",
-      "auth": "oauth"
+      "url": "https://mcp.notion.com/mcp"
     },
     "pappers": {
-      "url": "https://mcp.pappers.fr/${PAPPERS_API_KEY}"
+      "url": "https://mcp.pappers.fr",
+      "headers": {
+        "Authorization": "Bearer ${PAPPERS_API_KEY}"
+      }
     },
     "logfire": {
-      "url": "https://logfire-eu.pydantic.dev/mcp",
-      "auth": "oauth"
+      "url": "https://logfire-eu.pydantic.dev/mcp"
     },
     "brandfetch": {
-      "url": "https://mcp.brandfetch.io/mcp",
-      "auth": "oauth"
+      "url": "https://mcp.brandfetch.io/mcp"
     },
     "plain": {
-      "url": "https://mcp.plain.com/mcp",
-      "auth": "oauth"
+      "url": "https://mcp.plain.com/mcp"
     },
     "posthog": {
-      "url": "https://mcp.posthog.com/mcp",
-      "auth": "oauth"
+      "url": "https://mcp.posthog.com/mcp"
     },
     "postgres": {
       "command": "uvx",
@@ -47,11 +46,10 @@
     },
     "cloudflare-api": {
       "url": "https://mcp.cloudflare.com/mcp",
-      "disabled": true
+      "enabled": false
     },
     "greptile": {
-      "url": "https://api.greptile.com/mcp",
-      "auth": "oauth"
+      "url": "https://api.greptile.com/mcp"
     },
     "excalidraw": {
       "url": "https://api.excalidraw.com/api/v1/mcp",
@@ -62,18 +60,12 @@
     "sentry": {
       "url": "https://mcp.sentry.dev/mcp"
     },
-    // ImageKit: DAM (media library) and Admin (origins, URL endpoints, usage) use ImageKit browser sign-in
     "imagekit-dam": {
-      "url": "https://imagekit.io/mcp/dam",
-      "auth": "oauth"
+      "url": "https://imagekit.io/mcp/dam"
     },
     "imagekit-admin": {
-      "url": "https://imagekit.io/mcp/admin",
-      "auth": "oauth"
+      "url": "https://imagekit.io/mcp/admin"
     },
-    //
-    // One-time setup: `npx -y @auth0/auth0-mcp-server init`
-    // (device login, stores credentials in the macOS Keychain)
     "auth0": {
       "command": "npx",
       "args": ["-y", "@auth0/auth0-mcp-server", "run"]

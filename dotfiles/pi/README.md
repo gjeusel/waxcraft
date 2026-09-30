@@ -70,6 +70,22 @@ not all control-plane data or zero data retention. Model availability is region-
 `GET https://api.eu.mistral.ai/v1/models` before adding models from the
 [Mistral catalog](https://docs.mistral.ai/models).
 
+## MCP servers
+
+`mcp.json` configures Pi's built-in [MCP support](https://pi.dev/docs/latest/mcp) (Pi 0.99+). Do not
+install `pi-mcp-adapter` again: an extension that registers `/mcp` disables the built-in support.
+The file is plain JSON (no comments). Servers use the default `codemode` exposure, and HTTP servers
+without an `Authorization` header sign in with OAuth, with tokens stored in `~/.pi/agent/mcp-auth.json`:
+
+```bash
+pi mcp list                # connect to every enabled server and report its state
+pi mcp login <server>      # browser sign-in for servers reported as "needs sign-in"
+```
+
+`pappers` and `excalidraw` authenticate with bearer tokens from `PAPPERS_API_KEY` and
+`EXCALIDRAW_MCP_TOKEN`. `auth0` keeps its credentials in the macOS Keychain; refresh them with
+`npx -y @auth0/auth0-mcp-server init` (device login) when `pi mcp list` reports an expired token.
+
 ## Extensions
 
 ```text
@@ -161,7 +177,6 @@ $20 output, $0.20 cached input, $5 cache write per million tokens). Select it wi
 
 ```text
 packages/
-├── pi-mcp-adapter/                         MCP server integration
 ├── pi-black/                               native Anthropic OAuth compatibility
 ├── pi-subagents/                           delegated agent workflows
 ├── pi-intercom/                            cross-session communication
@@ -193,7 +208,11 @@ foreground-only subagent labels (agent `color` sets text color without badge
 padding or background changes) and Pi Black's Claude Code `2.1.280` version override.
 The latter updates the shared constant used by the user-agent, billing header, and version
 fingerprint, plus the upstream fingerprint test fixtures; it leaves the billing salt and
-request checksum algorithm unchanged. After a standalone package reinstall or update,
+request checksum algorithm unchanged. It also moves host-provided modules (TypeBox, Pi packages)
+from installed extension packages' `dependencies` to `"*"` peerDependencies, which silences Pi's
+"Host-provided extension packages" warning for packages that have not fixed their manifests
+upstream; Pi's loader aliases these imports to its own copies either way. After a standalone
+package reinstall or update,
 reapply and verify them with:
 
 ```bash
