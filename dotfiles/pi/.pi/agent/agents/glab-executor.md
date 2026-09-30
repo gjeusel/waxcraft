@@ -64,6 +64,22 @@ A dirty worktree containing exactly those leftovers is valid. For the merge-only
 is `auto_merge_enabled` once GitLab confirms enabled or already merged; a running pipeline is not a
 blocker. Wait for `merged` only with an explicit request and a supplied bounded deadline.
 
+Hard rule for published text: load every issue/MR/commit title, description, or comment into a
+variable only with a quoted heredoc, and serialize it with `jq -n --arg`; never place it inside
+a double-quoted or unquoted shell string, where backticks and `$(...)` would execute:
+
+```bash
+DESC=$(cat <<'EOF'
+<verbatim markdown>
+EOF
+)
+MR_JSON=$(jq -n --arg description "$DESC" --arg title "$TITLE" '{title: $title, description: $description}')
+```
+
+After creating or updating the object, assert that the returned `.description` (or `.body`) equals
+`$DESC`, e.g. `jq -e --arg d "$DESC" '.description == $d' <<< "$MR" >/dev/null`. On a mismatch,
+report it as a blocker instead of success.
+
 Return the skill's final report, backed by command results. Include preserved leftovers, blockers,
 partial progress, and recovery stash/scratch identities so the caller can continue safely. After a
 failed batch, inspect its completed actions and remote/local state; never replay the batch blindly.

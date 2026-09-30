@@ -9,9 +9,8 @@
   "defaultThinkingLevel": "high",
   "enabledModels": [
     "openai-codex/gpt-6-astra",
-    "openai-codex/gpt-6-sol",
+    "openai-codex/gpt-6.1-sol",
     "openai-codex/gpt-6-luna",
-    "vercel-ai-gateway/openai/gpt-5.6-sol",
     "mistral-eu/zai-glm-5-3",
     "moonshotai/kimi-k3",
     "deepseek/deepseek-flash",
@@ -25,8 +24,8 @@
     "anthropic/claude-fable-5-1": "high",
     "anthropic/claude-opus-5-5": "high",
     "openai-codex/gpt-6-luna": "high",
-    "openai-codex/gpt-6-sol": "low",
-    "openai-codex/gpt-6-astra": "low"
+    "openai-codex/gpt-6.1-sol": "high",
+    "openai-codex/gpt-6-astra": "high"
   },
   "skills": [
     "!../../.claude/skills/synced/**",
