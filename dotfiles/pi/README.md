@@ -86,6 +86,29 @@ pi mcp login <server>      # browser sign-in for servers reported as "needs sign
 `EXCALIDRAW_MCP_TOKEN`. `auth0` keeps its credentials in the macOS Keychain; refresh them with
 `npx -y @auth0/auth0-mcp-server init` (device login) when `pi mcp list` reports an expired token.
 
+Servers whose configuration `mcp.json` cannot express, such as values Pi does not expand from
+`${VAR}` (only `env`, `headers`, and `oauth.clientSecret` are), are registered by the
+`complex-mcp-setup` extension instead, one function per server. `pi mcp list` and `pi mcp login` do
+not load extensions: check and sign in to these servers with `/mcp` inside a session.
+
+`slack` (in `complex-mcp-setup`) is Slack's official server. It has no dynamic client registration,
+so it signs in through the personal internal Slack app `pi-slack-mcp` (no secret: PKCE is opted
+in), whose client ID comes from `SLACK_MCP_CLIENT_ID` (exported in `~/.zshrc`, unversioned) because
+Pi does not expand `${VAR}` in `oauth.clientId`. The app requests every user scope listed in
+[`oauth-protected-resource`](https://mcp.slack.com/.well-known/oauth-protected-resource) (Pi requests
+them all, so a scope Slack adds later must be added to the app too), has its redirect URL set to
+`http://localhost:3118/callback` to match `callbackUrl`, has Model Context Protocol enabled under
+*Agents & AI Apps*, and declares a never-used bot user, without which Slack's user-authorize endpoint
+rejects the request. Slack's own Pi guide points to `pi-mcp-adapter`; ignore it (see above).
+
+`aws` is the managed [AWS MCP Server](https://docs.aws.amazon.com/agent-toolkit/latest/userguide/getting-started-aws-mcp-server.html)
+(`eu-central-1` endpoint, the closest supported region) behind `mcp-proxy-for-aws`, which signs
+requests with SigV4 using the `rnx-readonly` profile from `~/.aws/credentials` (IAM user with
+`ReadOnlyAccess`; the server needs no MCP-specific IAM actions). `--read-only` hides write-capable
+tools, and `AWS_REGION=eu-west-1` makes Renewex's region (`rnx-cluster`) the default for API calls.
+The explicit `--profile` also stops boto3 from using the stale `AWS_ACCESS_KEY_ID` exported by the
+shell.
+
 ## Extensions
 
 ```text
@@ -93,6 +116,7 @@ extensions/
 ├── artifacts/              publish HTML/Markdown pages locally (Claude Code artifacts)
 ├── ask-user-question-format/ compact structured questionnaire results
 ├── auto-name/              name sessions once they get long, or on a bare /name
+├── complex-mcp-setup/      MCP servers mcp.json cannot express (see MCP servers)
 ├── gitleaks-guard/         scan and redact secrets
 ├── pane-focus/             dim the editor in unfocused tmux panes or terminals
 ├── peek-document/          read PDF and Office files

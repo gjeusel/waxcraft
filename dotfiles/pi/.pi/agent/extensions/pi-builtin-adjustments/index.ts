@@ -8,6 +8,7 @@ const RESUME_MESSAGE_PREFIX = 'To resume this session:';
 const STYLE_PLACEHOLDER = '__PI_RESUME_COMMAND__';
 const MANDATORY_MODEL_PREFIXES = ['anthropic/', 'openai-codex/'] as const;
 const NO_MATCH_WARNING = /Warning: No models match pattern "([^"]+)"/;
+const MCP_ATTENTION_PREFIX = 'MCP servers need attention:';
 // Pi already discovers `.agents/skills` from cwd through the Git root; only Claude's location is added.
 const PROJECT_SKILL_DIRECTORY = join('.claude', 'skills');
 
@@ -106,6 +107,27 @@ export function adjustOptionalModelWarnings(pi: ExtensionAPI): void {
 }
 
 /**
+ * Drop the built-in MCP report of failed or signed-out servers; `/mcp` still shows their state. The
+ * report comes after startup connections settle, and every extension's `ctx.ui` is the same
+ * session object, so wrapping its `notify` on session start catches it.
+ */
+export function adjustMcpAttentionWarnings(pi: ExtensionAPI): void {
+  const wrapped = new WeakSet<object>();
+
+  pi.on('session_start', (_event, ctx) => {
+    const ui = ctx.ui;
+    if (wrapped.has(ui)) return;
+
+    wrapped.add(ui);
+    const originalNotify = ui.notify;
+    ui.notify = (message, type) => {
+      if (message.startsWith(MCP_ATTENTION_PREFIX)) return;
+      originalNotify.call(ui, message, type);
+    };
+  });
+}
+
+/**
  * Keep model and thinking-level switches session-local by suppressing Pi's
  * settings-manager writes. Restore implementation details during shutdown so
  * stale extension instances do not retain the patches after reload/replacement.
@@ -142,6 +164,7 @@ export function adjustMonorepoSkillDiscovery(pi: ExtensionAPI): void {
 export default function piBuiltinAdjustments(pi: ExtensionAPI): void {
   adjustExitResumeCommand(pi);
   adjustOptionalModelWarnings(pi);
+  adjustMcpAttentionWarnings(pi);
   adjustSessionOnlyModelSelection(pi);
   adjustMonorepoSkillDiscovery(pi);
 }

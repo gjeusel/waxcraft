@@ -6,6 +6,7 @@ import test from 'node:test';
 import { SettingsManager, type ExtensionAPI } from '@earendil-works/pi-coding-agent';
 import {
   adjustExitResumeCommand,
+  adjustMcpAttentionWarnings,
   adjustMonorepoSkillDiscovery,
   adjustOptionalModelWarnings,
   adjustSessionOnlyModelSelection,
@@ -150,6 +151,30 @@ test('suppresses no-match warnings except for mandatory providers during startup
     handlers.get('session_shutdown')?.();
     console.warn = actualWarn;
   }
+});
+
+test('drops only the MCP attention warning, once per session UI', () => {
+  type Notify = (message: string, type?: string) => void;
+  type StartHandler = (event: unknown, ctx: { ui: { notify: Notify } }) => void;
+
+  let startHandler: StartHandler | undefined;
+  const pi = {
+    on(event: string, handler: StartHandler) {
+      if (event === 'session_start') startHandler = handler;
+    },
+  } as unknown as ExtensionAPI;
+  adjustMcpAttentionWarnings(pi);
+  assert.ok(startHandler);
+
+  const notifications: [string, string | undefined][] = [];
+  const ui = { notify: (message: string, type?: string) => void notifications.push([message, type]) };
+  startHandler({}, { ui });
+  startHandler({}, { ui });
+
+  ui.notify('MCP servers need attention:\n  imagekit-dam: failed\nRun /mcp to fix.', 'warning');
+  ui.notify('MCP failed to load: boom', 'error');
+
+  assert.deepEqual(notifications, [['MCP failed to load: boom', 'error']]);
 });
 
 test('keeps model and thinking-level defaults unchanged during a session', () => {

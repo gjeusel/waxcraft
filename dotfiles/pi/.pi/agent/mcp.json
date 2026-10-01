@@ -1,10 +1,5 @@
 {
   "mcpServers": {
-    "context7": {
-      "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp"],
-      "enabled": false
-    },
     "notion": {
       "url": "https://mcp.notion.com/mcp"
     },
@@ -40,13 +35,23 @@
         "DATABASE_URI": "postgresql://postgres@localhost:5432/zefire"
       }
     },
+    "aws": {
+      "command": "uvx",
+      "args": [
+        "mcp-proxy-for-aws@1.7.0",
+        "https://aws-mcp.eu-central-1.api.aws/mcp",
+        "--profile",
+        "rnx-readonly",
+        "--read-only",
+        "--metadata",
+        "AWS_REGION=eu-west-1"
+      ]
+    },
     "playwright": {
       "command": "npx",
-      "args": ["@playwright/mcp@latest"]
-    },
-    "cloudflare-api": {
-      "url": "https://mcp.cloudflare.com/mcp",
-      "enabled": false
+      "args": [
+        "@playwright/mcp@latest"
+      ]
     },
     "greptile": {
       "url": "https://api.greptile.com/mcp"
@@ -68,7 +73,28 @@
     },
     "auth0": {
       "command": "npx",
-      "args": ["-y", "@auth0/auth0-mcp-server", "run"]
+      "args": [
+        "-y",
+        "@auth0/auth0-mcp-server",
+        "run"
+      ],
+      "enabled": false
+    },
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp"
+      ],
+      "enabled": false
+    },
+    "newrelic": {
+      "url": "https://mcp.eu.newrelic.com/mcp/",
+      "enabled": false
+    },
+    "cloudflare-api": {
+      "url": "https://mcp.cloudflare.com/mcp",
+      "enabled": false
     }
   }
 }
