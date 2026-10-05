@@ -28,7 +28,7 @@ hunk skill path
 
 After upgrading Hunk, start a new Pi session or run `/reload` before reviewing a live Hunk session.
 
-Subagent `skills:` preloading (`.pi/agent/agents/*.md`, e.g. the reviewer's `code-review`) is resolved by `pi-subagents`, which rejects symlinked skill directories. The symlinks in `~/.pi/agent/skills/` are skipped and resolution falls through to the real directories in `~/.agents/skills/`; keep those real, or the agent silently runs with a `(Skill "…" not found)` placeholder in its prompt.
+Subagent `skills:` preloading (`.pi/agent/agents/*.md`, e.g. the reviewer's `code-review`) is resolved by `pi-subagents` from `~/.agents/skills/`. The reviewer's `code-review` is a customized fork versioned in `dotfiles/agents/.agents/skills/code-review` (not installed with `npx skills`); its stowed directory symlink resolves correctly. If a preloaded skill stops resolving after a `pi-subagents` upgrade, the agent silently runs with a `(Skill "…" not found)` placeholder in its prompt.
 
 Pi installs the packages from `settings.json` on first launch. [Pi Black](https://github.com/paoloanzn/pi-black)
 wraps the native Anthropic provider for Claude subscription OAuth requests; it does not run a

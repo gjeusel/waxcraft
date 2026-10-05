@@ -1,3 +1,5 @@
+local python_utils = require("wax.lsp.python-utils")
+
 -- root_dir can be nil under the vim.lsp.config model; fall back to the first
 -- workspace folder so [tool.ty] detection keeps working.
 local function client_root(client)
@@ -34,6 +36,23 @@ local function has_tool_ty(root_dir)
 end
 
 return {
+  -- ty only discovers a `.venv` in its project root, so a uv workspace member (whose pyproject.toml
+  -- holds [tool.ty]) misses the `.venv` shared at the workspace root: point ty at it explicitly.
+  -- https://docs.astral.sh/ty/modules/#python-environment
+  before_init = function(_, config)
+    if vim.env.VIRTUAL_ENV or config.root_dir == nil then
+      return
+    end
+
+    local venv = python_utils.find_venv(config.root_dir)
+    if venv then
+      -- Assign into `config.settings` rather than replacing it: the client already holds a
+      -- reference to this table and serves `workspace/configuration` from it.
+      config.settings.ty = vim.tbl_deep_extend("force", config.settings.ty or {}, {
+        configuration = { environment = { python = venv } },
+      })
+    end
+  end,
   -- Silence ty server panics (e.g. https://github.com/astral-sh/ty/issues/2401)
   on_error = function(_, _) end,
   handlers = {
@@ -58,11 +77,6 @@ return {
     end,
   },
   settings = {
-    ty = {
-      experimental = {
-        rename = true, -- https://docs.astral.sh/ty/reference/editor-settings/#rename
-        autoImport = true,
-      },
-    },
+    ty = {},
   },
 }

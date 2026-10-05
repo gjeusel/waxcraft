@@ -13,6 +13,31 @@ if vim.env.MAMBA_ROOT_PREFIX then
   M.basepath_conda_venv = M.basepath_conda:join("envs")
 end
 
+---Return the nearest `.venv` directory, searching from `path` up to its repository root. In a
+---monorepo (e.g. a uv workspace), members share the `.venv` living at the repository root.
+---@param path string directory to start the search from
+---@return string?
+function M.find_venv(path)
+  local dir = vim.fs.normalize(path)
+  local root_repo = find_root_monorepo(dir)
+  root_repo = root_repo and vim.fs.normalize(root_repo)
+
+  while true do
+    local venv = vim.fs.joinpath(dir, ".venv")
+    if vim.fn.isdirectory(venv) == 1 then
+      return venv
+    end
+
+    -- Outside a repository, only `path` itself is searched.
+    local parent = vim.fs.dirname(dir)
+    if root_repo == nil or dir == root_repo or parent == dir then
+      return nil
+    end
+
+    dir = parent
+  end
+end
+
 M.find_python_cmd = wax_cache_buf_fn(function(workspace, cmd)
   -- https://github.com/neovim/nvim-lspconfig/issues/500#issuecomment-851247107
 
@@ -28,12 +53,13 @@ M.find_python_cmd = wax_cache_buf_fn(function(workspace, cmd)
     return Path:new(vim.env.VIRTUAL_ENV):join("bin"):join(cmd):absolute()
   end
 
-  -- If .venv directory, use it
+  -- If .venv directory, in the package or up to the monorepo root, use it
   local root_package = find_root_package()
-  if root_package then
-    local workspace_venv_cmdpath = Path:new(root_package):join(".venv/bin"):join(cmd)
-    if workspace_venv_cmdpath:exists() then
-      return workspace_venv_cmdpath:absolute()
+  local venv = root_package and M.find_venv(root_package)
+  if venv then
+    local venv_cmdpath = Path:new(venv):join("bin", cmd)
+    if venv_cmdpath:exists() then
+      return venv_cmdpath:absolute()
     end
   end
 
