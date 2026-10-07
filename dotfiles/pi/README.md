@@ -186,18 +186,14 @@ Third-party packages are pinned in `settings.json`. Pi Black uses the GitHub rel
 (the minimum required for Opus 5.5). This is an unofficial compatibility override, not an upgrade
 of Claude Code; revalidate it when either service changes. Claude model definitions, including
 Fable 5.1, come from Pi's native
-Anthropic catalog; the reviewer uses `anthropic/claude-fable-5-1`.
+Anthropic catalog; the reviewer uses `openai-codex/gpt-6-astra` with high thinking.
 
-`models.json` adds `anthropic/claude-opus-5-5` until it reaches the native catalog, retaining
-existing Anthropic authentication and Pi Black compatibility. It is included in model cycling,
-with medium effort by default and always-on adaptive thinking. The definition uses the
-[official limits](https://platform.claude.com/docs/en/models/opus-5-5/overview) (1M context,
-128K output) and [pricing](https://platform.claude.com/docs/en/about-claude/pricing) ($4 input,
-$20 output, $0.20 cached input, $5 cache write per million tokens). Select it with:
-
-```text
-/model anthropic/claude-opus-5-5
-```
+`models.json` overrides `openai-codex/gpt-6.1-sol` and `openai-codex/gpt-6-luna` to use
+1,000,000-token contexts, retaining Pi's native output limits, pricing tiers, and capabilities.
+`gpt-6-astra` keeps Pi's default context limit. These overrides opt into long contexts; the
+Codex backend must support them, and inputs above 272,000 tokens enter the higher pricing tier.
+Other OpenAI and Anthropic model definitions come from Pi's native catalog. The custom Mistral EU
+endpoint and OpenRouter Ox Alpha definition remain in `models.json`.
 
 ```text
 packages/

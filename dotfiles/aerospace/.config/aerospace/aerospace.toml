@@ -147,10 +147,18 @@ alt-shift-tab = 'focus --wrap-around dfs-prev'
 
 # Rules stop at the first match: popup exceptions must precede general app routing.
 # DevTools only move; do not float them or let inspected-page titles trigger auth rules.
-# Hammerspoon handles late DevTools titles once per newly created window ID.
+# Hammerspoon handles late DevTools and Google Meet popup titles once per newly created window ID.
 [[on-window-detected]]
 if = '''test %{app-bundle-id} ~= '^(com\.brave\.Browser|com\.google\.Chrome|org\.mozilla\.firefox|org\.mozilla\.firefoxdeveloperedition|app\.zen-browser\.zen|com\.apple\.Safari)$' && test %{window-title} ~= '^(DevTools|Developer Tools|Outils de développement|Outils pour les développeurs|Web Inspector|Inspecteur web)(\s*[-–—:].*)?$' '''
 run = 'move-node-to-workspace 0'
+
+# Google Meet picture-in-picture popup: Chromium titles it after the meeting tab, e.g.
+# "Meet – abc-defg-hij", without the product name normal windows carry ("... - Brave - Renewex").
+# Must precede browser routing and dialog rules.
+# Hammerspoon also moves it once per window ID when the title arrives after detection.
+[[on-window-detected]]
+if = '''test %{app-bundle-id} ~= '^(com\.brave\.Browser|com\.google\.Chrome)$' && test %{window-title} ~= '^Meet\s*[-–—:]' && test-not %{window-title} ~= ' - (Brave|Google Chrome)( - |$)' '''
+run = ['layout floating', 'move-node-to-workspace 0']
 
 # Preserve dialogs AeroSpace already recognizes, including unnamed extension and Excel popups.
 # Slack is deliberately excluded: its floating call windows have their own workspace-0 rules.

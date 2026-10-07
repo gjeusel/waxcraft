@@ -6,7 +6,7 @@ description: Review a branch, PR, or working diff against repository standards a
 tools: "read, bash, ls, ext:pi-fff/ffgrep, ext:pi-fff/fffind"
 extensions: [pi-fff, pi-safety]
 skills: code-review
-model: anthropic/claude-fable-5-1
+model: openai-codex/gpt-6-astra
 thinking: high
 max_turns: 60
 prompt_mode: append

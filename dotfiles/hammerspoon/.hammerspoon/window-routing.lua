@@ -15,7 +15,17 @@ local function start()
     "Web Inspector",
     "Inspecteur web",
   }
+  -- Chromium names normal windows "<tab> - <product>[ - <profile>]"; picture-in-picture popups omit
+  -- the product name. Firefox and Safari do not implement Document Picture-in-Picture.
+  local meetPopupProductNames = {
+    ["com.brave.Browser"] = "Brave",
+    ["com.google.Chrome"] = "Google Chrome",
+  }
   local newWindowStates = {}
+
+  local function startsWithTitleSeparator(text)
+    return text:match("^[-:]") or text:match("^–") or text:match("^—")
+  end
 
   local function isDevtoolsWindow(window)
     local application = window:application()
@@ -27,12 +37,7 @@ local function start()
     for _, prefix in ipairs(devtoolsTitlePrefixes) do
       if title:sub(1, #prefix) == prefix then
         local suffix = title:sub(#prefix + 1):match("^%s*(.*)")
-        if
-          suffix == ""
-          or suffix:match("^[-:]")
-          or suffix:match("^–")
-          or suffix:match("^—")
-        then
+        if suffix == "" or startsWithTitleSeparator(suffix) then
           return true
         end
       end
@@ -41,9 +46,29 @@ local function start()
     return false
   end
 
-  local function routeNewDevtoolsWindow(windowId, state, attemptsLeft)
+  -- Google Meet's picture-in-picture popup takes the meeting tab title, e.g. "Meet – abc-defg-hij".
+  local function isMeetPopupWindow(window)
+    local application = window:application()
+    local productName = application and meetPopupProductNames[application:bundleID()]
+    if not productName then
+      return false
+    end
+
+    local title = window:title() or ""
+    local afterMeet = title:match("^Meet%s*(.*)")
+    local isMeetTitle = afterMeet ~= nil and startsWithTitleSeparator(afterMeet)
+    local hasProductSegment = (title .. " - "):find(" - " .. productName .. " - ", 1, true)
+
+    return isMeetTitle and not hasProductSegment
+  end
+
+  local function isWorkspaceZeroPopup(window)
+    return isDevtoolsWindow(window) or isMeetPopupWindow(window)
+  end
+
+  local function routeNewWindowToWorkspaceZero(windowId, state, attemptsLeft)
     local window = hs.window.get(windowId)
-    if newWindowStates[windowId] ~= state or not window or not isDevtoolsWindow(window) then
+    if newWindowStates[windowId] ~= state or not window or not isWorkspaceZeroPopup(window) then
       state.routing = false
       return
     end
@@ -58,12 +83,12 @@ local function start()
       elseif attemptsLeft > 1 then
         -- Window creation/title notifications can precede AeroSpace's discovery of the ID.
         hs.timer.doAfter(0.1, function()
-          routeNewDevtoolsWindow(windowId, state, attemptsLeft - 1)
+          routeNewWindowToWorkspaceZero(windowId, state, attemptsLeft - 1)
         end)
       else
         state.handled = true
         state.routing = false
-        hs.printf("Could not route DevTools window %s: %s", windowId, stderr)
+        hs.printf("Could not route window %s to workspace 0: %s", windowId, stderr)
       end
     end
 
@@ -113,9 +138,9 @@ local function start()
     end
 
     local state = newWindowStates[windowId]
-    if state and not state.handled and not state.routing and isDevtoolsWindow(window) then
+    if state and not state.handled and not state.routing and isWorkspaceZeroPopup(window) then
       state.routing = true
-      routeNewDevtoolsWindow(windowId, state, 10)
+      routeNewWindowToWorkspaceZero(windowId, state, 10)
     end
   end)
 
