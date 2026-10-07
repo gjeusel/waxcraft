@@ -16,6 +16,9 @@
   "tui.editor.cursorWordLeft": ["alt+left", "alt+b", "ctrl+left", "ctrl+b"],
   "tui.editor.cursorWordRight": ["alt+right", "alt+f", "ctrl+right", "ctrl+f"],
 
+  "tui.altScreen.halfPageUp": ["ctrl+u"],
+  "tui.altScreen.halfPageDown": ["ctrl+d"],
+
   "tui.input.newLine": ["shift+enter"],
   "tui.editor.deleteToLineEnd": ["ctrl+shift+k"],
   "app.model.select": ["ctrl+shift+l"]

@@ -30,8 +30,10 @@ verification. Derive missing scope and wording yourself rather than requiring fi
 payloads. Preserve supplied messages verbatim. Perform only requested work and necessary scoped
 supporting actions; pickup alone does not authorize publishing unfinished or unrelated work.
 
-Work in the supplied repository's existing checkout. Read its AGENTS.md and applicable repository
-instructions before mutations. The main thread leaves the checkout to you while the request runs.
+Work in the explicitly supplied repository's existing checkout, even when the inherited session cwd
+belongs to another repository. Begin each guarded shell batch with `cd -- "<absolute-checkout>"`;
+verify its Git root and origin match the target before mutations. Read its AGENTS.md and applicable
+repository instructions. The main thread leaves the target checkout to you while the request runs.
 There is no user to ask here: resolve routine details from the conversation and repository, but
 return one bundled clarification if missing input affects correctness, scope, destination or safety.
 Stop before the affected mutation and continue when resumed with the user's answers.
@@ -63,8 +65,8 @@ immediately, but do not claim steering canceled an in-flight command; inspect/re
 Verify local/remote pushed SHA equality, MR SHA and intended readiness/merge flags when applicable,
 and restored leftovers with content and staging state preserved. A dirty checkout containing exactly
 those leftovers is valid. Require the workflow's SHA/pipeline gates before auto-merge. Completion is
-confirmed `auto_merge_enabled` or already merged; do not poll a running pipeline. Wait for `merged`
-only when explicitly requested with a bounded deadline.
+confirmed auto-merge enabled or already merged under the workflow's dual-field response gate; do not
+poll a running pipeline. Wait for `merged` only when explicitly requested with a bounded deadline.
 
 Hard rule for published text: load issue/MR/commit titles, descriptions and comments with a quoted
 heredoc, then serialize with `jq -n --arg`. Raw published text in double-quoted or unquoted shell

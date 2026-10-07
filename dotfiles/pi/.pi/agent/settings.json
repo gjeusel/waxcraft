@@ -1,7 +1,7 @@
 {
   "lastChangelogVersion": "1.0.4",
   "theme": "nord",
-  "tuiMode": "regular",
+  "tuiMode": "fullscreen",
   "shellPath": "/run/current-system/sw/bin/bash",
   "defaultProjectTrust": "never",
   "enableSkillCommands": true,
