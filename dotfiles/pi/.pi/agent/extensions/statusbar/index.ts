@@ -31,8 +31,7 @@ export default function (pi: ExtensionAPI) {
           let left = cwd;
 
           const extensionStatuses = footerData.getExtensionStatuses();
-          const usageStatus = extensionStatuses.get('usage');
-          const isFast = usageStatus !== undefined && /^codex fast(?:\s|$)/u.test(usageStatus);
+          const isFast = extensionStatuses.get('pi-openai') === 'fast';
           const sessionName = pi.getSessionName();
           const truncatedSessionName = sessionName
             ? truncateToWidth(sessionName, 50, '…').replaceAll('\x1b[0m', '')

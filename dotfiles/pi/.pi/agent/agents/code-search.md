@@ -6,7 +6,7 @@ description: Locate code, references, and tests when the target is unknown. Read
 tools: "read, ls, ext:pi-fff/ffgrep, ext:pi-fff/fffind"
 extensions: [pi-fff]
 skills: false
-model: openai-codex/gpt-5.6-luna
+model: openai-codex/gpt-6-luna
 thinking: high
 max_turns: 25
 prompt_mode: replace

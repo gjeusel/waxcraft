@@ -1,12 +1,14 @@
 {
   "lastChangelogVersion": "1.0.4",
   "theme": "nord",
+  "tuiMode": "regular",
   "shellPath": "/run/current-system/sw/bin/bash",
   "defaultProjectTrust": "never",
   "enableSkillCommands": true,
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-6.1-sol",
   "defaultThinkingLevel": "high",
+  "hideThinkingBlock": true,
   "enabledModels": [
     "openai-codex/gpt-6-astra",
     "openai-codex/gpt-6.1-sol",
@@ -38,8 +40,6 @@
     "npm:@juicesharp/rpiv-todo@2.12.0",
     "npm:@juicesharp/rpiv-ask-user-question@2.12.0",
     "npm:@narumitw/pi-lsp@0.49.9",
-    "npm:@narumitw/pi-codex-compact@0.55.0",
-    "npm:@narumitw/pi-usage@0.63.0",
     "npm:pi-web-access@0.37.0",
     "git:github.com/arpagon/pi-rewind@v0.5.0",
     "npm:@ff-labs/pi-fff@0.11.0"

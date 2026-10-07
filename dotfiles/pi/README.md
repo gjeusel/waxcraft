@@ -122,6 +122,7 @@ extensions/
 ├── peek-document/          read PDF and Office files
 ├── per-model-prompt/       model-specific directives
 ├── pi-builtin-adjustments/ quieter built-ins
+├── pi-openai/              Codex Fast mode and direct server-side compaction
 ├── pi-safety/              Bash command checks, jev auto mode, and safe deletion shims
 ├── python-code/            sandboxed Python
 ├── rant/                   log preventable failures
@@ -145,6 +146,36 @@ skill carries the page-building guidance.
 
 Per-model default effort levels use Pi's native `modelThinkingLevels` setting in `settings.json`,
 keyed by exact `provider/modelId`; it applies at startup and on every model switch.
+
+### Pi OpenAI
+
+`pi-openai` replaces `@narumitw/pi-usage` and `@narumitw/pi-codex-compact` for the official
+`openai-codex` provider. It makes no usage/quota queries and has no model allowlist.
+
+- `/fast` toggles priority routing; `/fast on`, `/fast off`, and `/fast status` are also available.
+  The preference is saved in `~/.pi/agent/pi-openai.json` (`fastMode`, default `false`); this
+  repository configures it to `true`. The footer shows `fast` while effective. Fast sends
+  `service_tier: "priority"`, uses more plan allowance, and remains subject to backend support.
+  Off explicitly sends `service_tier: "default"`. Changes affect subsequent requests only.
+- `/codex-compact` immediately starts server-side Remote V2 compaction: no menu or confirmation.
+  Pi's `/compact` and automatic threshold/overflow compaction use the same server operation on
+  this provider. The active conversation and system prompt are sent with a final
+  `compaction_trigger`; an encrypted checkpoint replaces the older context and is replayed on
+  subsequent compatible requests.
+
+Server compaction requires the official Codex Responses endpoint and backend entitlement. A
+failure cancels compaction without replacing context or making a plaintext-summary request.
+Other providers keep Pi-native compaction when no opaque checkpoint is active. There is no
+fallback from an opaque checkpoint to a plaintext placeholder summary.
+
+Existing Codex `pi-codex-compact` checkpoints remain readable. Checkpoints still require their
+exact producing model/API for replay: other models only see the retained recent messages and a
+warning about unavailable older context. Return to the original model to replay it. Retain this
+extension for sessions with opaque history. The old `pi-usage.json` and `pi-codex-compact.json`
+settings are no longer used.
+
+After adding the extension, restow the Pi package and run `/reload`; reload alone cannot discover
+files that have not been linked into `~/.pi/agent/` yet.
 
 ### Auto-name
 
@@ -201,8 +232,6 @@ packages/
 ├── pi-subagents/                           delegated agent workflows
 ├── pi-intercom/                            cross-session communication
 ├── @narumitw/pi-lsp/                       language-server diagnostics and fixes
-├── @narumitw/pi-codex-compact/             Codex-aware context compaction
-├── @narumitw/pi-usage/                     provider usage and quota display
 ├── pi-web-access/                          web search and content retrieval
 ├── arpagon/pi-rewind/                      conversation checkpoints and rewinding
 ├── @juicesharp/rpiv-ask-user-question/     structured user prompts
