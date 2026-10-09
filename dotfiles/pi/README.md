@@ -123,7 +123,7 @@ extensions/
 ├── per-model-prompt/       model-specific directives
 ├── pi-builtin-adjustments/ quieter built-ins
 ├── pi-openai/              Codex Fast mode and direct server-side compaction
-├── pi-safety/              Bash command checks, jev auto mode, and safe deletion shims
+├── pi-safety/              Bash command checks, decisions auto mode, and safe deletion shims
 ├── python-code/            sandboxed Python
 ├── rant/                   log preventable failures
 ├── statusbar/              minimal one-line footer
@@ -299,15 +299,106 @@ built-in safeguards. The statusbar shows these degraded states (`🛡 config inv
 
 ### Auto mode
 
-`/toggle-auto-mode` adds a [pi-verdict](https://github.com/jesset/pi-verdict)-style permission
-gate on top of the shell rules: every model-generated Bash command that the rules let through is
-sent, together with a condensed transcript (recent user messages and tool calls, no tool results),
-to TypeSafe's [jev](https://docs.typesafe.ai) decisions model, which answers `allow`, `ask`, or
-`deny` with calibrated probabilities. `allow` runs silently, `deny` blocks with a notification, and
-`ask` opens a confirmation dialog. A verdict below `autoMode.minConfidence` (`pi-safety.jsonc`,
-default `0.5`) is demoted to `ask`, and so is an unreachable classifier; without a UI, `ask`
-becomes a block so nothing runs silently.
+Auto mode adds a [pi-verdict](https://github.com/jesset/pi-verdict)-style permission gate on top
+of the shell rules. It is **enabled by default**, using OpenAI's
+[Decisions API](https://developers.openai.com/api/docs/guides/decisions) with `gpt-6-luna`.
+Every model-generated Bash command that the rules let through is sent with a condensed transcript
+(recent user messages and tool calls, no tool results) to the selected backend.
 
-Auto mode is off by default and session-scoped; `PI_AUTO_MODE=1` starts it on. It needs
-`TYPESAFE_AI_API_KEY` in the environment. While on, the statusbar shows `auto-mode` before the
-context percentage.
+Configure `autoMode` in `pi-safety.jsonc` and run `/reload`:
+
+```json
+"autoMode": {
+  "enabled": true,
+  "source": "openai",
+  "minConfidence": 0
+}
+```
+
+- `openai` uses `POST https://api.openai.com/v1/decisions` and requires `OPENAI_API_KEY` in the
+  environment (not Pi's Codex subscription login).
+- `jev` uses TypeSafe's [jev](https://docs.typesafe.ai) `jev-latest` model and requires
+  `TYPESAFE_AI_API_KEY`. Change `source` to `"jev"` to select it; there is no automatic fallback.
+
+Both backends use the same permissive criteria: **allow plausible task-related work unless there
+is a concrete substantial risk**, even with some uncertainty. Ordinary edits, installs, downloads,
+API calls, local Git operations, and generated-file cleanup should not need approval merely because
+they have side effects. Substantial destructive, security, or external-impact risks still prompt;
+clearly dangerous actions (such as secret exfiltration or indiscriminate destruction) are denied.
+Infrastructure mutations and remote execution are explicitly classified as `ask`, including
+Kubernetes changes/exec, Helm changes, Terraform apply/destroy, and cloud compute/network/IAM
+changes—even when task-related or explicitly requested. Read-only infra inspection and local
+configuration edits without applying them remain ordinary work.
+
+`allow` runs silently, `deny` blocks with a notification, and `ask` offers Allow / Deny.
+`minConfidence` defaults to `0`, so uncertainty alone does not add a prompt or override a verdict.
+Set it higher (for example, `0.5`) to demote low-confidence allow/deny verdicts to `ask`.
+Request failures, refusals, and malformed answers still require confirmation. A valid refusal is
+reported as **classification refused**, not **classifier unavailable**; OpenAI supplies no refusal
+explanation, so the message includes its request ID when available. There are no automatic retries
+or backend fallbacks. The classifier explicitly assesses only the proposed command: historical tool
+calls are context, and reading a workflow or safety document does not execute or disable anything.
+A missing API key leaves the gate enabled and blocks commands that need classification rather than
+silently bypassing it.
+
+The kubectl/Helm mutation rules carry `autoMode: "ask"`: with auto mode **on**, they require explicit
+approval even if the classifier returns `allow`; with auto mode **off**, they remain hard denies.
+The classifier still checks the full command and can deny other dangerous effects. A rule-based ask
+never hides another hard deny in the same command or nested script. Other deterministic rules and
+protected-path confirmations are unchanged.
+
+`/toggle-auto-mode` immediately toggles the gate for the current session and its linked workers,
+including already-running workers and later tool calls in the **current response**. In-flight
+classifications and pending auto-mode approvals are cancelled, and the affected command is checked
+again under the new mode before it can run. Off/on races cannot authorize from an old verdict.
+Turning the gate off restores the configured infrastructure hard denies; it does not bypass them.
+Protected-path approvals are independent and stay open. Already-executing shell processes are not
+terminated by a toggle.
+
+`PI_AUTO_MODE=0` or `1` overrides `enabled` at startup; linked workers inherit the live parent setting.
+While on, the statusbar shows `auto-mode` before the context percentage. Deterministic shell rules
+still run first; `/no-safety` disables them, including rule-based asks, but does not disable the
+classifier gate.
+
+### Permission review
+
+Interactive approvals use a centered `🛡 | tool` heading and a separate syntax-highlighted code
+block, with the rule reason kept outside the executable code. Short operations get a compact
+card; operations over 600 characters or six lines get a nearly full-screen, read-only pager.
+The complete command or file content remains available. Edits show every exact old/new replacement
+as a diff, without reading or modifying the target file to construct the preview.
+
+Long reviews generate a one-sentence summary of **at most 20 words**, using a separate low-effort
+request to the active Pi model. Only the proposed operation is sent, not the conversation.
+The summary is advisory: it never changes the verdict. Review is available immediately;
+closing cancels summary generation, and a missing model, failure, or eight-second timeout leaves
+the full operation available without a summary. Summary requests use the active model's
+credentials and billing, not the selected Decisions backend.
+
+- `a` allows; `d` or `Esc` denies, in both compact and long modes. Enter alone never approves.
+- `j/k`, arrows, and `Ctrl-e/Ctrl-y` scroll one line; `Ctrl-d/u` scroll half a page.
+- Page Up/Down scroll a page; `g/G` jump to the beginning/end.
+- `/` opens literal case-insensitive search; Enter searches, `n/N` jump between matches.
+  Escape leaves search first; typing `a` or `d` inside search cannot approve or deny.
+- `w` toggles wrapping; `h/l` or left/right arrows pan unwrapped lines.
+- Mouse-wheel events inside the panel scroll it. Regular terminal mode enables mouse capture
+  only while the dialog is open (use Shift-drag for terminal text selection).
+- The navigation legend stays hidden; approval controls remain visible, separated by a blank line.
+
+Parallel local and worker approvals share one queue so only one owns the keyboard. Worker reviews
+show the worker name and working directory alongside the complete operation. Cancellation or
+shutdown closes the affected review; cancelled queued requests cannot reopen in a later turn.
+RPC clients receive complete fenced code with Allow / Deny choices instead of a custom TUI.
+
+Forwarding and shared toggles use native `parentSession` ancestry between registered sessions in the
+same process, not a global default terminal. The configured pi-subagents `rememberAgents: true`
+provides this link for normal top-level workers; persisted nested workers can follow it through their
+parents. In-memory workers (including nested workers unless configured to persist), unlinked
+sessions, and separate processes cannot inherit this link: they retain their local mode, and asks
+without their own UI or a live parent UI still block. No permission is inferred from missing UI.
+
+After first adding the viewer or shared session-state module, restow the Pi package before `/reload`:
+
+```sh
+stow --verbose --no-folding --dir dotfiles --target "$HOME" --restow pi
+```

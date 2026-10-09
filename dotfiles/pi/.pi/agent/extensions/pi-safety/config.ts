@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { parse, printParseErrorCode, type ParseError } from 'jsonc-parser';
-import { DEFAULT_MIN_CONFIDENCE } from './auto-mode.ts';
+import { AUTO_MODE_SOURCES, DEFAULT_AUTO_MODE_SOURCE, DEFAULT_MIN_CONFIDENCE, type AutoModeSource } from './auto-mode.ts';
 import { isAnchoredPattern, type PathRules } from './path-policy.ts';
 
 export interface ArgvPredicate {
@@ -17,10 +17,14 @@ export interface ShellDenyRule {
   command: string;
   argv?: ArgvPredicate;
   reason?: string;
+  /** Require confirmation instead of denying while auto mode is enabled. */
+  autoMode?: 'ask';
 }
 
 export interface AutoModeConfig {
-  /** jev verdicts below this confidence (0–1) are demoted to a confirmation prompt. */
+  enabled: boolean;
+  source: AutoModeSource;
+  /** Verdicts below this confidence (0–1) require confirmation; 0 disables confidence-only prompts. */
   minConfidence: number;
 }
 
@@ -40,7 +44,11 @@ export interface LoadedSafetyConfig {
   errors: string[];
 }
 
-const DEFAULT_AUTO_MODE: AutoModeConfig = { minConfidence: DEFAULT_MIN_CONFIDENCE };
+const DEFAULT_AUTO_MODE: AutoModeConfig = {
+  enabled: true,
+  source: DEFAULT_AUTO_MODE_SOURCE,
+  minConfidence: DEFAULT_MIN_CONFIDENCE,
+};
 const EMPTY_CONFIG: SafetyConfig = { shell: { deny: [] }, paths: { deny: [], ask: [] }, autoMode: DEFAULT_AUTO_MODE };
 
 function agentDirectory(): string {
@@ -136,7 +144,7 @@ function parseShellRules(value: unknown, location: string, errors: string[]): Sh
       errors.push(`${ruleLocation}: expected an object`);
       continue;
     }
-    rejectUnknownKeys(item, ['command', 'argv', 'reason'], ruleLocation, errors);
+    rejectUnknownKeys(item, ['command', 'argv', 'reason', 'autoMode'], ruleLocation, errors);
     if (typeof item.command !== 'string' || !/^[A-Za-z0-9_.+-]+$/.test(item.command)) {
       errors.push(`${ruleLocation}.command: expected a literal executable basename`);
       continue;
@@ -144,10 +152,14 @@ function parseShellRules(value: unknown, location: string, errors: string[]): Sh
     if (item.reason !== undefined && (typeof item.reason !== 'string' || item.reason.length === 0)) {
       errors.push(`${ruleLocation}.reason: expected a non-empty string`);
     }
+    if (item.autoMode !== undefined && item.autoMode !== 'ask') {
+      errors.push(`${ruleLocation}.autoMode: expected "ask"`);
+    }
     rules.push({
       command: item.command,
       ...(item.argv !== undefined ? { argv: parseArgvPredicate(item.argv, `${ruleLocation}.argv`, errors) } : {}),
       ...(typeof item.reason === 'string' && item.reason.length > 0 ? { reason: item.reason } : {}),
+      ...(item.autoMode === 'ask' ? { autoMode: 'ask' as const } : {}),
     });
   }
   return rules;
@@ -185,14 +197,28 @@ function parseAutoMode(value: unknown, location: string, errors: string[]): Auto
     errors.push(`${location}: expected an object`);
     return DEFAULT_AUTO_MODE;
   }
-  rejectUnknownKeys(value, ['minConfidence'], location, errors);
-  const minConfidence = value.minConfidence;
-  if (minConfidence === undefined) return DEFAULT_AUTO_MODE;
-  if (typeof minConfidence !== 'number' || !(minConfidence >= 0 && minConfidence <= 1)) {
-    errors.push(`${location}.minConfidence: expected a number between 0 and 1`);
-    return DEFAULT_AUTO_MODE;
+  rejectUnknownKeys(value, ['enabled', 'source', 'minConfidence'], location, errors);
+  const result = { ...DEFAULT_AUTO_MODE };
+  if (value.enabled !== undefined) {
+    if (typeof value.enabled === 'boolean') result.enabled = value.enabled;
+    else errors.push(`${location}.enabled: expected a boolean`);
   }
-  return { minConfidence };
+  if (value.source !== undefined) {
+    if (typeof value.source === 'string' && (AUTO_MODE_SOURCES as readonly string[]).includes(value.source)) {
+      result.source = value.source as AutoModeSource;
+    } else {
+      errors.push(`${location}.source: expected one of ${AUTO_MODE_SOURCES.join(', ')}`);
+    }
+  }
+  if (value.minConfidence !== undefined) {
+    if (typeof value.minConfidence === 'number' && value.minConfidence >= 0 && value.minConfidence <= 1) {
+      result.minConfidence = value.minConfidence;
+    } else {
+      errors.push(`${location}.minConfidence: expected a number between 0 and 1`);
+    }
+  }
+
+  return result;
 }
 
 export function validateConfig(value: unknown): { config: SafetyConfig; errors: string[] } {

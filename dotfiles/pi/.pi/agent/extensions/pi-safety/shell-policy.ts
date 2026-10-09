@@ -38,13 +38,14 @@ export type ShellDenialRule =
   | 'tmutil-delete'
   | 'configured';
 
-export interface ShellDenial {
+export interface ShellDecision {
+  action: 'deny' | 'ask';
   rule: ShellDenialRule;
   reason: string;
 }
 
-function deny(rule: ShellDenialRule, reason: string): ShellDenial {
-  return { rule, reason };
+function deny(rule: ShellDenialRule, reason: string): ShellDecision {
+  return { action: 'deny', rule, reason };
 }
 
 export async function createBashParser(): Promise<Parser> {
@@ -224,7 +225,7 @@ function gitSubcommand(args: string[]): { name: string; rest: string[] } | undef
   return invocation ? { name: invocation.name, rest: invocation.args } : undefined;
 }
 
-function denialForGitCommand(args: string[]): ShellDenial | undefined {
+function denialForGitCommand(args: string[]): ShellDecision | undefined {
   const subcommand = gitSubcommand(args);
   if (!subcommand) return undefined;
   const { name, rest } = subcommand;
@@ -285,7 +286,7 @@ function denialForGitCommand(args: string[]): ShellDenial | undefined {
   return undefined;
 }
 
-function denialForDestructiveCommand(name: string, args: string[]): ShellDenial | undefined {
+function denialForDestructiveCommand(name: string, args: string[]): ShellDecision | undefined {
   const base = basename(name);
   if (REMOVAL_COMMANDS.has(base) && name !== base) {
     return deny(
@@ -370,18 +371,25 @@ function argvMatches(predicate: ArgvPredicate | undefined, args: string[], rawAr
   return true;
 }
 
-function denialForConfiguredRule(
+function decisionForConfiguredRule(
   name: string,
   args: string[],
   rawArgumentCount: number,
   rules: ShellDenyRule[],
-): ShellDenial | undefined {
+  autoModeEnabled: boolean,
+): ShellDecision | undefined {
   const base = basename(name);
-  const rule = rules.find(
+  const matches = rules.filter(
     (candidate) => candidate.command === base && argvMatches(candidate.argv, args, rawArgumentCount),
   );
+  // A confirmation rule must never mask an overlapping hard deny.
+  const rule = matches.find((candidate) => !autoModeEnabled || candidate.autoMode !== 'ask') ?? matches[0];
   if (!rule) return undefined;
-  return deny('configured', rule.reason ?? `command denied by pi-safety policy: ${base}`);
+
+  const action = autoModeEnabled && rule.autoMode === 'ask' ? 'ask' : 'deny';
+  const reason = rule.reason ?? `command requires user control by pi-safety policy: ${base}`;
+
+  return { action, rule: 'configured', reason };
 }
 
 function literalGitSubcommand(args: Array<string | undefined>): { name?: string; dynamic: boolean } {
@@ -682,8 +690,9 @@ function inspectTree(
   source: string,
   rules: ShellDenyRule[],
   depth: number,
+  autoModeEnabled: boolean,
   inheritedIdShadowed = false,
-): ShellDenial | undefined {
+): ShellDecision | undefined {
   const tree = parser.parse(source);
   if (!tree) return deny('parse-error', 'tree-sitter returned no syntax tree');
   try {
@@ -694,6 +703,7 @@ function inspectTree(
       tree.rootNode
         .descendantsOfType('function_definition')
         .some((definition) => literalText(definition.childForFieldName('name')) === 'id');
+    let confirmation: ShellDecision | undefined;
     let pathReplaced = false;
     let usesPlainRemoval = false;
     const nestedScripts: string[] = [];
@@ -737,13 +747,16 @@ function inspectTree(
       for (const invocation of chain.invocations) {
         const destructive = denialForDestructiveCommand(invocation.name, invocation.args);
         if (destructive) return destructive;
-        const configured = denialForConfiguredRule(
+        const configured = decisionForConfiguredRule(
           invocation.name,
           invocation.args,
           invocation.rawArgumentCount,
           rules,
+          autoModeEnabled,
         );
-        if (configured) return configured;
+        if (configured?.action === 'deny') return configured;
+        confirmation ??= configured;
+
         if (!invocation.literalComplete && requiresLiteralArguments(invocation, rules)) {
           return deny('dynamic-arguments', `${basename(invocation.name)} arguments cannot be inspected literally`);
         }
@@ -794,15 +807,23 @@ function inspectTree(
       return deny('nesting-limit', 'nested shell script depth exceeds the inspection limit');
     }
     for (const script of nestedScripts) {
-      const denial = inspectTree(parser, script, rules, depth + 1, idShadowed);
-      if (denial) return denial;
+      const decision = inspectTree(parser, script, rules, depth + 1, autoModeEnabled, idShadowed);
+      if (decision?.action === 'deny') return decision;
+      confirmation ??= decision;
     }
-    return undefined;
+
+    // Finish inspecting the entire script before allowing a human to override an ask rule.
+    return confirmation;
   } finally {
     tree.delete();
   }
 }
 
-export function inspectBashCommand(parser: Parser, source: string, rules: ShellDenyRule[]): ShellDenial | undefined {
-  return inspectTree(parser, source, rules, 0);
+export function inspectBashCommand(
+  parser: Parser,
+  source: string,
+  rules: ShellDenyRule[],
+  autoModeEnabled = false,
+): ShellDecision | undefined {
+  return inspectTree(parser, source, rules, 0, autoModeEnabled);
 }

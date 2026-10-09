@@ -32,6 +32,18 @@ test('rejects the complete config on schema errors', () => {
   assert.match(loaded.errors.join('\n'), /unknown/);
 });
 
+test('shell rules accept only the ask override for auto mode', () => {
+  const rule = { command: 'kubectl', argv: { containsAny: ['apply'] }, autoMode: 'ask' };
+  const valid = validateConfig({ shell: { deny: [rule] } });
+  assert.deepEqual(valid.errors, []);
+  assert.deepEqual(valid.config.shell.deny, [rule]);
+
+  for (const autoMode of ['allow', 'deny', true, null]) {
+    const invalid = validateConfig({ shell: { deny: [{ ...rule, autoMode }] } });
+    assert.match(invalid.errors.join('\n'), /shell\.deny\[0\]\.autoMode: expected "ask"/);
+  }
+});
+
 test('rejects empty argv token predicates', () => {
   for (const predicate of ['contains', 'containsAny', 'ordered', 'startsWithAny']) {
     const result = validateConfig({ shell: { deny: [{ command: 'example', argv: { [predicate]: [] } }] } });
@@ -39,8 +51,37 @@ test('rejects empty argv token predicates', () => {
   }
 });
 
+test('auto mode defaults to enabled with OpenAI and supports explicit overrides', () => {
+  const defaults = { enabled: true, source: 'openai', minConfidence: 0 };
+  assert.deepEqual(validateConfig({}).config.autoMode, defaults);
+  assert.deepEqual(validateConfig({ autoMode: {} }).config.autoMode, defaults);
+
+  for (const source of ['jev', 'openai']) {
+    const result = validateConfig({ autoMode: { source, enabled: false, minConfidence: 0.7 } });
+    assert.deepEqual(result.errors, []);
+    assert.deepEqual(result.config.autoMode, { source, enabled: false, minConfidence: 0.7 });
+  }
+
+  const missing = loadSafetyConfig(join(mkdtempSync(join(tmpdir(), 'pi-safety-config-')), 'missing.jsonc'));
+  assert.equal(missing.status, 'missing');
+  assert.deepEqual(missing.config.autoMode, defaults);
+});
+
+test('rejects invalid auto-mode sources and enablement', () => {
+  for (const source of ['unknown', '', null, 1]) {
+    assert.match(validateConfig({ autoMode: { source } }).errors.join('\n'), /autoMode\.source: expected one of jev, openai/);
+  }
+  for (const enabled of ['true', 0, null]) {
+    assert.match(validateConfig({ autoMode: { enabled } }).errors.join('\n'), /autoMode\.enabled: expected a boolean/);
+  }
+  for (const autoMode of [null, [], true]) {
+    assert.match(validateConfig({ autoMode }).errors.join('\n'), /autoMode: expected an object/);
+  }
+});
+
 test('parses autoMode.minConfidence and rejects out-of-range values', () => {
-  assert.equal(validateConfig({}).config.autoMode.minConfidence, 0.5);
+  assert.equal(validateConfig({}).config.autoMode.minConfidence, 0);
+  assert.equal(validateConfig({ autoMode: { minConfidence: 0 } }).config.autoMode.minConfidence, 0);
   assert.equal(validateConfig({ autoMode: { minConfidence: 0.7 } }).config.autoMode.minConfidence, 0.7);
   assert.match(validateConfig({ autoMode: { minConfidence: 1.5 } }).errors.join('\n'), /between 0 and 1/);
   assert.match(validateConfig({ autoMode: { threshold: 0.5 } }).errors.join('\n'), /unknown property "threshold"/);

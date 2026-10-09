@@ -231,6 +231,7 @@ const allowedCommands = [
 for (const [command, expectedRule] of blockedCommands) {
   test(`blocks [${expectedRule}]: ${command.split('\n')[0]}`, () => {
     const denial = inspectBashCommand(parser, command, configuredRules);
+    assert.equal(denial?.action, 'deny');
     assert.equal(denial?.rule, expectedRule, denial?.reason);
     assert.ok(denial?.reason);
   });
@@ -241,6 +242,55 @@ for (const command of allowedCommands) {
     assert.equal(inspectBashCommand(parser, command, configuredRules), undefined);
   });
 }
+
+test('auto-mode asks propagate through wrappers and nested scripts; off still denies', () => {
+  const rules: ShellDenyRule[] = [{ command: 'kubectl', argv: { containsAny: ['apply', 'delete'] }, autoMode: 'ask' }];
+  for (const command of [
+    'kubectl apply -f deployment.yaml',
+    'xargs kubectl delete pod',
+    "bash -c 'kubectl apply -f deployment.yaml'",
+    "bash <<'EOF'\nkubectl apply -f deployment.yaml\nEOF",
+    'find . -exec kubectl apply -f {} \\;',
+  ]) {
+    assert.equal(inspectBashCommand(parser, command, rules, true)?.action, 'ask', command);
+    assert.equal(inspectBashCommand(parser, command, rules, false)?.action, 'deny', command);
+  }
+});
+
+test('auto-mode asks cannot hide hard denials elsewhere in the script', () => {
+  const rules: ShellDenyRule[] = [
+    { command: 'kubectl', argv: { containsAny: ['apply'] }, autoMode: 'ask' },
+    { command: 'sudo' },
+  ];
+  const ask = 'kubectl apply -f deployment.yaml';
+  for (const denied of [
+    'sudo ls',
+    '/bin/rm valuable.txt',
+    'kubectl "$verb" pod',
+    'bash -c "$SCRIPT"',
+    'export PATH=/bin; rm valuable.txt',
+  ]) {
+    for (const command of [
+      `${ask}; ${denied}`,
+      `${denied}; ${ask}`,
+      `bash -c '${ask}'; bash -c '${denied}'`,
+      `bash -c '${denied}'; bash -c '${ask}'`,
+    ]) {
+      assert.equal(inspectBashCommand(parser, command, rules, true)?.action, 'deny', command);
+    }
+  }
+  assert.equal(inspectBashCommand(parser, 'kubectl apply -f "$manifest"', rules, true)?.rule, 'dynamic-arguments');
+});
+
+test('an overlapping hard deny takes precedence over an auto-mode ask', () => {
+  const ask: ShellDenyRule = { command: 'kubectl', autoMode: 'ask' };
+  const deny: ShellDenyRule = { command: 'kubectl', reason: 'always blocked' };
+  for (const rules of [[ask, deny], [deny, ask]]) {
+    assert.deepEqual(inspectBashCommand(parser, 'kubectl apply -f deployment.yaml', rules, true), {
+      action: 'deny', rule: 'configured', reason: 'always blocked',
+    });
+  }
+});
 
 test('allows the session lookup with expanded temporary paths and a following command', () => {
   const command =
