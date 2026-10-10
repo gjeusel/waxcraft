@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from 'node:async_hooks';
 import type { ExtensionContext } from '@earendil-works/pi-coding-agent';
 import type { ApprovalRequest, createApprovalPrompt } from './approval.ts';
 
@@ -39,14 +40,42 @@ interface SafetySession {
   prompt: ApprovalPrompt;
   lifetime: AbortSignal;
   mode: AutoModeState;
-  parentSession?: string;
+  parent?: SafetySession;
+  dispose: () => void;
+}
+
+interface SessionRegistry {
+  byId: Map<string, SafetySession>;
+  byFile: Map<string, SafetySession>;
+  binding: AsyncLocalStorage<{ parent?: SafetySession }>;
 }
 
 // SDK workers share the process, but not pi.events or module instances after extension reloads.
-// Native session ancestry scopes the registry: no fallback to an arbitrary available terminal.
-const SAFETY_SESSIONS = Symbol.for('waxcraft:pi-safety:sessions:v1');
-const shared = globalThis as typeof globalThis & { [SAFETY_SESSIONS]?: Map<string, SafetySession> };
-const sessions = shared[SAFETY_SESSIONS] ??= new Map<string, SafetySession>();
+// The runner scopes extension binding to its actual parent, even for sessions with no file.
+const SAFETY_SESSIONS = Symbol.for('waxcraft:pi-safety:sessions:v2');
+const WORKER_BINDING = Symbol.for('waxcraft:pi-safety:bind-worker:v1');
+const shared = globalThis as typeof globalThis & {
+  [SAFETY_SESSIONS]?: SessionRegistry;
+  [WORKER_BINDING]?: typeof withWorkerParent;
+};
+const registry = shared[SAFETY_SESSIONS] ??= {
+  byId: new Map(), byFile: new Map(), binding: new AsyncLocalStorage(),
+};
+
+/** Called by the tracked pi-subagents runner patch around bindExtensions/session_start. */
+export function withWorkerParent<T>(parent: Pick<ExtensionContext, 'sessionManager'>, bind: () => Promise<T>): Promise<T> {
+  const session = registry.byId.get(parent.sessionManager.getSessionId());
+
+  // An explicit but unregistered parent must not fall back to historical saved ancestry.
+  return registry.binding.run({ parent: session }, bind);
+}
+shared[WORKER_BINDING] = withWorkerParent;
+
+function savedParent(ctx: ExtensionContext): SafetySession | undefined {
+  const file = ctx.sessionManager.getHeader()?.parentSession;
+
+  return file ? registry.byFile.get(file) : undefined;
+}
 
 /** Register from session_start, never from extension discovery. */
 export function registerSafetySession(
@@ -55,18 +84,29 @@ export function registerSafetySession(
   localMode: AutoModeState,
   lifetime: AbortSignal,
 ): { mode: AutoModeState; dispose: () => void } {
-  const parentSession = ctx.sessionManager.getHeader()?.parentSession;
-  const parent = parentSession ? sessions.get(parentSession) : undefined;
+  const binding = registry.binding.getStore();
+  const parent = binding ? binding.parent : savedParent(ctx);
   const mode = parent && !parent.lifetime.aborted ? parent.mode : localMode;
-  const sessionFile = ctx.sessionManager.getSessionFile();
-  if (!sessionFile || lifetime.aborted) return { mode, dispose: () => {} };
+  if (lifetime.aborted) return { mode, dispose: () => {} };
 
-  const session: SafetySession = { ctx, prompt, lifetime, mode, parentSession };
-  sessions.set(sessionFile, session);
+  const id = ctx.sessionManager.getSessionId();
+  const file = ctx.sessionManager.getSessionFile();
+  registry.byId.get(id)?.dispose();
+  if (file) registry.byFile.get(file)?.dispose();
+
+  const stopped = new AbortController();
   const dispose = () => {
-    if (sessions.get(sessionFile) === session) sessions.delete(sessionFile);
+    stopped.abort();
+    if (registry.byId.get(id) === session) registry.byId.delete(id);
+    if (file && registry.byFile.get(file) === session) registry.byFile.delete(file);
     lifetime.removeEventListener('abort', dispose);
   };
+  const session: SafetySession = {
+    ctx, prompt, mode, parent, dispose,
+    lifetime: AbortSignal.any([lifetime, stopped.signal]),
+  };
+  registry.byId.set(id, session);
+  if (file) registry.byFile.set(file, session);
   lifetime.addEventListener('abort', dispose, { once: true });
 
   return { mode, dispose };
@@ -79,16 +119,17 @@ export async function forwardApproval(
   lifetime: AbortSignal,
 ): Promise<boolean | undefined> {
   const signals = [lifetime, ...(ctx.signal ? [ctx.signal] : [])];
-  const visited = new Set<string>();
-  let parent = ctx.sessionManager.getHeader()?.parentSession;
+  const visited = new Set<SafetySession>();
+  const requester = registry.byId.get(ctx.sessionManager.getSessionId());
+  if (requester) signals.push(requester.lifetime);
+  let session = requester ? requester.parent : savedParent(ctx);
 
-  while (parent && !visited.has(parent)) {
-    visited.add(parent);
-    const session = sessions.get(parent);
-    if (!session || session.lifetime.aborted) return undefined;
+  while (session && !visited.has(session)) {
+    visited.add(session);
+    if (session.lifetime.aborted) return undefined;
     signals.push(session.lifetime);
     if (!session.ctx.hasUI) {
-      parent = session.parentSession;
+      session = session.parent;
       continue;
     }
 

@@ -223,7 +223,9 @@ export default async function (pi: ExtensionAPI) {
       return { block: true, reason: `pi-safety: ${subject} is denied by protected path rule ${verdict.pattern}` };
     }
 
-    const allowed = await approve(fileApproval(toolName, input, verdict.path), ctx);
+    const request = fileApproval(toolName, input, verdict.path);
+    request.reason = `Matches protected path rule ${verdict.pattern}`;
+    const allowed = await approve(request, ctx);
     if (allowed === undefined) {
       return {
         block: true,

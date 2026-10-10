@@ -1,0 +1,30 @@
+diff --git a/src/agent-runner.ts b/src/agent-runner.ts
+--- a/src/agent-runner.ts
++++ b/src/agent-runner.ts
+@@ -1016,7 +1016,7 @@
+   // (e.g. loading credentials, setting up state). Tool gating already happened
+   // at session construction via the `tools:` allowlist above — no separate
+   // post-bind filter is needed. All ExtensionBindings fields are optional.
+-  await session.bindExtensions({
++  const bindExtensions = () => session.bindExtensions({
+     onError: (err) => {
+       options.onToolActivity?.({
+         type: "end",
+@@ -1025,6 +1025,16 @@
+     },
+   });
+
++  // Preserve the actual parent during session_start without requiring a session file.
++  // pi-safety owns the async-local scope; absent that extension, binding is unchanged.
++  const withSafetyParent = (globalThis as unknown as Record<symbol, unknown>)[
++    Symbol.for("waxcraft:pi-safety:bind-worker:v1")
++  ] as ((parent: ExtensionContext, bind: () => Promise<void>) => Promise<void>) | undefined;
++  if (withSafetyParent) {
++    await withSafetyParent(ctx, bindExtensions);
++  } else {
++    await bindExtensions();
++  }
++
+   // With `allowedToolNames` unset, the registry is scoped by `excludeTools` but
+   // the ACTIVE set still needs managing: pi activates only its four default
+   // built-ins at turn 1, and `ext:` narrowing has no registry-level expression

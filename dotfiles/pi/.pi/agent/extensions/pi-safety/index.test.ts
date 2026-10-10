@@ -7,6 +7,7 @@ import { initTheme, SessionManager } from '@earendil-works/pi-coding-agent';
 import { stripTerminalSequences } from '@earendil-works/pi-tui';
 import { AUTO_MODE_SOURCES, type AutoModeSource } from './auto-mode.ts';
 import safety from './index.ts';
+import { withWorkerParent } from './session-state.ts';
 
 async function setup(
   configText = JSON.stringify({ shell: { deny: [{ command: 'sudo', reason: 'sudo denied in test' }] } }),
@@ -93,13 +94,13 @@ test('write and edit: deny and ask protected paths, other paths pass', async () 
     assert.equal(confirmations.length, 0);
 
     assert.equal(await toolCall(editOf('.env'), context({ hasUI: true, confirm: true })), undefined);
-    assert.equal(confirmations.at(-1), '🛡 | edit /project/.env\n\n```diff\n--- /project/.env\n+++ /project/.env\n```\n');
+    assert.equal(confirmations.at(-1), '🛡 edit /project/.env\n\n```diff\n--- /project/.env\n+++ /project/.env\n```\n\nRule: Matches protected path rule **/.env\n');
 
     const declined = await toolCall(editOf('.env'), context({ hasUI: true, confirm: false }));
     assert.match(declined.reason, /the user declined edit \/project\/\.env/);
 
     const cancelled = await toolCall(writeTo('.env'), context({ hasUI: true }));
-    assert.equal(confirmations.at(-1), '🛡 | write /project/.env\n\n```\nx\n```\n');
+    assert.equal(confirmations.at(-1), '🛡 write /project/.env\n\n```\nx\n```\n\nRule: Matches protected path rule **/.env\n');
     assert.equal(cancelled.block, true);
     assert.match(cancelled.reason, /the user declined write \/project\/\.env/);
 
@@ -256,7 +257,7 @@ for (const enabled of [false, true]) {
         const result = await toolCall(event, accepting.ctx);
         if (enabled) {
           assert.equal(result, undefined, command);
-          assert.ok(accepting.confirmations.at(-1)?.startsWith(`🛡 | bash\n\n\`\`\`bash\n${command}\n\`\`\``));
+          assert.ok(accepting.confirmations.at(-1)?.startsWith(`🛡 bash\n\n\`\`\`bash\n${command}\n\`\`\``));
           assert.ok(event.input.command.endsWith(command));
         } else {
           assert.equal(result.block, true, command);
@@ -401,7 +402,7 @@ for (const source of AUTO_MODE_SOURCES) {
       const declined = await toolCall({ type: 'tool_call', toolName: 'bash', input: { command: 'rm -rf build' } }, ctx);
       assert.equal(declined.block, true);
       assert.match(declined.reason, /user declined/);
-      assert.equal(confirmations.at(-1), `🛡 | bash\n\n\`\`\`bash\nrm -rf build\n\`\`\`\n\nRule: ${source}: ask 100% (confidence 95%; allow 0%, deny 0%)\n`);
+      assert.equal(confirmations.at(-1), `🛡 bash\n\n\`\`\`bash\nrm -rf build\n\`\`\`\n\nRule: ${source}: ask 100% (confidence 95%; allow 0%, deny 0%)\n`);
 
       const cancelled = await toolCall(
         { type: 'tool_call', toolName: 'bash', input: { command: 'ls' } },
@@ -555,7 +556,7 @@ test('long Bash, write, and edit approvals reach the native pager without trunca
       assert.equal(result.block, true);
       assert.match(result.reason, /declined/);
       assert.ok(screens.at(-1)?.some((line) => line.includes(tail)), toolName);
-      assert.ok(screens.at(-1)?.some((line) => line.includes(`🛡 | ${toolName}`)), toolName);
+      assert.ok(screens.at(-1)?.some((line) => line.includes(`🛡 ${toolName}`)), toolName);
     }
     assert.equal(base.confirmations.length, 0);
   } finally {
@@ -563,12 +564,12 @@ test('long Bash, write, and edit approvals reach the native pager without trunca
   }
 });
 
-function linkedContexts(confirm = true) {
+function linkedContexts(confirm = true, inMemory = false) {
   const directory = mkdtempSync(join(tmpdir(), 'pi-safety-linked-'));
   const parent = autoModeContext({ hasUI: true, confirm });
   parent.ctx.sessionManager = SessionManager.create('/project', directory);
   const child = autoModeContext({ hasUI: false });
-  child.ctx.sessionManager = SessionManager.create('/project', directory, {
+  child.ctx.sessionManager = inMemory ? SessionManager.inMemory('/project') : SessionManager.create('/project', directory, {
     parentSession: parent.ctx.sessionManager.getSessionFile(),
   });
   child.ctx.sessionManager.appendSessionInfo('test-worker');
@@ -603,6 +604,9 @@ test('worker classifier and protected-path asks reach the parent; hard denies ne
     }
     assert.match(parent.confirmations[1], /WRITE_CONTENT/);
     assert.match(parent.confirmations[2], /-BEFORE\n\+AFTER/);
+    for (const message of parent.confirmations.slice(1)) {
+      assert.ok(message.endsWith('\n\nRule: Matches protected path rule **/.env\n'));
+    }
     assert.equal(child.confirmations.length, 0);
     const blocked = await call({ type: 'tool_call', toolName: 'write', input: { path: '/protected/key', content: '' } }, {
       ...child.ctx, cwd: '/project',
@@ -615,15 +619,45 @@ test('worker classifier and protected-path asks reach the parent; hard denies ne
   }
 });
 
-for (const workerCall of [false, true]) {
-  test(`toggle cancels an in-flight ${workerCall ? 'worker' : 'main'} classification and affects the current response`, async (t) => {
+test('enabling the parent gate reaches an already-running in-memory worker that started with PI_AUTO_MODE=0', async (t) => {
+  const env = { PI_AUTO_MODE: '0', OPENAI_API_KEY: 'test-key' };
+  const root = await setup(undefined, env);
+  const { parent, child } = linkedContexts(true, true);
+  await root.handlers.get('session_start')!({}, parent.ctx);
+  const worker = await setup(undefined, env);
+  await withWorkerParent(parent.ctx, async () => worker.handlers.get('session_start')!({}, child.ctx));
+  let requests = 0;
+  t.mock.method(globalThis, 'fetch', (url: string, init: RequestInit) => {
+    requests++;
+    return decisionFetch('openai', 'ask', 1)(url, init);
+  });
+  try {
+    const event = () => ({ type: 'tool_call', toolName: 'bash', input: { command: 'echo harmless' } });
+    assert.equal(await worker.handlers.get('tool_call')!(event(), child.ctx), undefined);
+    assert.equal(requests, 0);
+    await root.commands.get('toggle-auto-mode')!.handler('', parent.ctx);
+    assert.equal(child.statuses.get('auto-mode'), 'auto-mode');
+    assert.equal(await worker.handlers.get('tool_call')!(event(), child.ctx), undefined);
+    assert.equal(requests, 1);
+    assert.equal(parent.confirmations.length, 1);
+    assert.match(parent.confirmations[0], /Worker: test-worker/);
+    assert.equal(child.confirmations.length, 0);
+    assert.equal(child.ctx.sessionManager.getSessionFile(), undefined);
+  } finally {
+    worker.restore();
+    root.restore();
+  }
+});
+
+for (const kind of ['main', 'persisted worker', 'in-memory worker']) {
+  test(`toggle cancels an in-flight ${kind} classification and affects the current response`, async (t) => {
     const root = await setup(undefined, { OPENAI_API_KEY: 'test-key' });
-    const { parent, child } = linkedContexts();
+    const { parent, child } = linkedContexts(true, kind === 'in-memory worker');
     await root.handlers.get('session_start')!({}, parent.ctx);
     const worker = await setup(undefined, { OPENAI_API_KEY: 'test-key' });
-    await worker.handlers.get('session_start')!({}, child.ctx);
-    const runner = workerCall ? worker : root;
-    const ctx = workerCall ? child.ctx : parent.ctx;
+    await withWorkerParent(parent.ctx, async () => worker.handlers.get('session_start')!({}, child.ctx));
+    const runner = kind === 'main' ? root : worker;
+    const ctx = kind === 'main' ? parent.ctx : child.ctx;
     let started!: () => void;
     const starting = new Promise<void>((resolve) => { started = resolve; });
     let requests = 0;
@@ -664,11 +698,12 @@ for (const workerCall of [false, true]) {
   });
 }
 
-for (const command of ['echo harmless', 'kubectl apply -f deployment.yaml']) {
-  test(`turning off cancels a forwarded auto-mode approval and rechecks rules: ${command}`, async (t) => {
+for (const { command, inMemory } of ['echo harmless', 'kubectl apply -f deployment.yaml'].flatMap((command) =>
+  [false, true].map((inMemory) => ({ command, inMemory })))) {
+  test(`turning off cancels a forwarded ${inMemory ? 'in-memory' : 'persisted'} approval and rechecks rules: ${command}`, async (t) => {
     const config = readFileSync(new URL('../../pi-safety.jsonc', import.meta.url), 'utf8');
     const root = await setup(config, { OPENAI_API_KEY: 'test-key' });
-    const { parent, child } = linkedContexts();
+    const { parent, child } = linkedContexts(true, inMemory);
     let shown!: () => void;
     const showing = new Promise<void>((resolve) => { shown = resolve; });
     let dismissed = false;
@@ -681,7 +716,7 @@ for (const command of ['echo harmless', 'kubectl apply -f deployment.yaml']) {
     };
     await root.handlers.get('session_start')!({}, parent.ctx);
     const worker = await setup(config, { OPENAI_API_KEY: 'test-key' });
-    await worker.handlers.get('session_start')!({}, child.ctx);
+    await withWorkerParent(parent.ctx, async () => worker.handlers.get('session_start')!({}, child.ctx));
     t.mock.method(globalThis, 'fetch', decisionFetch('openai', 'ask', 1));
     try {
       const event = { type: 'tool_call', toolName: 'bash', input: { command } };

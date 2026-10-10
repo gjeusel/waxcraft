@@ -5,16 +5,16 @@ import { join } from 'node:path';
 import test from 'node:test';
 import { SessionManager, type ExtensionContext } from '@earendil-works/pi-coding-agent';
 import { createApprovalPrompt } from './approval.ts';
-import { AutoModeState, forwardApproval, registerSafetySession } from './session-state.ts';
+import { AutoModeState, forwardApproval, registerSafetySession, withWorkerParent } from './session-state.ts';
 
 function context(options: {
   parent?: ExtensionContext;
+  inMemory?: boolean;
   hasUI?: boolean;
   signal?: AbortSignal;
   select?: (title: string, choices: string[], options: { signal: AbortSignal }) => Promise<string | undefined>;
 } = {}): ExtensionContext {
-  const directory = mkdtempSync(join(tmpdir(), 'pi-safety-session-'));
-  const sessionManager = SessionManager.create('/project', directory, {
+  const sessionManager = options.inMemory ? SessionManager.inMemory('/project') : SessionManager.create('/project', mkdtempSync(join(tmpdir(), 'pi-safety-session-')), {
     parentSession: options.parent?.sessionManager.getSessionFile(),
   });
   sessionManager.appendSessionInfo('worker-name');
@@ -94,6 +94,94 @@ test('persisted nested workers walk registered ancestry; missing parents cannot 
   registered.dispose();
   assert.equal(await forwardApproval(request, leaf, lifetime.signal), undefined);
   assert.equal(await forwardApproval(request, context({ parent: context() }), lifetime.signal), undefined);
+});
+
+test('in-memory descendants inherit live mode and approvals without becoming persisted', async (t) => {
+  const lifetime = new AbortController();
+  t.after(() => lifetime.abort());
+  const root = context({ hasUI: true, inMemory: true });
+  const mode = new AutoModeState(false);
+  registerSafetySession(root, async () => true, mode, lifetime.signal);
+  const child = context({ inMemory: true });
+  const childState = await withWorkerParent(root, async () => {
+    await Promise.resolve();
+    return registerSafetySession(child, async () => false, new AutoModeState(true), lifetime.signal);
+  });
+  const leaf = context({ inMemory: true });
+  const leafState = await withWorkerParent(child, async () => registerSafetySession(leaf, async () => false, new AutoModeState(true), lifetime.signal));
+  assert.equal(childState.mode, mode);
+  assert.equal(leafState.mode, mode);
+  assert.equal(leafState.mode.snapshot().enabled, false);
+  mode.setEnabled(true);
+  assert.equal(leafState.mode.snapshot().enabled, true);
+  assert.equal(await forwardApproval(request, leaf, lifetime.signal), true);
+  for (const ctx of [root, child, leaf]) assert.equal(ctx.sessionManager.getSessionFile(), undefined);
+
+  childState.dispose();
+  assert.equal(await forwardApproval(request, leaf, lifetime.signal), undefined);
+});
+
+test('concurrent worker binding scopes cannot exchange parents or leak beyond binding', async (t) => {
+  const lifetime = new AbortController();
+  t.after(() => lifetime.abort());
+  const roots = [context({ hasUI: true }), context({ hasUI: true })];
+  const states = [new AutoModeState(false), new AutoModeState(true)];
+  const children = [context({ inMemory: true }), context({ inMemory: true })];
+  const workerModule = await import(new URL('./session-state.ts?binding-worker-copy', import.meta.url).href);
+  for (const [index, root] of roots.entries()) {
+    registerSafetySession(root, async () => index === 0, states[index], lifetime.signal);
+  }
+
+  await Promise.all(roots.map((root, index) => withWorkerParent(root, async () => {
+    await new Promise<void>((resolve) => setImmediate(resolve));
+    const child = workerModule.registerSafetySession(children[index], async () => false, new AutoModeState(!index), lifetime.signal);
+    assert.equal(child.mode, states[index]);
+  })));
+  assert.equal(await forwardApproval(request, children[0], lifetime.signal), true);
+  assert.equal(await forwardApproval(request, children[1], lifetime.signal), false);
+  const unrelated = context({ inMemory: true });
+  const unlinked = registerSafetySession(unrelated, async () => false, new AutoModeState(false), lifetime.signal);
+  assert.notEqual(unlinked.mode, states[0]);
+  assert.equal(await forwardApproval(request, unrelated, lifetime.signal), undefined);
+});
+
+test('explicit parent binding overrides stale saved ancestry and cannot revive a disposed parent', async (t) => {
+  const lifetime = new AbortController();
+  t.after(() => lifetime.abort());
+  const oldRoot = context({ hasUI: true });
+  const root = context({ hasUI: true });
+  registerSafetySession(oldRoot, async () => { throw new Error('wrong UI'); }, new AutoModeState(false), lifetime.signal);
+  const current = registerSafetySession(root, async () => true, new AutoModeState(true), lifetime.signal);
+  const resumed = context({ parent: oldRoot });
+  const child = await withWorkerParent(root, async () => registerSafetySession(resumed, async () => false, new AutoModeState(false), lifetime.signal));
+  assert.equal(child.mode, current.mode);
+  assert.equal(await forwardApproval(request, resumed, lifetime.signal), true);
+  current.dispose();
+  registerSafetySession(root, async () => true, new AutoModeState(true), lifetime.signal);
+  assert.equal(await forwardApproval(request, resumed, lifetime.signal), undefined, 'old descendants cannot attach to a replacement runtime');
+
+  const orphan = context({ parent: oldRoot });
+  await withWorkerParent(context({ inMemory: true }), async () => registerSafetySession(orphan, async () => false, new AutoModeState(true), lifetime.signal));
+  assert.equal(await forwardApproval(request, orphan, lifetime.signal), undefined, 'unregistered explicit parent must not use saved ancestry');
+});
+
+test('disposing an in-memory requester cancels its active forwarded approval', async (t) => {
+  const lifetime = new AbortController();
+  t.after(() => lifetime.abort());
+  let shown!: () => void;
+  const showing = new Promise<void>((resolve) => { shown = resolve; });
+  const root = context({ hasUI: true, select: async (_title, _choices, { signal }) => {
+    shown();
+    return new Promise((resolve) => signal.addEventListener('abort', () => resolve(undefined), { once: true }));
+  } });
+  registerSafetySession(root, createApprovalPrompt(lifetime.signal), new AutoModeState(true), lifetime.signal);
+  const child = context({ inMemory: true });
+  const registered = await withWorkerParent(root, async () => registerSafetySession(child, async () => false, new AutoModeState(true), lifetime.signal));
+  const pending = forwardApproval(request, child, lifetime.signal);
+  await showing;
+  registered.dispose();
+  assert.equal(await pending, false);
+  assert.equal(lifetime.signal.aborted, false, 'registration disposal must not stop the whole extension');
 });
 
 test('old runtime cleanup cannot unregister a replacement host', async (t) => {

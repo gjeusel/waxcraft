@@ -254,7 +254,8 @@ installer uses the flake's supported Node.js version for `npm ci` and stows
 
 `just pi-install` also reapplies the tracked patches in `.pi/agent/patches/` for
 foreground-only subagent labels (agent `color` sets text color without badge
-padding or background changes) and Pi Black's Claude Code `2.1.280` version override.
+padding or background changes), persistence-independent worker safety linkage, and Pi Black's
+Claude Code `2.1.280` version override.
 The latter updates the shared constant used by the user-agent, billing header, and version
 fingerprint, plus the upstream fingerprint test fixtures; it leaves the billing salt and
 request checksum algorithm unchanged. It also moves host-provided modules (TypeBox, Pi packages)
@@ -362,7 +363,7 @@ classifier gate.
 
 ### Permission review
 
-Interactive approvals use a centered `🛡 | tool` heading and a separate syntax-highlighted code
+Interactive approvals use a centered `🛡 tool` heading and a separate syntax-highlighted code
 block, with the rule reason kept outside the executable code. Short operations get a compact
 card; operations over 600 characters or six lines get a nearly full-screen, read-only pager.
 The complete command or file content remains available. Edits show every exact old/new replacement
@@ -390,12 +391,22 @@ show the worker name and working directory alongside the complete operation. Can
 shutdown closes the affected review; cancelled queued requests cannot reopen in a later turn.
 RPC clients receive complete fenced code with Allow / Deny choices instead of a custom TUI.
 
-Forwarding and shared toggles use native `parentSession` ancestry between registered sessions in the
-same process, not a global default terminal. The configured pi-subagents `rememberAgents: true`
-provides this link for normal top-level workers; persisted nested workers can follow it through their
-parents. In-memory workers (including nested workers unless configured to persist), unlinked
-sessions, and separate processes cannot inherit this link: they retain their local mode, and asks
+Forwarding and shared toggles use explicit, lifetime-scoped parent identity in the same process,
+not a global default terminal. The tracked pi-subagents runner patch scopes extension startup to
+the actual spawning parent, including in-memory and nested workers, without forcing persistence.
+Concurrent worker startups cannot exchange parents. Resumed workers use their current spawner,
+not stale ancestry in a saved file. Without that patch, persisted `parentSession` ancestry remains
+a compatibility fallback. Unlinked sessions and separate processes retain their local mode; asks
 without their own UI or a live parent UI still block. No permission is inferred from missing UI.
+
+Apply the runner patch after updating it, then restart Pi or run `/reload` so newly started workers
+load the binding hook:
+
+```sh
+dotfiles/pi/.pi/agent/patches/apply.sh
+```
+
+Protected-file approvals show the matched path rule separately from the proposed write or edit.
 
 After first adding the viewer or shared session-state module, restow the Pi package before `/reload`:
 

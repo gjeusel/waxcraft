@@ -134,7 +134,7 @@ test('the pager shows syntax-highlighted content with pinned summary and approva
   view.component.setSummary('Print operation progress lines without modifying files.');
   const initial = view.render();
   assert.equal(initial.length, 20);
-  assert.ok(initial.some((line) => line.includes('🛡 | bash')));
+  assert.ok(initial.some((line) => line.includes('🛡 bash')));
   assert.ok(initial.some((line) => line.includes('Summary: Print operation progress')));
   assert.ok(initial.some((line) => line.includes('operation line 01')));
   assert.ok(initial.some((line) => line.includes('[a] Allow  [d/Esc] Deny')));
@@ -154,7 +154,7 @@ test('title is centered, summary and actions have breathing room, and the naviga
   const view = viewer();
   view.component.setSummary('Update the deployment.');
   const rows = view.render();
-  const title = rows.find((line) => line.includes('🛡 | bash'))!.slice(1, -1);
+  const title = rows.find((line) => line.includes('🛡 bash'))!.slice(1, -1);
   const left = visibleWidth(title.match(/^\s*/)?.[0] ?? '');
   const right = visibleWidth(title.match(/\s*$/)?.[0] ?? '');
   assert.ok(Math.abs(left - right) <= 1);
@@ -179,7 +179,7 @@ test('short TUI approvals show separate highlighted code and support direct a/d/
     const rows = runtime.views[0].render(80);
     const plain = rows.map(stripTerminalSequences);
     assert.ok(plain.length < 23, 'compact card uses its natural content height');
-    const title = plain.findIndex((line) => line.includes('🛡 | bash'));
+    const title = plain.findIndex((line) => line.includes('🛡 bash'));
     const code = plain.findIndex((line) => line.includes('printf'));
     assert.equal(plain[title + 1].slice(1, -1).trim(), '');
     assert.ok(code > title + 1);
@@ -400,11 +400,11 @@ test('failed summaries and unavailable models leave review usable', async () => 
   assert.equal(runtime.requests.length, 0);
 });
 
-test('compact and RPC prompts use the new separator and never truncate long content', async () => {
+test('compact and RPC prompts use shield-only headings and never truncate long content', async () => {
   const runtime = harness({ mode: 'rpc' });
   const approve = createApprovalPrompt();
   assert.equal(await approve({ title: 'bash', content: 'ls', language: 'bash' }, runtime.ctx), true);
-  assert.equal(runtime.selections[0], '🛡 | bash\n\n```bash\nls\n```\n');
+  assert.equal(runtime.selections[0], '🛡 bash\n\n```bash\nls\n```\n');
   assert.equal(runtime.views.length, 0);
   assert.equal(runtime.requests.length, 0);
 

@@ -322,7 +322,7 @@ export class ApprovalViewer implements Component, Focusable {
     if (this.lastWidth !== inner) this.pendingMatch ??= this.cache?.rows[this.scroll.scrollTop];
     const rows = this.codeRows(inner);
     this.lastWidth = inner;
-    const title = wrapTextWithAnsi(reviewText(`🛡 | ${this.request.title}`).replaceAll('\n', '\\n'), inner)
+    const title = wrapTextWithAnsi(reviewText(`🛡 ${this.request.title}`).replaceAll('\n', '\\n'), inner)
       .map((line) => this.theme.fg('accent', `${' '.repeat(Math.max(0, Math.floor((inner - visibleWidth(line)) / 2)))}${line}`));
     const reason = this.request.reason
       ? wrapTextWithAnsi(this.theme.fg('muted', `Rule: ${reviewText(this.request.reason)}`), inner)
@@ -388,7 +388,7 @@ async function showApproval(request: ApprovalRequest, ctx: ExtensionContext, lif
       const longestFence = (request.content.match(/`+/g) ?? []).reduce((longest, run) => Math.max(longest, run.length), 2);
       const fence = '`'.repeat(longestFence + 1);
       const worker = request.worker ? `Worker: ${reviewText(request.worker.name)}\nCwd: ${reviewText(request.worker.cwd)}\n\n` : '';
-      const text = `🛡 | ${reviewText(request.title)}\n\n${worker}${fence}${request.language ?? ''}\n${reviewText(request.content)}\n${fence}${request.reason ? `\n\nRule: ${reviewText(request.reason)}` : ''}\n`;
+      const text = `🛡 ${reviewText(request.title)}\n\n${worker}${fence}${request.language ?? ''}\n${reviewText(request.content)}\n${fence}${request.reason ? `\n\nRule: ${reviewText(request.reason)}` : ''}\n`;
       const choice = await ctx.ui.select(text, ['Allow', 'Deny'], { signal });
 
       return !signal.aborted && choice === 'Allow';
