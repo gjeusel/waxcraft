@@ -79,9 +79,10 @@
   "paths": {
     // Credentials: the home directories the rm/trash shim also refuses.
     "deny": ["~/.ssh/**", "~/.gnupg/**", "~/.aws/**", "~/.kube/**"],
-    // Allowed after confirmation: this policy itself, shell startup files, and secret env files.
+    // Confirm only with auto mode on; edits to these paths proceed without a prompt while off.
     "ask": [
       "**/.pi/agent/pi-safety.jsonc",
+      "**/.pi/agent/pi-safety-auto-mode.md",
       "**/.pi/agent/extensions/pi-safety/**",
       "~/.zshrc",
       "~/.zshenv",
@@ -90,9 +91,11 @@
       "**/.env"
     ]
   },
-  // Adjudicate Bash commands the rules above let through. /toggle-auto-mode toggles per session;
+  // Adjudicate Bash commands the rules above let through and confirm protected-file edits.
+  // /toggle-auto-mode toggles both; hard deny rules remain active while off.
   // PI_AUTO_MODE=0 or 1 overrides enabled at startup. Sources: openai (OPENAI_API_KEY) or
   // jev (TYPESAFE_AI_API_KEY). Default: allow plausible task-related work unless substantially risky.
+  // Prompt: pi-safety-auto-mode.md beside this file, read for every decision (both sources).
   // minConfidence=0 avoids confidence-only prompts; raise it to require more certainty.
   "autoMode": {
     "enabled": true,

@@ -27,6 +27,49 @@ function context(options: {
 
 const request = { title: 'bash', language: 'bash', content: 'echo hello', reason: 'review this operation' };
 
+test('auto-mode changes save before notifying workers; a failed save leaves the current mode intact', () => {
+  const saved: boolean[] = [];
+  let fail = false;
+  const state = new AutoModeState(true, (enabled) => {
+    if (fail) throw new Error('session write failed');
+    saved.push(enabled);
+  });
+  let updates = 0;
+  state.subscribe(() => {
+    assert.equal(saved.at(-1), state.snapshot().enabled);
+    updates++;
+  });
+  const initial = state.snapshot();
+  state.setEnabled(false);
+  assert.deepEqual(saved, [false]);
+  assert.equal(initial.signal.aborted, true);
+  assert.equal(updates, 1);
+  state.setEnabled(false);
+  assert.deepEqual(saved, [false], 'no redundant session entries');
+
+  fail = true;
+  const current = state.snapshot();
+  assert.throws(() => state.setEnabled(true), /session write failed/);
+  assert.equal(state.snapshot().enabled, false);
+  assert.equal(current.signal.aborted, false);
+  assert.equal(updates, 1);
+});
+
+test('an interactive fork is independent from its still-live originating discussion', (t) => {
+  const lifetime = new AbortController();
+  t.after(() => lifetime.abort());
+  const root = context({ hasUI: true });
+  const parentMode = new AutoModeState(false);
+  registerSafetySession(root, async () => true, parentMode, lifetime.signal);
+  const fork = context({ parent: root, hasUI: true });
+  const localMode = new AutoModeState(true);
+  const registered = registerSafetySession(fork, async () => true, localMode, lifetime.signal);
+  assert.equal(registered.mode, localMode);
+  registered.mode.setEnabled(false);
+  registered.mode.setEnabled(true);
+  assert.equal(parentMode.snapshot().enabled, false);
+});
+
 test('workers share only their native parent mode, including new workers and separate module instances', async (t) => {
   const lifetime = new AbortController();
   t.after(() => lifetime.abort());

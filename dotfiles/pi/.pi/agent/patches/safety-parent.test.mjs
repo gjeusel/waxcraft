@@ -60,6 +60,38 @@ test('runner patch applies, detects its applied state, and reverses cleanly', ()
   assert.equal(readFileSync(runnerPath, 'utf8'), patched);
 });
 
+test('installer applies the runner patch once, detects it afterward, and reports Git errors', () => {
+  const root = join(scratch, 'installer');
+  const packagePath = 'npm/node_modules/@tintinweb/pi-subagents';
+  const packageDir = join(root, packagePath);
+  mkdirSync(join(packageDir, 'src'), { recursive: true });
+  const installedRunner = join(packageDir, 'src/agent-runner.ts');
+  writeFileSync(installedRunner, original);
+  writeFileSync(join(packageDir, 'src/agent-color.ts'),
+    readFileSync(join(agentDir, packagePath, 'src/agent-color.ts'), 'utf8'));
+  const install = () => spawnSync('sh', [fileURLToPath(new URL('./apply.sh', import.meta.url))], {
+    env: { ...process.env, PI_CODING_AGENT_DIR: root }, encoding: 'utf8',
+  });
+
+  const first = install();
+  assert.equal(first.status, 0, first.stderr);
+  assert.match(first.stdout, /Applied pi-subagents-0\.19\.0-safety-parent\.patch/);
+  assert.equal(readFileSync(installedRunner, 'utf8'), patched);
+
+  const second = install();
+  assert.equal(second.status, 0, second.stderr);
+  assert.match(second.stdout, /Already applied pi-subagents-0\.19\.0-safety-parent\.patch/);
+  assert.equal(readFileSync(installedRunner, 'utf8'), patched);
+
+  const incompatible = patched.replace('const bindExtensions = () => session.bindExtensions({', 'upstream binding changed');
+  writeFileSync(installedRunner, incompatible);
+  const failed = install();
+  assert.notEqual(failed.status, 0);
+  assert.match(failed.stderr, /Cannot patch src\/agent-runner\.ts/);
+  assert.match(failed.stderr, /error: patch failed: src\/agent-runner\.ts/);
+  assert.equal(readFileSync(installedRunner, 'utf8'), incompatible);
+});
+
 test('patched native binding supplies the real parent before in-memory session_start', async (t) => {
   const lifetime = new AbortController();
   t.after(() => lifetime.abort());

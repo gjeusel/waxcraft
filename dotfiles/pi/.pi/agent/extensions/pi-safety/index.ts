@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type EditToolInput, type ExtensionAPI, type ExtensionContext, type WriteToolInput, isToolCallEventType } from '@earendil-works/pi-coding-agent';
 import type { Parser } from 'web-tree-sitter';
-import { DECISION_BACKENDS, adjudicate, appendAutoModeRecord, buildTranscript, describeBashCall, type AutoModeRecord, type AutoModeSource } from './auto-mode.ts';
+import { AUTO_MODE_PROMPT_FILENAME, DECISION_BACKENDS, adjudicate, appendAutoModeRecord, buildTranscript, describeBashCall, type AutoModeRecord, type AutoModeSource } from './auto-mode.ts';
 import { createApprovalPrompt, fileApproval, type ApprovalRequest } from './approval.ts';
 import { loadSafetyConfig, type LoadedSafetyConfig } from './config.ts';
 import { inspectPath } from './path-policy.ts';
@@ -17,6 +17,7 @@ const shimDirectory = join(extensionDirectory, 'bin');
 export const AUTO_MODE_STATUS_KEY = 'auto-mode';
 export const SAFETY_STATUS_KEY = 'pi-safety';
 const AUTO_MODE_STATUS_TEXT = 'auto-mode';
+const AUTO_MODE_ENTRY_TYPE = 'pi-safety:auto-mode';
 const DELETION_SAFETY_SECTION = 'deletion-safety';
 const DELETION_SAFETY_PROMPT =
   'Plain rm and rmdir are transparently redirected to the macOS Trash for agent Bash calls; use them or trash normally.';
@@ -46,6 +47,22 @@ function autoModeApiKey(source: AutoModeSource): string | undefined {
   return process.env[DECISION_BACKENDS[source].apiKeyEnv]?.trim() || undefined;
 }
 
+function savedAutoMode(ctx: ExtensionContext): boolean | undefined {
+  // This is a discussion-wide preference, not branch state: /tree must not undo a user toggle.
+  const entries = ctx.sessionManager.getEntries();
+  for (let index = entries.length - 1; index >= 0; index--) {
+    const entry = entries[index];
+    if (entry.type !== 'custom' || entry.customType !== AUTO_MODE_ENTRY_TYPE) continue;
+
+    const data = entry.data;
+    if (data && typeof data === 'object' && 'enabled' in data && typeof data.enabled === 'boolean') {
+      return data.enabled;
+    }
+  }
+
+  return undefined;
+}
+
 export default async function (pi: ExtensionAPI) {
   const shutdown = new AbortController();
   const prompt = createApprovalPrompt(shutdown.signal);
@@ -73,7 +90,20 @@ export default async function (pi: ExtensionAPI) {
   let shellChecksDisabled = false;
   // Missing credentials must not silently disable an enabled permission gate.
   const envMode = process.env.PI_AUTO_MODE === '1' ? true : process.env.PI_AUTO_MODE === '0' ? false : undefined;
-  let mode = new AutoModeState(envMode ?? loaded.config.autoMode.enabled);
+  const persistMode = (enabled: boolean, previous: boolean) => {
+    try {
+      pi.appendEntry(AUTO_MODE_ENTRY_TYPE, { enabled });
+    } catch (error) {
+      // Pi appends in memory before writing to disk. Compensate so /reload cannot restore a
+      // failed toggle; even if disk writes still fail, the last in-memory preference is restored.
+      try {
+        pi.appendEntry(AUTO_MODE_ENTRY_TYPE, { enabled: previous });
+      } catch { /* Preserve the original write error. */ }
+
+      throw error;
+    }
+  };
+  let mode = new AutoModeState(envMode ?? loaded.config.autoMode.enabled, persistMode);
 
   function autoModeEnabled(): boolean {
     return mode.snapshot().enabled;
@@ -100,7 +130,7 @@ export default async function (pi: ExtensionAPI) {
   });
 
   pi.registerCommand('toggle-auto-mode', {
-    description: 'Toggle auto mode: the configured backend adjudicates each Bash command (allow / ask / deny)',
+    description: 'Toggle Bash adjudication and protected-file confirmations for this discussion (saved across resume/reload)',
     handler: async (_args, ctx) => {
       const { source } = loaded.config.autoMode;
       if (!autoModeEnabled() && autoModeApiKey(source) === undefined) {
@@ -112,8 +142,8 @@ export default async function (pi: ExtensionAPI) {
       refreshAutoModeStatus(ctx);
       ctx.ui.notify(
         autoModeEnabled()
-          ? `pi-safety: auto mode on — Bash commands are adjudicated by ${source}`
-          : 'pi-safety: auto mode off — Bash commands execute directly',
+          ? `pi-safety: auto mode on — Bash commands are adjudicated by ${source}; protected-file edits require confirmation`
+          : 'pi-safety: auto mode off — no Bash adjudication or file confirmations; hard deny rules still apply',
         'info',
       );
     },
@@ -123,7 +153,11 @@ export default async function (pi: ExtensionAPI) {
     loaded = loadSafetyConfig(process.env.PI_SAFETY_CONFIG);
     disposeSession?.();
     unsubscribeMode?.();
-    const session = registerSafetySession(ctx, prompt, mode, shutdown.signal);
+    const localMode = new AutoModeState(
+      savedAutoMode(ctx) ?? envMode ?? loaded.config.autoMode.enabled,
+      persistMode,
+    );
+    const session = registerSafetySession(ctx, prompt, localMode, shutdown.signal);
     mode = session.mode;
     disposeSession = session.dispose;
     unsubscribeMode = mode.subscribe(() => refreshAutoModeStatus(ctx));
@@ -172,6 +206,7 @@ export default async function (pi: ExtensionAPI) {
     const transcript = buildTranscript(ctx.sessionManager.getBranch(), actionLine);
     const outcome = await adjudicate(transcript, {
       apiKey,
+      promptPath: join(dirname(loaded.configPath), AUTO_MODE_PROMPT_FILENAME),
       source,
       minConfidence,
       signal: ctx.signal,
@@ -228,34 +263,48 @@ export default async function (pi: ExtensionAPI) {
   }
 
   /**
-   * Protected-path gate for the write and edit tools. `deny` rules block; `ask` rules need a
-   * confirmation, which degrades to a block without a UI. Bash writes are not covered here.
+   * Protected-path gate for write/edit. Denies always block; asks require confirmation only while
+   * auto mode is on. Mode changes cancel pending approvals and recheck the rules before proceeding.
+   * Bash writes are not covered here.
    */
   async function gateFileMutation(toolName: 'write' | 'edit', input: WriteToolInput | EditToolInput, ctx: ExtensionContext) {
-    if (shellChecksDisabled) return undefined;
-    if (loaded.status === 'invalid') return invalidConfigBlock();
+    const operationSignal = ctx.signal;
+    for (;;) {
+      if (operationSignal?.aborted || shutdown.signal.aborted) return { block: true, reason: 'pi-safety: operation cancelled' };
 
-    const verdict = inspectPath(input.path, ctx.cwd, loaded.config.paths);
-    if (!verdict) return undefined;
+      if (shellChecksDisabled) return undefined;
+      if (loaded.status === 'invalid') return invalidConfigBlock();
 
-    const subject = `${toolName} ${verdict.path}`;
-    if (verdict.action === 'deny') {
-      return { block: true, reason: `pi-safety: ${subject} is denied by protected path rule ${verdict.pattern}` };
+      const verdict = inspectPath(input.path, ctx.cwd, loaded.config.paths);
+      if (!verdict) return undefined;
+
+      const subject = `${toolName} ${verdict.path}`;
+      if (verdict.action === 'deny') {
+        return { block: true, reason: `pi-safety: ${subject} is denied by protected path rule ${verdict.pattern}` };
+      }
+
+      const snapshot = mode.snapshot();
+      if (!snapshot.enabled) return undefined;
+
+      const signal = AbortSignal.any([snapshot.signal, shutdown.signal, ...(operationSignal ? [operationSignal] : [])]);
+      const decisionContext: ExtensionContext = Object.create(ctx, { signal: { value: signal } });
+      const request = fileApproval(toolName, input, verdict.path);
+      request.reason = `Matches protected path rule ${verdict.pattern}`;
+      const allowed = await approve(request, decisionContext);
+      if (operationSignal?.aborted || shutdown.signal.aborted) return { block: true, reason: 'pi-safety: operation cancelled' };
+      if (snapshot.signal.aborted) continue;
+
+      if (allowed === undefined) {
+        return {
+          block: true,
+          reason: `pi-safety: ${subject} needs user confirmation (path rule ${verdict.pattern}) but no UI or parent approval is available`,
+        };
+      }
+
+      if (allowed) return undefined;
+
+      return { block: true, reason: `pi-safety: the user declined ${subject}` };
     }
-
-    const request = fileApproval(toolName, input, verdict.path);
-    request.reason = `Matches protected path rule ${verdict.pattern}`;
-    const allowed = await approve(request, ctx);
-    if (allowed === undefined) {
-      return {
-        block: true,
-        reason: `pi-safety: ${subject} needs user confirmation (path rule ${verdict.pattern}) but no UI or parent approval is available`,
-      };
-    }
-
-    if (allowed) return undefined;
-
-    return { block: true, reason: `pi-safety: the user declined ${subject}` };
   }
 
   pi.on('tool_call', async (event, ctx) => {

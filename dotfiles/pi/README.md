@@ -286,10 +286,11 @@ best-effort guardrail: tree-sitter evaluates literal command names, while
 dynamically constructed executable names remain intentionally unresolved.
 
 `paths` rules in `pi-safety.jsonc` guard the `write` and `edit` tools: `deny` globs block
-(credential directories), `ask` globs need a confirmation, blocked without a UI (the safety
-policy itself, shell startup files, `.env`). Both the given path and its symlink-resolved path
-are matched, so stowed files are covered through `~` and the repository. Bash writes to the same
-paths are not inspected.
+(credential directories); `ask` globs need confirmation only while auto mode is on, blocked without a
+UI (the safety policy itself, extension code, shell startup files, `.env`). With auto mode off, edits
+matching `ask` proceed without a prompt; `deny` rules remain enforced. Both the given path and its
+symlink-resolved path are matched, so stowed files are covered through `~` and the repository.
+Bash writes to the same paths are not inspected.
 
 Use `/no-safety` to disable tree-sitter command and protected-path checks for the current
 session. The rm/rmdir-to-trash routing remains active. After editing shell rules or
@@ -301,10 +302,16 @@ built-in safeguards. The statusbar shows these degraded states (`🛡 config inv
 ### Auto mode
 
 Auto mode adds a [pi-verdict](https://github.com/jesset/pi-verdict)-style permission gate on top
-of the shell rules. It is **enabled by default**, using OpenAI's
+of the shell rules and enables protected-file confirmations for `write` and `edit`.
+It is **enabled by default**, using OpenAI's
 [Decisions API](https://developers.openai.com/api/docs/guides/decisions) with `gpt-6-luna`.
-Every model-generated Bash command that the rules let through is sent with a condensed transcript
-(recent user messages and tool calls, no tool results) to the selected backend.
+Every model-generated Bash command that the rules let through is sent in full to the selected
+backend, with the five most recent user messages and ten past tool calls (no tool results).
+Selected user text and command text are never character-truncated or stripped of invisible
+characters: both dangerous effects and safeguards can occur in the middle. Line breaks are escaped
+to preserve transcript boundaries; non-command tool history is summarized by path or arguments.
+Oversized requests that the backend rejects follow the normal failure-to-confirmation path rather
+than silently dropping command content.
 
 Configure `autoMode` in `pi-safety.jsonc` and run `/reload`:
 
@@ -321,10 +328,44 @@ Configure `autoMode` in `pi-safety.jsonc` and run `/reload`:
 - `jev` uses TypeSafe's [jev](https://docs.typesafe.ai) `jev-latest` model and requires
   `TYPESAFE_AI_API_KEY`. Change `source` to `"jev"` to select it; there is no automatic fallback.
 
-Both backends use the same permissive criteria: **allow plausible task-related work unless there
+Both backends read their shared policy from `pi-safety-auto-mode.md` beside `pi-safety.jsonc`
+(or beside the file selected by `PI_SAFETY_CONFIG`). It supports four case-sensitive top-level
+Markdown sections: `# Instructions`, `# Allow`, `# Deny`, and `# Ask`, in any order.
+The instructions become the question prompt; the other three bodies become the verdict criteria.
+Use paragraphs, lists, code fences, or `##` subheadings inside them. Headings inside fenced code,
+lists, or blockquotes do not start new sections. Duplicate/unknown sections and text before the first
+section are rejected, as are Markdown constructs the parser would silently discard (such as repeated
+link definitions). Section text is preserved, with CRLF/CR line endings normalized to LF.
+
+The file is reread for **every classification**, including workers: edits affect subsequent requests
+without a reload, but do not change an already-running decision. A missing file uses very simple
+built-in defaults; a missing or empty section uses only that section's default. These defaults allow
+routine task work, ask for infrastructure/high-impact changes, and deny clearly dangerous actions.
+Unreadable files or malformed section structure skip the API call and require confirmation (block
+without a UI). Like the JSONC policy, the shipped path rules protect this Markdown file with
+confirmation for `write`/`edit`.
+
+After first adding the file, restow the Pi package before `/reload` so the live config can find it:
+
+```sh
+stow --verbose --no-folding --dir dotfiles --target "$HOME" --restow pi
+```
+
+The shipped policy preserves the same permissive criteria: **allow plausible task-related work unless there
 is a concrete substantial risk**, even with some uncertainty. Ordinary edits, installs, downloads,
 API calls, local Git operations, and generated-file cleanup should not need approval merely because
-they have side effects. Updating GitHub/GitLab issue descriptions and PR/MR descriptions is ordinary
+they have side effects. Explicit allow cases also cover:
+
+- Local database fixture tests with commits prevented, rollback cleanup, and external backends
+  disabled/mocked; mocking application confirmations in an isolated test is not a security bypass.
+- Task-related non-force feature-branch pushes to the existing intended remote, including upstream
+  setup and related checkouts; these are not private-data exfiltration.
+- Requested PR/MR merges and auto-merge for the task's repository/revision, with existing review and
+  CI requirements enforced. Later explicit authorization supersedes earlier temporary holds;
+  current holds and unmet user prerequisites still apply.
+- Read-only Git/API status checks, even when earlier commands pushed, merged, or deployed.
+
+Updating GitHub/GitLab issue descriptions and PR/MR descriptions is ordinary
 documentation work, not a consequential external message; exposing private data or combining it with
 a risky action still requires the usual safeguards. Substantial destructive, security, or external-impact
 risks still prompt; clearly dangerous actions (such as secret exfiltration or indiscriminate destruction)
@@ -332,7 +373,10 @@ are denied.
 Infrastructure mutations and remote execution are explicitly classified as `ask`, including
 Kubernetes changes/exec, Helm changes, Terraform apply/destroy, and cloud compute/network/IAM
 changes—even when task-related or explicitly requested. Read-only infra inspection and local
-configuration edits without applying them remain ordinary work.
+configuration edits without applying them remain ordinary work. Production-related filenames or
+source code do not by themselves establish a deployment, nor does routine CI; known deployment
+effects still require approval. Unexpected push destinations, force pushes, unrequested merges,
+and bypassing repository protections remain outside the routine-work allowance.
 
 `allow` runs silently, `deny` blocks with a notification, and `ask` offers Allow / Deny.
 `minConfidence` defaults to `0`, so uncertainty alone does not add a prompt or override a verdict.
@@ -356,7 +400,7 @@ changing the approval decision.
 
 The records are a **manual prompt-improvement backlog**, not an allowlist and never automatically
 fed to the classifier. When asked to improve auto mode, review the remaining entries, generalize
-appropriate approved cases into the shared prompt in `extensions/pi-safety/auto-mode.ts`, and remove
+appropriate approved cases into the shared prompt in `pi-safety-auto-mode.md`, and remove
 handled entries. Keep denied cases and infrastructure safeguards distinct from routine approvals;
 a one-off approval is not blanket permission. Refusal, outage, confidence-floor, and shell-rule
 asks may need a different fix than prompt wording.
@@ -364,21 +408,31 @@ asks may need a different fix than prompt wording.
 The kubectl/Helm mutation rules carry `autoMode: "ask"`: with auto mode **on**, they require explicit
 approval even if the classifier returns `allow`; with auto mode **off**, they remain hard denies.
 The classifier still checks the full command and can deny other dangerous effects. A rule-based ask
-never hides another hard deny in the same command or nested script. Other deterministic rules and
-protected-path confirmations are unchanged.
+never hides another hard deny in the same command or nested script. Other deterministic rules remain
+enforced in either mode; protected-path `ask` rules prompt only while auto mode is on.
 
 `/toggle-auto-mode` immediately toggles the gate for the current session and its linked workers,
 including already-running workers and later tool calls in the **current response**. In-flight
 classifications and pending auto-mode approvals are cancelled, and the affected command is checked
 again under the new mode before it can run. Off/on races cannot authorize from an old verdict.
 Turning the gate off restores the configured infrastructure hard denies; it does not bypass them.
-Protected-path approvals are independent and stay open. Already-executing shell processes are not
-terminated by a toggle.
+The same toggle controls protected-file confirmations: off allows writes/edits matching `paths.ask`
+without a prompt, but `paths.deny` still blocks. Pending file approvals are cancelled and rechecked
+just like Bash approvals. Already-executing shell processes are not terminated by a toggle.
 
-`PI_AUTO_MODE=0` or `1` overrides `enabled` at startup; linked workers inherit the live parent setting.
-While on, the statusbar shows `auto-mode` before the context percentage. Deterministic shell rules
-still run first; `/no-safety` disables them, including rule-based asks, but does not disable the
-classifier gate.
+The toggle is saved as a custom entry in the discussion's session history (not sent to the model).
+Resuming with `/resume` or `--continue`, restarting Pi, and `/reload` restore the latest saved choice.
+It applies across `/tree` branches of that discussion; unrelated discussions keep their own setting.
+New discussions without a saved toggle use `PI_AUTO_MODE=0` or `1`, then the configured `enabled`
+default. A saved toggle takes precedence over both. Forks/clones inherit any toggle in the copied
+history, then remain independent. Ephemeral (`--no-session`) discussions retain toggles only while
+their in-memory session exists, including reloads. Toggles made before the first conversation message
+are flushed when Pi first saves that discussion. Older, unsaved toggles cannot be recovered.
+
+Linked workers always inherit the live parent setting, even if their own history has an older toggle;
+shared changes are saved in the owning discussion. While on, the statusbar shows `auto-mode` before
+the context percentage. Deterministic shell rules still run first; `/no-safety` disables them,
+including rule-based asks, but does not disable the classifier gate.
 
 ### Permission review
 
@@ -415,8 +469,9 @@ not a global default terminal. The tracked pi-subagents runner patch scopes exte
 the actual spawning parent, including in-memory and nested workers, without forcing persistence.
 Concurrent worker startups cannot exchange parents. Resumed workers use their current spawner,
 not stale ancestry in a saved file. Without that patch, persisted `parentSession` ancestry remains
-a compatibility fallback. Unlinked sessions and separate processes retain their local mode; asks
-without their own UI or a live parent UI still block. No permission is inferred from missing UI.
+a compatibility fallback for headless workers, not discussions opened in their own UI. Unlinked
+sessions and separate processes retain their local mode; asks without their own UI or a live parent UI
+still block. No permission is inferred from missing UI.
 
 Apply the runner patch after updating it, then restart Pi or run `/reload` so newly started workers
 load the binding hook:

@@ -1,21 +1,24 @@
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmdirSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 import { initTheme, SessionManager } from '@earendil-works/pi-coding-agent';
 import { stripTerminalSequences } from '@earendil-works/pi-tui';
-import { AUTO_MODE_SOURCES, type AutoModeSource } from './auto-mode.ts';
+import { AUTO_MODE_PROMPT_FILENAME, AUTO_MODE_SOURCES, DEFAULT_VERDICT_QUESTIONS, parseVerdictQuestions, type AutoModeSource } from './auto-mode.ts';
 import safety from './index.ts';
 import { withWorkerParent } from './session-state.ts';
 
 async function setup(
   configText = JSON.stringify({ shell: { deny: [{ command: 'sudo', reason: 'sudo denied in test' }] } }),
   env: Record<string, string | undefined> = { PI_AUTO_MODE: '0' },
+  initialSession?: SessionManager,
 ) {
   const directory = mkdtempSync(join(tmpdir(), 'pi-safety-index-'));
   const configPath = join(directory, 'config.jsonc');
   writeFileSync(configPath, configText);
+  const promptPath = join(directory, AUTO_MODE_PROMPT_FILENAME);
+  copyFileSync(new URL('../../pi-safety-auto-mode.md', import.meta.url), promptPath);
   const testEnv = { HOME: directory, PI_AUTO_MODE: undefined, OPENAI_API_KEY: undefined, TYPESAFE_AI_API_KEY: undefined, ...env, PI_SAFETY_CONFIG: configPath };
   const previousEnv = Object.fromEntries(Object.keys(testEnv).map((key) => [key, process.env[key]]));
   for (const [key, value] of Object.entries(testEnv)) {
@@ -23,19 +26,26 @@ async function setup(
     else process.env[key] = value;
   }
 
-  const sessionManager = SessionManager.inMemory(directory);
+  let sessionManager = initialSession ?? SessionManager.inMemory(directory);
   const handlers = new Map<string, (...args: any[]) => any>();
   const commands = new Map<string, { handler: (args: string, ctx: any) => Promise<void> }>();
   await safety({
-    on: (event: string, handler: (...args: any[]) => any) => handlers.set(event, (data: any, ctx: any) =>
-      handler(data, Object.create(ctx ?? null, { sessionManager: { value: ctx?.sessionManager ?? sessionManager } }))),
+    on: (event: string, handler: (...args: any[]) => any) => handlers.set(event, (data: any, ctx: any) => {
+      sessionManager = ctx?.sessionManager ?? sessionManager;
+      return handler(data, Object.create(ctx ?? null, { sessionManager: { value: sessionManager } }));
+    }),
     registerCommand: (name: string, command: { handler: (args: string, ctx: any) => Promise<void> }) =>
-      commands.set(name, command),
+      commands.set(name, { handler: (args, ctx) => {
+        sessionManager = ctx?.sessionManager ?? sessionManager;
+        return command.handler(args, ctx);
+      } }),
+    appendEntry: (customType: string, data: unknown) => sessionManager.appendCustomEntry(customType, data),
   } as any);
 
   return {
     handlers,
     commands,
+    promptPath,
     recordsPath: join(directory, '.pi', 'auto-mode-records.md'),
     restore() {
       handlers.get('session_shutdown')?.({});
@@ -66,9 +76,10 @@ test('checks Bash calls and ignores other tools', async () => {
   }
 });
 
-test('write and edit: deny and ask protected paths, other paths pass', async () => {
+test('auto mode on: write and edit deny and ask protected paths, other paths pass', async () => {
   const { handlers, recordsPath, restore } = await setup(
     JSON.stringify({ paths: { deny: ['/protected/**'], ask: ['**/.env'] } }),
+    { PI_AUTO_MODE: '1' },
   );
   const toolCall = handlers.get('tool_call')!;
   const confirmations: string[] = [];
@@ -110,6 +121,37 @@ test('write and edit: deny and ask protected paths, other paths pass', async () 
 
     assert.equal(await toolCall(writeTo('src/index.ts'), context({ hasUI: false, confirm: false })), undefined);
     assert.equal(existsSync(recordsPath), false, 'protected-file approvals are not auto-mode feedback');
+  } finally {
+    restore();
+  }
+});
+
+test('auto mode off: write and edit skip protected-path asks but retain hard denies', async (t) => {
+  const { handlers, recordsPath, restore } = await setup(
+    JSON.stringify({ paths: { deny: ['/protected/**'], ask: ['**/.env'] } }),
+  );
+  t.mock.method(globalThis, 'fetch', () => assert.fail('file edits must not call the classifier'));
+  try {
+    for (const hasUI of [false, true]) {
+      const ctx = {
+        cwd: '/project', hasUI,
+        ui: { select: async () => assert.fail('auto mode off must not request file confirmation') },
+      };
+      for (const [toolName, input] of [
+        ['write', { path: '.env', content: 'x' }],
+        ['edit', { path: '.env', edits: [{ oldText: 'x', newText: 'y' }] }],
+      ] as const) {
+        const call = (path: string) => handlers.get('tool_call')!({
+          type: 'tool_call', toolName, input: { ...input, path },
+        }, ctx);
+        assert.equal(await call('.env'), undefined);
+        assert.equal(await call('src/index.ts'), undefined);
+        const denied = await call('/protected/.env');
+        assert.equal(denied.block, true);
+        assert.match(denied.reason, /denied by protected path rule \/protected\/\*\*/);
+      }
+    }
+    assert.equal(existsSync(recordsPath), false);
   } finally {
     restore();
   }
@@ -226,6 +268,87 @@ function autoModeContext(options: { hasUI: boolean; confirm?: boolean }) {
       },
     },
   };
+}
+
+test('uses the policy beside the selected config, rereads edits, and defaults after deletion', async (t) => {
+  const { handlers, promptPath, restore } = await setup('{}', { PI_AUTO_MODE: '1', OPENAI_API_KEY: 'test-key' });
+  const { ctx } = autoModeContext({ hasUI: false });
+  const received: any[] = [];
+  t.mock.method(globalThis, 'fetch', (url: string, init: RequestInit) => {
+    received.push(JSON.parse(init.body as string).questions[0]);
+    return decisionFetch('openai', 'allow', 1)(url, init);
+  });
+  try {
+    const run = () => handlers.get('tool_call')!({ type: 'tool_call', toolName: 'bash', input: { command: 'echo ok' } }, ctx);
+    assert.equal(await run(), undefined);
+    assert.equal(received[0].instructions, parseVerdictQuestions(readFileSync(promptPath, 'utf8')).verdict.instructions);
+
+    writeFileSync(promptPath, '# Instructions\nCustom review instructions.\n\n# Allow\nCustom routine work.');
+    assert.equal(await run(), undefined);
+    assert.equal(received[1].instructions, 'Custom review instructions.');
+    assert.deepEqual(received[1].choices, [
+      { value: 'allow', description: 'Custom routine work.' },
+      { value: 'ask', description: DEFAULT_VERDICT_QUESTIONS.verdict.criteria.ask },
+      { value: 'deny', description: DEFAULT_VERDICT_QUESTIONS.verdict.criteria.deny },
+    ]);
+
+    unlinkSync(promptPath);
+    assert.equal(await run(), undefined);
+    assert.equal(received[2].instructions, DEFAULT_VERDICT_QUESTIONS.verdict.instructions);
+    assert.equal(received.length, 3);
+  } finally {
+    restore();
+  }
+});
+
+test('malformed policy requires approval and cannot silently execute without a UI', async (t) => {
+  const { handlers, promptPath, restore } = await setup('{}', { PI_AUTO_MODE: '1', OPENAI_API_KEY: 'test-key' });
+  writeFileSync(promptPath, '# Instructions\nAssess risk.\n\n# Instructions\nConflicting policy.');
+  t.mock.method(globalThis, 'fetch', () => assert.fail('invalid policy must not reach the API'));
+  try {
+    const run = (ctx: any) => handlers.get('tool_call')!({ type: 'tool_call', toolName: 'bash', input: { command: 'echo ok' } }, ctx);
+    const headless = await run(autoModeContext({ hasUI: false }).ctx);
+    assert.equal(headless.block, true);
+    assert.match(headless.reason, /auto-mode prompt .*duplicate section/);
+
+    const declined = await run(autoModeContext({ hasUI: true, confirm: false }).ctx);
+    assert.equal(declined.block, true);
+    const accepting = autoModeContext({ hasUI: true, confirm: true });
+    assert.equal(await run(accepting.ctx), undefined);
+    assert.match(accepting.confirmations[0], /duplicate section/);
+  } finally {
+    restore();
+  }
+});
+
+for (const enabled of [false, true]) {
+  test(`shipped file rules: auto mode ${enabled ? 'on requires approval' : 'off skips approval'}`, async () => {
+    const config = readFileSync(new URL('../../pi-safety.jsonc', import.meta.url), 'utf8');
+    const { handlers, restore } = await setup(config, { PI_AUTO_MODE: enabled ? '1' : '0' });
+    try {
+      for (const path of [
+        '/project/.pi/agent/pi-safety.jsonc',
+        `/project/.pi/agent/${AUTO_MODE_PROMPT_FILENAME}`,
+        '/project/.pi/agent/extensions/pi-safety/index.ts',
+      ]) {
+        for (const [toolName, input] of [
+          ['write', { path, content: 'x' }],
+          ['edit', { path, edits: [{ oldText: 'x', newText: 'y' }] }],
+        ] as const) {
+          const result = await handlers.get('tool_call')!({ type: 'tool_call', toolName, input },
+            autoModeContext({ hasUI: false }).ctx);
+          if (enabled) {
+            assert.equal(result.block, true, path);
+            assert.match(result.reason, /needs user confirmation/);
+          } else {
+            assert.equal(result, undefined, path);
+          }
+        }
+      }
+    } finally {
+      restore();
+    }
+  });
 }
 
 for (const enabled of [false, true]) {
@@ -483,7 +606,7 @@ for (const { enabled, envOverride, expected } of [
 ]) {
   test(`${JSON.stringify({ enabled, envOverride })}: startup enablement and default OpenAI routing`, async (t) => {
     const { handlers, restore } = await setup(
-      JSON.stringify({ autoMode: { enabled } }),
+      JSON.stringify({ autoMode: { enabled }, paths: { ask: ['**/.env'] } }),
       { PI_AUTO_MODE: envOverride, OPENAI_API_KEY: ' openai-key ', TYPESAFE_AI_API_KEY: 'jev-key' },
     );
     const { ctx, statuses } = autoModeContext({ hasUI: false });
@@ -504,11 +627,199 @@ for (const { enabled, envOverride, expected } of [
       assert.equal(await handlers.get('tool_call')!(event, ctx), undefined);
       assert.equal(requests, expected ? 1 : 0);
       assert.match(event.input.command, /\nls$/);
+      const fileResult = await handlers.get('tool_call')!({
+        type: 'tool_call', toolName: 'write', input: { path: '.env', content: 'x' },
+      }, ctx);
+      assert.equal(fileResult?.block ?? false, expected, 'file confirmations follow startup enablement');
     } finally {
       restore();
     }
   });
 }
+
+for (const enabled of [false, true]) {
+  test(`saved auto mode ${enabled ? 'on' : 'off'} survives resume/reload without leaking to a new discussion`, async (t) => {
+    const directory = mkdtempSync(join(tmpdir(), 'pi-safety-persist-'));
+    const saved = SessionManager.create('/project', directory);
+    saved.appendMessage({ role: 'user', content: 'Remember this discussion preference.', timestamp: 1 });
+    const file = saved.getSessionFile()!;
+    const config = JSON.stringify({ autoMode: { enabled: !enabled }, paths: { ask: ['**/.env'] } });
+    const env = { PI_AUTO_MODE: enabled ? '0' : '1', OPENAI_API_KEY: 'test-key' };
+    const initial = autoModeContext({ hasUI: true });
+    initial.ctx.sessionManager = saved;
+    const root = await setup(config, env, saved);
+    try {
+      await root.handlers.get('session_start')!({}, initial.ctx);
+      await root.commands.get('toggle-auto-mode')!.handler('', initial.ctx);
+      assert.equal(initial.statuses.get('auto-mode'), enabled ? 'auto-mode' : undefined);
+      assert.deepEqual(saved.getEntries().filter((entry) => entry.type === 'custom').map((entry) => [entry.customType, entry.data]), [
+        ['pi-safety:auto-mode', { enabled }],
+      ]);
+      assert.equal(saved.buildSessionContext().messages.length, 1, 'the preference is not model context');
+    } finally {
+      root.restore();
+    }
+
+    const resumed = SessionManager.open(file);
+    // /resume opens the file; /reload reuses the manager but recreates the extension runtime.
+    for (const [operation, sessionManager] of [
+      ['resume', resumed], ['reload', resumed], ['new', SessionManager.inMemory('/project')],
+      ['resume again', SessionManager.open(file)],
+    ] as const) {
+      const current = autoModeContext({ hasUI: true });
+      current.ctx.sessionManager = sessionManager;
+      const runtime = await setup(config, env, sessionManager);
+      const requests = t.mock.method(globalThis, 'fetch', decisionFetch('openai', 'allow', 1));
+      try {
+        const entryCount = sessionManager.getEntries().length;
+        await runtime.handlers.get('session_start')!({}, current.ctx);
+        const expected = operation === 'new' ? !enabled : enabled;
+        assert.equal(current.statuses.get('auto-mode'), expected ? 'auto-mode' : undefined, operation);
+        assert.equal(sessionManager.getEntries().length, entryCount, 'startup does not write a toggle');
+        const event = { type: 'tool_call', toolName: 'bash', input: { command: 'echo ok' } };
+        assert.equal(await runtime.handlers.get('tool_call')!(event, current.ctx), undefined);
+        assert.equal(requests.mock.callCount(), expected ? 1 : 0, operation);
+        const fileResult = await runtime.handlers.get('tool_call')!({
+          type: 'tool_call', toolName: 'edit', input: { path: '.env', edits: [{ oldText: 'x', newText: 'y' }] },
+        }, current.ctx);
+        assert.equal(fileResult?.block ?? false, expected, 'file confirmations follow the saved toggle');
+        assert.equal(current.confirmations.length, expected ? 1 : 0);
+      } finally {
+        requests.mock.restore();
+        runtime.restore();
+      }
+    }
+  });
+}
+
+for (const enabled of [true, false]) {
+  test(`a failed native session write keeps auto mode ${enabled ? 'on' : 'off'} after reload and resume`, async () => {
+    const directory = mkdtempSync(join(tmpdir(), 'pi-safety-write-failure-'));
+    const sessionManager = SessionManager.create('/project', directory);
+    sessionManager.appendCustomEntry('pi-safety:auto-mode', { enabled });
+    sessionManager.appendMessage({ role: 'user', content: 'A persisted discussion.', timestamp: 1 });
+    const file = sessionManager.getSessionFile()!;
+    const backup = `${file}.backup`;
+    const current = autoModeContext({ hasUI: true });
+    current.ctx.sessionManager = sessionManager;
+    const env = { PI_AUTO_MODE: enabled ? '0' : '1', OPENAI_API_KEY: 'test-key' };
+    const runtime = await setup('{}', env, sessionManager);
+    renameSync(file, backup);
+    mkdirSync(file);
+    try {
+      await runtime.handlers.get('session_start')!({}, current.ctx);
+      // Native appendCustomEntry adds the entry in memory before this real filesystem error.
+      await assert.rejects(runtime.commands.get('toggle-auto-mode')!.handler('', current.ctx), /EISDIR/);
+      assert.equal(current.statuses.get('auto-mode'), enabled ? 'auto-mode' : undefined);
+    } finally {
+      runtime.restore();
+      rmdirSync(file);
+      renameSync(backup, file);
+    }
+
+    for (const manager of [sessionManager, SessionManager.open(file)]) {
+      current.ctx.sessionManager = manager;
+      const restored = await setup('{}', env, manager);
+      try {
+        await restored.handlers.get('session_start')!({}, current.ctx);
+        assert.equal(current.statuses.get('auto-mode'), enabled ? 'auto-mode' : undefined);
+      } finally {
+        restored.restore();
+      }
+    }
+  });
+}
+
+test('the last valid toggle is discussion-wide, including after tree navigation and reload', async () => {
+  const current = autoModeContext({ hasUI: true });
+  const sessionManager = current.ctx.sessionManager;
+  const original = sessionManager.appendMessage({ role: 'user', content: 'Original branch', timestamp: 1 });
+  const env = { OPENAI_API_KEY: 'test-key' };
+  const root = await setup('{}', env, sessionManager);
+  try {
+    await root.handlers.get('session_start')!({}, current.ctx);
+    await root.commands.get('toggle-auto-mode')!.handler('', current.ctx);
+    sessionManager.branch(original);
+    sessionManager.appendMessage({ role: 'user', content: 'Alternative branch', timestamp: 2 });
+    assert.equal(sessionManager.getBranch().some((entry) => entry.type === 'custom'), false);
+    assert.equal(current.statuses.get('auto-mode'), undefined, 'tree navigation does not undo the toggle');
+  } finally {
+    root.restore();
+  }
+
+  sessionManager.appendCustomEntry('another-extension', { enabled: true });
+  for (const data of [null, true, {}, { enabled: 'true' }, { enabled: 1 }]) {
+    sessionManager.appendCustomEntry('pi-safety:auto-mode', data);
+  }
+  const reloaded = await setup('{}', env, sessionManager);
+  try {
+    await reloaded.handlers.get('session_start')!({}, current.ctx);
+    assert.equal(current.statuses.get('auto-mode'), undefined, 'only valid boolean preferences are restored');
+    await reloaded.commands.get('toggle-auto-mode')!.handler('', current.ctx);
+    assert.equal(current.statuses.get('auto-mode'), 'auto-mode');
+  } finally {
+    reloaded.restore();
+  }
+
+  const latest = await setup('{"autoMode":{"enabled":false}}', env, sessionManager);
+  try {
+    await latest.handlers.get('session_start')!({}, current.ctx);
+    assert.equal(current.statuses.get('auto-mode'), 'auto-mode', 'the latest valid toggle wins');
+  } finally {
+    latest.restore();
+  }
+});
+
+test('workers follow the restored parent preference and save shared toggles in the parent discussion', async () => {
+  const env = { OPENAI_API_KEY: 'test-key' };
+  const parent = autoModeContext({ hasUI: true });
+  const child = autoModeContext({ hasUI: false });
+  parent.ctx.sessionManager.appendCustomEntry('pi-safety:auto-mode', { enabled: false });
+  child.ctx.sessionManager.appendCustomEntry('pi-safety:auto-mode', { enabled: true });
+  const root = await setup('{}', env, parent.ctx.sessionManager);
+  const worker = await setup('{}', env, child.ctx.sessionManager);
+  try {
+    await root.handlers.get('session_start')!({}, parent.ctx);
+    await withWorkerParent(parent.ctx, async () => worker.handlers.get('session_start')!({}, child.ctx));
+    assert.equal(parent.statuses.get('auto-mode'), undefined);
+    assert.equal(child.statuses.get('auto-mode'), undefined, 'live parent wins over saved worker state');
+
+    await worker.commands.get('toggle-auto-mode')!.handler('', child.ctx);
+    assert.equal(parent.statuses.get('auto-mode'), 'auto-mode');
+    assert.equal(child.statuses.get('auto-mode'), 'auto-mode');
+    assert.deepEqual(parent.ctx.sessionManager.getEntries().filter((entry) => entry.type === 'custom').map((entry) => entry.data), [
+      { enabled: false }, { enabled: true },
+    ]);
+    assert.equal(child.ctx.sessionManager.getEntries().length, 1, 'workers do not save a competing preference');
+
+    await root.commands.get('toggle-auto-mode')!.handler('', parent.ctx);
+    assert.equal(child.statuses.get('auto-mode'), undefined);
+  } finally {
+    worker.restore();
+    root.restore();
+  }
+});
+
+test('malformed saved preferences fall back to defaults; failed enabling does not save a toggle', async () => {
+  const current = autoModeContext({ hasUI: true });
+  const sessionManager = current.ctx.sessionManager;
+  sessionManager.appendCustomEntry('pi-safety:auto-mode', { enabled: 'false' });
+  const runtime = await setup('{}', {}, sessionManager);
+  try {
+    await runtime.handlers.get('session_start')!({}, current.ctx);
+    assert.equal(current.statuses.get('auto-mode'), 'auto-mode');
+    const event = { type: 'tool_call', toolName: 'bash', input: { command: 'echo ok' } };
+    assert.match((await runtime.handlers.get('tool_call')!(event, current.ctx)).reason, /OPENAI_API_KEY is not set/);
+    await runtime.commands.get('toggle-auto-mode')!.handler('', current.ctx);
+    const entries = sessionManager.getEntries();
+    await runtime.commands.get('toggle-auto-mode')!.handler('', current.ctx);
+    assert.equal(current.statuses.get('auto-mode'), undefined);
+    assert.match(current.notifications.at(-1)!, /needs OPENAI_API_KEY/);
+    assert.deepEqual(sessionManager.getEntries(), entries);
+  } finally {
+    runtime.restore();
+  }
+});
 
 for (const source of AUTO_MODE_SOURCES) {
   test(`${source}: a missing key never silently disables auto mode`, async (t) => {
@@ -695,10 +1006,11 @@ test('worker classifier and protected-path asks reach the parent; hard denies ne
 
 test('enabling the parent gate reaches an already-running in-memory worker that started with PI_AUTO_MODE=0', async (t) => {
   const env = { PI_AUTO_MODE: '0', OPENAI_API_KEY: 'test-key' };
-  const root = await setup(undefined, env);
+  const config = JSON.stringify({ paths: { ask: ['**/.env'] } });
+  const root = await setup(config, env);
   const { parent, child } = linkedContexts(true, true);
   await root.handlers.get('session_start')!({}, parent.ctx);
-  const worker = await setup(undefined, env);
+  const worker = await setup(config, env);
   await withWorkerParent(parent.ctx, async () => worker.handlers.get('session_start')!({}, child.ctx));
   let requests = 0;
   t.mock.method(globalThis, 'fetch', (url: string, init: RequestInit) => {
@@ -707,7 +1019,10 @@ test('enabling the parent gate reaches an already-running in-memory worker that 
   });
   try {
     const event = () => ({ type: 'tool_call', toolName: 'bash', input: { command: 'echo harmless' } });
+    const fileEvent = { type: 'tool_call', toolName: 'write', input: { path: '.env', content: 'x' } };
     assert.equal(await worker.handlers.get('tool_call')!(event(), child.ctx), undefined);
+    assert.equal(await worker.handlers.get('tool_call')!(fileEvent, child.ctx), undefined);
+    assert.equal(parent.confirmations.length, 0);
     assert.equal(requests, 0);
     await root.commands.get('toggle-auto-mode')!.handler('', parent.ctx);
     assert.equal(child.statuses.get('auto-mode'), 'auto-mode');
@@ -715,6 +1030,10 @@ test('enabling the parent gate reaches an already-running in-memory worker that 
     assert.equal(requests, 1);
     assert.equal(parent.confirmations.length, 1);
     assert.match(parent.confirmations[0], /Worker: test-worker/);
+    assert.equal(await worker.handlers.get('tool_call')!(fileEvent, child.ctx), undefined);
+    assert.equal(parent.confirmations.length, 2);
+    assert.match(parent.confirmations[1], /Matches protected path rule/);
+    assert.equal(requests, 1, 'protected files require confirmation, not classification');
     assert.equal(child.confirmations.length, 0);
     assert.equal(child.ctx.sessionManager.getSessionFile(), undefined);
   } finally {
@@ -819,29 +1138,110 @@ for (const { command, inMemory } of ['echo harmless', 'kubectl apply -f deployme
   });
 }
 
-test('auto-mode toggles leave an independent protected-path approval pending', async () => {
-  const root = await setup(JSON.stringify({ paths: { ask: ['**/.env'] } }), { OPENAI_API_KEY: 'test-key' });
-  const { ctx } = autoModeContext({ hasUI: true });
-  let shown!: () => void;
-  const showing = new Promise<void>((resolve) => { shown = resolve; });
-  let finish!: (choice: 'Deny') => void;
-  let reviewSignal!: AbortSignal;
-  ctx.ui.select = async (_title: string, _choices: string[], ...options: any[]) => {
-    reviewSignal = options[0].signal;
-    shown();
-    return new Promise<'Deny'>((resolve) => { finish = resolve; });
-  };
-  try {
-    const pending = root.handlers.get('tool_call')!({ type: 'tool_call', toolName: 'write', input: { path: '.env', content: 'x' } }, ctx);
-    await showing;
-    await root.commands.get('toggle-auto-mode')!.handler('', ctx);
-    assert.equal(reviewSignal.aborted, false);
-    finish('Deny');
-    assert.equal((await pending).block, true);
-  } finally {
-    root.restore();
+for (const [toolName, input] of [
+  ['write', { path: '.env', content: 'x' }],
+  ['edit', { path: '.env', edits: [{ oldText: 'x', newText: 'y' }] }],
+] as const) {
+  for (const kind of ['main', 'persisted worker', 'in-memory worker']) {
+    test(`turning auto mode off cancels a ${kind} ${toolName} confirmation and affects later calls`, async () => {
+      const config = JSON.stringify({ paths: { ask: ['**/.env'], deny: ['/protected/**'] } });
+      const root = await setup(config, { OPENAI_API_KEY: 'test-key' });
+      const { parent, child } = linkedContexts(true, kind === 'in-memory worker');
+      let shown!: () => void;
+      const showing = new Promise<void>((resolve) => { shown = resolve; });
+      let dismissed = false;
+      parent.ctx.ui.select = async (title: string, _choices: string[], ...options: any[]) => {
+        parent.confirmations.push(title);
+        shown();
+        return new Promise<undefined>((resolve) => options[0].signal.addEventListener('abort', () => {
+          dismissed = true;
+          resolve(undefined);
+        }, { once: true }));
+      };
+      await root.handlers.get('session_start')!({}, parent.ctx);
+      const worker = await setup(config, { OPENAI_API_KEY: 'test-key' });
+      await withWorkerParent(parent.ctx, async () => worker.handlers.get('session_start')!({}, child.ctx));
+      const runner = kind === 'main' ? root : worker;
+      const ctx = kind === 'main' ? parent.ctx : child.ctx;
+      const event = { type: 'tool_call', toolName, input };
+      try {
+        const pending = runner.handlers.get('tool_call')!(event, ctx);
+        await Promise.race([showing, pending.then((result: unknown) => {
+          throw new Error(`operation settled before review: ${JSON.stringify(result)}`);
+        })]);
+        await root.commands.get('toggle-auto-mode')!.handler('', parent.ctx);
+        assert.equal(await pending, undefined);
+        assert.equal(dismissed, true);
+        assert.equal(await runner.handlers.get('tool_call')!(event, ctx), undefined);
+        assert.equal(parent.confirmations.length, 1, 'later calls must not prompt while off');
+        const denied = await runner.handlers.get('tool_call')!({
+          ...event, input: { ...input, path: '/protected/key' },
+        }, ctx);
+        assert.equal(denied.block, true, 'hard denies remain active while off');
+        assert.equal(existsSync(root.recordsPath), false);
+        assert.equal(existsSync(worker.recordsPath), false);
+      } finally {
+        worker.restore();
+        root.restore();
+      }
+    });
   }
-});
+
+  test(`${toolName}: a mode change never revives a cancelled call after the live turn signal changes`, async () => {
+    const root = await setup(JSON.stringify({ paths: { ask: ['**/.env'] } }), { OPENAI_API_KEY: 'test-key' });
+    const { ctx } = autoModeContext({ hasUI: true });
+    const original = new AbortController();
+    let liveSignal: AbortSignal | undefined = original.signal;
+    Object.defineProperty(ctx, 'signal', { get: () => liveSignal });
+    let shown!: () => void;
+    const showing = new Promise<void>((resolve) => { shown = resolve; });
+    ctx.ui.select = async (_title: string, _choices: string[], ...options: any[]) => {
+      shown();
+      return new Promise<undefined>((resolve) => options[0].signal.addEventListener('abort', () => resolve(undefined), { once: true }));
+    };
+    try {
+      const pending = root.handlers.get('tool_call')!({ type: 'tool_call', toolName, input }, ctx);
+      await showing;
+      original.abort();
+      liveSignal = undefined;
+      await root.commands.get('toggle-auto-mode')!.handler('', ctx);
+      const result = await pending;
+      assert.equal(result.block, true);
+      assert.match(result.reason, /operation cancelled/);
+    } finally {
+      root.restore();
+    }
+  });
+
+  test(`${toolName}: an off/on race never authorizes from a stale file confirmation`, async () => {
+    const root = await setup(JSON.stringify({ paths: { ask: ['**/.env'] } }), { OPENAI_API_KEY: 'test-key' });
+    const { ctx, confirmations } = autoModeContext({ hasUI: true });
+    let shown!: () => void;
+    const showing = new Promise<void>((resolve) => { shown = resolve; });
+    let finish!: (choice: 'Allow') => void;
+    ctx.ui.select = async (title: string): Promise<'Allow' | 'Deny'> => {
+      confirmations.push(title);
+      if (confirmations.length > 1) return 'Deny';
+
+      shown();
+      return new Promise<'Allow'>((resolve) => { finish = resolve; });
+    };
+    try {
+      const pending = root.handlers.get('tool_call')!({ type: 'tool_call', toolName, input }, ctx);
+      await showing;
+      const turningOff = root.commands.get('toggle-auto-mode')!.handler('', ctx);
+      const turningOn = root.commands.get('toggle-auto-mode')!.handler('', ctx);
+      finish('Allow');
+      await Promise.all([turningOff, turningOn]);
+      const result = await pending;
+      assert.equal(result.block, true);
+      assert.match(result.reason, /the user declined/);
+      assert.equal(confirmations.length, 2, 'turning back on requires a fresh approval');
+    } finally {
+      root.restore();
+    }
+  });
+}
 
 test('a mode change never revives a cancelled call after the live turn signal changes', async (t) => {
   const root = await setup(undefined, { OPENAI_API_KEY: 'test-key' });
@@ -902,10 +1302,15 @@ test('an off/on race never authorizes from a stale classification', async (t) =>
 
 test('concurrent records preserve existing text, full fenced commands, and the classifier context', async (t) => {
   const runtime = await setup(undefined, { OPENAI_API_KEY: 'test-key' });
-  t.mock.method(globalThis, 'fetch', decisionFetch('openai', 'ask', 1));
+  const classifierInputs: string[] = [];
+  t.mock.method(globalThis, 'fetch', (url: string, init: RequestInit) => {
+    classifierInputs.push(JSON.parse(init.body as string).input);
+    return decisionFetch('openai', 'ask', 1)(url, init);
+  });
   const first = autoModeContext({ hasUI: true, confirm: true });
   const second = autoModeContext({ hasUI: true, confirm: false });
-  first.ctx.sessionManager.appendMessage({ role: 'user', content: 'Update the issue description', timestamp: 0 });
+  const userMessage = `Update the issue description: ${'full context '.repeat(200)}MIDDLE_DETAILS${' full context'.repeat(200)}`;
+  first.ctx.sessionManager.appendMessage({ role: 'user', content: userMessage, timestamp: 0 });
   const command = `printf '%s' 'Issue body with \`\`\`\` fences and ${'x'.repeat(2000)} COMMAND_TAIL'`;
   try {
     mkdirSync(join(process.env.HOME!, '.pi'));
@@ -920,8 +1325,9 @@ test('concurrent records preserve existing text, full fenced commands, and the c
     assert.ok(records.startsWith('# Existing manually pruned backlog\n\n## '));
     assert.deepEqual([...records.matchAll(/^## .* — (\w+)$/gm)].map((match) => match[1]), ['allow', 'deny']);
     assert.ok(records.includes(`\`\`\`\`\`bash\n${command}\n\`\`\`\`\``));
-    assert.match(records, /User: Update the issue description/);
-    assert.match(records, /…\[truncated\]…/, 'records retain the exact bounded classifier context');
+    assert.equal(classifierInputs[0], `User: ${userMessage}\nbash: ${command}`);
+    assert.ok(records.includes(classifierInputs[0]), 'records preserve the exact full classifier input');
+    assert.doesNotMatch(records, /…\[truncated\]…/);
     assert.doesNotMatch(records, /export PATH=/, 'record the requested command, not the injected shim');
 
     writeFileSync(runtime.recordsPath, '');

@@ -23,7 +23,8 @@ apply_patch() (
       git -C "$package_dir" apply --include="$relative_path" "$patch_file"
       patch_changed=true
     elif ! git -C "$package_dir" apply --reverse --check --include="$relative_path" "$patch_file" 2>/dev/null; then
-      echo "Cannot patch $relative_path; $package_name may have changed" >&2
+      echo "Cannot patch $relative_path; patch is invalid or $package_name may have changed" >&2
+      git -C "$package_dir" apply --check --include="$relative_path" "$patch_file" >&2 || true
       exit 1
     fi
   done

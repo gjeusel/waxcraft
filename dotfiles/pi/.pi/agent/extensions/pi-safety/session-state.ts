@@ -9,9 +9,11 @@ export class AutoModeState {
   private changed = new AbortController();
   private listeners = new Set<() => void>();
   private enabled: boolean;
+  private persist: ((enabled: boolean, previous: boolean) => void) | undefined;
 
-  constructor(enabled: boolean) {
+  constructor(enabled: boolean, persist?: (enabled: boolean, previous: boolean) => void) {
     this.enabled = enabled;
+    this.persist = persist;
   }
 
   snapshot(): { enabled: boolean; signal: AbortSignal } {
@@ -21,6 +23,8 @@ export class AutoModeState {
   setEnabled(enabled: boolean): void {
     if (this.enabled === enabled) return;
 
+    // Linked workers share the owner's writer. A failed save must leave the live mode unchanged.
+    this.persist?.(enabled, this.enabled);
     this.enabled = enabled;
     const previous = this.changed;
     this.changed = new AbortController();
@@ -72,6 +76,9 @@ export function withWorkerParent<T>(parent: Pick<ExtensionContext, 'sessionManag
 shared[WORKER_BINDING] = withWorkerParent;
 
 function savedParent(ctx: ExtensionContext): SafetySession | undefined {
+  // A discussion opened in its own UI is independent, even if it was forked from a live parent.
+  if (ctx.hasUI) return undefined;
+
   const file = ctx.sessionManager.getHeader()?.parentSession;
 
   return file ? registry.byFile.get(file) : undefined;

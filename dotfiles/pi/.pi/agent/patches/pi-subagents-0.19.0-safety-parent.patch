@@ -10,7 +10,7 @@ diff --git a/src/agent-runner.ts b/src/agent-runner.ts
      onError: (err) => {
        options.onToolActivity?.({
          type: "end",
-@@ -1025,6 +1025,16 @@
+@@ -1025,6 +1025,17 @@
      },
    });
 
