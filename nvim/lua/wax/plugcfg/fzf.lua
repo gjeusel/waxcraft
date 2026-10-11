@@ -28,10 +28,12 @@ local rg_ignore_dirs = {
   ".eggs",
   "**/.ropeproject",
   "**/.*_cache",
+  "**/.cache/*", -- generated caches (including Swift test builds)
   --
   "**/.dist/*",
   "**/dist/*",
   "**/.nuxt/*",
+  "**/.svelte-kit/*", -- SvelteKit build output
   "**/.output/*",
   "**/node_modules/*",
   "**/.vercel/output/*",
