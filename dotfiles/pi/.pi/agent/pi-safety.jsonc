@@ -97,6 +97,6 @@
   "autoMode": {
     "enabled": true,
     "source": "openai",
-    "minConfidence": 0.4
+    "minConfidence": 0.2
   }
 }

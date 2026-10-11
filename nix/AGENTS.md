@@ -21,6 +21,19 @@ Nix management is delegated to Determinate (`nix.enable = false`). Homebrew taps
 immutable. Keep the nixpkgs and nix-darwin release branches in sync; `system.stateVersion` is a
 compatibility setting, not a release number to bump during upgrades.
 
+## Homebrew exceptions
+
+Use `homebrew.nix` when:
+
+- The package is missing, broken, or unsupported on `aarch64-darwin` in the pinned nixpkgs inputs.
+- No prebuilt Nix substitute is available and a local source build is impractical; prefer a Homebrew
+  bottle or upstream binary.
+- An app or service needs native macOS integration (Login Items, launchd, system extensions) that its
+  Nix packaging does not support correctly.
+- A non-Nix environment needs a Homebrew-provided native runtime, such as Pango for uv-managed
+  WeasyPrint.
+- The app is App Store-only; declare it in `masApps`.
+
 ## Package versions
 
 Check the pinned `nixpkgs-unstable` input before writing a source override. If it already contains the
