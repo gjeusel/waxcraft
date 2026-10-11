@@ -155,6 +155,9 @@
     prettierd
     python314Packages.sqlfmt
     stylua
+    shfmt
+    shellcheck
+    pkgs-unstable.ruff
     taplo
     xmlformat
     sqruff
@@ -184,6 +187,8 @@
     mountain-duck
 
     # ----- mobile dev -----
+    # Keep Apple Swift/SourceKit and SDKs supplied by the selected Xcode, not Nix Swift 5.10.
+    pkgs-unstable.swiftlint
     cocoapods
 
     electron

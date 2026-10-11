@@ -16,6 +16,7 @@
       "libomp" # openmp on macos
       "py-spy" # CLI to profile python (unavailable in nixpkgs for ARM arch)
       "ios-deploy" # Install and debug iPhone apps from the command-line
+      "swift-format" # Swift 6 formatter; both pinned Nix inputs still provide Swift 5.10
       "mczachurski/wallpapper/wallpapper" # make dynamic wallpapers
 
       "pango" # native runtime used by WeasyPrint in uv-managed Python environments

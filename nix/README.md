@@ -21,6 +21,19 @@ To build with new, untracked Nix files:
 - **Ice:** Keep stable; check [release compatibility](https://github.com/jordanbaird/Ice/releases)
   before upgrading to Tahoe. OS and Homebrew upgrades are not automated here.
 
+## Development quality tools
+
+`pkgs.nix` declares prek, Node 24/pnpm 11, Ruff, shfmt, ShellCheck and SwiftLint.
+Ruff and SwiftLint use the pinned unstable input for their current releases.
+Swift compilation, SourceKit and Apple SDKs come from the selected full Xcode;
+complete Xcode’s first-launch setup and platform downloads manually. Do not add
+Nix’s Swift 5.10 compiler ahead of Xcode’s Swift 6 toolchain.
+
+`swift-format` is a Homebrew exception: both pinned Nix inputs provide the older
+Swift 5.10 formatter. The Homebrew declaration supplies the Swift 6 formatter and
+preserves it during `cleanup = "zap"`. Project hook installation remains per clone
+(for example, `prek install`); declaring prek does not install a Git hook globally.
+
 ## Notes
 
 - Screenshots save to `~/Downloads`; third-party screenshot apps have separate settings.
