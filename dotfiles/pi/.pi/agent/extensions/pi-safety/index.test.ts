@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -16,7 +16,7 @@ async function setup(
   const directory = mkdtempSync(join(tmpdir(), 'pi-safety-index-'));
   const configPath = join(directory, 'config.jsonc');
   writeFileSync(configPath, configText);
-  const testEnv = { PI_AUTO_MODE: undefined, OPENAI_API_KEY: undefined, TYPESAFE_AI_API_KEY: undefined, ...env, PI_SAFETY_CONFIG: configPath };
+  const testEnv = { HOME: directory, PI_AUTO_MODE: undefined, OPENAI_API_KEY: undefined, TYPESAFE_AI_API_KEY: undefined, ...env, PI_SAFETY_CONFIG: configPath };
   const previousEnv = Object.fromEntries(Object.keys(testEnv).map((key) => [key, process.env[key]]));
   for (const [key, value] of Object.entries(testEnv)) {
     if (value === undefined) delete process.env[key];
@@ -36,6 +36,7 @@ async function setup(
   return {
     handlers,
     commands,
+    recordsPath: join(directory, '.pi', 'auto-mode-records.md'),
     restore() {
       handlers.get('session_shutdown')?.({});
       for (const [key, value] of Object.entries(previousEnv)) {
@@ -66,7 +67,7 @@ test('checks Bash calls and ignores other tools', async () => {
 });
 
 test('write and edit: deny and ask protected paths, other paths pass', async () => {
-  const { handlers, restore } = await setup(
+  const { handlers, recordsPath, restore } = await setup(
     JSON.stringify({ paths: { deny: ['/protected/**'], ask: ['**/.env'] } }),
   );
   const toolCall = handlers.get('tool_call')!;
@@ -108,6 +109,7 @@ test('write and edit: deny and ask protected paths, other paths pass', async () 
     assert.match(headless.reason, /needs user confirmation .* no UI/);
 
     assert.equal(await toolCall(writeTo('src/index.ts'), context({ hasUI: false, confirm: false })), undefined);
+    assert.equal(existsSync(recordsPath), false, 'protected-file approvals are not auto-mode feedback');
   } finally {
     restore();
   }
@@ -229,7 +231,7 @@ function autoModeContext(options: { hasUI: boolean; confirm?: boolean }) {
 for (const enabled of [false, true]) {
   test(`shipped infra rules: auto mode ${enabled ? 'on asks' : 'off denies'}`, async (t) => {
     const config = readFileSync(new URL('../../pi-safety.jsonc', import.meta.url), 'utf8');
-    const { handlers, commands, restore } = await setup(config, {
+    const { handlers, commands, recordsPath, restore } = await setup(config, {
       PI_AUTO_MODE: enabled ? '1' : '0', OPENAI_API_KEY: 'test-key',
     });
     const accepting = autoModeContext({ hasUI: true, confirm: true });
@@ -265,6 +267,15 @@ for (const enabled of [false, true]) {
         }
       }
       assert.equal(requests, accepting.confirmations.length, 'a classifier allow must still require infra approval');
+      if (enabled) {
+        const records = readFileSync(recordsPath, 'utf8');
+        assert.equal([...records.matchAll(/^## .* — allow$/gm)].length, accepting.confirmations.length);
+        assert.match(records, /"trigger": "shell-rule"/);
+        assert.match(records, /"verdict": "allow"/);
+        assert.match(records, /"reasonShown": "mutating or remote-execution kubectl/);
+      } else {
+        assert.equal(existsSync(recordsPath), false);
+      }
 
       for (const options of [
         { hasUI: true, confirm: false },
@@ -370,7 +381,7 @@ for (const source of AUTO_MODE_SOURCES) {
   });
 
   test(`${source}: auto mode gates Bash and toggles the footer status`, async () => {
-    const { commands, handlers, restore } = await setup(config, { [apiKeyEnv]: 'test-key' });
+    const { commands, handlers, recordsPath, restore } = await setup(config, { [apiKeyEnv]: 'test-key' });
     const previousFetch = globalThis.fetch;
     const toolCall = handlers.get('tool_call')!;
     const toggle = commands.get('toggle-auto-mode')!.handler;
@@ -397,6 +408,7 @@ for (const source of AUTO_MODE_SOURCES) {
       assert.match(denied.reason, new RegExp(`auto mode denied: ${source}: deny 100%`));
       assert.equal(confirmations.length, 0);
       assert.match(notifications.at(-1) ?? '', /auto mode blocked/);
+      assert.equal(existsSync(recordsPath), false, 'automatic allow/deny and hard rules never create records');
 
       globalThis.fetch = decisionFetch(source, 'ask', 0.95);
       const declined = await toolCall({ type: 'tool_call', toolName: 'bash', input: { command: 'rm -rf build' } }, ctx);
@@ -435,12 +447,27 @@ for (const source of AUTO_MODE_SOURCES) {
       assert.match(blocked.reason, /no UI to confirm/);
       assert.equal(headless.confirmations.length, 0);
 
+      const records = readFileSync(recordsPath, 'utf8');
+      assert.deepEqual([...records.matchAll(/^## .* — (\w+)$/gm)].map((match) => match[1]), [
+        'deny', 'cancelled', 'allow', 'allow', 'unavailable', 'unavailable',
+      ]);
+      assert.match(records, new RegExp(`"backend": "${source}"`));
+      assert.ok(records.includes(`"session": "${ctx.sessionManager.getSessionId()}"`));
+      assert.match(records, /"cwd": "\/project"/);
+      assert.match(records, /"trigger": "low-confidence"/);
+      assert.match(records, /"trigger": "fail-closed"/);
+      assert.match(records, /classifier unavailable/);
+      assert.match(records, /below confidence floor 50%/);
+      assert.doesNotMatch(records, /test-key|export PATH=/);
+      assert.equal(statSync(recordsPath).mode & 0o777, 0o600);
+
       await toggle('', ctx);
       assert.equal(statuses.get('auto-mode'), undefined);
       globalThis.fetch = async () => {
         throw new Error('classifier must not be called');
       };
       assert.equal(await toolCall({ type: 'tool_call', toolName: 'bash', input: { command: 'ls' } }, ctx), undefined);
+      assert.equal(readFileSync(recordsPath, 'utf8'), records, 'auto mode off never records');
     } finally {
       globalThis.fetch = previousFetch;
       restore();
@@ -523,7 +550,7 @@ for (const source of AUTO_MODE_SOURCES) {
 
 test('long Bash, write, and edit approvals reach the native pager without truncation', async (t) => {
   initTheme('dark', false);
-  const { handlers, restore } = await setup(
+  const { handlers, recordsPath, restore } = await setup(
     JSON.stringify({ paths: { ask: ['**/.env'] } }),
     { OPENAI_API_KEY: 'test-key' },
   );
@@ -559,6 +586,10 @@ test('long Bash, write, and edit approvals reach the native pager without trunca
       assert.ok(screens.at(-1)?.some((line) => line.includes(`🛡 ${toolName}`)), toolName);
     }
     assert.equal(base.confirmations.length, 0);
+    const records = readFileSync(recordsPath, 'utf8');
+    assert.equal([...records.matchAll(/^## .* — deny$/gm)].length, 1, 'only the Bash ask is recorded');
+    assert.ok(records.includes(body + '\\necho BASH_REVIEW_TAIL'), 'full commands survive classifier truncation');
+    assert.doesNotMatch(records, /WRITE_REVIEW_TAIL|EDIT_REVIEW_TAIL/);
   } finally {
     restore();
   }
@@ -576,6 +607,43 @@ function linkedContexts(confirm = true, inMemory = false) {
 
   return { parent, child };
 }
+
+test('Ctrl+C records cancellation for compact and long local and forwarded approvals', async (t) => {
+  initTheme('dark', false);
+  const root = await setup(undefined, { OPENAI_API_KEY: 'test-key' });
+  const { parent, child } = linkedContexts(true, true);
+  const reviewContext = {
+    ...parent.ctx, mode: 'tui',
+    ui: {
+      ...parent.ctx.ui,
+      custom: (factory: (...args: any[]) => any) => new Promise<boolean>((done) => {
+        const theme = { fg: (_color: string, text: string) => text, style: (text: string) => text };
+        const component = factory({ terminal: { rows: 28 }, requestRender() {} }, theme, {}, done);
+        component.handleInput('\x03');
+      }),
+    },
+  };
+  await root.handlers.get('session_start')!({}, reviewContext);
+  const worker = await setup(undefined, { OPENAI_API_KEY: 'test-key' });
+  await withWorkerParent(reviewContext, async () => worker.handlers.get('session_start')!({}, child.ctx));
+  t.mock.method(globalThis, 'fetch', decisionFetch('openai', 'ask', 1));
+  try {
+    for (const [runtime, ctx] of [[root, reviewContext], [worker, child.ctx]] as const) {
+      for (const command of ['echo short', 'echo long\n'.repeat(30)]) {
+        const event = { type: 'tool_call', toolName: 'bash', input: { command } };
+        assert.equal((await runtime.handlers.get('tool_call')!(event, ctx)).block, true);
+        assert.equal(event.input.command, command);
+      }
+    }
+    const records = readFileSync(worker.recordsPath, 'utf8');
+    assert.deepEqual([...records.matchAll(/^## .* — (\w+)$/gm)].map((match) => match[1]), [
+      'cancelled', 'cancelled', 'cancelled', 'cancelled',
+    ]);
+  } finally {
+    worker.restore();
+    root.restore();
+  }
+});
 
 test('worker classifier and protected-path asks reach the parent; hard denies never do', async (t) => {
   const config = JSON.stringify({ paths: { ask: ['**/.env'], deny: ['/protected/**'] } });
@@ -613,6 +681,12 @@ test('worker classifier and protected-path asks reach the parent; hard denies ne
     });
     assert.equal(blocked.block, true);
     assert.equal(parent.confirmations.length, 3);
+    const records = readFileSync(worker.recordsPath, 'utf8');
+    assert.equal([...records.matchAll(/^## .* — allow$/gm)].length, 1);
+    assert.match(records, /"sessionName": "test-worker"/);
+    assert.ok(records.includes(`"session": "${child.ctx.sessionManager.getSessionId()}"`));
+    assert.match(records, /"trigger": "refusal"/);
+    assert.equal(existsSync(root.recordsPath), false, 'the forwarding parent must not duplicate the record');
   } finally {
     worker.restore();
     root.restore();
@@ -727,6 +801,9 @@ for (const { command, inMemory } of ['echo harmless', 'kubectl apply -f deployme
       await root.commands.get('toggle-auto-mode')!.handler('', parent.ctx);
       const result = await pending;
       assert.equal(dismissed, true);
+      const records = readFileSync(worker.recordsPath, 'utf8');
+      assert.equal([...records.matchAll(/^## .* — cancelled$/gm)].length, 1);
+      assert.doesNotMatch(records, /^## .* — (allow|deny)$/m);
       if (command.startsWith('kubectl')) {
         assert.equal(result.block, true);
         assert.match(result.reason, /mutating or remote-execution kubectl/);
@@ -822,6 +899,56 @@ test('an off/on race never authorizes from a stale classification', async (t) =>
     root.restore();
   }
 });
+
+test('concurrent records preserve existing text, full fenced commands, and the classifier context', async (t) => {
+  const runtime = await setup(undefined, { OPENAI_API_KEY: 'test-key' });
+  t.mock.method(globalThis, 'fetch', decisionFetch('openai', 'ask', 1));
+  const first = autoModeContext({ hasUI: true, confirm: true });
+  const second = autoModeContext({ hasUI: true, confirm: false });
+  first.ctx.sessionManager.appendMessage({ role: 'user', content: 'Update the issue description', timestamp: 0 });
+  const command = `printf '%s' 'Issue body with \`\`\`\` fences and ${'x'.repeat(2000)} COMMAND_TAIL'`;
+  try {
+    mkdirSync(join(process.env.HOME!, '.pi'));
+    writeFileSync(runtime.recordsPath, '# Existing manually pruned backlog');
+    const results = await Promise.all([
+      runtime.handlers.get('tool_call')!({ type: 'tool_call', toolName: 'bash', input: { command } }, first.ctx),
+      runtime.handlers.get('tool_call')!({ type: 'tool_call', toolName: 'bash', input: { command: 'echo second' } }, second.ctx),
+    ]);
+    assert.equal(results[0], undefined);
+    assert.equal(results[1].block, true);
+    const records = readFileSync(runtime.recordsPath, 'utf8');
+    assert.ok(records.startsWith('# Existing manually pruned backlog\n\n## '));
+    assert.deepEqual([...records.matchAll(/^## .* — (\w+)$/gm)].map((match) => match[1]), ['allow', 'deny']);
+    assert.ok(records.includes(`\`\`\`\`\`bash\n${command}\n\`\`\`\`\``));
+    assert.match(records, /User: Update the issue description/);
+    assert.match(records, /…\[truncated\]…/, 'records retain the exact bounded classifier context');
+    assert.doesNotMatch(records, /export PATH=/, 'record the requested command, not the injected shim');
+
+    writeFileSync(runtime.recordsPath, '');
+    await runtime.handlers.get('tool_call')!({ type: 'tool_call', toolName: 'bash', input: { command: 'echo new' } }, first.ctx);
+    const fresh = readFileSync(runtime.recordsPath, 'utf8');
+    assert.ok(fresh.startsWith('# Auto-mode records\n'));
+    assert.equal([...fresh.matchAll(/^## /gm)].length, 1);
+  } finally {
+    runtime.restore();
+  }
+});
+
+for (const answer of [true, false]) {
+  test(`a record write failure warns without changing the ${answer ? 'Allow' : 'Deny'} answer`, async (t) => {
+    const runtime = await setup(undefined, { OPENAI_API_KEY: 'test-key' });
+    t.mock.method(globalThis, 'fetch', decisionFetch('openai', 'ask', 1));
+    const { ctx, notifications } = autoModeContext({ hasUI: true, confirm: answer });
+    try {
+      mkdirSync(runtime.recordsPath, { recursive: true });
+      const result = await runtime.handlers.get('tool_call')!({ type: 'tool_call', toolName: 'bash', input: { command: 'echo test' } }, ctx);
+      assert.equal(result?.block ?? false, !answer);
+      assert.match(notifications.at(-1) ?? '', /could not append ~\/\.pi\/auto-mode-records\.md/);
+    } finally {
+      runtime.restore();
+    }
+  });
+}
 
 test('OpenAI refusals require confirmation and block without a UI', async (t) => {
   const { handlers, restore } = await setup(undefined, { OPENAI_API_KEY: 'test-key' });

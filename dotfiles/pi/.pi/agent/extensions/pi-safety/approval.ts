@@ -35,6 +35,8 @@ export interface ApprovalRequest {
   language?: string;
   reason?: string;
   worker?: { name: string; cwd: string };
+  /** Observe an actual UI answer, not a queue cancellation, shutdown, or unavailable parent. */
+  onAnswer?: (allowed: boolean) => void;
 }
 
 export function fileApproval(tool: 'write' | 'edit', input: WriteToolInput | EditToolInput, path: string): ApprovalRequest {
@@ -129,7 +131,7 @@ export class ApprovalViewer implements Component, Focusable {
   private readonly theme: Theme;
   private readonly height: () => number;
   private readonly requestRender: () => void;
-  private readonly done: (allowed: boolean) => void;
+  private readonly done: (allowed: boolean, answered: boolean) => void;
   private readonly options: ApprovalViewerOptions;
   private readonly lines: string[];
   private readonly scroll: ScrollView;
@@ -152,7 +154,7 @@ export class ApprovalViewer implements Component, Focusable {
     theme: Theme,
     height: () => number,
     requestRender: () => void,
-    done: (allowed: boolean) => void,
+    done: (allowed: boolean, answered: boolean) => void,
     options: ApprovalViewerOptions = {},
   ) {
     this.request = request;
@@ -239,10 +241,10 @@ export class ApprovalViewer implements Component, Focusable {
     this.requestRender();
   }
 
-  finish(allowed: boolean): void {
+  finish(allowed: boolean, answered = true): void {
     if (this.closed) return;
     this.closed = true;
-    this.done(allowed);
+    this.done(allowed, answered);
   }
 
   handleMouse(event: TuiMouseEvent): TuiMouseEventResult | undefined {
@@ -271,7 +273,7 @@ export class ApprovalViewer implements Component, Focusable {
       return;
     }
     if (matchesKey(data, 'ctrl+c')) {
-      this.finish(false);
+      this.finish(false, false);
       return;
     }
     if (this.searching) {
@@ -390,6 +392,7 @@ async function showApproval(request: ApprovalRequest, ctx: ExtensionContext, lif
       const worker = request.worker ? `Worker: ${reviewText(request.worker.name)}\nCwd: ${reviewText(request.worker.cwd)}\n\n` : '';
       const text = `🛡 ${reviewText(request.title)}\n\n${worker}${fence}${request.language ?? ''}\n${reviewText(request.content)}\n${fence}${request.reason ? `\n\nRule: ${reviewText(request.reason)}` : ''}\n`;
       const choice = await ctx.ui.select(text, ['Allow', 'Deny'], { signal });
+      if (!signal.aborted && (choice === 'Allow' || choice === 'Deny')) request.onAnswer?.(choice === 'Allow');
 
       return !signal.aborted && choice === 'Allow';
     }
@@ -397,12 +400,13 @@ async function showApproval(request: ApprovalRequest, ctx: ExtensionContext, lif
     const compact = !needsApprovalPager(request);
     let overlay: OverlayHandle | undefined;
     return await ctx.ui.custom<boolean>((tui, theme, _keybindings, done) => {
-      const viewer = new ApprovalViewer(request, theme, () => Math.max(6, Math.floor(tui.terminal.rows * 0.9) - 2), () => tui.requestRender(), (allowed) => {
+      const viewer = new ApprovalViewer(request, theme, () => Math.max(6, Math.floor(tui.terminal.rows * 0.9) - 2), () => tui.requestRender(), (allowed, answered) => {
         signal.removeEventListener('abort', cancel);
+        if (answered && !signal.aborted) request.onAnswer?.(allowed);
         done(allowed && !signal.aborted);
         controller.abort();
       }, { compact, mouseBounds: () => overlay?.getBounds() });
-      const cancel = () => viewer.finish(false);
+      const cancel = () => viewer.finish(false, false);
       signal.addEventListener('abort', cancel, { once: true });
       if (tui.mode === 'regular') {
         // Main-screen mode normally leaves the mouse to the terminal. Capture it only for this dialog.
@@ -413,7 +417,7 @@ async function showApproval(request: ApprovalRequest, ctx: ExtensionContext, lif
         const summarySignal = AbortSignal.any([signal, AbortSignal.timeout(SUMMARY_TIMEOUT_MS)]);
         void summarizeOperation(request, ctx, summarySignal).then((summary) => viewer.setSummary(summary));
       }
-      if (signal.aborted) viewer.finish(false);
+      if (signal.aborted) viewer.finish(false, false);
 
       return viewer;
     }, {

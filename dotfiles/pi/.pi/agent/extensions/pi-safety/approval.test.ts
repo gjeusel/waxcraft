@@ -170,8 +170,10 @@ test('title is centered, summary and actions have breathing room, and the naviga
 test('short TUI approvals show separate highlighted code and support direct a/d/Esc', async () => {
   for (const [key, expected] of [['a', true], ['d', false], ['\x1b', false]] as const) {
     const runtime = harness();
+    const answers: boolean[] = [];
     const pending = createApprovalPrompt()({
       title: 'bash', content: 'printf "hello\\n"', language: 'bash', reason: 'Review this operation',
+      onAnswer: (allowed) => answers.push(allowed),
     }, runtime.ctx);
     await flush();
     assert.equal(runtime.requests.length, 0, 'short approvals do not spend a summary request');
@@ -187,6 +189,7 @@ test('short TUI approvals show separate highlighted code and support direct a/d/
     assert.ok(plain.some((line) => line.includes('Rule: Review this operation')));
     runtime.views[0].handleInput(key);
     assert.equal(await pending, expected);
+    assert.deepEqual(answers, [expected]);
   }
 });
 
@@ -433,11 +436,15 @@ test('turn or extension shutdown cancels an open viewer and its summary', async 
   for (const kind of ['turn', 'shutdown']) {
     const controller = new AbortController();
     const runtime = harness({ delayedSummary: true, signal: kind === 'turn' ? controller.signal : undefined });
-    const pending = createApprovalPrompt(kind === 'shutdown' ? controller.signal : undefined)(longOperation, runtime.ctx);
+    const answers: boolean[] = [];
+    const pending = createApprovalPrompt(kind === 'shutdown' ? controller.signal : undefined)({
+      ...longOperation, onAnswer: (allowed) => answers.push(allowed),
+    }, runtime.ctx);
     await flush();
     controller.abort();
     assert.equal(await pending, false);
     assert.equal(runtime.requests[0].options.signal.aborted, true);
+    assert.deepEqual(answers, [], 'automatic cancellation is not a user denial');
     runtime.reply.resolve({ stopReason: 'aborted', content: [] });
   }
 });
@@ -471,7 +478,8 @@ test('concurrent approvals are serialized and a cancelled queued request never o
   const approve = createApprovalPrompt();
   const first = approve(longOperation, runtime.ctx);
   const controller = new AbortController();
-  const second = approve(longOperation, { ...runtime.ctx, signal: controller.signal });
+  const answers: boolean[] = [];
+  const second = approve({ ...longOperation, onAnswer: (allowed) => answers.push(allowed) }, { ...runtime.ctx, signal: controller.signal });
   const third = approve(longOperation, runtime.ctx);
   await flush();
   assert.equal(runtime.views.length, 1);
@@ -479,6 +487,7 @@ test('concurrent approvals are serialized and a cancelled queued request never o
   runtime.views[0].finish(false);
   assert.equal(await first, false);
   assert.equal(await second, false);
+  assert.deepEqual(answers, [], 'queued cancellation is not a user denial');
   await flush();
   assert.equal(runtime.views.length, 2);
   runtime.views[1].finish(true);

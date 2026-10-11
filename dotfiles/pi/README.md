@@ -324,8 +324,11 @@ Configure `autoMode` in `pi-safety.jsonc` and run `/reload`:
 Both backends use the same permissive criteria: **allow plausible task-related work unless there
 is a concrete substantial risk**, even with some uncertainty. Ordinary edits, installs, downloads,
 API calls, local Git operations, and generated-file cleanup should not need approval merely because
-they have side effects. Substantial destructive, security, or external-impact risks still prompt;
-clearly dangerous actions (such as secret exfiltration or indiscriminate destruction) are denied.
+they have side effects. Updating GitHub/GitLab issue descriptions and PR/MR descriptions is ordinary
+documentation work, not a consequential external message; exposing private data or combining it with
+a risky action still requires the usual safeguards. Substantial destructive, security, or external-impact
+risks still prompt; clearly dangerous actions (such as secret exfiltration or indiscriminate destruction)
+are denied.
 Infrastructure mutations and remote execution are explicitly classified as `ask`, including
 Kubernetes changes/exec, Helm changes, Terraform apply/destroy, and cloud compute/network/IAM
 changes—even when task-related or explicitly requested. Read-only infra inspection and local
@@ -341,6 +344,22 @@ or backend fallbacks. The classifier explicitly assesses only the proposed comma
 calls are context, and reading a workflow or safety document does not execute or disable anything.
 A missing API key leaves the gate enabled and blocks commands that need classification rather than
 silently bypassing it.
+
+Every resolved auto-mode confirmation appends to `~/.pi/auto-mode-records.md`, including worker
+requests forwarded to the parent UI. Records contain the timestamp, requesting session, cwd,
+backend, trigger, classifier verdict, displayed reason, full command, condensed classifier input,
+and actual Allow / Deny answer. Cancelled and unavailable approvals are separate outcomes, never
+inferred user denials. Automatic allow/deny decisions and protected-file prompts are not recorded.
+The file is created on the first record with owner-only permissions; commands and context may
+contain sensitive data. Appends preserve existing entries, and a write failure warns without
+changing the approval decision.
+
+The records are a **manual prompt-improvement backlog**, not an allowlist and never automatically
+fed to the classifier. When asked to improve auto mode, review the remaining entries, generalize
+appropriate approved cases into the shared prompt in `extensions/pi-safety/auto-mode.ts`, and remove
+handled entries. Keep denied cases and infrastructure safeguards distinct from routine approvals;
+a one-off approval is not blanket permission. Refusal, outage, confidence-floor, and shell-rule
+asks may need a different fix than prompt wording.
 
 The kubectl/Helm mutation rules carry `autoMode: "ask"`: with auto mode **on**, they require explicit
 approval even if the classifier returns `allow`; with auto mode **off**, they remain hard denies.

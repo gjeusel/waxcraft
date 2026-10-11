@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type EditToolInput, type ExtensionAPI, type ExtensionContext, type WriteToolInput, isToolCallEventType } from '@earendil-works/pi-coding-agent';
 import type { Parser } from 'web-tree-sitter';
-import { DECISION_BACKENDS, adjudicate, buildTranscript, describeBashCall, type AutoModeSource } from './auto-mode.ts';
+import { DECISION_BACKENDS, adjudicate, appendAutoModeRecord, buildTranscript, describeBashCall, type AutoModeRecord, type AutoModeSource } from './auto-mode.ts';
 import { createApprovalPrompt, fileApproval, type ApprovalRequest } from './approval.ts';
 import { loadSafetyConfig, type LoadedSafetyConfig } from './config.ts';
 import { inspectPath } from './path-policy.ts';
@@ -44,22 +44,6 @@ function statusText(
 
 function autoModeApiKey(source: AutoModeSource): string | undefined {
   return process.env[DECISION_BACKENDS[source].apiKeyEnv]?.trim() || undefined;
-}
-
-async function confirmBash(
-  command: string,
-  reason: string,
-  ctx: ExtensionContext,
-  approve: (request: ApprovalRequest, ctx: ExtensionContext) => Promise<boolean | undefined>,
-) {
-  const allowed = await approve({ title: 'bash', content: command, language: 'bash', reason }, ctx);
-  if (allowed === undefined) {
-    return { block: true, reason: `pi-safety auto mode: ${reason} (no UI to confirm or parent approval unavailable)` };
-  }
-
-  if (allowed) return undefined;
-
-  return { block: true, reason: 'pi-safety auto mode: user declined' };
 }
 
 export default async function (pi: ExtensionAPI) {
@@ -204,7 +188,43 @@ export default async function (pi: ExtensionAPI) {
     const classificationFailed = outcome.source === 'fail-closed' || outcome.source === 'refusal';
     const reason = classificationFailed ? outcome.reason : confirmationReason ?? outcome.reason;
 
-    return confirmBash(command, reason, ctx, approve);
+    const record: AutoModeRecord = {
+      timestamp: new Date().toISOString(),
+      answer: 'cancelled',
+      sessionId: ctx.sessionManager.getSessionId(),
+      sessionName: ctx.sessionManager.getSessionName(),
+      cwd: ctx.cwd,
+      backend: source,
+      trigger: confirmationReason && !classificationFailed ? 'shell-rule' : outcome.source,
+      outcome,
+      reason,
+      command,
+      transcript,
+    };
+    try {
+      const allowed = await approve({
+        title: 'bash', content: command, language: 'bash', reason,
+        onAnswer: (allowed) => { record.answer = allowed ? 'allow' : 'deny'; },
+      }, ctx);
+      if (allowed === undefined) {
+        if (record.answer === 'cancelled') record.answer = 'unavailable';
+        return { block: true, reason: `pi-safety auto mode: ${reason} (no UI to confirm or parent approval unavailable)` };
+      }
+
+      if (allowed) return undefined;
+
+      return { block: true, reason: 'pi-safety auto mode: user declined' };
+    } catch (error) {
+      if (record.answer === 'cancelled') record.answer = 'unavailable';
+      throw error;
+    } finally {
+      try {
+        appendAutoModeRecord(record);
+      } catch {
+        // A logging failure must neither grant permission nor discard the user's actual choice.
+        ctx.ui.notify('pi-safety: could not append ~/.pi/auto-mode-records.md; approval was not recorded', 'warning');
+      }
+    }
   }
 
   /**
