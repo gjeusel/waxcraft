@@ -1,12 +1,12 @@
 {
-  "lastChangelogVersion": "1.0.4",
+  "lastChangelogVersion": "1.1.0",
   "theme": "nord",
   "tuiMode": "fullscreen",
   "shellPath": "/run/current-system/sw/bin/bash",
   "defaultProjectTrust": "never",
   "enableSkillCommands": true,
-  "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-6.1-sol",
+  "defaultProvider": "anthropic",
+  "defaultModel": "claude-opus-5-5",
   "defaultThinkingLevel": "high",
   "hideThinkingBlock": true,
   "enabledModels": [

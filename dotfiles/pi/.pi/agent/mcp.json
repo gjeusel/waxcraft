@@ -93,8 +93,7 @@
       "enabled": false
     },
     "cloudflare-api": {
-      "url": "https://mcp.cloudflare.com/mcp",
-      "enabled": false
+      "url": "https://mcp.cloudflare.com/mcp"
     }
   }
 }

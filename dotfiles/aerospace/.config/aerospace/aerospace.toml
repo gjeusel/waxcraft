@@ -146,6 +146,11 @@ alt-shift-tab = 'focus --wrap-around dfs-prev'
 9 = 'secondary'
 
 # Rules stop at the first match: popup exceptions must precede general app routing.
+# macOS Touch ID/password confirmation prompts have generic titles such as "Untitled".
+[[on-window-detected]]
+if.app-id = 'com.apple.SecurityAgent'
+run = ['layout floating', 'move-node-to-workspace 0']
+
 # DevTools only move; do not float them or let inspected-page titles trigger auth rules.
 # Hammerspoon handles late DevTools and Google Meet popup titles once per newly created window ID.
 [[on-window-detected]]
@@ -354,6 +359,10 @@ run = 'move-node-to-workspace 2'
 
 [[on-window-detected]]
 if.app-id = 'com.google.Chrome'
+run = ['layout floating', 'move-node-to-workspace 7']
+
+[[on-window-detected]]
+if.app-id = 'com.google.chrome.for.testing'
 run = ['layout floating', 'move-node-to-workspace 7']
 
 [[on-window-detected]]
