@@ -192,8 +192,8 @@ export default async function (pi: ExtensionAPI) {
 
   /**
    * Auto mode gate for one Bash command. Returns a block result, or undefined when the command
-   * may run. `ask` (the backend's own, a low-confidence verdict, or a classifier failure) becomes a
-   * confirmation prompt; without a UI it degrades to a block so nothing runs silently.
+   * may run. `ask` (the backend's own, a low-confidence verdict, or a broken policy file) becomes a
+   * confirmation prompt; without a UI it degrades to a block. Backend failures and refusals allow.
    */
   async function gateWithAutoMode(command: string, ctx: ExtensionContext, confirmationReason?: string) {
     const { source, minConfidence } = loaded.config.autoMode;
@@ -213,14 +213,19 @@ export default async function (pi: ExtensionAPI) {
     });
 
     if (ctx.signal?.aborted) return { block: true, reason: 'pi-safety: classification cancelled' };
-    if (outcome.verdict === 'allow' && !confirmationReason) return undefined;
+    if (outcome.verdict === 'allow' && !confirmationReason) {
+      const unclassified = outcome.source === 'fail-open' || outcome.source === 'refusal';
+      if (unclassified) ctx.ui.notify(`🛡 auto mode allowed unclassified: ${outcome.reason}\n  ${actionLine}`, 'warning');
 
-    if (outcome.verdict === 'deny' && outcome.source !== 'fail-closed') {
+      return undefined;
+    }
+
+    if (outcome.verdict === 'deny') {
       ctx.ui.notify(`🛡 auto mode blocked: ${outcome.reason}\n  ${actionLine}`, 'warning');
       return { block: true, reason: `pi-safety auto mode denied: ${outcome.reason}` };
     }
 
-    const classificationFailed = outcome.source === 'fail-closed' || outcome.source === 'refusal';
+    const classificationFailed = outcome.source === 'fail-closed';
     const reason = classificationFailed ? outcome.reason : confirmationReason ?? outcome.reason;
 
     const record: AutoModeRecord = {

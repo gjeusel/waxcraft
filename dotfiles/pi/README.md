@@ -310,8 +310,8 @@ backend, with the five most recent user messages and ten past tool calls (no too
 Selected user text and command text are never character-truncated or stripped of invisible
 characters: both dangerous effects and safeguards can occur in the middle. Line breaks are escaped
 to preserve transcript boundaries; non-command tool history is summarized by path or arguments.
-Oversized requests that the backend rejects follow the normal failure-to-confirmation path rather
-than silently dropping command content.
+Oversized requests that the backend rejects follow the normal fail-open path rather than silently
+dropping command content.
 
 Configure `autoMode` in `pi-safety.jsonc` and run `/reload`:
 
@@ -351,40 +351,29 @@ After first adding the file, restow the Pi package before `/reload` so the live 
 stow --verbose --no-folding --dir dotfiles --target "$HOME" --restow pi
 ```
 
-The shipped policy preserves the same permissive criteria: **allow plausible task-related work unless there
-is a concrete substantial risk**, even with some uncertainty. Ordinary edits, installs, downloads,
-API calls, local Git operations, and generated-file cleanup should not need approval merely because
-they have side effects. Explicit allow cases also cover:
+The shipped policy is **very permissive: allow everything except destructive operations and
+infrastructure mutations**. Uncertainty, unfamiliar tools, network/authenticated access, installs,
+writes outside the project, external API calls, non-force pushes, and PR/MR merges never prompt by
+themselves. Only these ask:
 
-- Local database fixture tests with commits prevented, rollback cleanup, and external backends
-  disabled/mocked; mocking application confirmations in an isolated test is not a security bypass.
-- Task-related non-force feature-branch pushes to the existing intended remote, including upstream
-  setup and related checkouts; these are not private-data exfiltration.
-- Requested PR/MR merges and auto-merge for the task's repository/revision, with existing review and
-  CI requirements enforced. Later explicit authorization supersedes earlier temporary holds;
-  current holds and unmet user prerequisites still apply.
-- Read-only Git/API status checks, even when earlier commands pushed, merged, or deployed.
+- Destroying or irreversibly overwriting valuable data or remote resources (non-generated files,
+  databases/tables, buckets, volumes, backups, repositories, cloud resources).
+- Git history loss: force pushes, discarding uncommitted work, deleting unmerged branches.
+- Infrastructure mutations and remote execution, even when requested: Kubernetes changes/exec, Helm
+  changes, Terraform apply/destroy, cloud compute/network/IAM changes, production deployments.
 
-Updating GitHub/GitLab issue descriptions and PR/MR descriptions is ordinary
-documentation work, not a consequential external message; exposing private data or combining it with
-a risky action still requires the usual safeguards. Substantial destructive, security, or external-impact
-risks still prompt; clearly dangerous actions (such as secret exfiltration or indiscriminate destruction)
-are denied.
-Infrastructure mutations and remote execution are explicitly classified as `ask`, including
-Kubernetes changes/exec, Helm changes, Terraform apply/destroy, and cloud compute/network/IAM
-changes—even when task-related or explicitly requested. Read-only infra inspection and local
-configuration edits without applying them remain ordinary work. Production-related filenames or
-source code do not by themselves establish a deployment, nor does routine CI; known deployment
-effects still require approval. Unexpected push destinations, force pushes, unrequested merges,
-and bypassing repository protections remain outside the routine-work allowance.
+Only clearly malicious actions are denied: secret exfiltration, indiscriminate destruction, and
+privilege escalation. Read-only infra inspection (including `helm diff`) and editing infrastructure
+files without applying them are allowed.
 
 `allow` runs silently, `deny` blocks with a notification, and `ask` offers Allow / Deny.
 `minConfidence` defaults to `0`, so uncertainty alone does not add a prompt or override a verdict.
 Set it higher (for example, `0.5`) to demote low-confidence allow/deny verdicts to `ask`.
-Request failures, refusals, and malformed answers still require confirmation. A valid refusal is
-reported as **classification refused**, not **classifier unavailable**; OpenAI supplies no refusal
-explanation, so the message includes its request ID when available. There are no automatic retries
-or backend fallbacks. The classifier explicitly assesses only the proposed command: historical tool
+Request failures, timeouts, refusals, and malformed answers **fail open**: the command runs with a
+`🛡 auto mode allowed unclassified` warning, and deterministic rules (including rule-based asks) still
+apply. A valid refusal is reported as **classification refused**, not **classifier unavailable**;
+OpenAI supplies no refusal explanation, so the message includes its request ID when available. There
+are no automatic retries or backend fallbacks. The classifier explicitly assesses only the proposed command: historical tool
 calls are context, and reading a workflow or safety document does not execute or disable anything.
 A missing API key leaves the gate enabled and blocks commands that need classification rather than
 silently bypassing it.
@@ -402,8 +391,8 @@ The records are a **manual prompt-improvement backlog**, not an allowlist and ne
 fed to the classifier. When asked to improve auto mode, review the remaining entries, generalize
 appropriate approved cases into the shared prompt in `pi-safety-auto-mode.md`, and remove
 handled entries. Keep denied cases and infrastructure safeguards distinct from routine approvals;
-a one-off approval is not blanket permission. Refusal, outage, confidence-floor, and shell-rule
-asks may need a different fix than prompt wording.
+a one-off approval is not blanket permission. Confidence-floor, policy-file, and shell-rule asks may
+need a different fix than prompt wording.
 
 The kubectl/Helm mutation rules carry `autoMode: "ask"`: with auto mode **on**, they require explicit
 approval even if the classifier returns `allow`; with auto mode **off**, they remain hard denies.

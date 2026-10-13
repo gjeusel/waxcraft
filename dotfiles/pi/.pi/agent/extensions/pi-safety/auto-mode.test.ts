@@ -262,7 +262,7 @@ for (const source of AUTO_MODE_SOURCES) {
     };
     for (const path of [directory, malformed]) {
       const outcome = await adjudicate('state', { source, apiKey: 'k', promptPath: path, fetcher });
-      assert.equal(outcome.verdict, 'deny');
+      assert.equal(outcome.verdict, 'ask');
       assert.equal(outcome.source, 'fail-closed');
       assert.ok(outcome.reason.includes(`auto-mode prompt ${path}:`));
     }
@@ -306,8 +306,8 @@ for (const source of AUTO_MODE_SOURCES) {
 
     for (const body of [null, [], {}, { answers: [] }, { answers: null }]) {
       const outcome = await adjudicate('s', { promptPath, source, apiKey: 'k', fetcher: responseFetch(body) });
-      assert.equal(outcome.source, 'fail-closed');
-      assert.equal(outcome.verdict, 'deny');
+      assert.equal(outcome.source, 'fail-open');
+      assert.equal(outcome.verdict, 'allow');
     }
 
     for (const overrides of [
@@ -316,8 +316,8 @@ for (const source of AUTO_MODE_SOURCES) {
       { probabilities: undefined }, { probabilities: { allow: 1, ask: 0 } },
     ]) {
       const outcome = await adjudicate('s', { promptPath, source, apiKey: 'k', fetcher: responseFetch(decisionResponse(source, overrides)) });
-      assert.equal(outcome.source, 'fail-closed', JSON.stringify(overrides));
-      assert.equal(outcome.verdict, 'deny');
+      assert.equal(outcome.source, 'fail-open', JSON.stringify(overrides));
+      assert.equal(outcome.verdict, 'allow');
     }
   });
 
@@ -332,7 +332,7 @@ for (const source of AUTO_MODE_SOURCES) {
     const outcome = await adjudicate('private transcript', { promptPath, source, apiKey: 'k', fetcher });
 
     assert.deepEqual(outcome, {
-      verdict: 'ask', source: 'refusal',
+      verdict: 'allow', source: 'refusal',
       reason: `classification refused (${source}; no reason supplied; request req_example)`,
     });
     assert.equal(calls, 1);
@@ -392,15 +392,15 @@ for (const source of AUTO_MODE_SOURCES) {
     }
   });
 
-  test(`${source}: fails closed without retrying or falling back to another backend`, async () => {
+  test(`${source}: fails open without retrying or falling back to another backend`, async () => {
     let calls = 0;
     const fetcher: typeof fetch = async () => {
       calls += 1;
       throw new Error('ECONNREFUSED');
     };
     const outcome = await adjudicate('s', { promptPath, source, apiKey: 'k', fetcher });
-    assert.equal(outcome.verdict, 'deny');
-    assert.equal(outcome.source, 'fail-closed');
+    assert.equal(outcome.verdict, 'allow');
+    assert.equal(outcome.source, 'fail-open');
     assert.match(outcome.reason, /classifier unavailable \(ECONNREFUSED\)/);
     assert.equal(calls, 1);
   });

@@ -546,22 +546,25 @@ for (const source of AUTO_MODE_SOURCES) {
       assert.equal(cancelled.block, true);
       assert.match(cancelled.reason, /user declined/);
 
-      // Low confidence and classifier failures both become a confirmation the user can accept.
+      // Low confidence becomes a confirmation the user can accept.
       const accepting = autoModeContext({ hasUI: true, confirm: true });
       globalThis.fetch = decisionFetch(source, 'deny', 0.2);
       const lowConfidence = { type: 'tool_call', toolName: 'bash', input: { command: 'git push' } };
       assert.equal(await toolCall(lowConfidence, accepting.ctx), undefined);
       assert.match(accepting.confirmations.at(-1) ?? '', /below confidence floor 50%/);
 
+      // Classifier outages fail open with a warning, with or without a UI, and are not recorded.
       globalThis.fetch = async () => new Response('overloaded', { status: 529 });
+      const confirmationsBefore = accepting.confirmations.length;
       const unavailable = { type: 'tool_call', toolName: 'bash', input: { command: 'ls' } };
       assert.equal(await toolCall(unavailable, accepting.ctx), undefined);
-      assert.ok(accepting.confirmations.at(-1)?.includes(`classifier unavailable (${source} 529`));
+      assert.equal(accepting.confirmations.length, confirmationsBefore);
 
       const headlessFailure = autoModeContext({ hasUI: false });
       const failed = await toolCall({ type: 'tool_call', toolName: 'bash', input: { command: 'ls' } }, headlessFailure.ctx);
-      assert.match(failed.reason, /no UI to confirm/);
+      assert.equal(failed, undefined);
       assert.equal(headlessFailure.confirmations.length, 0);
+      assert.ok(headlessFailure.notifications.at(-1)?.includes(`auto mode allowed unclassified: classifier unavailable (${source} 529`));
 
       // Without a UI, ask degrades to a block.
       const headless = autoModeContext({ hasUI: false });
@@ -572,14 +575,13 @@ for (const source of AUTO_MODE_SOURCES) {
 
       const records = readFileSync(recordsPath, 'utf8');
       assert.deepEqual([...records.matchAll(/^## .* — (\w+)$/gm)].map((match) => match[1]), [
-        'deny', 'cancelled', 'allow', 'allow', 'unavailable', 'unavailable',
+        'deny', 'cancelled', 'allow', 'unavailable',
       ]);
       assert.match(records, new RegExp(`"backend": "${source}"`));
       assert.ok(records.includes(`"session": "${ctx.sessionManager.getSessionId()}"`));
       assert.match(records, /"cwd": "\/project"/);
       assert.match(records, /"trigger": "low-confidence"/);
-      assert.match(records, /"trigger": "fail-closed"/);
-      assert.match(records, /classifier unavailable/);
+      assert.doesNotMatch(records, /classifier unavailable/);
       assert.match(records, /below confidence floor 50%/);
       assert.doesNotMatch(records, /test-key|export PATH=/);
       assert.equal(statSync(recordsPath).mode & 0o777, 0o600);
@@ -963,14 +965,12 @@ test('worker classifier and protected-path asks reach the parent; hard denies ne
   await root.handlers.get('session_start')!({}, parent.ctx);
   const worker = await setup(config, { OPENAI_API_KEY: 'test-key' });
   await worker.handlers.get('session_start')!({}, child.ctx);
-  t.mock.method(globalThis, 'fetch', async () => new Response(JSON.stringify({
-    answers: [{ type: 'refusal', name: 'verdict' }],
-  })));
+  t.mock.method(globalThis, 'fetch', decisionFetch('openai', 'ask', 1));
   try {
     const call = worker.handlers.get('tool_call')!;
     const bash = { type: 'tool_call', toolName: 'bash', input: { command: 'ls' } };
     assert.equal(await call(bash, { ...child.ctx, cwd: '/project' }), undefined);
-    assert.match(parent.confirmations[0], /classification refused/);
+    assert.match(parent.confirmations[0], /openai: ask 100%/);
     assert.match(parent.confirmations[0], /Worker: test-worker\nCwd: \/project/);
     assert.match(bash.input.command, /\nls$/);
     for (const input of [
@@ -996,7 +996,7 @@ test('worker classifier and protected-path asks reach the parent; hard denies ne
     assert.equal([...records.matchAll(/^## .* — allow$/gm)].length, 1);
     assert.match(records, /"sessionName": "test-worker"/);
     assert.ok(records.includes(`"session": "${child.ctx.sessionManager.getSessionId()}"`));
-    assert.match(records, /"trigger": "refusal"/);
+    assert.match(records, /"trigger": "openai"/);
     assert.equal(existsSync(root.recordsPath), false, 'the forwarding parent must not duplicate the record');
   } finally {
     worker.restore();
@@ -1356,25 +1356,29 @@ for (const answer of [true, false]) {
   });
 }
 
-test('OpenAI refusals require confirmation and block without a UI', async (t) => {
-  const { handlers, restore } = await setup(undefined, { OPENAI_API_KEY: 'test-key' });
+test('OpenAI refusals allow with a warning but keep shell-rule asks', async (t) => {
+  const config = JSON.stringify({
+    shell: { deny: [{ command: 'helm', argv: { contains: ['upgrade'] }, reason: 'helm upgrade in test', autoMode: 'ask' }] },
+  });
+  const { handlers, recordsPath, restore } = await setup(config, { OPENAI_API_KEY: 'test-key' });
   t.mock.method(globalThis, 'fetch', async () => new Response(JSON.stringify({
     answers: [{ name: 'verdict', type: 'refusal' }],
   })));
   try {
-    const accepting = autoModeContext({ hasUI: true, confirm: true });
-    const event = { type: 'tool_call', toolName: 'bash', input: { command: 'ls' } };
-    assert.equal(await handlers.get('tool_call')!(event, accepting.ctx), undefined);
-    assert.match(accepting.confirmations[0], /classification refused \(openai/);
-    assert.doesNotMatch(accepting.confirmations[0], /classifier unavailable/);
+    for (const hasUI of [true, false]) {
+      const context = autoModeContext({ hasUI, confirm: true });
+      const event = { type: 'tool_call', toolName: 'bash', input: { command: 'ls' } };
+      assert.equal(await handlers.get('tool_call')!(event, context.ctx), undefined);
+      assert.equal(context.confirmations.length, 0);
+      assert.match(context.notifications.at(-1) ?? '', /allowed unclassified: classification refused \(openai/);
+    }
+    assert.equal(existsSync(recordsPath), false);
 
-    const headless = autoModeContext({ hasUI: false });
-    const blocked = await handlers.get('tool_call')!(
-      { type: 'tool_call', toolName: 'bash', input: { command: 'ls' } },
-      headless.ctx,
-    );
-    assert.equal(blocked.block, true);
-    assert.match(blocked.reason, /no UI to confirm/);
+    const accepting = autoModeContext({ hasUI: true, confirm: true });
+    const helm = { type: 'tool_call', toolName: 'bash', input: { command: 'helm upgrade app chart' } };
+    assert.equal(await handlers.get('tool_call')!(helm, accepting.ctx), undefined);
+    assert.match(accepting.confirmations[0], /Rule: helm upgrade in test/);
+    assert.match(readFileSync(recordsPath, 'utf8'), /"trigger": "shell-rule"/);
   } finally {
     restore();
   }

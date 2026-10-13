@@ -94,12 +94,13 @@
   // Adjudicate Bash commands the rules above let through and confirm protected-file edits.
   // /toggle-auto-mode toggles both; hard deny rules remain active while off.
   // PI_AUTO_MODE=0 or 1 overrides enabled at startup. Sources: openai (OPENAI_API_KEY) or
-  // jev (TYPESAFE_AI_API_KEY). Default: allow plausible task-related work unless substantially risky.
+  // jev (TYPESAFE_AI_API_KEY). Policy: allow everything except destructive operations and infra
+  // mutations. Classifier outages and refusals allow with a warning.
   // Prompt: pi-safety-auto-mode.md beside this file, read for every decision (both sources).
   // minConfidence=0 avoids confidence-only prompts; raise it to require more certainty.
   "autoMode": {
     "enabled": true,
     "source": "openai",
-    "minConfidence": 0.2
+    "minConfidence": 0
   }
 }

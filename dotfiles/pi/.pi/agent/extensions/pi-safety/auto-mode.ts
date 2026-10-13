@@ -3,7 +3,8 @@
  * pi-verdict (https://github.com/jesset/pi-verdict). Deterministic shell rules settle the clear
  * cases first; what remains is adjudicated by a selectable decisions backend (OpenAI or jev).
  * Both see the same condensed transcript and permission criteria, and return allow / ask / deny
- * with probabilities and confidence. Transport and response validation failures fail closed.
+ * with probabilities and confidence. Backend outages, refusals, and malformed answers fail open;
+ * an unusable local policy file fails closed.
  */
 import { appendFileSync, closeSync, fstatSync, mkdirSync, openSync, readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
@@ -88,13 +89,21 @@ export function parseVerdictQuestions(markdown: string): VerdictQuestions {
   };
 }
 
+/** The local policy file is unusable: a persistent misconfiguration, not a transient outage. */
+export class PolicyPromptError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'PolicyPromptError';
+  }
+}
+
 export function loadVerdictQuestions(promptPath: string): VerdictQuestions {
   try {
     return parseVerdictQuestions(readFileSync(promptPath, 'utf8'));
   } catch (error) {
     if (error instanceof Error && 'code' in error && error.code === 'ENOENT') return parseVerdictQuestions('');
 
-    throw new Error(`auto-mode prompt ${promptPath}: ${error instanceof Error ? error.message : String(error)}`);
+    throw new PolicyPromptError(`auto-mode prompt ${promptPath}: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
@@ -300,7 +309,7 @@ export async function classify(state: string, options: ClassifyOptions): Promise
 export interface Adjudication {
   verdict: Verdict;
   reason: string;
-  source: AutoModeSource | 'low-confidence' | 'refusal' | 'fail-closed';
+  source: AutoModeSource | 'low-confidence' | 'refusal' | 'fail-open' | 'fail-closed';
 }
 
 export interface AdjudicateOptions extends ClassifyOptions {
@@ -320,8 +329,9 @@ export function describeVerdict(result: ClassifierVerdict, source: AutoModeSourc
 
 /**
  * Adjudicate the transcript: the backend's choice is autonomous at or above the confidence floor; a
- * hesitant allow or deny is demoted to ask. A classification refusal requires human review;
- * service failures fail closed as a deny that the caller may also send for human review.
+ * hesitant allow or deny is demoted to ask. Refusals and service failures fail open: auto mode only
+ * exists to catch destructive commands, and deterministic shell rules still apply. A broken policy
+ * file persists until fixed, so it keeps requiring human review.
  */
 export async function adjudicate(state: string, options: AdjudicateOptions): Promise<Adjudication> {
   const source = options.source ?? DEFAULT_AUTO_MODE_SOURCE;
@@ -331,12 +341,13 @@ export async function adjudicate(state: string, options: AdjudicateOptions): Pro
   try {
     result = await classify(state, options);
   } catch (error) {
+    if (error instanceof PolicyPromptError) return { verdict: 'ask', reason: error.message, source: 'fail-closed' };
     if (error instanceof ClassificationRefusedError) {
-      return { verdict: 'ask', reason: error.message, source: 'refusal' };
+      return { verdict: 'allow', reason: error.message, source: 'refusal' };
     }
 
     const message = error instanceof Error ? error.message : String(error);
-    return { verdict: 'deny', reason: `classifier unavailable (${message})`, source: 'fail-closed' };
+    return { verdict: 'allow', reason: `classifier unavailable (${message})`, source: 'fail-open' };
   }
 
   const reason = describeVerdict(result, source);
