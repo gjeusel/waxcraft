@@ -23,6 +23,7 @@ import {
 
 const TOOL_NAME = 'publish_artifact';
 const ATTACH_MESSAGE_TYPE = 'artifact';
+const PUBLISH_ENTRY_TYPE = 'artifact-publish';
 const SKILL_PATH = join(dirname(fileURLToPath(import.meta.url)), 'artifact-design', 'SKILL.md');
 const SCRATCH_DIR = join(tmpdir(), 'pi-artifacts');
 
@@ -48,6 +49,7 @@ interface PublishDetails {
   url: string;
   version: number;
   created: boolean;
+  warning?: string;
 }
 
 /** Most recent artifact published or attached on the current branch. */
@@ -57,6 +59,11 @@ export function latestSessionArtifactId(entries: SessionEntry[]): string | undef
       const { toolName, isError, details } = entry.message;
       const id = (details as Partial<PublishDetails> | undefined)?.id;
       if (toolName === TOOL_NAME && !isError && typeof id === 'string') return id;
+    }
+
+    if (entry.type === 'custom' && entry.customType === PUBLISH_ENTRY_TYPE) {
+      const id = (entry.data as { id?: unknown } | undefined)?.id;
+      if (typeof id === 'string') return id;
     }
 
     if (entry.type === 'custom_message' && entry.customType === ATTACH_MESSAGE_TYPE) {
@@ -80,12 +87,24 @@ function formatAge(iso: string, now: Date): string {
 export default function (pi: ExtensionAPI) {
   const storeDir = defaultStoreDir();
   let server: ArtifactServerHandle | undefined;
+  let serverReady: Promise<string> | undefined;
+  let shuttingDown = false;
 
   async function baseUrl(): Promise<string> {
-    const reusable = server && (server.owned || (await isArtifactServer(server.baseUrl, storeDir)));
-    if (!server || !reusable) server = await startArtifactServer(storeDir);
+    if (shuttingDown) throw new Error('Artifact server is shutting down.');
 
-    return server.baseUrl;
+    // Commands and shortcuts can overlap with tools, even with sequential tool execution.
+    serverReady ??= (async () => {
+      const reusable = server && (server.owned || (await isArtifactServer(server.baseUrl, storeDir)));
+      if (!server || !reusable) server = await startArtifactServer(storeDir);
+      if (shuttingDown) throw new Error('Artifact server is shutting down.');
+
+      return server.baseUrl;
+    })().finally(() => {
+      serverReady = undefined;
+    });
+
+    return serverReady;
   }
 
   async function artifactUrl(id: string): Promise<string> {
@@ -120,9 +139,20 @@ export default function (pi: ExtensionAPI) {
 
   pi.on('resources_discover', () => ({ skillPaths: [SKILL_PATH] }));
 
-  pi.on('session_shutdown', () => {
-    server?.close();
-    server = undefined;
+  pi.on('session_start', () => {
+    shuttingDown = false;
+  });
+
+  pi.on('session_shutdown', async () => {
+    shuttingDown = true;
+    try {
+      await serverReady;
+    } catch {
+      // The caller awaiting startup receives the error; shutdown still owns cleanup.
+    } finally {
+      server?.close();
+      server = undefined;
+    }
   });
 
   pi.registerTool({
@@ -147,19 +177,29 @@ export default function (pi: ExtensionAPI) {
         cwd: ctx.cwd,
         sessionId: ctx.sessionManager.getSessionId(),
       });
+      // Nested calls (e.g. codemode) have no standalone tool-result entry in the session.
+      pi.appendEntry(PUBLISH_ENTRY_TYPE, { id: meta.id });
       const url = await artifactUrl(meta.id);
 
+      let warning: string | undefined;
       const shouldOpen = created && ctx.hasUI && process.env.PI_ARTIFACT_AUTO_OPEN !== '0';
-      if (shouldOpen) await openInBrowser(url);
+      if (shouldOpen) {
+        try {
+          await openInBrowser(url);
+        } catch (error) {
+          warning = `Could not open browser: ${error instanceof Error ? error.message : String(error)}`;
+          ctx.ui.notify(warning, 'warning');
+        }
+      }
 
       const action = created ? 'Published' : `Updated (v${meta.version})`;
-      const details: PublishDetails = { id: meta.id, title: meta.title, url, version: meta.version, created };
+      const details: PublishDetails = { id: meta.id, title: meta.title, url, version: meta.version, created, warning };
 
       return {
         content: [
           {
             type: 'text' as const,
-            text: `${action} artifact "${meta.title}" (artifact_id: ${meta.id}) at ${url}\nRendered page: ${pagePath}`,
+            text: `${action} artifact "${meta.title}" (artifact_id: ${meta.id}) at ${url}\nRendered page: ${pagePath}${warning ? `\nWarning: ${warning}` : ''}`,
           },
         ],
         details,
@@ -171,16 +211,18 @@ export default function (pi: ExtensionAPI) {
       return new Text(`${theme.fg('toolTitle', theme.bold('publish artifact'))}${theme.fg('muted', path)}`, 0, 0);
     },
 
-    renderResult(result, _options, theme) {
+    renderResult(result, _options, theme, context) {
       const details = result.details as PublishDetails | undefined;
-      if (!details?.url) return new Text(theme.fg('success', '✓ published'), 0, 0);
+      if (context.isError || !details?.url) {
+        const text = result.content.filter((part) => part.type === 'text').map((part) => part.text).join('\n');
+        return new Text(theme.fg(context.isError ? 'error' : 'toolOutput', text), 0, 0);
+      }
 
       const version = details.created ? 'new' : `v${details.version}`;
-      return new Text(
-        `${theme.fg('success', '✓')} ${details.title} ${theme.fg('dim', version)} ${theme.fg('accent', details.url)}`,
-        0,
-        0,
-      );
+      const summary = `${theme.fg('success', '✓')} ${details.title} ${theme.fg('dim', version)} ${theme.fg('accent', details.url)}`;
+      const warning = details.warning ? `\n${theme.fg('warning', details.warning)}` : '';
+
+      return new Text(`${summary}${warning}`, 0, 0);
     },
   });
 
@@ -194,12 +236,16 @@ export default function (pi: ExtensionAPI) {
       }
 
       const now = new Date();
-      const labels = artifacts.map((meta) => `${meta.title} · v${meta.version} · ${formatAge(meta.updatedAt, now)}`);
+      const labels = artifacts.map(
+        (meta) => `${meta.title} · v${meta.version} · ${formatAge(meta.updatedAt, now)} · ${meta.id}`,
+      );
       const choice = await ctx.ui.select('Artifacts', labels);
       const meta = artifacts[labels.indexOf(choice ?? '')];
       if (!meta) return;
 
       const action = await ctx.ui.select(meta.title, ['Open in browser', 'Copy link', 'Attach to session']);
+      if (!action) return;
+
       const url = await artifactUrl(meta.id);
 
       if (action === 'Open in browser') {
