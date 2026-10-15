@@ -63,8 +63,8 @@ Do not delegate either pass to a sub-agent. Perform them yourself in this order,
 
 - Review the full diff and commit list.
 - Use the standards-source files found in step 3 and the complete smell baseline above.
-- Report, per file/hunk where relevant: (a) every place the diff violates a documented standard, citing the standard file and rule; and (b) any baseline smell, naming it and quoting the hunk.
-- Distinguish hard violations from judgement calls: documented-standard breaches can be hard, but baseline smells are always judgement calls, and a documented repository standard overrides the baseline.
+- Report, at its `path:line`: (a) every place the diff violates a documented standard, citing the standard file and rule; and (b) any baseline smell, naming it.
+- Distinguish hard violations from judgement calls: documented-standard breaches can be hard (`P0`–`P2`), but baseline smells are always `P3` judgement calls, and a documented repository standard overrides the baseline.
 - Skip anything tooling already enforces.
 
 **Spec pass:**
@@ -77,9 +77,53 @@ If no specification was found, skip the Spec pass and, under `## Spec`, report "
 
 ### 5. Present the result
 
-Present the two passes under `## Standards` and `## Spec` headings. If a completed pass finds nothing, say so explicitly, so a clean pass is distinguishable from a skipped one. Do **not** merge or rerank findings, because the two axes are deliberately separate (see _Why two axes_).
+Write the report in GitLab-flavoured Markdown, so it pastes unchanged into an MR note:
 
-End with a one-line summary: total findings per axis (or "skipped" for Spec without a spec), and the worst issue _within each axis_ (if any). Don't pick a single winner across axes: that's the reranking the separation exists to prevent.
+```markdown
+## Confidence Score: <1-5>/5
+
+<Verdict, 1-2 sentences: whether the change is ready to merge, naming the worst finding of each axis.>
+
+## Standards
+
+1. ![P2](https://img.shields.io/badge/P2-daff01?style=flat-square) **<Consequence title>** · `<path>:<line>`
+
+   <Finding body.>
+
+   **Context used:** `<standards file>`: "<quoted rule>"
+
+## Spec
+
+1. ![P1](https://img.shields.io/badge/P1-ff9c7f?style=flat-square) **<Consequence title>** · `<path>:<line>`
+
+   <Finding body.>
+
+   **Spec:** "<quoted spec line>"
+
+<details><summary>Summary</summary>
+
+<One sentence: what the change does.>
+- <Notable change, coverage added, or caveat.>
+
+</details>
+
+<sub>Reviewed `<fixed-point>...HEAD` (<N> commits) · Last commit: `<short-sha>` <subject> · Spec: <source, or "none found"></sub>
+```
+
+Priorities, each rendered as a coloured badge `![Pn](https://img.shields.io/badge/Pn-<colour>?style=flat-square)` (Greptile's palette):
+
+- `P0` (`ff6d6d`): breaks production: data loss or corruption, a security hole, a crash on a common path.
+- `P1` (`ff9c7f`): a real bug, or a spec requirement missing or implemented wrong. Fix before merge.
+- `P2` (`daff01`): a documented-standard violation, a partial requirement, scope creep, or a bug on a rare path.
+- `P3` (`c4c4c4`): a judgement call: every baseline smell, and minor nits.
+
+Findings:
+
+- Number findings within each axis, ordered by priority. Keep the axes in separate sections: merging or reranking across them defeats the separation (see _Why two axes_).
+- Title each finding with the consequence, what goes wrong for users or data, in a few words: "Manual invoices remain excluded", "Tariff column left blank". For a smell, title it "Possible <smell>: <what it costs>".
+- Write the body as one impact paragraph: the triggering condition, the mechanism in the code, the consequence, and the evidence it is real (for example, a test that sets up state the production path never produces). Add a one-sentence fix only when the fix is non-obvious.
+- Score confidence from the worst finding across both axes: `5` nothing above `P3`, `4` at worst `P2`, `3` one `P1`, `2` several `P1`, `1` any `P0`. The score is a merge verdict, not a ranking: the verdict still names each axis's worst finding separately.
+- Write "No findings." under a clean axis, so a clean pass is distinguishable from a skipped one.
 
 ## Why two axes
 
