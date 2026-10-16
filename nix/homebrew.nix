@@ -11,7 +11,7 @@
       "ampcode/tap/ampcode"
       # "postgresql@16" # can be managed via nix-darwin (see postgres.nix)
       "redis"
-      "meilisearch"
+      # "meilisearch" # better use docker
       "neonctl" # Neon CLI
       "libomp" # openmp on macos
       "py-spy" # CLI to profile python (unavailable in nixpkgs for ARM arch)
