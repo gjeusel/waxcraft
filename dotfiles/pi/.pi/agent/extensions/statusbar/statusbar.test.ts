@@ -42,6 +42,8 @@ test('shows Fast mode from pi-openai, without relying on provider usage reportin
 
   runtime.statuses.set('pi-openai', 'fast');
   assert.ok(runtime.render().includes('gpt-6.1-sol · high · fast · Test session'));
+  runtime.statuses.set('pi-openai', 'ultrafast');
+  assert.ok(runtime.render().includes('gpt-6.1-sol · high · ultrafast · Test session'));
 
   runtime.statuses.delete('pi-openai');
   runtime.statuses.set('usage', 'codex fast 59%');
@@ -55,7 +57,10 @@ test('keeps Fast mode and safety indicators within narrow footer widths', async 
   runtime.statuses.set('pi-safety', '🛡 disabled');
 
   assert.ok(runtime.render().includes('🛡 disabled · 25%'));
-  for (const width of [1, 10, 40, 80]) {
-    assert.ok(visibleWidth(runtime.render(width)) <= width);
+  for (const speed of ['fast', 'ultrafast']) {
+    runtime.statuses.set('pi-openai', speed);
+    for (const width of [1, 10, 40, 80]) {
+      assert.ok(visibleWidth(runtime.render(width)) <= width);
+    }
   }
 });

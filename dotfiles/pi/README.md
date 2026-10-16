@@ -40,7 +40,8 @@ Claude Code subprocess. Authenticate inside Pi and select an `anthropic/claude-*
 ```
 
 Pi Black requires Pi 0.84.1 or newer. Its Claude Code request compatibility is version-specific
-and unofficial; revalidate subscription access when upgrading. API-key requests remain unchanged.
+and unofficial; revalidate subscription access when upgrading. Pi Black leaves API-key requests
+unchanged; the local speed controls below opt in separately.
 
 ## Mistral EU inference
 
@@ -122,7 +123,7 @@ extensions/
 ├── peek-document/          read PDF and Office files
 ├── per-model-prompt/       model-specific directives
 ├── pi-builtin-adjustments/ quieter built-ins
-├── pi-openai/              Codex Fast mode and direct server-side compaction
+├── pi-openai/              OpenAI/Anthropic speed controls and Codex server compaction
 ├── pi-safety/              Bash command checks, decisions auto mode, and safe deletion shims
 ├── python-code/            sandboxed Python
 ├── rant/                   log preventable failures
@@ -149,14 +150,53 @@ keyed by exact `provider/modelId`; it applies at startup and on every model swit
 
 ### Pi OpenAI
 
-`pi-openai` replaces `@narumitw/pi-usage` and `@narumitw/pi-codex-compact` for the official
-`openai-codex` provider. It makes no usage/quota queries and has no model allowlist.
+`pi-openai` replaces `@narumitw/pi-usage` and `@narumitw/pi-codex-compact`. It hosts the shared
+speed commands, plus compaction for the official `openai-codex` provider. It makes no usage/quota
+or entitlement queries.
 
-- `/fast` toggles priority routing; `/fast on`, `/fast off`, and `/fast status` are also available.
-  The preference is saved in `~/.pi/agent/pi-openai.json` (`fastMode`, default `false`); this
-  repository configures it to `true`. The footer shows `fast` while effective. Fast sends
-  `service_tier: "priority"`, uses more plan allowance, and remains subject to backend support.
-  Off explicitly sends `service_tier: "default"`. Changes affect subsequent requests only.
+#### Speed controls
+
+Both commands accept `on`, `off`, and `status`; a bare command toggles. Changes affect subsequent
+requests only, and the footer shows `fast` or `ultrafast` when requested for the selected endpoint.
+
+**Ctrl+Shift+;** opens a speed picker without changing **Ctrl+Shift+L** model selection. Normal is
+muted, Fast green, and Ultrafast amber (theme colors). The current mode is preselected and labelled;
+use ↑/↓ and Enter to apply, or Esc to cancel. Ultrafast is marked unavailable on Anthropic.
+Selections use the same saved preferences and next-request behavior as the commands.
+
+- **OpenAI and Codex:** `/fast on` sends `service_tier: "priority"`; `/ultrafast on` sends
+  [`service_tier: "ultrafast"`](https://developers.openai.com/api/docs/guides/ultrafast-mode).
+  Both official OpenAI Responses/Chat Completions and Codex endpoints are accepted, without a
+  model allowlist: the backend decides support and entitlement. `/fast on` replaces Ultrafast
+  with priority. `/fast off` disables either tier; `/ultrafast off` disables Ultrafast without
+  changing an existing priority preference. Disabled routing sends `service_tier: "default"`.
+  Preferences share `~/.pi/agent/pi-openai.json`: `fastMode` enables accelerated routing and
+  `ultrafastMode: true` selects Ultrafast. Missing values default to `false`; the repository's
+  existing `fastMode` preference is preserved. Both status commands report current routing.
+  Higher API prices or plan usage apply; Codex support for Ultrafast is not guaranteed by the
+  API documentation. Requests use Pi's existing transport, without forcing WebSockets.
+- **Anthropic:** `/fast on` sends `speed: "fast"` and appends `fast-mode-2026-02-01` to Pi's
+  existing beta list. Pi Black `v0.84.1-cc2.1.280.1` preserves these fields and signs the final
+  serialized body; no provider replacement or additional patch is needed. This also works with
+  API-key authentication. Every model on the official Anthropic Messages endpoint is accepted,
+  without a model allowlist: the backend decides support and entitlement, and models are never
+  automatically switched. `/fast off` leaves the native request untouched (standard speed).
+  The independent preference is `~/.pi/agent/pi-anthropic.json` (`fastMode`, default `false`),
+  created by the command without needing a tracked config file. Switching away from the endpoint
+  hides the indicator; returning restores the saved preference. Switching directly from OpenAI
+  Ultrafast to Anthropic enables and saves Fast instead of dropping to Normal; switching back
+  restores OpenAI Ultrafast. An explicit Normal selection remains effective until such a switch.
+  The `/ultrafast` command itself is OpenAI-only and never changes Anthropic preferences.
+
+[Anthropic Fast mode](https://code.claude.com/docs/en/fast-mode) uses **paid usage credits, not
+included subscription usage**, and requires credits and any organization enablement. Switching
+speed can miss the prompt cache. These commands request routing, not guarantee it; API errors
+remain visible to Pi's normal retry machinery, with no automatic standard-speed fallback or
+Claude Code-style cooldown. Pi's catalog-based cost estimates are not adjusted for premium speed
+pricing; use provider billing for actual spend. No paid inference request is needed to toggle.
+
+#### Codex compaction
+
 - `/codex-compact` immediately starts server-side Remote V2 compaction: no menu or confirmation.
   Pi's `/compact` and automatic threshold/overflow compaction use the same server operation on
   this provider. The active conversation and system prompt are sent with a final
@@ -174,8 +214,9 @@ warning about unavailable older context. Return to the original model to replay 
 extension for sessions with opaque history. The old `pi-usage.json` and `pi-codex-compact.json`
 settings are no longer used.
 
-After adding the extension, restow the Pi package and run `/reload`; reload alone cannot discover
-files that have not been linked into `~/.pi/agent/` yet.
+For the speed-control update, existing linked files are edited in place: run `/reload` or restart Pi;
+no restow is needed. When first adding the extension, restow the Pi package before `/reload`, since
+reload alone cannot discover files that have not been linked into `~/.pi/agent/` yet.
 
 ### Auto-name
 
@@ -213,9 +254,9 @@ with a warning. It is read at session start, so run `/reload` after editing it.
 ## Packages
 
 Third-party packages are pinned in `settings.json`. Pi Black uses the GitHub release
-`v0.84.1-cc2.1.258.1`, with a local protocol-version patch to advertise Claude Code `2.1.280`
-(the minimum required for Opus 5.5). This is an unofficial compatibility override, not an upgrade
-of Claude Code; revalidate it when either service changes. Claude model definitions, including
+`v0.84.1-cc2.1.280.1`, advertising Claude Code `2.1.280` (the minimum required for Opus 5.5).
+The retained protocol-version patch is already satisfied by this release. This is unofficial
+compatibility, not an upgrade of Claude Code; revalidate it when either service changes. Claude model definitions, including
 Fable 5.1, come from Pi's native
 Anthropic catalog; the reviewer uses `openai-codex/gpt-6-astra` with high thinking.
 

@@ -2,7 +2,7 @@
  * statusbar — minimalist single-line footer.
  * Replaces the built-in two/three-line footer (pwd+branch / token stats /
  * extension statuses, e.g. MCP info) with one line:
- *   <repo path>       <model> · <effort> · [fast] · [session]       [🛡 degraded ·] [auto-mode ·] <context %>
+ *   <repo path>   <model> · <effort> · [fast/ultrafast] · [session]   [🛡 degraded ·] [auto-mode ·] <context %>
  * left-aligned / centered / right-aligned. Extension statuses (MCP, etc.)
  * and token/cost stats are deliberately not shown, except pi-safety's
  * indicators, displayed before the context size: its degraded state (checks
@@ -31,7 +31,8 @@ export default function (pi: ExtensionAPI) {
           let left = cwd;
 
           const extensionStatuses = footerData.getExtensionStatuses();
-          const isFast = extensionStatuses.get('pi-openai') === 'fast';
+          const speed = extensionStatuses.get('pi-openai');
+          const speedLabel = speed === 'fast' || speed === 'ultrafast' ? speed : undefined;
           const sessionName = pi.getSessionName();
           const truncatedSessionName = sessionName
             ? truncateToWidth(sessionName, 50, '…').replaceAll('\x1b[0m', '')
@@ -39,7 +40,7 @@ export default function (pi: ExtensionAPI) {
           const centerParts = [
             ctx.model?.id ?? 'no-model',
             ctx.thinkingLevel ?? 'off',
-            isFast ? 'fast' : undefined,
+            speedLabel,
             truncatedSessionName,
           ].filter((part): part is string => part !== undefined);
           let center = centerParts.join(' · ');
