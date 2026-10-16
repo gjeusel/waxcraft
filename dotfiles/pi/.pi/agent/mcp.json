@@ -77,8 +77,7 @@
         "-y",
         "@auth0/auth0-mcp-server",
         "run"
-      ],
-      "enabled": false
+      ]
     },
     "context7": {
       "command": "npx",
