@@ -152,13 +152,16 @@ function setup() {
   return { handlers, notifications, ctx };
 }
 
-test('input handler: blocks secrets, verbatim resubmit bypasses', async () => {
+test('input handler: redacts secrets, verbatim resubmit bypasses', async () => {
   const { handlers, notifications, ctx } = setup();
   const input = handlers.get('input')!;
 
   assert.deepEqual(await input({ text: 'benign prompt' }, ctx), { action: 'continue' });
-  assert.deepEqual(await input({ text: leakyText }, ctx), { action: 'handled' });
-  assert.match(notifications.at(-1)!, /BLOCKED/);
+  const redacted = await input({ text: leakyText }, ctx);
+  assert.equal(redacted.action, 'transform');
+  assert.ok(!redacted.text.includes(fakeSecret));
+  assert.match(redacted.text, /^x = 1\n.*\[REDACTED:generic-api-key].*\ny = 2\n$/);
+  assert.match(notifications.at(-1)!, /redacted 1 secret\(s\) in prompt/);
   assert.ok(!notifications.at(-1)!.includes(fakeSecret));
   assert.deepEqual(await input({ text: leakyText }, ctx), { action: 'continue' });
   assert.match(notifications.at(-1)!, /bypassed/);

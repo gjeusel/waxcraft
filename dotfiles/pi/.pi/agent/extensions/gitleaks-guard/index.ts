@@ -3,9 +3,10 @@
  *
  * Two guards:
  *  1. Prompt guard: every input reaching the prompt (typed, pasted, rpc,
- *     extension-injected) is scanned. On a hit the message is blocked;
- *     submitting the *exact same text again* bypasses the guard (deliberate
- *     escape hatch for false positives).
+ *     extension-injected) is scanned. Detected secrets are redacted in place
+ *     ([REDACTED:rule-id]) before the message is sent; submitting the *exact
+ *     same original text again* sends it unredacted (deliberate escape hatch
+ *     for false positives).
  *  2. Tool-result guard: every tool output (read, bash, grep, MCP tools, ...)
  *     is scanned before it reaches the model. Detected secrets are redacted
  *     in place ([REDACTED:rule-id]) so the model can still use the rest of
@@ -235,26 +236,27 @@ export function redactBashExecution(
 }
 
 export default function (pi: ExtensionAPI) {
-  let lastBlocked: string | null = null;
+  let lastRedacted: string | null = null;
 
   // Guard ALL prompt sources — interactive, rpc, and extension-injected alike.
   pi.on('input', async (event, ctx) => {
-    if (lastBlocked !== null && event.text === lastBlocked) {
-      lastBlocked = null;
-      ctx.ui.notify('gitleaks-guard: bypassed (resubmitted verbatim)', 'warning');
+    if (lastRedacted !== null && event.text === lastRedacted) {
+      lastRedacted = null;
+      ctx.ui.notify('gitleaks-guard: bypassed (resubmitted verbatim), prompt sent unredacted', 'warning');
       return { action: 'continue' };
     }
 
     const result = scan(event.text);
 
     if (result.status === 'leaks') {
-      lastBlocked = event.text;
+      lastRedacted = event.text;
+      const redaction = redactWithCount(event.text, result.findings);
       ctx.ui.notify(
-        `gitleaks-guard: prompt BLOCKED — secret(s) detected:\n${describe(result.findings)}\n` +
-          'Remove the secret, or resend the exact same message to bypass.',
-        'error',
+        `gitleaks-guard: redacted ${redaction.count} secret(s) in prompt:\n${describe(result.findings)}\n` +
+          'Resend the exact same original message to send it unredacted.',
+        'warning',
       );
-      return { action: 'handled' };
+      return { action: 'transform', text: redaction.text };
     }
 
     if (result.status === 'error') {
