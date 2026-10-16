@@ -1,135 +1,103 @@
 ---
 name: code-review
-description: "Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes: Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/spec asked for?). Runs both as separate review passes and reports them side by side. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to \"review since X\"."
+description: 'Review branches, PRs/MRs, or working changes for bugs and standards/spec gaps. Use for code reviews, including "review since X".'
 ---
 
-Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
+# Code review
 
-- **Standards**: does the code conform to this repo's documented coding standards?
-- **Spec**: does the code faithfully implement the originating issue / spec?
+Review deeply; report only findings worth the author's attention. Keep source files and Git state
+unchanged: this is a review, not an implementation task.
 
-Run the two axes as separate passes in the same session. Keep their evidence and conclusions distinct, then report them side by side.
+## 1. Pin scope and delivery
 
-A missing specification never blocks the review: the Standards pass always runs, and the Spec pass runs only when a specification is found.
+Honor the requested ref, range, PR/MR, or working-tree scope. Otherwise use the MR target branch or
+an unambiguous repository default; ask when the base is unclear. Resolve refs to SHAs and record the
+diff command once. For a branch review use `git diff <base>...<head>` and the corresponding commit list.
+Include staged, unstaged, and untracked files when reviewing working changes; do not silently add
+them to an explicit committed range. Stop on an invalid ref; report an empty diff as "No changes."
 
-## Process
+Choose delivery independently of review scope (naming an MR is not a request for MR-only output):
 
-### 1. Pin the fixed point
+| Requested destination                  | Deliver to                                                      |
+| -------------------------------------- | --------------------------------------------------------------- |
+| Terminal/local only, or no posting     | Terminal only                                                   |
+| GitLab/MR only                         | MR note; return its URL in the terminal                         |
+| A file or another explicit destination | That destination only                                           |
+| Unspecified                            | Terminal **and** the matching existing GitLab MR, if one exists |
 
-Whatever the user said is the fixed point (a commit SHA, branch name, tag, `main`, `HEAD~5`, etc.). If they didn't specify one, ask for it.
+Honor explicit combinations. The default authorizes a review note, not creating an MR, pushing,
+approving, or merging. A missing MR leaves a terminal-only review.
 
-Capture the diff command once: `git diff <fixed-point>...HEAD` (three-dot, so the comparison is against the merge-base). Also note the list of commits via `git log <fixed-point>..HEAD --oneline`.
+**GitLab output:** whenever a review will be posted to GitLab, including the unspecified-destination
+default, read [references/gitlab-fmt.md](references/gitlab-fmt.md) before rendering or publishing.
+It defines MR selection, GitLab formatting, and publication checks. Explicit local-only requests
+need neither that reference nor an MR lookup for publication.
 
-Before going further, confirm the fixed point resolves (`git rev-parse <fixed-point>`) and the diff is non-empty. A bad ref or empty diff should fail before either review pass begins.
+## 2. Review on two axes
 
-### 2. Identify the spec source
+Run separate passes yourself, keeping their evidence distinct:
 
-Look for the originating spec, in this order:
+- **Standards:** inspect the full scoped diff, surrounding code, callers, and tests for concrete bugs
+  and violations of applicable repository guidance (`AGENTS.md`, `CLAUDE.md`, `REVIEW.md`,
+  `CONTRIBUTING.md`, or coding standards). Correctness is always in scope, even without a spec.
+- **Spec:** compare the change to the originating requirements. Prefer a user-supplied spec, then
+  the linked issue/MR and commit references, then a relevant local spec. Use the repository's tracker
+  workflow when available. Check missing, incorrect, or materially out-of-scope behavior. If no spec
+  is found, skip this pass without blocking the review; ask only if a supplied spec is inaccessible
+  or ambiguous.
 
-1. A path or issue the user passed as an argument.
-2. Issue references in the commit messages or branch name (`#123`, `Closes #45`, GitLab `!67`, etc.), fetched via the workflow in `docs/agents/issue-tracker.md` when it exists, otherwise directly with the forge CLI (`glab issue view`, `glab mr view`, `gh issue view`, `gh pr view`).
-3. A spec file under `docs/`, `specs/`, or `.scratch/` matching the branch name or feature.
-4. If nothing is found, do not stop to ask: proceed without a spec, skip the **Spec** pass, and list the sources checked in the report. Ask only when the user said a spec exists but it cannot be located or fetched.
+Repository rules override generic style preferences. Code smells are investigation clues, not a
+checklist of findings: a tuple, duplicated expression, or helper's location alone is not a defect.
 
-### 3. Identify the standards sources
+## 3. Verify and filter
 
-Anything in the repo that documents how code should be written, such as `CODING_STANDARDS.md` or `CONTRIBUTING.md`.
+Before retaining a candidate, try to refute it against the base revision, real callers, guards, and
+tests. A finding needs a reachable trigger, a concrete consequence, and a precise location in the
+reviewed change. Inspect version-specific behavior when the claim depends on a library detail;
+use a focused test or reproduction when it resolves uncertainty.
 
-On top of whatever the repo documents, the Standards axis always carries the **smell baseline** below: a fixed set of Fowler code smells (_Refactoring_, ch.3) that applies even when a repo documents nothing. Two rules bind it:
+- Keep introduced regressions, existing defects made newly reachable, and unmet explicit requirements.
+  Leave unrelated pre-existing issues out.
+- Ground standards/spec claims in an actual applicable rule or requirement, not an inferred preference.
+- Treat unsuccessful searches and unrun checks as limitations, not proof that something is broken.
+- Leave tooling-enforced style and generic requests for more tests to tooling. Report a test gap as a
+  finding only when an explicit requirement is unmet or it conceals a demonstrated behavioral defect.
+- Deduplicate by root cause across both passes; assign each finding to the best-fitting axis.
+- Drop unresolved speculation. Mention a material verification blocker briefly instead of presenting
+  it as a confirmed finding. A clean review with limited coverage is not a claim of merge safety.
 
-- **The repo overrides.** A documented repo standard always wins; where it endorses something the baseline would flag, suppress the smell.
-- **Always a judgement call.** Each smell is a labelled heuristic ("possible Feature Envy"), never a hard violation. Like any standard here, skip anything tooling already enforces.
+Prioritize by impact, not by which axis found it:
 
-Each smell reads *what it is* → *how to fix*; match it against the diff:
+- **P0:** critical outage, security exposure, or widespread data loss requiring immediate action.
+- **P1:** a serious bug or requirement failure on a realistic supported path; fix before merge.
+- **P2:** a concrete narrower regression or material standards/spec gap.
+- **P3:** optional design/style judgement; include only when the user requests nits or design feedback.
 
-- **Mysterious Name**: a function, variable, or type whose name doesn't reveal what it does or holds. → rename it; if no honest name comes, the design's murky.
-- **Duplicated Code**: the same logic shape appears in more than one hunk or file in the change. → extract the shared shape, call it from both.
-- **Feature Envy**: a method that reaches into another object's data more than its own. → move the method onto the data it envies.
-- **Data Clumps**: the same few fields or params keep travelling together (a type wanting to be born). → bundle them into one type, pass that.
-- **Primitive Obsession**: a primitive or string standing in for a domain concept that deserves its own type. → give the concept its own small type.
-- **Repeated Switches**: the same `switch`/`if`-cascade on the same type recurs across the change. → replace with polymorphism, or one map both sites share.
-- **Shotgun Surgery**: one logical change forces scattered edits across many files in the diff. → gather what changes together into one module.
-- **Divergent Change**: one file or module is edited for several unrelated reasons. → split so each module changes for one reason.
-- **Speculative Generality**: abstraction, parameters, or hooks added for needs the spec (or, without one, the change's evident purpose) doesn't have. → delete it; inline back until a real need shows.
-- **Message Chains**: long `a.b().c().d()` navigation the caller shouldn't depend on. → hide the walk behind one method on the first object.
-- **Middle Man**: a class or function that mostly just delegates onward. → cut it, call the real target direct.
-- **Refused Bequest**: a subclass or implementer that ignores or overrides most of what it inherits. → drop the inheritance, use composition.
+## 4. Write one compact review
 
-### 4. Run both review passes
+Prepare one canonical set of findings and render it for each destination. Preserve the same wording,
+priorities, ordering, locations, diff excerpts, and verification caveats; only presentation changes.
 
-Do not delegate either pass to a sub-agent. Perform them yourself in this order, keeping their working notes and findings separate.
+- Open with one line: finding count and a brief verdict, or "No actionable findings." Mark incomplete
+  coverage explicitly. Omit numerical confidence scores and repeated worst-finding summaries.
+- Keep **Standards** and **Spec** distinct; number findings within each, highest priority first.
+  Give clean/skipped axes a single status line, not a padded section. For a missing spec,
+  "Spec skipped: no spec found" is enough; keep the search diary out of the report.
+- Each finding: **[priority] consequence title**, `path:line` (or a narrow range), then one short
+  paragraph of **1–3 sentences, at most 60 words**: trigger → mechanism → impact. Add a fix only if
+  non-obvious. Cite the relevant rule/requirement inline with a short source anchor rather than
+  repeating a "Context used" or "Spec" quotation block.
+- Attach a small, verbatim excerpt from the reviewed diff, usually **3–8 lines**, retaining `+`/`-`
+  markers. Show the changed code, not an invented fix. For a missing requirement with no relevant
+  hunk, cite its source instead of manufacturing a diff.
+- End with compact scope and check metadata: reviewed range/SHAs, spec source if any, checks actually
+  run and material checks not run. Keep this to one or two lines, not a narrative summary.
+- Aim for **under 400 words of prose**. Preserve all verified P0–P2 findings even if that exceeds the
+  target: brevity comes from filtering noise and compressing explanations, not hiding real defects.
 
-**Standards pass:**
+### Terminal rendering
 
-- Review the full diff and commit list.
-- Use the standards-source files found in step 3 and the complete smell baseline above.
-- Report, at its `path:line`: (a) every place the diff violates a documented standard, citing the standard file and rule; and (b) any baseline smell, naming it.
-- Distinguish hard violations from judgement calls: documented-standard breaches can be hard (`P0`–`P2`), but baseline smells are always `P3` judgement calls, and a documented repository standard overrides the baseline.
-- Skip anything tooling already enforces.
-
-**Spec pass:**
-
-- Review the same diff and commit list against the path or fetched contents of the specification.
-- Report: (a) requirements that are missing or partial; (b) behavior that was not requested (scope creep); and (c) requirements that appear implemented but whose implementation is wrong.
-- Quote the relevant specification line for each finding.
-
-If no specification was found, skip the Spec pass and, under `## Spec`, report "Skipped: no spec found" followed by the sources checked.
-
-### 5. Present the result
-
-Write the report in GitLab-flavoured Markdown, so it pastes unchanged into an MR note:
-
-```markdown
-## Confidence Score: <1-5>/5
-
-<Verdict, 1-2 sentences: whether the change is ready to merge, naming the worst finding of each axis.>
-
-## Standards
-
-1. ![P2](https://img.shields.io/badge/P2-daff01?style=flat-square) **<Consequence title>** · `<path>:<line>`
-
-   <Finding body.>
-
-   **Context used:** `<standards file>`: "<quoted rule>"
-
-## Spec
-
-1. ![P1](https://img.shields.io/badge/P1-ff9c7f?style=flat-square) **<Consequence title>** · `<path>:<line>`
-
-   <Finding body.>
-
-   **Spec:** "<quoted spec line>"
-
-<details><summary>Summary</summary>
-
-<One sentence: what the change does.>
-- <Notable change, coverage added, or caveat.>
-
-</details>
-
-<sub>Reviewed `<fixed-point>...HEAD` (<N> commits) · Last commit: `<short-sha>` <subject> · Spec: <source, or "none found"></sub>
-```
-
-Priorities, each rendered as a coloured badge `![Pn](https://img.shields.io/badge/Pn-<colour>?style=flat-square)` (Greptile's palette):
-
-- `P0` (`ff6d6d`): breaks production: data loss or corruption, a security hole, a crash on a common path.
-- `P1` (`ff9c7f`): a real bug, or a spec requirement missing or implemented wrong. Fix before merge.
-- `P2` (`daff01`): a documented-standard violation, a partial requirement, scope creep, or a bug on a rare path.
-- `P3` (`c4c4c4`): a judgement call: every baseline smell, and minor nits.
-
-Findings:
-
-- Number findings within each axis, ordered by priority. Keep the axes in separate sections: merging or reranking across them defeats the separation (see _Why two axes_).
-- Title each finding with the consequence, what goes wrong for users or data, in a few words: "Manual invoices remain excluded", "Tariff column left blank". For a smell, title it "Possible <smell>: <what it costs>".
-- Write the body as one impact paragraph: the triggering condition, the mechanism in the code, the consequence, and the evidence it is real (for example, a test that sets up state the production path never produces). Add a one-sentence fix only when the fix is non-obvious.
-- Score confidence from the worst finding across both axes: `5` nothing above `P3`, `4` at worst `P2`, `3` one `P1`, `2` several `P1`, `1` any `P0`. The score is a merge verdict, not a ranking: the verdict still names each axis's worst finding separately.
-- Write "No findings." under a clean axis, so a clean pass is distinguishable from a skipped one.
-
-## Why two axes
-
-A change can pass one axis and fail the other:
-
-- Code that follows every standard but implements the wrong thing → **Standards pass, Spec fail.**
-- Code that does exactly what the issue asked but breaks the project's conventions → **Spec pass, Standards fail.**
-
-Reporting them separately stops one axis from masking the other.
+Use terminal-friendly Markdown: short headings, numbered findings, bold titles, backticked locations,
+and fenced `diff` blocks for the excerpts. Let the terminal renderer supply highlighting; avoid raw
+ANSI escapes, image badges, HTML, and wide tables. Show relevant hunks beside the findings, not the
+entire branch patch unless requested. Append the posted MR note URL or a one-line publication blocker.
