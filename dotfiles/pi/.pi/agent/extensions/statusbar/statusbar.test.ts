@@ -35,17 +35,17 @@ function harness() {
   return { statuses, start: () => start({}, ctx), render: (width = 120) => render(width)[0] };
 }
 
-test('shows Fast mode from pi-openai, without relying on provider usage reporting', async () => {
+test('shows Fast mode from pi-model-controls, without relying on provider usage reporting', async () => {
   const runtime = harness();
   await runtime.start();
   assert.ok(!runtime.render().includes(' · fast'));
 
-  runtime.statuses.set('pi-openai', 'fast');
+  runtime.statuses.set('pi-model-controls', 'fast');
   assert.ok(runtime.render().includes('gpt-6.1-sol · high · fast · Test session'));
-  runtime.statuses.set('pi-openai', 'ultrafast');
+  runtime.statuses.set('pi-model-controls', 'ultrafast');
   assert.ok(runtime.render().includes('gpt-6.1-sol · high · ultrafast · Test session'));
 
-  runtime.statuses.delete('pi-openai');
+  runtime.statuses.delete('pi-model-controls');
   runtime.statuses.set('usage', 'codex fast 59%');
   assert.ok(!runtime.render().includes(' · fast'));
 });
@@ -53,12 +53,12 @@ test('shows Fast mode from pi-openai, without relying on provider usage reportin
 test('keeps Fast mode and safety indicators within narrow footer widths', async () => {
   const runtime = harness();
   await runtime.start();
-  runtime.statuses.set('pi-openai', 'fast');
+  runtime.statuses.set('pi-model-controls', 'fast');
   runtime.statuses.set('pi-safety', '🛡 disabled');
 
   assert.ok(runtime.render().includes('🛡 disabled · 25%'));
   for (const speed of ['fast', 'ultrafast']) {
-    runtime.statuses.set('pi-openai', speed);
+    runtime.statuses.set('pi-model-controls', speed);
     for (const width of [1, 10, 40, 80]) {
       assert.ok(visibleWidth(runtime.render(width)) <= width);
     }

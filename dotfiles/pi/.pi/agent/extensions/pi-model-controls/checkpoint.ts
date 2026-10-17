@@ -65,7 +65,7 @@ export function fingerprint(message: Message): string {
 export function marker(id: string): string {
   return [
     `[PI_CODEX_REMOTE_CHECKPOINT:${id}] Opaque checkpoint injection failed.`,
-    'Do not infer missing history; tell the user to re-enable pi-openai with the same Codex model.',
+    'Do not infer missing history; tell the user to re-enable pi-model-controls with the same Codex model.',
   ].join(' ');
 }
 

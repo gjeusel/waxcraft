@@ -132,7 +132,7 @@ export function registerCodexCompaction(pi: ExtensionAPI): void {
     const key = `${ctx.sessionManager.getBranch().at(-1)?.id}:${routeKey(ctx.model)}`;
     if (owner.warnings.has(key)) return;
     owner.warnings.add(key);
-    ctx.ui.notify('Opaque Codex checkpoint could not replay safely; older context is unavailable on this request. Use the original model with pi-openai enabled.', 'warning');
+    ctx.ui.notify('Opaque Codex checkpoint could not replay safely; older context is unavailable on this request. Use the original model with pi-model-controls enabled.', 'warning');
   };
 
   pi.registerCommand('codex-compact', {
@@ -272,7 +272,7 @@ export function registerCodexCompaction(pi: ExtensionAPI): void {
       const history = replacementHistory(sentInput, collector.finish());
       const details = createCheckpoint(model, history, kept);
       return { compaction: {
-        summary: `Responses compaction checkpoint ${details.checkpointId} stores older history opaquely. Full replay requires pi-openai and the same Codex model; without them only retained recent messages are available.`,
+        summary: `Responses compaction checkpoint ${details.checkpointId} stores older history opaquely. Full replay requires pi-model-controls and the same Codex model; without them only retained recent messages are available.`,
         firstKeptEntryId: event.preparation.firstKeptEntryId, tokensBefore: event.preparation.tokensBefore,
         usage, details,
       } };

@@ -50,7 +50,7 @@ test('the patched billing block survives final request checksum generation', asy
 
 test('Fast mode survives native Anthropic SDK serialization and Black OAuth checksumming', { timeout: 10_000 }, async () => {
   const modules = [
-    fileURLToPath(new URL('../extensions/pi-openai/fast.ts', import.meta.url)),
+    fileURLToPath(new URL('../extensions/pi-model-controls/fast.ts', import.meta.url)),
     join(agentDir, packagePath, 'src/anthropic-provider.ts'),
   ].map(path => {
     const moduleExports = {};

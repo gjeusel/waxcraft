@@ -1,13 +1,11 @@
-import { randomUUID } from 'node:crypto';
-import { mkdirSync, readFileSync, realpathSync, renameSync, unlinkSync, writeFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
 import type { ExtensionAPI, ExtensionContext } from '@earendil-works/pi-coding-agent';
 import { Container, Key, SelectList, Text, truncateToWidth } from '@earendil-works/pi-tui';
 
-const MAX_CONFIG_BYTES = 64 * 1024;
-
 type Model = ExtensionContext['model'];
 type SpeedMode = 'normal' | 'fast' | 'ultrafast';
+type SpeedState = { version: 1; openai: SpeedMode; anthropic: 'normal' | 'fast' };
+
+export const SPEED_ENTRY_TYPE = 'pi-speed-mode';
 
 const ANTHROPIC_FAST_BETA = 'fast-mode-2026-02-01';
 
@@ -86,80 +84,13 @@ export function rewriteFastPayload(
   return { ...request, speed: 'fast', betas: [...new Set([...betas, ANTHROPIC_FAST_BETA])] };
 }
 
-function readConfig(path: string): Record<string, unknown> {
-  let text: string;
-  try {
-    text = readFileSync(path, 'utf8');
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return {};
-
-    throw error;
-  }
-
-  if (Buffer.byteLength(text) > MAX_CONFIG_BYTES) throw new Error('settings exceed 64 KiB');
-
-  const parsed: unknown = JSON.parse(text);
-  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
-    throw new Error('expected a JSON object');
-  }
-
-  const config = parsed as Record<string, unknown>;
-  for (const key of ['fastMode', 'ultrafastMode']) {
-    if (config[key] !== undefined && typeof config[key] !== 'boolean') {
-      throw new Error(`${key} must be a boolean`);
-    }
-  }
-
-  return config;
-}
-
-export function loadFastMode(path: string): boolean {
-  return readConfig(path).fastMode === true;
-}
-
-export function loadUltrafastMode(path: string): boolean {
-  return readConfig(path).ultrafastMode === true;
-}
-
-/** Atomic writes target the real file so toggling never replaces a Stow symlink. */
-export function saveFastMode(path: string, enabled: boolean, ultrafast = false): void {
-  const config = readConfig(path);
-  let target: string;
-  try {
-    target = realpathSync(path);
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
-
-    target = resolve(path);
-  }
-
-  mkdirSync(dirname(target), { recursive: true });
-  const temporary = `${target}.${randomUUID()}.tmp`;
-  try {
-    const updated: Record<string, unknown> = { ...config, fastMode: enabled };
-    if (ultrafast || config.ultrafastMode !== undefined) updated.ultrafastMode = enabled && ultrafast;
-
-    writeFileSync(temporary, `${JSON.stringify(updated, null, 2)}\n`, {
-      flag: 'wx',
-      mode: 0o600,
-    });
-    renameSync(temporary, target);
-  } finally {
-    try {
-      unlinkSync(temporary);
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
-    }
-  }
-}
-
-export function registerFastMode(pi: ExtensionAPI, configPath: string, anthropicConfigPath: string): void {
+export function registerFastMode(pi: ExtensionAPI): void {
   const modes = {
     openai: {
-      path: configPath, label: 'OpenAI', enabled: false, ultrafast: false, supports: isOfficialOpenAIModel,
+      label: 'OpenAI', enabled: false, ultrafast: false, supports: isOfficialOpenAIModel,
     },
     anthropic: {
-      path: anthropicConfigPath, label: 'Anthropic', enabled: false, ultrafast: false, supports: isAnthropicFastModel,
+      label: 'Anthropic', enabled: false, ultrafast: false, supports: isAnthropicFastModel,
     },
   };
 
@@ -170,7 +101,15 @@ export function registerFastMode(pi: ExtensionAPI, configPath: string, anthropic
   function refreshStatus(ctx: ExtensionContext): void {
     const mode = currentMode(ctx);
     const speed = mode.ultrafast ? 'ultrafast' : 'fast';
-    ctx.ui.setStatus('pi-openai', mode.enabled && mode.supports(ctx.model) ? speed : undefined);
+    ctx.ui.setStatus('pi-model-controls', mode.enabled && mode.supports(ctx.model) ? speed : undefined);
+  }
+
+  function snapshot(): SpeedState {
+    return {
+      version: 1,
+      openai: modes.openai.enabled ? (modes.openai.ultrafast ? 'ultrafast' : 'fast') : 'normal',
+      anthropic: modes.anthropic.enabled ? 'fast' : 'normal',
+    };
   }
 
   function applySpeed(ctx: ExtensionContext, speed: SpeedMode): void {
@@ -190,11 +129,19 @@ export function registerFastMode(pi: ExtensionAPI, configPath: string, anthropic
       return;
     }
 
+    const previous = snapshot();
+    const provider = mode === modes.anthropic ? 'anthropic' : 'openai';
     try {
-      saveFastMode(mode.path, enabled, ultrafast);
+      pi.appendEntry(SPEED_ENTRY_TYPE, { ...previous, [provider]: speed });
     } catch (error) {
+      // Pi appends in memory before persisting. Restore the prior snapshot even if the disk
+      // failure also affects compensation, so a reload cannot enable a failed paid-speed change.
+      try {
+        pi.appendEntry(SPEED_ENTRY_TYPE, previous);
+      } catch { /* Preserve the original write error. */ }
+
       const reason = error instanceof Error ? error.message : String(error);
-      ctx.ui.notify(`Could not save ${mode.label} Fast settings: ${reason}`, 'error');
+      ctx.ui.notify(`Could not save ${mode.label} speed in session history: ${reason}`, 'error');
       return;
     }
 
@@ -207,12 +154,14 @@ export function registerFastMode(pi: ExtensionAPI, configPath: string, anthropic
     ctx.ui.notify(enabled ? enabledNotice : `${mode.label} Fast mode off; standard routing.`, 'info');
   }
 
+  let sessionGeneration = 0;
   let selecting = false;
   pi.registerShortcut(Key.ctrlShift(';'), {
     description: 'Select Normal, Fast, or Ultrafast routing',
     handler: async (ctx) => {
       if (ctx.mode !== 'tui' || selecting) return;
 
+      const generation = sessionGeneration;
       const model = ctx.model;
       const mode = currentMode(ctx);
       const current: SpeedMode = mode.enabled ? (mode.ultrafast ? 'ultrafast' : 'fast') : 'normal';
@@ -276,6 +225,11 @@ export function registerFastMode(pi: ExtensionAPI, configPath: string, anthropic
         });
         if (selected === undefined) return;
 
+        if (generation !== sessionGeneration) {
+          ctx.ui.notify('Session changed while selecting speed; reopen the selector.', 'warning');
+          return;
+        }
+
         if (ctx.model !== model) {
           ctx.ui.notify('Model changed while selecting speed; reopen the selector.', 'warning');
           return;
@@ -289,23 +243,38 @@ export function registerFastMode(pi: ExtensionAPI, configPath: string, anthropic
   });
 
   pi.on('session_start', (_event, ctx) => {
+    sessionGeneration++;
     for (const mode of Object.values(modes)) {
       mode.enabled = false;
       mode.ultrafast = false;
-      try {
-        const config = readConfig(mode.path);
-        mode.ultrafast = mode === modes.openai && config.ultrafastMode === true;
-        mode.enabled = config.fastMode === true || mode.ultrafast;
-      } catch (error) {
-        mode.enabled = false;
-        mode.ultrafast = false;
-        const reason = error instanceof Error ? error.message : String(error);
-        ctx.ui.notify(`${mode.label}: invalid settings (${reason}); Fast mode is off.`, 'warning');
+    }
+
+    // Speed is a discussion preference: navigating /tree must not undo a user's paid-tier choice.
+    const entries = ctx.sessionManager.getEntries();
+    for (let index = entries.length - 1; index >= 0; index--) {
+      const entry = entries[index];
+      if (entry.type !== 'custom' || entry.customType !== SPEED_ENTRY_TYPE) continue;
+
+      const saved = entry.data;
+      const data = typeof saved === 'object' && saved !== null && !Array.isArray(saved)
+        ? saved as Record<string, unknown> : undefined;
+      const validOpenAI = data?.openai === 'normal' || data?.openai === 'fast' || data?.openai === 'ultrafast';
+      const validAnthropic = data?.anthropic === 'normal' || data?.anthropic === 'fast';
+      if (data?.version !== 1 || !validOpenAI || !validAnthropic) {
+        ctx.ui.notify('Invalid speed state in session history; using Normal mode.', 'warning');
+        break;
       }
+
+      modes.openai.enabled = data.openai !== 'normal';
+      modes.openai.ultrafast = data.openai === 'ultrafast';
+      modes.anthropic.enabled = data.anthropic === 'fast';
+      break;
     }
 
     refreshStatus(ctx);
   });
+
+  pi.on('session_shutdown', () => { sessionGeneration++; });
 
   pi.on('model_select', (event, ctx) => {
     const leavingUltrafast = modes.openai.enabled && modes.openai.ultrafast &&

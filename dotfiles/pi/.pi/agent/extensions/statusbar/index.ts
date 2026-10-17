@@ -31,7 +31,7 @@ export default function (pi: ExtensionAPI) {
           let left = cwd;
 
           const extensionStatuses = footerData.getExtensionStatuses();
-          const speed = extensionStatuses.get('pi-openai');
+          const speed = extensionStatuses.get('pi-model-controls');
           const speedLabel = speed === 'fast' || speed === 'ultrafast' ? speed : undefined;
           const sessionName = pi.getSessionName();
           const truncatedSessionName = sessionName

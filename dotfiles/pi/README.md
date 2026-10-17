@@ -123,7 +123,7 @@ extensions/
 ├── peek-document/          read PDF and Office files
 ├── per-model-prompt/       model-specific directives
 ├── pi-builtin-adjustments/ quieter built-ins
-├── pi-openai/              OpenAI/Anthropic speed controls and Codex server compaction
+├── pi-model-controls/      OpenAI/Anthropic speed controls and Codex server compaction
 ├── pi-safety/              Bash command checks, decisions auto mode, and safe deletion shims
 ├── python-code/            sandboxed Python
 ├── rant/                   log preventable failures
@@ -148,9 +148,9 @@ skill carries the page-building guidance.
 Per-model default effort levels use Pi's native `modelThinkingLevels` setting in `settings.json`,
 keyed by exact `provider/modelId`; it applies at startup and on every model switch.
 
-### Pi OpenAI
+### Pi Model Controls
 
-`pi-openai` replaces `@narumitw/pi-usage` and `@narumitw/pi-codex-compact`. It hosts the shared
+`pi-model-controls` replaces `@narumitw/pi-usage` and `@narumitw/pi-codex-compact`. It hosts the shared
 speed commands, plus compaction for the official `openai-codex` provider. It makes no usage/quota
 or entitlement queries.
 
@@ -164,28 +164,34 @@ muted, Fast green, and Ultrafast amber (theme colors). The current mode is prese
 use ↑/↓ and Enter to apply, or Esc to cancel. Ultrafast is marked unavailable on Anthropic.
 Selections use the same saved preferences and next-request behavior as the commands.
 
+Speed preferences live in each discussion's Pi session history as `pi-speed-mode` custom entries,
+not configuration files, and are not sent to the model. New discussions start in **Normal**;
+`/resume`, restarts, and `/reload` restore the saved OpenAI and Anthropic choices. `/tree` does
+not undo a speed choice within that discussion. Forks/clones inherit the choice in their copied
+history and then remain independent. With `--no-session`, choices last only for the in-memory
+session. Choices made before the first message are flushed when Pi first saves the conversation.
+Legacy `pi-openai.json` and `pi-anthropic.json` files are ignored, not imported.
+
 - **OpenAI and Codex:** `/fast on` sends `service_tier: "priority"`; `/ultrafast on` sends
   [`service_tier: "ultrafast"`](https://developers.openai.com/api/docs/guides/ultrafast-mode).
   Both official OpenAI Responses/Chat Completions and Codex endpoints are accepted, without a
   model allowlist: the backend decides support and entitlement. `/fast on` replaces Ultrafast
   with priority. `/fast off` disables either tier; `/ultrafast off` disables Ultrafast without
   changing an existing priority preference. Disabled routing sends `service_tier: "default"`.
-  Preferences share `~/.pi/agent/pi-openai.json`: `fastMode` enables accelerated routing and
-  `ultrafastMode: true` selects Ultrafast. Missing values default to `false`; the repository's
-  existing `fastMode` preference is preserved. Both status commands report current routing.
-  Higher API prices or plan usage apply; Codex support for Ultrafast is not guaranteed by the
-  API documentation. Requests use Pi's existing transport, without forcing WebSockets.
+  OpenAI and Codex share one discussion-local speed preference. Both status commands report
+  current routing. Higher API prices or plan usage apply; Codex support for Ultrafast is not
+  guaranteed by the API documentation. Requests use Pi's existing transport, without forcing WebSockets.
 - **Anthropic:** `/fast on` sends `speed: "fast"` and appends `fast-mode-2026-02-01` to Pi's
   existing beta list. Pi Black `v0.84.1-cc2.1.280.1` preserves these fields and signs the final
   serialized body; no provider replacement or additional patch is needed. This also works with
   API-key authentication. Every model on the official Anthropic Messages endpoint is accepted,
   without a model allowlist: the backend decides support and entitlement, and models are never
   automatically switched. `/fast off` leaves the native request untouched (standard speed).
-  The independent preference is `~/.pi/agent/pi-anthropic.json` (`fastMode`, default `false`),
-  created by the command without needing a tracked config file. Switching away from the endpoint
-  hides the indicator; returning restores the saved preference. Switching directly from OpenAI
-  Ultrafast to Anthropic enables and saves Fast instead of dropping to Normal; switching back
-  restores OpenAI Ultrafast. An explicit Normal selection remains effective until such a switch.
+  Anthropic has an independent preference in the same discussion history. Switching away from
+  the endpoint hides the indicator; returning restores the saved preference. Switching directly
+  from OpenAI Ultrafast to Anthropic enables and saves Fast instead of dropping to Normal;
+  switching back restores OpenAI Ultrafast. An explicit Normal selection remains effective until
+  such a switch.
   The `/ultrafast` command itself is OpenAI-only and never changes Anthropic preferences.
 
 [Anthropic Fast mode](https://code.claude.com/docs/en/fast-mode) uses **paid usage credits, not
@@ -214,9 +220,14 @@ warning about unavailable older context. Return to the original model to replay 
 extension for sessions with opaque history. The old `pi-usage.json` and `pi-codex-compact.json`
 settings are no longer used.
 
-For the speed-control update, existing linked files are edited in place: run `/reload` or restart Pi;
-no restow is needed. When first adding the extension, restow the Pi package before `/reload`, since
-reload alone cannot discover files that have not been linked into `~/.pi/agent/` yet.
+The extension was renamed from `pi-openai` to `pi-model-controls`; session speed entries and
+Codex checkpoint formats are unchanged. The tracked `pi-openai.json` is also removed. Restow the
+Pi package to relink the renamed directory and remove obsolete symlinks, then run `/reload` or
+restart Pi. Reload alone cannot discover files that have not been linked into `~/.pi/agent/` yet:
+
+```sh
+stow --no-folding --dir dotfiles --target "$HOME" --restow pi
+```
 
 ### Auto-name
 
