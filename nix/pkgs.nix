@@ -170,7 +170,6 @@
     # ----- daily life -----
     # spotify # https://github.com/NixOS/nixpkgs/issues/465676
     zoom-us # video conferencing application
-    discord
 
     # NOTE: Once launchd is fixed on Sequoia, we might define them from nixpkgs.
     #       See: https://github.com/nix-darwin/nix-darwin/issues/1255

@@ -58,6 +58,7 @@
       "signal"
       "viber" # phone calls
       "telegram"
+      "discord" # nixpkgs adds modules inside the signed bundle, so Gatekeeper kills it
 
       "karabiner-elements" # keyboards maps
       "aldente" # set Charge Limits and Prolong Battery Lifespan
