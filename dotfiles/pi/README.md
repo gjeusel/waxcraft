@@ -446,7 +446,7 @@ handled entries. Keep denied cases and infrastructure safeguards distinct from r
 a one-off approval is not blanket permission. Confidence-floor, policy-file, and shell-rule asks may
 need a different fix than prompt wording.
 
-The kubectl/Helm mutation rules carry `autoMode: "ask"`: with auto mode **on**, they require explicit
+The kubectl/Helm mutation and Gmail send/delete rules carry `autoMode: "ask"`: with auto mode **on**, they require explicit
 approval even if the classifier returns `allow`; with auto mode **off**, they remain hard denies.
 The classifier still checks the full command and can deny other dangerous effects. A rule-based ask
 never hides another hard deny in the same command or nested script. Other deterministic rules remain

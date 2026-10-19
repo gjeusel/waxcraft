@@ -377,6 +377,8 @@ for (const enabled of [false, true]) {
         'kubectl rollout restart deployment/worker', 'kubectl rollout resume deployment/worker',
         'kubectl rollout undo deployment/worker', 'helm install worker ./chart',
         'helm upgrade worker ./chart', 'helm uninstall worker', 'helm delete worker', 'helm rollback worker 1',
+        'gws gmail +send --to recipient@example.com --subject Hi --body Hi',
+        'gws gmail +reply --message-id abc --body Hi', 'gws gmail users messages trash --params userId=me,id=abc',
       ]) {
         const event = { type: 'tool_call', toolName: 'bash', input: { command } };
         const result = await toolCall(event, accepting.ctx);

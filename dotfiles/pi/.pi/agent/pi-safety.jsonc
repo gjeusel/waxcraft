@@ -69,7 +69,8 @@
             "trash"
           ]
         },
-        "reason": "sending or deleting Gmail messages is user-controlled; only draft creation and updates are allowed"
+        "reason": "sending or deleting Gmail messages is user-controlled; only draft creation and updates are allowed",
+        "autoMode": "ask"
       }
     ]
   },
