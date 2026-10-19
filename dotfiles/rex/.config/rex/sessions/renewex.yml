@@ -1,0 +1,71 @@
+# Rex port of dotfiles/tmux/.config/tmuxp/renewex.yml, loaded by sessions.lua: run
+# "Open Session: renewex" from the command palette, or `rex do session_renewex`.
+#
+# Keys follow tmuxp where they mean the same thing. A window's `layout` is a pane, or a split of
+# two layouts: `split: right` places the second beside the first, `split: down` below it, and
+# `ratio` is the first one's share (default 0.5). A pane accepts `focus`, `shell_command` and
+# `start_directory`; a window's `shell_command_before` is typed in each of its panes first.
+
+session_name: renewex
+
+# Not read by the loader: shared layouts for the windows below to reference.
+layouts:
+  # editor | pi, shell below (tmux layout 2273)
+  agent: &agent
+    split: down
+    ratio: 0.77
+    panes:
+      - split: right
+        panes:
+          - focus: true
+          - shell_command: pi
+      - {}
+
+  # editor, shell below (tmux layout 7066)
+  editor: &editor
+    split: down
+    ratio: 0.77
+    panes:
+      - focus: true
+      - {}
+
+  # editor | shell (tmux layout aa80, which had a third cell for two panes)
+  side: &side
+    split: right
+    panes:
+      - focus: true
+      - {}
+
+windows:
+  - window_name: rnx-cli
+    start_directory: ~/src/rnx-cli
+    shell_command_before: mamba activate rnx-cli
+    layout: *agent
+
+  - window_name: zefire
+    focus: true
+    start_directory: ~/src/zefire
+    shell_command_before: mamba activate zefire-prev
+    layout: *agent
+
+  - window_name: venturi
+    start_directory: ~/src/venturi
+    shell_command_before: mamba activate venturi
+    layout: *agent
+
+  - window_name: zf-spa
+    start_directory: ~/src/rnux/apps/zefire-spa
+    layout: *editor
+
+  - window_name: devops
+    start_directory: ~/src/cloud-renewex
+    layout: *side
+
+  - window_name: anthracit
+    start_directory: ~/src/anthracit
+    shell_command_before: source .venv/bin/activate
+    layout: *agent
+
+  - window_name: wax
+    start_directory: ~/src/waxcraft
+    layout: *side

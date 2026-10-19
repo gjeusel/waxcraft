@@ -1,0 +1,25 @@
+# Rex port of dotfiles/tmux/.config/tmuxp/freetime.yml: run "Open Session: freetime" from the
+# command palette, or `rex do session_freetime`. sessions/renewex.yml documents the format.
+
+session_name: freetime
+
+# Not read by the loader: shared layouts for the windows below to reference.
+layouts:
+  # neofetch, shell below (tmux layout 7066)
+  editor: &editor
+    split: down
+    ratio: 0.77
+    panes:
+      - focus: true
+        shell_command: neofetch
+      - {}
+
+windows:
+  - window_name: picolehub
+    start_directory: ~/src/picolehub
+    layout: *editor
+
+  - window_name: nvim
+    focus: true
+    start_directory: ~/src/waxcraft
+    layout: *editor

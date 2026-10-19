@@ -325,6 +325,11 @@ in {
         sailingMode = 0;
       };
       "com.apple.ActivityMonitor".DisplayType = 0; # CPU tab (no typed nix-darwin option)
+      # Rex: appearance lives in app preferences; key bindings in dotfiles/rex
+      "com.superlogical.rex" = {
+        "Workspace.terminalFontPointSize" = 16.0;
+        "Workspace.balancesSplitsOnCreation" = false; # a split only takes from the split pane
+      };
       # Transmission
       "org.m0k.transmission" = {
         WarningDonate = 0;

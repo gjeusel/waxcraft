@@ -214,6 +214,10 @@ if = '''test %{app-bundle-id} ~= '^(com\.brave\.Browser|com\.google\.Chrome|org\
 run = 'layout floating'
 
 [[on-window-detected]]
+if.app-id = 'com.superlogical.rex' # Rex terminal
+run = 'move-node-to-workspace 1'
+
+[[on-window-detected]]
 if.app-id = 'com.apple.systempreferences' # System Settings
 run = ['layout floating', 'move-node-to-workspace 0']
 
