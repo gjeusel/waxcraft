@@ -55,6 +55,5 @@
   "vim-startify": { "branch": "master", "commit": "4e089dffdad46f3f5593f34362d530e8fe823dcf" },
   "vim-startuptime": { "branch": "master", "commit": "5f33e50f1e2e2a80370c9094e4c303ea54cd2aea" },
   "vim-test": { "branch": "master", "commit": "0ea8ee90e056118343d843a4406644de5e6b37ea" },
-  "vim-tmux-navigator": { "branch": "master", "commit": "e41c431a0c7b7388ae7ba341f01a0d217eb3a432" },
   "vscode-js-debug": { "branch": "main", "commit": "496a6f1a4fc8198bcd563f97b84a07aa39917404" }
 }

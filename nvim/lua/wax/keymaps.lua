@@ -119,6 +119,13 @@ vim.keymap.set("n", "J", "mzJ`z")
 -- Paste without losing what's in register (Fails in case of block highlight)
 vim.keymap.set("v", "<leader>p", '"_dP')
 
+-- Move between splits, then tmux or Rex panes from the edge split
+for key, direction in pairs({ h = "left", j = "down", k = "up", l = "right" }) do
+  vim.keymap.set("n", "<C-" .. key .. ">", function()
+    require("wax.navigator").navigate(direction)
+  end, { desc = "Navigate " .. direction })
+end
+
 -- From the ThePrimeagen (recenter on vertical movements)
 -- vim.keymap.set("n", "<C-d>", "<C-d>zz")  -- laggy
 -- vim.keymap.set("n", "<C-u>", "<C-u>zz")

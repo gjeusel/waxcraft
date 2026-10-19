@@ -464,21 +464,6 @@ return {
     },
   },
   {
-    "christoomey/vim-tmux-navigator", -- tmux navigation in love with vim
-    event = "VeryLazy",
-    keys = {
-      { "<c-j>", "<cmd>TmuxNavigateDown<cr>", desc = "Tmux Navigate Down", mode = "n" },
-      { "<c-k>", "<cmd>TmuxNavigateUp<cr>", desc = "Tmux Navigate Up", mode = "n" },
-      { "<c-l>", "<cmd>TmuxNavigateRight<cr>", desc = "Tmux Navigate Right", mode = "n" },
-      { "<c-h>", "<cmd>TmuxNavigateLeft<cr>", desc = "Tmux Navigate Left", mode = "n" },
-    },
-    init = function()
-      -- tmux, disable tmux navigator when zooming the Vim pane
-      vim.g.tmux_navigator_disable_when_zoomed = 1
-      vim.g.tmux_navigator_no_mappings = 1 -- custom ones below regarding modes
-    end,
-  },
-  {
     "vim-test/vim-test",
     event = "VeryLazy",
     config = function()
