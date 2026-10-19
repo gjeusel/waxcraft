@@ -12,7 +12,8 @@ local M = {}
 local wincmd_keys = { left = "h", down = "j", up = "k", right = "l" }
 local tmux_flags = { left = "-L", down = "-D", up = "-U", right = "-R" }
 
--- Runs on the Rex server with `rex do -e`, which takes the block from REX_BLOCK.
+-- Runs on the Rex server with `rex do -e`, which takes the block from REX_BLOCK. The `navigate`
+-- action of dotfiles/rex init.lua prefers the pane used last, like tmux.
 local rex_script = [[
 local view, err = rex.session.view({})
 if view == nil then
@@ -25,7 +26,7 @@ for _, window in ipairs(view.windows) do
   end
 end
 
-_, err = rex.session.focus_direction({ direction = rex.args.direction, wrap = true })
+_, err = rex.invoke("navigate", { direction = rex.args.direction })
 if err ~= nil then
   error(err, 0)
 end
