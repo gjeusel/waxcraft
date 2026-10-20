@@ -9,6 +9,7 @@
   "defaultModel": "claude-opus-5-5",
   "defaultThinkingLevel": "high",
   "hideThinkingBlock": true,
+  "showHardwareCursor": true,
   "enabledModels": [
     "openai-codex/gpt-6-astra",
     "openai-codex/gpt-6.1-sol",
