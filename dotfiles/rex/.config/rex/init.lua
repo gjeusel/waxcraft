@@ -188,3 +188,8 @@ rex.bind("cmd+enter", "pane.send_key", { key = "enter" })
 
 -- ctrl+enter types Return instead of an encoded key (ESC[27;5;13~) that shells print as `5;13~`.
 rex.bind("ctrl+enter", "pane.send_key", { key = "enter" })
+
+-- cmd+up/down scroll to the previous or next shell prompt, as Ghostty's jump_to_prompt. Rex has no
+-- line or page scroll action. Needs the OSC 133 prompt marks set up in zsh/init.zsh.
+rex.bind("cmd+up", "client.prompt.previous")
+rex.bind("cmd+down", "client.prompt.next")

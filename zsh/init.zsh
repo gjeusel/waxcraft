@@ -155,6 +155,17 @@ source "${ZINIT_HOME}/zinit.zsh"
 zinit ice pick"async.zsh" src"pure.zsh"
 zinit light sindresorhus/pure
 
+# Mark prompts and commands with OSC 133, which pure doesn't do, so Rex can jump between prompts
+# (cmd+up/down). Ghostty injects its own shell integration, and tmux sets TERM_PROGRAM=tmux.
+if [[ $TERM_PROGRAM == rex ]]; then
+  _rex_mark_prompt() { print -n -- "\e]133;D;$?\a\e]133;A\a" }
+  _rex_mark_command() { print -n -- "\e]133;C\a" }
+
+  # First, to see the command's exit status before other hooks change it.
+  precmd_functions=(_rex_mark_prompt $precmd_functions)
+  preexec_functions+=(_rex_mark_command)
+fi
+
 zinit ice wait lucid
 zinit light zsh-users/zsh-history-substring-search  # history ctrl-p / arrow up
 
