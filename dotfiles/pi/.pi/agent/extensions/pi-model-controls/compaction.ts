@@ -1,16 +1,18 @@
 import {
   buildSessionProjection,
   convertToLlm,
+  type CompactionEntry,
   type ExtensionAPI,
   type ExtensionContext,
   type SessionBeforeCompactEvent,
+  type SessionEntry,
 } from '@earendil-works/pi-coding-agent';
 import {
-  activeCheckpoint, bytes, createCheckpoint, HISTORY_BYTES, isObject,
+  activeCheckpoint, bytes, createCheckpoint, HISTORY_BYTES, isObject, ITEM_BYTES,
   projectCheckpoint, replacementHistory, rewriteMarker, stableJson, validateItem,
   type Checkpoint, type JsonObject,
 } from './checkpoint.ts';
-import { isOfficialCodexModel } from './fast.ts';
+import { isAnthropicFastModel, isOfficialCodexModel } from './fast.ts';
 
 type Model = NonNullable<ExtensionContext['model']>;
 type CodexModel = Model & { api: 'openai-codex-responses' };
@@ -330,5 +332,288 @@ export function registerCodexCompaction(pi: ExtensionAPI): void {
   pi.on('session_shutdown', (_event, ctx) => {
     ownerFor(ctx).lifetime.abort();
     cancelOperation(ctx);
+  });
+}
+
+export const ANTHROPIC_COMPACTION_KIND = 'pi-anthropic-compaction';
+export const ANTHROPIC_COMPACTION_BETA = 'compact-2026-09-04';
+
+export interface AnthropicCheckpoint {
+  kind: typeof ANTHROPIC_COMPACTION_KIND;
+  version: 1;
+  provider: string;
+  api: string;
+  modelId: string;
+  /** Signed `compaction` block, kept exactly as Anthropic returned it. */
+  block: JsonObject;
+  createdAt: string;
+}
+
+function validateAnthropicBlock(value: unknown): JsonObject {
+  if (!isObject(value) || value.type !== 'compaction' || typeof value.content !== 'string' ||
+      !value.content.trim() || typeof value.signature !== 'string' || !value.signature ||
+      bytes(value) > ITEM_BYTES) throw new Error('Invalid or oversized Anthropic compaction block');
+
+  return structuredClone(value);
+}
+
+export function parseAnthropicCheckpoint(value: unknown): AnthropicCheckpoint | undefined {
+  if (!isObject(value) || value.kind !== ANTHROPIC_COMPACTION_KIND || value.version !== 1) return undefined;
+  if (typeof value.provider !== 'string' || typeof value.api !== 'string' ||
+      typeof value.modelId !== 'string' || typeof value.createdAt !== 'string') return undefined;
+
+  try {
+    return {
+      kind: ANTHROPIC_COMPACTION_KIND, version: 1, provider: value.provider, api: value.api,
+      modelId: value.modelId, block: validateAnthropicBlock(value.block), createdAt: value.createdAt,
+    };
+  } catch {
+    return undefined;
+  }
+}
+
+/** The newest compaction entry, when it holds a signed block matching its plaintext summary. */
+export function activeAnthropicCheckpoint(entries: readonly SessionEntry[]):
+  { entry: CompactionEntry; details: AnthropicCheckpoint } | undefined {
+  const entry = [...entries].reverse().find((candidate) => candidate.type === 'compaction');
+  const details = entry?.type === 'compaction' ? parseAnthropicCheckpoint(entry.details) : undefined;
+  if (entry?.type !== 'compaction' || !details || details.block.content !== entry.summary) return undefined;
+
+  return { entry, details };
+}
+
+function anthropicCompatible(details: AnthropicCheckpoint, model: Model | undefined): boolean {
+  return isAnthropicFastModel(model) && details.provider === model?.provider &&
+    details.api === model.api && details.modelId === model.id;
+}
+
+function withCompactionBeta(payload: JsonObject): JsonObject {
+  const betas = Array.isArray(payload.betas) ? payload.betas : [];
+
+  return { ...payload, betas: [...new Set([...betas, ANTHROPIC_COMPACTION_BETA])] };
+}
+
+/**
+ * Pi renders the compaction summary as the first user message; Anthropic expects the signed block
+ * first instead, in place of the messages it summarizes.
+ */
+export function injectAnthropicBlock(payload: unknown, details: AnthropicCheckpoint, summary: string): JsonObject {
+  if (!isObject(payload) || !Array.isArray(payload.messages)) throw new Error('Missing Anthropic messages');
+
+  const rendered = convertToLlm([{ role: 'compactionSummary', summary, tokensBefore: 0, timestamp: 0 }])[0];
+  const text = rendered?.role === 'user' && Array.isArray(rendered.content) &&
+    rendered.content[0]?.type === 'text' ? rendered.content[0].text : undefined;
+  const [first, ...rest] = payload.messages;
+  const part = isObject(first) && first.role === 'user' && Array.isArray(first.content) &&
+    first.content.length === 1 ? first.content[0] : undefined;
+  if (!text || !isObject(part) || part.type !== 'text' || part.text !== text) {
+    throw new Error('Expected the compaction summary as the first message');
+  }
+
+  const carriesBlock = (message: unknown) => isObject(message) && Array.isArray(message.content) &&
+    message.content.some((block) => isObject(block) && block.type === 'compaction');
+  if (rest.some(carriesBlock)) throw new Error('Request already carries a compaction block');
+
+  // Keep Pi's cache breakpoint: on the block it caches everything up to the summary.
+  const block = { ...structuredClone(details.block), ...(part.cache_control ? { cache_control: part.cache_control } : {}) };
+
+  return withCompactionBeta({ ...payload, messages: [{ role: 'assistant', content: [block] }, ...rest] });
+}
+
+export function createAnthropicCompactionCollector(onFailure?: () => void) {
+  let block: JsonObject | undefined;
+  let stopReason: string | undefined;
+  let iterations: JsonObject[] = [];
+  let failure: Error | undefined;
+
+  return {
+    observe(event: unknown): void {
+      if (failure) return;
+
+      try {
+        if (!isObject(event) || typeof event.type !== 'string') throw new Error('Invalid compaction event');
+        if (event.type === 'error') throw new Error('Compaction stream failed');
+
+        // The block arrives whole in content_block_start; any other content means no summary.
+        if (event.type === 'content_block_start') {
+          if (block || !isObject(event.content_block) || event.content_block.type !== 'compaction') {
+            throw new Error('Unexpected content in compaction response');
+          }
+          block = validateAnthropicBlock(event.content_block);
+        }
+        if (event.type === 'content_block_delta') throw new Error('Unexpected delta in compaction response');
+
+        if (event.type === 'message_delta') {
+          if (isObject(event.delta) && typeof event.delta.stop_reason === 'string') stopReason = event.delta.stop_reason;
+          if (isObject(event.usage) && Array.isArray(event.usage.iterations)) {
+            iterations = event.usage.iterations.filter(isObject);
+          }
+        }
+      } catch (error) {
+        // Provider instrumentation swallows callback exceptions; retain failure for finish().
+        failure = error instanceof Error ? error : new Error('Invalid compaction stream');
+        onFailure?.();
+      }
+    },
+    get failed(): boolean { return failure !== undefined; },
+    get complete(): boolean { return !failure && stopReason === 'compaction' && block !== undefined; },
+    finish(): { block: JsonObject; iterations: JsonObject[] } {
+      if (failure) throw failure;
+      if (stopReason !== 'compaction' || !block) throw new Error(`Compaction stopped with ${stopReason ?? 'no stop reason'}`);
+
+      return { block: structuredClone(block), iterations: structuredClone(iterations) };
+    },
+  };
+}
+
+/** Top-level usage of a compaction response is zero; the summarization call is in iterations. */
+function iterationUsage(model: Model, iterations: JsonObject[]): Usage {
+  const sum = (key: string) => iterations.reduce((total, iteration) =>
+    total + (typeof iteration[key] === 'number' ? iteration[key] : 0), 0);
+  const input = sum('input_tokens');
+  const output = sum('output_tokens');
+  const cacheRead = sum('cache_read_input_tokens');
+  const cacheWrite = sum('cache_creation_input_tokens');
+  const cost = {
+    input: input * model.cost.input / 1e6,
+    output: output * model.cost.output / 1e6,
+    cacheRead: cacheRead * model.cost.cacheRead / 1e6,
+    cacheWrite: cacheWrite * model.cost.cacheWrite / 1e6,
+  };
+
+  return {
+    input, output, cacheRead, cacheWrite, totalTokens: input + output + cacheRead + cacheWrite,
+    cost: { ...cost, total: cost.input + cost.output + cost.cacheRead + cost.cacheWrite },
+  };
+}
+
+/**
+ * Anthropic on-demand compaction (`compact-2026-09-04`) for the official Messages endpoint. The
+ * messages before Pi's cut point are summarized server-side; the kept tail follows the signed
+ * block verbatim. The summary is also stored as Pi's plaintext summary, so other models, or a
+ * failed injection, degrade to an ordinary Pi compaction. Failures fall back to Pi compaction.
+ */
+export function registerAnthropicCompaction(pi: ExtensionAPI): void {
+  const paused = new Set<string>();
+  const warned = new Set<string>();
+
+  pi.on('session_before_compact', async (event: SessionBeforeCompactEvent, ctx) => {
+    const model = ctx.model;
+    if (!isAnthropicFastModel(model) || !model || event.signal.aborted) return undefined;
+
+    // Opaque Codex checkpoints are owned (and cancelled) by the Codex handler.
+    const key = routeKey(model);
+    if (activeCheckpoint(event.branchEntries).claimed || paused.has(key)) return undefined;
+
+    // `instructions` would replace Anthropic's summarization prompt instead of focusing it.
+    if (event.customInstructions?.trim()) return undefined;
+
+    const projection = buildSessionProjection(event.branchEntries);
+    const keptIndex = projection.entries.findIndex((entry) => entry.sourceEntry.id === event.preparation.firstKeptEntryId);
+    const summarized = projection.entries.slice(0, Math.max(keptIndex, 0)).flatMap((entry) => entry.messages)
+      .filter((message) => message.role !== 'system');
+    const last = summarized.at(-1);
+    const openToolCall = last?.role === 'assistant' && last.content.some((part) => part.type === 'toolCall');
+    const nothingNew = !summarized.some((message) => message.role !== 'compactionSummary');
+    if (keptIndex < 0 || nothingNew || openToolCall) return undefined;
+
+    const previous = activeAnthropicCheckpoint(event.branchEntries);
+    const replay = previous && anthropicCompatible(previous.details, model) ? previous : undefined;
+    const leafId = event.branchEntries.at(-1)?.id;
+    const operation = new AbortController();
+    const signal = AbortSignal.any([event.signal, operation.signal, AbortSignal.timeout(300_000)]);
+    const collector = createAnthropicCompactionCollector(() => operation.abort());
+    const available = new Map(pi.getAllTools().map((tool) => [tool.name, tool]));
+    const tools = pi.getActiveTools().flatMap((name) => {
+      const tool = available.get(name);
+      return tool ? [{ name: tool.name, description: tool.description, parameters: tool.parameters }] : [];
+    });
+    const thinking = pi.getThinkingLevel();
+    ctx.ui.setStatus('anthropic-compact', 'Anthropic server compaction…');
+
+    try {
+      // Same system prompt, tools, thinking and session as the conversation, so the summarized
+      // prefix can hit the prompt cache and kept thinking stays bound to the same request shape.
+      const stream = ctx.modelRegistry.streamSimple(model, {
+        systemPrompt: ctx.getSystemPrompt(), messages: convertToLlm(summarized), tools,
+      }, {
+        reasoning: thinking === 'off' ? undefined : thinking, sessionId: ctx.sessionManager.getSessionId(),
+        signal, timeoutMs: 300_000, maxRetries: 0,
+        onPayload: (payload: unknown, resolvedModel: Model) => {
+          if (!isAnthropicFastModel(resolvedModel) || resolvedModel.id !== model.id || !isObject(payload)) {
+            throw new Error('Resolved compaction route is not the official Anthropic endpoint');
+          }
+          const request = replay ? injectAnthropicBlock(payload, replay.details, replay.entry.summary) :
+            withCompactionBeta(payload);
+
+          return { ...request, compaction: { type: 'summarize' } };
+        },
+        onProviderStreamEvent: (raw: unknown) => collector.observe(raw),
+        fetch: async (input: Parameters<typeof fetch>[0], init?: Parameters<typeof fetch>[1]) => {
+          const url = new URL(input instanceof Request ? input.url : String(input));
+          if (url.origin !== 'https://api.anthropic.com' || url.pathname !== '/v1/messages') {
+            throw new Error('Unsafe compaction dispatch');
+          }
+          const response = await globalThis.fetch(input, { ...init, redirect: 'error' });
+          // Unsupported models, betas or credentials are not transient: stop asking until /reload.
+          if ([400, 401, 403, 404].includes(response.status)) paused.add(key);
+
+          return response;
+        },
+      });
+
+      let usage: Usage | undefined;
+      for await (const streamed of stream) {
+        if (collector.failed) throw new Error('Invalid compaction response');
+        if (streamed.type === 'done') usage = streamed.message.usage;
+        // Pi does not know the `compaction` stop reason and ends the stream with an error after it.
+        if (streamed.type === 'error' && !collector.complete) throw new Error('Provider rejected compaction');
+      }
+
+      const { block, iterations } = collector.finish();
+      const unchanged = ctx.sessionManager.getBranch().at(-1)?.id === leafId && routeKey(ctx.model) === key;
+      if (event.signal.aborted || !unchanged) return { cancel: true };
+
+      const details: AnthropicCheckpoint = {
+        kind: ANTHROPIC_COMPACTION_KIND, version: 1, provider: model.provider, api: model.api,
+        modelId: model.id, block, createdAt: new Date().toISOString(),
+      };
+
+      return { compaction: {
+        summary: block.content as string, firstKeptEntryId: event.preparation.firstKeptEntryId,
+        tokensBefore: event.preparation.tokensBefore,
+        usage: iterations.length > 0 || !usage ? iterationUsage(model, iterations) : usage, details,
+      } };
+    } catch {
+      if (event.signal.aborted) return { cancel: true };
+
+      // Never echo server errors (they can include request details); Pi's summarizer takes over.
+      ctx.ui.notify(paused.has(key) ?
+        'Anthropic rejected server compaction for this model; using Pi compaction until /reload.' :
+        'Anthropic server compaction failed; using Pi compaction.', 'warning');
+      return undefined;
+    } finally {
+      operation.abort();
+      ctx.ui.setStatus('anthropic-compact', undefined);
+    }
+  });
+
+  pi.on('before_provider_request', (event, ctx) => {
+    const model = ctx.model;
+    if (!isAnthropicFastModel(model) || !isObject(event.payload) || event.payload.model !== model?.id) return undefined;
+
+    const active = activeAnthropicCheckpoint(ctx.sessionManager.getBranch());
+    if (!active || !anthropicCompatible(active.details, model)) return undefined;
+
+    try {
+      return injectAnthropicBlock(event.payload, active.details, active.entry.summary);
+    } catch {
+      // The plaintext summary still reaches Claude; only the signed block is lost.
+      if (!warned.has(active.entry.id)) {
+        warned.add(active.entry.id);
+        ctx.ui.notify('Anthropic compaction block could not be attached; sending its summary as plain text.', 'warning');
+      }
+      return undefined;
+    }
   });
 }

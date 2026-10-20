@@ -123,7 +123,7 @@ extensions/
 ├── peek-document/          read PDF and Office files
 ├── per-model-prompt/       model-specific directives
 ├── pi-builtin-adjustments/ quieter built-ins
-├── pi-model-controls/      OpenAI/Anthropic speed controls and Codex server compaction
+├── pi-model-controls/      OpenAI/Anthropic speed controls and Codex/Anthropic server compaction
 ├── pi-safety/              Bash command checks, decisions auto mode, and safe deletion shims
 ├── python-code/            sandboxed Python
 ├── rant/                   log preventable failures
@@ -151,8 +151,8 @@ keyed by exact `provider/modelId`; it applies at startup and on every model swit
 ### Pi Model Controls
 
 `pi-model-controls` replaces `@narumitw/pi-usage` and `@narumitw/pi-codex-compact`. It hosts the shared
-speed commands, plus compaction for the official `openai-codex` provider. It makes no usage/quota
-or entitlement queries.
+speed commands, plus server-side compaction for the official `openai-codex` provider and the official
+Anthropic Messages endpoint. It makes no usage/quota or entitlement queries.
 
 #### Speed controls
 
@@ -219,6 +219,26 @@ exact producing model/API for replay: other models only see the retained recent 
 warning about unavailable older context. Return to the original model to replay it. Retain this
 extension for sessions with opaque history. The old `pi-usage.json` and `pi-codex-compact.json`
 settings are no longer used.
+
+#### Anthropic compaction
+
+On the official Anthropic Messages endpoint (`https://api.anthropic.com`, API key or Pi Black
+OAuth), Pi's `/compact` and automatic threshold/overflow compaction use
+[on-demand compaction](https://platform.claude.com/docs/en/build-with-claude/compaction-on-demand)
+(`compact-2026-09-04` beta). The messages before Pi's cut point are sent with the conversation's
+system prompt, tools, thinking level and session, plus `compaction: {type: "summarize"}`. Claude
+returns a signed `compaction` block. Pi keeps its recent messages verbatim after the block.
+
+The block's readable summary is stored as Pi's compaction summary, and the signed block is stored in
+the entry details. On later requests to the same model, the plaintext summary message is replaced by
+the signed block, and the beta is added. Compacting again sends the previous block for re-summarization.
+On another model, or if the block cannot be attached, Claude receives the plaintext summary (as
+with Pi compaction), so no history is lost.
+
+These cases use Pi's own summarizer instead: `/compact <instructions>` (Anthropic's `instructions`
+would replace its summarization prompt), a cut with nothing new to summarize, and failed
+or non-summary responses. A 400/401/403/404 rejection (for example an unsupported model, beta or
+credential) pauses server compaction for that route until `/reload`. Server errors are never echoed.
 
 The extension was renamed from `pi-openai` to `pi-model-controls`; session speed entries and
 Codex checkpoint formats are unchanged. The tracked `pi-openai.json` is also removed. Restow the

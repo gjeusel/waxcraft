@@ -7,13 +7,17 @@ import { join } from 'node:path';
 import {
   buildContextEntries,
   buildSessionProjection,
+  convertToLlm,
   sessionEntryToContextMessages,
   type ExtensionAPI,
   type ExtensionContext,
   type SessionBeforeCompactEvent,
   type SessionEntry,
 } from '@earendil-works/pi-coding-agent';
-import { createCompactionCollector, registerCodexCompaction } from './compaction.ts';
+import {
+  ANTHROPIC_COMPACTION_BETA, ANTHROPIC_COMPACTION_KIND, createCompactionCollector, injectAnthropicBlock,
+  parseAnthropicCheckpoint, registerAnthropicCompaction, registerCodexCompaction,
+} from './compaction.ts';
 import {
   CHECKPOINT_KIND, HISTORY_BYTES, ITEM_BYTES, activeCheckpoint, createCheckpoint, fingerprint,
   marker, parseCheckpoint, projectCheckpoint, replacementHistory, rewriteMarker,
@@ -503,4 +507,240 @@ test('real native transport rejects oversized SSE before parsing or publishing',
     assert.equal(dispatches.length, 1);
     assert.ok(h.notes.some((note) => note.includes('history preserved')));
   });
+});
+
+const anthropicModelId = 'claude-opus-5-5';
+const signedBlock = { type: 'compaction', content: 'Summary: the user greeted Claude.', signature: 'EuYBfixture' };
+
+function assistant(id: string, parentId: string, text: string): SessionEntry {
+  return { type: 'message', id, parentId, timestamp: '2026-01-01T00:00:00.000Z', message: {
+    role: 'assistant', content: [{ type: 'text', text }], api: 'anthropic-messages', provider: 'anthropic',
+    model: anthropicModelId, usage, stopReason: 'stop', timestamp: 1,
+  } } as SessionEntry;
+}
+
+function sse(events: JsonObject[]): Response {
+  return new Response(events.map((event) => `event: ${event.type}\ndata: ${JSON.stringify(event)}\n\n`).join(''),
+    { headers: { 'content-type': 'text/event-stream' } });
+}
+
+function compactionResponse(stopReason = 'compaction', blocks: JsonObject[] = [signedBlock]): Response {
+  const start = { type: 'message_start', message: { id: 'msg_fixture', type: 'message', role: 'assistant',
+    model: anthropicModelId, content: [], stop_reason: null, usage: { input_tokens: 0, output_tokens: 0 } } };
+  const content = blocks.flatMap((block, index) => [
+    { type: 'content_block_start', index, content_block: block }, { type: 'content_block_stop', index },
+  ]);
+  const delta = { type: 'message_delta', delta: { stop_reason: stopReason }, usage: { input_tokens: 0, output_tokens: 0,
+    iterations: [{ type: 'compaction', input_tokens: 1000, output_tokens: 200, cache_read_input_tokens: 4000 }] } };
+
+  return sse([start, ...content, delta, { type: 'message_stop' }]);
+}
+
+function replyResponse(): Response {
+  return sse([
+    { type: 'message_start', message: { id: 'msg_reply', type: 'message', role: 'assistant', model: anthropicModelId,
+      content: [], stop_reason: null, usage: { input_tokens: 5, output_tokens: 0 } } },
+    { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } },
+    { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: 'OK' } },
+    { type: 'content_block_stop', index: 0 },
+    { type: 'message_delta', delta: { stop_reason: 'end_turn' }, usage: { output_tokens: 1 } },
+    { type: 'message_stop' },
+  ]);
+}
+
+/** Drives Pi's real Anthropic adapter against a fixture fetch; no hosted request is made. */
+async function withAnthropic(
+  responses: (() => Response)[],
+  run: (h: Awaited<ReturnType<typeof anthropicHarness>>) => Promise<void>,
+): Promise<void> {
+  const originalFetch = globalThis.fetch;
+  const h = await anthropicHarness();
+  globalThis.fetch = async (input, init) => {
+    const request = input instanceof Request ? input : new Request(String(input), init);
+    h.dispatches.push({ url: request.url, headers: request.headers, payload: JSON.parse(await request.text()) });
+    const next = responses.shift();
+    assert.ok(next, 'Unexpected extra request');
+
+    return next();
+  };
+  try {
+    await run(h);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+}
+
+async function anthropicHarness() {
+  const piRequire = createRequire(import.meta.resolve('@earendil-works/pi-coding-agent'));
+  const providerPath = piRequire.resolve.paths('@earendil-works/pi-ai')!
+    .map((directory) => join(directory, '@earendil-works/pi-ai/dist/providers/anthropic.js'))
+    .find(existsSync);
+  assert.ok(providerPath, 'Pi must provide its native AI dependency');
+  const { anthropicProvider } = await import(pathToFileURL(providerPath).href);
+  // Pi's model runtime folds the system prompt and tools into the transcript before providers run.
+  const { normalizeContext } = await import(pathToFileURL(join(providerPath, '../../utils/transcript.js')).href);
+  const provider = anthropicProvider();
+  const actualModel = provider.getModels().find((candidate: any) => candidate.id === anthropicModelId);
+  assert.ok(actualModel, 'The fixture model must exist in Pi\'s native Anthropic catalog');
+
+  type Handler = (event: any, ctx: ExtensionContext) => any;
+  const handlers = new Map<string, Handler[]>();
+  const notes: string[] = [];
+  const dispatches: { url: string; headers: Headers; payload: any }[] = [];
+  const state = {
+    entries: [user('a', null, 'hello'), assistant('b', 'a', 'hi'), user('c', 'b', 'next question')],
+    model: { ...actualModel },
+  };
+  const pi = {
+    on: (name: string, handler: Handler) => handlers.set(name, [...(handlers.get(name) ?? []), handler]),
+    registerCommand: () => {},
+    getAllTools: () => [{ name: 'read', description: 'Read fixture', parameters: { type: 'object', properties: {} } }],
+    getActiveTools: () => ['read'],
+    getThinkingLevel: () => 'high',
+  } as unknown as ExtensionAPI;
+  const ctx = {
+    get model() { return state.model; },
+    sessionManager: { getBranch: () => state.entries, getSessionId: () => 'fixture-session' },
+    ui: { notify: (message: string) => notes.push(message), setStatus: () => {} },
+    getSystemPrompt: () => 'fixture system prompt',
+    modelRegistry: {
+      streamSimple: (model: unknown, context: unknown, options: any) =>
+        provider.streamSimple(model, normalizeContext(context), { ...options, apiKey: 'sk-ant-api03-fixture' }),
+    },
+  } as unknown as ExtensionContext;
+  registerCodexCompaction(pi);
+  registerAnthropicCompaction(pi);
+
+  const emit = async (name: string, event: any) => {
+    let result;
+    for (const handler of handlers.get(name) ?? []) {
+      const value = await handler(event, ctx);
+      if (value !== undefined) result = value;
+      if (name === 'before_provider_request' && value !== undefined) event = { ...event, payload: value };
+      if (value?.cancel) break;
+    }
+    return result;
+  };
+
+  return {
+    state, notes, dispatches, emit,
+    compact: (firstKeptEntryId = 'c', customInstructions?: string) => emit('session_before_compact', {
+      branchEntries: [...state.entries], customInstructions, signal: new AbortController().signal,
+      preparation: { firstKeptEntryId, tokensBefore: 50 }, reason: 'manual', willRetry: false,
+    }),
+    /** Sends the projected context like the agent loop: through the real adapter and the hook. */
+    reply: async () => {
+      const messages = buildSessionProjection(state.entries).messages.filter((message) => message.role !== 'system');
+      const stream = provider.streamSimple(state.model, normalizeContext({
+        systemPrompt: 'fixture system prompt', messages: convertToLlm(messages),
+      }), { apiKey: 'sk-ant-api03-fixture', onPayload: (payload: unknown) =>
+        emit('before_provider_request', { type: 'before_provider_request', payload }) });
+      for await (const event of stream) if (event.type === 'error') throw new Error(event.error.errorMessage);
+    },
+  };
+}
+
+test('Anthropic compaction summarizes the messages before the cut with the signed-block beta', async () => {
+  await withAnthropic([() => compactionResponse()], async (h) => {
+    const result = await h.compact();
+    assert.ok(result.compaction);
+    assert.equal(result.compaction.summary, signedBlock.content);
+    assert.equal(result.compaction.firstKeptEntryId, 'c');
+    assert.deepEqual(result.compaction.details.block, signedBlock);
+    assert.equal(result.compaction.details.kind, ANTHROPIC_COMPACTION_KIND);
+    assert.equal(result.compaction.usage.input, 1000);
+    assert.equal(result.compaction.usage.cacheRead, 4000);
+    assert.ok(result.compaction.usage.cost.total > 0);
+
+    const [dispatch] = h.dispatches;
+    assert.equal(new URL(dispatch.url).pathname, '/v1/messages');
+    assert.ok(dispatch.headers.get('anthropic-beta')!.split(',').includes(ANTHROPIC_COMPACTION_BETA));
+    assert.deepEqual(dispatch.payload.compaction, { type: 'summarize' });
+    assert.equal(dispatch.payload.system[0].text, 'fixture system prompt');
+    assert.equal(dispatch.payload.tools[0].name, 'read');
+    const conversation = dispatch.payload.messages.filter((message: any) => message.role !== 'system');
+    assert.deepEqual(conversation.map((message: any) => message.role), ['user', 'assistant']);
+  });
+});
+
+test('Anthropic replay swaps the plaintext summary for the signed block, and compacts it again', async () => {
+  await withAnthropic([() => compactionResponse(), replyResponse, () => compactionResponse()], async (h) => {
+    publish(h as any, await h.compact());
+    const compactionId = h.state.entries.at(-1)!.id;
+    h.state.entries.push(assistant('d', compactionId, 'answer'), user('e', 'd', 'follow-up'));
+
+    await h.reply();
+    const replay = h.dispatches[1];
+    assert.deepEqual(replay.payload.messages[0], { role: 'assistant', content: [signedBlock] });
+    assert.equal(replay.payload.messages[1].content[0].text, 'next question');
+    assert.ok(replay.headers.get('anthropic-beta')!.split(',').includes(ANTHROPIC_COMPACTION_BETA));
+    assert.equal(JSON.stringify(replay.payload).includes('<summary>'), false);
+
+    const second = await h.compact('e');
+    assert.ok(second.compaction);
+    const resent = h.dispatches[2].payload.messages;
+    assert.deepEqual(resent[0], { role: 'assistant', content: [signedBlock] });
+    assert.deepEqual(resent.filter((message: any) => message.role !== 'system').map((message: any) => message.role),
+      ['assistant', 'user', 'assistant']);
+  });
+});
+
+test('Anthropic replay stays plaintext on another model or without a valid signed block', async () => {
+  await withAnthropic([() => compactionResponse(), replyResponse, replyResponse], async (h) => {
+    const result = await h.compact();
+    publish(h as any, result);
+    h.state.model = { ...h.state.model, id: 'claude-sonnet-5-5' };
+    await h.reply();
+    assert.match(JSON.stringify(h.dispatches[1].payload.messages[0]), /<summary>/);
+
+    h.state.model = { ...h.state.model, id: anthropicModelId };
+    result.compaction.details.block.signature = '';
+    await h.reply();
+    assert.match(JSON.stringify(h.dispatches[2].payload.messages[0]), /<summary>/);
+  });
+});
+
+test('Anthropic failures fall back to Pi compaction, and rejections pause the route', async () => {
+  const cases: [string, (() => Response)[], number][] = [
+    ['no summary', [() => compactionResponse('max_tokens', [])], 2],
+    ['unexpected content', [() => compactionResponse('end_turn', [{ type: 'text', text: 'hi' }])], 2],
+    ['rejected', [() => Response.json({ type: 'error', error: { type: 'invalid_request_error',
+      message: 'secret detail' } }, { status: 400 })], 1],
+  ];
+  for (const [label, responses, expectedDispatches] of cases) {
+    await withAnthropic([...responses, () => compactionResponse('max_tokens', [])], async (h) => {
+      assert.equal(await h.compact(), undefined, label);
+      assert.equal(await h.compact(), undefined, label);
+      assert.equal(h.dispatches.length, expectedDispatches, label);
+      assert.ok(h.notes.every((note) => !note.includes('secret')), label);
+      assert.match(h.notes[0], /using Pi compaction/, label);
+    });
+  }
+});
+
+test('Anthropic compaction defers to Pi for focus instructions, proxies and unsummarizable cuts', async () => {
+  await withAnthropic([], async (h) => {
+    assert.equal(await h.compact('c', 'focus on the API'), undefined);
+    assert.equal(await h.compact('a'), undefined);
+    assert.equal(await h.compact('missing'), undefined);
+    h.state.model = { ...h.state.model, baseUrl: 'https://proxy.example.test' };
+    assert.equal(await h.compact(), undefined);
+    assert.equal(h.dispatches.length, 0);
+  });
+});
+
+test('Anthropic compaction block injection requires the summary first and a single block', () => {
+  const details = parseAnthropicCheckpoint({ kind: ANTHROPIC_COMPACTION_KIND, version: 1, provider: 'anthropic',
+    api: 'anthropic-messages', modelId: anthropicModelId, block: signedBlock, createdAt: '' })!;
+  const summary = convertToLlm([{ role: 'compactionSummary', summary: signedBlock.content, tokensBefore: 0, timestamp: 0 }])[0];
+  const first = { role: 'user', content: [{ ...(summary.content as unknown as JsonObject[])[0], cache_control: { type: 'ephemeral' } }] };
+  const injected = injectAnthropicBlock({ messages: [first, { role: 'user', content: 'next' }], betas: ['x'] },
+    details, signedBlock.content);
+  assert.deepEqual(injected.messages, [{ role: 'assistant', content: [{ ...signedBlock,
+    cache_control: { type: 'ephemeral' } }] }, { role: 'user', content: 'next' }]);
+  assert.deepEqual(injected.betas, ['x', ANTHROPIC_COMPACTION_BETA]);
+  assert.throws(() => injectAnthropicBlock({ messages: [{ role: 'user', content: 'next' }, first] }, details, signedBlock.content));
+  assert.throws(() => injectAnthropicBlock({ messages: [first, { role: 'assistant', content: [signedBlock] }] },
+    details, signedBlock.content));
+  assert.equal(parseAnthropicCheckpoint({ ...details, block: { ...signedBlock, signature: '' } }), undefined);
 });
