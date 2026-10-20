@@ -329,6 +329,8 @@ in {
       "com.superlogical.rex" = {
         "Workspace.terminalFontPointSize" = 16.0;
         "Workspace.balancesSplitsOnCreation" = false; # a split only takes from the split pane
+        "Workspace.usesPaneGlass" = true; # translucent panes, replacing the theme's background
+        "Workspace.playsProgramActivitySounds" = false; # no sound when a program finishes or waits
       };
       # Transmission
       "org.m0k.transmission" = {
