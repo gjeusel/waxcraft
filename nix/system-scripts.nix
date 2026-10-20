@@ -67,6 +67,11 @@
     for ext in .csv .tsv .xlsx; do
       set_handler com.microsoft.Excel "$ext"
     done
+
+    # Set Notion Calendar (formerly Cron) as default for calendar files
+    for ext in .ics .vcs; do
+      set_handler com.cron.electron "$ext"
+    done
   '';
 in {
   system.activationScripts.postActivation.text = ''
