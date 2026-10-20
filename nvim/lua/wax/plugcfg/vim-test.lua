@@ -1,4 +1,7 @@
-local tmux = require("wax.tmux")
+-- Prefer the closest multiplexer when tmux runs inside Rex, as wax.navigator does.
+local use_rex = vim.env.REX_BLOCK ~= nil and vim.env.TMUX == nil
+local multiplexer = require(use_rex and "wax.rex" or "wax.tmux")
+local strategy = use_rex and "wax_rex" or "wax_tmux"
 
 local kmap = vim.keymap.set
 
@@ -16,11 +19,11 @@ local function use_conda_pytest(cmd)
 end
 
 vim.api.nvim_set_var("test#custom_strategies", {
-  wax_tmux = function(cmd)
-    tmux.run_in_pane(use_conda_pytest(cmd), { interrupt_before = true, clear_before = true })
+  [strategy] = function(cmd)
+    multiplexer.run_in_pane(use_conda_pytest(cmd), { interrupt_before = true, clear_before = true })
   end,
 })
-vim.api.nvim_set_var("test#strategy", "wax_tmux")
+vim.api.nvim_set_var("test#strategy", strategy)
 vim.api.nvim_set_var("test#preserve_screen", 1)
 vim.api.nvim_set_var("test#filename_modifier", ":~")
 vim.api.nvim_set_var("test#echo_command", 0)
@@ -35,7 +38,7 @@ vim.api.nvim_set_var("test#python#pytest#options", "-s")
 kmap("n", "<leader>1", ":TestNearest<CR>", kopts)
 kmap("n", "<leader>2", ":TestLast<CR>", kopts)
 kmap("n", "<leader>3", ":TestFile<CR>", kopts)
-kmap("n", "<leader>4", tmux.select_target_pane)
+kmap("n", "<leader>4", multiplexer.select_target_pane)
 
 kmap("n", "<leader>5", function()
   local items = {
