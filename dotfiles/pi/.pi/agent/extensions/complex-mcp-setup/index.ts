@@ -8,7 +8,9 @@ import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
 
 /**
  * Slack's official server, through a personal Slack app whose client ID comes from
- * `SLACK_MCP_CLIENT_ID`: Pi does not expand `${VAR}` in `oauth.clientId`.
+ * `SLACK_MCP_CLIENT_ID`: Pi does not expand `${VAR}` in `oauth.clientId`. Once
+ * https://github.com/earendil-works/pi/issues/10613 is fixed, move this entry to mcp.json and
+ * delete this extension.
  */
 function registerSlack(pi: ExtensionAPI): void {
   const clientId = process.env.SLACK_MCP_CLIENT_ID;

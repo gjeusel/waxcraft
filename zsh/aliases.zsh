@@ -128,6 +128,17 @@ vfzf() {
 
 alias vfind='nvim $(find . -path ".*$*")'
 
+# Grep with rg, open nvim with all matches in the quickfix list and every matching file listed as a
+# buffer. Forwards any rg args, e.g. `vrg TODO src/ -t py`.
+vrg() {
+  local _matches
+  _matches="$(rg --vimgrep "$@")" || return
+
+  nvim -q =(print -r -- "$_matches") \
+    -c 'for e in getqflist() | call setbufvar(e.bufnr, "&buflisted", 1) | endfor' \
+    -c 'copen' -c 'wincmd p'
+}
+
 # Bind ctrl + p  to fuzzy finder
 # -s simulate keyboard entry
 # (^U) to delete the whole line
@@ -170,10 +181,11 @@ function dst() {
   echo -e "2021 -->    $YELLOW 28/03 $NC      -      $BLUE 31/10 $NC"
   echo -e "2022 -->    $YELLOW 27/03 $NC      -      $BLUE 30/10 $NC"
   echo -e "2023 -->    $YELLOW 26/03 $NC      -      $BLUE 29/10 $NC"
-  echo -e "                        ---"
   echo -e "2024 -->    $YELLOW 31/03 $NC      -      $BLUE 27/10 $NC"
   echo -e "2025 -->    $YELLOW 30/03 $NC      -      $BLUE 26/10 $NC"
   echo -e "2026 -->    $YELLOW 29/03 $NC      -      $BLUE 25/10 $NC"
+  echo -e "                        ---"
+  echo -e "2027 -->    $YELLOW 28/03 $NC      -      $BLUE 31/10 $NC"
 }
 
 encode64() {
