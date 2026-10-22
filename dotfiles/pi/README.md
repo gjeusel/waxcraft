@@ -203,7 +203,7 @@ pricing; use provider billing for actual spend. No paid inference request is nee
 
 #### Codex compaction
 
-- `/codex-compact` immediately starts server-side Remote V2 compaction: no menu or confirmation.
+- `/compact-server-side` immediately starts server-side Remote V2 compaction: no menu or confirmation.
   Pi's `/compact` and automatic threshold/overflow compaction use the same server operation on
   this provider. The active conversation and system prompt are sent with a final
   `compaction_trigger`; an encrypted checkpoint replaces the older context and is replayed on

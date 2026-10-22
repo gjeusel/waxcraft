@@ -137,15 +137,15 @@ export function registerCodexCompaction(pi: ExtensionAPI): void {
     ctx.ui.notify('Opaque Codex checkpoint could not replay safely; older context is unavailable on this request. Use the original model with pi-model-controls enabled.', 'warning');
   };
 
-  pi.registerCommand('codex-compact', {
+  pi.registerCommand('compact-server-side', {
     description: 'Compact now using OpenAI Codex server-side compaction',
     handler: async (args, ctx) => {
       if (args.trim()) {
-        ctx.ui.notify('Usage: /codex-compact', 'warning');
+        ctx.ui.notify('Usage: /compact-server-side', 'warning');
         return;
       }
       if (!officialCodex(ctx.model)) {
-        ctx.ui.notify('/codex-compact requires the official openai-codex Responses provider.', 'warning');
+        ctx.ui.notify('/compact-server-side requires the official openai-codex Responses provider.', 'warning');
         return;
       }
 

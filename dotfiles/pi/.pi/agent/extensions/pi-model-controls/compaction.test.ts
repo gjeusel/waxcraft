@@ -103,7 +103,7 @@ function harness(options: Options = {}) {
   return {
     state, ctx, requests, notes, statuses,
     emit: (name: string, event: unknown = {}) => handlers.get(name)!(event, ctx),
-    command: (args = '') => commands.get('codex-compact')!.handler(args, ctx),
+    command: (args = '') => commands.get('compact-server-side')!.handler(args, ctx),
     compact: (firstKeptEntryId = 'b', signal = new AbortController().signal) => {
       const event = { branchEntries: [...state.entries], preparation: { firstKeptEntryId, tokensBefore: 50 },
         signal, reason: 'manual', willRetry: false } as SessionBeforeCompactEvent;
@@ -118,15 +118,17 @@ function publish(h: ReturnType<typeof harness>, result: any): void {
     timestamp: '2026-01-02T00:00:00.000Z', ...result.compaction });
 }
 
-test('/codex-compact immediately invokes Pi compaction without UI menus', () => {
+test('/compact-server-side immediately invokes Pi compaction without UI menus', () => {
   const h = harness();
   h.command();
   assert.equal(h.state.compactions, 1);
   h.command('settings');
   assert.equal(h.state.compactions, 1);
+  assert.equal(h.notes.at(-1), 'Usage: /compact-server-side');
   h.state.model.provider = 'openai';
   h.command();
   assert.equal(h.state.compactions, 1);
+  assert.equal(h.notes.at(-1), '/compact-server-side requires the official openai-codex Responses provider.');
 });
 
 test('Remote V2 uses native registry streaming, transforms payload, and returns canonical fingerprints', async () => {
