@@ -96,6 +96,8 @@ local function create_session(spec)
   -- Rex activates the last window created. Focus each window's `focus` pane (or its first), the
   -- `focus` window (or the first) last, since focusing a block activates its window. This needs
   -- the caller attached to the new session, through `rex.call`: actions have no attach helper.
+  -- Stay attached: `rex.call` uses the caller's own connection, the app's from the palette, and
+  -- detaching it leaves the app showing a session it can no longer stream (409 conflict).
   local _, attach_err = rex.call("session.attach", { session_id = created.session_id })
   if attach_err ~= nil then
     error(attach_err, 0)
@@ -131,8 +133,6 @@ local function create_session(spec)
       error(focus_err, 0)
     end
   end
-
-  rex.call("session.detach", { session_id = created.session_id })
 
   return created.session_id
 end
