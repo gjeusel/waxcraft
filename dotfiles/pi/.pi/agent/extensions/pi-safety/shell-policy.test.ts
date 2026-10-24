@@ -332,3 +332,10 @@ test('blocks scripts with syntax errors instead of degrading to regex checks', (
   assert.equal(denial?.rule, 'parse-error');
   assert.match(denial?.reason ?? '', /could not parse/);
 });
+
+test('defers scripts with syntax errors to the auto-mode classifier', () => {
+  for (const command of ["echo 'unterminated", "echo ok; bash -c 'echo \"unterminated'"]) {
+    assert.equal(inspectBashCommand(parser, command, configuredRules, true), undefined, command);
+    assert.equal(inspectBashCommand(parser, command, configuredRules, false)?.rule, 'parse-error', command);
+  }
+});

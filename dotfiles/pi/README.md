@@ -448,7 +448,9 @@ OpenAI supplies no refusal explanation, so the message includes its request ID w
 are no automatic retries or backend fallbacks. The classifier explicitly assesses only the proposed command: historical tool
 calls are context, and reading a workflow or safety document does not execute or disable anything.
 A missing API key leaves the gate enabled and blocks commands that need classification rather than
-silently bypassing it.
+silently bypassing it. Scripts (or nested `bash -c` scripts) that tree-sitter cannot parse skip the
+deterministic shell rules for that script and go straight to the classifier; with auto mode off, they
+remain blocked.
 
 Every resolved auto-mode confirmation appends to `~/.pi/auto-mode-records.md`, including worker
 requests forwarded to the parent UI. Records contain the timestamp, requesting session, cwd,

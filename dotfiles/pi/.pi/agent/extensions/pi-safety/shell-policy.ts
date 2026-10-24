@@ -696,7 +696,12 @@ function inspectTree(
   const tree = parser.parse(source);
   if (!tree) return deny('parse-error', 'tree-sitter returned no syntax tree');
   try {
-    if (tree.rootNode.hasError) return deny('parse-error', 'tree-sitter could not parse the Bash script reliably');
+    if (tree.rootNode.hasError) {
+      // Auto mode adjudicates the full command text, so it decides scripts tree-sitter cannot read.
+      if (autoModeEnabled) return undefined;
+
+      return deny('parse-error', 'tree-sitter could not parse the Bash script reliably');
+    }
 
     const idShadowed =
       inheritedIdShadowed ||
