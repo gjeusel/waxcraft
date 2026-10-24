@@ -55,7 +55,16 @@ windows:
 
   - window_name: zf-spa
     start_directory: ~/src/rnux/apps/zefire-spa
-    layout: *editor
+    # editor, shell | zefire shell below
+    layout:
+      split: down
+      ratio: 0.77
+      panes:
+        - focus: true
+        - split: right
+          panes:
+            - {}
+            - shell_command: mamba activate zefire-prev
 
   - window_name: devops
     start_directory: ~/src/cloud-renewex
