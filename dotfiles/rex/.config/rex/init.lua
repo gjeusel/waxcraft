@@ -34,7 +34,9 @@ rex.bind(prefix .. "ctrl+q", "pane.send_key", { key = "ctrl+q" })
 
 -- Splits (tmux: prefix e / r)
 rex.bind(prefix .. "e", "pane.split", { direction = "right" })
+rex.bind(prefix .. "shift+e", "pane.split", { direction = "left" })
 rex.bind(prefix .. "r", "pane.split", { direction = "down" })
+rex.bind(prefix .. "shift+r", "pane.split", { direction = "up" })
 
 -- Tabs, the tmux windows (tmux: c, n, p, &, ",", 1..9 with base-index 1)
 rex.bind(prefix .. "c", "client.tab.new")
@@ -47,9 +49,9 @@ for index = 1, 9 do
   rex.bind(prefix .. index, "client.tab.goto", { index = index })
 end
 
--- Panes (tmux: x, z, o, !, E, arrows, ctrl+arrows)
+-- Panes (tmux: x, z, o, !, arrows, ctrl+arrows; = balances, as tmux E does)
 rex.bind(prefix .. "x", "pane.close")
-rex.bind(prefix .. "shift+e", "pane.balance")
+rex.bind(prefix .. "=", "pane.balance")
 rex.bind(prefix .. "z", "pane.zoom")
 rex.bind(prefix .. "o", "pane.focus_next")
 rex.bind(prefix .. "shift+1", "pane.move_to_new_tab")
