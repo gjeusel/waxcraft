@@ -12,6 +12,7 @@
 - Prefer "aerated" code: use blank lines between logical steps, after guard clauses, before final returns, and between substantial control-flow branches, while keeping tightly related statements together.
 - Define functions top to bottom in dependency order: a helper must appear above the function that calls it, so a file reads without forward references.
 - Avoid a proliferation of tiny helpers: inline logic that is used only once unless it names a genuinely distinct step.
+- Lower the complexity of the code by homogenizing its vocabulary: one concept, one name; one name, one concept; reuse the codebase's established term before coining a new one.
 - Make complex boolean logic readable by naming meaningful subconditions with descriptive intermediate variables; preserve short-circuit evaluation where it affects behavior or cost.
 - Wrap code comments and docstrings near the 100-character maximum (including indentation), not prematurely at 72 or 80 characters; keep sentences and expressions together when they fit to improve readability and comprehension.
 
