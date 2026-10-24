@@ -22,14 +22,10 @@
       "url": "https://mcp.posthog.com/mcp"
     },
     "postgres": {
-      "command": "uvx",
+      "command": "bash",
       "args": [
-        "--python",
-        "3.13",
-        "--with",
-        "mcp[cli]==1.29.0",
-        "postgres-mcp",
-        "--access-mode=unrestricted"
+        "-c",
+        "exec uvx --python 3.13 --overrides <(echo pglast==7.21) --with 'mcp[cli]==1.29.0' postgres-mcp==0.3.0 --access-mode=unrestricted"
       ],
       "env": {
         "DATABASE_URI": "postgresql://postgres@localhost:5432/zefire"
