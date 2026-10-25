@@ -36,6 +36,7 @@
 
       "claude" # claude app
       "chatgpt" # OpenAI's coding agent desktop app
+      "t3-code" # GUI for coding agents
       "macwhisper"
 
       # "linear"

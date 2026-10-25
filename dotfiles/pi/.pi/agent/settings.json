@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "1.3.0",
+  "lastChangelogVersion": "1.4.0",
   "theme": "nord",
   "tuiMode": "fullscreen",
   "shellPath": "/run/current-system/sw/bin/bash",
@@ -37,11 +37,11 @@
   ],
   "packages": [
     "git:github.com/paoloanzn/pi-black@v0.84.1-cc2.1.280.1",
-    "npm:@tintinweb/pi-subagents@v0.19.0",
-    "npm:@juicesharp/rpiv-todo@2.12.0",
-    "npm:@juicesharp/rpiv-ask-user-question@2.12.0",
-    "npm:@narumitw/pi-lsp@0.49.9",
-    "npm:pi-web-access@0.37.0",
+    "npm:@tintinweb/pi-subagents@v0.22.0",
+    "npm:@juicesharp/rpiv-todo@2.15.0",
+    "npm:@juicesharp/rpiv-ask-user-question@2.15.0",
+    "npm:@narumitw/pi-lsp@0.49.10",
+    "npm:pi-web-access@0.44.0",
     "git:github.com/arpagon/pi-rewind@v0.5.0",
     "npm:@ff-labs/pi-fff@0.11.0"
   ],
