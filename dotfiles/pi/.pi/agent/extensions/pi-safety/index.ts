@@ -8,7 +8,7 @@ import { createApprovalPrompt, fileApproval, type ApprovalRequest } from './appr
 import { loadSafetyConfig, type LoadedSafetyConfig } from './config.ts';
 import { inspectPath } from './path-policy.ts';
 import { createBashParser, inspectBashCommand } from './shell-policy.ts';
-import { AutoModeState, forwardApproval, registerSafetySession } from './session-state.ts';
+import { AutoModeState, forwardApproval, notifySafetyWarning, registerSafetySession } from './session-state.ts';
 
 const extensionDirectory = dirname(realpathSync(fileURLToPath(import.meta.url)));
 const shimDirectory = join(extensionDirectory, 'bin');
@@ -45,6 +45,19 @@ function statusText(
 
 function autoModeApiKey(source: AutoModeSource): string | undefined {
   return process.env[DECISION_BACKENDS[source].apiKeyEnv]?.trim() || undefined;
+}
+
+// Workers and reloaded extensions have separate module instances in the same process.
+const OPENAI_KEY_WARNING = Symbol.for('waxcraft:pi-safety:openai-key-ui-warning');
+const processWarnings = globalThis as typeof globalThis & { [OPENAI_KEY_WARNING]?: boolean };
+
+function warnOpenAIKeyOnce(ctx: ExtensionContext): void {
+  if (processWarnings[OPENAI_KEY_WARNING]) return;
+
+  // A headless session must not consume the warning before a live UI can display it.
+  if (notifySafetyWarning(ctx, 'pi-safety: OpenAI key unavailable; auto mode is failing open.')) {
+    processWarnings[OPENAI_KEY_WARNING] = true;
+  }
 }
 
 function savedAutoMode(ctx: ExtensionContext): boolean | undefined {
@@ -88,7 +101,7 @@ export default async function (pi: ExtensionAPI) {
 
   let loaded = loadSafetyConfig(process.env.PI_SAFETY_CONFIG);
   let shellChecksDisabled = false;
-  // Missing credentials must not silently disable an enabled permission gate.
+  // Credential failures leave auto mode enabled so later requests can recover.
   const envMode = process.env.PI_AUTO_MODE === '1' ? true : process.env.PI_AUTO_MODE === '0' ? false : undefined;
   const persistMode = (enabled: boolean, previous: boolean) => {
     try {
@@ -133,13 +146,14 @@ export default async function (pi: ExtensionAPI) {
     description: 'Toggle Bash adjudication and protected-file confirmations for this discussion (saved across resume/reload)',
     handler: async (_args, ctx) => {
       const { source } = loaded.config.autoMode;
-      if (!autoModeEnabled() && autoModeApiKey(source) === undefined) {
+      if (!autoModeEnabled() && source !== 'openai' && autoModeApiKey(source) === undefined) {
         ctx.ui.notify(`pi-safety: auto mode (${source}) needs ${DECISION_BACKENDS[source].apiKeyEnv} in the environment`, 'error');
         return;
       }
 
       mode.setEnabled(!autoModeEnabled());
       refreshAutoModeStatus(ctx);
+      if (autoModeEnabled() && source === 'openai' && autoModeApiKey(source) === undefined) warnOpenAIKeyOnce(ctx);
       ctx.ui.notify(
         autoModeEnabled()
           ? `pi-safety: auto mode on — Bash commands are adjudicated by ${source}; protected-file edits require confirmation`
@@ -166,10 +180,14 @@ export default async function (pi: ExtensionAPI) {
 
     const { source } = loaded.config.autoMode;
     if (autoModeEnabled() && autoModeApiKey(source) === undefined) {
-      ctx.ui.notify(
-        `pi-safety: auto mode (${source}) needs ${DECISION_BACKENDS[source].apiKeyEnv}; Bash is blocked until it is set or auto mode is disabled`,
-        'warning',
-      );
+      if (source === 'openai') {
+        warnOpenAIKeyOnce(ctx);
+      } else {
+        ctx.ui.notify(
+          `pi-safety: auto mode (${source}) needs ${DECISION_BACKENDS[source].apiKeyEnv}; Bash is blocked until it is set or auto mode is disabled`,
+          'warning',
+        );
+      }
     }
 
     if (parserError) {
@@ -198,14 +216,14 @@ export default async function (pi: ExtensionAPI) {
   async function gateWithAutoMode(command: string, ctx: ExtensionContext, confirmationReason?: string) {
     const { source, minConfidence } = loaded.config.autoMode;
     const apiKey = autoModeApiKey(source);
-    if (apiKey === undefined) {
+    if (apiKey === undefined && source !== 'openai') {
       return { block: true, reason: `pi-safety auto mode (${source}): ${DECISION_BACKENDS[source].apiKeyEnv} is not set` };
     }
 
     const actionLine = describeBashCall(command);
     const transcript = buildTranscript(ctx.sessionManager.getBranch(), actionLine);
     const outcome = await adjudicate(transcript, {
-      apiKey,
+      apiKey: apiKey ?? '',
       promptPath: join(dirname(loaded.configPath), AUTO_MODE_PROMPT_FILENAME),
       source,
       minConfidence,
@@ -213,6 +231,8 @@ export default async function (pi: ExtensionAPI) {
     });
 
     if (ctx.signal?.aborted) return { block: true, reason: 'pi-safety: classification cancelled' };
+    if (outcome.source === 'credentials') warnOpenAIKeyOnce(ctx);
+
     if (outcome.verdict === 'allow' && !confirmationReason) {
       const unclassified = outcome.source === 'fail-open' || outcome.source === 'refusal';
       if (unclassified) ctx.ui.notify(`🛡 auto mode allowed unclassified: ${outcome.reason}\n  ${actionLine}`, 'warning');

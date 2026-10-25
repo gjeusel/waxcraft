@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmdirSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -492,14 +493,19 @@ for (const source of AUTO_MODE_SOURCES) {
     }
   });
 
-  test(`${source}: /toggle-auto-mode requires the selected backend's API key`, async () => {
+  test(`${source}: /toggle-auto-mode permits missing OpenAI credentials only`, async () => {
     const otherKey = source === 'jev' ? 'OPENAI_API_KEY' : 'TYPESAFE_AI_API_KEY';
     const { commands, restore } = await setup(config, { PI_AUTO_MODE: '0', [otherKey]: 'other-key' });
     const { ctx, statuses, notifications } = autoModeContext({ hasUI: true });
     try {
       await commands.get('toggle-auto-mode')!.handler('', ctx);
-      assert.ok(notifications.at(-1)?.includes(apiKeyEnv));
-      assert.equal(statuses.has('auto-mode'), false);
+      if (source === 'openai') {
+        assert.equal(statuses.get('auto-mode'), 'auto-mode');
+        assert.match(notifications.at(-1)!, /auto mode on/);
+      } else {
+        assert.ok(notifications.at(-1)?.includes(apiKeyEnv));
+        assert.equal(statuses.has('auto-mode'), false);
+      }
     } finally {
       restore();
     }
@@ -808,17 +814,17 @@ test('malformed saved preferences fall back to defaults; failed enabling does no
   const current = autoModeContext({ hasUI: true });
   const sessionManager = current.ctx.sessionManager;
   sessionManager.appendCustomEntry('pi-safety:auto-mode', { enabled: 'false' });
-  const runtime = await setup('{}', {}, sessionManager);
+  const runtime = await setup(JSON.stringify({ autoMode: { source: 'jev' } }), {}, sessionManager);
   try {
     await runtime.handlers.get('session_start')!({}, current.ctx);
     assert.equal(current.statuses.get('auto-mode'), 'auto-mode');
     const event = { type: 'tool_call', toolName: 'bash', input: { command: 'echo ok' } };
-    assert.match((await runtime.handlers.get('tool_call')!(event, current.ctx)).reason, /OPENAI_API_KEY is not set/);
+    assert.match((await runtime.handlers.get('tool_call')!(event, current.ctx)).reason, /TYPESAFE_AI_API_KEY is not set/);
     await runtime.commands.get('toggle-auto-mode')!.handler('', current.ctx);
     const entries = sessionManager.getEntries();
     await runtime.commands.get('toggle-auto-mode')!.handler('', current.ctx);
     assert.equal(current.statuses.get('auto-mode'), undefined);
-    assert.match(current.notifications.at(-1)!, /needs OPENAI_API_KEY/);
+    assert.match(current.notifications.at(-1)!, /needs TYPESAFE_AI_API_KEY/);
     assert.deepEqual(sessionManager.getEntries(), entries);
   } finally {
     runtime.restore();
@@ -842,15 +848,21 @@ for (const source of AUTO_MODE_SOURCES) {
     try {
       await handlers.get('session_start')!({}, ctx);
       assert.equal(statuses.get('auto-mode'), 'auto-mode');
-      assert.ok(notifications.at(-1)?.includes(apiKeyEnv));
+      if (source === 'openai') assert.deepEqual(notifications, []);
+      else assert.ok(notifications.at(-1)?.includes(apiKeyEnv));
 
       // /no-safety disables deterministic checks, not the separate auto-mode gate.
       await commands.get('no-safety')!.handler('', ctx);
       const event = { type: 'tool_call', toolName: 'bash', input: { command: 'ls' } };
-      const blocked = await handlers.get('tool_call')!(event, ctx);
-      assert.equal(blocked.block, true);
-      assert.ok(blocked.reason.includes(apiKeyEnv));
-      assert.equal(event.input.command, 'ls');
+      const result = await handlers.get('tool_call')!(event, ctx);
+      if (source === 'openai') {
+        assert.equal(result, undefined);
+        assert.match(event.input.command, /\nls$/);
+      } else {
+        assert.equal(result.block, true);
+        assert.ok(result.reason.includes(apiKeyEnv));
+        assert.equal(event.input.command, 'ls');
+      }
       assert.equal(confirmations.length, 0);
 
       await commands.get('toggle-auto-mode')!.handler('', ctx);
@@ -860,6 +872,132 @@ for (const source of AUTO_MODE_SOURCES) {
     } finally {
       restore();
     }
+  });
+}
+
+for (const status of [undefined, 401, 403]) {
+  test(`OpenAI credentials (${status ?? 'missing'}): fail open without UI warnings and retain safeguards`, async (t) => {
+    const { handlers, promptPath, recordsPath, restore } = await setup(JSON.stringify({
+      shell: { deny: [
+        { command: 'sudo', reason: 'sudo denied in test' },
+        { command: 'kubectl', reason: 'infra needs approval', autoMode: 'ask' },
+      ] },
+      paths: { ask: ['**/.env'] },
+    }), { PI_AUTO_MODE: '1', OPENAI_API_KEY: status ? 'bad-key' : undefined });
+    const fetcher = t.mock.method(globalThis, 'fetch', async () => {
+      assert.ok(status, 'missing credentials must not reach the API');
+      return new Response('private server error with bad-key', { status });
+    });
+    const context = autoModeContext({ hasUI: false });
+    const toolCall = handlers.get('tool_call')!;
+    const run = (command: string, ctx = context.ctx) => toolCall({ type: 'tool_call', toolName: 'bash', input: { command } }, ctx);
+    try {
+      await handlers.get('session_start')!({}, context.ctx);
+      assert.deepEqual(await Promise.all([run('ls'), run('pwd')]), [undefined, undefined]);
+      assert.deepEqual(context.notifications, []);
+      assert.equal(context.statuses.get('auto-mode'), 'auto-mode');
+      assert.equal(existsSync(recordsPath), false);
+
+      const requests = fetcher.mock.callCount();
+      assert.match((await run('sudo ls')).reason, /sudo denied in test/);
+      assert.equal(fetcher.mock.callCount(), requests);
+      assert.match((await run('kubectl delete pod worker')).reason, /infra needs approval.*no UI/);
+      const declined = autoModeContext({ hasUI: true, confirm: false });
+      assert.match((await run('kubectl delete pod worker', declined.ctx)).reason, /user declined/);
+      assert.equal(declined.confirmations.length, 1);
+      assert.deepEqual(declined.notifications, []);
+      assert.match((await toolCall({
+        type: 'tool_call', toolName: 'write', input: { path: '.env', content: 'x' },
+      }, context.ctx)).reason, /needs user confirmation/);
+
+      writeFileSync(promptPath, '# Unknown\nInvalid policy.');
+      assert.match((await run('ls')).reason, /auto-mode prompt .*unknown section/);
+
+      writeFileSync(promptPath, '# Instructions\nAssess the command.');
+      process.env.OPENAI_API_KEY = 'working-key';
+      fetcher.mock.mockImplementation(decisionFetch('openai', 'deny', 1));
+      assert.match((await run('ls')).reason, /auto mode denied/);
+      assert.equal(context.statuses.get('auto-mode'), 'auto-mode');
+    } finally {
+      restore();
+    }
+  });
+}
+
+for (const initiallyMissing of [false, true]) {
+  test(`OpenAI warning is process-wide across workers/reloads (initially missing: ${initiallyMissing})`, () => {
+    // A fresh process tests the actual global lifetime, without resetting production warning state.
+    execFileSync(process.execPath, ['--input-type=module', '-e', `
+    import assert from 'node:assert/strict';
+    import { mkdtempSync, writeFileSync } from 'node:fs';
+    import { tmpdir } from 'node:os';
+    import { join } from 'node:path';
+    const directory = mkdtempSync(join(tmpdir(), 'pi-safety-warning-'));
+    process.env.PI_SAFETY_CONFIG = join(directory, 'config.jsonc');
+    writeFileSync(process.env.PI_SAFETY_CONFIG, '{}');
+    process.env.PI_AUTO_MODE = '1';
+    process.env.OPENAI_API_KEY = 'rejected';
+    if (${initiallyMissing}) delete process.env.OPENAI_API_KEY;
+    const { InteractiveMode, initTheme } = await import('@earendil-works/pi-coding-agent');
+    const { Container, stripTerminalSequences } = await import('@earendil-works/pi-tui');
+    initTheme('dark', false);
+    const warnings = [];
+    const chat = new Container();
+    const editorText = 'unfinished user input';
+    const renderer = Object.create(InteractiveMode.prototype);
+    renderer.chatContainer = chat;
+    renderer.ui = { requestRender() {} };
+    renderer.editor = {
+      getText: () => editorText,
+      setText: () => assert.fail('notifications must not change editor input'),
+    };
+    console.warn = () => assert.fail('must not write directly into the terminal');
+    const { withWorkerParent } = await import(${JSON.stringify(new URL('./session-state.ts', import.meta.url).href)});
+    const url = ${JSON.stringify(new URL('./index.ts', import.meta.url).href)};
+    const load = async (suffix, id, hasUI = false) => {
+      const { default: safety } = await import(url + suffix);
+      const handlers = new Map();
+      await safety({ on: (name, handler) => handlers.set(name, handler), registerCommand() {} });
+      const ctx = {
+        hasUI,
+        sessionManager: { getEntries: () => [], getBranch: () => [], getSessionId: () => id,
+          getSessionFile: () => undefined, getHeader: () => undefined },
+        ui: { setStatus() {}, notify: (message, type) => {
+          assert.ok(hasUI, 'headless workers must notify through their parent');
+          warnings.push({ id, message, type });
+          renderer.showExtensionNotify(message, type);
+        } },
+      };
+      await handlers.get('session_start')({}, ctx);
+      return { handlers, ctx };
+    };
+    globalThis.fetch = async () => new Response('private error', { status: 401 });
+    const run = async ({ handlers, ctx }) => assert.equal(await handlers.get('tool_call')({
+      type: 'tool_call', toolName: 'bash', input: { command: 'ls' },
+    }, ctx), undefined);
+    const headless = await load('?headless', 'headless');
+    await run(headless);
+    assert.deepEqual(warnings, [], 'no UI must not consume the one-time warning');
+
+    process.env.OPENAI_API_KEY = 'present-at-root-startup';
+    const root = await load('', 'root', true);
+    if (${initiallyMissing}) delete process.env.OPENAI_API_KEY;
+    const worker = await withWorkerParent(root.ctx, () => load('?worker', 'worker'));
+    await run(worker);
+    process.env.OPENAI_API_KEY = 'rejected';
+    const reloaded = await load('?reload', 'reloaded', true);
+    await Promise.all([root, worker, reloaded].map(async (session) => {
+      await run(session);
+      await run(session);
+      session.handlers.get('session_shutdown')({});
+    }));
+    headless.handlers.get('session_shutdown')({});
+    const message = 'pi-safety: OpenAI key unavailable; auto mode is failing open.';
+    assert.deepEqual(warnings, [{ id: 'root', message, type: 'warning' }]);
+    const rendered = chat.render(100).map(stripTerminalSequences).join('\\n');
+    assert.ok(rendered.includes('Warning: ' + message), 'warning must render in chat');
+    assert.equal(renderer.editor.getText(), editorText);
+    `], { encoding: 'utf8', stdio: 'pipe', cwd: new URL('..', import.meta.url) });
   });
 }
 

@@ -277,6 +277,12 @@ export const DECISION_BACKENDS: Record<AutoModeSource, DecisionBackend> = {
   },
 };
 
+class OpenAICredentialsError extends Error {
+  constructor() {
+    super('OpenAI API key is missing or rejected');
+  }
+}
+
 function retryDelayMs(response: Response, retry: number): number {
   const backoff = RETRY_DELAY_MS * 2 ** retry;
   const retryAfter = response.headers.get('retry-after')?.trim();
@@ -295,6 +301,8 @@ export async function classify(state: string, options: ClassifyOptions): Promise
   const backend = DECISION_BACKENDS[source];
   // Read for every decision so prompt edits also reach already-running worker sessions.
   const questions = loadVerdictQuestions(options.promptPath);
+  if (source === 'openai' && !options.apiKey.trim()) throw new OpenAICredentialsError();
+
   const fetcher = options.fetcher ?? fetch;
   const timeoutMs = options.timeoutMs ?? REQUEST_TIMEOUT_MS;
   const timeout = AbortSignal.timeout(timeoutMs);
@@ -313,6 +321,10 @@ export async function classify(state: string, options: ClassifyOptions): Promise
     signal.throwIfAborted();
 
     if (!response.ok) {
+      if (source === 'openai' && (response.status === 401 || response.status === 403)) {
+        throw new OpenAICredentialsError();
+      }
+
       const retryable = response.status === 408 || response.status === 409 || response.status === 429
         || (response.status >= 500 && response.status < 600);
       if (retryable && retry < MAX_HTTP_RETRIES) {
@@ -341,7 +353,7 @@ export async function classify(state: string, options: ClassifyOptions): Promise
 export interface Adjudication {
   verdict: Verdict;
   reason: string;
-  source: AutoModeSource | 'low-confidence' | 'refusal' | 'fail-open' | 'fail-closed';
+  source: AutoModeSource | 'low-confidence' | 'refusal' | 'fail-open' | 'fail-closed' | 'credentials';
 }
 
 export interface AdjudicateOptions extends ClassifyOptions {
@@ -374,6 +386,9 @@ export async function adjudicate(state: string, options: AdjudicateOptions): Pro
     result = await classify(state, options);
   } catch (error) {
     if (error instanceof PolicyPromptError) return { verdict: 'ask', reason: error.message, source: 'fail-closed' };
+    if (error instanceof OpenAICredentialsError) {
+      return { verdict: 'allow', reason: error.message, source: 'credentials' };
+    }
     if (error instanceof ClassificationRefusedError) {
       return { verdict: 'allow', reason: error.message, source: 'refusal' };
     }

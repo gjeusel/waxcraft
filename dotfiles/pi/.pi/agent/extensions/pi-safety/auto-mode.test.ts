@@ -313,7 +313,7 @@ for (const source of AUTO_MODE_SOURCES) {
   });
 
   test(`${source}: rejects HTTP errors, invalid JSON, and malformed answers`, async () => {
-    await assert.rejects(classify('s', { promptPath, source, apiKey: 'k', fetcher: responseFetch('nope', 401) }), new RegExp(`${source} 401`));
+    await assert.rejects(classify('s', { promptPath, source, apiKey: 'k', fetcher: responseFetch('nope', 401) }), source === 'openai' ? /OpenAI API key is missing or rejected/ : /jev 401/);
     await assert.rejects(classify('s', { promptPath, source, apiKey: 'k', fetcher: responseFetch('not json') }), /malformed JSON/);
 
     for (const body of [null, [], {}, { answers: [] }, { answers: null }]) {
@@ -418,7 +418,8 @@ for (const source of AUTO_MODE_SOURCES) {
       const fetcher = t.mock.fn(responseFetch(body, status));
       const outcome = await adjudicate('s', { promptPath, source, apiKey: 'k', fetcher });
 
-      assert.equal(outcome.source, 'fail-open');
+      const credentialsRejected = source === 'openai' && (status === 401 || status === 403);
+      assert.equal(outcome.source, credentialsRejected ? 'credentials' : 'fail-open');
       assert.equal(fetcher.mock.callCount(), 1);
     }
   });

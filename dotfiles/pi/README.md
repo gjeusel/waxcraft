@@ -443,7 +443,12 @@ files without applying them are allowed.
 Set it higher (for example, `0.5`) to demote low-confidence allow/deny verdicts to `ask`.
 Request failures, timeouts, refusals, and malformed answers **fail open**: the command runs with a
 `🛡 auto mode allowed unclassified` warning, and deterministic rules (including rule-based asks) still
-apply. A valid refusal is reported as **classification refused**, not **classifier unavailable**;
+apply. Missing or rejected OpenAI credentials (HTTP 401/403) instead show one concise UI warning
+per Pi process, shared across sessions, workers, and reloads. Worker warnings go to their live parent
+UI; headless sessions without a parent UI stay silent and do not consume the warning. Nothing is
+written directly to the terminal or editor input.
+Auto mode stays enabled and checks subsequent commands again, allowing recovery when credentials work.
+A valid refusal is reported as **classification refused**, not **classifier unavailable**;
 OpenAI supplies no refusal explanation, so the message includes its request ID when available. There
 are up to two automatic retries for HTTP 408, 409, 429, and 5xx responses, with 500 ms then 1 s
 backoff and longer `Retry-After` delays (seconds or HTTP date). All attempts and waits share the
@@ -452,10 +457,11 @@ refusals, and malformed responses are not retried; exhausted retries keep the fa
 There are no backend fallbacks. The classifier explicitly assesses only the proposed command:
 historical tool calls are context, and reading a workflow or safety document does not execute or
 disable anything.
-A missing API key leaves the gate enabled and blocks commands that need classification rather than
-silently bypassing it. Scripts (or nested `bash -c` scripts) that tree-sitter cannot parse skip the
-deterministic shell rules for that script and go straight to the classifier; with auto mode off, they
-remain blocked.
+A missing OpenAI API key follows the same warn-once fail-open behavior; missing jev credentials still
+block commands that need classification. Deterministic denies, rule-based asks, protected-file
+confirmations, and invalid-policy confirmations remain enforced even when OpenAI credentials fail.
+Scripts (or nested `bash -c` scripts) that tree-sitter cannot parse skip the deterministic shell rules
+for that script and go straight to the classifier; with auto mode off, they remain blocked.
 
 Every resolved auto-mode confirmation appends to `~/.pi/auto-mode-records.md`, including worker
 requests forwarded to the parent UI. Records contain the timestamp, requesting session, cwd,

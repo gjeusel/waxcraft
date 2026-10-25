@@ -119,6 +119,33 @@ export function registerSafetySession(
   return { mode, dispose };
 }
 
+/** Notify through Pi's renderer, using the live parent UI for headless workers. */
+export function notifySafetyWarning(ctx: ExtensionContext, message: string): boolean {
+  if (ctx.hasUI) {
+    ctx.ui.notify(message, 'warning');
+    return true;
+  }
+
+  const requester = registry.byId.get(ctx.sessionManager.getSessionId());
+  if (requester?.lifetime.aborted) return false;
+
+  const visited = new Set<SafetySession>();
+  let session = requester ? requester.parent : savedParent(ctx);
+  while (session && !visited.has(session)) {
+    visited.add(session);
+    if (session.lifetime.aborted) return false;
+
+    if (session.ctx.hasUI) {
+      session.ctx.ui.notify(message, 'warning');
+      return true;
+    }
+
+    session = session.parent;
+  }
+
+  return false;
+}
+
 /** Undefined means there is no live ancestor UI. Cancellation and errors must never approve. */
 export async function forwardApproval(
   request: ApprovalRequest,

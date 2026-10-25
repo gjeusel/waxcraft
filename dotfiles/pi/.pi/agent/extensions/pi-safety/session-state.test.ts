@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import test from 'node:test';
 import { SessionManager, type ExtensionContext } from '@earendil-works/pi-coding-agent';
 import { createApprovalPrompt } from './approval.ts';
-import { AutoModeState, forwardApproval, registerSafetySession, withWorkerParent } from './session-state.ts';
+import { AutoModeState, forwardApproval, notifySafetyWarning, registerSafetySession, withWorkerParent } from './session-state.ts';
 
 function context(options: {
   parent?: ExtensionContext;
@@ -98,6 +98,35 @@ test('workers share only their native parent mode, including new workers and sep
   unsubscribe();
   state.setEnabled(true);
   assert.equal(updates, 1);
+});
+
+test('warnings use the local or live ancestor UI, never an unrelated or disposed session', async (t) => {
+  const lifetime = new AbortController();
+  t.after(() => lifetime.abort());
+  const root = context({ hasUI: true, inMemory: true });
+  const notify = t.mock.fn();
+  root.ui.notify = notify;
+  registerSafetySession(root, async () => true, new AutoModeState(true), lifetime.signal);
+  const unrelated = context({ hasUI: true, inMemory: true });
+  unrelated.ui.notify = () => assert.fail('must not use another discussion UI');
+  registerSafetySession(unrelated, async () => true, new AutoModeState(true), lifetime.signal);
+
+  assert.equal(notifySafetyWarning(root, 'local warning'), true);
+  assert.deepEqual(notify.mock.calls[0].arguments, ['local warning', 'warning']);
+  assert.equal(notifySafetyWarning(context(), 'unlinked warning'), false);
+
+  const child = context({ inMemory: true });
+  const registered = await withWorkerParent(root, async () =>
+    registerSafetySession(child, async () => false, new AutoModeState(true), lifetime.signal));
+  const leaf = context({ inMemory: true });
+  await withWorkerParent(child, async () =>
+    registerSafetySession(leaf, async () => false, new AutoModeState(true), lifetime.signal));
+  assert.equal(notifySafetyWarning(leaf, 'worker warning'), true);
+  assert.deepEqual(notify.mock.calls[1].arguments, ['worker warning', 'warning']);
+
+  registered.dispose();
+  assert.equal(notifySafetyWarning(leaf, 'stale warning'), false);
+  assert.equal(notify.mock.callCount(), 2);
 });
 
 test('forwarding preserves full content, identifies the worker, and routes only to its parent UI', async (t) => {
