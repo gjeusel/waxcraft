@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
 import { mkdtempSync, writeFileSync } from 'node:fs';
+import { syncBuiltinESMExports } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import test from 'node:test';
+import test, { type TestContext } from 'node:test';
+import { setImmediate } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 import type { SessionEntry } from '@earendil-works/pi-coding-agent';
 import {
@@ -46,6 +48,16 @@ function toolCallEntry(name: string, args: Record<string, string>): SessionEntry
       timestamp: 0,
     },
   };
+}
+
+function mockRetryTimers(t: TestContext): void {
+  t.mock.timers.enable({ apis: ['setTimeout', 'Date'], now: 0 });
+  // Refresh named ESM imports when Node replaces or restores its built-in timer exports.
+  syncBuiltinESMExports();
+  t.after(() => {
+    t.mock.timers.reset();
+    syncBuiltinESMExports();
+  });
 }
 
 function responseFetch(body: unknown, status = 200): typeof fetch {
@@ -321,6 +333,128 @@ for (const source of AUTO_MODE_SOURCES) {
     }
   });
 
+  for (const status of [408, 409, 429, 500, 502, 503, 504, 599]) {
+    test(`${source}: retries HTTP ${status} with backoff and the unchanged request`, async (t) => {
+      mockRetryTimers(t);
+      const requests: RequestInit[] = [];
+      const fetcher: typeof fetch = async (url, init) => {
+        assert.equal(url, source === 'jev' ? 'https://api.typesafe.ai/v1/systemone' : 'https://api.openai.com/v1/decisions');
+        requests.push(init!);
+
+        return requests.length < 3
+          ? new Response('temporarily unavailable', { status })
+          : new Response(JSON.stringify(decisionResponse(source, { choice: 'deny' })));
+      };
+      const pending = adjudicate('complete transcript', { promptPath, source, apiKey: 'k', fetcher });
+      await setImmediate();
+      assert.equal(requests.length, 1);
+
+      for (const backoff of [500, 1000]) {
+        const before: number = requests.length;
+        t.mock.timers.tick(backoff - 1);
+        await setImmediate();
+        assert.equal(requests.length, before);
+        t.mock.timers.tick(1);
+        await setImmediate();
+        assert.equal(requests.length, before + 1);
+      }
+
+      const outcome = await pending;
+      assert.equal(outcome.verdict, 'deny');
+      assert.equal(outcome.source, source);
+      assert.deepEqual(requests[1], requests[0]);
+      assert.deepEqual(requests[2], requests[0]);
+    });
+  }
+
+  test(`${source}: fails open after exhausting HTTP retries with the final error`, async (t) => {
+    mockRetryTimers(t);
+    let calls = 0;
+    const fetcher: typeof fetch = async () => new Response(`failure ${++calls}`, { status: 503 });
+    const pending = adjudicate('s', { promptPath, source, apiKey: 'k', fetcher });
+    await setImmediate();
+    t.mock.timers.tick(500);
+    await setImmediate();
+    t.mock.timers.tick(1000);
+
+    const outcome = await pending;
+    assert.equal(calls, 3);
+    assert.equal(outcome.verdict, 'allow');
+    assert.equal(outcome.source, 'fail-open');
+    assert.equal(outcome.reason, `classifier unavailable (${source} 503: failure 3)`);
+  });
+
+  for (const [retryAfter, expectedDelay] of [
+    ['2', 2000],
+    ['Thu, 01 Jan 1970 00:00:02 GMT', 2000],
+    ['invalid', 500],
+    ['Wed, 31 Dec 1969 23:59:59 GMT', 500],
+    ['0', 500],
+  ] as const) {
+    test(`${source}: honours Retry-After ${retryAfter}`, async (t) => {
+      mockRetryTimers(t);
+      let calls = 0;
+      const fetcher: typeof fetch = async () => ++calls === 1
+        ? new Response('rate limited', { status: 429, headers: { 'retry-after': retryAfter } })
+        : new Response(JSON.stringify(decisionResponse(source)));
+      const pending = classify('s', { promptPath, source, apiKey: 'k', fetcher });
+      await setImmediate();
+      t.mock.timers.tick(expectedDelay - 1);
+      await setImmediate();
+      assert.equal(calls, 1);
+      t.mock.timers.tick(1);
+
+      assert.equal((await pending).verdict, 'allow');
+      assert.equal(calls, 2);
+    });
+  }
+
+  test(`${source}: does not retry permanent HTTP errors or malformed successful responses`, async (t) => {
+    for (const [body, status] of [
+      ...[400, 401, 403, 404, 413, 422].map((status) => ['permanent error', status] as const),
+      ['not json', 200],
+      [JSON.stringify(decisionResponse(source, { choice: 'invalid' })), 200],
+    ] as const) {
+      const fetcher = t.mock.fn(responseFetch(body, status));
+      const outcome = await adjudicate('s', { promptPath, source, apiKey: 'k', fetcher });
+
+      assert.equal(outcome.source, 'fail-open');
+      assert.equal(fetcher.mock.callCount(), 1);
+    }
+  });
+
+  test(`${source}: caller cancellation stops a pending HTTP retry`, async () => {
+    const controller = new AbortController();
+    let calls = 0;
+    const fetcher: typeof fetch = async () => {
+      calls += 1;
+      return new Response('unavailable', { status: 503 });
+    };
+    const pending = classify('s', { promptPath, source, apiKey: 'k', fetcher, signal: controller.signal });
+    await setImmediate();
+    controller.abort(new Error('caller cancelled'));
+
+    await assert.rejects(pending, { name: 'AbortError', cause: controller.signal.reason });
+    assert.equal(calls, 1);
+  });
+
+  test(`${source}: the shared deadline cancels a long Retry-After wait`, async () => {
+    let calls = 0;
+    const fetcher: typeof fetch = async () => {
+      calls += 1;
+      return new Response('rate limited', { status: 429, headers: { 'retry-after': '3600' } });
+    };
+
+    await assert.rejects(classify('s', { promptPath, source, apiKey: 'k', fetcher, timeoutMs: 20 }), (error: unknown) => {
+      assert.ok(error instanceof Error);
+      assert.equal(error.name, 'AbortError');
+      assert.ok(error.cause instanceof Error);
+      assert.equal(error.cause.name, 'TimeoutError');
+      return true;
+    });
+    assert.equal(calls, 1);
+  });
+
   test(`${source}: distinguishes a refusal from service failure without retrying`, async () => {
     let calls = 0;
     const fetcher: typeof fetch = async () => {
@@ -392,7 +526,7 @@ for (const source of AUTO_MODE_SOURCES) {
     }
   });
 
-  test(`${source}: fails open without retrying or falling back to another backend`, async () => {
+  test(`${source}: transport errors fail open without HTTP retries or backend fallback`, async () => {
     let calls = 0;
     const fetcher: typeof fetch = async () => {
       calls += 1;

@@ -9,6 +9,7 @@
 import { appendFileSync, closeSync, fstatSync, mkdirSync, openSync, readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
+import { setTimeout as delay } from 'node:timers/promises';
 import type { SessionEntry } from '@earendil-works/pi-coding-agent';
 import { lexer } from 'marked';
 
@@ -20,6 +21,8 @@ export type AutoModeSource = (typeof AUTO_MODE_SOURCES)[number];
 export const DEFAULT_AUTO_MODE_SOURCE: AutoModeSource = 'openai';
 export const DEFAULT_MIN_CONFIDENCE = 0;
 const REQUEST_TIMEOUT_MS = 10_000;
+const MAX_HTTP_RETRIES = 2;
+const RETRY_DELAY_MS = 500;
 
 const MAX_USER_MESSAGES = 5;
 const MAX_TOOL_CALLS = 10;
@@ -274,36 +277,65 @@ export const DECISION_BACKENDS: Record<AutoModeSource, DecisionBackend> = {
   },
 };
 
-/** One decisions call; throws on transport, HTTP, or shape errors so the caller can fail closed. */
+function retryDelayMs(response: Response, retry: number): number {
+  const backoff = RETRY_DELAY_MS * 2 ** retry;
+  const retryAfter = response.headers.get('retry-after')?.trim();
+  if (!retryAfter) return backoff;
+
+  const requestedDelay = /^\d+(?:\.\d+)?$/.test(retryAfter)
+    ? Number(retryAfter) * 1000
+    : Date.parse(retryAfter) - Date.now();
+
+  return Number.isFinite(requestedDelay) ? Math.max(backoff, requestedDelay) : backoff;
+}
+
+/** Retry transient HTTP failures within one deadline; exhausted failures follow fail-open policy. */
 export async function classify(state: string, options: ClassifyOptions): Promise<ClassifierVerdict> {
   const source = options.source ?? DEFAULT_AUTO_MODE_SOURCE;
   const backend = DECISION_BACKENDS[source];
   // Read for every decision so prompt edits also reach already-running worker sessions.
   const questions = loadVerdictQuestions(options.promptPath);
   const fetcher = options.fetcher ?? fetch;
-  const timeout = AbortSignal.timeout(options.timeoutMs ?? REQUEST_TIMEOUT_MS);
+  const timeoutMs = options.timeoutMs ?? REQUEST_TIMEOUT_MS;
+  const timeout = AbortSignal.timeout(timeoutMs);
   const signal = options.signal ? AbortSignal.any([options.signal, timeout]) : timeout;
+  const body = JSON.stringify(backend.buildRequest(state, questions));
 
-  const response = await fetcher(backend.url, {
-    method: 'POST',
-    headers: { authorization: `Bearer ${options.apiKey}`, 'content-type': 'application/json' },
-    body: JSON.stringify(backend.buildRequest(state, questions)),
-    signal,
-  });
-  const text = await response.text();
-  if (!response.ok) throw new Error(`${source} ${response.status}: ${text.slice(0, 200)}`);
+  for (let retry = 0; ; retry += 1) {
+    signal.throwIfAborted();
+    const response = await fetcher(backend.url, {
+      method: 'POST',
+      headers: { authorization: `Bearer ${options.apiKey}`, 'content-type': 'application/json' },
+      body,
+      signal,
+    });
+    const text = await response.text();
+    signal.throwIfAborted();
 
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(text);
-  } catch {
-    throw new Error(`${source} returned malformed JSON`);
+    if (!response.ok) {
+      const retryable = response.status === 408 || response.status === 409 || response.status === 429
+        || (response.status >= 500 && response.status < 600);
+      if (retryable && retry < MAX_HTTP_RETRIES) {
+        // The shared deadline cancels long Retry-After waits as well as in-flight requests.
+        await delay(Math.min(retryDelayMs(response, retry), timeoutMs), undefined, { signal });
+        continue;
+      }
+
+      throw new Error(`${source} ${response.status}: ${text.slice(0, 200)}`);
+    }
+
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(text);
+    } catch {
+      throw new Error(`${source} returned malformed JSON`);
+    }
+
+    // Keep an opaque support reference, never the full transcript or response body in refusal errors.
+    const requestId = response.headers.get('x-request-id');
+
+    return backend.parseResponse(parsed, requestId && /^[\w-]{1,128}$/.test(requestId) ? requestId : undefined);
   }
-
-  // Keep an opaque support reference, never the full transcript or response body in refusal errors.
-  const requestId = response.headers.get('x-request-id');
-
-  return backend.parseResponse(parsed, requestId && /^[\w-]{1,128}$/.test(requestId) ? requestId : undefined);
 }
 
 export interface Adjudication {

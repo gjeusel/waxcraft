@@ -445,8 +445,13 @@ Request failures, timeouts, refusals, and malformed answers **fail open**: the c
 `🛡 auto mode allowed unclassified` warning, and deterministic rules (including rule-based asks) still
 apply. A valid refusal is reported as **classification refused**, not **classifier unavailable**;
 OpenAI supplies no refusal explanation, so the message includes its request ID when available. There
-are no automatic retries or backend fallbacks. The classifier explicitly assesses only the proposed command: historical tool
-calls are context, and reading a workflow or safety document does not execute or disable anything.
+are up to two automatic retries for HTTP 408, 409, 429, and 5xx responses, with 500 ms then 1 s
+backoff and longer `Retry-After` delays (seconds or HTTP date). All attempts and waits share the
+10-second classification deadline and caller cancellation. Other HTTP errors, transport failures,
+refusals, and malformed responses are not retried; exhausted retries keep the fail-open behavior.
+There are no backend fallbacks. The classifier explicitly assesses only the proposed command:
+historical tool calls are context, and reading a workflow or safety document does not execute or
+disable anything.
 A missing API key leaves the gate enabled and blocks commands that need classification rather than
 silently bypassing it. Scripts (or nested `bash -c` scripts) that tree-sitter cannot parse skip the
 deterministic shell rules for that script and go straight to the classifier; with auto mode off, they
