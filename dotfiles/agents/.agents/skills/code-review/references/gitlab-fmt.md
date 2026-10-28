@@ -24,6 +24,7 @@ with badges and local locations with commit-pinned links. Keep clean/skipped-axi
 line; only axes with findings need headings. Use this shape, replacing the placeholders:
 
 ````markdown
+<!-- code-review:start -->
 ## Code review
 
 <Same one-line count/verdict and clean/skipped-axis statuses.>
@@ -39,7 +40,11 @@ line; only axes with findings need headings. Use this shape, replacing the place
    ```
 
 <sub>Reviewed <scope and SHAs> · Spec: <source, if any> · Checks: <actual results/limits></sub>
+<!-- code-review:end -->
 ````
+
+The `code-review:start`/`end` markers delimit the review section inside the MR description; they
+render invisibly and must not appear anywhere else in the review body.
 
 Badge colours: `P0` → `ff6d6d`, `P1` → `ff9c7f`, `P2` → `daff01`, `P3` → `c4c4c4`.
 Priority definitions and inclusion thresholds remain in `SKILL.md`.
@@ -54,11 +59,27 @@ small metadata footer: omit confidence scores, collapsible narrative summaries, 
 
 ## Publish and verify
 
-Post one general MR note through `glab`, targeting an explicit project and MR IID. Use inline
-threads only if requested. Pass Markdown through stdin or a safely serialized payload so shell
-expansion cannot alter backticks or code. Consult the installed command's help for supported flags.
+Publish the review into the MR description, not as a note. Use inline threads only if requested.
+Target an explicit project and MR IID through the REST API, for example
+`glab api projects/<id>/merge_requests/<iid>` to read and the same endpoint with `--method PUT` and
+`--field description=@<file>` to write. Pass Markdown through a file or stdin so shell expansion
+cannot alter backticks or code; consult the installed command's help for supported flags.
 
-Read the resulting note back and compare its body with the prepared Markdown before reporting
-success; return the note URL. If a request times out or a retry is needed, check for an identical
-note by the same author on that MR first. Keep the prepared Markdown on publication failure and
-state the blocker rather than claiming it was uploaded.
+Fetch the current description immediately before writing and splice the review section into it:
+
+- **One marked section** (`<!-- code-review:start -->` … `<!-- code-review:end -->`): replace it,
+  markers included, in place.
+- **No markers, but an earlier unmarked `## Code review` section:** replace from that heading up
+  to the next heading of the same or higher level, or the end of the description.
+- **Neither:** append the section after the existing content, separated by one blank line. An empty
+  description becomes the section alone.
+- **Malformed markers** (unmatched or repeated): do not guess; show the terminal review and ask.
+
+Everything outside the review section stays byte-for-byte identical: never rewrite, reformat, or
+trim the author's content. Do not change the title, labels, or any other MR field.
+
+Read the description back after writing: the review section must match the prepared Markdown, and
+the surrounding content must match what was fetched. If it changed concurrently, re-splice against
+the fresh description rather than overwriting the newer edit. After a timeout, read back before
+retrying; the splice is idempotent. Return the MR `web_url`. Keep the prepared Markdown on
+publication failure and state the blocker rather than claiming it was uploaded.

@@ -21,16 +21,17 @@ Choose delivery independently of review scope (naming an MR is not a request for
 | Requested destination                  | Deliver to                                                      |
 | -------------------------------------- | --------------------------------------------------------------- |
 | Terminal/local only, or no posting     | Terminal only                                                   |
-| GitLab/MR only                         | MR note; return its URL in the terminal                         |
+| GitLab/MR only                         | MR description review section; return the MR URL                |
 | A file or another explicit destination | That destination only                                           |
 | Unspecified                            | Terminal **and** the matching existing GitLab MR, if one exists |
 
-Honor explicit combinations. The default authorizes a review note, not creating an MR, pushing,
-approving, or merging. A missing MR leaves a terminal-only review.
+Honor explicit combinations. The default authorizes replacing the review section of the MR
+description, not other description edits, creating an MR, pushing, approving, or merging. A missing
+MR leaves a terminal-only review.
 
 **GitLab output:** whenever a review will be posted to GitLab, including the unspecified-destination
 default, read [references/gitlab-fmt.md](references/gitlab-fmt.md) before rendering or publishing.
-It defines MR selection, GitLab formatting, and publication checks. Explicit local-only requests
+It defines MR selection, GitLab formatting, and the description update. Explicit local-only requests
 need neither that reference nor an MR lookup for publication.
 
 ## 2. Review on two axes
@@ -100,4 +101,4 @@ priorities, ordering, locations, diff excerpts, and verification caveats; only p
 Use terminal-friendly Markdown: short headings, numbered findings, bold titles, backticked locations,
 and fenced `diff` blocks for the excerpts. Let the terminal renderer supply highlighting; avoid raw
 ANSI escapes, image badges, HTML, and wide tables. Show relevant hunks beside the findings, not the
-entire branch patch unless requested. Append the posted MR note URL or a one-line publication blocker.
+entire branch patch unless requested. Append the updated MR URL or a one-line publication blocker.
