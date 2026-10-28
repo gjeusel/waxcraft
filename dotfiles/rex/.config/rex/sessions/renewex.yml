@@ -64,7 +64,8 @@ windows:
         - split: right
           panes:
             - {}
-            - shell_command: mamba activate zefire-prev
+            - start_directory: ~/src/zefire
+              shell_command: mamba activate zefire-prev
 
   - window_name: devops
     start_directory: ~/src/cloud-renewex
