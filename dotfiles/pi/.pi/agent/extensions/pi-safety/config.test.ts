@@ -45,7 +45,7 @@ test('shell rules accept only the ask override for auto mode', () => {
 });
 
 test('rejects empty argv token predicates', () => {
-  for (const predicate of ['contains', 'containsAny', 'ordered', 'startsWithAny']) {
+  for (const predicate of ['contains', 'containsAny', 'ordered', 'startsWithAny', 'excludesAny']) {
     const result = validateConfig({ shell: { deny: [{ command: 'example', argv: { [predicate]: [] } }] } });
     assert.match(result.errors.join('\n'), /expected at least one token/);
   }

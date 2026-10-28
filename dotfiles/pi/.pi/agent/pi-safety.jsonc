@@ -1,6 +1,7 @@
 {
   // Rules match literal command nodes extracted by tree-sitter-bash. argv
-  // predicates are exact token checks; multiple predicates are ANDed. autoMode: "ask" rules
+  // predicates are exact token checks; multiple predicates are ANDed, and excludesAny tokens unmatch
+  // the rule (e.g. help flags). autoMode: "ask" rules
   // require approval when auto mode is on; when off, they remain hard denies.
   "shell": {
     "deny": [
@@ -67,7 +68,9 @@
             "delete",
             "batchDelete",
             "trash"
-          ]
+          ],
+          // Help output is read-only; gws (clap) rejects --help as an option value.
+          "excludesAny": ["--help", "-h"]
         },
         "reason": "sending or deleting Gmail messages is user-controlled; only draft creation and updates are allowed",
         "autoMode": "ask"

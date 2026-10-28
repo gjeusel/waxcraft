@@ -21,6 +21,7 @@ const configuredRules: ShellDenyRule[] = [
     argv: {
       contains: ['gmail'],
       containsAny: ['+send', '+reply', '+reply-all', '+forward', 'send', 'delete', 'batchDelete', 'trash'],
+      excludesAny: ['--help', '-h'],
     },
     reason: 'Gmail sending or deletion denied',
   },
@@ -207,6 +208,9 @@ const allowedCommands = [
   'gws gmail users drafts update --params userId=me,id=abc',
   'gws gmail users drafts get --params userId=me,id=abc',
   'gws gmail users messages get --params userId=me,id=abc',
+  'gws gmail +reply --help',
+  'gws gmail +send -h',
+  'gws gmail users messages trash --help 2>&1 | head -60',
   'gws drive files delete --params fileId=abc',
   'find src/rm -type f',
   'find "$HOME/src" -type f',

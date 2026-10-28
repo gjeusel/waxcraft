@@ -368,6 +368,8 @@ function argvMatches(predicate: ArgvPredicate | undefined, args: string[], rawAr
     return false;
   }
   if (predicate.ordered && !orderedSubsequence(args, predicate.ordered)) return false;
+  if (predicate.excludesAny?.some((token) => args.includes(token))) return false;
+
   return true;
 }
 

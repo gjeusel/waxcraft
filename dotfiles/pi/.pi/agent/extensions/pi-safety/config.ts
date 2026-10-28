@@ -11,6 +11,8 @@ export interface ArgvPredicate {
   containsAny?: string[];
   ordered?: string[];
   startsWithAny?: string[];
+  /** The rule does not match when any of these tokens is present (e.g. help flags). */
+  excludesAny?: string[];
 }
 
 export interface ShellDenyRule {
@@ -100,7 +102,12 @@ function parseArgvPredicate(value: unknown, location: string, errors: string[]):
     errors.push(`${location}: expected an object`);
     return undefined;
   }
-  rejectUnknownKeys(value, ['empty', 'contains', 'containsAny', 'ordered', 'startsWithAny'], location, errors);
+  rejectUnknownKeys(
+    value,
+    ['empty', 'contains', 'containsAny', 'ordered', 'startsWithAny', 'excludesAny'],
+    location,
+    errors,
+  );
   if (value.empty !== undefined && typeof value.empty !== 'boolean')
     errors.push(`${location}.empty: expected a boolean`);
   const predicate: ArgvPredicate = {
@@ -117,6 +124,9 @@ function parseArgvPredicate(value: unknown, location: string, errors: string[]):
     ...(value.startsWithAny !== undefined
       ? { startsWithAny: nonEmptyStringArray(value.startsWithAny, `${location}.startsWithAny`, errors) }
       : {}),
+    ...(value.excludesAny !== undefined
+      ? { excludesAny: nonEmptyStringArray(value.excludesAny, `${location}.excludesAny`, errors) }
+      : {}),
   };
   if (Object.keys(predicate).length === 0) errors.push(`${location}: expected at least one argv predicate`);
   if (
@@ -124,7 +134,8 @@ function parseArgvPredicate(value: unknown, location: string, errors: string[]):
     (predicate.contains?.length ||
       predicate.containsAny?.length ||
       predicate.ordered?.length ||
-      predicate.startsWithAny?.length)
+      predicate.startsWithAny?.length ||
+      predicate.excludesAny?.length)
   ) {
     errors.push(`${location}: empty cannot be combined with token predicates`);
   }
