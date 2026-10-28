@@ -92,6 +92,9 @@
     },
     "superlogical": {
       "url": "https://www.superlogical.com/rex/community-mcp"
+    },
+    "wispr-flow": {
+      "url": "https://api.wisprflow.ai/connect/mcp"
     }
   }
 }
