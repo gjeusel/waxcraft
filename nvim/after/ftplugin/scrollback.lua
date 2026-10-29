@@ -22,10 +22,31 @@ vim.opt_local.smoothscroll = true
 vim.opt_local.scrolloff = 0
 vim.b.miniindentscope_disable = true
 
+-- j and k move by screen rows, as wrapped lines take several.
+vim.keymap.set({ "n", "x" }, "j", "gj", { buffer = true })
+vim.keymap.set({ "n", "x" }, "k", "gk", { buffer = true })
+
+-- Whether line `lnum`, matching `prompt`, follows a preprompt line, itself after a blank line or at
+-- the top: output lines with a `λ` rarely do.
+local function is_prompt(lnum)
+  local preprompt = vim.fn.getline(lnum - 1)
+  local above_blank = lnum == 2 or vim.fn.getline(lnum - 2) == ""
+
+  return lnum > 1 and preprompt ~= "" and above_blank
+end
+
 -- [[ and ]] jump to the previous or next command.
 for key, flags in pairs({ ["[["] = "bW", ["]]"] = "W" }) do
   local jump = function()
-    vim.fn.search(prompt, flags)
+    local view = vim.fn.winsaveview()
+    local lnum
+    repeat
+      lnum = vim.fn.search(prompt, flags)
+    until lnum == 0 or is_prompt(lnum)
+
+    if lnum == 0 then
+      vim.fn.winrestview(view)
+    end
   end
   vim.keymap.set({ "n", "x", "o" }, key, jump, { buffer = true })
 end

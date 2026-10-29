@@ -1,8 +1,9 @@
 -- Tools for the focused pane's scrollback, bound after the prefix:
--- - ctrl+u/ctrl+d jump between shell prompts and enter the `jump` mode, where they keep jumping,
---   y copies the last command, and Escape, a or A leave.
+-- - ctrl+u/ctrl+d jump to the previous or next shell prompt, as cmd+up/cmd+down do when held.
+-- - / searches the scrollback with Rex's find.
 -- - y>1 copies the last command and its output.
--- - space opens the scrollback in Neovim, a copy mode with vim motions and visual selection.
+-- - space opens a snapshot of the scrollback in Neovim, a copy mode with vim motions, search and
+--   visual selection, where y copies and q quits. ctrl+h/j/k/l move to the pane beside and back.
 --
 -- Rex drops the OSC 133 prompt marks from the text it formats, so pure's prompt delimits commands:
 -- a blank line, the preprompt line (directory and git branch), then the `λ` line with the command,
@@ -51,36 +52,51 @@ local function trim_newlines(text, i)
   return i
 end
 
--- The last command's prompt line and its output, or nil before the first command. Scans bytes
--- rather than splitting lines: long outputs overflow Lua's registry as tables of lines.
-local function last_command(text)
+-- The start of the prompt line whose `λ` is at `symbol`, or nil when it isn't a prompt: `λ` starts
+-- the line, alone or after a virtualenv's name, below a preprompt line that follows a blank line or
+-- starts the text. Output lines with a `λ` rarely follow the same pattern.
+local function prompt_line(text, symbol)
+  local line = symbol
+  if line > 1 and text:byte(line - 1) == 32 then
+    line = line - 1
+    while line > 1 and not text:sub(line - 1, line - 1):find("%s") do
+      line = line - 1
+    end
+  end
+
+  local starts_line = line == 1 or text:byte(line - 1) == 10
+  local has_word = line == symbol or line < symbol - 1
+  if not starts_line or not has_word or line < 3 or text:byte(line - 2) == 10 then
+    return nil
+  end
+
+  local preprompt = line - 2
+  while preprompt > 0 and text:byte(preprompt) ~= 10 do
+    preprompt = preprompt - 1
+  end
+
+  -- `preprompt` is the newline before the preprompt line, or 0 when that line starts the text.
+  local after_blank = preprompt <= 1 or text:byte(preprompt - 1) == 10
+
+  return after_blank and line or nil
+end
+
+-- The last command's prompt line and its output, or nil before the first command. `waiting` tells
+-- whether the shell waits at the last prompt rather than runs its command. Scans bytes rather
+-- than splitting lines: long outputs overflow Lua's registry as tables of lines.
+local function last_command(text, waiting)
   local previous, last
   local symbol = text:find("λ", 1, true)
   while symbol ~= nil do
-    local line = symbol
-    while line > 1 and text:byte(line - 1) ~= 10 and symbol - line <= 64 do
-      line = line - 1
-    end
-
-    -- `λ` starts a prompt line, alone or after a virtualenv's name.
-    local at_line_start = line == 1 or text:byte(line - 1) == 10
-    local prefix = text:sub(line, symbol - 1)
-    if at_line_start and (prefix == "" or prefix:find("^%S+ $")) then
+    local line = prompt_line(text, symbol)
+    if line ~= nil then
       previous, last = last, line
     end
 
     symbol = text:find("λ", symbol + #"λ", true)
   end
 
-  if last == nil then
-    return nil
-  end
-
-  -- The last prompt is the one waiting for input when nothing follows it, else a running command.
-  local stop = trim_newlines(text, #text)
-  local after_prompt = text:find("\n", last, true)
-  local waiting = after_prompt == nil or after_prompt > stop
-  local first = last
+  local first, stop = last, trim_newlines(text, #text)
   if waiting then
     first = previous
     if first == nil then
@@ -96,31 +112,88 @@ local function last_command(text)
     stop = trim_newlines(text, stop)
   end
 
+  if first == nil then
+    return nil
+  end
+
   return text:sub(first, stop) .. "\n"
 end
 
--- Copy mode: Rex has no copy mode, nor actions to scroll or select, so this opens the scrollback in
--- Neovim, floating over the pane. The Neovim config sets it up: nvim/lua/wax/copy_mode.lua.
+-- Whether the block's shell waits for a command: it is the foreground process, not a program.
+local function shell_waiting(block_id)
+  local process = check(rex.block.call(terminal, "process", { block_id = block_id }))
+  local name = process.foreground and process.foreground.name or ""
 
--- The Neovim config finds its colorschemes through WAXPATH, which only the interactive zsh exports:
--- derive it from the config's own path, as nvim/ in the waxcraft repository.
-local waxpath = [[lua vim.env.WAXPATH = vim.fs.dirname(vim.fn.resolve(vim.fn.stdpath("config")))]]
+  return ({ zsh = true, bash = true, sh = true, fish = true, nu = true })[name] == true
+end
 
--- The row of the block's cursor on its screen, from 1 at the top, or nil. The text format leaves
--- out the screen's blank rows below the cursor, but the escape sequences end with its position.
-local function cursor_row(block_id)
+-- Copy mode: Rex has no copy mode, nor actions to scroll or select, so this opens a snapshot of the
+-- scrollback in Neovim, floating over the pane and showing the text where the pane does.
+-- nvim/lua/wax/copy_mode.lua sets Neovim up.
+
+-- Copy mode's background, a shade darker than Nord's #2e3440, the terminal's in themes/nord, tells
+-- it from the pane under it, which a float without a background of its own would also show through.
+local background = "#2b303b"
+
+-- Opening copy mode shows no blank float, nor a frame of Neovim before it is set up:
+-- - The float first shows the pane's screen, $1, on copy mode's background, in one frame with
+--   synchronized output (mode 2026), then holds the next frames until a UI's draw ends it.
+-- - The app gives the float fewer rows than the pane, $3 as `rows columns`: its title bar takes
+--   the top ones, so the float's rows line up with the pane's bottom ones. Printing every row of
+--   the pane's screen keeps its bottom rows in view, whether the app resizes the float before or
+--   after. Neovim waits for that size, up to 50ms, as resizing it would move the text.
+-- - Neovim starts without a UI, running copy mode's setup, $2: a UI's first draw, as it clears the
+--   screen, would end the hold before the text is there.
+-- - The UI then attaches, and draws the text at once.
+-- Without the user's init.lua or plugins, Neovim starts in a fifth of the time; its config stays on
+-- the runtimepath for the copy mode module, filetype plugin and syntax. -i NONE keeps yanks out of
+-- the shared history.
+local launch = [[
+printf '\033[?2026h%s\033[?2026l\033[?2026h' "$1"
+waited=0
+while [ "$(stty size)" = "$3" ] && [ "$waited" -lt 10 ]; do
+  sleep 0.005
+  waited=$((waited + 1))
+done
+size=$(stty size)
+socket="${TMPDIR:-/tmp}/rex-copy-mode.$$.sock"
+nvim --headless --listen "$socket" --cmd "set lines=${size% *} columns=${size#* }" \
+  -u NORC --noplugin -i NONE -n -c "$2" &
+while [ ! -S "$socket" ] && kill -0 $! 2>/dev/null; do
+  sleep 0.005
+done
+exec nvim --remote-ui --server "$socket"
+]]
+
+-- The block's screen as escape sequences, and the row of its cursor from 1 at the top, or nil. The
+-- escape sequences of the format end with the screen, rows separated by CRLF, then the cursor's
+-- position.
+local function screen(block_id, rows)
   local args = { block_id = block_id, format = "vt", extra_cursor = true, max_bytes = 1 }
   local reply = check(rex.block.call(terminal, "format", args))
-  local tail = reply.content
+  local tail, partial = reply.content, false
   if reply.id ~= nil then
+    local offset = math.max(0, reply.total - 262144)
     tail = check(rex.block.call(terminal, "blob_read", {
       block_id = block_id,
       id = reply.id,
-      offset = math.max(0, reply.total - 32),
+      offset = offset,
+      max_bytes = 983040,
     })).data
+    partial = offset > 0
   end
 
-  return tonumber(tail:match("\27%[(%d+);%d+H$"))
+  local cursor = tail:match("\27%[%d+;%d+H$") or ""
+  local rows_text = tail:sub(1, #tail - #cursor) .. "\r\n"
+  local lines = {}
+  for line in rows_text:gmatch("(.-)\r\n") do
+    table.insert(lines, line)
+  end
+
+  -- Read from the middle of the format, the first line can start in an escape sequence.
+  local first = math.max(partial and 2 or 1, #lines - rows + 1)
+
+  return table.concat(lines, "\r\n", first), tonumber(cursor:match("(%d+);"))
 end
 
 -- Whether the block is a copy mode float.
@@ -143,35 +216,34 @@ local function find_rect(node, block_id)
   return find_rect(node.split.before, block_id) or find_rect(node.split.after, block_id)
 end
 
-function M.define(prefix)
-  -- prefix ctrl+u/ctrl+d jump to the previous or next prompt and enter the `jump` mode, where
-  -- ctrl+u/ctrl+d keep jumping, as tmux's repeatable `bind -r`, and y copies the last command.
-  -- Rex can't leave a mode when ctrl is released or after a timeout, so the mode is exclusive:
-  -- other keys do nothing until Escape, a or A leaves it, rather than reaching the terminal while
-  -- ctrl+u/ctrl+d stay captured. Few keys keep Rex's hints for the mode short.
-  rex.mode("jump", { exclusive = true })
-
-  rex.action({
-    name = "prompt_jump",
-    title = "Jump to Prompt and Keep Jumping",
-    category = "View",
-    args = { action = "string" },
-    run = function(_, args)
-      rex.client.queue(args.action)
-      rex.client.queue("client.mode.enter", { name = "jump" })
-    end,
-  })
-
-  for key, action in pairs({ u = "client.prompt.previous", d = "client.prompt.next" }) do
-    rex.bind(prefix .. "ctrl+" .. key, "prompt_jump", { action = action })
-    rex.bind("jump/ctrl+" .. key, action)
+-- The copy mode float over the block's pane in the window, if any, which navigating to the pane
+-- focuses rather than the pane under it: init.lua's `navigate` action.
+function M.copy_mode_over(window, block_id)
+  local rect = window.zoomed_block_id == block_id and { 0, 0, 1, 1 }
+    or find_rect(window.layers[1].layout, block_id)
+  if not rect then
+    return nil
   end
 
-  rex.bind("jump/a", "client.mode.exit")
-  rex.bind("jump/shift+a", "client.mode.exit")
+  local x, y = rect[1] + rect[3] / 2, rect[2] + rect[4] / 2
+  for _, layer in ipairs(window.layers) do
+    local block = layer.blocks and layer.blocks[1]
+    local bx, by, bw, bh = unpack(layer.bounds)
+    local covers = x > bx and x < bx + bw and y > by and y < by + bh
+    if layer.kind == "floating" and block and block.label == "copy mode" and covers then
+      return block.block_id
+    end
+  end
+
+  return nil
+end
+
+function M.define(prefix)
+  rex.bind(prefix .. "ctrl+u", "client.prompt.previous")
+  rex.bind(prefix .. "ctrl+d", "client.prompt.next")
+  rex.bind(prefix .. "/", "client.find.open")
 
   -- The latest command, not the one jumped to: Rex doesn't tell Lua where the pane is scrolled.
-  -- Leaves the `jump` mode when copying from it; outside a mode, the exit does nothing.
   rex.action({
     name = "copy_last_command",
     title = "Copy Last Command and Output",
@@ -179,18 +251,17 @@ function M.define(prefix)
     keywords = "yank clipboard output scrollback",
     run = function(ctx)
       local block_id = check(ctx.block_id, "no focused pane")
-      local copied = check(last_command(scrollback(block_id)), "no command in the scrollback")
+      local text = scrollback(block_id)
+      local copied = last_command(text, shell_waiting(block_id))
+      check(copied, "no command in the scrollback")
       local r = check(rex.exec({ "pbcopy" }, { stdin = copied, env = { LC_CTYPE = "UTF-8" } }))
       if not r.ok then
         error("pbcopy failed: " .. r.stderr, 0)
       end
-
-      rex.client.queue("client.mode.exit")
     end,
   })
 
   rex.bind(prefix .. "y>1", "copy_last_command")
-  rex.bind("jump/y", "copy_last_command")
 
   rex.action({
     name = "copy_mode",
@@ -201,8 +272,8 @@ function M.define(prefix)
       local block_id = check(ctx.block_id, "no focused pane")
 
       -- In copy mode, the prefix's space quits it rather than opening copy mode over copy mode,
-      -- whose floats would then cover the pane that keys go to. Neovim quits as with q, which
-      -- refocuses the pane copy mode was opened from: ctrl+\ ctrl+n leaves any mode, then :qa!.
+      -- whose floats would then cover the pane that keys go to: ctrl+\ ctrl+n leaves any mode,
+      -- then :qa!.
       if is_copy_mode(block_id) then
         check(rex.block.call(terminal, "write", { block_id = block_id, data = "\28\14:qa!\r" }))
         return
@@ -218,15 +289,19 @@ function M.define(prefix)
 
       -- A zoomed pane fills the window.
       local bounds = window.zoomed_block_id == nil and find_rect(window.layers[1].layout, block_id)
-
-      local row = tostring(cursor_row(block_id))
-      local modes = check(rex.block.call(terminal, "modes", { block_id = block_id }))
-      local alternate = tostring(modes.screen == "alternate")
       local size = check(rex.block.call(terminal, "size", { block_id = block_id }))
+      local modes = check(rex.block.call(terminal, "modes", { block_id = block_id }))
+      local rows, row = screen(block_id, size.rows)
       local text = scrollback(block_id)
 
-      -- Neovim deletes the file once read; delete it here should the float not open. mktemp creates
-      -- it readable by the user only, as the scrollback can hold secrets.
+      -- Escape sequences paint the screen in copy mode's background, which every reset keeps,
+      -- without the cursor, which Neovim shows once it draws.
+      local r, g, b = background:match("#(%x%x)(%x%x)(%x%x)")
+      local sgr = ("48;2;%d;%d;%d"):format(tonumber(r, 16), tonumber(g, 16), tonumber(b, 16))
+      rows = rows:gsub("\27%[0m", "\27[0;" .. sgr .. "m")
+      local painted = ("\27[?25l\27[%sm\27[2J\27[H%s"):format(sgr, rows)
+
+      -- mktemp creates the file readable by the user only, as the scrollback can hold secrets.
       local made = check(rex.exec({ "mktemp", "/tmp/rex-scrollback.XXXXXX" }))
       if not made.ok then
         error("mktemp failed: " .. made.stderr, 0)
@@ -234,12 +309,18 @@ function M.define(prefix)
 
       local path = made.stdout:gsub("%s+$", "")
       local file = check(io.open(path, "w"))
-      file:write(text)
-      file:close()
+      local written, write_err = file:write(text)
+      local closed, close_err = file:close()
+      if not written or not closed then
+        os.remove(path)
+        error("writing the scrollback failed: " .. tostring(write_err or close_err), 0)
+      end
 
-      local open = "lua require('wax.copy_mode').open({ path = %q, origin = %q, cursor_row = %s, "
-        .. "alternate = %s })"
-      open = open:format(path, block_id, row, alternate)
+      local open = "require('wax.copy_mode').open({ path = %q, origin = %q, cursor_row = %s, "
+        .. "alternate = %s, background = %q, rows = %d })"
+      local alternate = tostring(modes.screen == "alternate")
+      open = open:format(path, block_id, tostring(row), alternate, background, size.rows)
+      local pane_size = ("%d %d"):format(size.rows, size.columns)
 
       local _, err = rex.session.new_layer({
         window_id = window.window_id,
@@ -250,10 +331,12 @@ function M.define(prefix)
             flavor = terminal .. ".shell",
             label = "copy mode",
             options = {
-              command = { "nvim", "-n", "--cmd", waxpath, "-c", open },
+              command = { "sh", "-c", launch, "sh", painted, "lua " .. open, pane_size },
               -- Started at the pane's size rather than 80x24, Neovim positions the text in a
               -- window that has the pane's rows, not before the app resizes it.
               size = { columns = size.columns, rows = size.rows },
+              -- Closes on any exit: Rex keeps a terminal whose program failed quickly, as :cq.
+              exit = { quick_exit_threshold_ms = 0 },
             },
           },
         },

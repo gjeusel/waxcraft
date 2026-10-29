@@ -140,6 +140,12 @@ rex.action({
     uses = uses + 1
     last_used[from] = uses
 
+    -- From copy mode, which navigates from the pane under it (nvim/lua/wax/copy_mode.lua), move
+    -- from that pane.
+    if from ~= window.focused_block_id then
+      assert(rex.session.focus_block({ block_id = from }))
+    end
+
     -- From a zoomed pane, focus_direction unzooms first, as tmux's select-pane does.
     local target = window.zoomed_block_id == nil and last_used_beside(window, from, args.direction)
     local _, err
@@ -151,6 +157,17 @@ rex.action({
 
     if err ~= nil then
       error(err, 0)
+    end
+
+    -- Focus the copy mode open over the pane, rather than the pane hidden under it.
+    view = assert(rex.session.view({}))
+    for _, candidate in ipairs(view.windows) do
+      if candidate.window_id == view.active_window_id then
+        local float = require("scrollback").copy_mode_over(candidate, candidate.focused_block_id)
+        if float then
+          assert(rex.session.focus_block({ block_id = float }))
+        end
+      end
     end
   end,
 })
@@ -196,6 +213,6 @@ rex.bind("ctrl+enter", "pane.send_key", { key = "enter" })
 rex.bind("cmd+up", "client.prompt.previous")
 rex.bind("cmd+down", "client.prompt.next")
 
--- ---- Scrollback: prompt mode, copy the last command, copy mode (scrollback.lua) ----
+-- ---- Scrollback: prompt jumps, find, copy the last command, copy mode (scrollback.lua) ----
 
 require("scrollback").define(prefix)
