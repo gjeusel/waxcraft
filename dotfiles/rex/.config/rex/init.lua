@@ -195,3 +195,7 @@ rex.bind("ctrl+enter", "pane.send_key", { key = "enter" })
 -- line or page scroll action. Needs the OSC 133 prompt marks set up in zsh/init.zsh.
 rex.bind("cmd+up", "client.prompt.previous")
 rex.bind("cmd+down", "client.prompt.next")
+
+-- ---- Scrollback: prompt mode, copy the last command, copy mode (scrollback.lua) ----
+
+require("scrollback").define(prefix)
