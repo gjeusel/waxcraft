@@ -77,6 +77,14 @@ return {
     end,
   },
   settings = {
-    ty = {},
+    ty = {
+      -- Inline configuration takes precedence over the project's pyproject.toml / ty.toml.
+      -- https://docs.astral.sh/ty/reference/editor-settings/#configuration
+      configuration = {
+        rules = {
+          ["truthiness-test-of-none-union"] = "ignore",
+        },
+      },
+    },
   },
 }
