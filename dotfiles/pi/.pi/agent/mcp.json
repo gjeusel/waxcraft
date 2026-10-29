@@ -1,27 +1,34 @@
 {
   "mcpServers": {
     "notion": {
+      "description": "Notion workspace pages and databases: search, read, create, and update. Use it for any notion.so link.",
       "url": "https://mcp.notion.com/mcp"
     },
     "pappers": {
+      "description": "French company registry (Pappers): SIREN lookup, company details, financial statements, executives, beneficial owners, legal texts, court decisions, and land parcels.",
       "url": "https://mcp.pappers.fr",
       "headers": {
         "Authorization": "Bearer ${PAPPERS_API_KEY}"
       }
     },
     "logfire": {
+      "description": "Pydantic Logfire observability: SQL over traces, spans, logs, and metrics, plus dashboards, alerts, and exception issues. Use it for any logfire link.",
       "url": "https://logfire-eu.pydantic.dev/mcp"
     },
     "brandfetch": {
+      "description": "Brand assets from Brandfetch: logos, icons, colors, and fonts for a company or domain.",
       "url": "https://mcp.brandfetch.io/mcp"
     },
     "plain": {
+      "description": "Plain customer-support workspace: threads, customers, companies, tenants, labels, and replies. Use it for any app.plain.com link.",
       "url": "https://mcp.plain.com/mcp"
     },
     "posthog": {
+      "description": "PostHog product analytics: events, insights, dashboards, feature flags, experiments, session replays, error tracking, and SQL queries. Use it for any posthog.com link.",
       "url": "https://mcp.posthog.com/mcp"
     },
     "postgres": {
+      "description": "Local zefire PostgreSQL database (localhost:5432/zefire, unrestricted access): schemas, objects, SQL execution, query plans, and index and health analysis.",
       "command": "bash",
       "args": [
         "-c",
@@ -32,6 +39,7 @@
       }
     },
     "aws": {
+      "description": "AWS through the official AWS MCP server, read-only with the rnx-readonly profile: AWS API calls, S3 presigned URLs, AWS documentation, and region availability. Use it instead of the AWS CLI.",
       "command": "uvx",
       "args": [
         "mcp-proxy-for-aws@1.7.0",
@@ -44,30 +52,37 @@
       ]
     },
     "playwright": {
+      "description": "Playwright browser automation: navigate, click, fill forms, take snapshots and screenshots, and inspect console and network.",
       "command": "npx",
       "args": [
         "@playwright/mcp@latest"
       ]
     },
     "greptile": {
+      "description": "Greptile AI code reviews: review status and comments on pull and merge requests, and custom review context for indexed repositories.",
       "url": "https://api.greptile.com/mcp"
     },
     "excalidraw": {
+      "description": "Excalidraw+ workspace: collections, scenes and their content, users, and invites. Use it for any excalidraw.com or plus.excalidraw.com link.",
       "url": "https://api.excalidraw.com/api/v1/mcp",
       "headers": {
         "Authorization": "Bearer ${EXCALIDRAW_MCP_TOKEN}"
       }
     },
     "sentry": {
+      "description": "Sentry error monitoring: issues, events, logs, traces, replays, and Seer root-cause analysis. Use it for any sentry.io link.",
       "url": "https://mcp.sentry.dev/mcp"
     },
     "imagekit-dam": {
+      "description": "ImageKit digital asset management: files, folders, tags, custom metadata, collections, and asset access.",
       "url": "https://imagekit.io/mcp/dam"
     },
     "imagekit-admin": {
+      "description": "ImageKit account administration: origins, URL endpoints, webhooks, and account usage.",
       "url": "https://imagekit.io/mcp/admin"
     },
     "auth0": {
+      "description": "Auth0 tenant management: applications, APIs (resource servers), actions, forms, and logs.",
       "command": "npx",
       "args": [
         "-y",
@@ -76,6 +91,7 @@
       ]
     },
     "context7": {
+      "description": "Context7 up-to-date library and framework documentation and code examples.",
       "command": "npx",
       "args": [
         "-y",
@@ -84,16 +100,20 @@
       "enabled": false
     },
     "newrelic": {
+      "description": "New Relic observability: NRQL queries over APM, logs, traces, alerts, and entities.",
       "url": "https://mcp.eu.newrelic.com/mcp/",
       "enabled": false
     },
     "cloudflare-api": {
+      "description": "Cloudflare account through the full Cloudflare API: Workers, DNS, zones, R2, KV, D1, and other resources.",
       "url": "https://mcp.cloudflare.com/mcp"
     },
     "superlogical": {
+      "description": "Rex (Superlogical terminal multiplexer) community knowledge, read-only: docs, changelog and release notes, and Rex Beta Discord discussions.",
       "url": "https://www.superlogical.com/rex/community-mcp"
     },
     "wispr-flow": {
+      "description": "Wispr Flow meetings, notes, transcripts, and calendar. Use it (not fetch_content) for any https://notes.wisprflow.ai/shared/... link.",
       "url": "https://api.wisprflow.ai/connect/mcp"
     }
   }

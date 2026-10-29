@@ -17,6 +17,8 @@ function registerSlack(pi: ExtensionAPI): void {
   if (!clientId) return;
 
   pi.registerMcpServer('slack', {
+    description:
+      'Slack workspace: search and read channels, threads, canvases, and users; send or draft messages. Use it for any slack.com link.',
     url: 'https://mcp.slack.com/mcp',
     // Must match the redirect URL registered on the Slack app.
     oauth: { clientId, callbackUrl: 'http://localhost:3118/callback' },
