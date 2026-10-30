@@ -1,0 +1,10 @@
+{
+  "projectSettingsFolded": true,
+  "idleCompaction": "onReturn",
+  "providerInstances": {
+    "codex": {
+      "driver": "codex",
+      "enabled": true
+    }
+  }
+}
