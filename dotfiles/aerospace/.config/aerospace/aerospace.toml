@@ -8,7 +8,11 @@ after-startup-command = []
 
 # Hammerspoon pulls floating windows of the newly focused workspace back on screen.
 # Apps that manage their own frame defeat AeroSpace's hide-in-corner restore (see offscreen-rescue.lua).
-exec-on-workspace-change = ['/usr/bin/open', '-g', 'hammerspoon://rescue-offscreen-windows']
+exec-on-workspace-change = [
+  '/usr/bin/open',
+  '-g',
+  'hammerspoon://rescue-offscreen-windows',
+]
 
 enable-normalization-flatten-containers = true
 enable-normalization-opposite-orientation-for-nested-containers = true
@@ -214,11 +218,7 @@ if = '''test %{app-bundle-id} ~= '^(com\.brave\.Browser|com\.google\.Chrome|org\
 run = 'layout floating'
 
 [[on-window-detected]]
-if.app-id = 'com.superlogical.rex' # Rex terminal
-run = 'move-node-to-workspace 1'
-
-[[on-window-detected]]
-if.app-id = 'com.apple.systempreferences' # System Settings
+if.app-id = 'com.apple.systempreferences'             # System Settings
 run = ['layout floating', 'move-node-to-workspace 0']
 
 [[on-window-detected]]
@@ -243,7 +243,7 @@ if.app-id = 'com.viber.osx'
 run = 'move-node-to-workspace 0'
 
 [[on-window-detected]]
-if.app-id = 'com.apple.iCal' # Calendar
+if.app-id = 'com.apple.iCal'     # Calendar
 run = 'move-node-to-workspace 0'
 
 [[on-window-detected]]
@@ -348,6 +348,14 @@ run = 'move-node-to-workspace 1'
 
 [[on-window-detected]]
 if.app-id = 'com.mitchellh.ghostty'
+run = 'move-node-to-workspace 1'
+
+[[on-window-detected]]
+if.app-id = 'com.superlogical.rex' # Rex terminal
+run = 'move-node-to-workspace 1'
+
+[[on-window-detected]]
+if.app-id = 'com.t3tools.t3code' # T3 Code
 run = 'move-node-to-workspace 1'
 
 
