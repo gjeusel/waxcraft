@@ -2,7 +2,11 @@
 
 Server and client preferences for the installed T3 Code Beta, checked on 2026-10-30.
 
-- The Codex provider is enabled. Model, reasoning, and permission defaults are not set by these files.
+- The Codex, Pi, and fx providers are enabled; Amp is registered but disabled.
+- New threads default to Claude Opus 5.5 in the `auto` runtime mode. Reasoning defaults are not set
+  by these files.
+- Hidden models (`providerModelPreferences`) are not tracked: the app generates that list from the
+  model catalog of each machine. Drop it from `settings.json` before committing.
 - Send prompts with ⌘Enter on macOS (Ctrl+Enter elsewhere), including single-line prompts.
 - Follow-up prompts steer the current turn by default.
 - Idle compaction runs on return.
