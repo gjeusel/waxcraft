@@ -103,7 +103,7 @@
   // Prompt: pi-safety-auto-mode.md beside this file, read for every decision (both sources).
   // minConfidence=0 avoids confidence-only prompts; raise it to require more certainty.
   "autoMode": {
-    "enabled": true,
+    "enabled": false,
     "source": "openai",
     "minConfidence": 0
   }
