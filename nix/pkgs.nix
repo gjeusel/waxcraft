@@ -52,7 +52,6 @@
     tree
     gh
     glab
-    pkgs-unstable.coder
     jujutsu
     parallel
 

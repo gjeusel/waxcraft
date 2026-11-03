@@ -15,6 +15,14 @@
       "description": "Pydantic Logfire observability: SQL over traces, spans, logs, and metrics, plus dashboards, alerts, and exception issues. Use it for any logfire link.",
       "url": "https://logfire-eu.pydantic.dev/mcp"
     },
+    "posthog": {
+      "description": "PostHog product analytics: events, insights, dashboards, feature flags, experiments, session replays, error tracking, and SQL queries. Use it for any posthog.com link.",
+      "url": "https://mcp.posthog.com/mcp"
+    },
+    "sentry": {
+      "description": "Sentry error monitoring: issues, events, logs, traces, replays, and Seer root-cause analysis. Use it for any sentry.io link.",
+      "url": "https://mcp.sentry.dev/mcp"
+    },
     "brandfetch": {
       "description": "Brand assets from Brandfetch: logos, icons, colors, and fonts for a company or domain.",
       "url": "https://mcp.brandfetch.io/mcp"
@@ -22,10 +30,6 @@
     "plain": {
       "description": "Plain customer-support workspace: threads, customers, companies, tenants, labels, and replies. Use it for any app.plain.com link.",
       "url": "https://mcp.plain.com/mcp"
-    },
-    "posthog": {
-      "description": "PostHog product analytics: events, insights, dashboards, feature flags, experiments, session replays, error tracking, and SQL queries. Use it for any posthog.com link.",
-      "url": "https://mcp.posthog.com/mcp"
     },
     "postgres": {
       "description": "Local zefire PostgreSQL database (localhost:5432/zefire, unrestricted access): schemas, objects, SQL execution, query plans, and index and health analysis.",
@@ -68,10 +72,6 @@
       "headers": {
         "Authorization": "Bearer ${EXCALIDRAW_MCP_TOKEN}"
       }
-    },
-    "sentry": {
-      "description": "Sentry error monitoring: issues, events, logs, traces, replays, and Seer root-cause analysis. Use it for any sentry.io link.",
-      "url": "https://mcp.sentry.dev/mcp"
     },
     "imagekit-dam": {
       "description": "ImageKit digital asset management: files, folders, tags, custom metadata, collections, and asset access.",
