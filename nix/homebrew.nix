@@ -83,6 +83,7 @@
 
       # "cyberghost-vpn" # VPN
       "protonvpn" # VPN
+      "tailscale" # mesh VPN (GUI app needs a macOS network extension, unsupported by nixpkgs)
       "transmission" # torrent downloader
 
       "modrinth" # minecraft virtual env
