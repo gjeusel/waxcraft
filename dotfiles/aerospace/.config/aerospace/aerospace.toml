@@ -360,7 +360,7 @@ run = 'move-node-to-workspace 1'
 
 [[on-window-detected]]
 if.app-id = 'com.t3tools.t3code' # T3 Code
-run = 'move-node-to-workspace 1'
+run = 'move-node-to-workspace 3'
 
 
 [[on-window-detected]]
