@@ -43,7 +43,8 @@
     "npm:@narumitw/pi-lsp@0.49.10",
     "npm:pi-web-access@0.44.0",
     "git:github.com/arpagon/pi-rewind@v0.5.0",
-    "npm:@ff-labs/pi-fff@0.11.0"
+    "npm:@ff-labs/pi-fff@0.11.0",
+    "../../src/rnx-agent-plugins"
   ],
   "compaction": {
     "enabled": true
