@@ -23,6 +23,10 @@
       "description": "Sentry error monitoring: issues, events, logs, traces, replays, and Seer root-cause analysis. Use it for any sentry.io link.",
       "url": "https://mcp.sentry.dev/mcp"
     },
+    "stripe": {
+      "description": "Stripe account through Stripe's hosted server: customers, payments, invoices, subscriptions, products, prices, refunds, disputes, balance, and Stripe documentation search. Use it for any dashboard.stripe.com link.",
+      "url": "https://mcp.stripe.com"
+    },
     "brandfetch": {
       "description": "Brand assets from Brandfetch: logos, icons, colors, and fonts for a company or domain.",
       "url": "https://mcp.brandfetch.io/mcp"
