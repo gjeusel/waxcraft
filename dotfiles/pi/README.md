@@ -84,7 +84,10 @@ pi mcp login <server>      # browser sign-in for servers reported as "needs sign
 ```
 
 `pappers` and `excalidraw` authenticate with bearer tokens from `PAPPERS_API_KEY` and
-`EXCALIDRAW_MCP_TOKEN`. `auth0` keeps its credentials in the macOS Keychain; refresh them with
+`EXCALIDRAW_MCP_TOKEN`. The `postgres-*` servers read their connection URIs from
+`LOCAL_ZEFIRE_PSQL_URI`, `PROD_READONLY_ZEFIRE_PSQL_URI` (restricted to read-only transactions), and
+`LOCAL_ANTHRACIT_PSQL_URI`. These variables, like the tokens, are exported in `~/.zshrc`
+(unversioned). `auth0` keeps its credentials in the macOS Keychain; refresh them with
 `npx -y @auth0/auth0-mcp-server init` (device login) when `pi mcp list` reports an expired token.
 
 Servers whose configuration `mcp.json` cannot express, such as values Pi does not expand from

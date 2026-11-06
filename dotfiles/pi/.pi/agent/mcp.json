@@ -35,15 +35,37 @@
       "description": "Plain customer-support workspace: threads, customers, companies, tenants, labels, and replies. Use it for any app.plain.com link.",
       "url": "https://mcp.plain.com/mcp"
     },
-    "postgres": {
-      "description": "Local zefire PostgreSQL database (localhost:5432/zefire, unrestricted access): schemas, objects, SQL execution, query plans, and index and health analysis.",
+    "postgres-zefire-local": {
+      "description": "Local zefire PostgreSQL database (unrestricted access): schemas, objects, SQL execution, query plans, and index and health analysis.",
       "command": "bash",
       "args": [
         "-c",
         "exec uvx --python 3.13 --overrides <(echo pglast==7.21) --with 'mcp[cli]==1.29.0' postgres-mcp==0.3.0 --access-mode=unrestricted"
       ],
       "env": {
-        "DATABASE_URI": "postgresql://postgres@localhost:5432/zefire"
+        "DATABASE_URI": "${LOCAL_ZEFIRE_PSQL_URI}"
+      }
+    },
+    "postgres-zefire-prod": {
+      "description": "Production zefire PostgreSQL database (read-only): schemas, objects, SQL execution, query plans, and index and health analysis. Prefer postgres-zefire-local unless production data is needed.",
+      "command": "bash",
+      "args": [
+        "-c",
+        "exec uvx --python 3.13 --overrides <(echo pglast==7.21) --with 'mcp[cli]==1.29.0' postgres-mcp==0.3.0 --access-mode=restricted"
+      ],
+      "env": {
+        "DATABASE_URI": "${PROD_READONLY_ZEFIRE_PSQL_URI}"
+      }
+    },
+    "postgres-anthracit-local": {
+      "description": "Local anthracit PostgreSQL database (unrestricted access): schemas, objects, SQL execution, query plans, and index and health analysis.",
+      "command": "bash",
+      "args": [
+        "-c",
+        "exec uvx --python 3.13 --overrides <(echo pglast==7.21) --with 'mcp[cli]==1.29.0' postgres-mcp==0.3.0 --access-mode=unrestricted"
+      ],
+      "env": {
+        "DATABASE_URI": "${LOCAL_ANTHRACIT_PSQL_URI}"
       }
     },
     "aws": {
@@ -54,7 +76,6 @@
         "https://aws-mcp.eu-central-1.api.aws/mcp",
         "--profile",
         "rnx-readonly",
-        "--read-only",
         "--metadata",
         "AWS_REGION=eu-west-1"
       ]
