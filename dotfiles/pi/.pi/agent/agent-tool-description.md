@@ -11,7 +11,7 @@ Use direct tools for known paths or specific lookups. Agents are useful for open
 
 Give the agent an objective, relevant context, constraints, and acceptance criteria. Include useful paths and symbols when known, and clearly state whether it may modify files. Let it investigate implementation details; evaluate its findings before deciding the next step.
 
-Prefer the agent's model and thinking defaults unless the task warrants an override.
+Prefer the agent's model and thinking defaults unless the task warrants an override. An agent type whose definition pins `model` or `thinking` silently ignores those call arguments; when a specific model or thinking level is required, use an unpinned type such as `general-purpose`.
 
 ## Execution
 
