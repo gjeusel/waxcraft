@@ -53,6 +53,7 @@
     gh
     glab
     jujutsu
+    pkgs-unstable.worktrunk # git worktree manager (`wt`); unstable is far ahead of stable
     parallel
 
     python314Packages.watchfiles
