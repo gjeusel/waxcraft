@@ -7,7 +7,9 @@ tools: "read, bash, edit, write"
 extensions:
   - pi-safety
   - gitleaks-guard
+  - pi-model-controls
 model: openai-codex/gpt-6-luna
+speed: fast
 thinking: low
 prompt_mode: replace
 inherit_context: true

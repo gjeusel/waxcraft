@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -8,8 +8,8 @@ import {
 } from '@earendil-works/pi-coding-agent';
 import { matchesKey, visibleWidth } from '@earendil-works/pi-tui';
 import {
-  isAnthropicFastModel, isOfficialCodexModel, isOfficialOpenAIModel, registerFastMode,
-  rewriteFastPayload, SPEED_ENTRY_TYPE,
+  agentSpeed, isAnthropicFastModel, isOfficialCodexModel, isOfficialOpenAIModel, registerFastMode,
+  rewriteFastPayload, SPEED_ENTRY_TYPE, speedRegistry,
 } from './fast.ts';
 
 const codexModel: NonNullable<ExtensionContext['model']> = {
@@ -647,4 +647,155 @@ test('Anthropic payloads preserve native betas and context without mutation or c
   for (const invalid of [null, [], 'text', 123]) {
     assert.equal(rewriteFastPayload(invalid, anthropicModel, true), undefined);
   }
+});
+
+function subagent(cwd: string, type = 'worker', model = codexModel) {
+  const manager = SessionManager.inMemory();
+  manager.appendSessionInfo(`${type}#0123abcd`);
+  const runtime = harness(manager);
+  Object.assign(runtime.ctx, { cwd, model });
+  runtime.emit('session_start');
+
+  return {
+    ...runtime,
+    start: (prompt: string, selectedTools: string[] = []) => {
+      const systemPromptOptions = { selectedTools, sections: {} as Record<string, string> };
+      runtime.emit('before_agent_start', { prompt, systemPromptOptions });
+
+      return systemPromptOptions;
+    },
+    serviceTier: () =>
+      (runtime.emit('before_provider_request', { payload: {} }) as { service_tier?: string } | undefined)
+        ?.service_tier,
+  };
+}
+
+let toolCalls = 0;
+
+function callAgent(parent: ReturnType<typeof harness>, input: Record<string, unknown>) {
+  const toolCallId = `call-${++toolCalls}`;
+
+  return { toolCallId, result: parent.emit('tool_call', { toolName: 'Agent', toolCallId, input }) };
+}
+
+async function withAgentFiles(files: Record<string, string>, run: (cwd: string) => Promise<void>) {
+  await withSessionDirectory(async (cwd) => {
+    const previousAgentDir = process.env.PI_CODING_AGENT_DIR;
+    process.env.PI_CODING_AGENT_DIR = join(cwd, 'global');
+    mkdirSync(join(cwd, '.pi', 'agents'), { recursive: true });
+    for (const [file, content] of Object.entries(files)) writeFileSync(join(cwd, '.pi', 'agents', file), content);
+    speedRegistry.spawns.length = 0;
+    try {
+      await run(cwd);
+    } finally {
+      if (previousAgentDir === undefined) delete process.env.PI_CODING_AGENT_DIR;
+      else process.env.PI_CODING_AGENT_DIR = previousAgentDir;
+    }
+  });
+}
+
+test('sub-agents inherit the calling session speed unless their agent type configures one', async () => {
+  await withAgentFiles({
+    'luna.md': '---\nname: worker\nspeed: ultrafast\n---\nBody',
+    'plain.md': '---\nname: plain\n---\nBody',
+  }, async (cwd) => {
+    const parent = harness();
+    parent.emit('session_start');
+    await parent.fast('on');
+    callAgent(parent, { prompt: 'search', subagent_type: 'Plain' });
+    callAgent(parent, { prompt: 'find', subagent_type: 'worker' });
+
+    const plain = subagent(cwd, 'plain');
+    plain.start('search');
+    assert.equal(plain.serviceTier(), 'priority');
+
+    const worker = subagent(cwd, 'worker');
+    worker.start('find');
+    assert.equal(worker.serviceTier(), 'ultrafast');
+    assert.equal(worker.statuses.get('pi-model-controls'), 'ultrafast');
+    assert.deepEqual(speedRegistry.spawns, []);
+
+    // A workflow child has no recorded call; later runs without a call keep the resolved speed.
+    await parent.fast('off');
+    const workflowChild = subagent(cwd, 'plain');
+    workflowChild.start('scripted task');
+    assert.equal(workflowChild.serviceTier(), 'default');
+    await parent.fast('on');
+    workflowChild.start('follow-up');
+    assert.equal(workflowChild.serviceTier(), 'default');
+  });
+});
+
+test('an explicit Agent call speed beats the agent type and inherited speeds', async () => {
+  await withAgentFiles({ 'worker.md': '---\nspeed: fast\n---\nBody' }, async (cwd) => {
+    const parent = harness();
+    parent.emit('session_start');
+    await parent.ultrafast('on');
+    callAgent(parent, { prompt: 'review', subagent_type: 'worker', speed: 'normal' });
+    callAgent(parent, { prompt: 'ask', subagent_type: 'worker', speed: 'ultrafast' });
+    assert.deepEqual(
+      callAgent(parent, { prompt: 'x', subagent_type: 'worker', speed: 'turbo' }).result,
+      { block: true, reason: 'Agent speed must be "normal", "fast", or "ultrafast".' },
+    );
+
+    const normal = subagent(cwd);
+    normal.start('<parent context>\nreview');
+    assert.equal(normal.serviceTier(), 'default');
+
+    // Anthropic has no Ultrafast tier, so an explicit Ultrafast request runs Fast there.
+    const anthropic = subagent(cwd, 'worker', anthropicModel);
+    anthropic.start('ask');
+    assert.equal(
+      (anthropic.emit('before_provider_request', { payload: { model: anthropicModel.id } }) as
+        { speed?: string }).speed,
+      'fast',
+    );
+    assert.deepEqual(speedRegistry.spawns, []);
+
+    // A live resume reuses the child session and applies the resume call's speed.
+    callAgent(parent, { prompt: 'again', resume: '0123abcd-ef01-4', speed: 'fast' });
+    normal.start('again');
+    assert.equal(normal.serviceTier(), 'priority');
+    assert.deepEqual(speedRegistry.spawns, []);
+  });
+});
+
+test('calls that start no matching child are never claimed by another child', async () => {
+  await withAgentFiles({}, async (cwd) => {
+    const parent = harness();
+    parent.emit('session_start');
+    callAgent(parent, { prompt: 'review', subagent_type: 'worker', speed: 'fast', isolated: true });
+    callAgent(parent, { prompt: 'review', subagent_type: 'other', speed: 'fast' });
+    const failed = callAgent(parent, { prompt: 'review', subagent_type: 'worker', speed: 'fast' });
+    parent.emit('tool_result', { toolName: 'Agent', toolCallId: failed.toolCallId, isError: true });
+    assert.deepEqual(speedRegistry.spawns.map((spawn) => spawn.type), ['other']);
+
+    const worker = subagent(cwd);
+    worker.start('review');
+    assert.equal(worker.serviceTier(), 'default');
+  });
+});
+
+test('sessions with the Agent tool learn the speed parameter, even with a replaced prompt', async () => {
+  await withAgentFiles({}, async (cwd) => {
+    const runtime = subagent(cwd);
+    assert.deepEqual(runtime.start('task').sections, {});
+    assert.match(runtime.start('task', ['Agent']).sections.agent_speed, /`speed` parameter/u);
+  });
+});
+
+test('agent speed follows pi-subagents override order and ignores invalid values', async () => {
+  await withSessionDirectory(async (directory) => {
+    const low = join(directory, 'low');
+    const high = join(directory, 'high');
+    mkdirSync(low);
+    mkdirSync(high);
+    writeFileSync(join(low, 'a.md'), '\uFEFF---\nname: a\nspeed: fast\n---\n');
+    writeFileSync(join(low, 'b.md'), '---\nspeed: fast\n---\n');
+    writeFileSync(join(high, 'b.md'), '---\nname: b\n---\n');
+    writeFileSync(join(high, 'c.md'), '---\nspeed: turbo\n---\n');
+    assert.equal(agentSpeed('a', [low, high, join(directory, 'missing')]), 'fast');
+    assert.equal(agentSpeed('b', [low, high]), undefined);
+    assert.equal(agentSpeed('c', [low, high]), undefined);
+  });
 });

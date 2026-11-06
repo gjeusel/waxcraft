@@ -4,9 +4,10 @@ display_name: Code Search
 color: "#88C0D0"
 description: Locate code, references, and tests when the target is unknown. Read-only; not for review or implementation.
 tools: "read, ls, ext:pi-fff/ffgrep, ext:pi-fff/fffind"
-extensions: [pi-fff]
+extensions: [pi-fff, pi-model-controls]
 skills: false
 model: openai-codex/gpt-6-luna
+speed: fast
 thinking: high
 max_turns: 25
 prompt_mode: replace

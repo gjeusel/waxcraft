@@ -204,6 +204,29 @@ remain visible to Pi's normal retry machinery, with no automatic standard-speed 
 Claude Code-style cooldown. Pi's catalog-based cost estimates are not adjusted for premium speed
 pricing; use provider billing for actual spend. No paid inference request is needed to toggle.
 
+#### Sub-agent speed
+
+pi-subagents children run in-process with their own instance of this extension, so an agent type
+gets speed control only when its `extensions:` allowlist includes `pi-model-controls` (all agents
+in `agents/` do, which also enables server-side compaction in them). A child resolves its speed
+once, at its first run, in this order:
+
+1. `speed` on the `Agent` call (`normal`, `fast`, or `ultrafast`). pi-subagents' schema does not
+   declare it but accepts it; this extension adds an `agent_speed` system prompt section so the
+   model knows (a section, since sub-agents replace Pi's default prompt and its tool guidelines),
+   and blocks invalid values.
+2. `speed:` in the agent file frontmatter (the Luna-pinned agents use `speed: fast`), looked up in
+   the global, `.agents/agents`, and `.pi/agents` directories; package agents are not read.
+3. The calling session's OpenAI and Anthropic speeds at call time. Workflow spawns have no
+   matching call (nor do calls beyond the last 64 unconsumed ones) and use the main session's
+   current speed.
+
+An explicit speed applies to whichever provider the child uses; Ultrafast becomes Fast on
+Anthropic. Children are recognized by pi-subagents' `<type>#<id>` session name. A spawn call is
+matched to its child by agent type (case-insensitive) and prompt; a `resume` call by agent id,
+so resuming a live child re-resolves its speed. Isolated calls and calls whose result is an error
+are not matched. Steering and follow-ups keep the resolved speed, which children never save.
+
 #### Codex compaction
 
 - `/compact-server-side` immediately starts server-side Remote V2 compaction: no menu or confirmation.

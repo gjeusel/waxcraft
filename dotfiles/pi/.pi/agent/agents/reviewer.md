@@ -4,7 +4,7 @@ display_name: Reviewer
 color: "#EBCB8B"
 description: Review a branch, PR, or working diff against repository standards and its specification. Read-only, actionable findings.
 tools: "read, bash, ls, ext:pi-fff/ffgrep, ext:pi-fff/fffind"
-extensions: [pi-fff, pi-safety]
+extensions: [pi-fff, pi-safety, pi-model-controls]
 skills: code-review
 max_turns: 60
 prompt_mode: append

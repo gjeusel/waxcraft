@@ -1,13 +1,85 @@
-import type { ExtensionAPI, ExtensionContext } from '@earendil-works/pi-coding-agent';
+import { readdirSync, readFileSync } from 'node:fs';
+import { basename, join } from 'node:path';
+import {
+  getAgentDir, parseFrontmatter, type ExtensionAPI, type ExtensionContext,
+} from '@earendil-works/pi-coding-agent';
 import { Container, Key, SelectList, Text, truncateToWidth } from '@earendil-works/pi-tui';
 
 type Model = ExtensionContext['model'];
 type SpeedMode = 'normal' | 'fast' | 'ultrafast';
 type SpeedState = { version: 1; openai: SpeedMode; anthropic: 'normal' | 'fast' };
 
+/** An `Agent` tool call whose child run has not started yet; `resume` targets an existing agent id. */
+type SubagentSpawn = {
+  toolCallId: string;
+  type?: string;
+  resume?: string;
+  prompt: string;
+  inherited: SpeedState;
+  requested?: SpeedMode;
+};
+
+/**
+ * pi-subagents runs sub-agents in-process, each session with its own instance of this extension,
+ * so the speed a child inherits is exchanged through `globalThis`.
+ */
+export type SpeedRegistry = { main?: SpeedState; spawns: SubagentSpawn[] };
+
 export const SPEED_ENTRY_TYPE = 'pi-speed-mode';
 
 const ANTHROPIC_FAST_BETA = 'fast-mode-2026-02-01';
+
+const NORMAL_SPEED: SpeedState = { version: 1, openai: 'normal', anthropic: 'normal' };
+
+/** pi-subagents names child sessions `<agent type>#<first 8 hex digits of the agent id>`. */
+const SUBAGENT_SESSION_NAME = /^(?<type>[^#]+)#(?<id>[0-9a-f]{8})$/u;
+
+/** Spawns whose child never consumes them (unknown type, agent without this extension). */
+const MAX_PENDING_SPAWNS = 64;
+
+// A prompt section rather than an Agent tool guideline: Pi renders tool guidelines only for its
+// default prompt, and pi-subagents children replace it.
+const AGENT_SPEED_SECTION = 'The Agent tool also accepts an optional `speed` parameter ("normal", ' +
+  '"fast", or "ultrafast"; not in its schema). Omit it to use the agent type\'s configured speed, ' +
+  'else this session\'s speed; set it only when the user asks for a specific sub-agent speed.';
+
+export const speedRegistry: SpeedRegistry = ((globalThis as Record<symbol, unknown>)[
+  Symbol.for('pi-model-controls.speed-registry')
+] ??= { spawns: [] }) as SpeedRegistry;
+
+function isSpeedMode(value: unknown): value is SpeedMode {
+  return value === 'normal' || value === 'fast' || value === 'ultrafast';
+}
+
+/** pi-subagents' local agent directories (packages excluded), from lowest to highest priority. */
+export function agentDirectories(cwd: string): string[] {
+  return [join(getAgentDir(), 'agents'), join(cwd, '.agents', 'agents'), join(cwd, '.pi', 'agents')];
+}
+
+/** The `speed:` frontmatter of an agent type; pi-subagents itself ignores the field. */
+export function agentSpeed(type: string, directories: string[]): SpeedMode | undefined {
+  let speed: SpeedMode | undefined;
+  for (const directory of directories) {
+    let files: string[];
+    try {
+      files = readdirSync(directory).filter((file) => file.endsWith('.md'));
+    } catch {
+      continue;
+    }
+
+    for (const file of files) {
+      try {
+        const content = readFileSync(join(directory, file), 'utf8').replace(/^\uFEFF/u, '');
+        const { frontmatter } = parseFrontmatter(content);
+        const name = typeof frontmatter.name === 'string' ? frontmatter.name.trim() : basename(file, '.md');
+        // A higher-priority definition replaces the whole agent, including an absent speed.
+        if (name === type) speed = isSpeedMode(frontmatter.speed) ? frontmatter.speed : undefined;
+      } catch { /* pi-subagents reports malformed agent files. */ }
+    }
+  }
+
+  return speed;
+}
 
 /** No model allowlist: Anthropic decides whether fast mode is supported. */
 export function isAnthropicFastModel(model: Model): boolean {
@@ -112,6 +184,16 @@ export function registerFastMode(pi: ExtensionAPI): void {
     };
   }
 
+  function restore(state: SpeedState): void {
+    modes.openai.enabled = state.openai !== 'normal';
+    modes.openai.ultrafast = state.openai === 'ultrafast';
+    modes.anthropic.enabled = state.anthropic === 'fast';
+  }
+
+  // Set at session_start when this session is a pi-subagents child.
+  let subagent: { type: string; id: string } | undefined;
+  let awaitingSubagentSpeed = false;
+
   function applySpeed(ctx: ExtensionContext, speed: SpeedMode): void {
     const mode = currentMode(ctx);
     const enabled = speed !== 'normal';
@@ -147,6 +229,7 @@ export function registerFastMode(pi: ExtensionAPI): void {
 
     mode.enabled = enabled;
     mode.ultrafast = ultrafast;
+    if (subagent === undefined) speedRegistry.main = snapshot();
     refreshStatus(ctx);
     const enabledNotice = mode === modes.anthropic
       ? 'Anthropic Fast mode on; premium pricing, billed to usage credits on subscriptions (not included plan usage).'
@@ -250,11 +333,13 @@ export function registerFastMode(pi: ExtensionAPI): void {
     }
 
     // Speed is a discussion preference: navigating /tree must not undo a user's paid-tier choice.
+    let restored = false;
     const entries = ctx.sessionManager.getEntries();
     for (let index = entries.length - 1; index >= 0; index--) {
       const entry = entries[index];
       if (entry.type !== 'custom' || entry.customType !== SPEED_ENTRY_TYPE) continue;
 
+      restored = true;
       const saved = entry.data;
       const data = typeof saved === 'object' && saved !== null && !Array.isArray(saved)
         ? saved as Record<string, unknown> : undefined;
@@ -265,13 +350,79 @@ export function registerFastMode(pi: ExtensionAPI): void {
         break;
       }
 
-      modes.openai.enabled = data.openai !== 'normal';
-      modes.openai.ultrafast = data.openai === 'ultrafast';
-      modes.anthropic.enabled = data.anthropic === 'fast';
+      restore(data as SpeedState);
       break;
     }
 
+    // pi-subagents names the child session before binding extensions. A child's own history wins,
+    // but children never record their resolved speed, so a resumed child resolves it again.
+    const groups = SUBAGENT_SESSION_NAME.exec(ctx.sessionManager.getSessionName() ?? '')?.groups;
+    subagent = groups === undefined ? undefined : { type: groups.type, id: groups.id };
+    awaitingSubagentSpeed = subagent !== undefined && !restored;
+    if (subagent === undefined) speedRegistry.main = snapshot();
+
     refreshStatus(ctx);
+  });
+
+  pi.on('tool_call', (event) => {
+    if (event.toolName !== 'Agent') return;
+
+    const { prompt, speed, subagent_type: type, resume, isolated } = event.input as Record<string, unknown>;
+    if (speed !== undefined && !isSpeedMode(speed)) {
+      return { block: true, reason: 'Agent speed must be "normal", "fast", or "ultrafast".' };
+    }
+
+    // An isolated child loads no extension, so it could never claim the spawn.
+    if (typeof prompt !== 'string' || prompt === '' || isolated === true) return;
+
+    speedRegistry.spawns.push({
+      toolCallId: event.toolCallId,
+      // pi-subagents resolves agent types case-insensitively.
+      type: typeof type === 'string' ? type.toLowerCase() : undefined,
+      resume: typeof resume === 'string' ? resume : undefined,
+      prompt,
+      inherited: snapshot(),
+      requested: speed,
+    });
+    if (speedRegistry.spawns.length > MAX_PENDING_SPAWNS) speedRegistry.spawns.shift();
+  });
+
+  pi.on('tool_result', (event) => {
+    if (event.toolName !== 'Agent' || !event.isError) return;
+
+    // A blocked or failed call starts no child; a later call with the same prompt must not claim it.
+    const index = speedRegistry.spawns.findIndex((spawn) => spawn.toolCallId === event.toolCallId);
+    if (index !== -1) speedRegistry.spawns.splice(index, 1);
+  });
+
+  pi.on('before_agent_start', (event, ctx) => {
+    const prompt: unknown = event.prompt;
+    if (subagent !== undefined && typeof prompt === 'string') {
+      const child = subagent;
+      // A resume names the agent id. A spawn's first prompt is the call's prompt, after any
+      // inherited parent context. Live resumes reuse the session, so every run looks for its call.
+      const index = speedRegistry.spawns.findIndex((spawn) => spawn.resume !== undefined
+        ? spawn.resume.slice(0, 8) === child.id
+        : spawn.type === child.type.toLowerCase() && prompt.endsWith(spawn.prompt));
+      const spawn = index === -1 ? undefined : speedRegistry.spawns.splice(index, 1)[0];
+
+      // Workflow spawns have no recorded call and inherit the main session's speed; later runs
+      // without a call (steering, follow-ups) keep the resolved speed.
+      if (spawn !== undefined || awaitingSubagentSpeed) {
+        const speed = spawn?.requested ?? agentSpeed(child.type, agentDirectories(ctx.cwd));
+        restore(spawn?.inherited ?? speedRegistry.main ?? NORMAL_SPEED);
+        if (speed !== undefined) {
+          restore({ version: 1, openai: speed, anthropic: speed === 'normal' ? 'normal' : 'fast' });
+        }
+
+        refreshStatus(ctx);
+      }
+
+      awaitingSubagentSpeed = false;
+    }
+
+    const options = event.systemPromptOptions;
+    if (options.selectedTools.includes('Agent')) options.sections.agent_speed = AGENT_SPEED_SECTION;
   });
 
   pi.on('session_shutdown', () => { sessionGeneration++; });
