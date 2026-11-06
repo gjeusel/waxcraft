@@ -8,3 +8,7 @@
 
 - ALWAYS use `trash` (macOS built-in) instead of `rm` to delete files or directories — it moves them to the Finder Trash, so mistakes are recoverable. Example: `trash file.txt dir/`.
 - `trash` has no `-r` flag; it handles directories natively.
+
+## Email links
+
+- For Mimestream links shaped `https://links.mimestream.com/g/<account>/m/<message-id>`, extract the account and Gmail message ID and use the Gmail plugin first. Use a browser or mail app only when the plugin cannot perform the required action, and explain that limitation.
