@@ -13,7 +13,9 @@ export WAXPATH=${0:A:h:h}
 source "$WAXPATH/zsh/envvar.sh"
 
 source "$WAXPATH/zsh/functions/fzf-extras.zsh"
-source "$WAXPATH/zsh/functions/fzf-git.sh"
+# Sourced without positional parameters: fzf-git.sh runs as a CLI and exits when `$# -eq 1`, which
+# would abort `zsh -ic 'cmd' zsh arg` (and Rex's interactive environment capture) mid-startup.
+() { source "$WAXPATH/zsh/functions/fzf-git.sh" }
 _fzf_git_fzf() {
   fzf-tmux -p80%,60% -- \
     --layout=reverse --multi --height=50% --min-height=20 \
