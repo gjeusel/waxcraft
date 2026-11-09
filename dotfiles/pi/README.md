@@ -121,6 +121,7 @@ extensions/
 ├── ask-user-question-format/ compact structured questionnaire results
 ├── auto-name/              name sessions once they get long, or on a bare /name
 ├── complex-mcp-setup/      MCP servers mcp.json cannot express (see MCP servers)
+├── fire-in-worktree/       "fire in wt": hand an issue to an autonomous agent in its own worktree
 ├── gitleaks-guard/         scan and redact secrets
 ├── pane-focus/             dim the editor in unfocused tmux panes or terminals
 ├── peek-document/          read PDF and Office files
@@ -294,6 +295,48 @@ picked from the autocomplete list; this works in the interactive TUI only.
 `auto-name.json` sets `thresholdTokens` (default `50000`) and `model` (default
 `openai-codex/gpt-6-luna`). A missing file uses the defaults; an invalid one disables auto-naming
 with a warning. It is read at session start, so run `/reload` after editing it.
+
+### Fire in worktree
+
+Saying "fire in wt" (or "fire in worktree") makes the model call the `fire` tool, which hands the
+task to a new pi running on its own:
+
+1. **Clone.** Worktrees belong to an agent-only clone, `~/.pi/src/<repo>`, so checkouts under `~/src`
+   never gain linked worktrees. The first fire in a repository clones it with
+   `--reference ~/src/<repo> --dissociate` (seconds, independent of that checkout).
+2. **Issue, branch, draft MR.** A branch name comes from its GitLab issue (`<iid>-<slugified title>`,
+   from the glab skill's `validate_branch_identity.py`), and the IID only exists once the issue does.
+   So these come before the worktree, through the glab skill's `glab_task.py open`: the existing issue you name, or
+   one the launching model writes itself (title, description, labels; no subagent), then its
+   canonical branch and a draft MR, assigned to you and created only when missing. About 2 s of
+   GitLab calls; an invalid label fails before anything is created.
+3. **Worktree.** `~/.pi/src/<repo>.worktrees/<branch>`, tracking the issue's branch. Worktrunk's
+   pre-start hooks ([`dotfiles/worktrunk`](../worktrunk/.config/worktrunk/config.toml)) link the
+   gitignored `.env*` files of `~/src/<repo>` and create a uv venv with `UV_LINK_MODE=symlink`. A
+   failing hook does not stop the launch: the brief asks the agent to fix the environment first.
+4. **Session.** A fork of the current session, stored as a session of the worktree (`pi -c` there
+   continues it) and stopping before the request, which the brief restates. `/fired`, from any
+   checkout of the repository, lists these sessions by branch and opens one. Storing them beside the
+   launching session would let `pi -c` in `~/src/<repo>` pick the busiest agent's session. A
+   `<session>.jsonl.pid` lock warns when the session is opened while its agent still runs.
+5. **Rex tab.** Named after the branch, tab and pane, in the session `ai-agents` (created if
+   missing, without stealing focus): find it with Go to Anything (Rex's "New quick switcher"). It runs
+   `nice -n 10 pi` through `zsh -i`, so that `~/.zshrc` exports are present and agents running tests
+   leave the machine responsive, with the parent's model and thinking level. The tool waits for the
+   agent to take its session lock; if it does not start, the tool fails with what the pane shows and
+   removes the worktree. Agent state (working, idle) is left to Rex.
+
+`repo` fires into another repository than the current one: a checkout path, or a short name or
+GitLab path from the glab skill's `references/projects.md`.
+
+[`brief.md`](.pi/agent/extensions/fire-in-worktree/brief.md) is the agent's first message:
+implementation, review by a `reviewer` subagent on another provider than the agent's, then a commit
+and `glab_task.py publish`, which pushes, sets the MR description, and marks it ready. The reviewer
+model comes from [`fire.json`](.pi/agent/fire.json), by the agent's provider (`default` for the
+others): `standard` unless you ask for a `thorough` review, or for none. It is read at each fire. With `autoMerge` (only when you ask), the agent then runs `glab_task.py merge`.
+
+`/fired prune` closes the tab and removes the worktree (`wt remove`, which deletes a merged branch) of
+every fired agent of the repository whose MR is merged or closed, after a confirmation.
 
 ### To Checkup
 

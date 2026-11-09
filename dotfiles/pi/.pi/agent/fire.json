@@ -1,0 +1,12 @@
+{
+  "reviewers": {
+    "anthropic": {
+      "standard": "openai-codex/gpt-6.1-sol",
+      "thorough": "openai-codex/gpt-6-astra"
+    },
+    "default": {
+      "standard": "anthropic/claude-opus-5-5",
+      "thorough": "anthropic/claude-fable-5-1"
+    }
+  }
+}
