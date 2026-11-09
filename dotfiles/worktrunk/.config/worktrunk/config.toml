@@ -1,0 +1,29 @@
+# Worktrunk (wt) user config, stowed from waxcraft (dotfiles/worktrunk).
+#
+# Agent worktrees are created by the pi `fire-in-worktree` extension from agent-only clones in
+# ~/.pi/src/<repo>, so that checkouts under ~/src never gain linked worktrees. These hooks also apply
+# to `wt` used by hand.
+
+# Named exactly after their branch, beside the main checkout: ~/.pi/src/zefire.worktrees/2957-fix-x.
+worktree-path = "{{ repo_path }}/../{{ repo }}.worktrees/{{ branch | sanitize }}"
+# wt runs non-interactively from agents: never stop to offer shell integration.
+skip-shell-integration-prompt = true
+
+[list]
+# Opt in to the upcoming default, which silences wt's migration warning.
+json-schema = 2
+
+# Blocking: the agent starts once the worktree can run its code and tests. Both run concurrently.
+[pre-start]
+# Link the gitignored env files (.env, .env.docker, ...) of the developer checkout ~/src/<repo>.
+# Tracked files such as .env.example are left alone.
+env = '''
+for src in ~/src/{{ repo }}/.env*; do
+  name=${src##*/}
+  if [ -f "$src" ] && [ ! -e "$name" ] && git check-ignore -q "$name"; then ln -s "$src" "$name"; fi
+done
+'''
+# A uv project gets its own .venv, with every extra (tests usually need the dev one). Symlink mode
+# links package files from uv's cache instead of copying them: a few seconds, almost no disk.
+# Pruning or cleaning uv's cache breaks such venvs; rerun this command to repair one.
+venv = "if [ -f uv.lock ]; then UV_LINK_MODE=symlink uv sync --frozen --all-extras; fi"
