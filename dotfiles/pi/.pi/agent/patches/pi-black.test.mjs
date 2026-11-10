@@ -49,22 +49,18 @@ test('the patched billing block survives final request checksum generation', asy
 });
 
 test('Fast mode survives native Anthropic SDK serialization and Black OAuth checksumming', { timeout: 10_000 }, async () => {
-  const modules = [
-    fileURLToPath(new URL('../extensions/pi-model-controls/fast.ts', import.meta.url)),
-    join(agentDir, packagePath, 'src/anthropic-provider.ts'),
-  ].map(path => {
-    const moduleExports = {};
-    const { outputText } = ts.transpileModule(readFileSync(path, 'utf8'), {
-      compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
-    });
-    runInNewContext(outputText, {
-      exports: moduleExports, URL,
-      require: name => name === './claude-code-protocol.ts' ? exports : require(name),
-    }, { filename: path });
-
-    return moduleExports;
+  // fast.ts imports runtime values from the ESM-only Pi package, which a CommonJS `require`
+  // cannot load, so it goes through Node's native TypeScript import like the extension tests.
+  const fast = await import(new URL('../extensions/pi-model-controls/fast.ts', import.meta.url).href);
+  const blackPath = join(agentDir, packagePath, 'src/anthropic-provider.ts');
+  const black = {};
+  const { outputText } = ts.transpileModule(readFileSync(blackPath, 'utf8'), {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
   });
-  const [fast, black] = modules;
+  runInNewContext(outputText, {
+    exports: black, URL,
+    require: name => name === './claude-code-protocol.ts' ? exports : require(name),
+  }, { filename: blackPath });
   const npmRoot = spawnSync('npm', ['root', '--global'], { encoding: 'utf8', timeout: 5_000 });
   assert.equal(npmRoot.status, 0, npmRoot.stderr || npmRoot.error?.message);
   const nativePath = join(npmRoot.stdout.trim(), '@earendil-works/pi-coding-agent',
