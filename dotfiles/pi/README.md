@@ -30,18 +30,33 @@ After upgrading Hunk, start a new Pi session or run `/reload` before reviewing a
 
 Subagent `skills:` preloading (`.pi/agent/agents/*.md`, e.g. the reviewer's `code-review`) is resolved by `pi-subagents` from `~/.agents/skills/`. The reviewer's `code-review` is a customized fork versioned in `dotfiles/agents/.agents/skills/code-review` (not installed with `npx skills`); its stowed directory symlink resolves correctly. If a preloaded skill stops resolving after a `pi-subagents` upgrade, the agent silently runs with a `(Skill "…" not found)` placeholder in its prompt.
 
-Pi installs the packages from `settings.json` on first launch. [Pi Black](https://github.com/paoloanzn/pi-black)
-wraps the native Anthropic provider for Claude subscription OAuth requests; it does not run a
-Claude Code subprocess. Authenticate inside Pi and select an `anthropic/claude-*` model:
+Pi installs the packages from `settings.json` on first launch.
+[pi-claude-code](https://github.com/earendil-works/pi-claude-code) routes subscription requests
+through the installed official Claude Code CLI. Pi still owns history, approvals, compaction,
+and tool execution; Claude Code only communicates with the model. Authenticate with Claude Code:
 
-```text
-/login anthropic
-/model
+```sh
+claude auth login
 ```
 
-Pi Black requires Pi 0.84.1 or newer. Its Claude Code request compatibility is version-specific
-and unofficial; revalidate subscription access when upgrading. Pi Black leaves API-key requests
-unchanged; the local speed controls below opt in separately.
+Then select **Claude Code Subscription (Experimental)** in Pi:
+
+```text
+/claude-code-status
+/model claude-code/claude-opus-5-5
+```
+
+The provider uses Claude Code's login, not Pi's `/login anthropic`. It ignores
+`ANTHROPIC_API_KEY` in child processes, leaving the parent environment unchanged. Auth-token,
+proxy, Bedrock, Vertex, and Foundry overrides are rejected rather than changing billing silently.
+The extension is experimental: Anthropic may change subscription billing for CLI/SDK usage;
+it currently rejects usage-credit charges unless explicitly opted in upstream.
+
+This replaces Pi Black and its local version/billing patch. Existing sessions retain their old
+`anthropic/...` model: restart Pi or run `/reload`, then select a `claude-code/...` model to
+migrate them. New sessions default to Claude Code. The local `/fast` and Anthropic server-compaction
+controls below apply only to the native API transport, not this CLI provider; Claude Code sessions
+use Pi's normal compaction. Direct `anthropic/...` API-key access remains available separately.
 
 ## Mistral EU inference
 
@@ -186,9 +201,8 @@ Legacy `pi-openai.json` and `pi-anthropic.json` files are ignored, not imported.
   current routing. Higher API prices or plan usage apply; Codex support for Ultrafast is not
   guaranteed by the API documentation. Requests use Pi's existing transport, without forcing WebSockets.
 - **Anthropic:** `/fast on` sends `speed: "fast"` and appends `fast-mode-2026-02-01` to Pi's
-  existing beta list. Pi Black `v0.84.1-cc2.1.280.1` preserves these fields and signs the final
-  serialized body; no provider replacement or additional patch is needed. This also works with
-  API-key authentication. Every model on the official Anthropic Messages endpoint is accepted,
+  existing beta list for the native API transport. The `claude-code` CLI provider is not supported
+  by these local speed controls. Every model on the official Anthropic Messages endpoint is accepted,
   without a model allowlist: the backend decides support and entitlement, and models are never
   automatically switched. `/fast off` leaves the native request untouched (standard speed).
   Anthropic has an independent preference in the same discussion history. Switching away from
@@ -249,8 +263,8 @@ settings are no longer used.
 
 #### Anthropic compaction
 
-On the official Anthropic Messages endpoint (`https://api.anthropic.com`, API key or Pi Black
-OAuth), Pi's `/compact` and automatic threshold/overflow compaction use
+On the native Anthropic Messages endpoint (`https://api.anthropic.com`), Pi's `/compact` and
+automatic threshold/overflow compaction use
 [on-demand compaction](https://platform.claude.com/docs/en/build-with-claude/compaction-on-demand)
 (`compact-2026-09-04` beta). The messages before Pi's cut point are sent with the conversation's
 system prompt, tools, thinking level and session, plus `compaction: {type: "summarize"}`. Claude
@@ -353,26 +367,24 @@ every fired agent of the repository whose MR is merged or closed, after a confir
 
 ## Packages
 
-Third-party packages are pinned in `settings.json`. Pi Black uses the GitHub release
-`v0.84.1-cc2.1.280.1`, which advertises Claude Code `2.1.280` (the minimum for Opus 5.5). The
-tracked protocol-version patch raises it to `2.1.322`, the installed Claude Code release, because
-Fable 5.2 requires at least `2.1.290`; drop the patch once an upstream release reaches that
-version. This is unofficial compatibility, not an upgrade of Claude Code; revalidate it when
-either service changes. Other Claude model definitions come from Pi's native
-Anthropic catalog; the reviewer uses `openai-codex/gpt-6-astra` with high thinking.
+Third-party packages are pinned in `settings.json`. `pi-claude-code` is pinned to a Git commit
+because it has no release tags yet. It discovers the account's model catalog through Claude Code;
+the default and reviewer selections use the `claude-code` provider. No Claude Code protocol
+version or billing checksum patch is maintained locally.
 
 `models.json` overrides `openai-codex/gpt-6.1-sol` and `openai-codex/gpt-6-luna` to use
 1,000,000-token contexts, retaining Pi's native output limits, pricing tiers, and capabilities.
 `gpt-6-astra` keeps Pi's default context limit. These overrides opt into long contexts; the
 Codex backend must support them, and inputs above 272,000 tokens enter the higher pricing tier.
-Other OpenAI and Anthropic model definitions come from Pi's native catalog. The custom Mistral EU
-endpoint and OpenRouter Ox Alpha definition remain in `models.json`, as does
-`anthropic/claude-fable-5-2` (Fable 5.1's metadata with 5.2 pricing) until Pi's catalog ships it;
-drop that entry once `pi --list-models` lists it natively.
+Other OpenAI and native Anthropic model definitions come from Pi's catalog. The custom Mistral EU
+endpoint and OpenRouter Ox Alpha definition remain in `models.json`. Explicit `claude-code`
+entries for Fable 5.2 and Sonnet 5.5 preserve their context, output limits, and list-price metadata,
+and make exact CLI selections available before discovery refreshes the extension's older fallback
+catalog. Remove these entries once the extension's initial catalog includes them.
 
 ```text
 packages/
-├── pi-black/                               native Anthropic OAuth compatibility
+├── pi-claude-code/                         subscription access through the official Claude Code CLI
 ├── pi-subagents/                           delegated agent workflows
 ├── pi-intercom/                            cross-session communication
 ├── @narumitw/pi-lsp/                       language-server diagnostics and fixes
@@ -398,11 +410,8 @@ installer uses the flake's supported Node.js version for `npm ci` and stows
 
 `just pi-install` also reapplies the tracked patches in `.pi/agent/patches/` for
 foreground-only subagent labels (agent `color` sets text color without badge
-padding or background changes), persistence-independent worker safety linkage, and Pi Black's
-Claude Code `2.1.322` version override.
-The latter updates the shared constant used by the user-agent, billing header, and version
-fingerprint, plus the upstream fingerprint test fixtures; it leaves the billing salt and
-request checksum algorithm unchanged. It also moves host-provided modules (TypeBox, Pi packages)
+padding or background changes) and persistence-independent worker safety linkage.
+It also moves host-provided modules (TypeBox, Pi packages)
 from installed extension packages' `dependencies` to `"*"` peerDependencies, which silences Pi's
 "Host-provided extension packages" warning for packages that have not fixed their manifests
 upstream; Pi's loader aliases these imports to its own copies either way. After a standalone

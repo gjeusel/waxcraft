@@ -1,12 +1,12 @@
 {
   "providers": {
-    "anthropic": {
+    "claude-code": {
+      "api": "claude-code-stream-json",
+      "baseUrl": "process://claude-code",
       "models": [
         {
           "id": "claude-fable-5-2",
           "name": "Claude Fable 5.2",
-          "api": "anthropic-messages",
-          "baseUrl": "https://api.anthropic.com",
           "reasoning": true,
           "input": ["text", "image"],
           "contextWindow": 1000000,
@@ -17,15 +17,35 @@
             "cacheRead": 0.2,
             "cacheWrite": 10
           },
-          "compat": {
-            "supportsMidConvoEffort": true,
-            "supportsMidConvoSystemMessages": true,
-            "supportsMidConvoToolChanges": true,
-            "forceAdaptiveThinking": true,
-            "supportsStrictTools": true
+          "thinkingLevelMap": {
+            "off": null,
+            "xhigh": "xhigh",
+            "max": "max"
+          },
+          "promptCache": {
+            "short": 300,
+            "long": 3600
+          }
+        },
+        {
+          "id": "claude-sonnet-5-5",
+          "name": "Claude Sonnet 5.5",
+          "reasoning": true,
+          "input": ["text", "image"],
+          "contextWindow": 1000000,
+          "maxTokens": 128000,
+          "cost": {
+            "input": 2,
+            "output": 10,
+            "cacheRead": 0.1,
+            "cacheWrite": 2.5
           },
           "thinkingLevelMap": {
             "off": null,
+            "minimal": null,
+            "low": "low",
+            "medium": "medium",
+            "high": "high",
             "xhigh": "xhigh",
             "max": "max"
           },

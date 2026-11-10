@@ -69,8 +69,8 @@ test('fire.json gives the reviewers by provider, with a default', () => {
   // The tracked configuration itself.
   const config = loadConfig(fileURLToPath(new URL('../../fire.json', import.meta.url)));
 
-  assert.deepEqual(reviewersFor(config, 'anthropic'), { standard: 'openai-codex/gpt-6.1-sol', thorough: 'openai-codex/gpt-6-astra' });
-  assert.deepEqual(reviewersFor(config, 'openai-codex'), { standard: 'anthropic/claude-opus-5-5', thorough: 'anthropic/claude-fable-5-1' });
+  assert.deepEqual(reviewersFor(config, 'claude-code'), { standard: 'openai-codex/gpt-6.1-sol', thorough: 'openai-codex/gpt-6-astra' });
+  assert.deepEqual(reviewersFor(config, 'openai-codex'), { standard: 'claude-code/claude-opus-5-5', thorough: 'claude-code/claude-fable-5-2' });
 });
 
 test('a malformed fire.json is rejected', () => {

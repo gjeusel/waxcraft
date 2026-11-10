@@ -81,7 +81,7 @@ export default function (pi: ExtensionAPI, promptDir = join(homedir(), '.pi', 'a
       ctx.ui.notify(`Rephrasing feedback for ${model.id}...`, 'info');
 
       // The registry resolves request-time auth and routes through the configured provider, so
-      // extension overrides (e.g. Pi Black's OAuth compatibility wrapper) are preserved.
+      // extension-provided transports (e.g. the Claude Code CLI provider) are preserved.
       let response: Awaited<ReturnType<typeof ctx.modelRegistry.complete>>;
       try {
         response = await ctx.modelRegistry.complete(model, {

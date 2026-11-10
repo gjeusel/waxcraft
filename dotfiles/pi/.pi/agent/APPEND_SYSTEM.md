@@ -5,7 +5,7 @@
 - Use `ask_user_question` when ambiguity affects correctness, scope, safety, or a meaningful user preference. Resolve routine implementation details from the codebase without stopping for approval.
 - Prefer the simplest implementation that fully satisfies the request.
 - Keep changes surgical: avoid unrelated refactoring, formatting, or cleanup, and match the existing codebase's conventions.
-- For review subagents (the `reviewer` type, or review and verify stages of a workflow), pass `model: "anthropic/claude-fable-5-1"` or `model: "openai-codex/gpt-6-astra"` with `thinking`/`effort` at `high` or above, unless the task's instructions name the reviewer model.
+- For review subagents (the `reviewer` type, or review and verify stages of a workflow), pass `model: "claude-code/claude-fable-5-2"` or `model: "openai-codex/gpt-6-astra"` with `thinking`/`effort` at `high` or above, unless the task's instructions name the reviewer model.
 - Use comments to explain invariants or non-obvious decisions, not to narrate code. Preserve existing comments while they remain relevant.
 
 ## Code Layout

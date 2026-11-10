@@ -83,5 +83,3 @@ apply_patch @tintinweb/pi-subagents npm/node_modules/@tintinweb/pi-subagents \
   pi-subagents-0.19.0-foreground-labels.patch src/agent-color.ts
 apply_patch @tintinweb/pi-subagents npm/node_modules/@tintinweb/pi-subagents \
   pi-subagents-0.19.0-safety-parent.patch src/agent-runner.ts
-apply_patch pi-black git/github.com/paoloanzn/pi-black \
-  pi-black-cc2.1.322.patch src/claude-code-protocol.ts test/claude-code-protocol.test.ts
