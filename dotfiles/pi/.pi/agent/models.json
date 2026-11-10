@@ -1,5 +1,41 @@
 {
   "providers": {
+    "anthropic": {
+      "models": [
+        {
+          "id": "claude-fable-5-2",
+          "name": "Claude Fable 5.2",
+          "api": "anthropic-messages",
+          "baseUrl": "https://api.anthropic.com",
+          "reasoning": true,
+          "input": ["text", "image"],
+          "contextWindow": 1000000,
+          "maxTokens": 128000,
+          "cost": {
+            "input": 8,
+            "output": 40,
+            "cacheRead": 0.2,
+            "cacheWrite": 10
+          },
+          "compat": {
+            "supportsMidConvoEffort": true,
+            "supportsMidConvoSystemMessages": true,
+            "supportsMidConvoToolChanges": true,
+            "forceAdaptiveThinking": true,
+            "supportsStrictTools": true
+          },
+          "thinkingLevelMap": {
+            "off": null,
+            "xhigh": "xhigh",
+            "max": "max"
+          },
+          "promptCache": {
+            "short": 300,
+            "long": 3600
+          }
+        }
+      ]
+    },
     "openai-codex": {
       "modelOverrides": {
         "gpt-6.1-sol": {

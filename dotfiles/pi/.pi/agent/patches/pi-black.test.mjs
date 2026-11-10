@@ -25,17 +25,17 @@ runInNewContext(outputText, {
 
 const messages = [{ role: 'user', content: 'Reply with exactly: PROBE_OK', timestamp: 1 }];
 
-test('Pi Black advertises 2.1.280 consistently in headers and prompt fingerprints', async () => {
-  assert.equal(exports.CLAUDE_CODE_VERSION, '2.1.280');
-  assert.equal(exports.claudeCodeHeaders()['user-agent'], 'claude-cli/2.1.280 (external, sdk-cli)');
+test('Pi Black advertises 2.1.322 consistently in headers and prompt fingerprints', async () => {
+  assert.equal(exports.CLAUDE_CODE_VERSION, '2.1.322');
+  assert.equal(exports.claudeCodeHeaders()['user-agent'], 'claude-cli/2.1.322 (external, sdk-cli)');
 
   const selected = [4, 7, 20].map(index => messages[0].content[index]).join('');
-  const expected = createHash('sha256').update(`59cf53e54c78${selected}2.1.280`)
+  const expected = createHash('sha256').update(`59cf53e54c78${selected}2.1.322`)
     .digest('hex').slice(0, 3);
-  assert.equal(expected, '022');
+  assert.equal(expected, '42b');
   assert.equal(await exports.claudeCodeVersionFingerprint(messages), expected);
   assert.equal(await exports.buildClaudeCodeBillingHeader(messages),
-    `x-anthropic-billing-header: cc_version=2.1.280.${expected}; cc_entrypoint=sdk-cli; cch=00000;`);
+    `x-anthropic-billing-header: cc_version=2.1.322.${expected}; cc_entrypoint=sdk-cli; cch=00000;`);
 });
 
 test('the patched billing block survives final request checksum generation', async () => {
@@ -43,7 +43,7 @@ test('the patched billing block survives final request checksum generation', asy
     model: 'claude-opus-5-5', max_tokens: 128, messages: [],
   }, { messages }, undefined, undefined);
   const body = exports.patchClaudeCodeCch(JSON.stringify(payload));
-  assert.match(JSON.parse(body).system[0].text, /cc_version=2\.1\.280\.022;.*cch=[0-9a-f]{5};$/);
+  assert.match(JSON.parse(body).system[0].text, /cc_version=2\.1\.322\.42b;.*cch=[0-9a-f]{5};$/);
   assert.doesNotMatch(JSON.parse(body).system[0].text, /cch=00000/);
   assert.equal(exports.patchClaudeCodeCch(body), body);
 });
@@ -124,12 +124,12 @@ test('Fast mode survives native Anthropic SDK serialization and Black OAuth chec
         assert.ok(nativeBetas.includes('claude-code-20250219'), label);
         assert.ok(nativeBetas.includes('oauth-2025-04-20'), label);
         assert.equal(headers.get('authorization'), 'Bearer sk-ant-oat-synthetic', label);
-        assert.equal(headers.get('user-agent'), 'claude-cli/2.1.280 (external, sdk-cli)', label);
+        assert.equal(headers.get('user-agent'), 'claude-cli/2.1.322 (external, sdk-cli)', label);
         assert.equal(headers.get('x-app'), 'cli', label);
         assert.equal(headers.get('x-claude-code-session-id'), 'synthetic-session', label);
         assert.match(headers.get('x-client-request-id'), /^[0-9a-f-]{36}$/u, label);
         const billing = body.system[0].text;
-        assert.match(billing, /^x-anthropic-billing-header: cc_version=2\.1\.280\.[0-9a-f]{3};.*cch=[0-9a-f]{5};$/u, label);
+        assert.match(billing, /^x-anthropic-billing-header: cc_version=2\.1\.322\.[0-9a-f]{3};.*cch=[0-9a-f]{5};$/u, label);
         assert.doesNotMatch(billing, /cch=00000/u, label);
         assert.equal(body.system[1].text, "You are a Claude agent, built on Anthropic's Claude Agent SDK.", label);
         body.system[0].text = billing.replace(/cch=[0-9a-f]{5}/u, 'cch=00000');
@@ -156,20 +156,20 @@ test('patch installer applies once, is idempotent, and rejects incompatible vers
   try {
     mkdirSync(dirname(sourceFixture), { recursive: true });
     mkdirSync(dirname(testFixture), { recursive: true });
-    writeFileSync(sourceFixture, source.replace('"2.1.280"', '"2.1.258"'));
-    writeFileSync(testFixture, upstreamTests.replaceAll('022', '01c'));
+    writeFileSync(sourceFixture, source.replace('"2.1.322"', '"2.1.280"'));
+    writeFileSync(testFixture, upstreamTests.replaceAll('42b', '022'));
 
     const first = apply();
     assert.equal(first.status, 0, first.stderr);
-    assert.match(first.stdout, /Applied pi-black-cc2\.1\.280\.patch/);
+    assert.match(first.stdout, /Applied pi-black-cc2\.1\.322\.patch/);
     assert.equal(readFileSync(sourceFixture, 'utf8'), source);
     assert.equal(readFileSync(testFixture, 'utf8'), upstreamTests);
 
     const second = apply();
     assert.equal(second.status, 0, second.stderr);
-    assert.match(second.stdout, /Already applied pi-black-cc2\.1\.280\.patch/);
+    assert.match(second.stdout, /Already applied pi-black-cc2\.1\.322\.patch/);
 
-    writeFileSync(sourceFixture, source.replace('"2.1.280"', '"9.9.999"'));
+    writeFileSync(sourceFixture, source.replace('"2.1.322"', '"9.9.999"'));
     const incompatible = apply();
     assert.notEqual(incompatible.status, 0);
     assert.match(incompatible.stderr, /Cannot patch src\/claude-code-protocol\.ts/);

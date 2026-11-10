@@ -354,10 +354,11 @@ every fired agent of the repository whose MR is merged or closed, after a confir
 ## Packages
 
 Third-party packages are pinned in `settings.json`. Pi Black uses the GitHub release
-`v0.84.1-cc2.1.280.1`, advertising Claude Code `2.1.280` (the minimum required for Opus 5.5).
-The retained protocol-version patch is already satisfied by this release. This is unofficial
-compatibility, not an upgrade of Claude Code; revalidate it when either service changes. Claude model definitions, including
-Fable 5.1, come from Pi's native
+`v0.84.1-cc2.1.280.1`, which advertises Claude Code `2.1.280` (the minimum for Opus 5.5). The
+tracked protocol-version patch raises it to `2.1.322`, the installed Claude Code release, because
+Fable 5.2 requires at least `2.1.290`; drop the patch once an upstream release reaches that
+version. This is unofficial compatibility, not an upgrade of Claude Code; revalidate it when
+either service changes. Other Claude model definitions come from Pi's native
 Anthropic catalog; the reviewer uses `openai-codex/gpt-6-astra` with high thinking.
 
 `models.json` overrides `openai-codex/gpt-6.1-sol` and `openai-codex/gpt-6-luna` to use
@@ -365,7 +366,9 @@ Anthropic catalog; the reviewer uses `openai-codex/gpt-6-astra` with high thinki
 `gpt-6-astra` keeps Pi's default context limit. These overrides opt into long contexts; the
 Codex backend must support them, and inputs above 272,000 tokens enter the higher pricing tier.
 Other OpenAI and Anthropic model definitions come from Pi's native catalog. The custom Mistral EU
-endpoint and OpenRouter Ox Alpha definition remain in `models.json`.
+endpoint and OpenRouter Ox Alpha definition remain in `models.json`, as does
+`anthropic/claude-fable-5-2` (Fable 5.1's metadata with 5.2 pricing) until Pi's catalog ships it;
+drop that entry once `pi --list-models` lists it natively.
 
 ```text
 packages/
@@ -396,7 +399,7 @@ installer uses the flake's supported Node.js version for `npm ci` and stows
 `just pi-install` also reapplies the tracked patches in `.pi/agent/patches/` for
 foreground-only subagent labels (agent `color` sets text color without badge
 padding or background changes), persistence-independent worker safety linkage, and Pi Black's
-Claude Code `2.1.280` version override.
+Claude Code `2.1.322` version override.
 The latter updates the shared constant used by the user-agent, billing header, and version
 fingerprint, plus the upstream fingerprint test fixtures; it leaves the billing salt and
 request checksum algorithm unchanged. It also moves host-provided modules (TypeBox, Pi packages)

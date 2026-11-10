@@ -19,12 +19,12 @@
     "deepseek/deepseek-flash",
     "anthropic/claude-sonnet-5-5",
     "anthropic/claude-opus-5-5",
-    "anthropic/claude-fable-5-1"
+    "anthropic/claude-fable-5-2"
   ],
   "modelThinkingLevels": {
     "deepseek/deepseek-flash": "high",
     "mistral-eu/zai-glm-5-3": "high",
-    "anthropic/claude-fable-5-1": "high",
+    "anthropic/claude-fable-5-2": "high",
     "anthropic/claude-opus-5-5": "high",
     "openai-codex/gpt-6-luna": "high",
     "openai-codex/gpt-6.1-sol": "high",
