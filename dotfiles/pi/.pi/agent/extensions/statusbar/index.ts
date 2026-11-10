@@ -48,7 +48,7 @@ export default function (pi: ExtensionAPI) {
           const usage = ctx.getContextUsage();
           const pct = usage?.percent ?? null;
           const pctPlain = pct === null ? '?%' : `${pct.toFixed(0)}%`;
-          const right = [extensionStatuses.get('pi-safety'), extensionStatuses.get('auto-mode'), pctPlain]
+          const right = [extensionStatuses.get('fire'), extensionStatuses.get('pi-safety'), extensionStatuses.get('auto-mode'), pctPlain]
             .filter((part) => part !== undefined && part !== '')
             .join(' · ');
           const rightW = visibleWidth(right);

@@ -6,23 +6,29 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { SessionManager } from '@earendil-works/pi-coding-agent';
 import {
+  agentLabels,
   findRequest,
+  firedEntry,
   forkSession,
   gitlabProject,
   layoutFor,
   linkedWorktrees,
   loadConfig,
+  originPath,
+  parseFireArgs,
+  parseTabLabel,
   piCommand,
   renderBrief,
   requestText,
   reviewersFor,
+  tabLabel,
   worktreeOfBranch,
 } from './index.ts';
 
 type Message = Parameters<SessionManager['appendMessage']>[0];
 
 const user = (text: string) => ({ role: 'user', content: text, timestamp: 0 }) as unknown as Message;
-const assistant = (text: string) =>
+const assistant = (text: string, stopReason = 'toolUse') =>
   ({
     role: 'assistant',
     content: [{ type: 'text', text }],
@@ -30,7 +36,7 @@ const assistant = (text: string) =>
     provider: 'anthropic',
     model: 'claude-opus-5-5',
     usage: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, totalTokens: 0, cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 } },
-    stopReason: 'toolUse',
+    stopReason,
     timestamp: 0,
   }) as unknown as Message;
 
@@ -145,7 +151,7 @@ test('brief.md uses only the values the tool provides, and values are not expand
 
 test('the fork is a session of the worktree and resumes before the request', () => {
   withAgentDir((dir) => {
-    const parent = parentSession([user('discuss the plan'), assistant('plan ready'), user('fire in wt'), assistant('calling the tool')]);
+    const parent = parentSession([user('discuss the plan'), assistant('plan ready', 'stop'), user('fire in wt'), assistant('calling the tool')]);
     const request = findRequest(parent.getBranch());
     assert.equal(requestText(request), 'fire in wt');
 
@@ -180,4 +186,61 @@ test('the brief is the last argument, after the end of options', () => {
 
   assert.deepEqual(command.slice(-8), ['--session', '/s.jsonl', '--model', 'anthropic/claude-opus-5-5', '--thinking', 'high', '--', '--looks like an option']);
   assert.match(command[2], /exec nice -n 10 pi "\$@"$/);
+});
+
+test('the request includes what the user steered into the run', () => {
+  withAgentDir(() => {
+    const parent = parentSession([
+      user('discuss the plan'),
+      assistant('plan ready', 'stop'),
+      user('fire in wt: fix it'),
+      assistant('reading the labels'),
+      user('and merge it'),
+      assistant('calling the tool'),
+    ]);
+    const request = findRequest(parent.getBranch());
+    assert.equal(requestText(request), 'fire in wt: fix it\n\nand merge it');
+
+    const entry = { worktree: '/w', clone: '/c', issue: 12, branch: '12-fix' };
+    const sessionFile = forkSession(parent.getSessionFile()!, request, entry, '12-fix');
+    assert.deepEqual(messageTexts(SessionManager.open(sessionFile)), ['discuss the plan', 'plan ready']);
+    assert.deepEqual(firedEntry(readFileSync(sessionFile, 'utf8')), entry);
+    // A session only talking about the extension is not a fired agent's.
+    assert.equal(firedEntry(readFileSync(parent.getSessionFile()!, 'utf8')), undefined);
+    assert.equal(firedEntry('{"type":"message","text":"the \\"fire-in-worktree\\" entry"}\n{"type":"cus'), undefined);
+  });
+});
+
+test('/fire takes any text but its subcommands as a task', () => {
+  assert.deepEqual(parseFireArgs(''), { kind: 'list' });
+  assert.deepEqual(parseFireArgs(' list '), { kind: 'list' });
+  assert.deepEqual(parseFireArgs('prune'), { kind: 'prune' });
+  assert.deepEqual(parseFireArgs('run'), { kind: 'run', task: '' });
+  // A task starting with a subcommand's word keeps it.
+  assert.deepEqual(parseFireArgs('run the migration on staging'), { kind: 'run', task: 'run the migration on staging' });
+  assert.deepEqual(parseFireArgs('prune the dead code'), { kind: 'run', task: 'prune the dead code' });
+  assert.deepEqual(parseFireArgs('#123, thorough review'), { kind: 'run', task: '#123, thorough review' });
+});
+
+test("a tab's label carries its agent's state", () => {
+  assert.equal(tabLabel('12-fix', 'working'), '12-fix');
+  for (const state of ['working', 'done', 'failed'] as const) {
+    assert.deepEqual(parseTabLabel(tabLabel('12-fix', state)), { branch: '12-fix', state });
+  }
+});
+
+test('the picker gives each agent a distinct label', () => {
+  const modified = new Date(2026, 0, 2, 3, 4);
+  const row = { state: 'stopped', repo: 'zefire', branch: '12-fix', modified } as const;
+  const labels = agentLabels([{ ...row, state: 'working', mr: 'opened' }, row, row]);
+
+  assert.equal(labels[0], `● working  ·  zefire  ·  12-fix  ·  MR opened  ·  ${modified.toLocaleString()}`);
+  assert.equal(labels[1], `○ stopped  ·  zefire  ·  12-fix  ·  ${modified.toLocaleString()}`);
+  assert.equal(labels[2], `${labels[1]} (2)`);
+});
+
+test('an origin is compared by its project path, whatever the URL form', () => {
+  for (const url of ['git@gitlab.com:renewex/zefire.git', 'https://gitlab.com/renewex/zefire', 'ssh://git@gitlab.com/renewex/zefire.git\n']) {
+    assert.equal(originPath(url), 'renewex/zefire');
+  }
 });

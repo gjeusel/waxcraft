@@ -329,28 +329,52 @@ task to a new pi running on its own:
    gitignored `.env*` files of `~/src/<repo>` and create a uv venv with `UV_LINK_MODE=symlink`. A
    failing hook does not stop the launch: the brief asks the agent to fix the environment first.
 4. **Session.** A fork of the current session, stored as a session of the worktree (`pi -c` there
-   continues it) and stopping before the request, which the brief restates. `/fired`, from any
-   checkout of the repository, lists these sessions by branch and opens one. Storing them beside the
-   launching session would let `pi -c` in `~/src/<repo>` pick the busiest agent's session. A
-   `<session>.jsonl.pid` lock warns when the session is opened while its agent still runs.
+   continues it) and stopping before the request, which the brief restates along with anything you
+   steered into that turn. Storing them beside the launching session would let `pi -c` in
+   `~/src/<repo>` pick the busiest agent's session. A `<session>.jsonl.pid` lock warns when the
+   session is opened while its agent still runs.
 5. **Rex tab.** Named after the branch, tab and pane, in the session `ai-agents` (created if
    missing, without stealing focus): find it with Go to Anything (Rex's "New quick switcher"). It runs
    `nice -n 10 pi` through `zsh -i`, so that `~/.zshrc` exports are present and agents running tests
    leave the machine responsive, with the parent's model and thinking level. The tool waits for the
-   agent to take its session lock; if it does not start, the tool fails with what the pane shows and
-   removes the worktree. Agent state (working, idle) is left to Rex.
+   agent to take its session lock; if it does not start, the tool fails with what the pane shows,
+   closes the tab, and removes the worktree. The issue, branch, and MR stay, and the error tells the
+   model to retry with that `issue` rather than create a second one.
+6. **Follow-up.** The agent marks its tab when it settles: `✓ <branch>` when done, `⚠ <branch>` after
+   an error or an abort, and the bare branch while it works. The launching session polls every 15 s:
+   its footer shows `fired: 2 working, 1 done`, and it notifies you when an agent settles.
 
 `repo` fires into another repository than the current one: a checkout path, or a short name or
-GitLab path from the glab skill's `references/projects.md`.
+GitLab path from the glab skill's `references/projects.md`. Clones are named after the repository
+alone, so the tool refuses an existing `~/.pi/src/<repo>` whose origin is another project.
 
 [`brief.md`](.pi/agent/extensions/fire-in-worktree/brief.md) is the agent's first message:
 implementation, review by a `reviewer` subagent on another provider than the agent's, then a commit
 and `glab_task.py publish`, which pushes, sets the MR description, and marks it ready. The reviewer
 model comes from [`fire.json`](.pi/agent/fire.json), by the agent's provider (`default` for the
-others): `standard` unless you ask for a `thorough` review, or for none. It is read at each fire. With `autoMerge` (only when you ask), the agent then runs `glab_task.py merge`.
+others): `standard` unless you ask for a `thorough` review, or for none. It is read at each fire.
+With `autoMerge` (only when you ask), the agent then runs `glab_task.py merge`.
 
-`/fired prune` closes the tab and removes the worktree (`wt remove`, which deletes a merged branch) of
-every fired agent of the repository whose MR is merged or closed, after a confirmation.
+The `/fire` command:
+
+| Command                  | Effect                                                                    |
+| ------------------------ | ------------------------------------------------------------------------- |
+| `/fire <task>`           | Sends "fire in wt: <task>" as your message, so the model fires that task  |
+| `/fire run`              | Sends "fire in wt", for the task the conversation settled                 |
+| `/fire` or `/fire list`  | Lists the fired agents of every repository, and goes to the one you pick  |
+| `/fire prune`            | Removes the agents whose MR is merged or closed, after a confirmation     |
+
+The task is free text, read by the model: name the issue, the review, the merge, or another
+repository in it, as in `/fire #123, thorough review, merge it` or `/fire in venturi: bump zefire`.
+Only `list`, `prune`, and a bare `run` are subcommands; `/fire run the migration` is a task.
+
+The list shows each agent's state (working, done, failed, or stopped once its pi exited), repository,
+branch, and MR state. Picking a running agent makes its tab the active one of `ai-agents` and shows
+that session in Rex, which needs Remote Control turned on in Rex's settings, under Rex Server;
+without it, switch to the session yourself. Picking a stopped agent opens its session here.
+
+`/fire prune` closes the tab and removes the worktree (`wt remove`, which deletes a merged branch) of
+every fired agent whose MR is merged or closed, in every repository.
 
 ### To Checkup
 

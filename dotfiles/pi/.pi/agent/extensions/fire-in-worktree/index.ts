@@ -8,12 +8,18 @@
  * written by the launching model), its canonical branch, and a draft MR, in seconds; the worktree is
  * named after that branch. Worktrunk (`wt`) creates it and runs the user's pre-start hooks (env files,
  * uv venv; see dotfiles/worktrunk). The new session is a fork of the launching one, stored as a
- * session of the worktree; `/fired` lists those of the current repository and opens one, and
- * `/fired prune` closes and removes those whose MR is merged or closed. Reviewer models come from
- * ~/.pi/agent/fire.json, read at each fire.
+ * session of the worktree. Reviewer models come from ~/.pi/agent/fire.json, read at each fire.
+ *
+ * `/fire <task>` is a shortcut for "fire in wt: <task>", and `/fire run` fires what the conversation
+ * settled. `/fire` (or `/fire list`) lists the fired agents of every repository, then jumps to the Rex
+ * tab of a running one or opens the session of a stopped one. `/fire prune` closes and removes those
+ * whose MR is merged or closed.
+ *
+ * A fired agent marks its Rex tab when it settles (✓ done, ⚠ failed), and a session that fired agents
+ * shows their count in its footer.
  */
 import { spawn } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { basename, dirname, join, resolve, sep } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
@@ -23,12 +29,16 @@ import {
   SessionManager,
   type ExtensionAPI,
   type ExtensionCommandContext,
+  type ExtensionContext,
   type SessionEntry,
   type SessionInfo,
 } from '@earendil-works/pi-coding-agent';
+import { Text } from '@earendil-works/pi-tui';
 import { Type } from 'typebox';
 
 const REX_SESSION = 'ai-agents';
+const STATUS_KEY = 'fire';
+const WATCH_INTERVAL_MS = 15_000;
 const ENTRY_TYPE = 'fire-in-worktree';
 const BRIEF_TEMPLATE_PATH = fileURLToPath(new URL('brief.md', import.meta.url));
 const LONG_TIMEOUT_MS = 15 * 60_000;
@@ -65,6 +75,34 @@ interface OpenedTask {
   mr: { iid: number; web_url: string; draft: boolean; created: boolean };
 }
 
+/** What a fired agent's Rex tab says of it: the tab's label is its branch, marked once it settles. */
+export type TabState = 'working' | 'done' | 'failed';
+
+const TAB_MARKS: Record<TabState, string> = { working: '', done: '✓ ', failed: '⚠ ' };
+
+interface Tab {
+  windowId: string;
+  branch: string;
+  state: TabState;
+}
+
+export type FireCommand = { kind: 'list' } | { kind: 'prune' } | { kind: 'run'; task: string };
+
+/** A row of the `/fire` picker. `stopped`: no pi runs the session; `running`: one does, outside Rex. */
+export interface AgentRow {
+  state: TabState | 'running' | 'stopped';
+  repo: string;
+  branch: string;
+  mr?: string;
+  modified: Date;
+}
+
+interface FiredAgent extends AgentRow {
+  session: SessionInfo;
+  pid?: number;
+  tab?: Tab;
+}
+
 export interface RepoLayout {
   /** Agent-only clone owning the worktrees. */
   clone: string;
@@ -82,6 +120,8 @@ interface RunResult {
   code: number;
   stdout: string;
   stderr: string;
+  /** Set when a signal ended the command, as its timeout does. */
+  killed?: string;
 }
 
 const fireSchema = Type.Object(
@@ -184,6 +224,71 @@ export function gitlabProject(projectsMarkdown: string, repo: string): { name: s
   return undefined;
 }
 
+/** The project path of an origin URL, whatever its form: `git@host:group/repo.git` or `https://host/group/repo`. */
+export function originPath(url: string): string {
+  return url
+    .trim()
+    .replace(/\.git$/, '')
+    .replace(/^[a-z+]+:\/\/[^/]+\//, '')
+    .replace(/^[^/@]+@[^:]+:/, '');
+}
+
+export function tabLabel(branch: string, state: TabState): string {
+  return TAB_MARKS[state] + branch;
+}
+
+export function parseTabLabel(label: string): { branch: string; state: TabState } {
+  for (const state of ['done', 'failed'] as const) {
+    if (label.startsWith(TAB_MARKS[state])) return { branch: label.slice(TAB_MARKS[state].length), state };
+  }
+
+  return { branch: label, state: 'working' };
+}
+
+/**
+ * `list` and `prune` are subcommands, and a bare `run` fires what the conversation settled. Any other
+ * text is a task, one starting with "run" included.
+ */
+export function parseFireArgs(args: string): FireCommand {
+  const text = args.trim();
+  if (text === '' || text === 'list') return { kind: 'list' };
+  if (text === 'prune') return { kind: 'prune' };
+
+  return { kind: 'run', task: text === 'run' ? '' : text };
+}
+
+/** The fire entry of a session file, when it is a fired agent's session. */
+export function firedEntry(sessionText: string): FireEntry | undefined {
+  for (const line of sessionText.split('\n')) {
+    // Cheap filter first: the entry type also appears in the text of conversations about this extension.
+    if (!line.includes(`"${ENTRY_TYPE}"`)) continue;
+
+    try {
+      const entry = JSON.parse(line) as { type?: string; customType?: string; data?: FireEntry };
+      if (entry.type === 'custom' && entry.customType === ENTRY_TYPE && entry.data) return entry.data;
+    } catch {
+      // A line being written: not the entry, which is written before the agent starts.
+    }
+  }
+
+  return undefined;
+}
+
+/** One distinct label per row: the picker returns the chosen label, not its index. */
+export function agentLabels(rows: readonly AgentRow[]): string[] {
+  const icons: Record<AgentRow['state'], string> = { working: '●', running: '●', done: '✓', failed: '⚠', stopped: '○' };
+  const seen = new Map<string, number>();
+
+  return rows.map((row) => {
+    const parts = [`${icons[row.state]} ${row.state}`, row.repo, row.branch, row.mr && `MR ${row.mr}`, row.modified.toLocaleString()];
+    const label = parts.filter(Boolean).join('  ·  ');
+    const count = (seen.get(label) ?? 0) + 1;
+    seen.set(label, count);
+
+    return count === 1 ? label : `${label} (${count})`;
+  });
+}
+
 export function worktreeOfBranch(porcelain: string, branch: string): string | undefined {
   for (const block of porcelain.split('\n\n')) {
     const lines = block.split('\n');
@@ -222,20 +327,29 @@ function textOf(content: string | readonly { type: string; text?: string }[]): s
   return content.flatMap((block) => (block.type === 'text' && block.text ? [block.text] : [])).join('\n');
 }
 
-/** The user message that asked for the fire: the last one on the active branch. */
-export function findRequest(branch: readonly SessionEntry[]): SessionEntry | undefined {
+/**
+ * The user messages of the run that asked for the fire, in order: the request, then what the user
+ * steered into the run. The run starts after the last assistant message that ended a turn, one that
+ * stopped for another reason than calling tools.
+ */
+export function findRequest(branch: readonly SessionEntry[]): SessionEntry[] {
+  const request: SessionEntry[] = [];
   for (let index = branch.length - 1; index >= 0; index -= 1) {
     const entry = branch[index];
-    if (entry.type === 'message' && entry.message.role === 'user') return entry;
+    if (entry.type !== 'message') continue;
+
+    if (entry.message.role === 'user') request.unshift(entry);
+    const endedTurn = entry.message.role === 'assistant' && entry.message.stopReason !== 'toolUse';
+    if (endedTurn && request.length > 0) break;
   }
 
-  return undefined;
+  return request;
 }
 
-export function requestText(entry: SessionEntry | undefined): string {
-  if (entry?.type !== 'message' || entry.message.role !== 'user') return '(not found)';
+export function requestText(request: readonly SessionEntry[]): string {
+  const texts = request.flatMap((entry) => (entry.type === 'message' && entry.message.role === 'user' ? [textOf(entry.message.content).trim()] : []));
 
-  return textOf(entry.message.content).trim();
+  return texts.join('\n\n') || '(not found)';
 }
 
 /**
@@ -243,10 +357,11 @@ export function requestText(entry: SessionEntry | undefined): string {
  * restates it, and the launching turn's tool calls, still running, stay out. Storing it beside the
  * launching session would let `pi -c` there pick the agent's session, the most recently written.
  */
-export function forkSession(parentFile: string, request: SessionEntry | undefined, entry: FireEntry, name: string): string {
+export function forkSession(parentFile: string, request: readonly SessionEntry[], entry: FireEntry, name: string): string {
   const fork = SessionManager.forkFrom(parentFile, entry.worktree);
-  if (request?.parentId === null) fork.resetLeaf();
-  else if (request?.parentId) fork.branch(request.parentId);
+  const first = request.at(0);
+  if (first?.parentId === null) fork.resetLeaf();
+  else if (first?.parentId) fork.branch(first.parentId);
 
   fork.appendCustomEntry(ENTRY_TYPE, entry);
   fork.appendSessionInfo(name);
@@ -275,13 +390,14 @@ export function piCommand(sessionFile: string, model: string, thinking: string, 
 function run(command: string, args: string[], options: RunOptions = {}): Promise<RunResult> {
   const env = { ...process.env };
   delete env.VIRTUAL_ENV;
+  const timeoutMs = options.timeoutMs ?? 60_000;
 
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, {
       cwd: options.cwd,
       env,
       stdio: ['ignore', 'pipe', 'pipe'],
-      timeout: options.timeoutMs ?? 60_000,
+      timeout: timeoutMs,
       signal: options.signal,
     });
     let stdout = '';
@@ -289,14 +405,18 @@ function run(command: string, args: string[], options: RunOptions = {}): Promise
     child.stdout.on('data', (data: Buffer) => (stdout += data.toString()));
     child.stderr.on('data', (data: Buffer) => (stderr += data.toString()));
     child.on('error', reject);
-    child.on('close', (code, signal) => resolve({ code: code ?? (signal ? 1 : 0), stdout, stderr }));
+    child.on('close', (code, signal) => {
+      const killed = signal ? `${signal}, its timeout being ${timeoutMs / 1000}s` : undefined;
+      resolve({ code: code ?? (signal ? 1 : 0), stdout, stderr, killed });
+    });
   });
 }
 
 function failure(command: string, args: string[], result: RunResult): Error {
   const output = (result.stderr.trim() || result.stdout.trim()).slice(-2000);
+  const reason = result.killed ? `killed by ${result.killed}` : `exit ${result.code}`;
 
-  return new Error(`\`${command} ${args.join(' ')}\` failed (exit ${result.code}):\n${output}`);
+  return new Error(`\`${command} ${args.join(' ')}\` failed (${reason}):\n${output}`);
 }
 
 async function runOrThrow(command: string, args: string[], options: RunOptions = {}): Promise<string> {
@@ -335,7 +455,15 @@ async function resolveRepo(repo: string | undefined, cwd: string, skillDir: stri
 }
 
 async function ensureClone(layout: RepoLayout, originUrl: string, signal: AbortSignal | undefined): Promise<void> {
-  if (existsSync(layout.clone)) return;
+  if (existsSync(layout.clone)) {
+    // Clones are named after the repository alone: two projects of the same name would share one.
+    const cloneOrigin = await runOrThrow('git', ['-C', layout.clone, 'remote', 'get-url', 'origin']);
+    if (originPath(cloneOrigin) !== originPath(originUrl)) {
+      throw new Error(`${layout.clone} is a clone of ${cloneOrigin}, not of ${originUrl}: move it away to fire into this repository`);
+    }
+
+    return;
+  }
 
   // Objects come from the user's checkout, then --dissociate copies them: the clone stays valid
   // whatever later happens to that checkout.
@@ -357,7 +485,7 @@ async function createWorktree(
 
   const existing = worktreeOfBranch(await listWorktrees(), branch);
   if (existing) {
-    throw new Error(`${branch} already has a worktree, ${existing}: jump to its agent with /fired, or remove it with \`wt -C ${clone} remove ${branch}\``);
+    throw new Error(`${branch} already has a worktree, ${existing}: jump to its agent with /fire, or remove it with \`wt -C ${clone} remove ${branch}\``);
   }
 
   const args = ['-C', clone, 'switch', branch, '--no-cd', '--yes'];
@@ -374,22 +502,53 @@ async function rexSessionExists(): Promise<boolean> {
   return sessions.some((session) => session.label === REX_SESSION);
 }
 
-/** A tab and pane named after the branch: Go to Anything finds the agent by either. Returns the pane. */
-async function openRexTab(label: string, cwd: string, command: string[], sessionExists: boolean): Promise<string> {
+/** The tabs of the Rex session of fired agents; none when that session does not exist. */
+async function listTabs(): Promise<{ sessionId?: string; tabs: Tab[] }> {
+  const listing = await run('rex', ['window', 'ls', '-s', REX_SESSION, '--json']);
+  if (listing.code !== 0) return { tabs: [] };
+
+  const { session_id, windows = [] } = JSON.parse(listing.stdout) as { session_id: string; windows?: { window_id: string; label: string }[] };
+
+  return { sessionId: session_id, tabs: windows.map((window) => ({ windowId: window.window_id, ...parseTabLabel(window.label) })) };
+}
+
+/**
+ * A tab and pane named after the branch: Go to Anything finds the agent by either. Returns the tab's
+ * window and its pane.
+ */
+async function openRexTab(label: string, cwd: string, command: string[], sessionExists: boolean): Promise<{ window: string; block: string }> {
   const options = ['-c', cwd, '--keep-open', '--json', '--', ...command];
 
   // `rex new` leaves the app's view alone; `window new` needs --focus=false for that.
-  let block: string;
+  let created: { window_id: string; block_ids: string[] };
   if (sessionExists) {
-    const created = JSON.parse(await runOrThrow('rex', ['window', 'new', '-s', REX_SESSION, label, '--focus=false', ...options]));
-    block = created.block_ids[0];
+    created = JSON.parse(await runOrThrow('rex', ['window', 'new', '-s', REX_SESSION, label, '--focus=false', ...options]));
   } else {
-    const created = JSON.parse(await runOrThrow('rex', ['new', REX_SESSION, '--window', label, ...options]));
-    block = created.initial_windows[0].block_ids[0];
+    created = JSON.parse(await runOrThrow('rex', ['new', REX_SESSION, '--window', label, ...options])).initial_windows[0];
   }
-  await runOrThrow('rex', ['block', 'rename', '-s', REX_SESSION, block, label]);
+  const tab = { window: created.window_id, block: created.block_ids[0] };
+  await runOrThrow('rex', ['block', 'rename', '-s', REX_SESSION, tab.block, label]);
 
-  return block;
+  return tab;
+}
+
+/**
+ * Make a tab the active one of the Rex session, then show that session in the app, which the app
+ * accepts only with its Remote Control setting on. Returns whether the app shows it.
+ */
+async function jumpToTab(sessionId: string, windowId: string): Promise<boolean> {
+  await runOrThrow('rex', ['focus', '-s', REX_SESSION, windowId]);
+
+  const listing = await run('rex', ['client', 'ls', '--json']);
+  if (listing.code !== 0) return false;
+
+  const { clients = [] } = JSON.parse(listing.stdout) as { clients?: { client_id: string; info?: { kind?: string } }[] };
+  const app = clients.find((client) => client.info?.kind === 'app');
+  if (!app) return false;
+
+  const shown = await run('rex', ['-C', app.client_id, 'do', 'session.select', `session_id=${sessionId}`, `window_id=${windowId}`]);
+
+  return shown.code === 0;
 }
 
 /** Wait for the launched pi to take the session lock; on timeout, fail with what its pane shows. */
@@ -405,56 +564,107 @@ async function confirmStart(sessionFile: string, block: string, signal: AbortSig
   throw new Error(`the agent did not start within ${START_TIMEOUT_MS / 1000}s; its pane shows:\n${tail}`);
 }
 
-/**
- * Sessions of the clone's worktrees, most recently active first, without those of subagents: forks of
- * another session in the same directory.
- */
-async function listFiredSessions(clone: string): Promise<SessionInfo[]> {
-  const porcelain = await runOrThrow('git', ['-C', clone, 'worktree', 'list', '--porcelain']);
-  const worktrees = linkedWorktrees(porcelain, clone);
-  const sessions = (await Promise.all(worktrees.map((worktree) => SessionManager.list(worktree.path)))).flat();
-  const own = sessions.filter((session) => !session.parentSessionPath || dirname(session.parentSessionPath) !== dirname(session.path));
-
-  return own.sort((a, b) => b.modified.getTime() - a.modified.getTime());
+function isRunning(pid: number): boolean {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (error: unknown) {
+    return (error as NodeJS.ErrnoException).code === 'EPERM';
+  }
 }
 
-/** The state of the project's latest MR of a branch: opened, merged, closed, or none. */
-async function mrState(clone: string, projectId: number, branch: string): Promise<string> {
-  const path = `projects/:fullpath/merge_requests?source_branch=${encodeURIComponent(branch)}&order_by=updated_at&sort=desc`;
-  const mrs = JSON.parse(await runOrThrow('glab', ['api', path, '--output', 'json'], { cwd: clone })) as {
-    state: string;
-    source_project_id: number;
-  }[];
+/** The agent-only clones: every repository an agent was fired into. */
+function agentClones(): string[] {
+  const clonesDir = join(homedir(), '.pi', 'src');
+  if (!existsSync(clonesDir)) return [];
 
-  return mrs.find((mr) => mr.source_project_id === projectId)?.state ?? 'none';
+  return readdirSync(clonesDir)
+    .map((name) => join(clonesDir, name))
+    .filter((clone) => existsSync(join(clone, '.git')));
+}
+
+/** The state of the latest MR of each branch in the clone's project: opened, merged, closed, or none. */
+async function mrStates(clone: string, branches: string[]): Promise<Map<string, string>> {
+  const project = JSON.parse(await runOrThrow('glab', ['api', 'projects/:fullpath', '--output', 'json'], { cwd: clone })) as { id: number };
+  const states = await Promise.all(
+    branches.map(async (branch) => {
+      const path = `projects/:fullpath/merge_requests?source_branch=${encodeURIComponent(branch)}&order_by=updated_at&sort=desc`;
+      const mrs = JSON.parse(await runOrThrow('glab', ['api', path, '--output', 'json'], { cwd: clone })) as {
+        state: string;
+        source_project_id: number;
+      }[];
+
+      return [branch, mrs.find((mr) => mr.source_project_id === project.id)?.state ?? 'none'] as const;
+    }),
+  );
+
+  return new Map(states);
+}
+
+/**
+ * The fired agents of every clone, most recently active first: the sessions of their worktrees that
+ * hold a fire entry, which leaves out those of subagents and of a pi started there by hand.
+ */
+async function listFiredAgents(clones: string[]): Promise<{ agents: FiredAgent[]; sessionId?: string }> {
+  const { sessionId, tabs } = await listTabs();
+
+  const perClone = await Promise.all(
+    clones.map(async (clone) => {
+      const worktrees = linkedWorktrees(await runOrThrow('git', ['-C', clone, 'worktree', 'list', '--porcelain']), clone);
+      const sessions = (await Promise.all(worktrees.map((worktree) => SessionManager.list(worktree.path)))).flat();
+      const fired = sessions.flatMap((session) => {
+        const entry = firedEntry(readFileSync(session.path, 'utf8'));
+
+        return entry ? [{ session, entry }] : [];
+      });
+      // The picker still opens without GitLab: the MR state is then left out.
+      const states = await mrStates(clone, [...new Set(fired.map(({ entry }) => entry.branch))]).catch(() => new Map<string, string>());
+
+      return fired.map(({ session, entry }): FiredAgent => {
+        const lockFile = `${session.path}.pid`;
+        const owner = existsSync(lockFile) ? Number(readFileSync(lockFile, 'utf8')) : 0;
+        const pid = owner && isRunning(owner) ? owner : undefined;
+        const tab = pid ? tabs.find((candidate) => candidate.branch === entry.branch) : undefined;
+        const state = !pid ? 'stopped' : (tab?.state ?? 'running');
+
+        return { session, pid, tab, state, repo: basename(clone), branch: entry.branch, mr: states.get(entry.branch), modified: session.modified };
+      });
+    }),
+  );
+
+  return { agents: perClone.flat().sort((a, b) => b.modified.getTime() - a.modified.getTime()), sessionId };
 }
 
 /** Close the tab and remove the worktree of every fired agent whose MR is merged or closed. */
-async function pruneFired(clone: string, ctx: ExtensionCommandContext): Promise<void> {
-  const worktrees = linkedWorktrees(await runOrThrow('git', ['-C', clone, 'worktree', 'list', '--porcelain']), clone);
-  const project = JSON.parse(await runOrThrow('glab', ['api', 'projects/:fullpath', '--output', 'json'], { cwd: clone })) as { id: number };
-  const states = await Promise.all(
-    worktrees.map(async (worktree) => ({ ...worktree, state: worktree.branch ? await mrState(clone, project.id, worktree.branch) : 'none' })),
+async function pruneFired(clones: string[], ctx: ExtensionCommandContext): Promise<void> {
+  ctx.ui.notify(`Checking the MRs of the fired worktrees of ${clones.map((clone) => basename(clone)).join(', ')}…`, 'info');
+  const perClone = await Promise.all(
+    clones.map(async (clone) => {
+      const worktrees = linkedWorktrees(await runOrThrow('git', ['-C', clone, 'worktree', 'list', '--porcelain']), clone);
+      const branches = worktrees.flatMap((worktree) => (worktree.branch ? [worktree.branch] : []));
+      const states = await mrStates(clone, branches);
+
+      return branches.map((branch) => ({ clone, branch, state: states.get(branch) }));
+    }),
   );
-  const done = states.filter((worktree) => worktree.state === 'merged' || worktree.state === 'closed');
+  const done = perClone.flat().filter((worktree) => worktree.state === 'merged' || worktree.state === 'closed');
   if (done.length === 0) {
-    ctx.ui.notify(`Nothing to prune: no fired worktree of ${basename(clone)} has a merged or closed MR`, 'info');
+    ctx.ui.notify('Nothing to prune: no fired worktree has a merged or closed MR', 'info');
     return;
   }
 
-  const list = done.map((worktree) => `${worktree.branch} (${worktree.state})`).join('\n');
+  const list = done.map((worktree) => `${basename(worktree.clone)} · ${worktree.branch} (${worktree.state})`).join('\n');
   if (!(await ctx.ui.confirm(`Prune ${done.length} fired agent(s)?`, `Closes their Rex tab and removes their worktree:\n${list}`))) return;
 
-  const { windows = [] } = (await rexSessionExists())
-    ? (JSON.parse(await runOrThrow('rex', ['window', 'ls', '-s', REX_SESSION, '--json'])) as { windows?: { window_id: string; label: string }[] })
-    : {};
+  ctx.ui.notify(`Removing ${done.length} worktree(s)…`, 'info');
+  const { tabs } = await listTabs();
   const failures: string[] = [];
   for (const worktree of done) {
-    const tabs = windows.filter((window) => window.label === worktree.branch).map((window) => window.window_id);
-    if (tabs.length > 0) await run('rex', ['window', 'close', '-s', REX_SESSION, ...tabs]);
+    const windows = tabs.filter((tab) => tab.branch === worktree.branch).map((tab) => tab.windowId);
+    if (windows.length > 0) await run('rex', ['window', 'close', '-s', REX_SESSION, ...windows]);
 
     // wt deletes a merged branch and keeps an unmerged one, and refuses a worktree with changes.
-    const removal = await run('wt', ['-C', clone, 'remove', worktree.branch!, '--yes', '--foreground'], { timeoutMs: LONG_TIMEOUT_MS });
+    const removal = await run('wt', ['-C', worktree.clone, 'remove', worktree.branch, '--yes', '--foreground'], { timeoutMs: LONG_TIMEOUT_MS });
     if (removal.code !== 0) failures.push(`${worktree.branch}: ${(removal.stderr.trim() || removal.stdout.trim()).split('\n').at(-1)}`);
   }
 
@@ -463,15 +673,6 @@ async function pruneFired(clone: string, ctx: ExtensionCommandContext): Promise<
     [`Pruned ${pruned} fired agent(s)`, ...failures.map((line) => `kept ${line}`)].join('\n'),
     failures.length > 0 ? 'warning' : 'info',
   );
-}
-
-function isRunning(pid: number): boolean {
-  try {
-    process.kill(pid, 0);
-    return true;
-  } catch (error: unknown) {
-    return (error as NodeJS.ErrnoException).code === 'EPERM';
-  }
 }
 
 /**
@@ -493,9 +694,96 @@ function lockSession(lockFile: string): number | undefined {
   return undefined;
 }
 
+/** The Rex tab holding this process's pane, when it is a tab of the fired agents' session. */
+async function ownTab(): Promise<string | undefined> {
+  const block = process.env.REX_BLOCK;
+  if (!block) return undefined;
+
+  const listing = await run('rex', ['window', 'ls', '-s', REX_SESSION, '--json']);
+  if (listing.code !== 0) return undefined;
+
+  const { windows = [] } = JSON.parse(listing.stdout) as {
+    windows?: { window_id: string; layers: { blocks: { block_id: string }[] }[] }[];
+  };
+
+  return windows.find((window) => window.layers.some((layer) => layer.blocks.some((candidate) => candidate.block_id === block)))?.window_id;
+}
+
+/** A fired agent, as the session that fired it follows it. */
+interface Watched {
+  branch: string;
+  sessionFile: string;
+  /** Absent until first looked at: an agent found settled then is not announced. */
+  state?: FiredAgent['state'];
+}
+
+/** The `fire` tool's result details. */
+interface FireDetails {
+  issue: number;
+  issueTitle: string;
+  issueUrl: string;
+  mr: number;
+  mrUrl: string;
+  repo: string;
+  worktree: string;
+  branch: string;
+  sessionFile: string;
+  model: string;
+  review: Review;
+  autoMerge: boolean;
+  setupFailure?: string;
+}
+
 export default function (pi: ExtensionAPI) {
   // Set in a fired agent's session that this process owns.
   let lockFile: string | undefined;
+  // In a fired agent's session: its branch, and the Rex tab it runs in, once looked up.
+  let firedBranch: string | undefined;
+  let ownWindow: string | undefined;
+  // The agents fired from this session, and the timer following them while one runs.
+  const watched = new Map<string, Watched>();
+  let watchTimer: NodeJS.Timeout | undefined;
+
+  const stopWatching = () => {
+    clearInterval(watchTimer);
+    watchTimer = undefined;
+  };
+
+  /** Refresh the footer's count of fired agents, and tell when one of them settles. */
+  const watch = async (ctx: ExtensionContext) => {
+    const { tabs } = await listTabs();
+    for (const agent of watched.values()) {
+      const lock = `${agent.sessionFile}.pid`;
+      const owner = existsSync(lock) ? Number(readFileSync(lock, 'utf8')) : 0;
+      const alive = owner > 0 && isRunning(owner);
+      const state = alive ? (tabs.find((tab) => tab.branch === agent.branch)?.state ?? 'running') : 'stopped';
+
+      const settled = state === 'done' || state === 'failed';
+      if (settled && agent.state && state !== agent.state) {
+        const outcome = state === 'done' ? 'is done' : 'stopped on a failure';
+        ctx.ui.notify(`Fired agent ${agent.branch} ${outcome}: /fire jumps to it`, state === 'done' ? 'info' : 'warning');
+      }
+      agent.state = state;
+    }
+
+    const counts = (['working', 'running', 'done', 'failed'] as const)
+      .map((state) => ({ state, count: [...watched.values()].filter((agent) => agent.state === state).length }))
+      .filter(({ count }) => count > 0)
+      .map(({ state, count }) => `${count} ${state}`);
+    ctx.ui.setStatus(STATUS_KEY, counts.length > 0 ? `fired: ${counts.join(', ')}` : undefined);
+
+    if (counts.length === 0) stopWatching();
+  };
+
+  const startWatching = (ctx: ExtensionContext) => {
+    if (watchTimer || watched.size === 0 || !ctx.hasUI) return;
+
+    // A failing poll (Rex restarting) is retried at the next tick.
+    const tick = () => void watch(ctx).catch(() => undefined);
+    watchTimer = setInterval(tick, WATCH_INTERVAL_MS);
+    watchTimer.unref();
+    tick();
+  };
 
   pi.registerTool({
     name: 'fire',
@@ -555,14 +843,18 @@ export default function (pi: ExtensionAPI) {
       }
       const branch = opened.branch.name;
 
-      progress(`Fetching origin and creating the worktree of ${branch}…`);
-      await runOrThrow('git', ['-C', layout.clone, 'fetch', '--quiet', '--prune', 'origin'], { timeoutMs: LONG_TIMEOUT_MS, signal });
-      const { worktree, setupFailure } = await createWorktree(layout.clone, branch, signal);
       const model = `${ctx.model.provider}/${ctx.model.id}`;
       const request = findRequest(ctx.sessionManager.getBranch());
+      let worktree: string | undefined;
+      let setupFailure: string | undefined;
       let sessionFile: string | undefined;
+      let tab: { window: string; block: string } | undefined;
 
       try {
+        progress(`Fetching origin and creating the worktree of ${branch}…`);
+        await runOrThrow('git', ['-C', layout.clone, 'fetch', '--quiet', '--prune', 'origin'], { timeoutMs: LONG_TIMEOUT_MS, signal });
+        ({ worktree, setupFailure } = await createWorktree(layout.clone, branch, signal));
+
         signal?.throwIfAborted();
         sessionFile = forkSession(parentFile, request, { worktree, clone: layout.clone, issue: opened.issue.iid, branch }, branch);
 
@@ -592,63 +884,183 @@ export default function (pi: ExtensionAPI) {
 
         signal?.throwIfAborted();
         progress(`Opening the Rex tab ${REX_SESSION} › ${branch}…`);
-        const block = await openRexTab(branch, worktree, piCommand(sessionFile, model, pi.getThinkingLevel(), brief), sessionExists);
-        await confirmStart(sessionFile, block, signal);
+        tab = await openRexTab(branch, worktree, piCommand(sessionFile, model, pi.getThinkingLevel(), brief), sessionExists);
+        await confirmStart(sessionFile, tab.block, signal);
       } catch (error: unknown) {
-        // The agent did not start: remove its worktree and session, so that a retry starts clean.
+        // The agent did not start: close its tab first, so that a slow pi cannot start in the worktree
+        // being removed, then remove its session and worktree, so that a retry starts clean.
+        if (tab) await run('rex', ['window', 'close', '-s', REX_SESSION, tab.window]);
         if (sessionFile) rmSync(sessionFile, { force: true });
-        await run('git', ['-C', layout.clone, 'worktree', 'remove', '--force', worktree]);
-        throw error;
+        if (worktree) await run('git', ['-C', layout.clone, 'worktree', 'remove', '--force', worktree]);
+        if (signal?.aborted) throw error;
+
+        // The issue, its branch, and its MR stay: a retry with `newIssue` would create them again.
+        const reason = error instanceof Error ? error.message : String(error);
+        throw new Error(
+          `${reason}\nIssue #${opened.issue.iid}, its branch, and MR !${opened.mr.iid} exist (${opened.issue.web_url}): once fixed, call again with \`issue: ${opened.issue.iid}\`, not \`newIssue\`.`,
+        );
       }
+
+      watched.set(branch, { branch, sessionFile, state: 'working' });
+      startWatching(ctx);
 
       const lines = [
         `Fired issue #${opened.issue.iid}${opened.issue.created ? ' (created)' : ''} into ${worktree}, with ${model}; review: ${review}; auto-merge: ${params.autoMerge ? 'yes' : 'no'}.`,
+        `Issue: ${opened.issue.web_url}`,
         `MR: !${opened.mr.iid}${opened.mr.created ? ' (created as a draft)' : ''}, ${opened.mr.web_url}`,
-        `Rex: tab "${branch}" in session ${REX_SESSION} (find it with Go to Anything).`,
-        `Session: ${sessionFile}, also listed by /fired in pi from ${layout.userCheckout}.`,
+        `Rex: tab "${branch}" in session ${REX_SESSION} (find it with Go to Anything, or /fire).`,
+        `Session: ${sessionFile}`,
         ...(setupFailure ? [`The worktree's pre-start hooks failed; the agent was told to fix the environment first:\n${setupFailure}`] : []),
       ];
-
-      return {
-        content: [{ type: 'text', text: lines.join('\n') }],
-        details: { issue: opened.issue.iid, mr: opened.mr.iid, worktree, branch, sessionFile, model, review, autoMerge: params.autoMerge ?? false, setupFailure },
+      const details: FireDetails = {
+        issue: opened.issue.iid,
+        issueTitle: opened.issue.title,
+        issueUrl: opened.issue.web_url,
+        mr: opened.mr.iid,
+        mrUrl: opened.mr.web_url,
+        repo: basename(layout.clone),
+        worktree,
+        branch,
+        sessionFile,
+        model,
+        review,
+        autoMerge: params.autoMerge ?? false,
+        setupFailure,
       };
+
+      return { content: [{ type: 'text', text: lines.join('\n') }], details };
+    },
+
+    renderResult(result, { expanded }, theme) {
+      const text = textOf(result.content);
+      const details = result.details as FireDetails | undefined;
+      // A failure or a progress update: no details yet.
+      if (!details?.mrUrl) return new Text(text, 0, 0);
+
+      const options = [`review ${details.review}`, details.autoMerge && 'auto-merge', details.setupFailure && 'setup failed'].filter(Boolean).join(', ');
+      const summary = [
+        `${theme.fg(details.setupFailure ? 'warning' : 'success', '✓')} fired ${theme.fg('accent', `${details.repo} #${details.issue}`)} ${details.issueTitle} ${theme.fg('dim', `(${options})`)}`,
+        `  ${theme.fg('muted', 'MR')} ${details.mrUrl}`,
+      ].join('\n');
+
+      return new Text(expanded ? `${summary}\n\n${text}` : summary, 0, 0);
     },
   });
 
-  pi.registerCommand('fired', {
-    description: 'Open the session of an agent fired ("fire in wt") from this repository; `/fired prune` removes those whose MR is merged or closed',
+  const subcommands = [
+    { value: 'run', label: 'run', description: 'Fire the task this conversation settled' },
+    { value: 'list', label: 'list', description: 'Jump to a fired agent, or open its session when it stopped' },
+    { value: 'prune', label: 'prune', description: 'Close and remove the agents whose MR is merged or closed' },
+  ];
+
+  pi.registerCommand('fire', {
+    description: 'Fire a task in a worktree, e.g. `/fire #123, thorough review, merge it`; `/fire` lists the fired agents',
+    getArgumentCompletions: (prefix) => {
+      const matches = subcommands.filter((subcommand) => subcommand.value.startsWith(prefix.trim()));
+
+      return matches.length > 0 ? matches : null;
+    },
     handler: async (args, ctx) => {
-      const lookup = await run('git', ['-C', ctx.cwd, 'rev-parse', '--path-format=absolute', '--git-common-dir']);
-      const clone = lookup.code === 0 ? layoutFor(lookup.stdout.trim()).clone : undefined;
-      if (!clone || !existsSync(clone)) {
-        ctx.ui.notify('No agent has been fired from this repository', 'info');
+      const command = parseFireArgs(args);
+      if (command.kind === 'run') {
+        // The model calls the tool as for a typed "fire in wt" request.
+        const request = command.task ? `fire in wt: ${command.task}` : 'fire in wt';
+        if (ctx.isIdle()) pi.sendUserMessage(request);
+        else pi.sendUserMessage(request, { deliverAs: 'followUp' });
+
         return;
       }
 
-      if (args.trim() === 'prune') {
-        await pruneFired(clone, ctx);
+      const clones = agentClones();
+      if (clones.length === 0) {
+        ctx.ui.notify('No agent has been fired yet', 'info');
         return;
       }
 
-      const sessions = await listFiredSessions(clone);
-      if (sessions.length === 0) {
-        ctx.ui.notify('No fired agent session in this repository', 'info');
+      if (command.kind === 'prune') {
+        await pruneFired(clones, ctx);
         return;
       }
 
-      const labels = sessions.map((session) => `${session.name ?? basename(session.cwd)}  ·  ${session.modified.toLocaleString()}`);
+      const { agents, sessionId } = await listFiredAgents(clones);
+      if (agents.length === 0) {
+        ctx.ui.notify('No fired agent session', 'info');
+        return;
+      }
+
+      const labels = agentLabels(agents);
       const choice = await ctx.ui.select('Fired agents', labels);
       if (choice === undefined) return;
 
-      await ctx.switchSession(sessions[labels.indexOf(choice)].path);
+      const agent = agents[labels.indexOf(choice)];
+      if (!agent.pid) {
+        await ctx.switchSession(agent.session.path);
+        return;
+      }
+
+      // A running agent owns its session: go to its tab rather than open the session a second time.
+      if (!agent.tab || !sessionId) {
+        ctx.ui.notify(`${agent.branch} runs in pi (pid ${agent.pid}), outside the Rex session ${REX_SESSION}: quit it to open its session here`, 'warning');
+        return;
+      }
+
+      const shown = await jumpToTab(sessionId, agent.tab.windowId);
+      if (!shown) {
+        ctx.ui.notify(
+          `${agent.branch} is now the active tab of the Rex session ${REX_SESSION}: switch to that session. For /fire to switch itself, turn on Remote Control in Rex's settings, under Rex Server.`,
+          'info',
+        );
+      }
     },
   });
 
+  /** Mark this fired agent's Rex tab with its state. The mark is a courtesy: failing to set it is ignored. */
+  const markTab = async (state: TabState) => {
+    if (!firedBranch) return;
+
+    try {
+      ownWindow ??= await ownTab();
+      if (ownWindow) await run('rex', ['window', 'rename', '-s', REX_SESSION, ownWindow, tabLabel(firedBranch, state)]);
+    } catch {
+      // Rex is absent or restarting.
+    }
+  };
+
+  pi.on('agent_start', () => markTab('working'));
+
+  pi.on('agent_settled', (_event, ctx) => {
+    // The run's last message tells how it ended: an aborted or failed run leaves the task unfinished.
+    const messages = ctx.sessionManager.getBranch().filter((entry) => entry.type === 'message');
+    const last = messages.at(-1)?.message;
+    const failed = last?.role === 'assistant' && (last.stopReason === 'error' || last.stopReason === 'aborted');
+
+    return markTab(failed ? 'failed' : 'done');
+  });
+
   pi.on('session_start', (_event, ctx) => {
-    const fired = ctx.sessionManager.getBranch().some((entry) => entry.type === 'custom' && entry.customType === ENTRY_TYPE);
+    const branch = ctx.sessionManager.getBranch();
+    const fired = branch.find((entry) => entry.type === 'custom' && entry.customType === ENTRY_TYPE);
     const sessionFile = ctx.sessionManager.getSessionFile();
-    if (!fired || !sessionFile) return;
+
+    if (fired?.type !== 'custom' || !sessionFile) {
+      // The agents this session fired: their count comes back in the footer after a reload or a resume.
+      // A fired agent's session is left out, as its conversation holds the fires of its siblings.
+      for (const entry of branch) {
+        if (entry.type !== 'message' || entry.message.role !== 'toolResult' || entry.message.toolName !== 'fire' || entry.message.isError) continue;
+
+        const details = entry.message.details as Partial<FireDetails> | undefined;
+        if (details?.branch && details.sessionFile) watched.set(details.branch, { branch: details.branch, sessionFile: details.sessionFile });
+      }
+      startWatching(ctx);
+
+      return;
+    }
+
+    // A subagent that inherited the conversation holds the entry too, as a fork stored beside its
+    // parent: the tab is not its own to mark.
+    const parentSession = ctx.sessionManager.getHeader()?.parentSession;
+    const isSubagent = parentSession !== undefined && dirname(parentSession) === dirname(sessionFile);
+    if (!isSubagent) firedBranch = (fired.data as FireEntry).branch;
 
     const owner = lockSession(`${sessionFile}.pid`);
     if (owner) {
@@ -662,5 +1074,9 @@ export default function (pi: ExtensionAPI) {
   pi.on('session_shutdown', () => {
     if (lockFile && existsSync(lockFile) && readFileSync(lockFile, 'utf8') === String(process.pid)) rmSync(lockFile);
     lockFile = undefined;
+    firedBranch = undefined;
+    ownWindow = undefined;
+    stopWatching();
+    watched.clear();
   });
 }
