@@ -1,35 +1,4 @@
 {
-  "defaultModelSelection": {
-    "instanceId": "claudeAgent",
-    "model": "claude-opus-5-5"
-  },
-  "defaultRuntimeMode": "auto",
   "projectSettingsFolded": true,
-  "idleCompaction": "onReturn",
-  "providerInstances": {
-    "codex": {
-      "driver": "codex",
-      "enabled": true
-    },
-    "pi": {
-      "driver": "pi",
-      "displayName": "Pi",
-      "enabled": true
-    },
-    "acpRegistry_amp": {
-      "driver": "acpRegistry",
-      "displayName": "Amp",
-      "enabled": false,
-      "config": {
-        "agentId": "amp-acp",
-        "distribution": "auto",
-        "registryIconUrl": "https://cdn.agentclientprotocol.com/registry/v1/latest/amp-acp.svg"
-      }
-    },
-    "fx": {
-      "driver": "fx",
-      "displayName": "fx",
-      "enabled": true
-    }
-  }
+  "idleCompaction": "onReturn"
 }
