@@ -4,13 +4,15 @@ import type { ExtensionDiffFile, ExtensionLineHighlight } from "hunkdiff/extensi
 export interface ParsedHunk {
   /** Digest of the file path and hunk body: stable across reloads, changed by any edit. */
   key: string;
+  /** The hunk as the patch spells it: its `@@` header, then its lines. */
+  text: string;
   /** One dim mark per non-empty line of the hunk. */
   marks: ExtensionLineHighlight[];
 }
 
 /** Split one file patch into its hunks, in the order Hunk indexes them. */
 export function parseHunks(file: Pick<ExtensionDiffFile, "path" | "patch">): ParsedHunk[] {
-  const hunks: { body: string[]; marks: ExtensionLineHighlight[] }[] = [];
+  const hunks: { header: string; body: string[]; marks: ExtensionLineHighlight[] }[] = [];
   let oldLine = 0;
   let newLine = 0;
 
@@ -19,7 +21,7 @@ export function parseHunks(file: Pick<ExtensionDiffFile, "path" | "patch">): Par
     if (header) {
       oldLine = Number(header[1]);
       newLine = Number(header[2]);
-      hunks.push({ body: [], marks: [] });
+      hunks.push({ header: raw, body: [], marks: [] });
       continue;
     }
 
@@ -40,10 +42,10 @@ export function parseHunks(file: Pick<ExtensionDiffFile, "path" | "patch">): Par
     if (!isRemoved) newLine += 1;
   }
 
-  return hunks.map(({ body, marks }) => {
+  return hunks.map(({ header, body, marks }) => {
     const key = createHash("sha256").update(`${file.path}\n${body.join("\n")}`).digest("hex");
 
-    return { key, marks };
+    return { key, text: [header, ...body].join("\n"), marks };
   });
 }
 

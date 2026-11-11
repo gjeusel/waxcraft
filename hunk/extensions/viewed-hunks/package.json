@@ -11,7 +11,8 @@
   },
   "scripts": {
     "typecheck": "tsc -p . --noEmit",
-    "test": "npm run typecheck && node --test \"src/*.test.ts\""
+    "test": "npm run typecheck && node --test \"src/*.test.ts\"",
+    "eval:noise": "node eval/noise.ts"
   },
   "devDependencies": {
     "@opentui/react": "^0.5.6",

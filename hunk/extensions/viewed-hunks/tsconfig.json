@@ -13,5 +13,5 @@
     "skipLibCheck": true,
     "types": ["node"]
   },
-  "include": ["index.tsx", "src"]
+  "include": ["index.tsx", "src", "eval"]
 }

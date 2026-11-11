@@ -33,6 +33,13 @@ test("parseHunks addresses each line on the side it belongs to", () => {
   ]);
 });
 
+test("parseHunks keeps each hunk's own text, header included", () => {
+  const [first, second] = parseHunks({ path: "a.txt", patch: PATCH });
+
+  assert.equal(first?.text, "@@ -2,3 +2,4 @@ heading\n keep\n-old\n+new\n+extra\n ");
+  assert.equal(second?.text, "@@ -40,2 +41,1 @@\n-gone\n tail");
+});
+
 test("parseHunks keys a hunk by path and body, not by position", () => {
   const keysOf = (path: string, patch: string) => parseHunks({ path, patch }).map((h) => h.key);
   const [first, second] = keysOf("a.txt", PATCH);
