@@ -29,6 +29,7 @@ Choose checks for the changed component, not the whole system for every edit. Fr
 | Neovim                   | `just nvim-check`                                       |
 | Zsh                      | `just zsh-check`                                        |
 | Nushell                  | `just nu-check`                                         |
+| Hammerspoon              | `just hammerspoon-check`                                |
 | Instructions/skills only | Check references, frontmatter, and `git diff --check`   |
 
 The Neovim and Zsh startup smoke tests load the live user configuration, not an isolated checkout;

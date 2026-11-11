@@ -1,146 +1,35 @@
+local aerospace = require("aerospace")
+
+-- During a Slack screen share, keep the main window on workspace 4 instead of minimized, and park
+-- the sharing toolbar on workspace 0's display.
 local function start()
-  local browserBundleIDs = {
-    ["com.brave.Browser"] = true,
-    ["com.google.Chrome"] = true,
-    ["org.mozilla.firefox"] = true,
-    ["org.mozilla.firefoxdeveloperedition"] = true,
-    ["app.zen-browser.zen"] = true,
-    ["com.apple.Safari"] = true,
-  }
-  local devtoolsTitlePrefixes = {
-    "DevTools",
-    "Developer Tools",
-    "Outils de développement",
-    "Outils pour les développeurs",
-    "Web Inspector",
-    "Inspecteur web",
-  }
-  -- Chromium names normal windows "<tab> - <product>[ - <profile>]"; picture-in-picture popups omit
-  -- the product name. Firefox and Safari do not implement Document Picture-in-Picture.
-  local meetPopupProductNames = {
-    ["com.brave.Browser"] = "Brave",
-    ["com.google.Chrome"] = "Google Chrome",
-  }
+  local slackBundleID = "com.tinyspeck.slackmacgap"
+
+  -- Window IDs created after this module started: only those sharing bars get positioned once.
   local newWindowStates = {}
-
-  local function startsWithTitleSeparator(text)
-    return text:match("^[-:]") or text:match("^–") or text:match("^—")
-  end
-
-  local function isDevtoolsWindow(window)
-    local application = window:application()
-    if not application or not browserBundleIDs[application:bundleID()] then
-      return false
-    end
-
-    local title = window:title() or ""
-    for _, prefix in ipairs(devtoolsTitlePrefixes) do
-      if title:sub(1, #prefix) == prefix then
-        local suffix = title:sub(#prefix + 1):match("^%s*(.*)")
-        if suffix == "" or startsWithTitleSeparator(suffix) then
-          return true
-        end
-      end
-    end
-
-    return false
-  end
-
-  -- Google Meet's picture-in-picture popup takes the meeting tab title, e.g. "Meet – abc-defg-hij".
-  local function isMeetPopupWindow(window)
-    local application = window:application()
-    local productName = application and meetPopupProductNames[application:bundleID()]
-    if not productName then
-      return false
-    end
-
-    local title = window:title() or ""
-    local afterMeet = title:match("^Meet%s*(.*)")
-    local isMeetTitle = afterMeet ~= nil and startsWithTitleSeparator(afterMeet)
-    local hasProductSegment = (title .. " - "):find(" - " .. productName .. " - ", 1, true)
-
-    return isMeetTitle and not hasProductSegment
-  end
-
-  local function isWorkspaceZeroPopup(window)
-    return isDevtoolsWindow(window) or isMeetPopupWindow(window)
-  end
-
-  local function routeNewWindowToWorkspaceZero(windowId, state, attemptsLeft)
-    local window = hs.window.get(windowId)
-    if newWindowStates[windowId] ~= state or not window or not isWorkspaceZeroPopup(window) then
-      state.routing = false
-      return
-    end
-
-    local function completed(exitCode, _, stderr)
-      if newWindowStates[windowId] ~= state then
-        return
-      end
-      if exitCode == 0 then
-        state.handled = true
-        state.routing = false
-      elseif attemptsLeft > 1 then
-        -- Window creation/title notifications can precede AeroSpace's discovery of the ID.
-        hs.timer.doAfter(0.1, function()
-          routeNewWindowToWorkspaceZero(windowId, state, attemptsLeft - 1)
-        end)
-      else
-        state.handled = true
-        state.routing = false
-        hs.printf("Could not route window %s to workspace 0: %s", windowId, stderr)
-      end
-    end
-
-    local task = hs.task.new("/run/current-system/sw/bin/aerospace", completed, {
-      "move-node-to-workspace",
-      "--window-id",
-      tostring(windowId),
-      "0",
-    })
-    if not task or not task:start() then
-      completed(-1, "", "could not start AeroSpace")
-    end
-  end
-
-  local function isTrackedWindow(window)
-    local application = window:application()
-    local bundleID = application and application:bundleID()
-    return bundleID == "com.tinyspeck.slackmacgap" or browserBundleIDs[bundleID] == true
-  end
-
-  -- Track identity, not current workspace: title changes must never undo a later manual move.
-  -- Seed directly from AX: window.filter can defer registering apps without a focused window,
-  -- then emit windowCreated for their pre-existing windows after subscriptions have started.
   local initialWindows = hs.window.allWindows()
   for _, window in ipairs(initialWindows) do
+    local application = window:application()
     local windowId = window:id()
-    if windowId and isTrackedWindow(window) then
+    if windowId and application and application:bundleID() == slackBundleID then
       newWindowStates[windowId] = { handled = true }
     end
   end
-  local newWindowFilter = hs.window.filter.new(isTrackedWindow)
-  newWindowFilter:subscribe({
+
+  local slackWindowFilter = hs.window.filter.new(false):setAppFilter("Slack", { allowRoles = "*" })
+  slackWindowFilter:subscribe({
     hs.window.filter.windowCreated,
-    hs.window.filter.windowTitleChanged,
     hs.window.filter.windowDestroyed,
   }, function(window, _, event)
     local windowId = window:id()
     if not windowId then
       return
     end
+
     if event == hs.window.filter.windowDestroyed then
       newWindowStates[windowId] = nil
-      return
-    end
-    if event == hs.window.filter.windowCreated and not newWindowStates[windowId] then
+    elseif not newWindowStates[windowId] then
       newWindowStates[windowId] = {}
-    end
-
-    local state = newWindowStates[windowId]
-    if state and not state.handled and not state.routing and isWorkspaceZeroPopup(window) then
-      state.routing = true
-      routeNewWindowToWorkspaceZero(windowId, state, 10)
     end
   end)
 
@@ -160,7 +49,7 @@ local function start()
 
   local function isSlackMainWindow(window)
     local app = window and window:application()
-    if not app or app:bundleID() ~= "com.tinyspeck.slackmacgap" then
+    if not app or app:bundleID() ~= slackBundleID then
       return false
     end
 
@@ -171,37 +60,6 @@ local function start()
     end
 
     return false
-  end
-
-  local function routeRestoredSlackWindow(windowId, session, attemptsLeft)
-    local window = hs.window.get(windowId)
-    if slackSharingSession ~= session or not isSlackMainWindow(window) then
-      return
-    end
-
-    local function completed(exitCode, _, stderr)
-      if exitCode == 0 or slackSharingSession ~= session then
-        return
-      end
-      -- AeroSpace can take a moment to rediscover an unminimized window.
-      if attemptsLeft > 1 then
-        hs.timer.doAfter(0.1, function()
-          routeRestoredSlackWindow(windowId, session, attemptsLeft - 1)
-        end)
-      else
-        hs.printf("Could not restore Slack to workspace 4: %s", stderr)
-      end
-    end
-
-    local task = hs.task.new("/run/current-system/sw/bin/aerospace", completed, {
-      "move-node-to-workspace",
-      "--window-id",
-      tostring(windowId),
-      "4",
-    })
-    if not task or not task:start() then
-      completed(-1, "", "could not start AeroSpace")
-    end
   end
 
   local function restoreSlackMainWindow(window)
@@ -229,7 +87,9 @@ local function start()
         and mainWindow:isMinimized()
       then
         mainWindow:unminimize()
-        routeRestoredSlackWindow(windowId, session, 10)
+        aerospace.moveWindowToWorkspace(windowId, "4", function()
+          return slackSharingSession == session and isSlackMainWindow(hs.window.get(windowId))
+        end)
       end
     end)
   end
@@ -257,8 +117,9 @@ local function start()
     local app = window:application()
     local size = window:size()
     -- The sharing controls have a generic title; exclude full-size/loading Slack windows.
-    return app
-      and app:bundleID() == "com.tinyspeck.slackmacgap"
+    return app ~= nil
+      and size ~= nil
+      and app:bundleID() == slackBundleID
       and window:title() == "Slack"
       and size.h >= 30
       and size.h <= 140
@@ -282,7 +143,13 @@ local function start()
     end
 
     state.positioning = true
-    local task = hs.task.new("/run/current-system/sw/bin/aerospace", function(exitCode, stdout)
+    aerospace.run({
+      "list-workspaces",
+      "--all",
+      "--format",
+      "%{workspace} %{monitor-appkit-nsscreen-screens-id}",
+      "--json",
+    }, function(exitCode, stdout)
       state.positioning = false
       local bar = hs.window.get(windowId)
       if
@@ -293,17 +160,19 @@ local function start()
       then
         return
       end
+
       local ok, workspaces = pcall(hs.json.decode, stdout)
       if not ok or type(workspaces) ~= "table" then
         return
       end
+
       for _, workspace in ipairs(workspaces) do
         if workspace.workspace == "0" then
-          -- Both APIs use the same 1-based NSScreen.screens ordering, not AeroSpace monitor IDs.
-          local screen = hs.screen.allScreens()[workspace["monitor-appkit-nsscreen-screens-id"]]
+          local screen = aerospace.screenForEntry(workspace)
           if not screen then
             return
           end
+
           local frame = screen:frame()
           local barFrame = bar:frame()
           local x = math.max(frame.x + 16, frame.x + frame.w - barFrame.w - 16)
@@ -317,16 +186,7 @@ local function start()
           return
         end
       end
-    end, {
-      "list-workspaces",
-      "--all",
-      "--format",
-      "%{workspace} %{monitor-appkit-nsscreen-screens-id}",
-      "--json",
-    })
-    if not task or not task:start() then
-      state.positioning = false
-    end
+    end)
   end
 
   -- Reloading mid-share must not undo choices made before this listener started.
@@ -358,8 +218,9 @@ local function start()
       local app = window:application()
       local windowId = window:id()
       local knownBar = slackSharingSession and slackSharingSession.bars[windowId]
+      local isShown = window:isVisible() or (app ~= nil and app:isHidden())
       -- Expanded controls can change shape without starting a new sharing session.
-      if (knownBar or isSlackSharingBar(window)) and (window:isVisible() or app:isHidden()) then
+      if (knownBar or isSlackSharingBar(window)) and isShown then
         bars[windowId] = true
         positionSlackSharingBar(window)
       end
@@ -395,7 +256,7 @@ local function start()
   slackSharingBarScreenWatcher:start()
 
   return {
-    newWindowFilter = newWindowFilter,
+    slackWindowFilter = slackWindowFilter,
     slackMainWindowFilter = slackMainWindowFilter,
     slackMainWindowRestoreTimers = slackMainWindowRestoreTimers,
     slackSharingBarFilter = slackSharingBarFilter,

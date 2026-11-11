@@ -69,7 +69,10 @@ local function start()
       expiresAt = hs.timer.secondsSinceEpoch() + 2,
     }
     windows[windowId] = state
-    hs.timer.doAfter(2, function()
+    -- Hammerspoon stops a timer once it is garbage collected: keep it referenced by its state, and
+    -- drop that reference when it fires so the timer and its callback can be collected.
+    state.expiryTimer = hs.timer.doAfter(2, function()
+      state.expiryTimer = nil
       if windows[windowId] == state then
         windows[windowId] = { handled = true }
       end

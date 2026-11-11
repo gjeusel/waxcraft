@@ -9,7 +9,7 @@ default:
     @just --list
 
 # Run all checks
-check: nix-check nvim-check zsh-check nu-check
+check: nix-check nvim-check zsh-check nu-check hammerspoon-check
 
 # Evaluate and build the system without switching (safe pre-flight for `just nix-up`)
 [group('nix')]
@@ -99,6 +99,18 @@ zsh-check:
 [group('nushell')]
 nu-check:
     nix shell {{ justfile_dir }}/nix#darwinPackages.nushell --command nu --no-history --env-config {{ dotfiles_dir }}/nushell/.config/nushell/env.nu --config {{ dotfiles_dir }}/nushell/.config/nushell/config.nu --commands 'print "Nushell config loaded OK"'
+
+hammerspoon_dir := dotfiles_dir / "hammerspoon/.hammerspoon"
+
+# Check Hammerspoon config: formatting + lint + live reload smoke test (needs hs.ipc loaded)
+[group('hammerspoon')]
+hammerspoon-check:
+    # stylua finds .stylua.toml from the working directory, not from the checked files.
+    cd {{ hammerspoon_dir }} && stylua --check .
+    cd {{ hammerspoon_dir }} && nix shell {{ justfile_dir }}/nix#darwinPackages.lua54Packages.luacheck --command luacheck --no-color .
+    -hs -c 'hs.reload()' >/dev/null 2>&1
+    sleep 2
+    hs -c 'assert(next(hammerspoonModuleErrors) == nil, hs.inspect(hammerspoonModuleErrors)); print("Hammerspoon config loaded OK")'
 
 # Check nvim config: formatting + headless load smoke test
 [group('nvim')]
