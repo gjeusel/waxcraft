@@ -4,7 +4,7 @@ display_name: Librarian
 color: "#B48EAD"
 description: Research external APIs, libraries, and version-specific behavior using source evidence. Read-only.
 tools: "read, ls, ext:pi-fff/ffgrep, ext:pi-fff/fffind, ext:pi-web-access/web_search, ext:pi-web-access/source_check, ext:pi-web-access/fetch_content, ext:pi-web-access/get_search_content"
-extensions: [pi-web-access, pi-fff, pi-model-controls]
+extensions: [pi-web-access, pi-fff, pi-model-controls, account-pool]
 skills: false
 model: openai-codex/gpt-6-luna
 speed: fast

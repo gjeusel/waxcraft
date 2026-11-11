@@ -146,6 +146,7 @@ shell.
 
 ```text
 extensions/
+├── account-pool/           several Claude Code and Codex subscriptions, switched near their limits
 ├── artifacts/              publish HTML/Markdown pages locally (Claude Code artifacts)
 ├── ask-user-question-format/ compact structured questionnaire results
 ├── auto-name/              name sessions once they get long, or on a bare /name
@@ -163,6 +164,73 @@ extensions/
 ├── rant/                   log preventable failures
 ├── statusbar/              minimal one-line footer
 └── whimsical/              playful working messages
+```
+
+### Account pool
+
+`account-pool` spreads `claude-code/...` and `openai-codex/...` requests over several subscription
+accounts. The providers keep their ids and models, so `/model`, `settings.json`, subagents, and the
+other extensions are unchanged. Without `~/.pi/agent/account-pool.json` (unversioned: it names
+personal logins), or with fewer than two accounts in a pool, nothing is wrapped.
+
+```json
+{
+  "threshold": 0.9,
+  "pools": {
+    "claude-code": [{ "id": "main" }, { "id": "perso", "configDir": "~/.claude-perso" }],
+    "openai-codex": [{ "id": "main" }, { "id": "perso" }]
+  }
+}
+```
+
+The first account of a pool is the existing login: Claude Code's default configuration and Pi's
+`openai-codex` login. Log in the others once, then `/reload`:
+
+- **Claude:** each account is a Claude Code configuration directory, passed to the CLI through
+  pi-claude-code's `PI_CLAUDE_CODE_CONFIG_DIR`. Claude Code keeps a separate Keychain login per
+  directory: `CLAUDE_CONFIG_DIR=~/.claude-perso claude auth login`. It keys that login on the
+  variable being set at all, so `CLAUDE_CONFIG_DIR=~/.claude` is not the default login: the pool
+  treats a `configDir` of `~/.claude` as the default and leaves the variable unset. That directory also has its
+  own settings, so copy `~/.claude/settings.json` into it if Claude Code should behave the same.
+- **Codex:** each extra account gets a hidden model-less provider, `openai-codex-<id>`, which only
+  stores its OAuth login: `/login openai-codex-perso`. Pi refreshes it like any other login.
+
+**Switching.** A session stays on the account of its latest response, which keeps the prompt cache
+and the signed thinking valid. At each user turn (never between a tool call and its result), it
+moves to the first account below `threshold` once its own usage reaches it, or when the provider
+warns (`allowed_warning`). The highest window counts: Claude's five-hour and weekly
+`unifiedWindows` from the `claude-code.rate-limit` diagnostic, and Codex's primary and secondary
+windows from the `x-codex-*` headers or the WebSocket `codex.rate_limits` event. When every account
+is over the threshold, the session stays where it is. A move costs one prompt-cache rewrite, and
+the next account does not receive the previous account's thinking (as after a model change).
+
+**Failures.** A quota, rate-limit (429), or login error that arrives before any output blocks the
+account and replays the request on the next account. A quota block lasts until the reset (from the
+error, else the full window, else 5 minutes), a rate limit 1 minute, and a login error 10 minutes.
+An error after streamed output is reported as is: output already shown cannot be replayed. Other
+errors (overload, network) stay on the account and go through Pi's retry.
+
+Usage is not computed locally: it is what Claude and ChatGPT report on each response, the used
+fraction of each window. It is therefore known only once an account has answered, so an unused
+account counts as empty. Usage and blocks are shared by every Pi process through one file per
+account in `~/.pi/agent/account-pool-state/`.
+
+**Subagents** go through the pool as the main session does: they share its model runtime, and
+every agent in `agents/` loads `account-pool`. Starting a subagent re-registers pi-claude-code's
+provider, which drops the pool for the whole process; a subagent loading `account-pool` wraps it
+again at its start, and the main session at each turn. An agent type without `account-pool` in its
+`extensions:` runs its Claude requests on the default login. The footer shows the session's
+account and usage (`perso 42%`), a notification reports each move, and `/accounts` lists every
+account with its windows, resets, and blocks. `/model` lists the hidden Codex login providers
+without models.
+
+Pooling subscriptions to get past per-account limits may conflict with Anthropic's and OpenAI's
+terms; that risk is the account owner's.
+
+After adding the extension, restow the Pi package before `/reload`:
+
+```sh
+stow --verbose --no-folding --dir dotfiles --target "$HOME" --restow pi
 ```
 
 ### Artifacts

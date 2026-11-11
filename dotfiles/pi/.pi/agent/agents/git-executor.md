@@ -8,6 +8,7 @@ extensions:
   - pi-safety
   - gitleaks-guard
   - pi-model-controls
+  - account-pool
 model: openai-codex/gpt-6-luna
 speed: fast
 thinking: low

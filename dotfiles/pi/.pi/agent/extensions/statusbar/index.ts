@@ -2,11 +2,12 @@
  * statusbar — minimalist single-line footer.
  * Replaces the built-in two/three-line footer (pwd+branch / token stats /
  * extension statuses, e.g. MCP info) with one line:
- *   <repo path>   <model> · <effort> · [fast/ultrafast] · [session]   [🛡 degraded ·] [auto-mode ·] <context %>
+ *   <repo path>   <model> · <effort> · [fast/ultrafast] · [session]   [account ·] [🛡 degraded ·] [auto-mode ·] <context %>
  * left-aligned / centered / right-aligned. Extension statuses (MCP, etc.)
- * and token/cost stats are deliberately not shown, except pi-safety's
- * indicators, displayed before the context size: its degraded state (checks
- * disabled, invalid or missing configuration) and auto mode while on.
+ * and token/cost stats are deliberately not shown, except account-pool's
+ * current account and usage, and pi-safety's indicators, displayed before the
+ * context size: its degraded state (checks disabled, invalid or missing
+ * configuration) and auto mode while on.
  */
 import { isAbsolute, relative, resolve, sep } from 'node:path';
 import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
@@ -48,7 +49,7 @@ export default function (pi: ExtensionAPI) {
           const usage = ctx.getContextUsage();
           const pct = usage?.percent ?? null;
           const pctPlain = pct === null ? '?%' : `${pct.toFixed(0)}%`;
-          const right = [extensionStatuses.get('fire'), extensionStatuses.get('pi-safety'), extensionStatuses.get('auto-mode'), pctPlain]
+          const right = [extensionStatuses.get('fire'), extensionStatuses.get('account-pool'), extensionStatuses.get('pi-safety'), extensionStatuses.get('auto-mode'), pctPlain]
             .filter((part) => part !== undefined && part !== '')
             .join(' · ');
           const rightW = visibleWidth(right);
