@@ -25,6 +25,7 @@ Choose checks for the changed component, not the whole system for every edit. Fr
 | ------------------------ | ------------------------------------------------------- |
 | Nix                      | `just nix-check` (evaluate and build without switching) |
 | Pi extensions            | `npm --prefix dotfiles/pi/.pi/agent/extensions test`    |
+| Hunk extensions          | `npm --prefix hunk/extensions/viewed-hunks test`        |
 | Neovim                   | `just nvim-check`                                       |
 | Zsh                      | `just zsh-check`                                        |
 | Nushell                  | `just nu-check`                                         |

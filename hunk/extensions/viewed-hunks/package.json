@@ -1,0 +1,23 @@
+{
+  "name": "hunk-viewed-hunks-extension",
+  "private": true,
+  "type": "module",
+  "description": "Hunk extension: mark hunks as viewed to hide them from the review stream.",
+  "hunk": {
+    "apiVersion": 32,
+    "extensions": [
+      "./index.tsx"
+    ]
+  },
+  "scripts": {
+    "typecheck": "tsc -p . --noEmit",
+    "test": "npm run typecheck && node --test \"src/*.test.ts\""
+  },
+  "devDependencies": {
+    "@opentui/react": "^0.5.6",
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "hunkdiff": "0.24.1",
+    "typescript": "5.9.2"
+  }
+}

@@ -2,7 +2,8 @@
 # Config search path: ~/.config/hunk/config.toml  or  .hunk/config.toml (per-repo)
 
 theme = "nord"                       # built-in theme id, "auto", or "custom"
-mode = "auto"                        # auto | split | stack  (auto = responsive)
+mode = "auto"                        # auto | split | unified  (auto = responsive)
+auto_split_min_width = 130           # min diff columns (after panes) for split in auto mode
 vcs = "git"                          # git | jj | sl  (overrides auto-detection)
 watch = true                         # auto-reload when the diff input changes
 exclude_untracked = false            # hide untracked files in working-tree reviews
@@ -16,6 +17,11 @@ color_moved = true                   # highlight moved lines when supported
 transparent_background = true        # let the terminal background show through
 prompt_save_view_preferences = false
 
+# Loaded from the repository rather than stowed into ~/.config/hunk/extensions: Stow links each
+# file, and Hunk 0.24.1 cannot serve its React to an extension entry that is a file symlink.
+[extensions]
+paths = ["~/src/waxcraft/hunk/extensions"]
+
 [keybindings]
 "hunk.review.stepDown" = ["j", "down", "ctrl+e"]
 "hunk.review.stepUp" = ["k", "up", "ctrl+y"]
@@ -23,22 +29,29 @@ prompt_save_view_preferences = false
 "hunk.review.halfPageUp" = "ctrl+u"
 "hunk.review.pageDown" = ["ctrl+f", "pagedown"]
 "hunk.review.pageUp" = ["ctrl+b", "pageup"]
-"hunk.review.toggleHunkGap" = ["space", "z"]
+"hunk.review.toggleHunkGap" = "z"
 "hunk.review.previousFile" = [",", "ctrl+p"]
 "hunk.review.nextFile" = [".", "ctrl+n"]
-"hunk.review.previousAnnotatedHunk" = ["N", "{"]
-"hunk.review.nextAnnotatedHunk" = ["n", "}"]
+"hunk.review.previousAnnotatedHunk" = "{"
+"hunk.review.nextAnnotatedHunk" = "}"
+# extensions/viewed-hunks: built-ins keep their default chords unless rebound here.
+"viewed-hunks.toggle-hunk" = ["x", "space"]
+"viewed-hunks.toggle-file" = ["X", "shift+space"]
+"viewed-hunks.next-unviewed" = ">"
+"viewed-hunks.previous-unviewed" = "<"
+"viewed-hunks.toggle-hidden" = "H"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CHEATSHEET — press `?` in the app for this overlay, `F10` to open the menu bar.
 #
 # Navigation
-#   ↑ / ↓, k / j, Ctrl+Y / Ctrl+E  move line-by-line
-#   Ctrl+B / Ctrl+F, PgUp / PgDn   page up / down
+#   ↑ / ↓, k / j, Ctrl+Y / Ctrl+E   move line-by-line
+#   Ctrl+B / Ctrl+F, PgUp / PgDn    page up / down
 #   Ctrl+U / Ctrl+D                 half page up / down
 #   [ / ]                           previous / next hunk
 #   , / ., Ctrl+P / Ctrl+N          previous / next file
-#   { / }, N / n                    previous / next comment
+#   { / }                           previous / next comment
+#   n / N                           next / previous search match
 #   ← / →                           scroll code left / right  (Shift = faster)
 #   Home / End     jump to top / bottom
 #   g / G          jump to top / bottom (less-style)
@@ -52,13 +65,19 @@ prompt_save_view_preferences = false
 #   s             toggle sidebar (file list)
 #   t             open theme selector
 #   a             toggle AI / agent notes
-#   Space / z     toggle unchanged context lines
+#   z             toggle unchanged context lines
 #   l / w / m     toggle line numbers / wrap / hunk metadata
 #   e             open current file in $EDITOR
 #
 # Review
-#   /             focus file filter
+#   /             search diff content
 #   c             create a review note
+#   x / Space     mark the current hunk viewed (hides it; hunk jumps skip it)
+#   X / Shift+Space   mark the whole current file viewed / unviewed
+#   > / <         next / previous unviewed hunk, wrapping
+#   H             show (dimmed) or hide the viewed hunks
+#   (viewed marks persist in ~/.local/state/hunk/viewed-hunks.json; clear them from the
+#    Extensions menu, F10)
 #   Tab           toggle focus between files list / filter
 #   F10           open menus
 #   r             reload   (when refreshable)
