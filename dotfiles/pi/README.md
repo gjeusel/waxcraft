@@ -33,9 +33,12 @@ task's changes, `/rv` and `/rvloop` run reviewer-subagent rounds against the bas
 confirmed findings, `/slim` trims what the branch added, and `/gi` runs `/glab issue` without
 auto-merge unless asked. Each accepts optional trailing text as notes or focus.
 
-The `/hloop` prompt (`prompts/hloop.md`) addresses the notes left with `c` in a live Hunk session:
-the agent works through each note once, replies in at most 10 words (`done`, `rejected: …`), keeps
-longer discussion and questions in the Pi conversation, and never deletes notes. Hunk notes do not
+The `/hloop` command (`extensions/hunk-loop/`) addresses the notes left with `c` in a live Hunk
+session: the agent works through each note once, replies in at most 10 words (`done`,
+`rejected: …`), keeps longer discussion and questions in the Pi conversation, and never deletes
+notes. The command resolves the session and its open notes before the model runs: it takes the Hunk
+session of the same Rex window, else the one reviewing the current repository, and asks when
+neither singles one out. A note is open while its thread's latest message is the user's. Hunk notes do not
 survive quitting the Hunk window ([modem-dev/hunk#113](https://github.com/modem-dev/hunk/issues/113)),
 so run `/hloop` before closing Hunk.
 
@@ -149,6 +152,7 @@ extensions/
 ├── complex-mcp-setup/      MCP servers mcp.json cannot express (see MCP servers)
 ├── fire-in-worktree/       "fire in wt": hand an issue to an autonomous agent in its own worktree
 ├── gitleaks-guard/         scan and redact secrets
+├── hunk-loop/              /hloop: address the review notes of a live Hunk session
 ├── pane-focus/             dim the editor in unfocused tmux panes or terminals
 ├── peek-document/          read PDF and Office files
 ├── per-model-prompt/       model-specific directives
