@@ -28,6 +28,17 @@ hunk skill path
 
 After upgrading Hunk, start a new Pi session or run `/reload` before reviewing a live Hunk session.
 
+Prompt templates in `prompts/` are shorthands for frequent requests: `/cp` commits and pushes the
+task's changes, `/rv` and `/rvloop` run reviewer-subagent rounds against the base branch and fix
+confirmed findings, `/slim` trims what the branch added, and `/gi` runs `/glab issue` without
+auto-merge unless asked. Each accepts optional trailing text as notes or focus.
+
+The `/hloop` prompt (`prompts/hloop.md`) addresses the notes left with `c` in a live Hunk session:
+the agent works through each note once, replies in at most 10 words (`done`, `rejected: …`), keeps
+longer discussion and questions in the Pi conversation, and never deletes notes. Hunk notes do not
+survive quitting the Hunk window ([modem-dev/hunk#113](https://github.com/modem-dev/hunk/issues/113)),
+so run `/hloop` before closing Hunk.
+
 Subagent `skills:` preloading (`.pi/agent/agents/*.md`, e.g. the reviewer's `code-review`) is resolved by `pi-subagents` from `~/.agents/skills/`. The reviewer's `code-review` is a customized fork versioned in `dotfiles/agents/.agents/skills/code-review` (not installed with `npx skills`); its stowed directory symlink resolves correctly. If a preloaded skill stops resolving after a `pi-subagents` upgrade, the agent silently runs with a `(Skill "…" not found)` placeholder in its prompt.
 
 Pi installs the packages from `settings.json` on first launch.
