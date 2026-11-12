@@ -188,7 +188,7 @@
     ],
     "defaultMode": "auto"
   },
-  "model": "opus",
+  "model": "opus[1m]",
   "hooks": {
     "UserPromptSubmit": [
       {
@@ -250,10 +250,10 @@
     "chrome-devtools-mcp@claude-plugins-official": true,
     "claude-security@claude-plugins-official": true
   },
-  "promptSuggestionEnabled": false,
   "modelSettings": {
     "claude-opus-5-5": {
       "effortLevel": "xhigh"
     }
-  }
+  },
+  "promptSuggestionEnabled": false
 }
