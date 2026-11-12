@@ -39,8 +39,11 @@ const SURE_NOISE = 0.98;
 // Hunk only lets a hunk be selected once it is drawn: leave it a moment after widening the scope.
 const REDRAW_DELAY_MS = 50;
 
-/** What the map shows for a hunk; `noise?` is a noise verdict the model was less sure of. */
-type HunkStatus = "viewed" | "noise" | "noise?" | Reach | "unjudged";
+/**
+ * What the map shows for a hunk; `noise?` is a noise verdict the model was less sure of, and
+ * `oversized` a hunk hidden unread because its file is too large to send.
+ */
+type HunkStatus = "viewed" | "noise" | "noise?" | "oversized" | Reach | "unjudged";
 
 interface HunkTarget {
   fileId: string;
@@ -98,6 +101,11 @@ function isNoise(key: string) {
   return isJudgedNoise && !marks.kept.has(key) && !isViewed(key);
 }
 
+/** Hidden like noise, but unread: its file has too much changed text to send to the model. */
+function isOversized(key: string) {
+  return isNoise(key) && marks.noise.get(key)?.oversized === true;
+}
+
 /** Judged to stay inside a body; a hunk the user kept against a noise verdict is never one. */
 function isDetail(key: string) {
   const verdict = marks.noise.get(key);
@@ -124,6 +132,7 @@ function hunkStatus(key: string): HunkStatus {
 
   const verdict = marks.noise.get(key);
   if (!verdict) return "unjudged";
+  if (isOversized(key)) return "oversized";
   if (isNoise(key)) return verdict.noise >= SURE_NOISE ? "noise" : "noise?";
 
   return reachOf(verdict) ?? "unjudged";
@@ -285,7 +294,12 @@ async function hideNoise(ctx: ExtensionCommandContext) {
     path: file.path,
     hunks: hunksByFileId.get(file.id) ?? [],
   }));
-  const isSettled = (key: string) => isJudged(key) || marks.kept.has(key) || isViewed(key);
+  // An oversized hunk is checked again on each run: the limit is a setting that can be raised.
+  const isSettled = (key: string) => {
+    const isRecheckable = marks.noise.get(key)?.oversized === true;
+
+    return (isJudged(key) && !isRecheckable) || marks.kept.has(key) || isViewed(key);
+  };
   const plan = planNoiseRun(reviewFiles, isSettled, noiseSettings);
 
   const sentKeys = plan.requests.flatMap((request) => request.questions.map((q) => q.key));
@@ -322,19 +336,21 @@ async function hideNoise(ctx: ExtensionCommandContext) {
     if (run.signal.aborted) problems.push("cancelled");
   }
 
-  if (plan.oversizedKeys.length > 0) {
-    problems.push(`${count(plan.oversizedKeys.length, "hunk")} not judged: file too large`);
-  }
+  const newlyOversized = plan.oversizedKeys.filter((key) => !marks.noise.get(key)?.oversized);
+  for (const key of plan.oversizedKeys) verdicts.set(key, { noise: 1, oversized: true });
 
   verdicts.forEach((verdict, key) => marks.noise.set(key, verdict));
-  const judgedKeys = [...verdicts.keys()];
+  const judgedKeys = [...verdicts.keys()].filter((key) => !plan.oversizedKeys.includes(key));
   const noiseCount = judgedKeys.filter(isNoise).length;
   const detailCount = judgedKeys.filter(isDetail).length;
 
   const uniqueProblems = [...new Set(problems)];
   const outcomes = [...uniqueProblems];
-  if (verdicts.size > 0) {
-    const judged = `Judged ${count(verdicts.size, "hunk")}`;
+  if (newlyOversized.length > 0) {
+    outcomes.unshift(`${count(newlyOversized.length, "hunk")} hidden unread: file too large`);
+  }
+  if (judgedKeys.length > 0) {
+    const judged = `Judged ${count(judgedKeys.length, "hunk")}`;
     outcomes.unshift(`${judged}: ${noiseCount} noise, ${count(detailCount, "detail")}`);
   }
   if (outcomes.length === 0) outcomes.push("No hunk left to judge");
@@ -355,7 +371,8 @@ function StatusPane(props: ExtensionPaneProps) {
   }, [actions, currentVersion, reviewGeneration]);
 
   const keys = reviewKeys();
-  const noiseCount = keys.filter(isNoise).length;
+  const oversizedCount = keys.filter(isOversized).length;
+  const noiseCount = keys.filter(isNoise).length - oversizedCount;
   const detailCount = keys.filter(isDetail).length;
   const unjudgedCount = keys.filter((key) => !isJudged(key) && !isViewed(key)).length;
   const hasVerdicts = keys.some((key) => marks.noise.has(key));
@@ -363,6 +380,7 @@ function StatusPane(props: ExtensionPaneProps) {
   const parts = [`${keys.filter(isViewed).length}/${keys.length} viewed`];
   if (noiseCount > 0) parts.push(`${noiseCount} noise`);
   if (detailCount > 0) parts.push(count(detailCount, "detail"));
+  if (oversizedCount > 0) parts.push(`${oversizedCount} oversized`);
   if (noiseRun) parts.push("judging…");
   else if (hasVerdicts && unjudgedCount > 0) parts.push(`${unjudgedCount} not judged`);
 
@@ -372,6 +390,8 @@ function StatusPane(props: ExtensionPaneProps) {
   const reach = verdict ? reachOf(verdict) : null;
   if (selected && isViewed(selected.key)) {
     parts.push("this hunk: viewed by you");
+  } else if (selected && isOversized(selected.key)) {
+    parts.push("this hunk: oversized, not read by the model");
   } else if (selected && verdict && isNoise(selected.key)) {
     parts.push(`this hunk: noise (${verdict.noise.toFixed(2)})`);
   } else if (reach) {
@@ -406,6 +426,7 @@ function MapPane({ selectedFileId, selectedHunkIndex, width, height, theme }: Ex
     viewed: { glyph: "◆", color: theme.badgeAdded },
     noise: { glyph: "●", color: faded(theme.muted) },
     "noise?": { glyph: "●", color: faded(theme.fileModified) },
+    oversized: { glyph: "■", color: faded(theme.muted) },
     // A detail recedes like noise while the architecture view hides it.
     detail: { glyph: "○", color: showDetails ? theme.text : faded(theme.text) },
     interface: { glyph: "▲", color: theme.fileModified },

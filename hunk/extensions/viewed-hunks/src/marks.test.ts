@@ -38,11 +38,15 @@ test("saved marks are loaded back, and removed ones are not", () => {
   const verdicts = new Map([
     ["n", { noise: 0.97, structure: 0.8, interface: 0.1 }],
     ["m", { noise: 0.1 }],
+    ["o", { noise: 1, oversized: true }],
   ]);
   saveMarks(path, { noise: { added: verdicts } }, NOW);
   saveMarks(path, { viewed: { added: ["c"], removed: ["a"] }, noise: { removed: ["m"] } }, NOW);
 
-  const noise = { n: { noise: 0.97, structure: 0.8, interface: 0.1 } };
+  const noise = {
+    n: { noise: 0.97, structure: 0.8, interface: 0.1 },
+    o: { noise: 1, structure: undefined, interface: undefined, oversized: true },
+  };
   assert.deepEqual(load(path), { viewed: ["b", "c"], kept: ["k"], noise });
   assert.deepEqual(readdirSync(join(path, "..")), ["viewed-hunks.json"]);
 });

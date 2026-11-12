@@ -26,7 +26,7 @@ paths = ["~/src/waxcraft/hunk/extensions"]
 # [extension.viewed-hunks]
 # noise_threshold = 0.9         # hide a hunk from this probability of being noise
 # noise_paths = []              # extra globs always hidden, on top of the built-in lockfiles
-# noise_max_file_chars = 64000  # a file with more changed text is not sent, and stays visible
+# noise_max_file_chars = 64000  # a file with more changed text is not sent: hidden as "oversized"
 
 [keybindings]
 "hunk.review.stepDown" = ["j", "down", "ctrl+e"]
@@ -95,7 +95,8 @@ paths = ["~/src/waxcraft/hunk/extensions"]
 #   H             show (dimmed) or hide the viewed and noise hunks
 #   o             show or hide the hunk map, the right pane listing every hunk by file:
 #                 ◆ viewed by you · ● noise (amber "noise?" = the model was less sure) ·
-#                 ○ detail · ▲ interface (amber) or structure (red) · "·" not judged
+#                 ○ detail · ▲ interface (amber) or structure (red) · "·" not judged ·
+#                 ■ oversized: hidden unread, its file is too large to send (x keeps it)
 #   (marks persist in ~/.local/state/hunk/viewed-hunks.json; clear them from the
 #    Extensions menu, F10)
 #   Tab           toggle focus between files list / filter

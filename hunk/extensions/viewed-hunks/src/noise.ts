@@ -89,6 +89,8 @@ export interface Verdict {
   structure?: number;
   /** The probability that it changes what callers see of an existing definition. */
   interface?: number;
+  /** Hidden without being judged: its file has too much changed text to send. */
+  oversized?: boolean;
 }
 
 /** How far a change reaches: inside a body, to what callers see, or to the code's organisation. */
@@ -118,7 +120,7 @@ export interface NoisePlan {
   /** Keys of unjudged hunks in files that are noise by path. */
   pathNoiseKeys: string[];
   requests: NoiseRequest[];
-  /** Keys of unjudged hunks left out because their file is too large, in text or in hunks. */
+  /** Keys of unjudged hunks hidden unread because their file is too large, in text or in hunks. */
   oversizedKeys: string[];
 }
 

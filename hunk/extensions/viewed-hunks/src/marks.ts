@@ -35,6 +35,7 @@ interface Entry {
   probability?: number;
   structure?: number;
   interface?: number;
+  oversized?: boolean;
 }
 
 type Section = Record<string, Entry>;
@@ -96,6 +97,7 @@ export function loadMarks(path: string, now: Date): Marks {
       noise: entry.probability,
       structure: probability(entry.structure),
       interface: probability(entry.interface),
+      ...(entry.oversized === true ? { oversized: true } : {}),
     };
 
     return [[key, verdict] as const];
@@ -119,7 +121,13 @@ export function saveMarks(path: string, change: MarksChange, now: Date): void {
   }
   for (const [key, verdict] of change.noise?.added ?? []) {
     const { noise: probability, structure, interface: interfaceProbability } = verdict;
-    sections.noise[key] = { at, probability, structure, interface: interfaceProbability };
+    sections.noise[key] = {
+      at,
+      probability,
+      structure,
+      interface: interfaceProbability,
+      oversized: verdict.oversized,
+    };
   }
   for (const key of change.noise?.removed ?? []) delete sections.noise[key];
 
