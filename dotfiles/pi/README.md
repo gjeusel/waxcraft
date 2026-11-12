@@ -518,6 +518,11 @@ installer uses the flake's supported Node.js version for `npm ci` and stows
 `just pi-install` also reapplies the tracked patches in `.pi/agent/patches/` for
 foreground-only subagent labels (agent `color` sets text color without badge
 padding or background changes) and persistence-independent worker safety linkage.
+For `pi-claude-code`, it applies upstream PR
+[#39](https://github.com/earendil-works/pi-claude-code/pull/39): a tool call interrupted by an
+abort no longer leaves the session failing with a 400 (`tool_use` ids without `tool_result`,
+[#49](https://github.com/earendil-works/pi-claude-code/issues/49)). Remove that patch and its
+`apply.sh` line once #39 is merged and the pinned commit in `settings.json` includes it.
 It also moves host-provided modules (TypeBox, Pi packages)
 from installed extension packages' `dependencies` to `"*"` peerDependencies, which silences Pi's
 "Host-provided extension packages" warning for packages that have not fixed their manifests

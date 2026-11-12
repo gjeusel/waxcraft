@@ -83,3 +83,10 @@ apply_patch @tintinweb/pi-subagents npm/node_modules/@tintinweb/pi-subagents \
   pi-subagents-0.19.0-foreground-labels.patch src/agent-color.ts
 apply_patch @tintinweb/pi-subagents npm/node_modules/@tintinweb/pi-subagents \
   pi-subagents-0.19.0-safety-parent.patch src/agent-runner.ts
+
+# Upstream PR #39 for issue #49: an aborted turn's tool call is replayed without a result, and every
+# later request fails with a 400. Remove this patch once #39 is merged and settings.json is bumped.
+# https://github.com/earendil-works/pi-claude-code/issues/49
+# https://github.com/earendil-works/pi-claude-code/pull/39
+apply_patch pi-claude-code git/github.com/earendil-works/pi-claude-code \
+  pi-claude-code-d5b5e04-orphaned-tool-results.patch src/transcript.ts tests/transcript.test.ts

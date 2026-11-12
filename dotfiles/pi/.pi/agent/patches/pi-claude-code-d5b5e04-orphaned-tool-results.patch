@@ -1,0 +1,150 @@
+diff --git a/src/transcript.ts b/src/transcript.ts
+index 8dd5f88..55584fa 100644
+--- a/src/transcript.ts
++++ b/src/transcript.ts
+@@ -11,6 +11,7 @@ import {
+   type SystemMessage,
+   type TextContent,
+   type Tool,
++  type ToolCall,
+   type ToolResultMessage,
+ } from "@earendil-works/pi-ai";
+ import { supportsAdaptiveThinking, supportsDisabledThinking } from "./model-catalog.ts";
+@@ -60,7 +61,7 @@ function nativeToolUseId(id: string): string {
+ 
+ export function prepareMessages(messages: Message[], model: Model<any>): Message[] {
+   const toolCallIds = new Map<string, string>();
+-  return messages.map((message) => {
++  const normalized = messages.map((message): Message => {
+     if (message.role === "toolResult") {
+       const id = toolCallIds.get(message.toolCallId);
+       return id && id !== message.toolCallId ? { ...message, toolCallId: id } : message;
+@@ -86,6 +87,66 @@ export function prepareMessages(messages: Message[], model: Model<any>): Message
+       }),
+     };
+   });
++  return answerOrphanedToolCalls(normalized);
++}
++
++// Copied from pi-ai's transformMessages (dist/api/transform-messages.js).
++function answerOrphanedToolCalls(transformed: Message[]): Message[] {
++  const result: Message[] = [];
++  let pendingToolCalls: ToolCall[] = [];
++  let existingToolResultIds = new Set<string>();
++  const heldSystemMessages: Message[] = [];
++  const closePendingToolCalls = () => {
++    if (pendingToolCalls.length > 0) {
++      for (const tc of pendingToolCalls) {
++        if (!existingToolResultIds.has(tc.id)) {
++          result.push({
++            role: "toolResult",
++            toolCallId: tc.id,
++            toolName: tc.name,
++            content: [{ type: "text", text: "No result provided" }],
++            isError: true,
++            timestamp: Date.now(),
++          });
++        }
++      }
++      pendingToolCalls = [];
++      existingToolResultIds = new Set();
++    }
++    result.push(...heldSystemMessages);
++    heldSystemMessages.length = 0;
++  };
++  for (let i = 0; i < transformed.length; i++) {
++    const msg = transformed[i]!;
++    if (msg.role === "assistant") {
++      closePendingToolCalls();
++      if (msg.stopReason === "error" || msg.stopReason === "aborted") {
++        continue;
++      }
++      const toolCalls = msg.content.filter((b): b is ToolCall => b.type === "toolCall");
++      if (toolCalls.length > 0) {
++        pendingToolCalls = toolCalls;
++        existingToolResultIds = new Set();
++      }
++      result.push(msg);
++    } else if (msg.role === "toolResult") {
++      existingToolResultIds.add(msg.toolCallId);
++      result.push(msg);
++    } else if (msg.role === "system") {
++      if (pendingToolCalls.length > 0) {
++        heldSystemMessages.push(msg);
++      } else {
++        result.push(msg);
++      }
++    } else if (msg.role === "user") {
++      closePendingToolCalls();
++      result.push(msg);
++    } else {
++      result.push(msg);
++    }
++  }
++  closePendingToolCalls();
++  return result;
+ }
+ 
+ function clone<T>(value: T): T {
+diff --git a/tests/transcript.test.ts b/tests/transcript.test.ts
+index 8237550..e6411f2 100644
+--- a/tests/transcript.test.ts
++++ b/tests/transcript.test.ts
+@@ -304,3 +304,57 @@ test("normalizes foreign tool call ids and drops foreign reasoning before replay
+   assert.equal((frames[2]?.message.content[0] as { tool_use_id: string }).tool_use_id, toolUse[1]!.id);
+   assert.deepEqual(messages, original);
+ });
++
++test("answers orphaned tool calls and skips aborted turns before replay", () => {
++  const model = { id: "sonnet", api: "claude-code", provider: "claude-code", input: ["text"] } as unknown as Model<any>;
++  const turn = (id: string, stopReason: AssistantMessage["stopReason"]): AssistantMessage => ({
++    role: "assistant",
++    api: "claude-code",
++    provider: "claude-code",
++    model: "sonnet",
++    content: [{ type: "toolCall", id, name: "read", arguments: { path: "a" } }],
++    usage,
++    stopReason,
++    timestamp: 1,
++  });
++  const messages: Message[] = [
++    { role: "user", content: "go", timestamp: 0 },
++    turn("orphan", "toolUse"),
++    { role: "user", content: "never mind", timestamp: 2 },
++    turn("aborted", "aborted"),
++    { role: "user", content: "continue", timestamp: 3 },
++  ];
++  const frames = prepareFrames(prepareMessages(messages, model));
++
++  assert.deepEqual(frames.map((frame) => frame.type), ["user", "assistant", "user"]);
++  const followUp = frames[2]!.message.content as Array<{ type: string; tool_use_id?: string; is_error?: boolean }>;
++  assert.equal(followUp[0]?.type, "tool_result");
++  assert.equal(followUp[0]?.tool_use_id, "orphan");
++  assert.equal(followUp[0]?.is_error, true);
++  assert.equal(JSON.stringify(frames).includes("aborted"), false);
++});
++
++test("holds a system message between a tool call and its result without duplicating the result", () => {
++  const model = { id: "sonnet", api: "claude-code", provider: "claude-code", input: ["text"] } as unknown as Model<any>;
++  const assistant: AssistantMessage = {
++    role: "assistant",
++    api: "claude-code",
++    provider: "claude-code",
++    model: "sonnet",
++    content: [{ type: "toolCall", id: "t1", name: "read", arguments: { path: "a" } }],
++    usage,
++    stopReason: "toolUse",
++    timestamp: 1,
++  };
++  const messages: Message[] = [
++    { role: "user", content: "go", timestamp: 0 },
++    assistant,
++    { role: "system", content: "update", timestamp: 2 },
++    { role: "toolResult", toolCallId: "t1", toolName: "read", content: [{ type: "text", text: "A" }], isError: false, timestamp: 3 },
++  ];
++  const prepared = prepareMessages(messages, model);
++
++  assert.deepEqual(prepared.map((message) => message.role), ["user", "assistant", "toolResult", "system"]);
++  assert.equal(prepared.filter((message) => message.role === "toolResult").length, 1);
++  assert.equal((prepared[2] as { isError: boolean }).isError, false);
++});
