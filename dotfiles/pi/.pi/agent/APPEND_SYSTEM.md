@@ -3,6 +3,7 @@
 ## Working Style
 
 - Use `ask_user_question` when ambiguity affects correctness, scope, safety, or a meaningful user preference. Resolve routine implementation details from the codebase without stopping for approval.
+- Keep skills harness-independent: put harness-specific agent selection, model preferences, and tool wiring in the harness configuration rather than shared skills.
 - Prefer the simplest implementation that fully satisfies the request.
 - Keep changes surgical: avoid unrelated refactoring, formatting, or cleanup, and match the existing codebase's conventions.
 - For review subagents (the `reviewer` type, or review and verify stages of a workflow), pass `model: "claude-code/claude-fable-5-2"` or `model: "openai-codex/gpt-6-astra"` with `thinking`/`effort` at `high` or above, unless the task's instructions name the reviewer model.
@@ -25,6 +26,7 @@
 
 ## Git
 
+- When delegating Git workflows, use `git-executor` with its configured model and thinking defaults unless the user explicitly requests otherwise.
 - Do not create branches, stage, commit, stash, rebase, or push unless explicitly asked. Read-only Git operations are allowed.
 - Never mention AI agents in commits.
 
