@@ -9,7 +9,54 @@ default:
     @just --list
 
 # Run all checks
-check: nix-check nvim-check zsh-check nu-check hammerspoon-check
+check: nix-check nvim-check zsh-check nu-check hammerspoon-check rex-check
+
+# Run regression suites, optionally filtered by tool: just test rex pi hunk
+[group('test')]
+[positional-arguments]
+test *tags:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    if (( $# == 0 )); then
+      set -- rex pi hunk
+    fi
+
+    # Validate every tag before running any suite.
+    for tag in "$@"; do
+      case "$tag" in
+        rex|pi|hunk) ;;
+        *) printf 'Unknown test tag: %s (available: rex, pi, hunk)\n' "$tag" >&2; exit 1 ;;
+      esac
+    done
+
+    status=0
+    for tag in "$@"; do
+      just --justfile "{{ justfile_dir }}/Justfile" "${tag}-test" || status=1
+    done
+
+    exit "$status"
+
+# Run isolated Rex regression tests without loading the live Neovim configuration
+[group('rex')]
+rex-test:
+    nvim --headless -u NONE -l tests/rex/navigation.lua
+
+# Check Rex formatting and configuration, and run its regression tests without reloading Rex
+[group('rex')]
+rex-check: rex-test
+    stylua --check --indent-type Spaces --indent-width 2 --column-width 100 {{ dotfiles_dir }}/rex/.config/rex/*.lua {{ justfile_dir }}/tests/rex/
+    rex config check {{ dotfiles_dir }}/rex/.config/rex/init.lua
+
+# Run Pi extension typechecking and tests in their own package
+[group('pi')]
+pi-test:
+    npm --prefix {{ pi_extensions_dir }} test
+
+# Run Hunk extension typechecking and tests in their own package
+[group('hunk')]
+hunk-test:
+    npm --prefix {{ justfile_dir }}/hunk/extensions/viewed-hunks test
 
 # Evaluate and build the system without switching (safe pre-flight for `just nix-up`)
 [group('nix')]

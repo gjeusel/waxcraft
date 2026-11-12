@@ -175,6 +175,37 @@ rex.action({
 local vim_like =
   { vim = true, nvim = true, view = true, vimdiff = true, nvimdiff = true, fzf = true }
 
+local function process_name(path)
+  -- Nix wraps programs as `.nvim-wrapped`; ps may report an absolute executable path.
+  return path:match("([^/]+)$"):gsub("^%.", ""):gsub("%-wrapped$", "")
+end
+
+local function hunk_runs_vim_like(foreground)
+  -- Hunk's Node launcher remains Rex's foreground process while its editor runs in the same
+  -- process group. Check that group, excluding suspended editors and background jobs.
+  local result = rex.exec({ "ps", "-axo", "pid=,pgid=,stat=,comm=" })
+  if result == nil or not result.ok then
+    return false
+  end
+
+  local foreground_group
+  local vim_groups = {}
+  for line in result.stdout:gmatch("[^\n]+") do
+    local pid, group, state, command = line:match("^%s*(%d+)%s+(%d+)%s+(%S+)%s+(.+)$")
+    if pid then
+      if tonumber(pid) == foreground.pid then
+        foreground_group = group
+      end
+
+      if not state:find("[TZ]") and vim_like[process_name(command)] then
+        vim_groups[group] = true
+      end
+    end
+  end
+
+  return foreground_group ~= nil and vim_groups[foreground_group] == true
+end
+
 local function runs_vim_like(block_id)
   local process = rex.block.call(terminal, "process", { block_id = block_id })
   local foreground = process and process.foreground
@@ -182,10 +213,17 @@ local function runs_vim_like(block_id)
     return false
   end
 
-  -- Nix wraps programs as `.nvim-wrapped`.
-  local name = foreground.name:gsub("^%.", ""):gsub("%-wrapped$", "")
+  if vim_like[process_name(foreground.name)] then
+    return true
+  end
 
-  return vim_like[name] == true
+  -- Only inspect the process table for Hunk, not on every navigation key in an ordinary shell.
+  local name = process_name(foreground.script or foreground.name)
+  if name == "hunk" or name == "hunkdiff" then
+    return hunk_runs_vim_like(foreground)
+  end
+
+  return false
 end
 
 for key, direction in pairs({ h = "left", j = "down", k = "up", l = "right" }) do

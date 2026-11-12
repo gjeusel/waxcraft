@@ -64,3 +64,24 @@ source $HOME/src/waxcraft/zsh/init.zsh
 To try out:
     - https://wezterm.org/multiplexing.html
     - https://github.com/mrjones2014/smart-splits.nvim
+
+### 4. Tests
+
+```sh
+just test              # all regression suites
+just test rex          # one tool
+just test pi hunk      # several tools
+just rex-check         # Rex tests, formatting, and config validation (no reload)
+```
+
+Tags currently select tools: `rex`, `pi`, and `hunk`. With no tags, all suites run; unknown tags
+fail before any suite starts. Every selected suite runs even if another fails, and any failure
+makes the command exit unsuccessfully. Tests require the tools and package dependencies to be
+installed; the runner does not install dependencies or activate configuration.
+
+Standalone regression tests live under `tests/<tool>/`, outside Stow-managed `dotfiles/`.
+Package-owned tests (Pi and Hunk extensions) stay beside their code and are invoked through the
+same runner. Create tool folders only when they have tests.
+
+`just check` remains the broader system validation command, including Nix builds and live-config
+smoke tests; it also runs `just rex-check`.
