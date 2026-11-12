@@ -26,7 +26,7 @@ paths = ["~/src/waxcraft/hunk/extensions"]
 # [extension.viewed-hunks]
 # noise_threshold = 0.9         # hide a hunk from this probability of being noise
 # noise_paths = []              # extra globs always hidden, on top of the built-in lockfiles
-# noise_max_file_chars = 16000  # a file with more changed text is not sent, and stays visible
+# noise_max_file_chars = 64000  # a file with more changed text is not sent, and stays visible
 
 [keybindings]
 "hunk.review.stepDown" = ["j", "down", "ctrl+e"]
@@ -48,6 +48,8 @@ paths = ["~/src/waxcraft/hunk/extensions"]
 "viewed-hunks.previous-unviewed" = "<"
 "viewed-hunks.toggle-hidden" = "H"
 "viewed-hunks.hide-noise" = "T"
+"viewed-hunks.toggle-map" = "o"
+"viewed-hunks.toggle-details" = "d"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CHEATSHEET — press `?` in the app for this overlay, `F10` to open the menu bar.
@@ -85,9 +87,15 @@ paths = ["~/src/waxcraft/hunk/extensions"]
 #   X / Shift+Space   mark the whole current file viewed / unviewed
 #   u             undo the last mark as viewed (x or X) and go back to it
 #   > / <         next / previous unviewed hunk, wrapping
-#   T             hide noise hunks: sends the diff to OpenAI (needs OPENAI_API_KEY) and hides
-#                 the hunks verifiable at a glance; press again while it runs to cancel
+#   T             judge the hunks: sends the diff to OpenAI (needs OPENAI_API_KEY), hides the
+#                 noise (verifiable at a glance) and opens the architecture view, which also
+#                 hides the details; press again while it runs to cancel
+#   d             switch between the architecture view (only changes of interface and
+#                 structure) and the strict view (details too)
 #   H             show (dimmed) or hide the viewed and noise hunks
+#   o             show or hide the hunk map, the right pane listing every hunk by file:
+#                 ◆ viewed by you · ● noise (amber "noise?" = the model was less sure) ·
+#                 ○ detail · ▲ interface (amber) or structure (red) · "·" not judged
 #   (marks persist in ~/.local/state/hunk/viewed-hunks.json; clear them from the
 #    Extensions menu, F10)
 #   Tab           toggle focus between files list / filter

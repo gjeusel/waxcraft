@@ -35,20 +35,26 @@ test("saved marks are loaded back, and removed ones are not", () => {
   const path = marksPath();
 
   saveMarks(path, { viewed: { added: ["a", "b"] }, kept: { added: ["k"] } }, NOW);
-  saveMarks(path, { noise: { added: new Map([["n", 0.97], ["m", 0.1]]) } }, NOW);
+  const verdicts = new Map([
+    ["n", { noise: 0.97, structure: 0.8, interface: 0.1 }],
+    ["m", { noise: 0.1 }],
+  ]);
+  saveMarks(path, { noise: { added: verdicts } }, NOW);
   saveMarks(path, { viewed: { added: ["c"], removed: ["a"] }, noise: { removed: ["m"] } }, NOW);
 
-  assert.deepEqual(load(path), { viewed: ["b", "c"], kept: ["k"], noise: { n: 0.97 } });
+  const noise = { n: { noise: 0.97, structure: 0.8, interface: 0.1 } };
+  assert.deepEqual(load(path), { viewed: ["b", "c"], kept: ["k"], noise });
   assert.deepEqual(readdirSync(join(path, "..")), ["viewed-hunks.json"]);
 });
 
 test("a mark expires once it is older than the TTL", () => {
   const path = marksPath();
-  saveMarks(path, { viewed: { added: ["old"] }, noise: { added: new Map([["n", 1]]) } }, NOW);
+  const verdict = { noise: 1, structure: undefined, interface: undefined };
+  saveMarks(path, { viewed: { added: ["old"] }, noise: { added: new Map([["n", verdict]]) } }, NOW);
 
   const beforeExpiry = new Date(NOW.getTime() + MARK_TTL_MS);
   const afterExpiry = new Date(NOW.getTime() + MARK_TTL_MS + 1);
-  assert.deepEqual(load(path, beforeExpiry), { viewed: ["old"], kept: [], noise: { n: 1 } });
+  assert.deepEqual(load(path, beforeExpiry), { viewed: ["old"], kept: [], noise: { n: verdict } });
   assert.deepEqual(load(path, afterExpiry), { viewed: [], kept: [], noise: {} });
 
   saveMarks(path, { viewed: { added: ["new"] } }, afterExpiry);

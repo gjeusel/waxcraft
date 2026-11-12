@@ -1,5 +1,5 @@
-// OpenAI Decisions API: one shared input, many yes/no questions, a probability for each.
-import type { NoiseRequest } from "./noise.ts";
+// OpenAI Decisions API: one shared input, many typed questions, a number for each.
+import type { HunkAnswers, NoiseRequest } from "./noise.ts";
 
 const DECISIONS_URL = "https://api.openai.com/v1/decisions";
 const MODEL = "gpt-6-luna";
@@ -12,11 +12,11 @@ export interface DecisionsOptions {
   fetch?: typeof fetch;
 }
 
-/** The probability that each hunk is noise, by hunk key; a hunk the model refused is left out. */
-export async function askNoise(
+/** The answers about each hunk, by hunk key; a question the model refused is left out. */
+export async function askQuestions(
   request: NoiseRequest,
   options: DecisionsOptions,
-): Promise<Map<string, number>> {
+): Promise<Map<string, HunkAnswers>> {
   const send = options.fetch ?? fetch;
   const response = await send(DECISIONS_URL, {
     method: "POST",
@@ -27,17 +27,13 @@ export async function askNoise(
     body: JSON.stringify({
       model: MODEL,
       input: request.input,
-      questions: request.questions.map(({ name, instructions }) => ({
-        type: "predicate",
-        name,
-        instructions,
-      })),
+      questions: request.questions.map(({ name, body }) => ({ name, ...body })),
     }),
     signal: AbortSignal.any([options.signal, AbortSignal.timeout(TIMEOUT_MS)]),
   });
 
   const body = (await response.json().catch(() => null)) as {
-    answers?: { type?: unknown; name?: unknown; probability?: unknown }[];
+    answers?: { type?: unknown; name?: unknown; probability?: unknown; score?: unknown }[];
     error?: { message?: unknown };
   } | null;
 
@@ -47,13 +43,17 @@ export async function askNoise(
     throw new Error(`OpenAI answered ${response.status}: ${String(reason)}`);
   }
 
-  const keyByName = new Map(request.questions.map(({ name, key }) => [name, key]));
-  const probabilities = new Map<string, number>();
+  const questionByName = new Map(request.questions.map((question) => [question.name, question]));
+  const answersByKey = new Map<string, HunkAnswers>();
   for (const answer of body.answers) {
-    const key = keyByName.get(String(answer.name));
-    const isUsable = answer.type === "predicate" && typeof answer.probability === "number";
-    if (key !== undefined && isUsable) probabilities.set(key, answer.probability as number);
+    const question = questionByName.get(String(answer.name));
+    const value = answer.type === "score" ? answer.score : answer.probability;
+    if (!question || answer.type === "refusal" || typeof value !== "number") continue;
+
+    const answers = answersByKey.get(question.key) ?? {};
+    answers[question.kind] = value;
+    answersByKey.set(question.key, answers);
   }
 
-  return probabilities;
+  return answersByKey;
 }

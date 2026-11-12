@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { findUnviewedHunk, parseHunks } from "./hunks.ts";
+import { fade, findUnviewedHunk, parseHunks, windowStart } from "./hunks.ts";
 
 const PATCH = [
   "diff --git a/a.txt b/a.txt",
@@ -38,6 +38,22 @@ test("parseHunks keeps each hunk's own text, header included", () => {
 
   assert.equal(first?.text, "@@ -2,3 +2,4 @@ heading\n keep\n-old\n+new\n+extra\n ");
   assert.equal(second?.text, "@@ -40,2 +41,1 @@\n-gone\n tail");
+  assert.deepEqual([first?.line, second?.line], [2, 41]);
+});
+
+test("fade moves a colour towards the background, and leaves other notations alone", () => {
+  assert.equal(fade("#ffffff", "#000000", 0.5), "#808080");
+  assert.equal(fade("#EBCB8B", "#2e3440", 0), "#ebcb8b");
+  assert.equal(fade("#ebcb8b", "#2e3440", 1), "#2e3440");
+  assert.equal(fade("red", "#000000", 0.5), "red");
+  assert.equal(fade("#ffffff", "transparent", 0.5), "#ffffff");
+});
+
+test("windowStart keeps the selected row mid-window without running past either end", () => {
+  const starts = [0, 4, 5, 12, 19, -1].map((selectedRow) => windowStart(selectedRow, 20, 10));
+
+  assert.deepEqual(starts, [0, 0, 0, 7, 10, 0]);
+  assert.equal(windowStart(3, 4, 10), 0);
 });
 
 test("parseHunks keys a hunk by path and body, not by position", () => {

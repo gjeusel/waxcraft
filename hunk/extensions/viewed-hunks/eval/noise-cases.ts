@@ -1,10 +1,14 @@
-// Labelled hunks for the noise question: each case is one small review, each hunk has the verdict
-// a careful reviewer would give. `null` leaves a hunk unlabelled (it is context for the others).
+// Labelled hunks for the noise and reach questions: each case is one small review, each hunk has
+// the verdict a careful reviewer would give. `null` leaves a hunk unlabelled (it is context for
+// the others). The reach is labelled on hunks that are not noise, where it decides whether the
+// architecture view shows them.
+import type { Reach } from "../src/noise.ts";
+
 export interface NoiseCaseFile {
   path: string;
   patch: string;
-  /** One entry per hunk: whether it is noise, and what it is. */
-  hunks: [isNoise: boolean | null, what: string][];
+  /** One entry per hunk: whether it is noise, what it is, and how far it reaches. */
+  hunks: [isNoise: boolean | null, what: string, reach?: Reach][];
 }
 
 export interface NoiseCase {
@@ -18,7 +22,7 @@ export const NOISE_CASES: NoiseCase[] = [
     files: [
       {
         path: "app/users.py",
-        hunks: [[false, "origin: the renamed definition"]],
+        hunks: [[false, "origin: the renamed definition", "interface"]],
         patch: `@@ -10,5 +10,5 @@ class User:
  
 -def get_name(user):
@@ -77,7 +81,7 @@ export const NOISE_CASES: NoiseCase[] = [
     files: [
       {
         path: "billing/invoice.py",
-        hunks: [[false, "origin: new argument and rounding logic"]],
+        hunks: [[false, "origin: new argument and rounding logic", "interface"]],
         patch: `@@ -30,6 +30,7 @@ class Invoice:
  
 -def compute_total(lines):
@@ -116,7 +120,7 @@ export const NOISE_CASES: NoiseCase[] = [
         path: "tests/test_invoice.py",
         hunks: [
           [true, "existing test updated for the new argument"],
-          [false, "newly added test"],
+          [false, "newly added test", "detail"],
         ],
         patch: `@@ -9,5 +9,5 @@ def test_total_sums_lines():
      lines = [Line(amount=10), Line(amount=5)]
@@ -146,7 +150,7 @@ export const NOISE_CASES: NoiseCase[] = [
         hunks: [
           [true, "imports reordered"],
           [true, "call rewrapped, same arguments"],
-          [false, "comparison changed from > to >="],
+          [false, "comparison changed from > to >=", "detail"],
           [true, "dict keys reordered"],
         ],
         patch: `@@ -1,6 +1,6 @@
@@ -193,8 +197,8 @@ export const NOISE_CASES: NoiseCase[] = [
         path: "exports/service.py",
         hunks: [
           [true, "import made useless by the removed function"],
-          [false, "standalone removal of a function"],
-          [false, "standalone removal of a guard"],
+          [false, "standalone removal of a function", "structure"],
+          [false, "standalone removal of a guard", "detail"],
         ],
         patch: `@@ -1,5 +1,4 @@
 -import csv
@@ -234,7 +238,7 @@ export const NOISE_CASES: NoiseCase[] = [
         path: "cache/store.py",
         hunks: [
           [true, "typo fixed in a comment"],
-          [false, "new docstring"],
+          [false, "new docstring", "detail"],
           [true, "comment rewrapped, same words"],
         ],
         patch: `@@ -12,5 +12,5 @@ class Store:
@@ -264,7 +268,7 @@ export const NOISE_CASES: NoiseCase[] = [
       },
       {
         path: "README.md",
-        hunks: [[false, "new documentation section"]],
+        hunks: [[false, "new documentation section", "detail"]],
         patch: `@@ -20,3 +20,11 @@ ## Usage
  store.set("a", 1, ttl=60)
  \`\`\`
@@ -286,7 +290,7 @@ export const NOISE_CASES: NoiseCase[] = [
         path: "mail/sender.py",
         hunks: [
           [true, "type hints added, nothing else"],
-          [false, "default and accepted values changed"],
+          [false, "default and accepted values changed", "interface"],
         ],
         patch: `@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
  
@@ -316,7 +320,7 @@ export const NOISE_CASES: NoiseCase[] = [
         hunks: [
           [true, "log message reworded"],
           [true, "error message reworded"],
-          [false, "raise replaced by a silent return"],
+          [false, "raise replaced by a silent return", "detail"],
         ],
         patch: `@@ -18,5 +18,5 @@ def run(job):
      started = time.monotonic()
@@ -348,8 +352,8 @@ export const NOISE_CASES: NoiseCase[] = [
       {
         path: "pyproject.toml",
         hunks: [
-          [false, "own version bump in a manifest"],
-          [false, "dependency upgraded"],
+          [false, "own version bump in a manifest", "detail"],
+          [false, "dependency upgraded", "detail"],
         ],
         patch: `@@ -1,5 +1,5 @@
  [project]
@@ -368,7 +372,7 @@ export const NOISE_CASES: NoiseCase[] = [
       },
       {
         path: ".github/workflows/ci.yml",
-        hunks: [[false, "CI configuration changed"]],
+        hunks: [[false, "CI configuration changed", "detail"]],
         patch: `@@ -12,5 +12,5 @@ jobs:
        - uses: actions/setup-python@v5
          with:
@@ -380,7 +384,7 @@ export const NOISE_CASES: NoiseCase[] = [
       },
       {
         path: "relay/settings.py",
-        hunks: [[false, "default value changed"]],
+        hunks: [[false, "default value changed", "detail"]],
         patch: `@@ -6,5 +6,5 @@ import os
  
 -DEFAULT_TIMEOUT = 30
@@ -391,7 +395,7 @@ export const NOISE_CASES: NoiseCase[] = [
       },
       {
         path: "ruff.toml",
-        hunks: [[false, "lint configuration changed"]],
+        hunks: [[false, "lint configuration changed", "detail"]],
         patch: `@@ -1,4 +1,4 @@
 -line-length = 88
 +line-length = 100
@@ -406,7 +410,7 @@ export const NOISE_CASES: NoiseCase[] = [
     files: [
       {
         path: "api/openapi.json",
-        hunks: [[false, "API contract gains a required field"]],
+        hunks: [[false, "API contract gains a required field", "interface"]],
         patch: `@@ -120,8 +120,12 @@
          "Invoice": {
            "type": "object",
@@ -439,7 +443,7 @@ export const NOISE_CASES: NoiseCase[] = [
         path: "tests/__snapshots__/test_report.ambr",
         hunks: [
           [true, "snapshot: run id and timestamp only"],
-          [false, "snapshot: reported total changed"],
+          [false, "snapshot: reported total changed", "detail"],
         ],
         patch: `@@ -2,6 +2,6 @@
  # name: test_monthly_report
@@ -466,8 +470,8 @@ export const NOISE_CASES: NoiseCase[] = [
       {
         path: "text/utils.py",
         hunks: [
-          [false, "old place of a function moved unchanged (moves are never noise)"],
-          [false, "old place of a function moved and edited"],
+          [false, "old place of a function moved unchanged (moves are never noise)", "structure"],
+          [false, "old place of a function moved and edited", "structure"],
         ],
         patch: `@@ -10,12 +10,4 @@ import re
  
@@ -494,8 +498,8 @@ export const NOISE_CASES: NoiseCase[] = [
       {
         path: "text/formatting.py",
         hunks: [
-          [false, "new place of a function moved unchanged (moves are never noise)"],
-          [false, "new place of a function moved and edited (now lowercases)"],
+          [false, "new place of a function moved unchanged (moves are never noise)", "structure"],
+          [false, "new place of a function moved and edited (now lowercases)", "structure"],
         ],
         patch: `@@ -5,3 +5,11 @@ import re
  
@@ -527,7 +531,7 @@ export const NOISE_CASES: NoiseCase[] = [
     files: [
       {
         path: "src/types.ts",
-        hunks: [[false, "origin: the renamed field"]],
+        hunks: [[false, "origin: the renamed field", "detail"]],
         patch: `@@ -4,5 +4,5 @@ export interface Task {
    id: string;
    title: string;
@@ -541,7 +545,7 @@ export const NOISE_CASES: NoiseCase[] = [
         path: "src/TaskRow.tsx",
         hunks: [
           [true, "usage following the renamed field"],
-          [false, "new behaviour: overdue styling"],
+          [false, "new behaviour: overdue styling", "detail"],
         ],
         patch: `@@ -10,5 +10,5 @@ export function TaskRow({ task, onToggle }: Props) {
    return (
@@ -572,7 +576,7 @@ export const NOISE_CASES: NoiseCase[] = [
         path: "src/TaskRow.test.tsx",
         hunks: [
           [true, "fixture following the renamed field"],
-          [false, "newly added test"],
+          [false, "newly added test", "detail"],
         ],
         patch: `@@ -5,5 +5,5 @@ const task: Task = {
    id: "t1",
@@ -596,13 +600,523 @@ export const NOISE_CASES: NoiseCase[] = [
     ],
   },
   {
+    name: "imports: added and removed for code changed in other hunks",
+    files: [
+      {
+        path: "orders/service.py",
+        hunks: [
+          [true, "imports added for the new code, one dropped"],
+          [false, "new logic using the new imports", "detail"],
+          [false, "logic no longer using the dropped import", "detail"],
+        ],
+        patch: `@@ -1,8 +1,10 @@
+ import logging
+-import random
++from datetime import timedelta
++from decimal import Decimal
+ 
+ from orders.models import Order
++from orders.pricing import apply_discount
+ 
+ log = logging.getLogger(__name__)
+ 
+@@ -24,5 +26,8 @@ def total(order):
+     amount = sum(line.amount for line in order.lines)
+-    return amount
++    if order.created_at < now() - timedelta(days=30):
++        amount = apply_discount(amount, Decimal("0.1"))
++
++    return amount
+ 
+ 
+@@ -40,5 +45,5 @@ def reference(order):
+-    return f"{order.id}-{random.randint(0, 999)}"
++    return f"{order.id}-{order.sequence}"
+ 
+ 
+`,
+      },
+    ],
+  },
+  {
+    name: "imports: a new third-party library, with its manifest and its use",
+    files: [
+      {
+        path: "fetch/client.py",
+        hunks: [
+          [true, "import swapped for the new library"],
+          [false, "call rewritten for the new library", "detail"],
+        ],
+        patch: `@@ -1,5 +1,5 @@
+ import json
+-import urllib.request
++import httpx
+ 
+ from fetch.errors import FetchError
+ 
+@@ -12,7 +12,7 @@ def fetch(url):
+-    with urllib.request.urlopen(url, timeout=10) as response:
+-        body = response.read()
++    response = httpx.get(url, timeout=10, follow_redirects=True)
++    body = response.content
+ 
+     return json.loads(body)
+`,
+      },
+      {
+        path: "pyproject.toml",
+        hunks: [[false, "new dependency declared"]],
+        patch: `@@ -8,4 +8,5 @@ dependencies = [
+     "structlog>=24.1",
++    "httpx>=0.27",
+ ]
+ 
+`,
+      },
+    ],
+  },
+  {
+    name: "imports: TypeScript import lists following the code",
+    files: [
+      {
+        path: "src/Cart.tsx",
+        hunks: [
+          [true, "named imports extended, a type import added"],
+          [false, "new memoised total", "detail"],
+        ],
+        patch: `@@ -1,6 +1,7 @@
+-import { useState } from "react";
++import { useMemo, useState } from "react";
+ 
+-import { formatPrice } from "./format";
++import { formatPrice, sumPrices } from "./format";
++import type { CartLine } from "./types";
+ import { Row } from "./Row";
+ 
+@@ -14,5 +15,6 @@ export function Cart({ lines }: Props) {
+   const [open, setOpen] = useState(false);
++  const total = useMemo(() => sumPrices(lines.map((line: CartLine) => line.price)), [lines]);
+ 
+   return (
+`,
+      },
+      {
+        path: "src/Checkout.tsx",
+        hunks: [[true, "import path updated for a module that moved"]],
+        patch: `@@ -1,5 +1,5 @@
+ import { useState } from "react";
+ 
+-import { formatPrice } from "./format";
++import { formatPrice } from "./lib/format";
+ import { Button } from "./Button";
+ 
+`,
+      },
+    ],
+  },
+  {
+    name: "imports: the ones that are the change itself",
+    files: [
+      {
+        path: "app/__init__.py",
+        hunks: [[false, "import added only for its side effects"]],
+        patch: `@@ -4,4 +4,5 @@ from app.config import settings
+ 
+ import app.routes  # noqa: F401
++import app.signals  # noqa: F401  (registers the signal handlers)
+ 
+`,
+      },
+      {
+        path: "app/reports.py",
+        hunks: [
+          [true, "top-level import removed, it moved into the function"],
+          [false, "import moved into the function to load lazily", "detail"],
+        ],
+        patch: `@@ -1,5 +1,4 @@
+ import logging
+-import pandas as pd
+ 
+ from app.models import Report
+ 
+@@ -18,4 +17,6 @@ def build(report_id):
+     report = Report.get(report_id)
++    import pandas as pd  # heavy: only load it when a report is built
++
+     frame = pd.DataFrame(report.rows)
+ 
+`,
+      },
+      {
+        path: "app/limits.py",
+        hunks: [[false, "import next to a changed constant in the same hunk", "detail"]],
+        patch: `@@ -1,5 +1,6 @@
+ import os
++import math
+ 
+-MAX_UPLOAD_MB = 10
++MAX_UPLOAD_MB = 25
+ 
+ 
+`,
+      },
+    ],
+  },
+  {
+    name: "configuration: a moved entry against a changed value",
+    files: [
+      {
+        path: ".claude/settings.json",
+        hunks: [
+          [false, "configuration value changed", "detail"],
+          [true, "configuration entry moved, same value"],
+        ],
+        patch: `@@ -3,5 +3,5 @@
+   "theme": "dark",
+-  "model": "opus",
++  "model": "opus[1m]",
+   "verbose": false,
+   "permissions": {
+@@ -40,8 +40,8 @@
+   "hooks": {
+     "enabled": true
+-  "promptSuggestionEnabled": false,
+-  }
++  },
++  "promptSuggestionEnabled": false
+ }
+`,
+      },
+      {
+        path: "tsconfig.json",
+        hunks: [[true, "configuration keys reordered, same values"]],
+        patch: `@@ -2,7 +2,7 @@
+   "compilerOptions": {
+-    "strict": true,
+     "module": "ESNext",
+     "moduleResolution": "bundler",
++    "strict": true,
+     "noEmit": true
+   }
+`,
+      },
+    ],
+  },
+  {
+    name: "comments beside noise against comments on their own",
+    files: [
+      {
+        path: "src/pane.tsx",
+        hunks: [
+          [true, "new comment line beside an added import"],
+          [false, "new function using the import", "structure"],
+          [false, "new comment on unchanged code", "detail"],
+        ],
+        patch: `@@ -1,6 +1,8 @@
+ // Panes docked beside the review.
++// A narrow map pane lists every hunk with its status.
+ import { useState } from "react";
++import { basename } from "node:path";
+ 
+ import { Row } from "./Row";
+ 
+@@ -20,4 +22,10 @@ export function StatusPane({ rows }: Props) {
+ }
+ 
++export function MapPane({ files }: MapProps) {
++  const names = files.map((file) => basename(file.path));
++
++  return <List items={names} />;
++}
++
+@@ -48,5 +56,7 @@ function clamp(value: number, max: number) {
++  // Negative values come from a selection that scrolled out of view: pin them to the first
++  // row instead of letting the window start before the list.
+   return Math.min(Math.max(0, value), max);
+ }
+`,
+      },
+      {
+        path: "src/format.ts",
+        hunks: [[false, "origin: the renamed function", "interface"]],
+        patch: `@@ -3,5 +3,5 @@
+ 
+-export function fmt(price: number): string {
++export function formatPrice(price: number): string {
+   return price.toFixed(2);
+ }
+`,
+      },
+      {
+        path: "src/Total.tsx",
+        hunks: [[true, "call site following the rename, with its comment reworded"]],
+        patch: `@@ -9,6 +9,6 @@ export function Total({ lines }: Props) {
+   const sum = lines.reduce((total, line) => total + line.price, 0);
+ 
+-  // fmt keeps two decimals
+-  return <span>{fmt(sum)}</span>;
++  // formatPrice keeps two decimals
++  return <span>{formatPrice(sum)}</span>;
+ }
+`,
+      },
+    ],
+  },
+  {
+    name: "reach: added, removed and re-signed definitions against body changes",
+    files: [
+      {
+        path: "shop/cart.py",
+        hunks: [
+          [false, "new function", "structure"],
+          [false, "signature gains a parameter", "interface"],
+          [false, "logic changed inside a body", "detail"],
+          [false, "class removed", "structure"],
+        ],
+        patch: `@@ -10,4 +10,12 @@ def subtotal(cart):
+     return sum(item.price * item.quantity for item in cart.items)
+ 
+ 
++def apply_coupon(cart, coupon):
++    if coupon.expired:
++        raise CouponExpired(coupon.code)
++
++    cart.discount = coupon.amount
++    return cart
++
++
+@@ -30,6 +38,6 @@ def apply_coupon(cart, coupon):
+ 
+-def checkout(cart):
+-    order = Order.from_cart(cart)
++def checkout(cart, *, payment_method):
++    order = Order.from_cart(cart, payment_method=payment_method)
+     order.save()
+ 
+@@ -52,7 +60,9 @@ def shipping_cost(cart):
+     weight = sum(item.weight for item in cart.items)
+-    if weight > 20:
+-        return 15
++    if weight > 30:
++        return 25
++    if weight > 10:
++        return 15
+ 
+     return 5
+@@ -70,12 +80,3 @@ def shipping_cost(cart):
+ 
+ 
+-class LegacyCart:
+-    def __init__(self, rows):
+-        self.rows = rows
+-
+-    def total(self):
+-        return sum(row[1] for row in self.rows)
+-
+-
+ def empty(cart):
+`,
+      },
+      {
+        path: "shop/models.py",
+        hunks: [
+          [false, "new method on a class", "structure"],
+          [false, "new class", "structure"],
+        ],
+        patch: `@@ -18,4 +18,9 @@ class Order:
+         return cls(lines=list(cart.items))
+ 
++    def refund(self, reason):
++        self.state = "refunded"
++        self.refund_reason = reason
++        self.save()
++
+     def save(self):
+@@ -40,3 +45,12 @@ class Order:
+         db.commit(self)
++
++
++class Refund:
++    def __init__(self, order, amount):
++        self.order = order
++        self.amount = amount
++
++    def issue(self):
++        gateway.refund(self.order.payment_id, self.amount)
+`,
+      },
+      {
+        path: "tests/test_cart.py",
+        hunks: [[false, "new tests for the new function", "detail"]],
+        patch: `@@ -30,3 +30,17 @@ def test_subtotal_multiplies_quantity():
+     assert subtotal(cart) == 30
++
++
++def test_apply_coupon_sets_the_discount():
++    cart = apply_coupon(Cart(items=[]), Coupon(code="X", amount=5))
++
++    assert cart.discount == 5
++
++
++def test_apply_coupon_rejects_an_expired_coupon():
++    coupon = Coupon(code="X", amount=5, expired=True)
++
++    with pytest.raises(CouponExpired):
++        apply_coupon(Cart(items=[]), coupon)
+`,
+      },
+    ],
+  },
+  {
+    name: "reach: types, routes, commands and a new dependency between modules",
+    files: [
+      {
+        path: "src/api/types.ts",
+        hunks: [[false, "exported type gains a field", "detail"]],
+        patch: `@@ -4,5 +4,6 @@ export interface Invoice {
+   id: string;
+   total: number;
++  currency: string;
+   lines: InvoiceLine[];
+ }
+`,
+      },
+      {
+        path: "src/api/cache.ts",
+        hunks: [
+          [false, "fields of a type used only in this module", "detail"],
+          [false, "body adapted to the internal type", "detail"],
+        ],
+        patch: `@@ -3,6 +3,7 @@ import type { Invoice } from "./types";
+ interface Entry {
+   value: Invoice;
+-  expiresAt: number;
++  storedAt: number;
++  ttlMs: number;
+ }
+ 
+@@ -18,5 +19,5 @@ export function read(id: string): Invoice | null {
+   const entry = entries.get(id);
+-  if (!entry || entry.expiresAt < Date.now()) return null;
++  if (!entry || entry.storedAt + entry.ttlMs < Date.now()) return null;
+ 
+   return entry.value;
+`,
+      },
+      {
+        path: "src/api/routes.ts",
+        hunks: [
+          [true, "import for the new route"],
+          [false, "new route", "structure"],
+        ],
+        patch: `@@ -1,4 +1,5 @@
+ import { Router } from "express";
+ 
++import { exportInvoices } from "../exports/service";
+ import { getInvoice, listInvoices } from "./invoices";
+ 
+@@ -12,4 +13,9 @@ router.get("/invoices", async (req, res) => {
+ router.get("/invoices/:id", async (req, res) => {
+   res.json(await getInvoice(req.params.id));
+ });
++
++router.post("/invoices/export", async (req, res) => {
++  const job = await exportInvoices(req.body.ids);
++  res.status(202).json({ jobId: job.id });
++});
+`,
+      },
+      {
+        path: "src/cli.ts",
+        hunks: [[false, "new command registered", "structure"]],
+        patch: `@@ -22,4 +22,11 @@ program
+   .action(() => sync());
+ 
++program
++  .command("export <ids...>")
++  .description("export invoices as CSV")
++  .action(async (ids: string[]) => {
++    await exportInvoices(ids);
++  });
++
+ program.parse();
+`,
+      },
+      {
+        path: "src/billing/reminders.ts",
+        hunks: [
+          [true, "import for the new call"],
+          [false, "body now calls another module of the project for the first time", "structure"],
+        ],
+        patch: `@@ -1,4 +1,5 @@
+ import { listOverdue } from "./invoices";
++import { sendMail } from "../notifications/mailer";
+ 
+ const log = createLogger("reminders");
+@@ -10,5 +11,6 @@ export async function remind(): Promise<void> {
+   for (const invoice of await listOverdue()) {
+     log.info("overdue", invoice.id);
++    await sendMail(invoice.customerEmail, "reminder", { invoice });
+   }
+ }
+`,
+      },
+    ],
+  },
+  {
+    name: "reach: hunks mixing levels",
+    files: [
+      {
+        path: "src/colors.ts",
+        hunks: [
+          [false, "imports, new constants and a type alias, no function", "detail"],
+          [false, "a body edited, then two new functions below it", "structure"],
+        ],
+        patch: `@@ -1,8 +1,14 @@
+-import { parse } from "./parse";
++import { parse, tokenize } from "./parse";
++import type { Theme } from "./theme";
+ 
+ const DEFAULT_ALPHA = 1;
++const FADE_AMOUNT = 0.5;
++// From this contrast up, text is readable on its background.
++const MIN_CONTRAST = 4.5;
++
++type Channel = "red" | "green" | "blue";
+ 
+ export function toHex(color: Color): string {
+@@ -20,6 +26,24 @@ export function toHex(color: Color): string {
+ export function names(colors: Color[]): string[] {
+-  return colors.map(({ name }) => name);
++  return colors.map(({ name, alias }) => alias ?? name);
+ }
++
++/** \`color\` moved towards \`background\` by \`amount\`. */
++export function fade(color: string, background: string, amount: number): string {
++  const from = parse(color);
++  const to = parse(background);
++
++  return toHex(mix(from, to, amount));
++}
++
++/** The first row to show so that the selected one stays in view. */
++export function windowStart(selected: number, count: number, height: number): number {
++  const last = Math.max(0, count - height);
++
++  return Math.min(Math.max(0, selected - Math.floor(height / 2)), last);
++}
+`,
+      },
+    ],
+  },
+  {
     name: "small standalone logic changes",
     files: [
       {
         path: "net/retry.py",
         hunks: [
-          [false, "constant changed"],
-          [false, "new early return"],
+          [false, "constant changed", "detail"],
+          [false, "new early return", "detail"],
         ],
         patch: `@@ -3,5 +3,5 @@ import time
  

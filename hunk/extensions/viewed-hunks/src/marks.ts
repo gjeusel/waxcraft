@@ -5,6 +5,7 @@
 // its marks wherever it is reviewed, and marks nobody reviews anymore expire.
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, join } from "node:path";
+import type { Verdict } from "./noise.ts";
 
 export const MARK_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -13,8 +14,8 @@ export interface Marks {
   viewed: Set<string>;
   /** Hunks the user kept on screen although the model judged them noise. */
   kept: Set<string>;
-  /** The probability that a hunk is noise, for every hunk that was judged. */
-  noise: Map<string, number>;
+  /** The verdict on every hunk that was judged. */
+  noise: Map<string, Verdict>;
 }
 
 interface KeysChange {
@@ -25,13 +26,15 @@ interface KeysChange {
 export interface MarksChange {
   viewed?: KeysChange;
   kept?: KeysChange;
-  noise?: { added?: ReadonlyMap<string, number>; removed?: readonly string[] };
+  noise?: { added?: ReadonlyMap<string, Verdict>; removed?: readonly string[] };
 }
 
-/** One stored mark: when it was made, and the noise probability for a verdict. */
+/** One stored mark: when it was made, and for a verdict what the model answered. */
 interface Entry {
   at: string;
   probability?: number;
+  structure?: number;
+  interface?: number;
 }
 
 type Section = Record<string, Entry>;
@@ -68,7 +71,9 @@ function readSections(path: string, now: Date): Record<keyof typeof SECTIONS, Se
       // A viewed or kept mark is stored as its bare date.
       const entry: Partial<Entry> = typeof value === "string" ? { at: value } : (value ?? {});
       const isExpired = !(Date.parse(String(entry.at)) >= now.getTime() - MARK_TTL_MS);
-      if (!isExpired) section[key] = { at: String(entry.at), probability: entry.probability };
+      if (isExpired) continue;
+
+      section[key] = { ...entry, at: String(entry.at) };
     }
 
     return section;
@@ -83,9 +88,18 @@ function readSections(path: string, now: Date): Record<keyof typeof SECTIONS, Se
 
 export function loadMarks(path: string, now: Date): Marks {
   const sections = readSections(path, now);
-  const verdicts = Object.entries(sections.noise).flatMap(([key, entry]) =>
-    typeof entry.probability === "number" ? [[key, entry.probability] as const] : [],
-  );
+  const verdicts = Object.entries(sections.noise).flatMap(([key, entry]) => {
+    if (typeof entry.probability !== "number") return [];
+
+    const probability = (value: unknown) => (typeof value === "number" ? value : undefined);
+    const verdict = {
+      noise: entry.probability,
+      structure: probability(entry.structure),
+      interface: probability(entry.interface),
+    };
+
+    return [[key, verdict] as const];
+  });
 
   return {
     viewed: new Set(Object.keys(sections.viewed)),
@@ -103,8 +117,9 @@ export function saveMarks(path: string, change: MarksChange, now: Date): void {
     for (const key of change[name]?.added ?? []) sections[name][key] = { at };
     for (const key of change[name]?.removed ?? []) delete sections[name][key];
   }
-  for (const [key, probability] of change.noise?.added ?? []) {
-    sections.noise[key] = { at, probability };
+  for (const [key, verdict] of change.noise?.added ?? []) {
+    const { noise: probability, structure, interface: interfaceProbability } = verdict;
+    sections.noise[key] = { at, probability, structure, interface: interfaceProbability };
   }
   for (const key of change.noise?.removed ?? []) delete sections.noise[key];
 

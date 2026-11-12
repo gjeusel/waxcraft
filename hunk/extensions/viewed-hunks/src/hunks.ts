@@ -4,6 +4,8 @@ import type { ExtensionDiffFile, ExtensionLineHighlight } from "hunkdiff/extensi
 export interface ParsedHunk {
   /** Digest of the file path and hunk body: stable across reloads, changed by any edit. */
   key: string;
+  /** The new-side line the hunk starts at. */
+  line: number;
   /** The hunk as the patch spells it: its `@@` header, then its lines. */
   text: string;
   /** One dim mark per non-empty line of the hunk. */
@@ -12,7 +14,8 @@ export interface ParsedHunk {
 
 /** Split one file patch into its hunks, in the order Hunk indexes them. */
 export function parseHunks(file: Pick<ExtensionDiffFile, "path" | "patch">): ParsedHunk[] {
-  const hunks: { header: string; body: string[]; marks: ExtensionLineHighlight[] }[] = [];
+  const hunks: { header: string; line: number; body: string[]; marks: ExtensionLineHighlight[] }[] =
+    [];
   let oldLine = 0;
   let newLine = 0;
 
@@ -21,7 +24,7 @@ export function parseHunks(file: Pick<ExtensionDiffFile, "path" | "patch">): Par
     if (header) {
       oldLine = Number(header[1]);
       newLine = Number(header[2]);
-      hunks.push({ header: raw, body: [], marks: [] });
+      hunks.push({ header: raw, line: newLine, body: [], marks: [] });
       continue;
     }
 
@@ -42,11 +45,40 @@ export function parseHunks(file: Pick<ExtensionDiffFile, "path" | "patch">): Par
     if (!isRemoved) newLine += 1;
   }
 
-  return hunks.map(({ header, body, marks }) => {
+  return hunks.map(({ header, line, body, marks }) => {
     const key = createHash("sha256").update(`${file.path}\n${body.join("\n")}`).digest("hex");
 
-    return { key, text: [header, ...body].join("\n"), marks };
+    return { key, line, text: [header, ...body].join("\n"), marks };
   });
+}
+
+/**
+ * `color` moved towards `background` by `amount` (0 keeps it, 1 reaches the background). Both are
+ * `#rrggbb`; any other notation returns `color` unchanged.
+ */
+export function fade(color: string, background: string, amount: number): string {
+  const channels = (hex: string) => /^#([0-9a-f]{6})$/i.exec(hex)?.[1]?.match(/../g);
+  const from = channels(color);
+  const to = channels(background);
+  if (!from || !to) return color;
+
+  const mixed = from.map((channel, index) => {
+    const start = parseInt(channel, 16);
+    const end = parseInt(to[index] ?? channel, 16);
+
+    return Math.round(start + (end - start) * amount)
+      .toString(16)
+      .padStart(2, "0");
+  });
+
+  return `#${mixed.join("")}`;
+}
+
+/** The first of `height` rows to show out of `rowCount`, keeping the selected row mid-window. */
+export function windowStart(selectedRow: number, rowCount: number, height: number): number {
+  const lastStart = Math.max(0, rowCount - height);
+
+  return Math.min(Math.max(0, selectedRow - Math.floor(height / 2)), lastStart);
 }
 
 /**
