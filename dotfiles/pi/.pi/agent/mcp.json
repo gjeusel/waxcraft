@@ -78,14 +78,16 @@
         "rnx-readonly",
         "--metadata",
         "AWS_REGION=eu-west-1"
-      ]
+      ],
+      "enabled": false
     },
     "playwright": {
       "description": "Playwright browser automation: navigate, click, fill forms, take snapshots and screenshots, and inspect console and network.",
       "command": "npx",
       "args": [
         "@playwright/mcp@latest"
-      ]
+      ],
+      "enabled": false
     },
     "greptile": {
       "description": "Greptile AI code reviews: review status and comments on pull and merge requests, and custom review context for indexed repositories.",

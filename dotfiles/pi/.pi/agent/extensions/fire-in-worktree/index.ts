@@ -44,6 +44,7 @@ const BRIEF_TEMPLATE_PATH = fileURLToPath(new URL('brief.md', import.meta.url));
 const LONG_TIMEOUT_MS = 15 * 60_000;
 // The launched pi takes the session lock on start: until then, its launch is not confirmed.
 const START_TIMEOUT_MS = 45_000;
+const MODEL_REF = /^[^/]+\/./;
 
 export type Review = 'standard' | 'thorough' | 'none';
 
@@ -53,10 +54,14 @@ export interface Reviewers {
 }
 
 /**
- * fire.json: the reviewer models by the agent's provider, `default` for the others, so that the
- * review runs on another provider than the agent.
+ * fire.json: the agent's default model (the launching session's when absent), the default model of
+ * the subagents it delegates implementation to (no delegation when absent), and the reviewer models
+ * by the agent's provider, `default` for the others, so that the review runs on another provider
+ * than the agent.
  */
 export interface FireConfig {
+  model?: string;
+  workerModel?: string;
   reviewers: Record<string, Reviewers>;
 }
 
@@ -153,6 +158,22 @@ const fireSchema = Type.Object(
       description:
         'Self-contained brief for the new agent: the goal, what this conversation already settled (decisions, scope, rejected options), constraints, and the validation expected. The agent inherits this conversation, so point to it rather than copying long content.',
     }),
+    model: Type.Optional(
+      Type.String({
+        description: 'Model of the fired agent, as "provider/modelId", only when the user names one; default from fire.json (Fable).',
+      }),
+    ),
+    workerModel: Type.Optional(
+      Type.String({
+        description:
+          'Model of the subagents the fired agent delegates implementation to, as "provider/modelId", or "none" for no delegation; only when the user says so. Default from fire.json (Opus).',
+      }),
+    ),
+    reviewer: Type.Optional(
+      Type.String({
+        description: 'Reviewer model, as "provider/modelId", only when the user names one; default from fire.json by the agent\'s provider and `review`.',
+      }),
+    ),
     review: Type.Optional(
       Type.Union([Type.Literal('standard'), Type.Literal('thorough'), Type.Literal('none')], {
         description:
@@ -170,8 +191,15 @@ const fireSchema = Type.Object(
 
 /** Throws on a missing file, invalid JSON, or a malformed value. */
 export function loadConfig(path: string): FireConfig {
-  const parsed: unknown = JSON.parse(readFileSync(path, 'utf8'));
-  const reviewers = (parsed as { reviewers?: unknown } | null)?.reviewers;
+  const parsed = JSON.parse(readFileSync(path, 'utf8')) as Record<string, unknown> | null;
+  for (const key of ['model', 'workerModel'] as const) {
+    const model = parsed?.[key];
+    if (model !== undefined && (typeof model !== 'string' || !MODEL_REF.test(model))) {
+      throw new Error(`${path}: ${key} must be "provider/modelId"`);
+    }
+  }
+
+  const reviewers = parsed?.reviewers;
   if (typeof reviewers !== 'object' || reviewers === null || Array.isArray(reviewers)) {
     throw new Error(`${path}: expected {"reviewers": {"<provider>" | "default": {"standard", "thorough"}}}`);
   }
@@ -179,13 +207,17 @@ export function loadConfig(path: string): FireConfig {
   for (const [provider, models] of Object.entries(reviewers)) {
     for (const review of ['standard', 'thorough'] as const) {
       const model = (models as Record<string, unknown> | null)?.[review];
-      if (typeof model !== 'string' || !/^[^/]+\/./.test(model)) {
+      if (typeof model !== 'string' || !MODEL_REF.test(model)) {
         throw new Error(`${path}: reviewers.${provider}.${review} must be "provider/modelId"`);
       }
     }
   }
 
-  return { reviewers: reviewers as Record<string, Reviewers> };
+  return {
+    model: parsed?.model as string | undefined,
+    workerModel: parsed?.workerModel as string | undefined,
+    reviewers: reviewers as Record<string, Reviewers>,
+  };
 }
 
 export function reviewersFor(config: FireConfig, provider: string): Reviewers {
@@ -795,6 +827,7 @@ export default function (pi: ExtensionAPI) {
       'fire: Call it when the user says "fire in wt" or "fire in worktree", or otherwise asks to hand a task off to a worktree agent; one call per task. Never create the clone, worktree, or Rex tab yourself for this.',
       'fire: Pass `issue` when the user names one. Otherwise write `newIssue` yourself from this conversation, without a subagent; read the glab skill\'s references/team-and-labels.md first unless you already know its labels. The tool creates the issue, its branch, and a draft MR, assigned to the user, in seconds; an invalid label fails fast with the existing ones.',
       'fire: The agent inherits this conversation up to the user\'s request. Write `task` as a self-contained brief of the goal and what was settled. Set `review` and `autoMerge` only from what the user says.',
+      'fire: By default the agent runs on Fable, delegates implementation to Opus subagents, and has its work reviewed by GPT Astra (fire.json). Set `model`, `workerModel` (or "none"), or `reviewer` only when the user asks for other models; their request overrides these defaults.',
       'fire: Once it returns, confirm in a sentence or two where the task went, and do not work on that task in this session.',
     ],
     parameters: fireSchema,
@@ -804,16 +837,29 @@ export default function (pi: ExtensionAPI) {
     async execute(_toolCallId, params, signal, onUpdate, ctx) {
       const parentFile = ctx.sessionManager.getSessionFile();
       if (!parentFile) throw new Error('fire forks the session, and this one is not saved (--no-session)');
-      if (!ctx.model) throw new Error('fire needs a current model for the new agent');
       if ((params.issue === undefined) === (params.newIssue === undefined)) throw new Error('pass exactly one of `issue` and `newIssue`');
 
+      // Read at each fire, so that an edit applies without /reload. The models the user names override
+      // its defaults; all are checked before anything is created.
+      const config = loadConfig(join(getAgentDir(), 'fire.json'));
+      const checkModel = (ref: string, role: string) => {
+        const slash = ref.indexOf('/');
+        if (slash < 1 || !ctx.modelRegistry.find(ref.slice(0, slash), ref.slice(slash + 1))) throw new Error(`unknown ${role} model ${ref}`);
+
+        return ref;
+      };
+
+      const currentModel = ctx.model && `${ctx.model.provider}/${ctx.model.id}`;
+      const modelRef = params.model ?? config.model ?? currentModel;
+      if (!modelRef) throw new Error('fire needs a model for the new agent: none in fire.json, nor a current one');
+      const model = checkModel(modelRef, 'agent');
+
+      const workerRef = params.workerModel ?? config.workerModel;
+      const workerModel = workerRef && workerRef !== 'none' ? checkModel(workerRef, 'worker') : undefined;
+
       const review = params.review ?? 'standard';
-      // Read at each fire, so that an edit applies without /reload; checked before anything is created.
-      const reviewer = review === 'none' ? undefined : reviewersFor(loadConfig(join(getAgentDir(), 'fire.json')), ctx.model.provider)[review];
-      const slash = reviewer?.indexOf('/') ?? -1;
-      if (reviewer && !ctx.modelRegistry.find(reviewer.slice(0, slash), reviewer.slice(slash + 1))) {
-        throw new Error(`fire.json: unknown reviewer model ${reviewer}`);
-      }
+      const reviewerRef = review === 'none' ? undefined : (params.reviewer ?? reviewersFor(config, model.split('/')[0])[review]);
+      const reviewer = reviewerRef && checkModel(reviewerRef, 'reviewer');
 
       const skillDir = glabSkillDir(pi);
       const glabTask = join(skillDir, 'scripts', 'glab_task.py');
@@ -843,7 +889,6 @@ export default function (pi: ExtensionAPI) {
       }
       const branch = opened.branch.name;
 
-      const model = `${ctx.model.provider}/${ctx.model.id}`;
       const request = findRequest(ctx.sessionManager.getBranch());
       let worktree: string | undefined;
       let setupFailure: string | undefined;
@@ -861,6 +906,9 @@ export default function (pi: ExtensionAPI) {
         const reviewStep = !reviewer
           ? 'The user asked for no review: skip this step.'
           : `Run a \`reviewer\` subagent with thinking \`high\` and the model \`${reviewer}\`. Give it the issue, the diff to review, and the checks already run. Fix the findings you confirm, rerun the reviewer once if the fixes are substantial, and keep each dismissed finding with its reason for the MR description.`;
+        const workersStep = !workerModel
+          ? 'Implement the change yourself.'
+          : `Orchestrate rather than write the code yourself: plan the change, then delegate its implementation, in scoped and self-contained parts, to \`general-purpose\` subagents with the model \`${workerModel}\`, authorized to edit. Keep your own context for planning, integration, and verification, and check their actual changes.`;
         const mergeStep = params.autoMerge
           ? `The user asked for the MR to be merged: once it is published ready, run \`python3 ${glabTask} merge --issue ${opened.issue.iid}\`, which enables auto-merge when a pipeline runs on the pushed commit.`
           : 'Do not merge the MR, nor enable auto-merge.';
@@ -878,6 +926,7 @@ export default function (pi: ExtensionAPI) {
           setup: setupFailure
             ? `the worktree's pre-start hooks (env files, venv) failed. Fix the environment before anything else:\n\n  \`\`\`text\n${setupFailure.replace(/^/gm, '  ')}\n  \`\`\``
             : "the worktree's pre-start hooks (env files, venv) succeeded.",
+          workersStep,
           reviewStep,
           mergeStep,
         });
@@ -905,7 +954,7 @@ export default function (pi: ExtensionAPI) {
       startWatching(ctx);
 
       const lines = [
-        `Fired issue #${opened.issue.iid}${opened.issue.created ? ' (created)' : ''} into ${worktree}, with ${model}; review: ${review}; auto-merge: ${params.autoMerge ? 'yes' : 'no'}.`,
+        `Fired issue #${opened.issue.iid}${opened.issue.created ? ' (created)' : ''} into ${worktree}, with ${model}; workers: ${workerModel ?? 'none'}; review: ${reviewer ?? 'none'}; auto-merge: ${params.autoMerge ? 'yes' : 'no'}.`,
         `Issue: ${opened.issue.web_url}`,
         `MR: !${opened.mr.iid}${opened.mr.created ? ' (created as a draft)' : ''}, ${opened.mr.web_url}`,
         `Rex: tab "${branch}" in session ${REX_SESSION} (find it with Go to Anything, or /fire).`,

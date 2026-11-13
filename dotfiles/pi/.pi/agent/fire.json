@@ -1,7 +1,9 @@
 {
+  "model": "claude-code/claude-fable-5-2",
+  "workerModel": "claude-code/claude-opus-5-5",
   "reviewers": {
     "claude-code": {
-      "standard": "openai-codex/gpt-6.1-sol",
+      "standard": "openai-codex/gpt-6-astra",
       "thorough": "openai-codex/gpt-6-astra"
     },
     "default": {

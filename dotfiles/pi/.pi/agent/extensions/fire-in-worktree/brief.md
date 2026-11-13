@@ -52,7 +52,7 @@ committing or pushing. Never force-push, rewrite published history, or touch oth
 ## Workflow
 
 1. **Implement** the change, following the repository's `AGENTS.md`, and run the checks the change
-   can affect.
+   can affect. {{workersStep}}
 2. **Review with the other provider.** {{reviewStep}}
 3. **Publish**, yourself, without a subagent:
    1. Commit the task's changes on this branch as the glab skill's workflow section "Commit, push,

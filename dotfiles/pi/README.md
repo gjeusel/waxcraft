@@ -419,7 +419,8 @@ task to a new pi running on its own:
 5. **Rex tab.** Named after the branch, tab and pane, in the session `ai-agents` (created if
    missing, without stealing focus): find it with Go to Anything (Rex's "New quick switcher"). It runs
    `nice -n 10 pi` through `zsh -i`, so that `~/.zshrc` exports are present and agents running tests
-   leave the machine responsive, with the parent's model and thinking level. The tool waits for the
+   leave the machine responsive, with the model of [`fire.json`](.pi/agent/fire.json) (the parent's
+   when absent) and the parent's thinking level. The tool waits for the
    agent to take its session lock; if it does not start, the tool fails with what the pane shows,
    closes the tab, and removes the worktree. The issue, branch, and MR stay, and the error tells the
    model to retry with that `issue` rather than create a second one.
@@ -432,10 +433,14 @@ GitLab path from the glab skill's `references/projects.md`. Clones are named aft
 alone, so the tool refuses an existing `~/.pi/src/<repo>` whose origin is another project.
 
 [`brief.md`](.pi/agent/extensions/fire-in-worktree/brief.md) is the agent's first message:
-implementation, review by a `reviewer` subagent on another provider than the agent's, then a commit
-and `glab_task.py publish`, which pushes, sets the MR description, and marks it ready. The reviewer
-model comes from [`fire.json`](.pi/agent/fire.json), by the agent's provider (`default` for the
-others): `standard` unless you ask for a `thorough` review, or for none. It is read at each fire.
+implementation, delegated to `general-purpose` subagents when `fire.json` sets a `workerModel`, review
+by a `reviewer` subagent on another provider than the agent's, then a commit and `glab_task.py
+publish`, which pushes, sets the MR description, and marks it ready. [`fire.json`](.pi/agent/fire.json)
+holds the defaults, read at each fire: the agent's `model` (Fable), its subagents' `workerModel`
+(Opus), and the reviewer models by the agent's provider (`default` for the others), `standard`
+unless you ask for a `thorough` review, or for none (GPT Astra for a Claude agent). Naming other
+models in your request overrides them, through the tool's `model`, `workerModel` (`none` for no
+delegation), and `reviewer` parameters.
 With `autoMerge` (only when you ask), the agent then runs `glab_task.py merge`.
 
 The `/fire` command:

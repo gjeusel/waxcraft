@@ -75,7 +75,9 @@ test('fire.json gives the reviewers by provider, with a default', () => {
   // The tracked configuration itself.
   const config = loadConfig(fileURLToPath(new URL('../../fire.json', import.meta.url)));
 
-  assert.deepEqual(reviewersFor(config, 'claude-code'), { standard: 'openai-codex/gpt-6.1-sol', thorough: 'openai-codex/gpt-6-astra' });
+  assert.equal(config.model, 'claude-code/claude-fable-5-2');
+  assert.equal(config.workerModel, 'claude-code/claude-opus-5-5');
+  assert.deepEqual(reviewersFor(config, 'claude-code'), { standard: 'openai-codex/gpt-6-astra', thorough: 'openai-codex/gpt-6-astra' });
   assert.deepEqual(reviewersFor(config, 'openai-codex'), { standard: 'claude-code/claude-opus-5-5', thorough: 'claude-code/claude-fable-5-2' });
 });
 
@@ -85,6 +87,8 @@ test('a malformed fire.json is rejected', () => {
     writeFileSync(path, JSON.stringify({ reviewers: { default: { standard: 'sol' } } }));
 
     assert.throws(() => loadConfig(path), /reviewers\.default\.standard must be "provider\/modelId"/);
+    writeFileSync(path, JSON.stringify({ workerModel: 'opus', reviewers: {} }));
+    assert.throws(() => loadConfig(path), /workerModel must be "provider\/modelId"/);
     assert.throws(() => reviewersFor({ reviewers: {} }, 'anthropic'), /no reviewers for provider anthropic/);
   });
 });
@@ -140,7 +144,7 @@ test('lists the linked worktrees of a clone with their branch', () => {
 
 test('brief.md uses only the values the tool provides, and values are not expanded again', () => {
   const template = readFileSync(new URL('brief.md', import.meta.url), 'utf8');
-  const keys = ['request', 'task', 'worktree', 'clone', 'userCheckout', 'issue', 'issueIid', 'mr', 'branch', 'glabTask', 'setup', 'reviewStep', 'mergeStep'];
+  const keys = ['request', 'task', 'worktree', 'clone', 'userCheckout', 'issue', 'issueIid', 'mr', 'branch', 'glabTask', 'setup', 'workersStep', 'reviewStep', 'mergeStep'];
   const values = Object.fromEntries(keys.map((key) => [key, `<${key} {{task}}>`]));
 
   const brief = renderBrief(template, values);
