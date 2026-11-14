@@ -30,6 +30,14 @@
 - Do not create branches, stage, commit, stash, rebase, or push unless explicitly asked. Read-only Git operations are allowed.
 - Never mention AI agents in commits.
 
+## Inter-Agent Messaging
+
+The `intercom` tool reaches other pi sessions, where a message can start or redirect an agent's work.
+
+- Initiate a message (`send`, `ask`, `handover`) when the user explicitly asks to communicate with another agent or session.
+- On your own initiative, initiate one very rarely and only for a concrete reason the task cannot be completed without; state that reason to the user in the same turn. Otherwise, work independently and report to the user.
+- Answering an `ask` addressed to you with `reply` is always fine.
+
 ## Document Handling
 
 For PDF, Office, or email files, start with `peek_document` defaults. Follow up with targeted pages,
