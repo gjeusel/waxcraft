@@ -18,6 +18,7 @@ import {
   layoutFor,
   linkedWorktrees,
   loadConfig,
+  mergeStatus,
   originPath,
   ownFires,
   paneFileOf,
@@ -417,4 +418,10 @@ test('the footer counts fired agents by state icon, without the stopped ones', (
   assert.equal(firedStatus(['done', 'failed']), 'fire ✓1 ⚠1');
   assert.equal(firedStatus(['stopped']), undefined);
   assert.equal(firedStatus([]), undefined);
+});
+
+test('the footer tells the step of /fire merge, with the MR and the minutes once known', () => {
+  assert.equal(mergeStatus(undefined, 'checking the MR', 2_000), 'merge checking the MR');
+  assert.equal(mergeStatus(12, 'enabling auto-merge, GitLab checking (approvals_syncing)', 59_000), 'merge !12 enabling auto-merge, GitLab checking (approvals_syncing)');
+  assert.equal(mergeStatus(12, 'auto-merge on, pipeline running', 4.5 * 60_000), 'merge !12 auto-merge on, pipeline running · 4m');
 });

@@ -474,14 +474,16 @@ it is merged or closed, closes the Rex pane the agent runs in, ending its pi. Th
 
 `/fire merge`, in a fired agent's session, enables auto-merge on its MR with the glab skill's
 `glab_task.py merge` (the MR must be ready and pushed at the worktree's HEAD, with a pipeline on that
-commit), then follows the MR in the background and closes the pane once it merged. It gives up, the
-pane staying open, when the MR is closed, its pipeline fails, its auto-merge is dropped, or it is still
-not merged after an hour. An MR with merge conflicts, found before enabling auto-merge or while
+commit), then follows the MR and closes the pane once it merged. All of it runs in the background: the
+command returns at once, and the footer shows the step (`merge !12 auto-merge on, pipeline running ·
+4m`) for as long as the MR is followed. It gives up, the pane staying open, when the MR is closed, its
+pipeline fails, its auto-merge is dropped, or it is still not merged after an hour. An MR with merge conflicts, found before enabling auto-merge or while
 following it, is reported as an error, and a choice offers to have the session's agent merge the
 target branch, resolve the conflicts, and push: "Yes, fix them and merge" (the default) runs
 `/fire merge` again by itself once the agent's turn ends, unless that turn failed or was aborted, and
 stops if conflicts remain; "Yes, fix them only" leaves `/fire merge` to you; "No" does nothing.
-While GitLab is still checking whether the MR can merge, `/fire merge` asks to run it again shortly.
+While GitLab is still checking whether the MR can merge, auto-merge is asked for anyway; if GitLab
+refuses it meanwhile, it is asked again every few seconds, for up to five minutes.
 The following lives in the pi process: `/reload`, switching session, or quitting stops it,
 auto-merge staying on GitLab; run `/fire merge` again to follow it, or `/fire self-close` once merged.
 

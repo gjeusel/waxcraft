@@ -44,7 +44,11 @@ import { Type } from 'typebox';
 const REX_SESSION = 'ai-agents';
 const STATUS_KEY = 'fire';
 const WATCH_INTERVAL_MS = 15_000;
+const MERGE_STATUS_KEY = 'fire-merge';
 const MERGE_POLL_MS = 15_000;
+// While auto-merge is not enabled yet: GitLab usually settles whether an MR can merge within seconds.
+const ENABLE_RETRY_MS = 5_000;
+const UNSETTLED_WAIT_MS = 5 * 60_000;
 const MERGE_WAIT_MS = 60 * 60_000;
 // GitLab's `detailed_merge_status` while it has not yet computed whether an MR can merge.
 const UNSETTLED_MERGE_STATUSES = new Set(['unchecked', 'checking', 'preparing', 'approvals_syncing']);
@@ -132,6 +136,13 @@ export function firedStatus(states: readonly AgentRow['state'][]): string | unde
     .map(({ state, count }) => `${STATE_ICONS[state]}${count}`);
 
   return counts.length > 0 ? `fire ${counts.join(' ')}` : undefined;
+}
+
+/** The footer status of `/fire merge` while its watch lives: `merge !12 auto-merge on, pipeline running · 4m`. */
+export function mergeStatus(iid: number | undefined, step: string, elapsedMs: number): string {
+  const minutes = Math.floor(elapsedMs / 60_000);
+
+  return ['merge', iid !== undefined && `!${iid}`, step, minutes > 0 && `· ${minutes}m`].filter(Boolean).join(' ');
 }
 
 interface FiredAgent extends AgentRow {
@@ -1063,7 +1074,7 @@ export default function (pi: ExtensionAPI) {
   const watched = new Map<string, Watched>();
   let watchTimer: NodeJS.Timeout | undefined;
 
-  // Follows the MR of `/fire merge` until it merged; `mergeWatchId` retires the polls of a stopped watch.
+  // Follows the MR of `/fire merge` until it merged; `mergeWatchId` retires the steps of a stopped watch.
   let mergeTimer: NodeJS.Timeout | undefined;
   let mergeWatchId = 0;
   // Set while the agent fixes merge conflicts that the user chose to merge after: the merge runs again
@@ -1071,10 +1082,11 @@ export default function (pi: ExtensionAPI) {
   let pendingMerge = false;
   // Changes at each session shutdown: work started for a session tells whether it still runs.
   let sessionGeneration = 0;
-  const stopMergeWatch = () => {
-    clearInterval(mergeTimer);
+  const stopMergeWatch = (ctx: ExtensionContext) => {
+    clearTimeout(mergeTimer);
     mergeTimer = undefined;
     mergeWatchId += 1;
+    ctx.ui.setStatus(MERGE_STATUS_KEY, undefined);
   };
 
   const stopWatching = () => {
@@ -1329,7 +1341,7 @@ export default function (pi: ExtensionAPI) {
     // GitLab accepts auto-merge on a conflicting MR, which then never merges: the conflicts are
     // reported, and their fix offered to this session's agent, the merge following it by default.
     const offerConflictFix = async (mr: { iid: number; web_url: string; target_branch: string }) => {
-      stopMergeWatch();
+      stopMergeWatch(ctx);
       pendingMerge = false;
       ctx.ui.notify(`!${mr.iid} has merge conflicts with ${mr.target_branch}: it cannot merge (${mr.web_url})`, 'error');
       if (retried) {
@@ -1358,93 +1370,116 @@ export default function (pi: ExtensionAPI) {
     const hasConflicts = (mr: MergeWatchMr) => mr.has_conflicts === true || mr.detailed_merge_status === 'conflict';
 
     // The project's own open MR of the branch, as `glab_task.py` resolves it: listings also hold
-    // MRs from forks. GitLab computes mergeability asynchronously: an unsettled status is refreshed.
-    const findOpenMr = async (): Promise<MergeWatchMr | undefined> => {
-      const project = await fetchGitlab<{ id: number }>('projects/:fullpath');
+    // MRs from forks. Once found, the MR is fetched by its iid.
+    let projectId: number | undefined;
+    let iid: number | undefined;
+    const fetchMr = async (): Promise<MergeWatchMr | undefined> => {
+      if (iid !== undefined) return fetchGitlab<MergeWatchMr>(`projects/:fullpath/merge_requests/${iid}`);
+
+      projectId ??= (await fetchGitlab<{ id: number }>('projects/:fullpath')).id;
       const path = `projects/:fullpath/merge_requests?source_branch=${encodeURIComponent(fired.branch)}&state=opened`;
       const own = (await fetchGitlab<MergeWatchMr[]>(path)).filter(
-        (mr) => mr.source_branch === fired.branch && mr.source_project_id === project.id && mr.target_project_id === project.id,
+        (mr) => mr.source_branch === fired.branch && mr.source_project_id === projectId && mr.target_project_id === projectId,
       );
       if (own.length > 1) throw new Error(`several open MRs of ${fired.branch}: ${own.map((mr) => `!${mr.iid}`).join(', ')}`);
+
+      iid = own[0]?.iid;
 
       return own[0];
     };
 
-    let opened: MergeWatchMr | undefined;
-    try {
-      opened = await findOpenMr();
-      for (let attempt = 0; opened && UNSETTLED_MERGE_STATUSES.has(opened.detailed_merge_status ?? '') && attempt < 5; attempt += 1) {
-        await sleep(2_000);
-        opened = await findOpenMr();
-      }
-    } catch (error: unknown) {
-      ctx.ui.notify(`Cannot check the MR of ${fired.branch}: ${error instanceof Error ? error.message : String(error)}`, 'error');
-      return;
-    }
+    // All in the background, the session staying usable: auto-merge is enabled, retried while GitLab
+    // still checks whether the MR can merge, then the MR is followed until it merged. The footer shows
+    // the step for as long as the watch lives.
+    // A watch is current while `mergeWatchId` is its own: stopping it, or a new one, retires a step
+    // still awaiting GitLab, so that a late answer never closes a pane now holding another session.
+    stopMergeWatch(ctx);
+    const watchId = mergeWatchId;
+    const isCurrent = () => watchId === mergeWatchId;
+    const started = Date.now();
+    const glabTask = join(glabSkillDir(pi), 'scripts', 'glab_task.py');
+    let mrUrl = '';
+    let enabled = false;
+    let toldUnsettled = false;
+    let failures = 0;
+    let closeFailed = false;
 
-    // Unknown is not clear: auto-merge waits for GitLab to tell whether the MR can merge.
-    if (opened && UNSETTLED_MERGE_STATUSES.has(opened.detailed_merge_status ?? '')) {
-      ctx.ui.notify(`GitLab is still checking whether !${opened.iid} can merge (${opened.detailed_merge_status}): run /fire merge again shortly`, 'warning');
-      return;
-    }
-
-    if (opened && hasConflicts(opened)) {
-      await offerConflictFix(opened);
-      return;
-    }
+    const showStatus = (step: string) => ctx.ui.setStatus(MERGE_STATUS_KEY, mergeStatus(iid, step, Date.now() - started));
+    const stop = (message: string, level: 'warning' | 'error') => {
+      stopMergeWatch(ctx);
+      ctx.ui.notify(message, level);
+    };
 
     // The glab skill's merge checks the MR is ready and pushed at the worktree's HEAD, and enables
     // auto-merge once a pipeline runs on that commit.
-    ctx.ui.notify(`Enabling auto-merge on the MR of ${fired.branch}…`, 'info');
-    const glabTask = join(glabSkillDir(pi), 'scripts', 'glab_task.py');
-    const merged = await run('python3', [glabTask, 'merge', '--issue', String(fired.issue)], { cwd: fired.worktree, timeoutMs: 5 * 60_000 });
-    if (merged.code !== 0) {
-      ctx.ui.notify(`Auto-merge not enabled:\n${(merged.stderr.trim() || merged.stdout.trim()).slice(-2000)}`, 'error');
-      return;
-    }
+    const enable = async () => {
+      let opened: MergeWatchMr | undefined;
+      try {
+        opened = await fetchMr();
+      } catch (error: unknown) {
+        if (isCurrent()) stop(`Cannot check the MR of ${fired.branch}: ${error instanceof Error ? error.message : String(error)}`, 'error');
+        return;
+      }
+      if (!isCurrent()) return;
 
-    const { mr } = JSON.parse(merged.stdout) as { mr: { iid: number; web_url: string } };
-    ctx.ui.notify(`Auto-merge enabled on !${mr.iid}: this pane closes once it merged`, 'info');
-
-    // Followed in the background: the pipeline may take a while, and the session stays usable.
-    // A watch is current while `mergeWatchId` is its own: stopping it, or a new one, retires a poll
-    // still awaiting GitLab, so that a late answer never closes a pane now holding another session.
-    stopMergeWatch();
-    const watchId = mergeWatchId;
-    const isCurrent = () => watchId === mergeWatchId;
-    const deadline = Date.now() + MERGE_WAIT_MS;
-    let failures = 0;
-    let closeFailed = false;
-    let polling = false;
-
-    const poll = async () => {
-      if (Date.now() > deadline) {
-        stopMergeWatch();
-        ctx.ui.notify(`!${mr.iid} is still not merged after ${MERGE_WAIT_MS / 60_000} min: the pane stays open (${mr.web_url})`, 'warning');
+      if (opened?.state === 'opened' && hasConflicts(opened)) {
+        await offerConflictFix(opened);
         return;
       }
 
+      // Unknown is not clear: auto-merge is asked for anyway, and asked again if GitLab refuses it
+      // while it has not yet told whether the MR can merge.
+      const status = opened?.detailed_merge_status ?? '';
+      const unsettled = UNSETTLED_MERGE_STATUSES.has(status);
+      showStatus(unsettled ? `enabling auto-merge, GitLab checking (${status})` : 'enabling auto-merge');
+
+      const merged = await run('python3', [glabTask, 'merge', '--issue', String(fired.issue)], { cwd: fired.worktree, timeoutMs: 5 * 60_000 });
+      if (!isCurrent()) return;
+
+      if (merged.code !== 0) {
+        const reason = (merged.stderr.trim() || merged.stdout.trim()).slice(-2000);
+        if (!unsettled || Date.now() - started > UNSETTLED_WAIT_MS) {
+          stop(`Auto-merge not enabled:\n${reason}`, 'error');
+          return;
+        }
+
+        if (!toldUnsettled) ctx.ui.notify(`GitLab is still checking whether !${iid} can merge (${status}): enabling auto-merge is retried in the background\n${reason}`, 'warning');
+        toldUnsettled = true;
+
+        return;
+      }
+
+      const { mr } = JSON.parse(merged.stdout) as { mr: { iid: number; web_url: string } };
+      iid = mr.iid;
+      mrUrl = mr.web_url;
+      enabled = true;
+      ctx.ui.notify(`Auto-merge enabled on !${iid}: followed in the background, this pane closes once it merged`, 'info');
+      showStatus('auto-merge on');
+    };
+
+    const follow = async () => {
       let current: MergeWatchMr;
       try {
-        current = await fetchGitlab<MergeWatchMr>(`projects/:fullpath/merge_requests/${mr.iid}`);
+        current = await fetchGitlab<MergeWatchMr>(`projects/:fullpath/merge_requests/${iid}`);
         failures = 0;
       } catch (error: unknown) {
-        // Retried at the next tick; told once, after a minute of failures.
+        // Retried at the next step; told once, after a minute of failures.
         failures += 1;
-        if (failures === 4 && isCurrent()) ctx.ui.notify(`Cannot follow !${mr.iid}, retrying: ${error instanceof Error ? error.message : String(error)}`, 'warning');
+        if (failures === 4 && isCurrent()) ctx.ui.notify(`Cannot follow !${iid}, retrying: ${error instanceof Error ? error.message : String(error)}`, 'warning');
         return;
       }
       if (!isCurrent()) return;
 
       if (current.state === 'merged') {
+        showStatus('merged, closing the pane');
         try {
           await closePane();
         } catch (error: unknown) {
-          // Kept watching: the next tick tries again, until the deadline; told once.
-          if (closeFailed) return;
+          // Kept watching: the next step tries again, until the deadline; told once.
+          if (closeFailed || !isCurrent()) return;
 
           closeFailed = true;
-          ctx.ui.notify(`!${mr.iid} merged, but its pane did not close: ${error instanceof Error ? error.message : String(error)}`, 'error');
+          ctx.ui.notify(`!${iid} merged, but its pane did not close: ${error instanceof Error ? error.message : String(error)}`, 'error');
         }
         return;
       }
@@ -1462,26 +1497,32 @@ export default function (pi: ExtensionAPI) {
         : !autoMerge ? 'lost its auto-merge'
         : undefined;
       if (stuck) {
-        stopMergeWatch();
-        ctx.ui.notify(`!${mr.iid} ${stuck}: the pane stays open (${mr.web_url})`, 'warning');
+        stop(`!${iid} ${stuck}: the pane stays open (${mrUrl})`, 'warning');
+        return;
       }
-    };
-    // One poll at a time: a GitLab call may outlast the interval.
-    const tick = async () => {
-      if (polling || !isCurrent()) return;
 
-      polling = true;
+      showStatus(`auto-merge on, pipeline ${pipeline ?? 'pending'}`);
+    };
+
+    // One step at a time, the next one scheduled once it ended: a GitLab call may outlast the interval.
+    const step = async () => {
+      if (!isCurrent()) return;
+
       try {
-        await poll();
-      } finally {
-        polling = false;
+        if (Date.now() - started > MERGE_WAIT_MS) stop(`!${iid} is still not merged after ${MERGE_WAIT_MS / 60_000} min: the pane stays open (${mrUrl})`, 'warning');
+        else if (enabled) await follow();
+        else await enable();
+      } catch (error: unknown) {
+        if (isCurrent()) stop(`/fire merge failed: ${error instanceof Error ? error.message : String(error)}`, 'error');
       }
-    };
-    mergeTimer = setInterval(() => void tick(), MERGE_POLL_MS);
-    mergeTimer.unref();
-    void tick();
+      if (!isCurrent()) return;
 
-    return;
+      mergeTimer = setTimeout(() => void step(), enabled ? MERGE_POLL_MS : ENABLE_RETRY_MS);
+      mergeTimer.unref();
+    };
+
+    showStatus('checking the MR');
+    void step();
   };
 
   const subcommands = [
@@ -1693,7 +1734,7 @@ export default function (pi: ExtensionAPI) {
     lockFile = `${sessionFile}.pid`;
   });
 
-  pi.on('session_shutdown', () => {
+  pi.on('session_shutdown', (_event, ctx) => {
     if (lockFile && existsSync(lockFile) && readFileSync(lockFile, 'utf8') === String(process.pid)) rmSync(lockFile);
     lockFile = undefined;
     // Another pi may have opened the session since: its record stays.
@@ -1702,7 +1743,7 @@ export default function (pi: ExtensionAPI) {
     firedBranch = undefined;
     ownWindow = undefined;
     stopWatching();
-    stopMergeWatch();
+    stopMergeWatch(ctx);
     pendingMerge = false;
     sessionGeneration += 1;
     watched.clear();
