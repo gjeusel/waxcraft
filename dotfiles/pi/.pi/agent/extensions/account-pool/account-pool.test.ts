@@ -25,11 +25,13 @@ import {
   parseConfig,
   stateKey,
   StateStore,
+  usage,
   wrapProvider,
   type Account,
   type PoolId,
   type PoolState,
 } from './pool.ts';
+import { accountLines, bar, footerStatus, shownWindows } from './index.ts';
 
 const NOW = 1_800_000_000_000;
 const accounts: Account[] = [{ id: 'main' }, { id: 'work', configDir: '~/.claude-work' }, { id: 'spare' }];
@@ -179,7 +181,7 @@ test('Codex usage comes from headers or the WebSocket rate-limit event', () => {
   assert.deepEqual(codexEventObservation({
     type: 'codex.rate_limits',
     rate_limits: { limit_reached: true, primary: { used_percent: 100, window_minutes: 300, reset_at: 1_800_003_600 } },
-  }), { windows: { primary: { used: 1, resetsAt: 1_800_003_600_000 } }, blockedUntil: 1_800_003_600_000 });
+  }), { windows: { primary: { used: 1, resetsAt: 1_800_003_600_000, minutes: 300 } }, blockedUntil: 1_800_003_600_000 });
   assert.equal(codexEventObservation({ type: 'response.created' }), undefined);
 });
 
@@ -337,4 +339,53 @@ test('each account has its own state file', () => {
 
   assert.deepEqual(Object.keys(states.read()).sort(), ['claude-code/main', 'openai-codex/perso']);
   assert.equal(states.read()['claude-code/main']?.windows.a?.used, 0.5);
+});
+
+test('the display shows what the provider reported, a warning as a mark and not as usage', () => {
+  const state = {
+    windows: {
+      five_hour: { used: 0.17, resetsAt: NOW + 3 * 3_600_000 },
+      seven_day: { used: 0.85, resetsAt: NOW + 3 * 86_400_000, warning: true },
+      seven_day_overage_included: { used: 0.88, resetsAt: NOW + 3 * 86_400_000 },
+      primary: { used: 0.5, resetsAt: NOW - 1 },
+    },
+    updatedAt: NOW,
+  };
+
+  assert.equal(usage(state, 0.95, NOW), 0.95);
+  // Merged, the two weekly windows show as one: the most used, with the warning of either.
+  assert.deepEqual(shownWindows(state, NOW, { merge: true }).map(({ label, used, warning }) => ({ label, used, warning })), [
+    { label: '5h', used: 0.17, warning: undefined },
+    { label: '7d', used: 0.88, warning: true },
+  ]);
+  assert.equal(footerStatus('main', state, NOW), 'main · 5h ▂ · 7d ▇');
+  assert.equal(footerStatus('main', undefined, NOW), 'main');
+  assert.deepEqual(accountLines({ id: 'main', source: '~/.claude', inSession: true }, state, NOW), [
+    '● main  ~/.claude',
+    '  5h     ███▍░░░░░░░░░░░░░░░░  17%   resets in 3h',
+    '  7d     █████████████████░░░  85% ! resets in 3d',
+    '  fable  █████████████████▋░░  88%   resets in 3d',
+  ]);
+});
+
+test('bars fill by eighths of a cell, and Codex windows are labelled by their length', () => {
+  assert.equal(bar(0), '░'.repeat(20));
+  assert.equal(bar(0.01), '▎' + '░'.repeat(19));
+  assert.equal(bar(1.2), '█'.repeat(20));
+
+  const state = {
+    windows: { primary: { used: 0.14, minutes: 10_080 }, secondary: { used: 0 } },
+    updatedAt: NOW - 3 * 86_400_000,
+    blockedUntil: NOW + 600_000,
+    blockReason: 'quota',
+  };
+  assert.deepEqual(accountLines({ id: 'perso', source: 'openai-codex-perso', inSession: false }, state, NOW), [
+    '  perso  openai-codex-perso · blocked (quota) for 10m · reported 3d ago',
+    '  7d   ██▊░░░░░░░░░░░░░░░░░  14%',
+    '  2nd  ░░░░░░░░░░░░░░░░░░░░   0%',
+  ]);
+  assert.deepEqual(accountLines({ id: 'new', source: 'default login', inSession: false }, undefined, NOW), [
+    '  new  default login',
+    '  no usage reported yet',
+  ]);
 });

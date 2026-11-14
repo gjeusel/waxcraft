@@ -220,9 +220,10 @@ every agent in `agents/` loads `account-pool`. Starting a subagent re-registers 
 provider, which drops the pool for the whole process; a subagent loading `account-pool` wraps it
 again at its start, and the main session at each turn. An agent type without `account-pool` in its
 `extensions:` runs its Claude requests on the default login. The footer shows the session's
-account and usage (`perso 42%`), a notification reports each move, and `/accounts` lists every
-account with its windows, resets, and blocks. `/model` lists the hidden Codex login providers
-without models.
+account and one level per window as reported (`perso · 5h ▂ · 7d ▇`), a notification reports each
+move, and `/accounts` draws one filling bar per window of every account, with its reset, warning
+(`!`), and blocks. Claude's weekly per-model window shows as `fable` there, and within `7d` in the
+footer. `/model` lists the hidden Codex login providers without models.
 
 Pooling subscriptions to get past per-account limits may conflict with Anthropic's and OpenAI's
 terms; that risk is the account owner's.

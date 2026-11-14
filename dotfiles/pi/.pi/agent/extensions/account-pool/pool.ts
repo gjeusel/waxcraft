@@ -60,6 +60,8 @@ export interface UsageWindow {
   resetsAt?: number;
   /** The provider warned that the window is nearly used up. */
   warning?: boolean;
+  /** Length of the window in minutes, when the provider reports it. */
+  minutes?: number;
 }
 
 export interface AccountState {
@@ -180,16 +182,23 @@ export function stateKey(pool: PoolId, account: Account | string): string {
   return `${pool}/${typeof account === 'string' ? account : account.id}`;
 }
 
-/** Highest used fraction across the windows that have not reset yet. */
+/**
+ * Highest used fraction across the windows that have not reset yet, for the switching decision
+ * only: a window the provider warned about counts as at the threshold. Display the windows of
+ * `activeWindows` instead.
+ */
 export function usage(state: AccountState | undefined, threshold: number, now: number): number {
   let used = 0;
-  for (const window of Object.values(state?.windows ?? {})) {
-    if (window.resetsAt !== undefined && window.resetsAt <= now) continue;
-
+  for (const [, window] of activeWindows(state, now)) {
     used = Math.max(used, window.warning ? Math.max(window.used, threshold) : window.used);
   }
 
   return used;
+}
+
+/** The windows that have not reset yet, with the used fraction each provider reported. */
+export function activeWindows(state: AccountState | undefined, now: number): [name: string, window: UsageWindow][] {
+  return Object.entries(state?.windows ?? {}).filter(([, window]) => window.resetsAt === undefined || window.resetsAt > now);
 }
 
 export function isBlocked(state: AccountState | undefined, now: number): boolean {
@@ -329,9 +338,11 @@ export function codexHeaderObservation(headers: Record<string, string>, now: num
 
     const resetAt = epochMs(Number(headers[`x-codex-${name}-reset-at`]));
     const resetAfter = Number(headers[`x-codex-${name}-reset-after-seconds`]);
+    const minutes = Number(headers[`x-codex-${name}-window-minutes`]);
     windows[name] = {
       used: used / 100,
       resetsAt: resetAt ?? (Number.isFinite(resetAfter) ? now + resetAfter * 1000 : undefined),
+      ...(minutes > 0 ? { minutes } : {}),
     };
   }
 
@@ -349,7 +360,11 @@ export function codexEventObservation(data: unknown): Observation | undefined {
     const window = record(limits?.[name]);
     if (typeof window?.used_percent !== 'number') continue;
 
-    windows[name] = { used: window.used_percent / 100, resetsAt: epochMs(window.reset_at) };
+    windows[name] = {
+      used: window.used_percent / 100,
+      resetsAt: epochMs(window.reset_at),
+      ...(typeof window.window_minutes === 'number' && window.window_minutes > 0 ? { minutes: window.window_minutes } : {}),
+    };
   }
 
   const resets = Object.values(windows).flatMap((window) => (window.resetsAt ? [window.resetsAt] : []));
