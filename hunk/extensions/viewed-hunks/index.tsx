@@ -14,6 +14,7 @@ import type {
   ExtensionCommandContext,
   ExtensionDiffFile,
   ExtensionPaneProps,
+  ExtensionReviewNavigation,
   ExtensionReviewPresentationControls,
   HunkExtensionAPI,
 } from "hunkdiff/extension";
@@ -58,8 +59,17 @@ let showHidden = false;
 /** The strict view shows details too; the architecture view, the default, hides them. */
 let showDetails = false;
 let showMap = true;
-/** Whether Hunk currently shows only part of the review. */
-let isScoped = false;
+/** The scope Hunk was last given, serialised; empty while it shows the whole review. */
+let appliedScope = "";
+/**
+ * The selected hunk as Hunk last reported it; a command's own context only knows its start. The
+ * status pane reports it at once, the `selection_changed` event some 150 ms late.
+ */
+let liveSelection: HunkTarget | null = null;
+/** Counts the reveals asked for, so that a pending one gives way to the next. */
+let revealCount = 0;
+/** Counts the clears, so that a noise run in flight does not bring cleared verdicts back. */
+let clearCount = 0;
 let files: readonly ExtensionDiffFile[] = [];
 let hunksByFileId = new Map<string, ParsedHunk[]>();
 /** The noise run in flight, if any. */
@@ -181,13 +191,17 @@ function toggleHunk(key: string): MarksChange {
 
 /** Mark the given hunks viewed, or unmark them when they all already are. */
 function toggleViewed(keys: readonly string[]): MarksChange {
-  const allViewed = keys.every(isViewed);
-  for (const key of keys) {
-    if (allViewed) marks.viewed.delete(key);
-    else marks.viewed.add(key);
+  const unviewed = keys.filter((key) => !isViewed(key));
+  if (unviewed.length === 0) {
+    for (const key of keys) marks.viewed.delete(key);
+
+    return { viewed: { removed: keys } };
   }
 
-  return { viewed: allViewed ? { removed: keys } : { added: keys } };
+  // Only what this call marks: undoing it must leave the hunks viewed before it alone.
+  for (const key of unviewed) marks.viewed.add(key);
+
+  return { viewed: { added: unviewed } };
 }
 
 /** Save a change made by `x` or `X`, remembering what it marked viewed so that it can be undone. */
@@ -220,27 +234,61 @@ function isHiding() {
 }
 
 function applyScope(controls: ExtensionReviewPresentationControls, generation: string | null) {
-  if (!isHiding() || !generation) {
-    controls.clearPresentationScope();
-    isScoped = false;
-    return;
-  }
+  const scopeFiles = isHiding() && generation ? visibleScopeFiles() : [];
+  const isApplied =
+    generation !== null &&
+    scopeFiles.length > 0 &&
+    controls.setPresentationScope({ generation, files: scopeFiles });
 
-  controls.setPresentationScope({ generation, files: visibleScopeFiles() });
-  isScoped = true;
+  if (!isApplied) controls.clearPresentationScope();
+  appliedScope = isApplied ? JSON.stringify(scopeFiles) : "";
 }
 
-/** The nearest visible hunk in the given direction from the selected one, wrapping. */
-function findVisibleTarget(ctx: ExtensionCommandContext, direction: 1 | -1): HunkTarget | null {
+/** The selected hunk as the command saw it when it started. */
+function selectionOf(ctx: ExtensionCommandContext): HunkTarget | null {
   const { file, hunkIndex } = ctx.selection;
-  const targets = ctx.selection.files.flatMap((candidate) =>
-    (candidate.hunks ?? []).map((hunk) => ({ fileId: candidate.id, hunkIndex: hunk.index })),
+
+  return file !== null && hunkIndex !== null ? { fileId: file.id, hunkIndex } : null;
+}
+
+/** The nearest visible hunk in the given direction from the given one, wrapping. */
+function findVisibleTarget(from: HunkTarget | null, direction: 1 | -1): HunkTarget | null {
+  const targets = files.flatMap((file) =>
+    (hunksByFileId.get(file.id) ?? []).map((_hunk, hunkIndex) => ({ fileId: file.id, hunkIndex })),
   );
   const selected = targets.findIndex(
-    (target) => target.fileId === file?.id && target.hunkIndex === hunkIndex,
+    (target) => target.fileId === from?.fileId && target.hunkIndex === from?.hunkIndex,
   );
 
   return findUnviewedHunk(targets, selected, direction, isTargetHidden);
+}
+
+function select(navigation: ExtensionReviewNavigation, target: HunkTarget) {
+  liveSelection = target;
+  navigation.selectHunk(target.fileId, target.hunkIndex);
+}
+
+/**
+ * Select a hunk once Hunk has redrawn, which also scrolls to it. Hunk only lets a drawn hunk be
+ * selected, and does not follow the selected one when the hunks around it come or go.
+ */
+function revealLater(
+  navigation: ExtensionReviewNavigation,
+  target: HunkTarget,
+  isForced = false,
+) {
+  const reveal = ++revealCount;
+  const selectionBefore = liveSelection;
+
+  setTimeout(() => {
+    // A later reveal, or the user moving on in the meantime, wins.
+    const hasMoved =
+      liveSelection?.fileId !== selectionBefore?.fileId ||
+      liveSelection?.hunkIndex !== selectionBefore?.hunkIndex;
+    if (reveal !== revealCount || (hasMoved && !isForced)) return;
+
+    select(navigation, target);
+  }, REDRAW_DELAY_MS);
 }
 
 /** The status row and the map stay while they have something to say. */
@@ -254,42 +302,39 @@ function syncPane(panes: ExtensionCommandContext["panes"]) {
   else panes.close(MAP_PANE_ID);
 }
 
-/** Bring the review in line with the marks after a command changed them. */
-function sync(ctx: ExtensionCommandContext) {
+/**
+ * Bring the review in line with the marks after a command changed them. A command that waited
+ * passes the live selection: its own context still holds the one it started with.
+ */
+function sync(ctx: ExtensionCommandContext, selection = selectionOf(ctx)) {
   if (isEveryHunkHidden()) ctx.notify(allHiddenMessage());
 
-  if (isHiding()) {
-    const { file, hunkIndex } = ctx.selection;
-    const isSelectionHidden =
-      file !== null && hunkIndex !== null && isTargetHidden({ fileId: file.id, hunkIndex });
-    const next = isSelectionHidden ? findVisibleTarget(ctx, 1) : null;
+  liveSelection = selection;
+  let target = selection;
+  if (isHiding() && selection && isTargetHidden(selection)) {
+    target = findVisibleTarget(selection, 1) ?? selection;
 
     // Select before scoping: Hunk sends a selection that falls out of scope back to the top.
-    if (next) ctx.navigation.selectHunk(next.fileId, next.hunkIndex);
+    if (target !== selection) select(ctx.navigation, target);
   }
 
-  const wasScoped = isScoped;
-  const { file, hunkIndex } = ctx.selection;
-
+  const previousScope = appliedScope;
   syncPane(ctx.panes);
   applyScope(ctx.review, ctx.review.snapshot()?.generation ?? null);
   ctx.highlights.refresh(HIGHLIGHTER_ID);
   publish();
 
-  // Hunk scrolls back to the top when the hidden hunks return: go back to the selected one.
-  if (wasScoped && !isScoped && file !== null && hunkIndex !== null) {
-    setTimeout(() => ctx.navigation.selectHunk(file.id, hunkIndex), REDRAW_DELAY_MS);
-  }
+  if (appliedScope !== previousScope && target) revealLater(ctx.navigation, target);
 }
 
 function jumpToVisible(ctx: ExtensionCommandContext, direction: 1 | -1) {
-  const target = findVisibleTarget(ctx, direction);
+  const target = findVisibleTarget(selectionOf(ctx), direction);
   if (!target) {
     ctx.notify(isEveryHunkHidden() ? allHiddenMessage() : "No other unviewed hunk");
     return;
   }
 
-  ctx.navigation.selectHunk(target.fileId, target.hunkIndex);
+  select(ctx.navigation, target);
 }
 
 /**
@@ -324,6 +369,7 @@ async function hideNoise(ctx: ExtensionCommandContext) {
     problems.push("OPENAI_API_KEY is not set, nothing was sent");
   } else if (questionCount > 0 && apiKey) {
     const run = new AbortController();
+    const clearCountBefore = clearCount;
     noiseRun = run;
     ctx.notify(`Judging ${count(questionCount, "hunk")} with OpenAI · run again to cancel`);
     syncPane(ctx.panes);
@@ -333,6 +379,12 @@ async function hideNoise(ctx: ExtensionCommandContext) {
       plan.requests.map((request) => askQuestions(request, { apiKey, signal: run.signal })),
     );
     noiseRun = null;
+    // The marks were cleared meanwhile: these verdicts belong to what was cleared.
+    if (clearCount !== clearCountBefore) {
+      syncPane(ctx.panes);
+      publish();
+      return;
+    }
 
     for (const outcome of outcomes) {
       if (outcome.status === "fulfilled") {
@@ -369,7 +421,7 @@ async function hideNoise(ctx: ExtensionCommandContext) {
 
   ctx.notify(outcomes.join(" · "), uniqueProblems.length > 0 ? "warning" : "info");
 
-  sync(ctx);
+  sync(ctx, liveSelection ?? selectionOf(ctx));
   if (verdicts.size > 0) saveMarks(marksPath, { noise: { added: verdicts } }, new Date());
 }
 
@@ -382,6 +434,12 @@ function StatusPane(props: ExtensionPaneProps) {
     applyScope(actions, reviewGeneration);
   }, [actions, currentVersion, reviewGeneration]);
 
+  const { selectedFileId, selectedHunkIndex } = props;
+  useEffect(() => {
+    const isSelected = selectedFileId !== null && selectedHunkIndex !== null;
+    liveSelection = isSelected ? { fileId: selectedFileId, hunkIndex: selectedHunkIndex } : null;
+  }, [selectedFileId, selectedHunkIndex]);
+
   const keys = reviewKeys();
   const oversizedCount = keys.filter(isOversized).length;
   const noiseCount = keys.filter(isNoise).length - oversizedCount;
@@ -393,6 +451,13 @@ function StatusPane(props: ExtensionPaneProps) {
   if (noiseCount > 0) parts.push(`${noiseCount} noise`);
   if (detailCount > 0) parts.push(count(detailCount, "detail"));
   if (oversizedCount > 0) parts.push(`${oversizedCount} oversized`);
+
+  // Hunk cannot keep a file without hunks (binary, renamed, mode change) in a narrowed review.
+  const bareFileCount = files.filter((file) => !hunksByFileId.get(file.id)?.length).length;
+  if (bareFileCount > 0 && isHiding()) {
+    parts.push(`${count(bareFileCount, "file")} without hunks hidden`);
+  }
+
   if (noiseRun) parts.push("judging…");
   else if (hasVerdicts && unjudgedCount > 0) parts.push(`${unjudgedCount} not judged`);
 
@@ -519,9 +584,20 @@ export default function (hunk: HunkExtensionAPI) {
     marks = loadMarks(marksPath, new Date());
     files = changeset.files;
     hunksByFileId = new Map(files.map((file) => [file.id, parseHunks(file)]));
+    // A reload drops the scope; the status pane applies it again.
+    appliedScope = "";
+
+    const isSelectionHidden = liveSelection !== null && isTargetHidden(liveSelection);
+    const next = isHiding() && isSelectionHidden ? findVisibleTarget(liveSelection, 1) : null;
+    // Forced: Hunk moves a selection that fell out of the scope to the first hunk left.
+    if (next) revealLater(ctx.navigation, next, true);
 
     syncPane(ctx.panes);
     publish();
+  });
+
+  hunk.on("selection_changed", ({ fileId, hunkIndex }) => {
+    liveSelection = fileId !== null && hunkIndex !== null ? { fileId, hunkIndex } : null;
   });
 
   hunk.registerCommand(
@@ -551,7 +627,7 @@ export default function (hunk: HunkExtensionAPI) {
 
   hunk.registerCommand(
     { id: "undo-viewed", title: "Undo the last mark as viewed", key: "u" },
-    async (ctx) => {
+    (ctx) => {
       // Skip what was unmarked by hand since: undoing it would change nothing.
       let undone: string[] = [];
       while (undone.length === 0 && viewedHistory.length > 0) {
@@ -568,14 +644,13 @@ export default function (hunk: HunkExtensionAPI) {
       saveMarks(marksPath, { viewed: { removed: undone } }, new Date());
 
       // Go back to where the mark was made; a noise hunk it covered is hidden again.
-      await new Promise((resolve) => setTimeout(resolve, REDRAW_DELAY_MS));
       for (const file of files) {
         const hunkIndex = (hunksByFileId.get(file.id) ?? []).findIndex(
           (parsed) => undone.includes(parsed.key) && !isHidden(parsed.key),
         );
         if (hunkIndex < 0) continue;
 
-        ctx.navigation.selectHunk(file.id, hunkIndex);
+        revealLater(ctx.navigation, { fileId: file.id, hunkIndex });
         break;
       }
     },
@@ -648,22 +723,30 @@ export default function (hunk: HunkExtensionAPI) {
   hunk.registerCommand(
     { id: "clear", title: "Clear viewed and noise marks of this review" },
     async (ctx) => {
-      const keys = reviewKeys();
-      const viewed = keys.filter(isViewed);
-      const kept = keys.filter((key) => marks.kept.has(key));
-      const judged = keys.filter((key) => marks.noise.has(key));
-      if (viewed.length + kept.length + judged.length === 0) {
+      const viewedCount = reviewKeys().filter(isViewed).length;
+      const judgedCount = reviewKeys().filter((key) => marks.noise.has(key)).length;
+      const keptCount = reviewKeys().filter((key) => marks.kept.has(key)).length;
+      if (viewedCount + keptCount + judgedCount === 0 && !noiseRun) {
         ctx.notify("No viewed or noise hunk yet");
         return;
       }
 
-      const viewedMarks = count(viewed.length, "viewed mark");
+      const viewedMarks = count(viewedCount, "viewed mark");
       const isConfirmed = await ctx.dialogs.confirm({
-        title: `Clear ${viewedMarks} and ${count(judged.length, "noise verdict")}?`,
+        title: `Clear ${viewedMarks} and ${count(judgedCount, "noise verdict")}?`,
         body: "Every hunk of this review becomes unviewed and unjudged again.",
         confirmLabel: "clear",
       });
       if (!isConfirmed) return;
+
+      // Read the marks now: a noise run or a reload may have changed them during the dialog.
+      const keys = reviewKeys();
+      const viewed = keys.filter(isViewed);
+      const kept = keys.filter((key) => marks.kept.has(key));
+      const judged = keys.filter((key) => marks.noise.has(key));
+
+      clearCount += 1;
+      noiseRun?.abort();
 
       for (const key of keys) {
         marks.viewed.delete(key);
@@ -671,7 +754,7 @@ export default function (hunk: HunkExtensionAPI) {
         marks.noise.delete(key);
       }
 
-      sync(ctx);
+      sync(ctx, liveSelection ?? selectionOf(ctx));
       saveMarks(
         marksPath,
         { viewed: { removed: viewed }, kept: { removed: kept }, noise: { removed: judged } },
