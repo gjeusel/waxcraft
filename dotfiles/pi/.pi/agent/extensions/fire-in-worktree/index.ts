@@ -1497,7 +1497,12 @@ export default function (pi: ExtensionAPI) {
   pi.registerCommand('fire', {
     description: 'Fire a task in a worktree, e.g. `/fire #123, thorough review, merge it`; `/fire` lists the fired agents',
     getArgumentCompletions: (prefix) => {
-      const matches = subcommands.filter((subcommand) => subcommand.value.startsWith(prefix.trim()));
+      // No popup once a subcommand is typed in full: pi's Enter on an argument completion only fills
+      // it in, while without a popup it submits the command.
+      const typed = prefix.trim();
+      if (subcommands.some((subcommand) => subcommand.value === typed)) return null;
+
+      const matches = subcommands.filter((subcommand) => subcommand.value.startsWith(typed));
 
       return matches.length > 0 ? matches : null;
     },
