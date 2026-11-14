@@ -58,6 +58,8 @@ let showHidden = false;
 /** The strict view shows details too; the architecture view, the default, hides them. */
 let showDetails = false;
 let showMap = true;
+/** Whether Hunk currently shows only part of the review. */
+let isScoped = false;
 let files: readonly ExtensionDiffFile[] = [];
 let hunksByFileId = new Map<string, ParsedHunk[]>();
 /** The noise run in flight, if any. */
@@ -220,10 +222,12 @@ function isHiding() {
 function applyScope(controls: ExtensionReviewPresentationControls, generation: string | null) {
   if (!isHiding() || !generation) {
     controls.clearPresentationScope();
+    isScoped = false;
     return;
   }
 
   controls.setPresentationScope({ generation, files: visibleScopeFiles() });
+  isScoped = true;
 }
 
 /** The nearest visible hunk in the given direction from the selected one, wrapping. */
@@ -264,10 +268,18 @@ function sync(ctx: ExtensionCommandContext) {
     if (next) ctx.navigation.selectHunk(next.fileId, next.hunkIndex);
   }
 
+  const wasScoped = isScoped;
+  const { file, hunkIndex } = ctx.selection;
+
   syncPane(ctx.panes);
   applyScope(ctx.review, ctx.review.snapshot()?.generation ?? null);
   ctx.highlights.refresh(HIGHLIGHTER_ID);
   publish();
+
+  // Hunk scrolls back to the top when the hidden hunks return: go back to the selected one.
+  if (wasScoped && !isScoped && file !== null && hunkIndex !== null) {
+    setTimeout(() => ctx.navigation.selectHunk(file.id, hunkIndex), REDRAW_DELAY_MS);
+  }
 }
 
 function jumpToVisible(ctx: ExtensionCommandContext, direction: 1 | -1) {

@@ -289,21 +289,32 @@ export function parseFireArgs(args: string): FireCommand {
   return { kind: 'run', task: text === 'run' ? '' : text };
 }
 
-/** The fire entry of a session file, when it is a fired agent's session. */
+/**
+ * The fire entry of a session file, when it is a fired agent's session. The last one: an agent fired
+ * by a fired agent forks its conversation, hence holds its parent's entry before its own.
+ */
 export function firedEntry(sessionText: string): FireEntry | undefined {
+  let own: FireEntry | undefined;
   for (const line of sessionText.split('\n')) {
     // Cheap filter first: the entry type also appears in the text of conversations about this extension.
     if (!line.includes(`"${ENTRY_TYPE}"`)) continue;
 
     try {
       const entry = JSON.parse(line) as { type?: string; customType?: string; data?: FireEntry };
-      if (entry.type === 'custom' && entry.customType === ENTRY_TYPE && entry.data) return entry.data;
+      if (entry.type === 'custom' && entry.customType === ENTRY_TYPE && entry.data) own = entry.data;
     } catch {
       // A line being written: not the entry, which is written before the agent starts.
     }
   }
 
-  return undefined;
+  return own;
+}
+
+/** The fire entry of a session's branch: the last one, for the same reason as in `firedEntry`. */
+export function firedEntryOfBranch(branch: readonly SessionEntry[]): FireEntry | undefined {
+  const entry = branch.filter((candidate) => candidate.type === 'custom' && candidate.customType === ENTRY_TYPE).at(-1);
+
+  return entry?.type === 'custom' ? (entry.data as FireEntry) : undefined;
 }
 
 /** One distinct label per row: the picker returns the chosen label, not its index. */
@@ -1088,10 +1099,10 @@ export default function (pi: ExtensionAPI) {
 
   pi.on('session_start', (_event, ctx) => {
     const branch = ctx.sessionManager.getBranch();
-    const fired = branch.find((entry) => entry.type === 'custom' && entry.customType === ENTRY_TYPE);
+    const fired = firedEntryOfBranch(branch);
     const sessionFile = ctx.sessionManager.getSessionFile();
 
-    if (fired?.type !== 'custom' || !sessionFile) {
+    if (!fired || !sessionFile) {
       // The agents this session fired: their count comes back in the footer after a reload or a resume.
       // A fired agent's session is left out, as its conversation holds the fires of its siblings.
       for (const entry of branch) {
@@ -1109,7 +1120,7 @@ export default function (pi: ExtensionAPI) {
     // parent: the tab is not its own to mark.
     const parentSession = ctx.sessionManager.getHeader()?.parentSession;
     const isSubagent = parentSession !== undefined && dirname(parentSession) === dirname(sessionFile);
-    if (!isSubagent) firedBranch = (fired.data as FireEntry).branch;
+    if (!isSubagent) firedBranch = fired.branch;
 
     const owner = lockSession(`${sessionFile}.pid`);
     if (owner) {

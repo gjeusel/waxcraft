@@ -9,6 +9,7 @@ import {
   agentLabels,
   findRequest,
   firedEntry,
+  firedEntryOfBranch,
   forkSession,
   gitlabProject,
   layoutFor,
@@ -182,6 +183,31 @@ test('a fork requested by the first message starts empty', () => {
     const sessionFile = forkSession(parent.getSessionFile()!, findRequest(parent.getBranch()), entry, '12-fix');
 
     assert.deepEqual(messageTexts(SessionManager.open(sessionFile)), []);
+  });
+});
+
+test('an agent fired by a fired agent is known by its own entry, not the inherited one', () => {
+  withAgentDir(() => {
+    const parent = parentSession([user('fire in wt: fix it'), assistant('calling the tool')]);
+    const parentEntry = { worktree: '/w/12-fix', clone: '/c', issue: 12, branch: '12-fix' };
+    const firedFile = forkSession(parent.getSessionFile()!, findRequest(parent.getBranch()), parentEntry, '12-fix');
+
+    // The fired agent works, then fires in turn: the fork of its conversation holds both entries.
+    const fired = SessionManager.open(firedFile);
+    for (const message of [user('fix it'), assistant('fixed', 'stop'), user('fire in wt: the follow-up'), assistant('calling the tool')]) {
+      fired.appendMessage(message);
+    }
+    const ownEntry = { worktree: '/w/13-follow-up', clone: '/c', issue: 13, branch: '13-follow-up' };
+    const sessionFile = forkSession(firedFile, findRequest(fired.getBranch()), ownEntry, '13-follow-up');
+
+    const fork = SessionManager.open(sessionFile);
+    assert.deepEqual(
+      fork.getBranch().flatMap((candidate) => (candidate.type === 'custom' ? [candidate.data] : [])),
+      [parentEntry, ownEntry],
+    );
+    assert.deepEqual(firedEntryOfBranch(fork.getBranch()), ownEntry);
+    assert.deepEqual(firedEntry(readFileSync(sessionFile, 'utf8')), ownEntry);
+    assert.equal(firedEntryOfBranch(parent.getBranch()), undefined);
   });
 });
 
