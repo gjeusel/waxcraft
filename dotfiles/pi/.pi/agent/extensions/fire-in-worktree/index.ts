@@ -13,13 +13,18 @@
  * `/fire <task>` is a shortcut for "fire in wt: <task>", and `/fire run` fires what the conversation
  * settled. `/fire` (or `/fire list`) lists the fired agents of every repository, then jumps to the Rex
  * tab of a running one or opens the session of a stopped one. `/fire prune` closes and removes those
- * whose MR is merged or closed.
+ * whose MR is merged or closed. `/fire ping` adds to the conversation where the agents fired from this
+ * session are at (state, MR, pipeline, last message), so that the session can pilot them. `/fire switch`
+ * moves the Rex focus between a session and the agents it fired: to the pane of one of them, picked
+ * in a list, or straight to the pane of the session that fired this one. `/fire self-close`, in a fired
+ * agent's session, closes its own Rex pane once its MR is merged or closed; `/fire merge` first enables
+ * auto-merge on that MR, then closes the pane once it merged.
  *
  * A fired agent marks its Rex tab when it settles (✓ done, ⚠ failed), and a session that fired agents
  * shows their count in its footer.
  */
 import { spawn } from 'node:child_process';
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { basename, dirname, join, resolve, sep } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
@@ -39,7 +44,15 @@ import { Type } from 'typebox';
 const REX_SESSION = 'ai-agents';
 const STATUS_KEY = 'fire';
 const WATCH_INTERVAL_MS = 15_000;
+const MERGE_POLL_MS = 15_000;
+const MERGE_WAIT_MS = 60 * 60_000;
+// GitLab's `detailed_merge_status` while it has not yet computed whether an MR can merge.
+const UNSETTLED_MERGE_STATUSES = new Set(['unchecked', 'checking', 'preparing', 'approvals_syncing']);
+// The choices offered when `/fire merge` finds merge conflicts, the default first.
+const CONFLICT_CHOICES = { fixAndMerge: 'Yes, fix them and merge', fixOnly: 'Yes, fix them only', no: 'No' } as const;
 const ENTRY_TYPE = 'fire-in-worktree';
+const PING_TYPE = 'fire-ping';
+const PING_EXCERPT_CHARS = 400;
 const BRIEF_TEMPLATE_PATH = fileURLToPath(new URL('brief.md', import.meta.url));
 const LONG_TIMEOUT_MS = 15 * 60_000;
 // The launched pi takes the session lock on start: until then, its launch is not confirmed.
@@ -91,7 +104,14 @@ interface Tab {
   state: TabState;
 }
 
-export type FireCommand = { kind: 'list' } | { kind: 'prune' } | { kind: 'run'; task: string };
+export type FireCommand =
+  | { kind: 'list' }
+  | { kind: 'prune' }
+  | { kind: 'ping' }
+  | { kind: 'switch' }
+  | { kind: 'self-close' }
+  | { kind: 'merge' }
+  | { kind: 'run'; task: string };
 
 /** A row of the `/fire` picker. `stopped`: no pi runs the session; `running`: one does, outside Rex. */
 export interface AgentRow {
@@ -100,6 +120,18 @@ export interface AgentRow {
   branch: string;
   mr?: string;
   modified: Date;
+}
+
+const STATE_ICONS: Record<AgentRow['state'], string> = { working: '●', running: '◐', done: '✓', failed: '⚠', stopped: '○' };
+
+/** The footer status of the agents fired from a session, as icon counts: `fire ●2 ◐1 ✓9`. */
+export function firedStatus(states: readonly AgentRow['state'][]): string | undefined {
+  const counts = (['working', 'running', 'done', 'failed'] as const)
+    .map((state) => ({ state, count: states.filter((candidate) => candidate === state).length }))
+    .filter(({ count }) => count > 0)
+    .map(({ state, count }) => `${STATE_ICONS[state]}${count}`);
+
+  return counts.length > 0 ? `fire ${counts.join(' ')}` : undefined;
 }
 
 interface FiredAgent extends AgentRow {
@@ -278,13 +310,17 @@ export function parseTabLabel(label: string): { branch: string; state: TabState 
 }
 
 /**
- * `list` and `prune` are subcommands, and a bare `run` fires what the conversation settled. Any other
- * text is a task, one starting with "run" included.
+ * `list`, `prune`, `ping`, `switch`, `self-close`, and `merge` are subcommands, and a bare `run` fires
+ * what the conversation settled. Any other text is a task, one starting with "run" included.
  */
 export function parseFireArgs(args: string): FireCommand {
   const text = args.trim();
   if (text === '' || text === 'list') return { kind: 'list' };
   if (text === 'prune') return { kind: 'prune' };
+  if (text === 'ping') return { kind: 'ping' };
+  if (text === 'switch') return { kind: 'switch' };
+  if (text === 'self-close') return { kind: 'self-close' };
+  if (text === 'merge') return { kind: 'merge' };
 
   return { kind: 'run', task: text === 'run' ? '' : text };
 }
@@ -317,13 +353,127 @@ export function firedEntryOfBranch(branch: readonly SessionEntry[]): FireEntry |
   return entry?.type === 'custom' ? (entry.data as FireEntry) : undefined;
 }
 
+/**
+ * The fires of a session's branch that are its own. In a fired agent's session, those after its fire
+ * entry: the earlier ones, inherited with the conversation, are its siblings'.
+ */
+export function ownFires(branch: readonly SessionEntry[]): FireDetails[] {
+  const forkedAt = branch.map((entry) => entry.type === 'custom' && entry.customType === ENTRY_TYPE).lastIndexOf(true);
+
+  return branch.slice(forkedAt + 1).flatMap((entry) => {
+    if (entry.type !== 'message' || entry.message.role !== 'toolResult' || entry.message.toolName !== 'fire' || entry.message.isError) return [];
+
+    const details = entry.message.details as Partial<FireDetails> | undefined;
+
+    return details?.branch && details.sessionFile ? [details as FireDetails] : [];
+  });
+}
+
+/**
+ * The text of the last assistant message an agent wrote in its session file: where it is at. In a
+ * fired agent's session, only what follows its fire entry: the lines before are the conversation it
+ * inherited, whose last message is the launching session's.
+ */
+export function lastAssistantText(sessionText: string): string | undefined {
+  const lines = sessionText.split('\n');
+  for (let index = lines.length - 1; index >= 0; index -= 1) {
+    // Cheap filter first: session files weigh megabytes.
+    const line = lines[index];
+    if (!line.includes('"role":"assistant"') && !line.includes(`"${ENTRY_TYPE}"`)) continue;
+
+    try {
+      const entry = JSON.parse(line) as {
+        type?: string;
+        customType?: string;
+        message?: { role?: string; content?: string | { type: string; text?: string }[] };
+      };
+      if (entry.type === 'custom' && entry.customType === ENTRY_TYPE) return undefined;
+
+      const text = entry.type === 'message' && entry.message?.role === 'assistant' ? textOf(entry.message.content ?? '').trim() : '';
+      if (text) return text;
+    } catch {
+      // A line being written.
+    }
+  }
+
+  return undefined;
+}
+
+/** What `/fire ping` tells of one fired agent. */
+export interface PingRow {
+  state: AgentRow['state'];
+  issue: number;
+  issueTitle: string;
+  mr: number;
+  mrUrl: string;
+  /** Absent when GitLab could not be reached. */
+  mrStatus?: string;
+  /** Last write of the agent's session. */
+  active?: Date;
+  lastMessage?: string;
+}
+
+export function describeMr(mr: { state: string; draft: boolean; has_conflicts?: boolean; head_pipeline?: { status: string } | null }): string {
+  if (mr.state !== 'opened') return mr.state;
+
+  const parts = [mr.draft ? 'draft' : 'ready', `pipeline ${mr.head_pipeline?.status ?? 'none'}`, mr.has_conflicts && 'conflicts'];
+
+  return parts.filter(Boolean).join(', ');
+}
+
+function ago(date: Date, now: Date): string {
+  const minutes = Math.max(0, Math.round((now.getTime() - date.getTime()) / 60_000));
+  if (minutes < 60) return `${minutes} min ago`;
+  if (minutes < 48 * 60) return `${Math.round(minutes / 60)} h ago`;
+
+  return `${Math.round(minutes / (24 * 60))} d ago`;
+}
+
+/** The report of `/fire ping`, as Markdown: one item per agent, in the order they were fired. */
+export function pingReport(rows: readonly PingRow[], now: Date): string {
+  const counts = (['working', 'running', 'done', 'failed', 'stopped'] as const)
+    .map((state) => ({ state, count: rows.filter((row) => row.state === state).length }))
+    .filter(({ count }) => count > 0)
+    .map(({ state, count }) => `${count} ${state}`);
+
+  const items = rows.map((row) => {
+    const mr = `[!${row.mr}](${row.mrUrl})${row.mrStatus ? ` ${row.mrStatus}` : ''}`;
+    const head = [`${STATE_ICONS[row.state]} ${row.state}`, `#${row.issue} ${row.issueTitle}`, mr, row.active && ago(row.active, now)].filter(Boolean).join(' · ');
+    if (!row.lastMessage) return `- ${head}`;
+
+    // Its first paragraph: an agent's report leads with its conclusion.
+    const paragraph = row.lastMessage.trim().split(/\n\s*\n/)[0];
+    const flat = paragraph.split('\n').map((line) => line.trim()).join(' ');
+    const excerpt = flat.length > PING_EXCERPT_CHARS ? `${flat.slice(0, PING_EXCERPT_CHARS).trimEnd()}…` : flat;
+
+    return `- ${head}\n  > ${excerpt}`;
+  });
+
+  return [`Fired agents of this session: ${counts.join(', ')}.`, '', ...items].join('\n');
+}
+
+export const SWITCH_TO_PARENT = '↑ the session that fired this one';
+
+/**
+ * The rows of the `/fire switch` picker: the agents this session fired, in the order they were fired,
+ * after the session that fired it when there is one. Distinct, as issues are.
+ */
+export function switchLabels(fires: readonly FireDetails[], states: ReadonlyMap<string, AgentRow['state'] | undefined>, hasParent: boolean): string[] {
+  const children = fires.map((fire) => {
+    const state = states.get(fire.branch);
+
+    return [state && STATE_ICONS[state], `#${fire.issue} ${fire.issueTitle}`, `· !${fire.mr}`].filter(Boolean).join(' ');
+  });
+
+  return hasParent ? [SWITCH_TO_PARENT, ...children] : children;
+}
+
 /** One distinct label per row: the picker returns the chosen label, not its index. */
 export function agentLabels(rows: readonly AgentRow[]): string[] {
-  const icons: Record<AgentRow['state'], string> = { working: '●', running: '●', done: '✓', failed: '⚠', stopped: '○' };
   const seen = new Map<string, number>();
 
   return rows.map((row) => {
-    const parts = [`${icons[row.state]} ${row.state}`, row.repo, row.branch, row.mr && `MR ${row.mr}`, row.modified.toLocaleString()];
+    const parts = [`${STATE_ICONS[row.state]} ${row.state}`, row.repo, row.branch, row.mr && `MR ${row.mr}`, row.modified.toLocaleString()];
     const label = parts.filter(Boolean).join('  ·  ');
     const count = (seen.get(label) ?? 0) + 1;
     seen.set(label, count);
@@ -582,6 +732,11 @@ async function openRexTab(label: string, cwd: string, command: string[], session
 async function jumpToTab(sessionId: string, windowId: string): Promise<boolean> {
   await runOrThrow('rex', ['focus', '-s', REX_SESSION, windowId]);
 
+  return showInApp(sessionId, windowId);
+}
+
+/** Show a tab of a Rex session in the app. Returns whether the app shows it. */
+async function showInApp(sessionId: string, windowId: string): Promise<boolean> {
   const listing = await run('rex', ['client', 'ls', '--json']);
   if (listing.code !== 0) return false;
 
@@ -592,6 +747,85 @@ async function jumpToTab(sessionId: string, windowId: string): Promise<boolean> 
   const shown = await run('rex', ['-C', app.client_id, 'do', 'session.select', `session_id=${sessionId}`, `window_id=${windowId}`]);
 
   return shown.code === 0;
+}
+
+function isRunning(pid: number): boolean {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (error: unknown) {
+    return (error as NodeJS.ErrnoException).code === 'EPERM';
+  }
+}
+
+interface Pane {
+  sessionId: string;
+  windowId: string;
+  blockId: string;
+}
+
+/** The pane of a Rex session (a label or an id) that `matches`, with the tab holding it. */
+async function findPane(session: string, matches: (block: { block_id: string; label: string }) => boolean): Promise<Pane | undefined> {
+  const listing = await run('rex', ['window', 'ls', '-s', session, '--json']);
+  if (listing.code !== 0) return undefined;
+
+  const { session_id, windows = [] } = JSON.parse(listing.stdout) as {
+    session_id: string;
+    windows?: { window_id: string; layers: { blocks: { block_id: string; label: string }[] }[] }[];
+  };
+  for (const window of windows) {
+    const block = window.layers.flatMap((layer) => layer.blocks).find(matches);
+    if (block) return { sessionId: session_id, windowId: window.window_id, blockId: block.block_id };
+  }
+
+  return undefined;
+}
+
+/** Focus a pane, then show its tab in the app. Returns whether the app shows it. */
+async function focusPane(pane: Pane): Promise<boolean> {
+  await runOrThrow('rex', ['focus', '-s', pane.sessionId, pane.blockId]);
+
+  return showInApp(pane.sessionId, pane.windowId);
+}
+
+/** Where a pi running in Rex says it is: written beside its session, which `/fire switch` reads. */
+export interface PaneRecord {
+  pid: number;
+  session: string;
+  block: string;
+}
+
+export function paneFileOf(sessionFile: string): string {
+  return `${sessionFile}.pane`;
+}
+
+/** The pane record of a session, unless the pi that wrote it is gone: its pane may hold something else. */
+export function readPaneRecord(sessionFile: string, isAlive: (pid: number) => boolean = isRunning): PaneRecord | undefined {
+  const paneFile = paneFileOf(sessionFile);
+  if (!existsSync(paneFile)) return undefined;
+
+  try {
+    const record = JSON.parse(readFileSync(paneFile, 'utf8')) as Partial<PaneRecord>;
+    const isComplete = typeof record.pid === 'number' && typeof record.session === 'string' && typeof record.block === 'string';
+
+    return isComplete && isAlive(record.pid as number) ? (record as PaneRecord) : undefined;
+  } catch {
+    // A file being written.
+    return undefined;
+  }
+}
+
+/**
+ * The pane where a session is open. A pi started before panes were recorded has none until it
+ * reloads: a fired agent is then found by its pane's name, its branch.
+ */
+async function paneOfSession(sessionFile: string): Promise<Pane | undefined> {
+  const record = readPaneRecord(sessionFile);
+  if (record) return findPane(record.session, (block) => block.block_id === record.block);
+
+  const fired = existsSync(sessionFile) ? firedEntry(readFileSync(sessionFile, 'utf8')) : undefined;
+
+  return fired && findPane(REX_SESSION, (block) => block.label === fired.branch);
 }
 
 /** Wait for the launched pi to take the session lock; on timeout, fail with what its pane shows. */
@@ -607,13 +841,37 @@ async function confirmStart(sessionFile: string, block: string, signal: AbortSig
   throw new Error(`the agent did not start within ${START_TIMEOUT_MS / 1000}s; its pane shows:\n${tail}`);
 }
 
-function isRunning(pid: number): boolean {
-  try {
-    process.kill(pid, 0);
-    return true;
-  } catch (error: unknown) {
-    return (error as NodeJS.ErrnoException).code === 'EPERM';
-  }
+/** Where the agents of `fires` are at: their state, their MR on GitLab, and their last message. */
+async function pingFired(fires: readonly FireDetails[]): Promise<PingRow[]> {
+  const { tabs } = await listTabs();
+
+  return Promise.all(
+    fires.map(async (fire): Promise<PingRow> => {
+      const lock = `${fire.sessionFile}.pid`;
+      const owner = existsSync(lock) ? Number(readFileSync(lock, 'utf8')) : 0;
+      const alive = owner > 0 && isRunning(owner);
+      const state = alive ? (tabs.find((tab) => tab.branch === fire.branch)?.state ?? 'running') : 'stopped';
+
+      // The report still comes without GitLab: the MR status is then left out.
+      const clone = join(homedir(), '.pi', 'src', fire.repo);
+      const mr = await run('glab', ['api', `projects/:fullpath/merge_requests/${fire.mr}`, '--output', 'json'], { cwd: clone });
+      const mrStatus = mr.code === 0 ? describeMr(JSON.parse(mr.stdout)) : undefined;
+
+      // A pruned agent has no session left.
+      const hasSession = existsSync(fire.sessionFile);
+
+      return {
+        state,
+        issue: fire.issue,
+        issueTitle: fire.issueTitle,
+        mr: fire.mr,
+        mrUrl: fire.mrUrl,
+        mrStatus,
+        active: hasSession ? statSync(fire.sessionFile).mtime : undefined,
+        lastMessage: hasSession ? lastAssistantText(readFileSync(fire.sessionFile, 'utf8')) : undefined,
+      };
+    }),
+  );
 }
 
 /** The agent-only clones: every repository an agent was fired into. */
@@ -752,6 +1010,22 @@ async function ownTab(): Promise<string | undefined> {
   return windows.find((window) => window.layers.some((layer) => layer.blocks.some((candidate) => candidate.block_id === block)))?.window_id;
 }
 
+/** The fields of an MR that `/fire merge` follows. */
+interface MergeWatchMr {
+  iid: number;
+  web_url: string;
+  state: string;
+  source_branch: string;
+  source_project_id: number;
+  target_project_id: number;
+  target_branch: string;
+  has_conflicts?: boolean;
+  detailed_merge_status?: string;
+  merge_when_pipeline_succeeds?: boolean;
+  auto_merge_enabled?: boolean | null;
+  head_pipeline?: { status: string } | null;
+}
+
 /** A fired agent, as the session that fired it follows it. */
 interface Watched {
   branch: string;
@@ -761,7 +1035,7 @@ interface Watched {
 }
 
 /** The `fire` tool's result details. */
-interface FireDetails {
+export interface FireDetails {
   issue: number;
   issueTitle: string;
   issueUrl: string;
@@ -780,12 +1054,28 @@ interface FireDetails {
 export default function (pi: ExtensionAPI) {
   // Set in a fired agent's session that this process owns.
   let lockFile: string | undefined;
+  // Where this pi says which Rex pane it runs in, for /fire switch.
+  let paneFile: string | undefined;
   // In a fired agent's session: its branch, and the Rex tab it runs in, once looked up.
   let firedBranch: string | undefined;
   let ownWindow: string | undefined;
   // The agents fired from this session, and the timer following them while one runs.
   const watched = new Map<string, Watched>();
   let watchTimer: NodeJS.Timeout | undefined;
+
+  // Follows the MR of `/fire merge` until it merged; `mergeWatchId` retires the polls of a stopped watch.
+  let mergeTimer: NodeJS.Timeout | undefined;
+  let mergeWatchId = 0;
+  // Set while the agent fixes merge conflicts that the user chose to merge after: the merge runs again
+  // when it settles.
+  let pendingMerge = false;
+  // Changes at each session shutdown: work started for a session tells whether it still runs.
+  let sessionGeneration = 0;
+  const stopMergeWatch = () => {
+    clearInterval(mergeTimer);
+    mergeTimer = undefined;
+    mergeWatchId += 1;
+  };
 
   const stopWatching = () => {
     clearInterval(watchTimer);
@@ -809,13 +1099,10 @@ export default function (pi: ExtensionAPI) {
       agent.state = state;
     }
 
-    const counts = (['working', 'running', 'done', 'failed'] as const)
-      .map((state) => ({ state, count: [...watched.values()].filter((agent) => agent.state === state).length }))
-      .filter(({ count }) => count > 0)
-      .map(({ state, count }) => `${count} ${state}`);
-    ctx.ui.setStatus(STATUS_KEY, counts.length > 0 ? `fired: ${counts.join(', ')}` : undefined);
+    const status = firedStatus([...watched.values()].flatMap((agent) => agent.state ?? []));
+    ctx.ui.setStatus(STATUS_KEY, status);
 
-    if (counts.length === 0) stopWatching();
+    if (!status) stopWatching();
   };
 
   const startWatching = (ctx: ExtensionContext) => {
@@ -1007,10 +1294,204 @@ export default function (pi: ExtensionAPI) {
     },
   });
 
+  /**
+   * `/fire self-close` and `/fire merge`. The merge runs again by itself once the agent fixed the
+   * conflicts it was asked to, when the user chose to merge after the fix: `retried` is then set, and
+   * conflicts found again stop it rather than asking a second time.
+   */
+  const closeOrMerge = async (kind: 'self-close' | 'merge', ctx: ExtensionContext, retried = false): Promise<void> => {
+    const fired = firedEntryOfBranch(ctx.sessionManager.getBranch());
+    if (!fired) {
+      ctx.ui.notify(`Nothing to ${kind}: this session is not a fired agent`, 'info');
+      return;
+    }
+
+    const { REX_SESSION: rexSession, REX_BLOCK: rexBlock } = process.env;
+    if (!rexSession || !rexBlock) {
+      ctx.ui.notify('This pi does not run in a Rex pane', 'warning');
+      return;
+    }
+
+    // Ends this pi with its pane: the stale lock and pane record are told apart by their dead pid.
+    const closePane = () => runOrThrow('rex', ['block', 'close', '-s', rexSession, rexBlock]);
+
+    if (kind === 'self-close') {
+      const state = (await mrStates(fired.clone, [fired.branch])).get(fired.branch);
+      if (state !== 'merged' && state !== 'closed') {
+        ctx.ui.notify(`The MR of ${fired.branch} is ${state}: the pane stays open`, 'info');
+        return;
+      }
+
+      await closePane();
+      return;
+    }
+
+    // GitLab accepts auto-merge on a conflicting MR, which then never merges: the conflicts are
+    // reported, and their fix offered to this session's agent, the merge following it by default.
+    const offerConflictFix = async (mr: { iid: number; web_url: string; target_branch: string }) => {
+      stopMergeWatch();
+      pendingMerge = false;
+      ctx.ui.notify(`!${mr.iid} has merge conflicts with ${mr.target_branch}: it cannot merge (${mr.web_url})`, 'error');
+      if (retried) {
+        ctx.ui.notify(`!${mr.iid} still has conflicts after the agent's fix: the merge stops, run /fire merge once they are resolved`, 'warning');
+        return;
+      }
+
+      const choice = await ctx.ui.select(`Fix the conflicts of !${mr.iid} with ${mr.target_branch}?`, Object.values(CONFLICT_CHOICES));
+      if (choice === undefined || choice === CONFLICT_CHOICES.no) return;
+
+      const mergeAfter = choice === CONFLICT_CHOICES.fixAndMerge;
+      const request = [
+        `MR !${mr.iid} (${mr.web_url}) has merge conflicts with \`${mr.target_branch}\`.`,
+        `Fetch origin, merge \`origin/${mr.target_branch}\` into \`${fired.branch}\`, resolve the conflicts, rerun the checks, and push.`,
+        mergeAfter ? 'Once your turn ends, `/fire merge` runs again by itself.' : 'Then tell me it is ready, for me to run `/fire merge` again.',
+      ].join(' ');
+      // A follow-up joins the running run: the agent settles only once the request is handled.
+      pendingMerge = mergeAfter;
+      if (ctx.isIdle()) pi.sendUserMessage(request);
+      else pi.sendUserMessage(request, { deliverAs: 'followUp' });
+    };
+
+    // Throws on a failed call or malformed output: callers tell an unreachable GitLab apart.
+    const fetchGitlab = async <T,>(path: string): Promise<T> =>
+      JSON.parse(await runOrThrow('glab', ['api', path, '--output', 'json'], { cwd: fired.clone })) as T;
+    const hasConflicts = (mr: MergeWatchMr) => mr.has_conflicts === true || mr.detailed_merge_status === 'conflict';
+
+    // The project's own open MR of the branch, as `glab_task.py` resolves it: listings also hold
+    // MRs from forks. GitLab computes mergeability asynchronously: an unsettled status is refreshed.
+    const findOpenMr = async (): Promise<MergeWatchMr | undefined> => {
+      const project = await fetchGitlab<{ id: number }>('projects/:fullpath');
+      const path = `projects/:fullpath/merge_requests?source_branch=${encodeURIComponent(fired.branch)}&state=opened`;
+      const own = (await fetchGitlab<MergeWatchMr[]>(path)).filter(
+        (mr) => mr.source_branch === fired.branch && mr.source_project_id === project.id && mr.target_project_id === project.id,
+      );
+      if (own.length > 1) throw new Error(`several open MRs of ${fired.branch}: ${own.map((mr) => `!${mr.iid}`).join(', ')}`);
+
+      return own[0];
+    };
+
+    let opened: MergeWatchMr | undefined;
+    try {
+      opened = await findOpenMr();
+      for (let attempt = 0; opened && UNSETTLED_MERGE_STATUSES.has(opened.detailed_merge_status ?? '') && attempt < 5; attempt += 1) {
+        await sleep(2_000);
+        opened = await findOpenMr();
+      }
+    } catch (error: unknown) {
+      ctx.ui.notify(`Cannot check the MR of ${fired.branch}: ${error instanceof Error ? error.message : String(error)}`, 'error');
+      return;
+    }
+
+    // Unknown is not clear: auto-merge waits for GitLab to tell whether the MR can merge.
+    if (opened && UNSETTLED_MERGE_STATUSES.has(opened.detailed_merge_status ?? '')) {
+      ctx.ui.notify(`GitLab is still checking whether !${opened.iid} can merge (${opened.detailed_merge_status}): run /fire merge again shortly`, 'warning');
+      return;
+    }
+
+    if (opened && hasConflicts(opened)) {
+      await offerConflictFix(opened);
+      return;
+    }
+
+    // The glab skill's merge checks the MR is ready and pushed at the worktree's HEAD, and enables
+    // auto-merge once a pipeline runs on that commit.
+    ctx.ui.notify(`Enabling auto-merge on the MR of ${fired.branch}…`, 'info');
+    const glabTask = join(glabSkillDir(pi), 'scripts', 'glab_task.py');
+    const merged = await run('python3', [glabTask, 'merge', '--issue', String(fired.issue)], { cwd: fired.worktree, timeoutMs: 5 * 60_000 });
+    if (merged.code !== 0) {
+      ctx.ui.notify(`Auto-merge not enabled:\n${(merged.stderr.trim() || merged.stdout.trim()).slice(-2000)}`, 'error');
+      return;
+    }
+
+    const { mr } = JSON.parse(merged.stdout) as { mr: { iid: number; web_url: string } };
+    ctx.ui.notify(`Auto-merge enabled on !${mr.iid}: this pane closes once it merged`, 'info');
+
+    // Followed in the background: the pipeline may take a while, and the session stays usable.
+    // A watch is current while `mergeWatchId` is its own: stopping it, or a new one, retires a poll
+    // still awaiting GitLab, so that a late answer never closes a pane now holding another session.
+    stopMergeWatch();
+    const watchId = mergeWatchId;
+    const isCurrent = () => watchId === mergeWatchId;
+    const deadline = Date.now() + MERGE_WAIT_MS;
+    let failures = 0;
+    let closeFailed = false;
+    let polling = false;
+
+    const poll = async () => {
+      if (Date.now() > deadline) {
+        stopMergeWatch();
+        ctx.ui.notify(`!${mr.iid} is still not merged after ${MERGE_WAIT_MS / 60_000} min: the pane stays open (${mr.web_url})`, 'warning');
+        return;
+      }
+
+      let current: MergeWatchMr;
+      try {
+        current = await fetchGitlab<MergeWatchMr>(`projects/:fullpath/merge_requests/${mr.iid}`);
+        failures = 0;
+      } catch (error: unknown) {
+        // Retried at the next tick; told once, after a minute of failures.
+        failures += 1;
+        if (failures === 4 && isCurrent()) ctx.ui.notify(`Cannot follow !${mr.iid}, retrying: ${error instanceof Error ? error.message : String(error)}`, 'warning');
+        return;
+      }
+      if (!isCurrent()) return;
+
+      if (current.state === 'merged') {
+        try {
+          await closePane();
+        } catch (error: unknown) {
+          // Kept watching: the next tick tries again, until the deadline; told once.
+          if (closeFailed) return;
+
+          closeFailed = true;
+          ctx.ui.notify(`!${mr.iid} merged, but its pane did not close: ${error instanceof Error ? error.message : String(error)}`, 'error');
+        }
+        return;
+      }
+
+      if (current.state === 'opened' && hasConflicts(current)) {
+        await offerConflictFix(current);
+        return;
+      }
+
+      const autoMerge = Boolean(current.auto_merge_enabled || current.merge_when_pipeline_succeeds);
+      const pipeline = current.head_pipeline?.status;
+      const stuck =
+        current.state !== 'opened' ? `is ${current.state}`
+        : pipeline === 'failed' || pipeline === 'canceled' ? `has its pipeline ${pipeline}`
+        : !autoMerge ? 'lost its auto-merge'
+        : undefined;
+      if (stuck) {
+        stopMergeWatch();
+        ctx.ui.notify(`!${mr.iid} ${stuck}: the pane stays open (${mr.web_url})`, 'warning');
+      }
+    };
+    // One poll at a time: a GitLab call may outlast the interval.
+    const tick = async () => {
+      if (polling || !isCurrent()) return;
+
+      polling = true;
+      try {
+        await poll();
+      } finally {
+        polling = false;
+      }
+    };
+    mergeTimer = setInterval(() => void tick(), MERGE_POLL_MS);
+    mergeTimer.unref();
+    void tick();
+
+    return;
+  };
+
   const subcommands = [
     { value: 'run', label: 'run', description: 'Fire the task this conversation settled' },
     { value: 'list', label: 'list', description: 'Jump to a fired agent, or open its session when it stopped' },
     { value: 'prune', label: 'prune', description: 'Close and remove the agents whose MR is merged or closed' },
+    { value: 'ping', label: 'ping', description: 'Add to the conversation where the agents fired from this session are at' },
+    { value: 'switch', label: 'switch', description: 'Focus the pane of an agent this session fired, or of the session that fired this one' },
+    { value: 'self-close', label: 'self-close', description: "Close this fired agent's Rex pane when its MR is merged or closed" },
+    { value: 'merge', label: 'merge', description: "Auto-merge this fired agent's MR, then close its Rex pane once merged" },
   ];
 
   pi.registerCommand('fire', {
@@ -1028,6 +1509,58 @@ export default function (pi: ExtensionAPI) {
         if (ctx.isIdle()) pi.sendUserMessage(request);
         else pi.sendUserMessage(request, { deliverAs: 'followUp' });
 
+        return;
+      }
+
+      if (command.kind === 'ping') {
+        const fires = ownFires(ctx.sessionManager.getBranch());
+        if (fires.length === 0) {
+          ctx.ui.notify('This session fired no agent', 'info');
+          return;
+        }
+
+        ctx.ui.notify(`Pinging ${fires.length} fired agent(s)…`, 'info');
+        const report = pingReport(await pingFired(fires), new Date());
+        // In the conversation, for the model to pilot from; no turn starts: the user asks next.
+        pi.sendMessage({ customType: PING_TYPE, content: report, display: true }, { triggerTurn: false });
+
+        return;
+      }
+
+      if (command.kind === 'switch') {
+        const branch = ctx.sessionManager.getBranch();
+        const fired = firedEntryOfBranch(branch);
+        const fires = ownFires(branch);
+        if (!fired && fires.length === 0) {
+          ctx.ui.notify('Nowhere to switch: this session fired no agent, and no session fired it', 'info');
+          return;
+        }
+
+        // Nothing to pick when the only way is up.
+        let choice: string | undefined = SWITCH_TO_PARENT;
+        const states = new Map([...watched.values()].map((agent) => [agent.branch, agent.state]));
+        const labels = switchLabels(fires, states, fired !== undefined);
+        if (fires.length > 0) choice = await ctx.ui.select('Switch to', labels);
+        if (choice === undefined) return;
+
+        const fire = choice === SWITCH_TO_PARENT ? undefined : fires[labels.indexOf(choice) - (fired ? 1 : 0)];
+        const name = fire ? `#${fire.issue} ${fire.issueTitle}` : 'The session that fired this one';
+        const targetSession = fire ? fire.sessionFile : ctx.sessionManager.getHeader()?.parentSession;
+        const pane = targetSession && (await paneOfSession(targetSession));
+        if (!pane) {
+          const hint = fire ? 'it is not open in a Rex pane: /fire list opens its session' : 'it is not open in a Rex pane, or its pi needs a /reload to say where it is';
+          ctx.ui.notify(`${name}: ${hint}`, 'warning');
+          return;
+        }
+
+        const shown = await focusPane(pane);
+        if (!shown) ctx.ui.notify(`${name} is focused in its Rex session: switch to that session. For /fire to switch itself, turn on Remote Control in Rex's settings, under Rex Server.`, 'info');
+
+        return;
+      }
+
+      if (command.kind === 'self-close' || command.kind === 'merge') {
+        await closeOrMerge(command.kind, ctx);
         return;
       }
 
@@ -1086,13 +1619,37 @@ export default function (pi: ExtensionAPI) {
     }
   };
 
+  // The agent-only clones and their worktrees are created by this extension from the user's own
+  // repositories: their project resources are as trusted as the checkouts under ~/src.
+  pi.on('project_trust', (event) => {
+    const clonesDir = join(homedir(), '.pi', 'src');
+
+    return { trusted: resolve(event.cwd).startsWith(clonesDir + sep) ? 'yes' : 'undecided' };
+  });
+
   pi.on('agent_start', () => markTab('working'));
 
-  pi.on('agent_settled', (_event, ctx) => {
+  pi.on('agent_settled', (event, ctx) => {
     // The run's last message tells how it ended: an aborted or failed run leaves the task unfinished.
     const messages = ctx.sessionManager.getBranch().filter((entry) => entry.type === 'message');
     const last = messages.at(-1)?.message;
     const failed = last?.role === 'assistant' && (last.stopReason === 'error' || last.stopReason === 'aborted');
+
+    // An abort while compacting or settling leaves the last message's stop reason intact: the event
+    // tells it, though the typings in use predate its `aborted` field.
+    const aborted = (event as { aborted?: boolean }).aborted === true;
+
+    if (pendingMerge) {
+      pendingMerge = false;
+      const generation = sessionGeneration;
+      if (failed || aborted) ctx.ui.notify('The conflict fix did not finish: the merge stops, run /fire merge once it is done', 'warning');
+      // Not awaited: GitLab calls would hold the other settled handlers. A reload meanwhile makes
+      // `ctx` stale, its notifications throwing: the failure is then dropped with the session.
+      else
+        void closeOrMerge('merge', ctx, true).catch((error: unknown) => {
+          if (generation === sessionGeneration) ctx.ui.notify(`/fire merge failed: ${error instanceof Error ? error.message : String(error)}`, 'error');
+        });
+    }
 
     return markTab(failed ? 'failed' : 'done');
   });
@@ -1102,19 +1659,19 @@ export default function (pi: ExtensionAPI) {
     const fired = firedEntryOfBranch(branch);
     const sessionFile = ctx.sessionManager.getSessionFile();
 
-    if (!fired || !sessionFile) {
-      // The agents this session fired: their count comes back in the footer after a reload or a resume.
-      // A fired agent's session is left out, as its conversation holds the fires of its siblings.
-      for (const entry of branch) {
-        if (entry.type !== 'message' || entry.message.role !== 'toolResult' || entry.message.toolName !== 'fire' || entry.message.isError) continue;
+    // The agents this session fired: their count comes back in the footer after a reload or a resume.
+    for (const fire of ownFires(branch)) watched.set(fire.branch, { branch: fire.branch, sessionFile: fire.sessionFile });
+    startWatching(ctx);
 
-        const details = entry.message.details as Partial<FireDetails> | undefined;
-        if (details?.branch && details.sessionFile) watched.set(details.branch, { branch: details.branch, sessionFile: details.sessionFile });
-      }
-      startWatching(ctx);
-
-      return;
+    // An interactive pi only: a subagent runs in its parent's pane, which is not its own to claim.
+    const { REX_SESSION: rexSession, REX_BLOCK: rexBlock } = process.env;
+    if (sessionFile && rexSession && rexBlock && ctx.hasUI) {
+      const record: PaneRecord = { pid: process.pid, session: rexSession, block: rexBlock };
+      paneFile = paneFileOf(sessionFile);
+      writeFileSync(paneFile, JSON.stringify(record));
     }
+
+    if (!fired || !sessionFile) return;
 
     // A subagent that inherited the conversation holds the entry too, as a fork stored beside its
     // parent: the tab is not its own to mark.
@@ -1134,9 +1691,15 @@ export default function (pi: ExtensionAPI) {
   pi.on('session_shutdown', () => {
     if (lockFile && existsSync(lockFile) && readFileSync(lockFile, 'utf8') === String(process.pid)) rmSync(lockFile);
     lockFile = undefined;
+    // Another pi may have opened the session since: its record stays.
+    if (paneFile && existsSync(paneFile) && readFileSync(paneFile, 'utf8').includes(`"pid":${process.pid},`)) rmSync(paneFile);
+    paneFile = undefined;
     firedBranch = undefined;
     ownWindow = undefined;
     stopWatching();
+    stopMergeWatch();
+    pendingMerge = false;
+    sessionGeneration += 1;
     watched.clear();
   });
 }

@@ -451,10 +451,14 @@ The `/fire` command:
 | `/fire run`              | Sends "fire in wt", for the task the conversation settled                 |
 | `/fire` or `/fire list`  | Lists the fired agents of every repository, and goes to the one you pick  |
 | `/fire prune`            | Removes the agents whose MR is merged or closed, after a confirmation     |
+| `/fire ping`             | Adds to the conversation where the agents fired from this session are at  |
+| `/fire switch`           | Focuses the pane of an agent this session fired, or of the one that fired it |
+| `/fire self-close`       | In a fired agent, closes its own Rex pane once its MR is merged or closed |
+| `/fire merge`            | In a fired agent, enables auto-merge on its MR, then closes its pane once merged |
 
 The task is free text, read by the model: name the issue, the review, the merge, or another
 repository in it, as in `/fire #123, thorough review, merge it` or `/fire in venturi: bump zefire`.
-Only `list`, `prune`, and a bare `run` are subcommands; `/fire run the migration` is a task.
+Only `list`, `prune`, `ping`, `switch`, `self-close`, `merge`, and a bare `run` are subcommands; `/fire run the migration` is a task.
 
 The list shows each agent's state (working, done, failed, or stopped once its pi exited), repository,
 branch, and MR state. Picking a running agent makes its tab the active one of `ai-agents` and shows
@@ -463,6 +467,40 @@ without it, switch to the session yourself. Picking a stopped agent opens its se
 
 `/fire prune` closes the tab and removes the worktree (`wt remove`, which deletes a merged branch) of
 every fired agent whose MR is merged or closed, in every repository.
+
+`/fire self-close`, run in a fired agent's session, fetches the state of its MR from GitLab and, when
+it is merged or closed, closes the Rex pane the agent runs in, ending its pi. The worktree stays:
+`/fire prune` removes it.
+
+`/fire merge`, in a fired agent's session, enables auto-merge on its MR with the glab skill's
+`glab_task.py merge` (the MR must be ready and pushed at the worktree's HEAD, with a pipeline on that
+commit), then follows the MR in the background and closes the pane once it merged. It gives up, the
+pane staying open, when the MR is closed, its pipeline fails, its auto-merge is dropped, or it is still
+not merged after an hour. An MR with merge conflicts, found before enabling auto-merge or while
+following it, is reported as an error, and a choice offers to have the session's agent merge the
+target branch, resolve the conflicts, and push: "Yes, fix them and merge" (the default) runs
+`/fire merge` again by itself once the agent's turn ends, unless that turn failed or was aborted, and
+stops if conflicts remain; "Yes, fix them only" leaves `/fire merge` to you; "No" does nothing.
+While GitLab is still checking whether the MR can merge, `/fire merge` asks to run it again shortly.
+The following lives in the pi process: `/reload`, switching session, or quitting stops it,
+auto-merge staying on GitLab; run `/fire merge` again to follow it, or `/fire self-close` once merged.
+
+`/fire switch` moves the Rex focus along the fires of this session. In a session that fired agents, it
+lists them in the order they were fired and focuses the pane of the one you pick. In a fired agent's
+session, it goes straight to the pane of the session that fired it, without a list; an agent that
+fired agents itself gets that parent as the first row of its list. Each interactive pi running in Rex
+writes the pane it is in to `<session>.jsonl.pane` when its session starts, and removes it on exit,
+so a session reopened in another pane is still found; a pi started before this existed needs a
+`/reload` to be found, except a fired agent still in its original pane, found by the pane's name.
+Showing another Rex session needs Remote Control, as for the list.
+
+`/fire ping` reports on the agents fired from this session only, in the order they were fired: state,
+issue, MR (draft or ready, pipeline status, conflicts; merged or closed), time since the agent last
+wrote to its session, and the first paragraph of its last message (none until it has written one
+of its own). The report is a message of the conversation,
+so the model reads it too and the session can pilot its agents from it; no turn starts, ask your
+question next. In a fired agent's session, the fires inherited from the session that fired it are
+left out, here and in the footer's count.
 
 ### To Checkup
 

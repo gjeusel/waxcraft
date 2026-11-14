@@ -7,21 +7,30 @@ import { fileURLToPath } from 'node:url';
 import { SessionManager } from '@earendil-works/pi-coding-agent';
 import {
   agentLabels,
+  describeMr,
   findRequest,
   firedEntry,
   firedEntryOfBranch,
+  firedStatus,
   forkSession,
   gitlabProject,
+  lastAssistantText,
   layoutFor,
   linkedWorktrees,
   loadConfig,
   originPath,
+  ownFires,
+  paneFileOf,
   parseFireArgs,
   parseTabLabel,
   piCommand,
+  pingReport,
+  readPaneRecord,
   renderBrief,
   requestText,
   reviewersFor,
+  SWITCH_TO_PARENT,
+  switchLabels,
   tabLabel,
   worktreeOfBranch,
 } from './index.ts';
@@ -211,6 +220,93 @@ test('an agent fired by a fired agent is known by its own entry, not the inherit
   });
 });
 
+const fireResult = (branch: string, isError = false) =>
+  ({
+    role: 'toolResult',
+    toolCallId: branch,
+    toolName: 'fire',
+    content: [{ type: 'text', text: 'Fired' }],
+    details: isError ? undefined : { branch, sessionFile: `/sessions/${branch}.jsonl` },
+    isError,
+    timestamp: 0,
+  }) as unknown as Message;
+
+test("a session's own fires leave out those inherited from the session that fired it", () => {
+  withAgentDir(() => {
+    const parent = parentSession([user('fire two agents'), assistant('firing'), fireResult('1-sibling'), user('fire in wt: fix it'), assistant('calling the tool')]);
+    assert.deepEqual(
+      ownFires(parent.getBranch()).map((fire) => fire.branch),
+      ['1-sibling'],
+    );
+
+    const entry = { worktree: '/w/2-fix', clone: '/c', issue: 2, branch: '2-fix' };
+    const fired = SessionManager.open(forkSession(parent.getSessionFile()!, findRequest(parent.getBranch()), entry, '2-fix'));
+    assert.deepEqual(ownFires(fired.getBranch()), []);
+
+    for (const message of [user('fire the follow-ups'), assistant('firing'), fireResult('3-failed', true), fireResult('4-follow-up')]) fired.appendMessage(message);
+    assert.deepEqual(
+      ownFires(fired.getBranch()).map((fire) => fire.branch),
+      ['4-follow-up'],
+    );
+  });
+});
+
+test('the last message of an agent is its last assistant text', () => {
+  withAgentDir(() => {
+    const session = parentSession([user('fix it'), assistant('The MR is ready.\n\nChecks pass.', 'stop'), user('thanks')]);
+    // A turn that only calls tools says nothing.
+    session.appendMessage({ ...assistant(''), content: [{ type: 'toolCall', id: '1', name: 'bash', arguments: {} }] } as unknown as Message);
+
+    assert.equal(lastAssistantText(readFileSync(session.getSessionFile()!, 'utf8')), 'The MR is ready.\n\nChecks pass.');
+    assert.equal(lastAssistantText('{"type":"message","message":{"role":"user","content":"hi"}}\n{"role":"assistant"'), undefined);
+
+    // A fired agent inherits the conversation: what was said before its fire entry is not its own.
+    session.appendMessage(user('fire in wt'));
+    session.appendMessage(assistant('calling the tool'));
+    const entry = { worktree: '/w/12-fix', clone: '/c', issue: 12, branch: '12-fix' };
+    const firedFile = forkSession(session.getSessionFile()!, findRequest(session.getBranch()), entry, '12-fix');
+    assert.equal(lastAssistantText(readFileSync(firedFile, 'utf8')), undefined);
+
+    SessionManager.open(firedFile).appendMessage(assistant('Reading the router.'));
+    assert.equal(lastAssistantText(readFileSync(firedFile, 'utf8')), 'Reading the router.');
+  });
+});
+
+test('the ping report tells the state, the MR and the last message of each agent', () => {
+  assert.equal(describeMr({ state: 'merged', draft: false }), 'merged');
+  assert.equal(describeMr({ state: 'opened', draft: true, head_pipeline: null }), 'draft, pipeline none');
+  assert.equal(describeMr({ state: 'opened', draft: false, has_conflicts: true, head_pipeline: { status: 'failed' } }), 'ready, pipeline failed, conflicts');
+
+  const now = new Date('2026-01-02T12:00:00Z');
+  const report = pingReport(
+    [
+      {
+        state: 'done',
+        issue: 12,
+        issueTitle: 'Fix the filter',
+        mr: 34,
+        mrUrl: 'https://gitlab.com/g/p/-/merge_requests/34',
+        mrStatus: 'ready, pipeline success',
+        active: new Date('2026-01-02T09:00:00Z'),
+        lastMessage: 'The MR is ready.\nChecks pass.\n\n## Details\n\nThey follow.',
+      },
+      { state: 'working', issue: 13, issueTitle: 'Clean up', mr: 35, mrUrl: 'https://gitlab.com/g/p/-/merge_requests/35', active: new Date('2026-01-02T11:58:00Z'), lastMessage: 'x'.repeat(500) },
+      { state: 'stopped', issue: 14, issueTitle: 'Pruned', mr: 36, mrUrl: 'https://gitlab.com/g/p/-/merge_requests/36', mrStatus: 'merged' },
+    ],
+    now,
+  );
+
+  assert.deepEqual(report.split('\n'), [
+    'Fired agents of this session: 1 working, 1 done, 1 stopped.',
+    '',
+    '- ✓ done · #12 Fix the filter · [!34](https://gitlab.com/g/p/-/merge_requests/34) ready, pipeline success · 3 h ago',
+    '  > The MR is ready. Checks pass.',
+    '- ● working · #13 Clean up · [!35](https://gitlab.com/g/p/-/merge_requests/35) · 2 min ago',
+    `  > ${'x'.repeat(400)}…`,
+    '- ○ stopped · #14 Pruned · [!36](https://gitlab.com/g/p/-/merge_requests/36) merged',
+  ]);
+});
+
 test('the brief is the last argument, after the end of options', () => {
   const command = piCommand('/s.jsonl', 'anthropic/claude-opus-5-5', 'high', '--looks like an option');
 
@@ -245,11 +341,52 @@ test('/fire takes any text but its subcommands as a task', () => {
   assert.deepEqual(parseFireArgs(''), { kind: 'list' });
   assert.deepEqual(parseFireArgs(' list '), { kind: 'list' });
   assert.deepEqual(parseFireArgs('prune'), { kind: 'prune' });
+  assert.deepEqual(parseFireArgs('ping'), { kind: 'ping' });
+  assert.deepEqual(parseFireArgs('switch'), { kind: 'switch' });
+  assert.deepEqual(parseFireArgs('self-close'), { kind: 'self-close' });
+  assert.deepEqual(parseFireArgs('merge'), { kind: 'merge' });
   assert.deepEqual(parseFireArgs('run'), { kind: 'run', task: '' });
   // A task starting with a subcommand's word keeps it.
   assert.deepEqual(parseFireArgs('run the migration on staging'), { kind: 'run', task: 'run the migration on staging' });
   assert.deepEqual(parseFireArgs('prune the dead code'), { kind: 'run', task: 'prune the dead code' });
   assert.deepEqual(parseFireArgs('#123, thorough review'), { kind: 'run', task: '#123, thorough review' });
+});
+
+test('the switch picker lists the fired agents, after the parent when there is one', () => {
+  const fire = (issue: number, issueTitle: string) => ({ issue, issueTitle, mr: issue + 100, branch: `${issue}-x` }) as unknown as Parameters<typeof switchLabels>[0][number];
+  const fires = [fire(12, 'Fix the filter'), fire(13, 'Clean up')];
+  const states = new Map([['12-x', 'done' as const]]);
+
+  assert.deepEqual(switchLabels(fires, states, false), ['✓ #12 Fix the filter · !112', '#13 Clean up · !113']);
+  assert.deepEqual(switchLabels(fires, states, true), [SWITCH_TO_PARENT, '✓ #12 Fix the filter · !112', '#13 Clean up · !113']);
+  assert.deepEqual(switchLabels([], states, true), [SWITCH_TO_PARENT]);
+});
+
+test('a pane record is trusted only while the pi that wrote it runs', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'fire-pane-'));
+  try {
+    const sessionFile = join(dir, 'session.jsonl');
+    assert.equal(readPaneRecord(sessionFile), undefined);
+
+    const record = { pid: 4242, session: 'session:1', block: 'block:2' };
+    writeFileSync(paneFileOf(sessionFile), JSON.stringify(record));
+    assert.deepEqual(
+      readPaneRecord(sessionFile, (pid) => pid === 4242),
+      record,
+    );
+    assert.equal(
+      readPaneRecord(sessionFile, () => false),
+      undefined,
+    );
+
+    writeFileSync(paneFileOf(sessionFile), '{"pid":4242');
+    assert.equal(
+      readPaneRecord(sessionFile, () => true),
+      undefined,
+    );
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 });
 
 test("a tab's label carries its agent's state", () => {
@@ -273,4 +410,11 @@ test('an origin is compared by its project path, whatever the URL form', () => {
   for (const url of ['git@gitlab.com:renewex/zefire.git', 'https://gitlab.com/renewex/zefire', 'ssh://git@gitlab.com/renewex/zefire.git\n']) {
     assert.equal(originPath(url), 'renewex/zefire');
   }
+});
+
+test('the footer counts fired agents by state icon, without the stopped ones', () => {
+  assert.equal(firedStatus(['working', 'done', 'running', 'working', 'done', 'stopped']), 'fire ●2 ◐1 ✓2');
+  assert.equal(firedStatus(['done', 'failed']), 'fire ✓1 ⚠1');
+  assert.equal(firedStatus(['stopped']), undefined);
+  assert.equal(firedStatus([]), undefined);
 });
