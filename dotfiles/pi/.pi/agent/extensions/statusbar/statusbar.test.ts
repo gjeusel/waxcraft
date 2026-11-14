@@ -1,10 +1,14 @@
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import test from 'node:test';
 import type { ExtensionAPI, ExtensionContext } from '@earendil-works/pi-coding-agent';
 import { visibleWidth } from '@earendil-works/pi-tui';
-import statusbar from './index.ts';
+import statusbar, { isLinkedWorktree } from './index.ts';
 
-function harness() {
+function harness(cwd = '/project') {
   const statuses = new Map<string, string>();
   let start!: (event: unknown, ctx: ExtensionContext) => Promise<void>;
   let render!: (width: number) => string[];
@@ -15,7 +19,7 @@ function harness() {
   const ctx = {
     model: { id: 'gpt-6.1-sol' },
     thinkingLevel: 'high',
-    sessionManager: { getCwd: () => '/project' },
+    sessionManager: { getCwd: () => cwd },
     getContextUsage: () => ({ percent: 25 }),
     ui: {
       setFooter(factory: (
@@ -63,4 +67,25 @@ test('keeps Fast mode and safety indicators within narrow footer widths', async 
       assert.ok(visibleWidth(runtime.render(width)) <= width);
     }
   }
+});
+
+test('hides the session name, the branch of a fired agent, in a linked worktree', async () => {
+  const root = mkdtempSync(join(tmpdir(), 'statusbar-'));
+  const main = join(root, 'main');
+  const worktree = join(root, 'feature');
+  execFileSync('git', ['init', '--quiet', main]);
+  execFileSync('git', ['-C', main, '-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '--quiet', '--allow-empty', '-m', 'init']);
+  execFileSync('git', ['-C', main, 'worktree', 'add', '--quiet', worktree]);
+
+  assert.equal(isLinkedWorktree(main), false);
+  assert.equal(isLinkedWorktree(worktree), true);
+
+  const inMain = harness(main);
+  await inMain.start();
+  assert.ok(inMain.render().includes('gpt-6.1-sol · high · Test session'));
+
+  const inWorktree = harness(worktree);
+  await inWorktree.start();
+  assert.ok(!inWorktree.render().includes('Test session'));
+  assert.ok(inWorktree.render().includes('gpt-6.1-sol · high'));
 });

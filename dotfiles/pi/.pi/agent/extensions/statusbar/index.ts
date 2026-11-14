@@ -2,14 +2,16 @@
  * statusbar — minimalist single-line footer.
  * Replaces the built-in two/three-line footer (pwd+branch / token stats /
  * extension statuses, e.g. MCP info) with one line:
- *   <repo path>   <model> · <effort> · [fast/ultrafast] · [session]   [account ·] [🛡 degraded ·] [auto-mode ·] <context %>
- * left-aligned / centered / right-aligned. Extension statuses (MCP, etc.)
- * and token/cost stats are deliberately not shown, except account-pool's
+ *   <repo path>   <model> · <effort> · [fast/ultrafast] · [session]   [fire ●2 ✓9 ·] [account ·] [🛡 degraded ·] [auto-mode ·] <context %>
+ * left-aligned / centered / right-aligned. The session name is hidden in a linked git worktree,
+ * where it is the branch name given by fire-in-worktree. Extension statuses (MCP, etc.)
+ * and token/cost stats are deliberately not shown, except fire-in-worktree's fired agents, account-pool's
  * current account and usage, and pi-safety's indicators, displayed before the
  * context size: its degraded state (checks disabled, invalid or missing
  * configuration) and auto mode while on.
  */
-import { isAbsolute, relative, resolve, sep } from 'node:path';
+import { readFileSync, statSync } from 'node:fs';
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
 import { truncateToWidth, visibleWidth } from '@earendil-works/pi-tui';
 
@@ -21,8 +23,21 @@ function shortenCwd(cwd: string, home: string | undefined): string {
   return rel === '' ? '~' : `~${sep}${rel}`;
 }
 
+/** Whether `cwd` is inside a linked worktree, whose `.git` is a file pointing into `.git/worktrees/`. */
+export function isLinkedWorktree(cwd: string): boolean {
+  for (let dir = resolve(cwd); ; dir = dirname(dir)) {
+    const dotGit = join(dir, '.git');
+    const stats = statSync(dotGit, { throwIfNoEntry: false });
+    if (stats?.isDirectory()) return false;
+    if (stats?.isFile()) return /^gitdir: .*[/\\]worktrees[/\\]/m.test(readFileSync(dotGit, 'utf8'));
+    if (dirname(dir) === dir) return false;
+  }
+}
+
 export default function (pi: ExtensionAPI) {
   pi.on('session_start', async (_event, ctx) => {
+    const inWorktree = isLinkedWorktree(ctx.sessionManager.getCwd());
+
     ctx.ui.setFooter((_tui, theme, footerData) => {
       return {
         dispose() {},
@@ -34,7 +49,7 @@ export default function (pi: ExtensionAPI) {
           const extensionStatuses = footerData.getExtensionStatuses();
           const speed = extensionStatuses.get('pi-model-controls');
           const speedLabel = speed === 'fast' || speed === 'ultrafast' ? speed : undefined;
-          const sessionName = pi.getSessionName();
+          const sessionName = inWorktree ? undefined : pi.getSessionName();
           const truncatedSessionName = sessionName
             ? truncateToWidth(sessionName, 50, '…').replaceAll('\x1b[0m', '')
             : undefined;
