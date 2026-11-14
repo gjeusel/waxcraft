@@ -19,6 +19,7 @@ interface QuestionnaireResult {
   answers: QuestionAnswer[];
   cancelled: boolean;
   globalNote?: string;
+  unanswered?: number[];
 }
 
 function isQuestionAnswer(value: unknown): value is QuestionAnswer {
@@ -55,13 +56,18 @@ function isQuestionnaireResult(value: unknown): value is QuestionnaireResult {
     typeof result.cancelled === 'boolean' &&
     Array.isArray(result.answers) &&
     result.answers.every(isQuestionAnswer) &&
-    (result.globalNote === undefined || typeof result.globalNote === 'string')
+    (result.globalNote === undefined || typeof result.globalNote === 'string') &&
+    (result.unanswered === undefined ||
+      (Array.isArray(result.unanswered) && result.unanswered.every((index) => typeof index === 'number')))
   );
 }
 
 function formatAnswer(answer: QuestionAnswer): string {
   if (answer.kind === 'multi') {
-    return answer.selected && answer.selected.length > 0 ? answer.selected.join(', ') : NO_INPUT_PLACEHOLDER;
+    // Upstream appends the typed custom text after the selected labels.
+    const values = [...(answer.selected ?? [])];
+    if (answer.answer && answer.answer.length > 0) values.push(answer.answer);
+    return values.length > 0 ? values.join(', ') : NO_INPUT_PLACEHOLDER;
   }
   if (answer.kind === 'custom') {
     return answer.answer && answer.answer.length > 0 ? answer.answer : NO_INPUT_PLACEHOLDER;
@@ -73,9 +79,23 @@ function orderedAnswers(details: QuestionnaireResult): QuestionAnswer[] {
   return [...details.answers].sort((left, right) => left.questionIndex - right.questionIndex);
 }
 
+/** Questions left blank on a partial submit, read from the tool input since details only hold indexes. */
+function unansweredQuestions(details: QuestionnaireResult, input: unknown): string[] | undefined {
+  if (!details.unanswered || details.unanswered.length === 0) return [];
+
+  const questions = (input as { questions?: { question?: unknown }[] } | undefined)?.questions;
+  if (!Array.isArray(questions)) return undefined;
+
+  const texts = details.unanswered.map((index) => questions[index]?.question);
+  return texts.every((text) => typeof text === 'string') ? (texts as string[]) : undefined;
+}
+
 /** Reproduce the package's envelope so only untouched results are eligible for rewriting. */
-export function formatOriginalQuestionnaireResult(details: unknown): string | undefined {
+export function formatOriginalQuestionnaireResult(details: unknown, input?: unknown): string | undefined {
   if (!isQuestionnaireResult(details) || details.cancelled) return undefined;
+
+  const unanswered = unansweredQuestions(details, input);
+  if (unanswered === undefined) return undefined;
 
   const segments = orderedAnswers(details).map((answer) => {
     const parts = [`"${answer.question}"="${formatAnswer(answer)}"`];
@@ -83,6 +103,10 @@ export function formatOriginalQuestionnaireResult(details: unknown): string | un
     if (answer.notes && answer.notes.length > 0) parts.push(`user notes: ${answer.notes}`);
     return `${parts.join('. ')}.`;
   });
+
+  if (unanswered.length > 0) {
+    segments.push(`unanswered: ${unanswered.map((question) => `"${question}"`).join(', ')}.`);
+  }
 
   if (details.globalNote && details.globalNote.length > 0) {
     segments.push(`global note: ${details.globalNote}.`);
@@ -92,14 +116,21 @@ export function formatOriginalQuestionnaireResult(details: unknown): string | un
 }
 
 /** Build concise model-facing text from the questionnaire's structured result. */
-export function formatQuestionnaireResult(details: unknown): string | undefined {
+export function formatQuestionnaireResult(details: unknown, input?: unknown): string | undefined {
   if (!isQuestionnaireResult(details) || details.cancelled) return undefined;
+
+  const unanswered = unansweredQuestions(details, input);
+  if (unanswered === undefined) return undefined;
 
   const sections = orderedAnswers(details).map((answer) => {
     const lines = [`Question: ${answer.question}`, `User Answer: ${formatAnswer(answer)}`];
     if (answer.notes && answer.notes.length > 0) lines.push(`User Notes: ${answer.notes}`);
     return lines.join('\n');
   });
+
+  for (const question of unanswered) {
+    sections.push(`Question: ${question}\nUser Answer: (unanswered)`);
+  }
 
   if (details.globalNote && details.globalNote.length > 0) {
     sections.push(`Global Note: ${details.globalNote}`);
@@ -114,8 +145,8 @@ export default function askUserQuestionFormat(pi: ExtensionAPI): void {
   pi.on('tool_result', (event, ctx) => {
     if (event.toolName !== ASK_USER_QUESTION_TOOL_NAME) return;
 
-    const originalText = formatOriginalQuestionnaireResult(event.details);
-    const compactText = formatQuestionnaireResult(event.details);
+    const originalText = formatOriginalQuestionnaireResult(event.details, event.input);
+    const compactText = formatQuestionnaireResult(event.details, event.input);
     const [content] = event.content;
     if (
       originalText === undefined ||

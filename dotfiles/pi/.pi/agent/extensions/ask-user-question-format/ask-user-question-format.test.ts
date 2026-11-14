@@ -175,3 +175,24 @@ test('warns once when the upstream envelope no longer matches', () => {
   assert.equal(notifications.length, 1);
   assert.match(notifications[0], /format changed upstream/);
 });
+
+test('reproduces the upstream envelope for multi-select custom text and partial submits', () => {
+  const details = {
+    answers: [
+      { questionIndex: 0, question: 'Which checks?', kind: 'multi', answer: 'Lint', selected: ['Unit tests'] },
+    ],
+    cancelled: false,
+    unanswered: [1],
+  };
+  const input = { questions: [{ question: 'Which checks?' }, { question: 'Deploy now?' }] };
+
+  assert.equal(
+    formatOriginalQuestionnaireResult(details, input),
+    'User has answered your questions: "Which checks?"="Unit tests, Lint". unanswered: "Deploy now?". You can now continue with the user\'s answers in mind.',
+  );
+  assert.equal(
+    formatQuestionnaireResult(details, input),
+    'Question: Which checks?\nUser Answer: Unit tests, Lint\n\nQuestion: Deploy now?\nUser Answer: (unanswered)',
+  );
+  assert.equal(formatOriginalQuestionnaireResult(details), undefined);
+});
