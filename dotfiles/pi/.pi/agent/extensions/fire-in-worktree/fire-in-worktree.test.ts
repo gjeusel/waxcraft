@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { test } from 'node:test';
@@ -7,6 +7,15 @@ import { fileURLToPath } from 'node:url';
 import { SessionManager } from '@earendil-works/pi-coding-agent';
 import {
   agentLabels,
+  agentState,
+  createMergeWatch,
+  fireRecordOf,
+  firedSessionsOf,
+  mrStatesQuery,
+  parseMrStates,
+  readFireRecord,
+  readOrigin,
+  sessionDirOf,
   describeMr,
   findRequest,
   firedEntry,
@@ -34,6 +43,8 @@ import {
   switchLabels,
   tabLabel,
   worktreeOfBranch,
+  type MergeWatchIo,
+  type Mr,
 } from './index.ts';
 
 type Message = Parameters<SessionManager['appendMessage']>[0];
@@ -132,11 +143,11 @@ test('a repository is named by its short name or GitLab path in projects.md', ()
 
   assert.deepEqual(gitlabProject(projects, 'venturi'), { name: 'venturi', path: 'renewex/scripts/venturi' });
   assert.deepEqual(gitlabProject(projects, 'renewex/scripts/venturi'), { name: 'venturi', path: 'renewex/scripts/venturi' });
-  // Absent from the table, a GitLab path is taken as is.
-  assert.deepEqual(gitlabProject(projects, 'renewex/template/python-rnxcookie'), {
-    name: 'python-rnxcookie',
-    path: 'renewex/template/python-rnxcookie',
-  });
+  // Absent from the table, a GitLab path is taken as is within the table's groups only: the clone
+  // would run with the user's trust.
+  assert.deepEqual(gitlabProject(projects, 'renewex/infra/rnx-auth'), { name: 'rnx-auth', path: 'renewex/infra/rnx-auth' });
+  assert.equal(gitlabProject(projects, 'someone/else/repo'), undefined);
+  assert.equal(gitlabProject(projects, 'renewex/../someone/repo'), undefined);
   assert.equal(gitlabProject(projects, 'nope'), undefined);
 });
 
@@ -424,4 +435,203 @@ test('the footer tells the step of /fire merge, with the MR and the minutes once
   assert.equal(mergeStatus(undefined, 'checking the MR', 2_000), 'merge checking the MR');
   assert.equal(mergeStatus(12, 'enabling auto-merge, GitLab checking (approvals_syncing)', 59_000), 'merge !12 enabling auto-merge, GitLab checking (approvals_syncing)');
   assert.equal(mergeStatus(12, 'auto-merge on, pipeline running', 4.5 * 60_000), 'merge !12 auto-merge on, pipeline running · 4m');
+});
+
+test('a fork has a fire record, and a session forked before records gets one on first sight', () => {
+  withAgentDir((dir) => {
+    const parent = parentSession([user('fire in wt: fix it'), assistant('calling the tool')]);
+    const entry = { worktree: '/home/me/.pi/src/zefire.worktrees/12-fix', clone: '/c', issue: 12, branch: '12-fix' };
+    const sessionFile = forkSession(parent.getSessionFile()!, findRequest(parent.getBranch()), entry, '12-fix');
+
+    assert.equal(dirname(sessionFile), sessionDirOf(entry.worktree, dir));
+    assert.deepEqual(JSON.parse(readFileSync(fireRecordOf(sessionFile), 'utf8')), entry);
+    assert.deepEqual(firedSessionsOf(entry.worktree), [{ sessionFile, entry }]);
+
+    rmSync(fireRecordOf(sessionFile));
+    assert.deepEqual(readFireRecord(sessionFile), entry);
+    assert.ok(existsSync(fireRecordOf(sessionFile)));
+
+    // A session started by hand in the worktree, and a subagent's fork stored beside its parent's.
+    const byHand = SessionManager.create(entry.worktree);
+    byHand.appendMessage(user('hello'));
+    assert.equal(readFireRecord(byHand.getSessionFile()!), undefined);
+    const subagent = SessionManager.forkFrom(sessionFile, entry.worktree);
+    subagent.appendMessage(user('implement part 1'));
+    assert.equal(readFireRecord(subagent.getSessionFile()!), undefined);
+    assert.equal(existsSync(fireRecordOf(subagent.getSessionFile()!)), false);
+  });
+});
+
+test("an agent's state comes from its lock, then its tab", () => {
+  withAgentDir((dir) => {
+    const sessionFile = join(dir, 's.jsonl');
+    const tabs = [{ windowId: 'w1', branch: '12-fix', state: 'done' as const }];
+    assert.deepEqual(agentState(sessionFile, '12-fix', tabs), { state: 'stopped' });
+
+    writeFileSync(`${sessionFile}.pid`, '4242');
+    assert.deepEqual(agentState(sessionFile, '12-fix', tabs, () => false), { state: 'stopped' });
+    assert.deepEqual(agentState(sessionFile, '12-fix', tabs, () => true), { state: 'done', pid: 4242, tab: tabs[0] });
+    assert.deepEqual(agentState(sessionFile, '13-other', tabs, () => true), { state: 'running', pid: 4242, tab: undefined });
+  });
+});
+
+test('the origin of a checkout is read from its git config', () => {
+  withAgentDir((dir) => {
+    mkdirSync(join(dir, '.git'));
+    assert.equal(readOrigin(dir), undefined);
+
+    const config = '[core]\n\tbare = false\n[remote "upstream"]\n\turl = git@gitlab.com:x/y.git\n[remote "origin"]\n\turl = git@gitlab.com:renewex/backend/zefire.git\n\tfetch = +refs/heads/*:refs/remotes/origin/*\n';
+    writeFileSync(join(dir, '.git', 'config'), config);
+    assert.equal(readOrigin(dir), 'git@gitlab.com:renewex/backend/zefire.git');
+  });
+});
+
+test('MR states come from one GraphQL query, the latest own MR of each branch', () => {
+  const query = mrStatesQuery('renewex/backend/zefire', ['12-fix', 'a"b']);
+  assert.match(query, /project\(fullPath: "renewex\/backend\/zefire"\)/);
+  assert.match(query, /sourceBranches: \["12-fix", "a\\"b"\]/);
+
+  const response = {
+    data: {
+      project: {
+        id: 'gid://gitlab/Project/7',
+        mergeRequests: {
+          nodes: [
+            { sourceBranch: '12-fix', state: 'opened', sourceProjectId: 99 },
+            { sourceBranch: '12-fix', state: 'merged', sourceProjectId: 7 },
+            { sourceBranch: '12-fix', state: 'closed', sourceProjectId: 7 },
+            { sourceBranch: 'unasked', state: 'opened', sourceProjectId: 7 },
+          ],
+        },
+      },
+    },
+  };
+  assert.deepEqual(parseMrStates(response, ['12-fix', '13-none']), new Map([['12-fix', 'merged'], ['13-none', 'none']]));
+  assert.throws(() => parseMrStates({ errors: [{ message: 'denied' }] }, []), /denied/);
+  assert.throws(() => parseMrStates({ data: { project: null } }, []), /project not found/);
+});
+
+/** A merge watch run against scripted GitLab answers and a manual clock. */
+function mergeHarness(options: { mrs: Partial<Mr>[]; merges?: { code: number; stdout?: string; stderr?: string }[] }) {
+  const mrs = [...options.mrs];
+  const merges = [...(options.merges ?? [{ code: 0, stdout: JSON.stringify({ mr: { iid: 34, web_url: 'https://mr/34' } }) }])];
+  const events: string[] = [];
+  let now = 0;
+  let next: (() => void) | undefined;
+  const base: Mr = { iid: 34, web_url: 'https://mr/34', state: 'opened', draft: false, source_branch: '12-fix', source_project_id: 7, target_project_id: 7, target_branch: 'master' };
+  const nextMr = () => ({ ...base, ...(mrs.length > 1 ? mrs.shift() : mrs[0]) });
+
+  const io: MergeWatchIo = {
+    branch: '12-fix',
+    gitlab: async <T,>(path: string) => {
+      if (path === 'projects/:fullpath') return { id: 7 } as T;
+      const mr = nextMr();
+      if ((mr as { fail?: boolean }).fail) throw new Error('gitlab down');
+
+      return (path.includes('?') ? [mr, { ...base, iid: 99, source_project_id: 99 }] : mr) as T;
+    },
+    enableAutoMerge: async () => ({ stdout: '', stderr: '', ...merges.shift()! }),
+    closePane: async () => void events.push('close'),
+    onConflicts: async (mr) => void events.push(`conflicts !${mr.iid}`),
+    notify: (message, level) => events.push(`${level}: ${message.split('\n')[0]}`),
+    setStatus: (text) => events.push(`status: ${text ?? '-'}`),
+    now: () => now,
+    schedule: (callback, ms) => {
+      next = () => {
+        now += ms;
+        next = undefined;
+        callback();
+      };
+      return () => (next = undefined);
+    },
+  };
+  const watch = createMergeWatch(io);
+  const tick = async () => {
+    const run = next;
+    assert.ok(run, 'a next step is scheduled');
+    run();
+    await new Promise((resolve) => setImmediate(resolve));
+  };
+
+  return { watch, events, tick, hasNext: () => next !== undefined, setNow: (ms: number) => (now = ms) };
+}
+
+test('/fire merge enables auto-merge, follows the pipeline, and closes the pane once merged', async () => {
+  const { watch, events, tick } = mergeHarness({
+    mrs: [{ detailed_merge_status: 'mergeable' }, { auto_merge_enabled: true, head_pipeline: { status: 'running' } }, { state: 'merged' }],
+  });
+
+  await watch.step();
+  await tick();
+  await tick();
+
+  assert.deepEqual(events, [
+    'status: merge checking the MR',
+    'status: merge !34 enabling auto-merge',
+    'info: Auto-merge enabled on !34: followed in the background, this pane closes once it merged',
+    'status: merge !34 auto-merge on',
+    'status: merge !34 auto-merge on, pipeline running',
+    'status: merge !34 merged, closing the pane',
+    'close',
+  ]);
+});
+
+test('/fire merge retries while GitLab checks the MR, and stops on a refusal once it settled', async () => {
+  const refused = { code: 1, stderr: 'not mergeable' };
+  const { watch, events, tick, hasNext } = mergeHarness({ mrs: [{ detailed_merge_status: 'checking' }, { detailed_merge_status: 'not_approved' }], merges: [refused, refused] });
+
+  await watch.step();
+  assert.ok(events.includes('warning: GitLab is still checking whether !34 can merge (checking): enabling auto-merge is retried in the background'));
+  await tick();
+
+  assert.equal(events.at(-1), 'error: Auto-merge not enabled:');
+  assert.equal(events.at(-2), 'status: -');
+  assert.equal(hasNext(), false);
+});
+
+test('/fire merge hands merge conflicts over and stops', async () => {
+  const { watch, events, hasNext } = mergeHarness({ mrs: [{ has_conflicts: true }] });
+
+  await watch.step();
+
+  assert.deepEqual(events.slice(-2), ['status: -', 'conflicts !34']);
+  assert.equal(hasNext(), false);
+});
+
+test('/fire merge stops on a failed pipeline or a lost auto-merge, keeping the pane', async () => {
+  for (const [mr, reason] of [
+    [{ auto_merge_enabled: true, head_pipeline: { status: 'failed' } }, 'has its pipeline failed'],
+    [{ auto_merge_enabled: false, head_pipeline: { status: 'running' } }, 'lost its auto-merge'],
+    [{ state: 'closed' }, 'is closed'],
+  ] as const) {
+    const { watch, events, tick, hasNext } = mergeHarness({ mrs: [{}, mr] });
+    await watch.step();
+    await tick();
+
+    assert.equal(events.at(-1), `warning: !34 ${reason}: the pane stays open (https://mr/34)`);
+    assert.equal(events.includes('close'), false);
+    assert.equal(hasNext(), false);
+  }
+});
+
+test('/fire merge tells GitLab failures once, and gives up at its deadline', async () => {
+  const { watch, events, tick, setNow } = mergeHarness({ mrs: [{}, { fail: true } as Partial<Mr>] });
+  await watch.step();
+  for (let index = 0; index < 5; index += 1) await tick();
+
+  assert.equal(events.filter((event) => event.startsWith('warning: Cannot follow !34')).length, 1);
+
+  setNow(61 * 60_000);
+  await tick();
+  assert.match(events.at(-1)!, /^warning: !34 is still not merged after 60 min/);
+});
+
+test('a stopped /fire merge ignores a late GitLab answer', async () => {
+  const { watch, events } = mergeHarness({ mrs: [{ state: 'merged' }] });
+  const pending = watch.step();
+  watch.stop();
+  await pending;
+
+  assert.equal(events.includes('close'), false);
+  assert.equal(events.some((event) => event.startsWith('info:')), false);
 });

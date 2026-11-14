@@ -416,7 +416,8 @@ task to a new pi running on its own:
    continues it) and stopping before the request, which the brief restates along with anything you
    steered into that turn. Storing them beside the launching session would let `pi -c` in
    `~/src/<repo>` pick the busiest agent's session. A `<session>.jsonl.pid` lock warns when the
-   session is opened while its agent still runs.
+   session is opened while its agent still runs, and a `<session>.jsonl.fire.json` record marks it
+   as a fired agent's, so that `/fire` finds the agents without reading their sessions.
 5. **Rex tab.** Named after the branch, tab and pane, in the session `ai-agents` (created if
    missing, without stealing focus): find it with Go to Anything (Rex's "New quick switcher"). It runs
    `nice -n 10 pi` through `zsh -i`, so that `~/.zshrc` exports are present and agents running tests
@@ -427,11 +428,19 @@ task to a new pi running on its own:
    model to retry with that `issue` rather than create a second one.
 6. **Follow-up.** The agent marks its tab when it settles: `✓ <branch>` when done, `⚠ <branch>` after
    an error or an abort, and the bare branch while it works. The launching session polls every 15 s:
-   its footer shows `fired: 2 working, 1 done`, and it notifies you when an agent settles.
+   its footer shows `fire ●2 ✓1` (working, running outside Rex `◐`, done, failed `⚠`), and it
+   notifies you when an agent settles.
 
-`repo` fires into another repository than the current one: a checkout path, or a short name or
-GitLab path from the glab skill's `references/projects.md`. Clones are named after the repository
-alone, so the tool refuses an existing `~/.pi/src/<repo>` whose origin is another project.
+`repo` fires into another repository than the current one: a checkout under `~/src` (or an agent
+clone), or a short name or GitLab path from the glab skill's `references/projects.md`; a GitLab path
+absent from the table is accepted only within one of its top-level groups. An existing clone of the
+same origin is reused, whatever its name. Clones are otherwise named after the repository alone, so
+the tool refuses an existing `~/.pi/src/<repo>` whose origin is another project.
+
+The agents run with the project trust of your own checkouts: the extension trusts an agent clone and
+its worktrees when the clone's origin is the one it vouched for at its last fire (`pi-fire.trustedorigin`
+in the clone's git config), or that of `~/src/<repo>`. Any other directory under `~/.pi/src` goes
+through pi's usual trust resolution.
 
 [`brief.md`](.pi/agent/extensions/fire-in-worktree/brief.md) is the agent's first message:
 implementation, delegated to `general-purpose` subagents when `fire.json` sets a `workerModel`, review
@@ -467,7 +476,9 @@ that session in Rex, which needs Remote Control turned on in Rex's settings, und
 without it, switch to the session yourself. Picking a stopped agent opens its session here.
 
 `/fire prune` closes the tab and removes the worktree (`wt remove`, which deletes a merged branch) of
-every fired agent whose MR is merged or closed, in every repository.
+every fired agent whose MR is merged or closed, in every repository. MR states come from one GitLab
+GraphQL query per repository; a repository whose worktrees or MRs cannot be read is reported and
+skipped, the others pruned.
 
 `/fire self-close`, run in a fired agent's session, fetches the state of its MR from GitLab and, when
 it is merged or closed, closes the Rex pane the agent runs in, ending its pi. The worktree stays:

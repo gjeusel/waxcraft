@@ -22,90 +22,67 @@
  *
  * A fired agent marks its Rex tab when it settles (✓ done, ⚠ failed), and a session that fired agents
  * shows their count in its footer.
+ *
+ * Modules: config (fire.json), repo (clones, worktrees, trust), session (session files and their
+ * records), rex (tabs and panes), gitlab (MR states), merge-watch (`/fire merge`), report (states and
+ * the labels shown of them).
  */
-import { spawn } from 'node:child_process';
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
-import { homedir, tmpdir } from 'node:os';
-import { basename, dirname, join, resolve, sep } from 'node:path';
+import { existsSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { basename, dirname, join } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
-import {
-  getAgentDir,
-  SessionManager,
-  type ExtensionAPI,
-  type ExtensionCommandContext,
-  type ExtensionContext,
-  type SessionEntry,
-  type SessionInfo,
-} from '@earendil-works/pi-coding-agent';
+import { getAgentDir, type ExtensionAPI, type ExtensionCommandContext, type ExtensionContext } from '@earendil-works/pi-coding-agent';
 import { Text } from '@earendil-works/pi-tui';
 import { Type } from 'typebox';
+import { loadConfig, reviewersFor, type Review } from './config.ts';
+import { errorText, LONG_TIMEOUT_MS, run, runOrThrow } from './exec.ts';
+import { describeMr, gitlabGet, mrStates, type Mr } from './gitlab.ts';
+import { createMergeWatch, type MergeWatch } from './merge-watch.ts';
+import { agentClones, createWorktree, ensureClone, isTrustedClone, listLinkedWorktrees, resolveRepo } from './repo.ts';
+import { agentLabels, agentState, firedStatus, pingReport, switchLabels, SWITCH_TO_PARENT, type AgentRow, type AgentState, type PingRow } from './report.ts';
+import { closeTabs, findPane, focusPane, jumpToTab, listTabs, openRexTab, paneTail, REX_SESSION, rexSessionExists, tabLabel, tabOfPane, type Pane, type Tab, type TabState } from './rex.ts';
+import {
+  firedEntryOfBranch,
+  firedSessionsOf,
+  findRequest,
+  forkSession,
+  lastAssistantText,
+  lockFileOf,
+  lockSession,
+  ownFires,
+  paneFileOf,
+  readFireRecord,
+  readPaneRecord,
+  requestText,
+  textOf,
+  type FireDetails,
+  type PaneRecord,
+} from './session.ts';
 
-const REX_SESSION = 'ai-agents';
+export * from './config.ts';
+export * from './gitlab.ts';
+export * from './merge-watch.ts';
+export * from './repo.ts';
+export * from './report.ts';
+export * from './rex.ts';
+export * from './session.ts';
+
 const STATUS_KEY = 'fire';
 const WATCH_INTERVAL_MS = 15_000;
 const MERGE_STATUS_KEY = 'fire-merge';
-const MERGE_POLL_MS = 15_000;
-// While auto-merge is not enabled yet: GitLab usually settles whether an MR can merge within seconds.
-const ENABLE_RETRY_MS = 5_000;
-const UNSETTLED_WAIT_MS = 5 * 60_000;
-const MERGE_WAIT_MS = 60 * 60_000;
-// GitLab's `detailed_merge_status` while it has not yet computed whether an MR can merge.
-const UNSETTLED_MERGE_STATUSES = new Set(['unchecked', 'checking', 'preparing', 'approvals_syncing']);
 // The choices offered when `/fire merge` finds merge conflicts, the default first.
 const CONFLICT_CHOICES = { fixAndMerge: 'Yes, fix them and merge', fixOnly: 'Yes, fix them only', no: 'No' } as const;
-const ENTRY_TYPE = 'fire-in-worktree';
 const PING_TYPE = 'fire-ping';
-const PING_EXCERPT_CHARS = 400;
 const BRIEF_TEMPLATE_PATH = fileURLToPath(new URL('brief.md', import.meta.url));
-const LONG_TIMEOUT_MS = 15 * 60_000;
 // The launched pi takes the session lock on start: until then, its launch is not confirmed.
 const START_TIMEOUT_MS = 45_000;
-const MODEL_REF = /^[^/]+\/./;
-
-export type Review = 'standard' | 'thorough' | 'none';
-
-export interface Reviewers {
-  standard: string;
-  thorough: string;
-}
-
-/**
- * fire.json: the agent's default model (the launching session's when absent), the default model of
- * the subagents it delegates implementation to (no delegation when absent), and the reviewer models
- * by the agent's provider, `default` for the others, so that the review runs on another provider
- * than the agent.
- */
-export interface FireConfig {
-  model?: string;
-  workerModel?: string;
-  reviewers: Record<string, Reviewers>;
-}
-
-/** Stored in the forked session: marks it as a fired agent's session. */
-export interface FireEntry {
-  worktree: string;
-  clone: string;
-  issue: number;
-  branch: string;
-}
 
 /** What `glab_task.py open` prints. */
 interface OpenedTask {
   issue: { iid: number; title: string; web_url: string; created: boolean };
   branch: { name: string; created: boolean; base: string };
   mr: { iid: number; web_url: string; draft: boolean; created: boolean };
-}
-
-/** What a fired agent's Rex tab says of it: the tab's label is its branch, marked once it settles. */
-export type TabState = 'working' | 'done' | 'failed';
-
-const TAB_MARKS: Record<TabState, string> = { working: '', done: '✓ ', failed: '⚠ ' };
-
-interface Tab {
-  windowId: string;
-  branch: string;
-  state: TabState;
 }
 
 export type FireCommand =
@@ -117,59 +94,18 @@ export type FireCommand =
   | { kind: 'merge' }
   | { kind: 'run'; task: string };
 
-/** A row of the `/fire` picker. `stopped`: no pi runs the session; `running`: one does, outside Rex. */
-export interface AgentRow {
-  state: TabState | 'running' | 'stopped';
-  repo: string;
-  branch: string;
-  mr?: string;
-  modified: Date;
-}
-
-const STATE_ICONS: Record<AgentRow['state'], string> = { working: '●', running: '◐', done: '✓', failed: '⚠', stopped: '○' };
-
-/** The footer status of the agents fired from a session, as icon counts: `fire ●2 ◐1 ✓9`. */
-export function firedStatus(states: readonly AgentRow['state'][]): string | undefined {
-  const counts = (['working', 'running', 'done', 'failed'] as const)
-    .map((state) => ({ state, count: states.filter((candidate) => candidate === state).length }))
-    .filter(({ count }) => count > 0)
-    .map(({ state, count }) => `${STATE_ICONS[state]}${count}`);
-
-  return counts.length > 0 ? `fire ${counts.join(' ')}` : undefined;
-}
-
-/** The footer status of `/fire merge` while its watch lives: `merge !12 auto-merge on, pipeline running · 4m`. */
-export function mergeStatus(iid: number | undefined, step: string, elapsedMs: number): string {
-  const minutes = Math.floor(elapsedMs / 60_000);
-
-  return ['merge', iid !== undefined && `!${iid}`, step, minutes > 0 && `· ${minutes}m`].filter(Boolean).join(' ');
-}
-
 interface FiredAgent extends AgentRow {
-  session: SessionInfo;
+  sessionFile: string;
   pid?: number;
   tab?: Tab;
 }
 
-export interface RepoLayout {
-  /** Agent-only clone owning the worktrees. */
-  clone: string;
-  /** The user's own checkout of the repository: clone reference, never touched by agents. */
-  userCheckout: string;
-}
-
-interface RunOptions {
-  cwd?: string;
-  timeoutMs?: number;
-  signal?: AbortSignal;
-}
-
-interface RunResult {
-  code: number;
-  stdout: string;
-  stderr: string;
-  /** Set when a signal ended the command, as its timeout does. */
-  killed?: string;
+/** A fired agent, as the session that fired it follows it. */
+interface Watched {
+  branch: string;
+  sessionFile: string;
+  /** Absent until first looked at: an agent found settled then is not announced. */
+  state?: AgentState;
 }
 
 const fireSchema = Type.Object(
@@ -177,7 +113,7 @@ const fireSchema = Type.Object(
     repo: Type.Optional(
       Type.String({
         description:
-          'Repository to fire into, when it is not the current one: a short name or GitLab path from the glab skill\'s references/projects.md (e.g. "venturi"), or a checkout path.',
+          'Repository to fire into, when it is not the current one: a short name or GitLab path from the glab skill\'s references/projects.md (e.g. "venturi"), or the path of a checkout under ~/src.',
       }),
     ),
     issue: Type.Optional(Type.Integer({ description: 'IID of the existing GitLab issue of the task, when one is named.' })),
@@ -232,94 +168,6 @@ const fireSchema = Type.Object(
   { additionalProperties: false },
 );
 
-/** Throws on a missing file, invalid JSON, or a malformed value. */
-export function loadConfig(path: string): FireConfig {
-  const parsed = JSON.parse(readFileSync(path, 'utf8')) as Record<string, unknown> | null;
-  for (const key of ['model', 'workerModel'] as const) {
-    const model = parsed?.[key];
-    if (model !== undefined && (typeof model !== 'string' || !MODEL_REF.test(model))) {
-      throw new Error(`${path}: ${key} must be "provider/modelId"`);
-    }
-  }
-
-  const reviewers = parsed?.reviewers;
-  if (typeof reviewers !== 'object' || reviewers === null || Array.isArray(reviewers)) {
-    throw new Error(`${path}: expected {"reviewers": {"<provider>" | "default": {"standard", "thorough"}}}`);
-  }
-
-  for (const [provider, models] of Object.entries(reviewers)) {
-    for (const review of ['standard', 'thorough'] as const) {
-      const model = (models as Record<string, unknown> | null)?.[review];
-      if (typeof model !== 'string' || !MODEL_REF.test(model)) {
-        throw new Error(`${path}: reviewers.${provider}.${review} must be "provider/modelId"`);
-      }
-    }
-  }
-
-  return {
-    model: parsed?.model as string | undefined,
-    workerModel: parsed?.workerModel as string | undefined,
-    reviewers: reviewers as Record<string, Reviewers>,
-  };
-}
-
-export function reviewersFor(config: FireConfig, provider: string): Reviewers {
-  const reviewers = config.reviewers[provider] ?? config.reviewers.default;
-  if (!reviewers) throw new Error(`fire.json has no reviewers for provider ${provider}, nor a default`);
-
-  return reviewers;
-}
-
-/**
- * From a checkout under ~/src, the clone is ~/.pi/src/<name>. From an agent clone or one of its
- * worktrees (a fired agent firing again), it is that clone. Linked worktrees resolve to their main
- * checkout through the common git directory.
- */
-export function layoutFor(commonGitDir: string, home = homedir()): RepoLayout {
-  const mainCheckout = dirname(commonGitDir);
-  const clonesDir = join(home, '.pi', 'src');
-  const name = basename(mainCheckout);
-
-  if (mainCheckout.startsWith(clonesDir + sep)) return { clone: mainCheckout, userCheckout: join(home, 'src', name) };
-
-  return { clone: join(clonesDir, name), userCheckout: mainCheckout };
-}
-
-/**
- * The GitLab path of a repository named by its short name or path in projects.md, whose table rows
- * read `| short name | gitlab path | ... |`. A path absent from the table is taken as is.
- */
-export function gitlabProject(projectsMarkdown: string, repo: string): { name: string; path: string } | undefined {
-  for (const line of projectsMarkdown.split('\n')) {
-    const [name, path] = line.split('|').slice(1, 3).map((cell) => cell.trim());
-    if (name && path && (repo === name || repo === path)) return { name, path };
-  }
-  if (/^[\w.-]+(\/[\w.-]+)+$/.test(repo)) return { name: basename(repo), path: repo };
-
-  return undefined;
-}
-
-/** The project path of an origin URL, whatever its form: `git@host:group/repo.git` or `https://host/group/repo`. */
-export function originPath(url: string): string {
-  return url
-    .trim()
-    .replace(/\.git$/, '')
-    .replace(/^[a-z+]+:\/\/[^/]+\//, '')
-    .replace(/^[^/@]+@[^:]+:/, '');
-}
-
-export function tabLabel(branch: string, state: TabState): string {
-  return TAB_MARKS[state] + branch;
-}
-
-export function parseTabLabel(label: string): { branch: string; state: TabState } {
-  for (const state of ['done', 'failed'] as const) {
-    if (label.startsWith(TAB_MARKS[state])) return { branch: label.slice(TAB_MARKS[state].length), state };
-  }
-
-  return { branch: label, state: 'working' };
-}
-
 /**
  * `list`, `prune`, `ping`, `switch`, `self-close`, and `merge` are subcommands, and a bare `run` fires
  * what the conversation settled. Any other text is a task, one starting with "run" included.
@@ -336,186 +184,6 @@ export function parseFireArgs(args: string): FireCommand {
   return { kind: 'run', task: text === 'run' ? '' : text };
 }
 
-/**
- * The fire entry of a session file, when it is a fired agent's session. The last one: an agent fired
- * by a fired agent forks its conversation, hence holds its parent's entry before its own.
- */
-export function firedEntry(sessionText: string): FireEntry | undefined {
-  let own: FireEntry | undefined;
-  for (const line of sessionText.split('\n')) {
-    // Cheap filter first: the entry type also appears in the text of conversations about this extension.
-    if (!line.includes(`"${ENTRY_TYPE}"`)) continue;
-
-    try {
-      const entry = JSON.parse(line) as { type?: string; customType?: string; data?: FireEntry };
-      if (entry.type === 'custom' && entry.customType === ENTRY_TYPE && entry.data) own = entry.data;
-    } catch {
-      // A line being written: not the entry, which is written before the agent starts.
-    }
-  }
-
-  return own;
-}
-
-/** The fire entry of a session's branch: the last one, for the same reason as in `firedEntry`. */
-export function firedEntryOfBranch(branch: readonly SessionEntry[]): FireEntry | undefined {
-  const entry = branch.filter((candidate) => candidate.type === 'custom' && candidate.customType === ENTRY_TYPE).at(-1);
-
-  return entry?.type === 'custom' ? (entry.data as FireEntry) : undefined;
-}
-
-/**
- * The fires of a session's branch that are its own. In a fired agent's session, those after its fire
- * entry: the earlier ones, inherited with the conversation, are its siblings'.
- */
-export function ownFires(branch: readonly SessionEntry[]): FireDetails[] {
-  const forkedAt = branch.map((entry) => entry.type === 'custom' && entry.customType === ENTRY_TYPE).lastIndexOf(true);
-
-  return branch.slice(forkedAt + 1).flatMap((entry) => {
-    if (entry.type !== 'message' || entry.message.role !== 'toolResult' || entry.message.toolName !== 'fire' || entry.message.isError) return [];
-
-    const details = entry.message.details as Partial<FireDetails> | undefined;
-
-    return details?.branch && details.sessionFile ? [details as FireDetails] : [];
-  });
-}
-
-/**
- * The text of the last assistant message an agent wrote in its session file: where it is at. In a
- * fired agent's session, only what follows its fire entry: the lines before are the conversation it
- * inherited, whose last message is the launching session's.
- */
-export function lastAssistantText(sessionText: string): string | undefined {
-  const lines = sessionText.split('\n');
-  for (let index = lines.length - 1; index >= 0; index -= 1) {
-    // Cheap filter first: session files weigh megabytes.
-    const line = lines[index];
-    if (!line.includes('"role":"assistant"') && !line.includes(`"${ENTRY_TYPE}"`)) continue;
-
-    try {
-      const entry = JSON.parse(line) as {
-        type?: string;
-        customType?: string;
-        message?: { role?: string; content?: string | { type: string; text?: string }[] };
-      };
-      if (entry.type === 'custom' && entry.customType === ENTRY_TYPE) return undefined;
-
-      const text = entry.type === 'message' && entry.message?.role === 'assistant' ? textOf(entry.message.content ?? '').trim() : '';
-      if (text) return text;
-    } catch {
-      // A line being written.
-    }
-  }
-
-  return undefined;
-}
-
-/** What `/fire ping` tells of one fired agent. */
-export interface PingRow {
-  state: AgentRow['state'];
-  issue: number;
-  issueTitle: string;
-  mr: number;
-  mrUrl: string;
-  /** Absent when GitLab could not be reached. */
-  mrStatus?: string;
-  /** Last write of the agent's session. */
-  active?: Date;
-  lastMessage?: string;
-}
-
-export function describeMr(mr: { state: string; draft: boolean; has_conflicts?: boolean; head_pipeline?: { status: string } | null }): string {
-  if (mr.state !== 'opened') return mr.state;
-
-  const parts = [mr.draft ? 'draft' : 'ready', `pipeline ${mr.head_pipeline?.status ?? 'none'}`, mr.has_conflicts && 'conflicts'];
-
-  return parts.filter(Boolean).join(', ');
-}
-
-function ago(date: Date, now: Date): string {
-  const minutes = Math.max(0, Math.round((now.getTime() - date.getTime()) / 60_000));
-  if (minutes < 60) return `${minutes} min ago`;
-  if (minutes < 48 * 60) return `${Math.round(minutes / 60)} h ago`;
-
-  return `${Math.round(minutes / (24 * 60))} d ago`;
-}
-
-/** The report of `/fire ping`, as Markdown: one item per agent, in the order they were fired. */
-export function pingReport(rows: readonly PingRow[], now: Date): string {
-  const counts = (['working', 'running', 'done', 'failed', 'stopped'] as const)
-    .map((state) => ({ state, count: rows.filter((row) => row.state === state).length }))
-    .filter(({ count }) => count > 0)
-    .map(({ state, count }) => `${count} ${state}`);
-
-  const items = rows.map((row) => {
-    const mr = `[!${row.mr}](${row.mrUrl})${row.mrStatus ? ` ${row.mrStatus}` : ''}`;
-    const head = [`${STATE_ICONS[row.state]} ${row.state}`, `#${row.issue} ${row.issueTitle}`, mr, row.active && ago(row.active, now)].filter(Boolean).join(' · ');
-    if (!row.lastMessage) return `- ${head}`;
-
-    // Its first paragraph: an agent's report leads with its conclusion.
-    const paragraph = row.lastMessage.trim().split(/\n\s*\n/)[0];
-    const flat = paragraph.split('\n').map((line) => line.trim()).join(' ');
-    const excerpt = flat.length > PING_EXCERPT_CHARS ? `${flat.slice(0, PING_EXCERPT_CHARS).trimEnd()}…` : flat;
-
-    return `- ${head}\n  > ${excerpt}`;
-  });
-
-  return [`Fired agents of this session: ${counts.join(', ')}.`, '', ...items].join('\n');
-}
-
-export const SWITCH_TO_PARENT = '↑ the session that fired this one';
-
-/**
- * The rows of the `/fire switch` picker: the agents this session fired, in the order they were fired,
- * after the session that fired it when there is one. Distinct, as issues are.
- */
-export function switchLabels(fires: readonly FireDetails[], states: ReadonlyMap<string, AgentRow['state'] | undefined>, hasParent: boolean): string[] {
-  const children = fires.map((fire) => {
-    const state = states.get(fire.branch);
-
-    return [state && STATE_ICONS[state], `#${fire.issue} ${fire.issueTitle}`, `· !${fire.mr}`].filter(Boolean).join(' ');
-  });
-
-  return hasParent ? [SWITCH_TO_PARENT, ...children] : children;
-}
-
-/** One distinct label per row: the picker returns the chosen label, not its index. */
-export function agentLabels(rows: readonly AgentRow[]): string[] {
-  const seen = new Map<string, number>();
-
-  return rows.map((row) => {
-    const parts = [`${STATE_ICONS[row.state]} ${row.state}`, row.repo, row.branch, row.mr && `MR ${row.mr}`, row.modified.toLocaleString()];
-    const label = parts.filter(Boolean).join('  ·  ');
-    const count = (seen.get(label) ?? 0) + 1;
-    seen.set(label, count);
-
-    return count === 1 ? label : `${label} (${count})`;
-  });
-}
-
-export function worktreeOfBranch(porcelain: string, branch: string): string | undefined {
-  for (const block of porcelain.split('\n\n')) {
-    const lines = block.split('\n');
-    if (lines.includes(`branch refs/heads/${branch}`)) {
-      return lines.find((line) => line.startsWith('worktree '))?.slice('worktree '.length);
-    }
-  }
-
-  return undefined;
-}
-
-/** Linked worktrees of a clone, with their branch (absent when detached). */
-export function linkedWorktrees(porcelain: string, clone: string): { path: string; branch?: string }[] {
-  return porcelain
-    .split('\n\n')
-    .map((block) => block.split('\n'))
-    .map((lines) => ({
-      path: lines.find((line) => line.startsWith('worktree '))?.slice('worktree '.length) ?? '',
-      branch: lines.find((line) => line.startsWith('branch refs/heads/'))?.slice('branch refs/heads/'.length),
-    }))
-    .filter((worktree) => worktree.path && worktree.path !== clone);
-}
-
 export function renderBrief(template: string, values: Record<string, string>): string {
   // One pass over the template: placeholders inside the values themselves are left as written.
   return template.replace(/\{\{(\w+)\}\}/g, (placeholder, key: string) => {
@@ -523,57 +191,6 @@ export function renderBrief(template: string, values: Record<string, string>): s
 
     return values[key];
   });
-}
-
-function textOf(content: string | readonly { type: string; text?: string }[]): string {
-  if (typeof content === 'string') return content;
-
-  return content.flatMap((block) => (block.type === 'text' && block.text ? [block.text] : [])).join('\n');
-}
-
-/**
- * The user messages of the run that asked for the fire, in order: the request, then what the user
- * steered into the run. The run starts after the last assistant message that ended a turn, one that
- * stopped for another reason than calling tools.
- */
-export function findRequest(branch: readonly SessionEntry[]): SessionEntry[] {
-  const request: SessionEntry[] = [];
-  for (let index = branch.length - 1; index >= 0; index -= 1) {
-    const entry = branch[index];
-    if (entry.type !== 'message') continue;
-
-    if (entry.message.role === 'user') request.unshift(entry);
-    const endedTurn = entry.message.role === 'assistant' && entry.message.stopReason !== 'toolUse';
-    if (endedTurn && request.length > 0) break;
-  }
-
-  return request;
-}
-
-export function requestText(request: readonly SessionEntry[]): string {
-  const texts = request.flatMap((entry) => (entry.type === 'message' && entry.message.role === 'user' ? [textOf(entry.message.content).trim()] : []));
-
-  return texts.join('\n\n') || '(not found)';
-}
-
-/**
- * Fork the session file into a session of the worktree, resuming just before the request: the brief
- * restates it, and the launching turn's tool calls, still running, stay out. Storing it beside the
- * launching session would let `pi -c` there pick the agent's session, the most recently written.
- */
-export function forkSession(parentFile: string, request: readonly SessionEntry[], entry: FireEntry, name: string): string {
-  const fork = SessionManager.forkFrom(parentFile, entry.worktree);
-  const first = request.at(0);
-  if (first?.parentId === null) fork.resetLeaf();
-  else if (first?.parentId) fork.branch(first.parentId);
-
-  fork.appendCustomEntry(ENTRY_TYPE, entry);
-  fork.appendSessionInfo(name);
-
-  const sessionFile = fork.getSessionFile();
-  if (!sessionFile) throw new Error('the forked session was not saved');
-
-  return sessionFile;
 }
 
 /**
@@ -587,243 +204,11 @@ export function piCommand(sessionFile: string, model: string, thinking: string, 
   return [process.env.SHELL || '/bin/zsh', '-ic', script, 'pi', '--session', sessionFile, '--model', model, '--thinking', thinking, '--', brief];
 }
 
-/**
- * Run a command with stdin closed: wt and git would otherwise wait on prompts nobody answers. The
- * parent's VIRTUAL_ENV is dropped so that uv sets up the worktree's own venv.
- */
-function run(command: string, args: string[], options: RunOptions = {}): Promise<RunResult> {
-  const env = { ...process.env };
-  delete env.VIRTUAL_ENV;
-  const timeoutMs = options.timeoutMs ?? 60_000;
-
-  return new Promise((resolve, reject) => {
-    const child = spawn(command, args, {
-      cwd: options.cwd,
-      env,
-      stdio: ['ignore', 'pipe', 'pipe'],
-      timeout: timeoutMs,
-      signal: options.signal,
-    });
-    let stdout = '';
-    let stderr = '';
-    child.stdout.on('data', (data: Buffer) => (stdout += data.toString()));
-    child.stderr.on('data', (data: Buffer) => (stderr += data.toString()));
-    child.on('error', reject);
-    child.on('close', (code, signal) => {
-      const killed = signal ? `${signal}, its timeout being ${timeoutMs / 1000}s` : undefined;
-      resolve({ code: code ?? (signal ? 1 : 0), stdout, stderr, killed });
-    });
-  });
-}
-
-function failure(command: string, args: string[], result: RunResult): Error {
-  const output = (result.stderr.trim() || result.stdout.trim()).slice(-2000);
-  const reason = result.killed ? `killed by ${result.killed}` : `exit ${result.code}`;
-
-  return new Error(`\`${command} ${args.join(' ')}\` failed (${reason}):\n${output}`);
-}
-
-async function runOrThrow(command: string, args: string[], options: RunOptions = {}): Promise<string> {
-  const result = await run(command, args, options);
-  if (result.code !== 0) throw failure(command, args, result);
-
-  return result.stdout.trim();
-}
-
 function glabSkillDir(pi: ExtensionAPI): string {
   const glabSkill = pi.getCommands().find((command) => command.source === 'skill' && command.name === 'skill:glab');
   if (!glabSkill) throw new Error('fire works with the glab skill, which is not loaded');
 
   return dirname(glabSkill.sourceInfo.path);
-}
-
-/** The clone layout and origin of the current repository, or of the one `repo` names. */
-async function resolveRepo(repo: string | undefined, cwd: string, skillDir: string): Promise<RepoLayout & { originUrl: string }> {
-  const candidates = repo ? [resolve(cwd, repo.replace(/^~(?=\/|$)/, homedir())), join(homedir(), 'src', repo)] : [cwd];
-  const checkout = candidates.find((candidate) => existsSync(join(candidate, '.git')));
-  if (checkout) {
-    const commonGitDir = await runOrThrow('git', ['-C', checkout, 'rev-parse', '--path-format=absolute', '--git-common-dir']);
-    const originUrl = await runOrThrow('git', ['-C', checkout, 'remote', 'get-url', 'origin']);
-
-    return { ...layoutFor(commonGitDir), originUrl };
-  }
-
-  const project = repo ? gitlabProject(readFileSync(join(skillDir, 'references', 'projects.md'), 'utf8'), repo) : undefined;
-  if (!project) throw new Error(`unknown repository "${repo}": neither a checkout nor a project of the glab skill's references/projects.md`);
-
-  return {
-    clone: join(homedir(), '.pi', 'src', project.name),
-    userCheckout: join(homedir(), 'src', project.name),
-    originUrl: `git@gitlab.com:${project.path}.git`,
-  };
-}
-
-async function ensureClone(layout: RepoLayout, originUrl: string, signal: AbortSignal | undefined): Promise<void> {
-  if (existsSync(layout.clone)) {
-    // Clones are named after the repository alone: two projects of the same name would share one.
-    const cloneOrigin = await runOrThrow('git', ['-C', layout.clone, 'remote', 'get-url', 'origin']);
-    if (originPath(cloneOrigin) !== originPath(originUrl)) {
-      throw new Error(`${layout.clone} is a clone of ${cloneOrigin}, not of ${originUrl}: move it away to fire into this repository`);
-    }
-
-    return;
-  }
-
-  // Objects come from the user's checkout, then --dissociate copies them: the clone stays valid
-  // whatever later happens to that checkout.
-  const reference = existsSync(join(layout.userCheckout, '.git')) ? ['--reference', layout.userCheckout, '--dissociate'] : [];
-  await runOrThrow('git', ['clone', '--quiet', ...reference, originUrl, layout.clone], { timeoutMs: LONG_TIMEOUT_MS, signal });
-}
-
-/**
- * A worktree on the issue's branch, which exists on origin once `glab_task.py open` ran. A failing
- * pre-start hook leaves the worktree in place: the agent gets the failure to fix rather than the
- * launch being lost.
- */
-async function createWorktree(
-  clone: string,
-  branch: string,
-  signal: AbortSignal | undefined,
-): Promise<{ worktree: string; setupFailure?: string }> {
-  const listWorktrees = () => runOrThrow('git', ['-C', clone, 'worktree', 'list', '--porcelain']);
-
-  const existing = worktreeOfBranch(await listWorktrees(), branch);
-  if (existing) {
-    throw new Error(`${branch} already has a worktree, ${existing}: jump to its agent with /fire, or remove it with \`wt -C ${clone} remove ${branch}\``);
-  }
-
-  const args = ['-C', clone, 'switch', branch, '--no-cd', '--yes'];
-  const result = await run('wt', args, { timeoutMs: LONG_TIMEOUT_MS, signal });
-  const worktree = worktreeOfBranch(await listWorktrees(), branch);
-  if (!worktree) throw failure('wt', args, result);
-
-  return { worktree, setupFailure: result.code === 0 ? undefined : failure('wt', args, result).message };
-}
-
-async function rexSessionExists(): Promise<boolean> {
-  const { sessions } = JSON.parse(await runOrThrow('rex', ['ls', '--json'])) as { sessions: { label: string }[] };
-
-  return sessions.some((session) => session.label === REX_SESSION);
-}
-
-/** The tabs of the Rex session of fired agents; none when that session does not exist. */
-async function listTabs(): Promise<{ sessionId?: string; tabs: Tab[] }> {
-  const listing = await run('rex', ['window', 'ls', '-s', REX_SESSION, '--json']);
-  if (listing.code !== 0) return { tabs: [] };
-
-  const { session_id, windows = [] } = JSON.parse(listing.stdout) as { session_id: string; windows?: { window_id: string; label: string }[] };
-
-  return { sessionId: session_id, tabs: windows.map((window) => ({ windowId: window.window_id, ...parseTabLabel(window.label) })) };
-}
-
-/**
- * A tab and pane named after the branch: Go to Anything finds the agent by either. Returns the tab's
- * window and its pane.
- */
-async function openRexTab(label: string, cwd: string, command: string[], sessionExists: boolean): Promise<{ window: string; block: string }> {
-  const options = ['-c', cwd, '--keep-open', '--json', '--', ...command];
-
-  // `rex new` leaves the app's view alone; `window new` needs --focus=false for that.
-  let created: { window_id: string; block_ids: string[] };
-  if (sessionExists) {
-    created = JSON.parse(await runOrThrow('rex', ['window', 'new', '-s', REX_SESSION, label, '--focus=false', ...options]));
-  } else {
-    created = JSON.parse(await runOrThrow('rex', ['new', REX_SESSION, '--window', label, ...options])).initial_windows[0];
-  }
-  const tab = { window: created.window_id, block: created.block_ids[0] };
-  await runOrThrow('rex', ['block', 'rename', '-s', REX_SESSION, tab.block, label]);
-
-  return tab;
-}
-
-/**
- * Make a tab the active one of the Rex session, then show that session in the app, which the app
- * accepts only with its Remote Control setting on. Returns whether the app shows it.
- */
-async function jumpToTab(sessionId: string, windowId: string): Promise<boolean> {
-  await runOrThrow('rex', ['focus', '-s', REX_SESSION, windowId]);
-
-  return showInApp(sessionId, windowId);
-}
-
-/** Show a tab of a Rex session in the app. Returns whether the app shows it. */
-async function showInApp(sessionId: string, windowId: string): Promise<boolean> {
-  const listing = await run('rex', ['client', 'ls', '--json']);
-  if (listing.code !== 0) return false;
-
-  const { clients = [] } = JSON.parse(listing.stdout) as { clients?: { client_id: string; info?: { kind?: string } }[] };
-  const app = clients.find((client) => client.info?.kind === 'app');
-  if (!app) return false;
-
-  const shown = await run('rex', ['-C', app.client_id, 'do', 'session.select', `session_id=${sessionId}`, `window_id=${windowId}`]);
-
-  return shown.code === 0;
-}
-
-function isRunning(pid: number): boolean {
-  try {
-    process.kill(pid, 0);
-    return true;
-  } catch (error: unknown) {
-    return (error as NodeJS.ErrnoException).code === 'EPERM';
-  }
-}
-
-interface Pane {
-  sessionId: string;
-  windowId: string;
-  blockId: string;
-}
-
-/** The pane of a Rex session (a label or an id) that `matches`, with the tab holding it. */
-async function findPane(session: string, matches: (block: { block_id: string; label: string }) => boolean): Promise<Pane | undefined> {
-  const listing = await run('rex', ['window', 'ls', '-s', session, '--json']);
-  if (listing.code !== 0) return undefined;
-
-  const { session_id, windows = [] } = JSON.parse(listing.stdout) as {
-    session_id: string;
-    windows?: { window_id: string; layers: { blocks: { block_id: string; label: string }[] }[] }[];
-  };
-  for (const window of windows) {
-    const block = window.layers.flatMap((layer) => layer.blocks).find(matches);
-    if (block) return { sessionId: session_id, windowId: window.window_id, blockId: block.block_id };
-  }
-
-  return undefined;
-}
-
-/** Focus a pane, then show its tab in the app. Returns whether the app shows it. */
-async function focusPane(pane: Pane): Promise<boolean> {
-  await runOrThrow('rex', ['focus', '-s', pane.sessionId, pane.blockId]);
-
-  return showInApp(pane.sessionId, pane.windowId);
-}
-
-/** Where a pi running in Rex says it is: written beside its session, which `/fire switch` reads. */
-export interface PaneRecord {
-  pid: number;
-  session: string;
-  block: string;
-}
-
-export function paneFileOf(sessionFile: string): string {
-  return `${sessionFile}.pane`;
-}
-
-/** The pane record of a session, unless the pi that wrote it is gone: its pane may hold something else. */
-export function readPaneRecord(sessionFile: string, isAlive: (pid: number) => boolean = isRunning): PaneRecord | undefined {
-  const paneFile = paneFileOf(sessionFile);
-  if (!existsSync(paneFile)) return undefined;
-
-  try {
-    const record = JSON.parse(readFileSync(paneFile, 'utf8')) as Partial<PaneRecord>;
-    const isComplete = typeof record.pid === 'number' && typeof record.session === 'string' && typeof record.block === 'string';
-
-    return isComplete && isAlive(record.pid as number) ? (record as PaneRecord) : undefined;
-  } catch {
-    // A file being written.
-    return undefined;
-  }
 }
 
 /**
@@ -832,9 +217,9 @@ export function readPaneRecord(sessionFile: string, isAlive: (pid: number) => bo
  */
 async function paneOfSession(sessionFile: string): Promise<Pane | undefined> {
   const record = readPaneRecord(sessionFile);
-  if (record) return findPane(record.session, (block) => block.block_id === record.block);
+  if (record) return findPane(record.session, (block) => block.blockId === record.block);
 
-  const fired = existsSync(sessionFile) ? firedEntry(readFileSync(sessionFile, 'utf8')) : undefined;
+  const fired = existsSync(sessionFile) ? readFireRecord(sessionFile) : undefined;
 
   return fired && findPane(REX_SESSION, (block) => block.label === fired.branch);
 }
@@ -843,13 +228,11 @@ async function paneOfSession(sessionFile: string): Promise<Pane | undefined> {
 async function confirmStart(sessionFile: string, block: string, signal: AbortSignal | undefined): Promise<void> {
   const deadline = Date.now() + START_TIMEOUT_MS;
   while (Date.now() < deadline) {
-    if (existsSync(`${sessionFile}.pid`)) return;
+    if (existsSync(lockFileOf(sessionFile))) return;
     await sleep(500, undefined, { signal });
   }
 
-  const screen = await run('rex', ['capture', '-s', REX_SESSION, '-b', block, '--trim']);
-  const tail = screen.stdout.trim().split('\n').slice(-30).join('\n');
-  throw new Error(`the agent did not start within ${START_TIMEOUT_MS / 1000}s; its pane shows:\n${tail}`);
+  throw new Error(`the agent did not start within ${START_TIMEOUT_MS / 1000}s; its pane shows:\n${await paneTail(block)}`);
 }
 
 /** Where the agents of `fires` are at: their state, their MR on GitLab, and their last message. */
@@ -858,21 +241,15 @@ async function pingFired(fires: readonly FireDetails[]): Promise<PingRow[]> {
 
   return Promise.all(
     fires.map(async (fire): Promise<PingRow> => {
-      const lock = `${fire.sessionFile}.pid`;
-      const owner = existsSync(lock) ? Number(readFileSync(lock, 'utf8')) : 0;
-      const alive = owner > 0 && isRunning(owner);
-      const state = alive ? (tabs.find((tab) => tab.branch === fire.branch)?.state ?? 'running') : 'stopped';
-
       // The report still comes without GitLab: the MR status is then left out.
-      const clone = join(homedir(), '.pi', 'src', fire.repo);
-      const mr = await run('glab', ['api', `projects/:fullpath/merge_requests/${fire.mr}`, '--output', 'json'], { cwd: clone });
-      const mrStatus = mr.code === 0 ? describeMr(JSON.parse(mr.stdout)) : undefined;
+      const clone = dirname(fire.worktree).replace(/\.worktrees$/, '');
+      const mrStatus = await gitlabGet<Mr>(clone, `projects/:fullpath/merge_requests/${fire.mr}`).then(describeMr, () => undefined);
 
       // A pruned agent has no session left.
       const hasSession = existsSync(fire.sessionFile);
 
       return {
-        state,
+        state: agentState(fire.sessionFile, fire.branch, tabs).state,
         issue: fire.issue,
         issueTitle: fire.issueTitle,
         mr: fire.mr,
@@ -885,61 +262,24 @@ async function pingFired(fires: readonly FireDetails[]): Promise<PingRow[]> {
   );
 }
 
-/** The agent-only clones: every repository an agent was fired into. */
-function agentClones(): string[] {
-  const clonesDir = join(homedir(), '.pi', 'src');
-  if (!existsSync(clonesDir)) return [];
-
-  return readdirSync(clonesDir)
-    .map((name) => join(clonesDir, name))
-    .filter((clone) => existsSync(join(clone, '.git')));
-}
-
-/** The state of the latest MR of each branch in the clone's project: opened, merged, closed, or none. */
-async function mrStates(clone: string, branches: string[]): Promise<Map<string, string>> {
-  const project = JSON.parse(await runOrThrow('glab', ['api', 'projects/:fullpath', '--output', 'json'], { cwd: clone })) as { id: number };
-  const states = await Promise.all(
-    branches.map(async (branch) => {
-      const path = `projects/:fullpath/merge_requests?source_branch=${encodeURIComponent(branch)}&order_by=updated_at&sort=desc`;
-      const mrs = JSON.parse(await runOrThrow('glab', ['api', path, '--output', 'json'], { cwd: clone })) as {
-        state: string;
-        source_project_id: number;
-      }[];
-
-      return [branch, mrs.find((mr) => mr.source_project_id === project.id)?.state ?? 'none'] as const;
-    }),
-  );
-
-  return new Map(states);
-}
-
 /**
  * The fired agents of every clone, most recently active first: the sessions of their worktrees that
- * hold a fire entry, which leaves out those of subagents and of a pi started there by hand.
+ * have a fire record, which leaves out those of subagents and of a pi started there by hand.
  */
 async function listFiredAgents(clones: string[]): Promise<{ agents: FiredAgent[]; sessionId?: string }> {
   const { sessionId, tabs } = await listTabs();
 
   const perClone = await Promise.all(
     clones.map(async (clone) => {
-      const worktrees = linkedWorktrees(await runOrThrow('git', ['-C', clone, 'worktree', 'list', '--porcelain']), clone);
-      const sessions = (await Promise.all(worktrees.map((worktree) => SessionManager.list(worktree.path)))).flat();
-      const fired = sessions.flatMap((session) => {
-        const entry = firedEntry(readFileSync(session.path, 'utf8'));
-
-        return entry ? [{ session, entry }] : [];
-      });
+      const worktrees = await listLinkedWorktrees(clone);
+      const fired = worktrees.flatMap((worktree) => firedSessionsOf(worktree.path));
       // The picker still opens without GitLab: the MR state is then left out.
       const states = await mrStates(clone, [...new Set(fired.map(({ entry }) => entry.branch))]).catch(() => new Map<string, string>());
 
-      return fired.map(({ session, entry }): FiredAgent => {
-        const lockFile = `${session.path}.pid`;
-        const owner = existsSync(lockFile) ? Number(readFileSync(lockFile, 'utf8')) : 0;
-        const pid = owner && isRunning(owner) ? owner : undefined;
-        const tab = pid ? tabs.find((candidate) => candidate.branch === entry.branch) : undefined;
-        const state = !pid ? 'stopped' : (tab?.state ?? 'running');
+      return fired.map(({ sessionFile, entry }): FiredAgent => {
+        const { state, pid, tab } = agentState(sessionFile, entry.branch, tabs);
 
-        return { session, pid, tab, state, repo: basename(clone), branch: entry.branch, mr: states.get(entry.branch), modified: session.modified };
+        return { sessionFile, pid, tab, state, repo: basename(clone), branch: entry.branch, mr: states.get(entry.branch), modified: statSync(sessionFile).mtime };
       });
     }),
   );
@@ -947,18 +287,28 @@ async function listFiredAgents(clones: string[]): Promise<{ agents: FiredAgent[]
   return { agents: perClone.flat().sort((a, b) => b.modified.getTime() - a.modified.getTime()), sessionId };
 }
 
-/** Close the tab and remove the worktree of every fired agent whose MR is merged or closed. */
+/**
+ * Close the tab and remove the worktree of every fired agent whose MR is merged or closed. A clone
+ * whose worktrees or MRs cannot be read is skipped and told, the others pruned.
+ */
 async function pruneFired(clones: string[], ctx: ExtensionCommandContext): Promise<void> {
   ctx.ui.notify(`Checking the MRs of the fired worktrees of ${clones.map((clone) => basename(clone)).join(', ')}…`, 'info');
+  const skipped: string[] = [];
   const perClone = await Promise.all(
     clones.map(async (clone) => {
-      const worktrees = linkedWorktrees(await runOrThrow('git', ['-C', clone, 'worktree', 'list', '--porcelain']), clone);
-      const branches = worktrees.flatMap((worktree) => (worktree.branch ? [worktree.branch] : []));
-      const states = await mrStates(clone, branches);
+      try {
+        const branches = (await listLinkedWorktrees(clone)).flatMap((worktree) => (worktree.branch ? [worktree.branch] : []));
+        const states = branches.length > 0 ? await mrStates(clone, branches) : new Map<string, string>();
 
-      return branches.map((branch) => ({ clone, branch, state: states.get(branch) }));
+        return branches.map((branch) => ({ clone, branch, state: states.get(branch) }));
+      } catch (error: unknown) {
+        skipped.push(`${basename(clone)}: ${errorText(error).split('\n')[0]}`);
+        return [];
+      }
     }),
   );
+  if (skipped.length > 0) ctx.ui.notify(`Skipped, not checked:\n${skipped.join('\n')}`, 'warning');
+
   const done = perClone.flat().filter((worktree) => worktree.state === 'merged' || worktree.state === 'closed');
   if (done.length === 0) {
     ctx.ui.notify('Nothing to prune: no fired worktree has a merged or closed MR', 'info');
@@ -972,8 +322,7 @@ async function pruneFired(clones: string[], ctx: ExtensionCommandContext): Promi
   const { tabs } = await listTabs();
   const failures: string[] = [];
   for (const worktree of done) {
-    const windows = tabs.filter((tab) => tab.branch === worktree.branch).map((tab) => tab.windowId);
-    if (windows.length > 0) await run('rex', ['window', 'close', '-s', REX_SESSION, ...windows]);
+    await closeTabs(tabs.filter((tab) => tab.branch === worktree.branch).map((tab) => tab.windowId));
 
     // wt deletes a merged branch and keeps an unmerged one, and refuses a worktree with changes.
     const removal = await run('wt', ['-C', worktree.clone, 'remove', worktree.branch, '--yes', '--foreground'], { timeoutMs: LONG_TIMEOUT_MS });
@@ -985,81 +334,6 @@ async function pruneFired(clones: string[], ctx: ExtensionCommandContext): Promi
     [`Pruned ${pruned} fired agent(s)`, ...failures.map((line) => `kept ${line}`)].join('\n'),
     failures.length > 0 ? 'warning' : 'info',
   );
-}
-
-/**
- * Two pi processes on one session would interleave their entries in its file. Returns the pid of
- * another live owner, or takes the lock (replacing a stale one) and returns undefined.
- */
-function lockSession(lockFile: string): number | undefined {
-  try {
-    writeFileSync(lockFile, String(process.pid), { flag: 'wx' });
-    return undefined;
-  } catch (error: unknown) {
-    if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
-  }
-
-  const owner = Number(readFileSync(lockFile, 'utf8'));
-  if (owner && owner !== process.pid && isRunning(owner)) return owner;
-
-  writeFileSync(lockFile, String(process.pid));
-  return undefined;
-}
-
-/** The Rex tab holding this process's pane, when it is a tab of the fired agents' session. */
-async function ownTab(): Promise<string | undefined> {
-  const block = process.env.REX_BLOCK;
-  if (!block) return undefined;
-
-  const listing = await run('rex', ['window', 'ls', '-s', REX_SESSION, '--json']);
-  if (listing.code !== 0) return undefined;
-
-  const { windows = [] } = JSON.parse(listing.stdout) as {
-    windows?: { window_id: string; layers: { blocks: { block_id: string }[] }[] }[];
-  };
-
-  return windows.find((window) => window.layers.some((layer) => layer.blocks.some((candidate) => candidate.block_id === block)))?.window_id;
-}
-
-/** The fields of an MR that `/fire merge` follows. */
-interface MergeWatchMr {
-  iid: number;
-  web_url: string;
-  state: string;
-  source_branch: string;
-  source_project_id: number;
-  target_project_id: number;
-  target_branch: string;
-  has_conflicts?: boolean;
-  detailed_merge_status?: string;
-  merge_when_pipeline_succeeds?: boolean;
-  auto_merge_enabled?: boolean | null;
-  head_pipeline?: { status: string } | null;
-}
-
-/** A fired agent, as the session that fired it follows it. */
-interface Watched {
-  branch: string;
-  sessionFile: string;
-  /** Absent until first looked at: an agent found settled then is not announced. */
-  state?: FiredAgent['state'];
-}
-
-/** The `fire` tool's result details. */
-export interface FireDetails {
-  issue: number;
-  issueTitle: string;
-  issueUrl: string;
-  mr: number;
-  mrUrl: string;
-  repo: string;
-  worktree: string;
-  branch: string;
-  sessionFile: string;
-  model: string;
-  review: Review;
-  autoMerge: boolean;
-  setupFailure?: string;
 }
 
 export default function (pi: ExtensionAPI) {
@@ -1074,19 +348,17 @@ export default function (pi: ExtensionAPI) {
   const watched = new Map<string, Watched>();
   let watchTimer: NodeJS.Timeout | undefined;
 
-  // Follows the MR of `/fire merge` until it merged; `mergeWatchId` retires the steps of a stopped watch.
-  let mergeTimer: NodeJS.Timeout | undefined;
-  let mergeWatchId = 0;
+  // The `/fire merge` watch while it lives.
+  let mergeWatch: MergeWatch | undefined;
   // Set while the agent fixes merge conflicts that the user chose to merge after: the merge runs again
   // when it settles.
   let pendingMerge = false;
   // Changes at each session shutdown: work started for a session tells whether it still runs.
   let sessionGeneration = 0;
-  const stopMergeWatch = (ctx: ExtensionContext) => {
-    clearTimeout(mergeTimer);
-    mergeTimer = undefined;
-    mergeWatchId += 1;
-    ctx.ui.setStatus(MERGE_STATUS_KEY, undefined);
+
+  const stopMergeWatch = () => {
+    mergeWatch?.stop();
+    mergeWatch = undefined;
   };
 
   const stopWatching = () => {
@@ -1098,10 +370,7 @@ export default function (pi: ExtensionAPI) {
   const watch = async (ctx: ExtensionContext) => {
     const { tabs } = await listTabs();
     for (const agent of watched.values()) {
-      const lock = `${agent.sessionFile}.pid`;
-      const owner = existsSync(lock) ? Number(readFileSync(lock, 'utf8')) : 0;
-      const alive = owner > 0 && isRunning(owner);
-      const state = alive ? (tabs.find((tab) => tab.branch === agent.branch)?.state ?? 'running') : 'stopped';
+      const { state } = agentState(agent.sessionFile, agent.branch, tabs);
 
       const settled = state === 'done' || state === 'failed';
       if (settled && agent.state && state !== agent.state) {
@@ -1167,7 +436,7 @@ export default function (pi: ExtensionAPI) {
       const workerRef = params.workerModel ?? config.workerModel;
       const workerModel = workerRef && workerRef !== 'none' ? checkModel(workerRef, 'worker') : undefined;
 
-      const review = params.review ?? 'standard';
+      const review: Review = params.review ?? 'standard';
       const reviewerRef = review === 'none' ? undefined : (params.reviewer ?? reviewersFor(config, model.split('/')[0])[review]);
       const reviewer = reviewerRef && checkModel(reviewerRef, 'reviewer');
 
@@ -1177,7 +446,7 @@ export default function (pi: ExtensionAPI) {
 
       // Checked before anything is created on GitLab.
       const [sessionExists] = await Promise.all([rexSessionExists(), runOrThrow('wt', ['--version'])]);
-      const layout = await resolveRepo(params.repo, ctx.cwd, skillDir);
+      const layout = await resolveRepo(params.repo, ctx.cwd, join(skillDir, 'references', 'projects.md'));
 
       if (!existsSync(layout.clone)) progress(`Cloning ${layout.originUrl} into ${layout.clone} (first fire in this repository)…`);
       await ensureClone(layout, layout.originUrl, signal);
@@ -1192,8 +461,7 @@ export default function (pi: ExtensionAPI) {
         const output = await runOrThrow('python3', [glabTask, 'open', ...source], { cwd: layout.clone, timeoutMs: 5 * 60_000, signal });
         opened = JSON.parse(output) as OpenedTask;
       } catch (error: unknown) {
-        const reason = error instanceof Error ? error.message : String(error);
-        throw new Error(`${reason}\nObjects already created are reused: once fixed, call again with \`issue\` set to the created issue.`);
+        throw new Error(`${errorText(error)}\nObjects already created are reused: once fixed, call again with \`issue\` set to the created issue.`);
       } finally {
         rmSync(issueDir, { recursive: true, force: true });
       }
@@ -1248,15 +516,14 @@ export default function (pi: ExtensionAPI) {
       } catch (error: unknown) {
         // The agent did not start: close its tab first, so that a slow pi cannot start in the worktree
         // being removed, then remove its session and worktree, so that a retry starts clean.
-        if (tab) await run('rex', ['window', 'close', '-s', REX_SESSION, tab.window]);
-        if (sessionFile) rmSync(sessionFile, { force: true });
+        if (tab) await closeTabs([tab.window]);
+        if (sessionFile) for (const file of [sessionFile, `${sessionFile}.fire.json`]) rmSync(file, { force: true });
         if (worktree) await run('git', ['-C', layout.clone, 'worktree', 'remove', '--force', worktree]);
         if (signal?.aborted) throw error;
 
         // The issue, its branch, and its MR stay: a retry with `newIssue` would create them again.
-        const reason = error instanceof Error ? error.message : String(error);
         throw new Error(
-          `${reason}\nIssue #${opened.issue.iid}, its branch, and MR !${opened.mr.iid} exist (${opened.issue.web_url}): once fixed, call again with \`issue: ${opened.issue.iid}\`, not \`newIssue\`.`,
+          `${errorText(error)}\nIssue #${opened.issue.iid}, its branch, and MR !${opened.mr.iid} exist (${opened.issue.web_url}): once fixed, call again with \`issue: ${opened.issue.iid}\`, not \`newIssue\`.`,
         );
       }
 
@@ -1325,7 +592,9 @@ export default function (pi: ExtensionAPI) {
     }
 
     // Ends this pi with its pane: the stale lock and pane record are told apart by their dead pid.
-    const closePane = () => runOrThrow('rex', ['block', 'close', '-s', rexSession, rexBlock]);
+    const closePane = async () => {
+      await runOrThrow('rex', ['block', 'close', '-s', rexSession, rexBlock]);
+    };
 
     if (kind === 'self-close') {
       const state = (await mrStates(fired.clone, [fired.branch])).get(fired.branch);
@@ -1338,10 +607,9 @@ export default function (pi: ExtensionAPI) {
       return;
     }
 
-    // GitLab accepts auto-merge on a conflicting MR, which then never merges: the conflicts are
-    // reported, and their fix offered to this session's agent, the merge following it by default.
-    const offerConflictFix = async (mr: { iid: number; web_url: string; target_branch: string }) => {
-      stopMergeWatch(ctx);
+    // The conflicts are reported, and their fix offered to this session's agent, the merge following
+    // it by default.
+    const offerConflictFix = async (mr: Mr) => {
       pendingMerge = false;
       ctx.ui.notify(`!${mr.iid} has merge conflicts with ${mr.target_branch}: it cannot merge (${mr.web_url})`, 'error');
       if (retried) {
@@ -1364,165 +632,27 @@ export default function (pi: ExtensionAPI) {
       else pi.sendUserMessage(request, { deliverAs: 'followUp' });
     };
 
-    // Throws on a failed call or malformed output: callers tell an unreachable GitLab apart.
-    const fetchGitlab = async <T,>(path: string): Promise<T> =>
-      JSON.parse(await runOrThrow('glab', ['api', path, '--output', 'json'], { cwd: fired.clone })) as T;
-    const hasConflicts = (mr: MergeWatchMr) => mr.has_conflicts === true || mr.detailed_merge_status === 'conflict';
-
-    // The project's own open MR of the branch, as `glab_task.py` resolves it: listings also hold
-    // MRs from forks. Once found, the MR is fetched by its iid.
-    let projectId: number | undefined;
-    let iid: number | undefined;
-    const fetchMr = async (): Promise<MergeWatchMr | undefined> => {
-      if (iid !== undefined) return fetchGitlab<MergeWatchMr>(`projects/:fullpath/merge_requests/${iid}`);
-
-      projectId ??= (await fetchGitlab<{ id: number }>('projects/:fullpath')).id;
-      const path = `projects/:fullpath/merge_requests?source_branch=${encodeURIComponent(fired.branch)}&state=opened`;
-      const own = (await fetchGitlab<MergeWatchMr[]>(path)).filter(
-        (mr) => mr.source_branch === fired.branch && mr.source_project_id === projectId && mr.target_project_id === projectId,
-      );
-      if (own.length > 1) throw new Error(`several open MRs of ${fired.branch}: ${own.map((mr) => `!${mr.iid}`).join(', ')}`);
-
-      iid = own[0]?.iid;
-
-      return own[0];
-    };
-
-    // All in the background, the session staying usable: auto-merge is enabled, retried while GitLab
-    // still checks whether the MR can merge, then the MR is followed until it merged. The footer shows
-    // the step for as long as the watch lives.
-    // A watch is current while `mergeWatchId` is its own: stopping it, or a new one, retires a step
-    // still awaiting GitLab, so that a late answer never closes a pane now holding another session.
-    stopMergeWatch(ctx);
-    const watchId = mergeWatchId;
-    const isCurrent = () => watchId === mergeWatchId;
-    const started = Date.now();
+    // All in the background, the session staying usable; a new watch retires the previous one.
+    stopMergeWatch();
     const glabTask = join(glabSkillDir(pi), 'scripts', 'glab_task.py');
-    let mrUrl = '';
-    let enabled = false;
-    let toldUnsettled = false;
-    let failures = 0;
-    let closeFailed = false;
+    const watch = createMergeWatch({
+      branch: fired.branch,
+      gitlab: (path) => gitlabGet(fired.clone, path),
+      enableAutoMerge: () => run('python3', [glabTask, 'merge', '--issue', String(fired.issue)], { cwd: fired.worktree, timeoutMs: 5 * 60_000 }),
+      closePane,
+      onConflicts: offerConflictFix,
+      notify: (message, level) => ctx.ui.notify(message, level),
+      setStatus: (text) => ctx.ui.setStatus(MERGE_STATUS_KEY, text),
+      now: Date.now,
+      schedule: (callback, ms) => {
+        const timer = setTimeout(callback, ms);
+        timer.unref();
 
-    const showStatus = (step: string) => ctx.ui.setStatus(MERGE_STATUS_KEY, mergeStatus(iid, step, Date.now() - started));
-    const stop = (message: string, level: 'warning' | 'error') => {
-      stopMergeWatch(ctx);
-      ctx.ui.notify(message, level);
-    };
-
-    // The glab skill's merge checks the MR is ready and pushed at the worktree's HEAD, and enables
-    // auto-merge once a pipeline runs on that commit.
-    const enable = async () => {
-      let opened: MergeWatchMr | undefined;
-      try {
-        opened = await fetchMr();
-      } catch (error: unknown) {
-        if (isCurrent()) stop(`Cannot check the MR of ${fired.branch}: ${error instanceof Error ? error.message : String(error)}`, 'error');
-        return;
-      }
-      if (!isCurrent()) return;
-
-      if (opened?.state === 'opened' && hasConflicts(opened)) {
-        await offerConflictFix(opened);
-        return;
-      }
-
-      // Unknown is not clear: auto-merge is asked for anyway, and asked again if GitLab refuses it
-      // while it has not yet told whether the MR can merge.
-      const status = opened?.detailed_merge_status ?? '';
-      const unsettled = UNSETTLED_MERGE_STATUSES.has(status);
-      showStatus(unsettled ? `enabling auto-merge, GitLab checking (${status})` : 'enabling auto-merge');
-
-      const merged = await run('python3', [glabTask, 'merge', '--issue', String(fired.issue)], { cwd: fired.worktree, timeoutMs: 5 * 60_000 });
-      if (!isCurrent()) return;
-
-      if (merged.code !== 0) {
-        const reason = (merged.stderr.trim() || merged.stdout.trim()).slice(-2000);
-        if (!unsettled || Date.now() - started > UNSETTLED_WAIT_MS) {
-          stop(`Auto-merge not enabled:\n${reason}`, 'error');
-          return;
-        }
-
-        if (!toldUnsettled) ctx.ui.notify(`GitLab is still checking whether !${iid} can merge (${status}): enabling auto-merge is retried in the background\n${reason}`, 'warning');
-        toldUnsettled = true;
-
-        return;
-      }
-
-      const { mr } = JSON.parse(merged.stdout) as { mr: { iid: number; web_url: string } };
-      iid = mr.iid;
-      mrUrl = mr.web_url;
-      enabled = true;
-      ctx.ui.notify(`Auto-merge enabled on !${iid}: followed in the background, this pane closes once it merged`, 'info');
-      showStatus('auto-merge on');
-    };
-
-    const follow = async () => {
-      let current: MergeWatchMr;
-      try {
-        current = await fetchGitlab<MergeWatchMr>(`projects/:fullpath/merge_requests/${iid}`);
-        failures = 0;
-      } catch (error: unknown) {
-        // Retried at the next step; told once, after a minute of failures.
-        failures += 1;
-        if (failures === 4 && isCurrent()) ctx.ui.notify(`Cannot follow !${iid}, retrying: ${error instanceof Error ? error.message : String(error)}`, 'warning');
-        return;
-      }
-      if (!isCurrent()) return;
-
-      if (current.state === 'merged') {
-        showStatus('merged, closing the pane');
-        try {
-          await closePane();
-        } catch (error: unknown) {
-          // Kept watching: the next step tries again, until the deadline; told once.
-          if (closeFailed || !isCurrent()) return;
-
-          closeFailed = true;
-          ctx.ui.notify(`!${iid} merged, but its pane did not close: ${error instanceof Error ? error.message : String(error)}`, 'error');
-        }
-        return;
-      }
-
-      if (current.state === 'opened' && hasConflicts(current)) {
-        await offerConflictFix(current);
-        return;
-      }
-
-      const autoMerge = Boolean(current.auto_merge_enabled || current.merge_when_pipeline_succeeds);
-      const pipeline = current.head_pipeline?.status;
-      const stuck =
-        current.state !== 'opened' ? `is ${current.state}`
-        : pipeline === 'failed' || pipeline === 'canceled' ? `has its pipeline ${pipeline}`
-        : !autoMerge ? 'lost its auto-merge'
-        : undefined;
-      if (stuck) {
-        stop(`!${iid} ${stuck}: the pane stays open (${mrUrl})`, 'warning');
-        return;
-      }
-
-      showStatus(`auto-merge on, pipeline ${pipeline ?? 'pending'}`);
-    };
-
-    // One step at a time, the next one scheduled once it ended: a GitLab call may outlast the interval.
-    const step = async () => {
-      if (!isCurrent()) return;
-
-      try {
-        if (Date.now() - started > MERGE_WAIT_MS) stop(`!${iid} is still not merged after ${MERGE_WAIT_MS / 60_000} min: the pane stays open (${mrUrl})`, 'warning');
-        else if (enabled) await follow();
-        else await enable();
-      } catch (error: unknown) {
-        if (isCurrent()) stop(`/fire merge failed: ${error instanceof Error ? error.message : String(error)}`, 'error');
-      }
-      if (!isCurrent()) return;
-
-      mergeTimer = setTimeout(() => void step(), enabled ? MERGE_POLL_MS : ENABLE_RETRY_MS);
-      mergeTimer.unref();
-    };
-
-    showStatus('checking the MR');
-    void step();
+        return () => clearTimeout(timer);
+      },
+    });
+    mergeWatch = watch;
+    void watch.step();
   };
 
   const subcommands = [
@@ -1633,7 +763,7 @@ export default function (pi: ExtensionAPI) {
 
       const agent = agents[labels.indexOf(choice)];
       if (!agent.pid) {
-        await ctx.switchSession(agent.session.path);
+        await ctx.switchSession(agent.sessionFile);
         return;
       }
 
@@ -1655,23 +785,20 @@ export default function (pi: ExtensionAPI) {
 
   /** Mark this fired agent's Rex tab with its state. The mark is a courtesy: failing to set it is ignored. */
   const markTab = async (state: TabState) => {
-    if (!firedBranch) return;
+    const block = process.env.REX_BLOCK;
+    if (!firedBranch || !block) return;
 
     try {
-      ownWindow ??= await ownTab();
+      ownWindow ??= await tabOfPane(block);
       if (ownWindow) await run('rex', ['window', 'rename', '-s', REX_SESSION, ownWindow, tabLabel(firedBranch, state)]);
     } catch {
       // Rex is absent or restarting.
     }
   };
 
-  // The agent-only clones and their worktrees are created by this extension from the user's own
-  // repositories: their project resources are as trusted as the checkouts under ~/src.
-  pi.on('project_trust', (event) => {
-    const clonesDir = join(homedir(), '.pi', 'src');
-
-    return { trusted: resolve(event.cwd).startsWith(clonesDir + sep) ? 'yes' : 'undecided' };
-  });
+  // An agent clone and its worktrees are as trusted as the user's own checkouts when the clone's
+  // origin is one this extension cloned from a known repository, or that of the user's checkout.
+  pi.on('project_trust', async (event) => ({ trusted: (await isTrustedClone(event.cwd)) ? 'yes' : 'undecided' }));
 
   pi.on('agent_start', () => markTab('working'));
 
@@ -1693,7 +820,7 @@ export default function (pi: ExtensionAPI) {
       // `ctx` stale, its notifications throwing: the failure is then dropped with the session.
       else
         void closeOrMerge('merge', ctx, true).catch((error: unknown) => {
-          if (generation === sessionGeneration) ctx.ui.notify(`/fire merge failed: ${error instanceof Error ? error.message : String(error)}`, 'error');
+          if (generation === sessionGeneration) ctx.ui.notify(`/fire merge failed: ${errorText(error)}`, 'error');
         });
     }
 
@@ -1725,13 +852,13 @@ export default function (pi: ExtensionAPI) {
     const isSubagent = parentSession !== undefined && dirname(parentSession) === dirname(sessionFile);
     if (!isSubagent) firedBranch = fired.branch;
 
-    const owner = lockSession(`${sessionFile}.pid`);
+    const owner = lockSession(lockFileOf(sessionFile));
     if (owner) {
       ctx.ui.notify(`This session is already open in pi (pid ${owner}), probably in the Rex session ${REX_SESSION}: quit here and jump there.`, 'error');
       return;
     }
 
-    lockFile = `${sessionFile}.pid`;
+    lockFile = lockFileOf(sessionFile);
   });
 
   pi.on('session_shutdown', (_event, ctx) => {
@@ -1743,7 +870,8 @@ export default function (pi: ExtensionAPI) {
     firedBranch = undefined;
     ownWindow = undefined;
     stopWatching();
-    stopMergeWatch(ctx);
+    stopMergeWatch();
+    ctx.ui.setStatus(MERGE_STATUS_KEY, undefined);
     pendingMerge = false;
     sessionGeneration += 1;
     watched.clear();
