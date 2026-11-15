@@ -1,6 +1,13 @@
 local jinja_regex =
   [[{{.*}}\|{%-\?\s*\(end.*\|extends\|block\|macro\|set\|if\|for\|include\|trans\)\>]]
 
+-- Template files (jinja `.j2`, terraform `.tftpl`) are typed by the name they render to, e.g.
+-- `values.yaml.j2` as yaml or `Caddyfile.j2` as caddyfile.
+local function filetype_of_rendered(path, bufnr)
+  local rendered = path:gsub("%.[^./]+$", "")
+  return vim.filetype.match({ filename = rendered, buf = bufnr })
+end
+
 vim.filetype.add({
   extension = {
     ["json"] = "jsonc",
@@ -35,6 +42,19 @@ vim.filetype.add({
     ["tfvars"] = "terraform",
     ["tfstate"] = "terraform",
 
+    -- systemd units, also outside /etc/systemd (e.g. ansible role files)
+    ["service"] = "systemd",
+    ["timer"] = "systemd",
+    ["socket"] = "systemd",
+    ["mount"] = "systemd",
+    ["container"] = "systemd", -- podman quadlet
+
+    ["cnf"] = "dosini", -- openssl.cnf
+
+    -- templates
+    ["j2"] = filetype_of_rendered,
+    ["tftpl"] = filetype_of_rendered,
+
     -- edgeql
     ["esdl"] = "edgeql",
   },
@@ -44,6 +64,8 @@ vim.filetype.add({
     [".gitignore"] = "config",
     -- ini
     [".flake8"] = "ini",
+    -- yaml
+    [".ansible-lint"] = "yaml",
     -- sh
     ["cronfile"] = "sh",
     [".flaskenv"] = "sh",
@@ -53,9 +75,12 @@ vim.filetype.add({
     ["config"] = "config",
     ["Justfile"] = "just",
     ["justfile"] = "just",
+    ["Caddyfile"] = "caddyfile",
   },
   -- pattern = map_pattern_ft,
   pattern = {
     [".*%.env.*"] = "sh",
+    [".*%.tfvars%.example"] = "terraform",
+    [".*unattended%-upgrades.*"] = "aptconf",
   },
 })

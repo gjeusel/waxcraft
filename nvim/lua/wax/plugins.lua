@@ -407,6 +407,7 @@ return {
     },
     init = function()
       vim.treesitter.language.register("bash", "zsh")
+      vim.treesitter.language.register("caddy", "caddyfile")
 
       -- Disable built-in ftplugin mappings that conflict with treesitter textobjects ([[ ]] etc.)
       vim.g.no_python_maps = true
@@ -447,7 +448,8 @@ return {
         "sql", "go", "rust", "python",
         -- Infra:
         "helm",
-        "hcl", -- terraform
+        "hcl", "terraform",
+        "caddy",
       })
     end,
   },
