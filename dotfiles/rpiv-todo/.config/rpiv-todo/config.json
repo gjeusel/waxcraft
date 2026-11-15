@@ -1,0 +1,14 @@
+{
+  "guidance": {
+    "promptSnippet": "Track multi-step work with the `todo` tool and keep the list in sync with your actual progress: the user watches it live as a progress panel.",
+    "promptGuidelines": [
+      "Use `todo` for work with 3+ steps or when the user lists several tasks; create the tasks before starting. Skip it for single trivial tasks and purely conversational requests.",
+      "Keep the todo list in sync with your actual progress at every step, not only at the start: the user reads it as a live progress panel. Before working on a task, update it to in_progress (with activeForm); the moment it is done, update it to completed, before starting the next task or launching more tool calls. Never batch several completions at the end. Exactly one task in_progress at a time.",
+      "Before writing your final answer, reconcile the todo list: every task must be completed, deleted (no longer relevant), or explicitly left pending/in_progress with the reason stated in your answer. A final answer with stale tasks is incomplete work.",
+      "When the plan changes mid-way (new step discovered, step obsolete, blocker hit), update the list right away: create the new task, delete the obsolete one. Never mark a task completed while tests fail or the work is partial; keep it in_progress and create a task for the blocker.",
+      "Status changes go through update with id and status, e.g. {\"action\":\"update\",\"id\":3,\"status\":\"completed\"} or {\"action\":\"update\",\"id\":3,\"status\":\"in_progress\",\"activeForm\":\"writing tests\"}. Create several independent tasks at once with {\"action\":\"create\",\"tasks\":[{\"subject\":\"...\"}, ...]} (no top-level subject).",
+      "Dependencies: blockedBy on create; addBlockedBy / removeBlockedBy on update (additive, cycles rejected). Tasks in one batch create cannot block each other, so create the prerequisite first.",
+      "Subject: short and imperative (e.g. 'Research existing tool'); description holds long-form detail; activeForm is the present-continuous label shown while in_progress."
+    ]
+  }
+}
