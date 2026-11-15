@@ -8,23 +8,23 @@
 // from the command palette or from `Zed` application menu.
 {
   "outline_panel": {
-    "dock": "left"
+    "dock": "left",
   },
   "collaboration_panel": {
-    "dock": "left"
+    "dock": "left",
   },
   "git_panel": {
-    "dock": "left"
+    "dock": "left",
   },
   "icon_theme": {
     "mode": "dark",
     "light": "Zed (Default)",
-    "dark": "Zed (Default)"
+    "dark": "Zed (Default)",
   },
   "show_edit_predictions": false,
   "agent": {
     "dock": "right",
-    "play_sound_when_agent_done": true,
+    "play_sound_when_agent_done": "never",
     "model_parameters": [],
     "default_model": {
       "provider": "openai",
@@ -37,7 +37,7 @@
   "theme": {
     "mode": "dark",
     "light": "One Light",
-    "dark": "Nord Dark"
+    "dark": "Nord Dark",
   },
   "buffer_font_size": 14,
   "vim_mode": true,
@@ -54,6 +54,8 @@
   //   "show_other_hints": true,
   //   "show_background": false
   // },
+  // Cap the rendered markdown at ~3/4 of the 2560 px wide 5K display (default: 800 px, centered).
+  "markdown_preview": { "limit_content_width": true, "max_width": 1920 },
   "tab_bar": { "show_nav_history_buttons": false },
   "toolbar": { "breadcrumbs": false, "quick_actions": false },
   "preferred_line_length": 100,
@@ -63,9 +65,7 @@
       "enabled": false,
     },
   },
-  "debugger": {
-    "inline_values": false,
-  },
+  "debugger": {},
   "scrollbar": {
     "show": "never", // hide the scroll bar
   },

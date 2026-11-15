@@ -163,6 +163,9 @@ function resilient() {
 # alias to launch Brave
 alias brave="/Applications/Brave\ Browser.app/Contents/MacOS/Brave\ Browser"
 
+# Zed CLI (installed through nix, so not on PATH): `zed <path>` opens it in the running app
+alias zed="/Applications/Nix\ Apps/Zed.app/Contents/MacOS/cli"
+
 # helper dst
 function dst() {
   YELLOW='\033[0;33m'
