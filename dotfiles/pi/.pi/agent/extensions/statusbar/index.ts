@@ -2,10 +2,10 @@
  * statusbar — minimalist single-line footer.
  * Replaces the built-in two/three-line footer (pwd+branch / token stats /
  * extension statuses, e.g. MCP info) with one line:
- *   <repo path>   <model> · <effort> · [fast/ultrafast] · [session]   [fire ●2 ✓9 ·] [account ·] [🛡 degraded ·] [auto-mode ·] <context %>
+ *   <repo path>   <model> · <effort> · [fast/ultrafast] · [session]   [merge !12 running 4m ·] [fire ●2 ✓9 ·] [account ·] [🛡 degraded ·] [auto-mode ·] <context %>
  * left-aligned / centered / right-aligned. The session name is hidden in a linked git worktree,
  * where it is the branch name given by fire-in-worktree. Extension statuses (MCP, etc.)
- * and token/cost stats are deliberately not shown, except fire-in-worktree's fired agents, account-pool's
+ * and token/cost stats are deliberately not shown, except fire-in-worktree's `/fire merge` step and fired agents, account-pool's
  * current account and usage, and pi-safety's indicators, displayed before the
  * context size: its degraded state (checks disabled, invalid or missing
  * configuration) and auto mode while on.
@@ -64,7 +64,7 @@ export default function (pi: ExtensionAPI) {
           const usage = ctx.getContextUsage();
           const pct = usage?.percent ?? null;
           const pctPlain = pct === null ? '?%' : `${pct.toFixed(0)}%`;
-          const right = [extensionStatuses.get('fire'), extensionStatuses.get('account-pool'), extensionStatuses.get('pi-safety'), extensionStatuses.get('auto-mode'), pctPlain]
+          const right = [extensionStatuses.get('fire-merge'), extensionStatuses.get('fire'), extensionStatuses.get('account-pool'), extensionStatuses.get('pi-safety'), extensionStatuses.get('auto-mode'), pctPlain]
             .filter((part) => part !== undefined && part !== '')
             .join(' · ');
           const rightW = visibleWidth(right);

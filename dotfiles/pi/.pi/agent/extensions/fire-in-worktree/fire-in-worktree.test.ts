@@ -432,9 +432,9 @@ test('the footer counts fired agents by state icon, without the stopped ones', (
 });
 
 test('the footer tells the step of /fire merge, with the MR and the minutes once known', () => {
-  assert.equal(mergeStatus(undefined, 'checking the MR', 2_000), 'merge checking the MR');
-  assert.equal(mergeStatus(12, 'enabling auto-merge, GitLab checking (approvals_syncing)', 59_000), 'merge !12 enabling auto-merge, GitLab checking (approvals_syncing)');
-  assert.equal(mergeStatus(12, 'auto-merge on, pipeline running', 4.5 * 60_000), 'merge !12 auto-merge on, pipeline running · 4m');
+  assert.equal(mergeStatus(undefined, 'checking', 2_000), 'merge checking');
+  assert.equal(mergeStatus(12, 'approvals_syncing', 59_000), 'merge !12 approvals_syncing');
+  assert.equal(mergeStatus(12, 'running', 4.5 * 60_000), 'merge !12 running 4m');
 });
 
 test('a fork has a fire record, and a session forked before records gets one on first sight', () => {
@@ -566,12 +566,12 @@ test('/fire merge enables auto-merge, follows the pipeline, and closes the pane 
   await tick();
 
   assert.deepEqual(events, [
-    'status: merge checking the MR',
-    'status: merge !34 enabling auto-merge',
+    'status: merge checking',
+    'status: merge !34 enabling',
     'info: Auto-merge enabled on !34: followed in the background, this pane closes once it merged',
-    'status: merge !34 auto-merge on',
-    'status: merge !34 auto-merge on, pipeline running',
-    'status: merge !34 merged, closing the pane',
+    'status: merge !34 enabled',
+    'status: merge !34 running',
+    'status: merge !34 merged',
     'close',
   ]);
 });

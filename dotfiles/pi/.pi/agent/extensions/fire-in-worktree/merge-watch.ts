@@ -37,11 +37,11 @@ export interface MergeWatch {
   stop(): void;
 }
 
-/** The footer status of `/fire merge` while its watch lives: `merge !12 auto-merge on, pipeline running · 4m`. */
+/** The footer status of `/fire merge` while its watch lives: `merge !12 running 4m`. */
 export function mergeStatus(iid: number | undefined, step: string, elapsedMs: number): string {
   const minutes = Math.floor(elapsedMs / 60_000);
 
-  return ['merge', iid !== undefined && `!${iid}`, step, minutes > 0 && `· ${minutes}m`].filter(Boolean).join(' ');
+  return ['merge', iid !== undefined && `!${iid}`, step, minutes > 0 && `${minutes}m`].filter(Boolean).join(' ');
 }
 
 const hasConflicts = (mr: Mr) => mr.has_conflicts === true || mr.detailed_merge_status === 'conflict';
@@ -118,7 +118,7 @@ export function createMergeWatch(io: MergeWatchIo): MergeWatch {
     // while it has not yet told whether the MR can merge.
     const status = opened?.detailed_merge_status ?? '';
     const unsettled = UNSETTLED_MERGE_STATUSES.has(status);
-    showStatus(unsettled ? `enabling auto-merge, GitLab checking (${status})` : 'enabling auto-merge');
+    showStatus(unsettled ? status : 'enabling');
 
     const merged = await io.enableAutoMerge();
     if (stopped) return;
@@ -141,7 +141,7 @@ export function createMergeWatch(io: MergeWatchIo): MergeWatch {
     mrUrl = mr.web_url;
     enabled = true;
     io.notify(`Auto-merge enabled on !${iid}: followed in the background, this pane closes once it merged`, 'info');
-    showStatus('auto-merge on');
+    showStatus('enabled');
   };
 
   const follow = async () => {
@@ -158,7 +158,7 @@ export function createMergeWatch(io: MergeWatchIo): MergeWatch {
     if (stopped) return;
 
     if (current.state === 'merged') {
-      showStatus('merged, closing the pane');
+      showStatus('merged');
       try {
         await io.closePane();
       } catch (error: unknown) {
@@ -188,7 +188,7 @@ export function createMergeWatch(io: MergeWatchIo): MergeWatch {
       return;
     }
 
-    showStatus(`auto-merge on, pipeline ${pipeline ?? 'pending'}`);
+    showStatus(pipeline ?? 'pending');
   };
 
   // One step at a time, the next one scheduled once it ended: a GitLab call may outlast the interval.
@@ -207,7 +207,7 @@ export function createMergeWatch(io: MergeWatchIo): MergeWatch {
     cancelNext = io.schedule(() => void step(), enabled ? MERGE_POLL_MS : ENABLE_RETRY_MS);
   };
 
-  showStatus('checking the MR');
+  showStatus('checking');
 
   return { step, stop };
 }
