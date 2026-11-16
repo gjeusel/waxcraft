@@ -3,9 +3,10 @@
  *
  * The pooled provider keeps the id and models of the provider it wraps, so model selection and
  * every extension keyed on the provider id keep working. Each request runs on one account of the
- * pool: the account of the session's latest response, unless that account is blocked or, at a
- * user turn, its usage reached the threshold. Usage comes from what each provider reports on its
- * responses and is shared by every Pi process through a small state file.
+ * pool: at a user turn, the first account in the configured order whose usage is below the
+ * threshold; between a tool call and its result, the account of the session's latest response
+ * unless it is blocked. A pinned account overrides the order. Usage comes from what each provider
+ * reports on its responses and is shared by every Pi process through a small state file.
  */
 import { mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
@@ -47,9 +48,12 @@ export interface Account {
 }
 
 export interface PoolConfig {
-  /** Usage fraction (0-1) at which a session moves to another account at its next user turn. */
+  /** Usage fraction (0-1) from which an account is passed over at a user turn. */
   threshold: number;
-  /** Accounts by pooled provider, in order of preference. The first one is the default login. */
+  /**
+   * Accounts by pooled provider, in merit order: each user turn runs on the first one with room.
+   * The first one is also the default login.
+   */
   pools: Partial<Record<PoolId, Account[]>>;
 }
 
@@ -206,24 +210,35 @@ export function isBlocked(state: AccountState | undefined, now: number): boolean
 }
 
 /**
- * The account for one request. The current account stays unless it is blocked or, at a user turn,
- * its usage reached the threshold while another account still has room. Otherwise the first
- * account with room wins, then the least used one. Undefined when every account is blocked or
- * excluded.
+ * The account for one request. The pinned account wins whatever its usage. Otherwise the current
+ * account stays between user turns, which keeps a tool call and its result on one account; at a
+ * user turn the first account with room wins, in the order of `accounts`, so a session returns to
+ * a preferred account once its window resets. With no room anywhere the current account stays,
+ * then the least used one. Blocked and excluded accounts are never chosen: undefined when no
+ * other is left.
  */
 export function chooseAccount(
   accounts: readonly Account[],
   states: PoolState,
   pool: PoolId,
-  options: { current?: string; userTurn: boolean; threshold: number; now: number; exclude?: ReadonlySet<string> },
+  options: {
+    current?: string;
+    pinned?: string;
+    userTurn: boolean;
+    threshold: number;
+    now: number;
+    exclude?: ReadonlySet<string>;
+  },
 ): Account | undefined {
-  const { current: currentId, userTurn, threshold, now, exclude } = options;
+  const { current: currentId, pinned: pinnedId, userTurn, threshold, now, exclude } = options;
   const stateOf = (account: Account) => states[stateKey(pool, account)];
   const usable = accounts.filter((account) => !exclude?.has(account.id) && !isBlocked(stateOf(account), now));
   const roomy = usable.filter((account) => usage(stateOf(account), threshold, now) < threshold);
   const current = usable.find((account) => account.id === currentId);
+  const pinned = usable.find((account) => account.id === pinnedId);
 
-  if (current && (!userTurn || roomy.includes(current))) return current;
+  if (pinned) return pinned;
+  if (current && !userTurn) return current;
   if (roomy.length > 0) return roomy[0];
   if (current) return current;
 
@@ -427,6 +442,8 @@ export interface PoolOptions {
   store: StateStore;
   /** Request options that select an account: Claude Code's config dir, or a Codex token. */
   credentials(account: Account): Promise<Partial<SimpleStreamOptions>>;
+  /** The account the user pinned, which every request uses while it is not blocked. */
+  pinned?: () => string | undefined;
   now?: () => number;
 }
 
@@ -490,7 +507,14 @@ export function wrapProvider(base: Provider, options: PoolOptions): Provider {
     const current = latestAccount(context.messages, pool, defaultAccount);
     const exclude = new Set<string>();
     const pick = () =>
-      chooseAccount(accounts, store.read(), pool, { current, userTurn, threshold, now: now(), exclude });
+      chooseAccount(accounts, store.read(), pool, {
+        current,
+        pinned: options.pinned?.(),
+        userTurn,
+        threshold,
+        now: now(),
+        exclude,
+      });
     // When every account left is blocked, the one that unblocks first still gets the request: its
     // error is more useful than a pool error, and a block can be stale.
     const soonestUnblocked = () => {

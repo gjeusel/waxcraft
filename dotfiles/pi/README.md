@@ -195,14 +195,22 @@ The first account of a pool is the existing login: Claude Code's default configu
 - **Codex:** each extra account gets a hidden model-less provider, `openai-codex-<id>`, which only
   stores its OAuth login: `/login openai-codex-perso`. Pi refreshes it like any other login.
 
-**Switching.** A session stays on the account of its latest response, which keeps the prompt cache
-and the signed thinking valid. At each user turn (never between a tool call and its result), it
-moves to the first account below `threshold` once its own usage reaches it, or when the provider
-warns (`allowed_warning`). The highest window counts: Claude's five-hour and weekly
-`unifiedWindows` from the `claude-code.rate-limit` diagnostic, and Codex's primary and secondary
-windows from the `x-codex-*` headers or the WebSocket `codex.rate_limits` event. When every account
-is over the threshold, the session stays where it is. A move costs one prompt-cache rewrite, and
-the next account does not receive the previous account's thinking (as after a model change).
+**Merit order.** The order of a pool's accounts is the order of use: each user turn runs on the
+first account below `threshold` and without a provider warning (`allowed_warning`), so a session
+goes back to a preferred account as soon as its window resets. Between a tool call and its result
+the session stays on the account of its latest response, which keeps the prompt cache and the
+signed thinking valid. The highest window counts: Claude's five-hour and weekly `unifiedWindows`
+from the `claude-code.rate-limit` diagnostic, and Codex's primary and secondary windows from the
+`x-codex-*` headers or the WebSocket `codex.rate_limits` event. When every account is over the
+threshold, the session stays where it is. A move costs one prompt-cache rewrite, and the next
+account does not receive the previous account's thinking (as after a model change).
+
+Reordering Claude accounts is free when each has its `configDir`. The first Codex account is
+always Pi's `openai-codex` login, so putting another one first means logging in again.
+
+**Pinning.** `/account <id>` pins the pool to one account whatever its usage, until it is blocked;
+`/account auto` returns to the merit order, and `/account` alone offers the accounts of the
+session's provider. A pin lasts for the Pi process, subagents included, and shows in the footer.
 
 **Failures.** A quota, rate-limit (429), or login error that arrives before any output blocks the
 account and replays the request on the next account. A quota block lasts until the reset (from the

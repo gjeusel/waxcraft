@@ -2,7 +2,8 @@
  * account-pool — consume several Claude and ChatGPT subscriptions through one provider each.
  *
  * `claude-code` (pi-claude-code) and `openai-codex` keep their ids and models; each request runs
- * on one account of the pool, which switches when usage nears its limit (see pool.ts). Claude
+ * on one account of the pool: the first of the configured order with usage left, or the one
+ * pinned with `/account` (see pool.ts). Claude
  * accounts are Claude Code configuration directories; extra Codex accounts are logins stored by
  * Pi under hidden `openai-codex-<id>` providers (`/login openai-codex-<id>`).
  */
@@ -20,6 +21,7 @@ import {
   isBlocked,
   isPoolId,
   parseConfig,
+  POOLED_PROVIDERS,
   stateKey,
   StateStore,
   wrapProvider,
@@ -36,6 +38,17 @@ const STATUS_KEY = 'account-pool';
 const BASE = Symbol.for('account-pool.base');
 
 type Wrapped = Provider & { [BASE]?: Provider };
+
+// Accounts pinned with `/account`, for the whole process: subagents share the model runtime, and
+// the provider may be wrapped by any extension instance of the process.
+const PINNED = Symbol.for('account-pool.pinned');
+const AUTO = 'auto';
+
+function pinnedAccounts(): Partial<Record<PoolId, string>> {
+  const holder = globalThis as { [PINNED]?: Partial<Record<PoolId, string>> };
+
+  return (holder[PINNED] ??= {});
+}
 
 export function codexLoginId(account: Account): string {
   return `openai-codex-${account.id}`;
@@ -188,6 +201,7 @@ export default function (pi: ExtensionAPI) {
         accounts,
         threshold: config.threshold,
         store,
+        pinned: () => pinnedAccounts()[pool],
         async credentials(account) {
           const isDefault = account.id === accounts[0].id;
           if (pool === 'claude-code') {
@@ -231,9 +245,11 @@ export default function (pi: ExtensionAPI) {
       return;
     }
 
-    const current = account ?? sessionAccount(ctx, pool);
+    const pinned = pinnedAccounts()[pool];
+    const current = account ?? pinned ?? sessionAccount(ctx, pool);
+    const label = current === pinned ? `${current} (pinned)` : current;
 
-    ctx.ui.setStatus(STATUS_KEY, footerStatus(current, store.read()[stateKey(pool, current)], Date.now()));
+    ctx.ui.setStatus(STATUS_KEY, footerStatus(label, store.read()[stateKey(pool, current)], Date.now()));
   }
 
   pi.on('session_start', (_event, ctx) => {
@@ -300,16 +316,83 @@ export default function (pi: ExtensionAPI) {
           const source = pool === 'claude-code'
             ? (account.configDir ?? 'default login')
             : account.id === accounts?.[0].id ? 'openai-codex login' : codexLoginId(account);
+          const pinned = pinnedAccounts()[pool] === account.id ? ' · pinned' : '';
 
           lines.push(
-            ...accountLines({ id: account.id, source, inSession: account.id === inSession }, states[stateKey(pool, account)], now),
+            ...accountLines(
+              { id: account.id, source: source + pinned, inSession: account.id === inSession },
+              states[stateKey(pool, account)],
+              now,
+            ),
             '',
           );
         }
       }
-      lines.push(`● this session's account · switches at ${percent(config.threshold)}, or when the provider warns (!)`);
+      lines.push(
+        `● this session's account · each user turn takes the first account listed below ${percent(config.threshold)}`,
+        'and without a provider warning (!) · /account pins one',
+      );
 
       ctx.ui.notify(lines.join('\n'), 'info');
+    },
+  });
+
+  const pinChoices = [
+    ...new Set(POOLED_PROVIDERS.flatMap((pool) => (pooled(pool) ? (config?.pools[pool] ?? []).map((account) => account.id) : []))),
+    AUTO,
+  ];
+
+  pi.registerCommand('account', {
+    description: 'Pin the pool to one account, e.g. `/account perso`; `/account auto` returns to the configured order',
+    getArgumentCompletions: (prefix) => {
+      // No popup once a choice is typed in full: pi's Enter on an argument completion only fills
+      // it in, while without a popup it submits the command.
+      const typed = prefix.trim();
+      if (pinChoices.includes(typed)) return null;
+
+      const matches = pinChoices.filter((choice) => choice.startsWith(typed));
+
+      return matches.length > 0 ? matches.map((choice) => ({ value: choice, label: choice })) : null;
+    },
+    handler: async (args, ctx) => {
+      const sessionPool = isPoolId(ctx.model?.provider) && pooled(ctx.model.provider) ? ctx.model.provider : undefined;
+      const pinned = pinnedAccounts();
+      const poolsOf = (id: string) =>
+        POOLED_PROVIDERS.filter((pool) => pooled(pool) && config?.pools[pool]?.some((account) => account.id === id));
+
+      let choice = args.trim();
+      if (!choice) {
+        if (!sessionPool) {
+          ctx.ui.notify("account-pool: this session's model is not on a pooled provider; name an account", 'warning');
+          return;
+        }
+
+        const ids = (config?.pools[sessionPool] ?? []).map((account) => account.id);
+        choice = (await ctx.ui.select(`${sessionPool} account (pinned: ${pinned[sessionPool] ?? 'none'})`, [...ids, AUTO])) ?? '';
+        if (!choice) return;
+      }
+
+      // An id present in both pools means the session's pool; `auto` without one frees them all.
+      const candidates = choice === AUTO ? POOLED_PROVIDERS.filter((pool) => pooled(pool)) : poolsOf(choice);
+      const pools = sessionPool && candidates.includes(sessionPool) ? [sessionPool] : candidates;
+      if (pools.length === 0) {
+        ctx.ui.notify(`account-pool: no pooled account "${choice}" (expected ${pinChoices.join(', ')})`, 'error');
+        return;
+      }
+
+      for (const pool of pools) {
+        if (choice === AUTO) delete pinned[pool];
+        else pinned[pool] = choice;
+      }
+
+      const where = pools.join(' and ');
+      ctx.ui.notify(
+        choice === AUTO
+          ? `account-pool: ${where} back to the configured order`
+          : `account-pool: ${where} pinned to "${choice}" for this Pi process, unless it is blocked; /account ${AUTO} unpins`,
+        'info',
+      );
+      refreshStatus(ctx);
     },
   });
 }

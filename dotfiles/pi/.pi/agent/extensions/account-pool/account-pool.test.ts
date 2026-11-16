@@ -85,7 +85,7 @@ test('parseConfig validates pools and accounts', () => {
   assert.throws(() => parseConfig('{"threshold":1.5}'), /threshold/);
 });
 
-test('chooseAccount keeps the session account until a user turn finds it over the threshold', () => {
+test('chooseAccount follows the order of the accounts at a user turn, and the session between them', () => {
   const states: PoolState = {
     [stateKey('claude-code', 'main')]: { windows: { five_hour: { used: 0.95, resetsAt: NOW + 3_600_000 } } },
   };
@@ -93,8 +93,27 @@ test('chooseAccount keeps the session account until a user turn finds it over th
 
   assert.equal(chooseAccount(accounts, states, 'claude-code', { ...options, current: 'main', userTurn: false })?.id, 'main');
   assert.equal(chooseAccount(accounts, states, 'claude-code', { ...options, current: 'main', userTurn: true })?.id, 'work');
-  assert.equal(chooseAccount(accounts, states, 'claude-code', { ...options, current: 'spare', userTurn: true })?.id, 'spare');
+  // A session on a later account returns to the first one with room, here once main's window reset.
+  assert.equal(chooseAccount(accounts, states, 'claude-code', { ...options, current: 'spare', userTurn: true })?.id, 'work');
+  assert.equal(chooseAccount(accounts, states, 'claude-code', { ...options, current: 'spare', userTurn: false })?.id, 'spare');
+  assert.equal(
+    chooseAccount(accounts, states, 'claude-code', { ...options, current: 'spare', userTurn: true, now: NOW + 3_600_001 })?.id,
+    'main',
+  );
   assert.equal(chooseAccount(accounts, states, 'claude-code', { ...options, userTurn: true })?.id, 'work');
+});
+
+test('chooseAccount uses the pinned account whatever its usage, unless it is blocked', () => {
+  const states: PoolState = {
+    [stateKey('claude-code', 'work')]: { windows: { five_hour: { used: 0.99, resetsAt: NOW + 3_600_000 } } },
+    [stateKey('claude-code', 'spare')]: { windows: {}, blockedUntil: NOW + 1000 },
+  };
+  const options = { current: 'main', threshold: 0.9, now: NOW };
+
+  assert.equal(chooseAccount(accounts, states, 'claude-code', { ...options, pinned: 'work', userTurn: true })?.id, 'work');
+  assert.equal(chooseAccount(accounts, states, 'claude-code', { ...options, pinned: 'work', userTurn: false })?.id, 'work');
+  assert.equal(chooseAccount(accounts, states, 'claude-code', { ...options, pinned: 'spare', userTurn: true })?.id, 'main');
+  assert.equal(chooseAccount(accounts, states, 'claude-code', { ...options, pinned: 'gone', userTurn: true })?.id, 'main');
 });
 
 test('chooseAccount ignores reset windows, honors warnings and blocks', () => {
