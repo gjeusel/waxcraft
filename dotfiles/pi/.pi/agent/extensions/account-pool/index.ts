@@ -157,7 +157,10 @@ export function accountLines(
 }
 
 export default function (pi: ExtensionAPI) {
-  const configPath = join(getAgentDir(), 'account-pool.json');
+  // `account-pool.jsonc` wins over `account-pool.json`; both accept comments.
+  const configPath =
+    ['account-pool.jsonc', 'account-pool.json'].map((name) => join(getAgentDir(), name)).find((path) => existsSync(path)) ??
+    join(getAgentDir(), 'account-pool.jsonc');
   const store = new StateStore(join(getAgentDir(), 'account-pool-state'));
   const loaded = loadConfig(configPath);
   const config = loaded instanceof Error ? undefined : loaded;
@@ -317,10 +320,15 @@ export default function (pi: ExtensionAPI) {
             ? (account.configDir ?? 'default login')
             : account.id === accounts?.[0].id ? 'openai-codex login' : codexLoginId(account);
           const pinned = pinnedAccounts()[pool] === account.id ? ' · pinned' : '';
+          const priority = account.priorityModels?.length ? ` · first for ${account.priorityModels.join(', ')}` : '';
+          if (account.disabled) {
+            lines.push(`  ${account.id}  ${source} · disabled`, '');
+            continue;
+          }
 
           lines.push(
             ...accountLines(
-              { id: account.id, source: source + pinned, inSession: account.id === inSession },
+              { id: account.id, source: source + priority + pinned, inSession: account.id === inSession },
               states[stateKey(pool, account)],
               now,
             ),
@@ -329,7 +337,7 @@ export default function (pi: ExtensionAPI) {
         }
       }
       lines.push(
-        `● this session's account · each user turn takes the first account listed below ${percent(config.threshold)}`,
+        `● this session's account · each user turn takes the first enabled account listed below ${percent(config.threshold)}`,
         'and without a provider warning (!) · /account pins one',
       );
 
@@ -337,10 +345,9 @@ export default function (pi: ExtensionAPI) {
     },
   });
 
-  const pinChoices = [
-    ...new Set(POOLED_PROVIDERS.flatMap((pool) => (pooled(pool) ? (config?.pools[pool] ?? []).map((account) => account.id) : []))),
-    AUTO,
-  ];
+  const enabledIds = (pool: PoolId) =>
+    pooled(pool) ? (config?.pools[pool] ?? []).filter((account) => !account.disabled).map((account) => account.id) : [];
+  const pinChoices = [...new Set(POOLED_PROVIDERS.flatMap(enabledIds)), AUTO];
 
   pi.registerCommand('account', {
     description: 'Pin the pool to one account, e.g. `/account perso`; `/account auto` returns to the configured order',
@@ -357,8 +364,7 @@ export default function (pi: ExtensionAPI) {
     handler: async (args, ctx) => {
       const sessionPool = isPoolId(ctx.model?.provider) && pooled(ctx.model.provider) ? ctx.model.provider : undefined;
       const pinned = pinnedAccounts();
-      const poolsOf = (id: string) =>
-        POOLED_PROVIDERS.filter((pool) => pooled(pool) && config?.pools[pool]?.some((account) => account.id === id));
+      const poolsOf = (id: string) => POOLED_PROVIDERS.filter((pool) => enabledIds(pool).includes(id));
 
       let choice = args.trim();
       if (!choice) {
@@ -367,8 +373,8 @@ export default function (pi: ExtensionAPI) {
           return;
         }
 
-        const ids = (config?.pools[sessionPool] ?? []).map((account) => account.id);
-        choice = (await ctx.ui.select(`${sessionPool} account (pinned: ${pinned[sessionPool] ?? 'none'})`, [...ids, AUTO])) ?? '';
+        const title = `${sessionPool} account (pinned: ${pinned[sessionPool] ?? 'none'})`;
+        choice = (await ctx.ui.select(title, [...enabledIds(sessionPool), AUTO])) ?? '';
         if (!choice) return;
       }
 

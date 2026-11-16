@@ -170,8 +170,10 @@ extensions/
 
 `account-pool` spreads `claude-code/...` and `openai-codex/...` requests over several subscription
 accounts. The providers keep their ids and models, so `/model`, `settings.json`, subagents, and the
-other extensions are unchanged. Without `~/.pi/agent/account-pool.json` (unversioned: it names
-personal logins), or with fewer than two accounts in a pool, nothing is wrapped.
+other extensions are unchanged. Without `~/.pi/agent/account-pool.jsonc` (unversioned: it names
+personal logins), or with fewer than two accounts in a pool, nothing is wrapped. The file is JSON
+with comments and trailing commas, so a key such as `disabled` can be commented out;
+`account-pool.json` is read the same way when there is no `.jsonc`.
 
 ```json
 {
@@ -207,6 +209,16 @@ account does not receive the previous account's thinking (as after a model chang
 
 Reordering Claude accounts is free when each has its `configDir`. The first Codex account is
 always Pi's `openai-codex` login, so putting another one first means logging in again.
+
+Two optional keys adjust it per account, as in
+`{ "id": "perso", "configDir": "~/.claude-perso", "disabled": true, "priorityModels": ["claude-fable-*"] }`:
+
+- `disabled: true` leaves the account out of every choice and of `/account`, and keeps its place
+  and its login; `/accounts` lists it as disabled. A disabled first account stays the default
+  login of the pool. A session on it moves away at its next request.
+- `priorityModels` lists model ids (`*` is a wildcard) whose requests take this account first,
+  before the accounts ahead of it in the pool. Several accounts listing a model keep their order.
+  It is a preference, not a reservation: other models still use the account in its usual place.
 
 **Pinning.** `/account <id>` pins the pool to one account whatever its usage, until it is blocked;
 `/account auto` returns to the merit order, and `/account` alone offers the accounts of the

@@ -3,14 +3,15 @@
  *
  * The pooled provider keeps the id and models of the provider it wraps, so model selection and
  * every extension keyed on the provider id keep working. Each request runs on one account of the
- * pool: at a user turn, the first account in the configured order whose usage is below the
- * threshold; between a tool call and its result, the account of the session's latest response
+ * pool: at a user turn, the first enabled account in the configured order (those listing the
+ * request's model as a priority first) whose usage is below the threshold; between a tool call and its result, the account of the session's latest response
  * unless it is blocked. A pinned account overrides the order. Usage comes from what each provider
  * reports on its responses and is shared by every Pi process through a small state file.
  */
 import { mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
+import { parse, printParseErrorCode, type ParseError } from 'jsonc-parser';
 import {
   createAssistantMessageEventStream,
   type Api,
@@ -45,6 +46,10 @@ export interface Account {
   id: string;
   /** Claude Code configuration directory of a `claude-code` account. Absent: the default login. */
   configDir?: string;
+  /** Left out of every choice, while keeping its place and its login. */
+  disabled?: boolean;
+  /** Model ids, with `*` as a wildcard, whose requests take this account before the others. */
+  priorityModels?: string[];
 }
 
 export interface PoolConfig {
@@ -100,9 +105,19 @@ export function expandHome(path: string): string {
   return path === '~' || path.startsWith('~/') ? homedir() + path.slice(1) : path;
 }
 
-/** Parse the pool configuration. Throws with a readable message when it is invalid. */
+/**
+ * Parse the pool configuration, JSON with comments and trailing commas. Throws with a readable
+ * message when it is invalid.
+ */
 export function parseConfig(text: string): PoolConfig {
-  const raw: unknown = JSON.parse(text);
+  const errors: ParseError[] = [];
+  const raw: unknown = parse(text, errors, { allowTrailingComma: true });
+  if (errors.length > 0) {
+    const { error, offset } = errors[0];
+    const line = text.slice(0, offset).split('\n').length;
+
+    throw new Error(`${printParseErrorCode(error)} at line ${line}`);
+  }
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('expected a JSON object');
 
   const { threshold = DEFAULT_THRESHOLD, pools = {} } = raw as Record<string, unknown>;
@@ -118,7 +133,7 @@ export function parseConfig(text: string): PoolConfig {
 
     const seen = new Set<string>();
     config.pools[pool] = accounts.map((account: unknown) => {
-      const { id, configDir } = (account ?? {}) as Record<string, unknown>;
+      const { id, configDir, disabled, priorityModels } = (account ?? {}) as Record<string, unknown>;
       if (typeof id !== 'string' || !ACCOUNT_ID.test(id)) {
         throw new Error(`"pools.${pool}": each account needs an "id" made of letters, digits, "-" or "_"`);
       }
@@ -129,8 +144,26 @@ export function parseConfig(text: string): PoolConfig {
         throw new Error(`"pools.${pool}.${id}": "configDir" is a string, for claude-code accounts only`);
       }
 
-      return configDir === undefined ? { id } : { id, configDir };
+      if (disabled !== undefined && typeof disabled !== 'boolean') {
+        throw new Error(`"pools.${pool}.${id}": "disabled" must be true or false`);
+      }
+
+      const isModelList = Array.isArray(priorityModels) && priorityModels.every((model) => typeof model === 'string' && model !== '');
+      if (priorityModels !== undefined && !isModelList) {
+        throw new Error(`"pools.${pool}.${id}": "priorityModels" must be an array of model ids`);
+      }
+
+      return {
+        id,
+        ...(configDir === undefined ? {} : { configDir }),
+        ...(disabled ? { disabled } : {}),
+        ...(priorityModels === undefined ? {} : { priorityModels: priorityModels as string[] }),
+      };
     });
+
+    if (accounts.length > 0 && config.pools[pool]?.every((account) => account.disabled)) {
+      throw new Error(`"pools.${pool}": every account is disabled`);
+    }
   }
 
   return config;
@@ -207,6 +240,28 @@ export function activeWindows(state: AccountState | undefined, now: number): [na
 
 export function isBlocked(state: AccountState | undefined, now: number): boolean {
   return (state?.blockedUntil ?? 0) > now;
+}
+
+/** Whether `account` is listed as a priority for the model `modelId`. */
+export function hasPriority(account: Account, modelId: string): boolean {
+  return (account.priorityModels ?? []).some((pattern) => {
+    const escaped = pattern.split('*').map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+
+    return new RegExp(`^${escaped.join('.*')}$`, 'i').test(modelId);
+  });
+}
+
+/**
+ * The accounts a request of `modelId` may run on, in order of use: the enabled accounts, those
+ * with the model among their `priorityModels` first, each group in its configured order.
+ */
+export function meritOrder(accounts: readonly Account[], modelId: string): Account[] {
+  const enabled = accounts.filter((account) => !account.disabled);
+
+  return [
+    ...enabled.filter((account) => hasPriority(account, modelId)),
+    ...enabled.filter((account) => !hasPriority(account, modelId)),
+  ];
 }
 
 /**
@@ -506,8 +561,10 @@ export function wrapProvider(base: Provider, options: PoolOptions): Provider {
     const userTurn = lastMessage?.role === 'user';
     const current = latestAccount(context.messages, pool, defaultAccount);
     const exclude = new Set<string>();
+    // `accounts` keeps the disabled ones: the first is the default login whatever its state.
+    const candidates = meritOrder(accounts, model.id);
     const pick = () =>
-      chooseAccount(accounts, store.read(), pool, {
+      chooseAccount(candidates, store.read(), pool, {
         current,
         pinned: options.pinned?.(),
         userTurn,
@@ -521,7 +578,7 @@ export function wrapProvider(base: Provider, options: PoolOptions): Provider {
       const states = store.read();
       const until = (account: Account) => states[stateKey(pool, account)]?.blockedUntil ?? 0;
 
-      return accounts
+      return candidates
         .filter((account) => !exclude.has(account.id))
         .reduce<Account | undefined>((soonest, account) => (!soonest || until(account) < until(soonest) ? account : soonest), undefined);
     };

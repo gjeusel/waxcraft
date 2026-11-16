@@ -17,6 +17,7 @@ import { normalizeContext } from '@earendil-works/pi-ai/utils/transcript';
 import {
   accountOf,
   chooseAccount,
+  meritOrder,
   claudeObservation,
   classifyFailure,
   codexEventObservation,
@@ -83,6 +84,45 @@ test('parseConfig validates pools and accounts', () => {
   assert.throws(() => parseConfig('{"pools":{"openai-codex":[{"id":"a","configDir":"x"}]}}'), /claude-code accounts only/);
   assert.throws(() => parseConfig('{"pools":{"claude-code":[{"id":"a"},{"id":"a"}]}}'), /duplicate/);
   assert.throws(() => parseConfig('{"threshold":1.5}'), /threshold/);
+});
+
+test('parseConfig reads comments and trailing commas, and locates a syntax error', () => {
+  const config = parseConfig(`{
+    // Merit order.
+    "pools": {
+      "claude-code": [
+        { "id": "main" },
+        {
+          "id": "work",
+          // "disabled": true,
+        },
+      ],
+    },
+  }`);
+  assert.deepEqual(config.pools['claude-code'], [{ id: 'main' }, { id: 'work' }]);
+
+  assert.throws(() => parseConfig('{\n  "threshold": 0.9\n  "pools": {}\n}'), /at line 3/);
+});
+
+test('disabled accounts are left out, and priority models reorder the others', () => {
+  const config = parseConfig(JSON.stringify({
+    pools: {
+      'claude-code': [
+        { id: 'main', disabled: true },
+        { id: 'work' },
+        { id: 'spare', configDir: '~/.spare', priorityModels: ['claude-fable-*'] },
+      ],
+    },
+  }));
+  const pool = config.pools['claude-code'] ?? [];
+
+  assert.deepEqual(meritOrder(pool, 'claude-fable-5-2').map((account) => account.id), ['spare', 'work']);
+  assert.deepEqual(meritOrder(pool, 'claude-opus-5').map((account) => account.id), ['work', 'spare']);
+  assert.deepEqual(meritOrder(pool, 'x-claude-fable-5').map((account) => account.id), ['work', 'spare']);
+
+  assert.throws(() => parseConfig('{"pools":{"claude-code":[{"id":"a","disabled":true}]}}'), /every account is disabled/);
+  assert.throws(() => parseConfig('{"pools":{"claude-code":[{"id":"a","disabled":"yes"}]}}'), /"disabled"/);
+  assert.throws(() => parseConfig('{"pools":{"claude-code":[{"id":"a","priorityModels":"fable"}]}}'), /"priorityModels"/);
 });
 
 test('chooseAccount follows the order of the accounts at a user turn, and the session between them', () => {
