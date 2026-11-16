@@ -10,6 +10,8 @@ export interface FireEntry {
   clone: string;
   issue: number;
   branch: string;
+  /** The user asked for the MR to be merged: `/fire merge` runs by itself once the agent settles. */
+  autoMerge?: boolean;
 }
 
 /** The `fire` tool's result details. */

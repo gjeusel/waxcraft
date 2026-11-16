@@ -68,4 +68,32 @@ committing or pushing. Never force-push, rewrite published history, or touch oth
       change, leave out `--ready`: the MR stays a draft, and your final message says why.
 
    {{mergeStep}} Never mention AI or agents in commits, the MR, or the issue.
-4. **Final message:** the MR link, the checks run and their results, and the review outcome.
+4. **Final message:** exactly this shape, with nothing before its first line. Replace each `<...>`,
+   keep the glyphs and the order of lines and sections, and use no emoji.
+
+   ```text
+   {{mrLine}}
+   {{issueLine}}
+   {{mergeLine}}
+
+   What it does
+   - <one bullet per component touched>
+
+   Things you might not expect
+   - <behavior the user would not guess from the request>
+
+   Checks
+   ✓ <check that passed>
+   ✗ <check that failed>
+   ~ <check that passed, with its caveat>
+   – <check not run, and why>
+
+   Review · <model>, <thinking> · <N> fixed, <M> dismissed
+   ✓ <finding>: <the fix>
+   – <finding>: dismissed because <reason>
+   ```
+
+   - In Checks and Review, each line starts with the glyph of its outcome, in place of a bullet.
+   - Leave out "Things you might not expect" when it would be empty.
+   - Without a review, the last section is the single line `Review · none, as requested`.
+   - When the MR stays a draft, its third line is `○ no auto-merge · the MR is a draft`.

@@ -35,6 +35,8 @@ export interface MergeWatch {
   step(): Promise<void>;
   /** Retire the watch: a step still awaiting GitLab then does nothing, nor closes a pane. */
   stop(): void;
+  /** Whether the watch still runs: not stopped by a deadline, a failure, conflicts, or `stop`. */
+  isLive(): boolean;
 }
 
 /** The footer status of `/fire merge` while its watch lives: `merge !12 running 4m`. */
@@ -209,5 +211,5 @@ export function createMergeWatch(io: MergeWatchIo): MergeWatch {
 
   showStatus('checking');
 
-  return { step, stop };
+  return { step, stop, isLive: () => !stopped };
 }

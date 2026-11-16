@@ -18,7 +18,8 @@
  * moves the Rex focus between a session and the agents it fired: to the pane of one of them, picked
  * in a list, or straight to the pane of the session that fired this one. `/fire self-close`, in a fired
  * agent's session, closes its own Rex pane once its MR is merged or closed; `/fire merge` first enables
- * auto-merge on that MR, then closes the pane once it merged.
+ * auto-merge on that MR, then closes the pane once it merged. An agent fired with `autoMerge` runs
+ * `/fire merge` by itself once its run settles, so that its tab closes once its MR merged.
  *
  * A fired agent marks its Rex tab when it settles (✓ done, ⚠ failed), and a session that fired agents
  * shows their count in its footer.
@@ -479,7 +480,8 @@ export default function (pi: ExtensionAPI) {
         ({ worktree, setupFailure } = await createWorktree(layout.clone, branch, signal));
 
         signal?.throwIfAborted();
-        sessionFile = forkSession(parentFile, request, { worktree, clone: layout.clone, issue: opened.issue.iid, branch }, branch);
+        const entry = { worktree, clone: layout.clone, issue: opened.issue.iid, branch, autoMerge: params.autoMerge ?? false };
+        sessionFile = forkSession(parentFile, request, entry, branch);
 
         const reviewStep = !reviewer
           ? 'The user asked for no review: skip this step.'
@@ -488,7 +490,7 @@ export default function (pi: ExtensionAPI) {
           ? 'Implement the change yourself.'
           : `Orchestrate rather than write the code yourself: plan the change, then delegate its implementation, in scoped and self-contained parts, to \`general-purpose\` subagents with the model \`${workerModel}\`, authorized to edit. Keep your own context for planning, integration, and verification, and check their actual changes.`;
         const mergeStep = params.autoMerge
-          ? `The user asked for the MR to be merged: once it is published ready, run \`python3 ${glabTask} merge --issue ${opened.issue.iid}\`, which enables auto-merge when a pipeline runs on the pushed commit.`
+          ? 'The user asked for the MR to be merged: do not merge it nor enable auto-merge yourself. Once your turn ends with the MR published ready, `/fire merge` runs by itself: it enables auto-merge, then closes this Rex tab once the MR merged.'
           : 'Do not merge the MR, nor enable auto-merge.';
         const brief = renderBrief(readFileSync(BRIEF_TEMPLATE_PATH, 'utf8'), {
           request: requestText(request),
@@ -507,6 +509,12 @@ export default function (pi: ExtensionAPI) {
           workersStep,
           reviewStep,
           mergeStep,
+          // The fixed head of the agent's final message: the same three lines, in this order, on every run.
+          mrLine: `⎇ !${opened.mr.iid}  <ready | draft: why>  ${opened.mr.web_url}`,
+          issueLine: `◇ #${opened.issue.iid}  ${opened.issue.title}  ${opened.issue.web_url}`,
+          mergeLine: params.autoMerge
+            ? '● auto-merge · merges when the pipeline on <short sha> passes'
+            : '○ no auto-merge · waiting for your review',
         });
 
         signal?.throwIfAborted();
@@ -812,16 +820,26 @@ export default function (pi: ExtensionAPI) {
     // tells it, though the typings in use predate its `aborted` field.
     const aborted = (event as { aborted?: boolean }).aborted === true;
 
+    // Not awaited: GitLab calls would hold the other settled handlers. A reload meanwhile makes `ctx`
+    // stale, its notifications throwing: the failure is then dropped with the session.
+    const startMerge = (retried: boolean) => {
+      const generation = sessionGeneration;
+      void closeOrMerge('merge', ctx, retried).catch((error: unknown) => {
+        if (generation === sessionGeneration) ctx.ui.notify(`/fire merge failed: ${errorText(error)}`, 'error');
+      });
+    };
+
+    // Only the fired agent's own pi: a subagent holding the entry too would close its parent's pane.
+    const askedToMerge = firedBranch !== undefined && ctx.hasUI && firedEntryOfBranch(ctx.sessionManager.getBranch())?.autoMerge === true;
+
     if (pendingMerge) {
       pendingMerge = false;
-      const generation = sessionGeneration;
       if (failed || aborted) ctx.ui.notify('The conflict fix did not finish: the merge stops, run /fire merge once it is done', 'warning');
-      // Not awaited: GitLab calls would hold the other settled handlers. A reload meanwhile makes
-      // `ctx` stale, its notifications throwing: the failure is then dropped with the session.
-      else
-        void closeOrMerge('merge', ctx, true).catch((error: unknown) => {
-          if (generation === sessionGeneration) ctx.ui.notify(`/fire merge failed: ${errorText(error)}`, 'error');
-        });
+      else startMerge(true);
+    } else if (askedToMerge && !failed && !aborted && !mergeWatch?.isLive()) {
+      // At each settled run until it merges: a run that left the MR a draft, or a pipeline that
+      // failed, stops the watch, and the run fixing it starts it again.
+      startMerge(false);
     }
 
     return markTab(failed ? 'failed' : 'done');

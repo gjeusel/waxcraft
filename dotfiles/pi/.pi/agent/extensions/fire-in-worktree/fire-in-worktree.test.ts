@@ -166,7 +166,7 @@ test('lists the linked worktrees of a clone with their branch', () => {
 
 test('brief.md uses only the values the tool provides, and values are not expanded again', () => {
   const template = readFileSync(new URL('brief.md', import.meta.url), 'utf8');
-  const keys = ['request', 'task', 'worktree', 'clone', 'userCheckout', 'issue', 'issueIid', 'mr', 'branch', 'glabTask', 'setup', 'workersStep', 'reviewStep', 'mergeStep'];
+  const keys = ['request', 'task', 'worktree', 'clone', 'userCheckout', 'issue', 'issueIid', 'mr', 'branch', 'glabTask', 'setup', 'workersStep', 'reviewStep', 'mergeStep', 'mrLine', 'issueLine', 'mergeLine'];
   const values = Object.fromEntries(keys.map((key) => [key, `<${key} {{task}}>`]));
 
   const brief = renderBrief(template, values);
