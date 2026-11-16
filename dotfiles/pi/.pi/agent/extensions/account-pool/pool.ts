@@ -4,9 +4,12 @@
  * The pooled provider keeps the id and models of the provider it wraps, so model selection and
  * every extension keyed on the provider id keep working. Each request runs on one account of the
  * pool: at a user turn, the first enabled account in the configured order (those listing the
- * request's model as a priority first) whose usage is below the threshold; between a tool call and its result, the account of the session's latest response
- * unless it is blocked. A pinned account overrides the order. Usage comes from what each provider
- * reports on its responses and is shared by every Pi process through a small state file.
+ * request's model as a priority first) whose usage of the windows that count for that model is
+ * below the threshold; between a tool call and its result, the account of the session's latest
+ * response unless it is blocked for the model. A pinned account overrides the order. Limits are
+ * per model: a model out of its own allowance, or rate limited, is blocked on that account while
+ * the account keeps serving the other models. Usage comes from what each provider reports on its
+ * responses and is shared by every Pi process through a small state file.
  */
 import { mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
@@ -73,10 +76,18 @@ export interface UsageWindow {
   minutes?: number;
 }
 
+export interface Block {
+  until: number;
+  reason: string;
+}
+
 export interface AccountState {
   windows: Record<string, UsageWindow>;
+  /** Block of the whole account: its login failed. */
   blockedUntil?: number;
   blockReason?: string;
+  /** Blocks of single models, by model id: out of their allowance or rate limited. */
+  modelBlocks?: Record<string, Block>;
   updatedAt?: number;
 }
 
@@ -219,36 +230,70 @@ export function stateKey(pool: PoolId, account: Account | string): string {
   return `${pool}/${typeof account === 'string' ? account : account.id}`;
 }
 
+/** Whether the model id `modelId` matches `pattern`, a model id with `*` as a wildcard. */
+export function matchesModel(pattern: string, modelId: string): boolean {
+  const escaped = pattern.split('*').map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+
+  return new RegExp(`^${escaped.join('.*')}$`, 'i').test(modelId);
+}
+
 /**
- * Highest used fraction across the windows that have not reset yet, for the switching decision
- * only: a window the provider warned about counts as at the threshold. Display the windows of
- * `activeWindows` instead.
+ * Windows that count for some models only: Claude Code reports each weekly per-model limit on the
+ * responses of its models alone (`seven_day_overage_included` is the Fable limit). Every other
+ * window counts for all the models of the account.
  */
-export function usage(state: AccountState | undefined, threshold: number, now: number): number {
+const MODEL_WINDOWS: Record<string, string> = {
+  seven_day_overage_included: 'claude-fable-*',
+  seven_day_opus: 'claude-opus-*',
+  seven_day_sonnet: 'claude-sonnet-*',
+};
+
+/**
+ * The windows that have not reset yet, with the used fraction each provider reported. With
+ * `modelId`, only those that count for that model.
+ */
+export function activeWindows(
+  state: AccountState | undefined,
+  now: number,
+  modelId?: string,
+): [name: string, window: UsageWindow][] {
+  return Object.entries(state?.windows ?? {}).filter(([name, window]) => {
+    const isActive = window.resetsAt === undefined || window.resetsAt > now;
+    const counts = modelId === undefined || MODEL_WINDOWS[name] === undefined || matchesModel(MODEL_WINDOWS[name], modelId);
+
+    return isActive && counts;
+  });
+}
+
+/**
+ * Highest used fraction across the windows of `modelId` that have not reset yet, for the switching
+ * decision only: a window the provider warned about counts as at the threshold. Display the windows
+ * of `activeWindows` instead.
+ */
+export function usage(state: AccountState | undefined, threshold: number, now: number, modelId: string): number {
   let used = 0;
-  for (const [, window] of activeWindows(state, now)) {
+  for (const [, window] of activeWindows(state, now, modelId)) {
     used = Math.max(used, window.warning ? Math.max(window.used, threshold) : window.used);
   }
 
   return used;
 }
 
-/** The windows that have not reset yet, with the used fraction each provider reported. */
-export function activeWindows(state: AccountState | undefined, now: number): [name: string, window: UsageWindow][] {
-  return Object.entries(state?.windows ?? {}).filter(([, window]) => window.resetsAt === undefined || window.resetsAt > now);
+/** End of the block of the account for `modelId`: its own, or that of the whole account. */
+export function blockEnd(state: AccountState | undefined, modelId?: string): number {
+  const modelBlock = modelId === undefined ? undefined : state?.modelBlocks?.[modelId];
+
+  return Math.max(state?.blockedUntil ?? 0, modelBlock?.until ?? 0);
 }
 
-export function isBlocked(state: AccountState | undefined, now: number): boolean {
-  return (state?.blockedUntil ?? 0) > now;
+/** Whether the account is blocked: as a whole, or for `modelId` when given. */
+export function isBlocked(state: AccountState | undefined, now: number, modelId?: string): boolean {
+  return blockEnd(state, modelId) > now;
 }
 
 /** Whether `account` is listed as a priority for the model `modelId`. */
 export function hasPriority(account: Account, modelId: string): boolean {
-  return (account.priorityModels ?? []).some((pattern) => {
-    const escaped = pattern.split('*').map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-
-    return new RegExp(`^${escaped.join('.*')}$`, 'i').test(modelId);
-  });
+  return (account.priorityModels ?? []).some((pattern) => matchesModel(pattern, modelId));
 }
 
 /**
@@ -269,14 +314,15 @@ export function meritOrder(accounts: readonly Account[], modelId: string): Accou
  * account stays between user turns, which keeps a tool call and its result on one account; at a
  * user turn the first account with room wins, in the order of `accounts`, so a session returns to
  * a preferred account once its window resets. With no room anywhere the current account stays,
- * then the least used one. Blocked and excluded accounts are never chosen: undefined when no
- * other is left.
+ * then the least used one. Usage and blocks are those of the request's model. Blocked and excluded
+ * accounts are never chosen: undefined when no other is left.
  */
 export function chooseAccount(
   accounts: readonly Account[],
   states: PoolState,
   pool: PoolId,
   options: {
+    model: string;
     current?: string;
     pinned?: string;
     userTurn: boolean;
@@ -285,10 +331,11 @@ export function chooseAccount(
     exclude?: ReadonlySet<string>;
   },
 ): Account | undefined {
-  const { current: currentId, pinned: pinnedId, userTurn, threshold, now, exclude } = options;
+  const { model, current: currentId, pinned: pinnedId, userTurn, threshold, now, exclude } = options;
   const stateOf = (account: Account) => states[stateKey(pool, account)];
-  const usable = accounts.filter((account) => !exclude?.has(account.id) && !isBlocked(stateOf(account), now));
-  const roomy = usable.filter((account) => usage(stateOf(account), threshold, now) < threshold);
+  const usageOf = (account: Account) => usage(stateOf(account), threshold, now, model);
+  const usable = accounts.filter((account) => !exclude?.has(account.id) && !isBlocked(stateOf(account), now, model));
+  const roomy = usable.filter((account) => usageOf(account) < threshold);
   const current = usable.find((account) => account.id === currentId);
   const pinned = usable.find((account) => account.id === pinnedId);
 
@@ -297,11 +344,7 @@ export function chooseAccount(
   if (roomy.length > 0) return roomy[0];
   if (current) return current;
 
-  return usable.reduce<Account | undefined>(
-    (best, account) =>
-      !best || usage(stateOf(account), threshold, now) < usage(stateOf(best), threshold, now) ? account : best,
-    undefined,
-  );
+  return usable.reduce<Account | undefined>((best, account) => (!best || usageOf(account) < usageOf(best) ? account : best), undefined);
 }
 
 function resetHint(message: string, now: number): number | undefined {
@@ -339,22 +382,25 @@ export function classifyFailure(
   errorMessage: string,
   state: AccountState | undefined,
   now: number,
+  modelId: string,
 ): Failure | undefined {
   const patterns = FAILURE_PATTERNS[pool];
   if (patterns.auth.test(errorMessage)) return { reason: 'auth', until: now + AUTH_BLOCK_MS };
 
+  const isQuota = patterns.quota.test(errorMessage);
+  if (!isQuota && !patterns.rateLimit.test(errorMessage)) return undefined;
+
+  // Without a reset in the message, a nearly full window of the model tells when its quota returns.
+  // Claude Code words a request over a weekly limit as a plain rate limit: such a window makes it a
+  // quota failure too, instead of a block of a minute that the next retries run into.
+  const fullWindows = activeWindows(state, now, modelId)
+    .filter(([, window]) => window.used >= 0.95 && window.resetsAt !== undefined)
+    .map(([, window]) => window.resetsAt as number);
+  const fullUntil = fullWindows.length > 0 ? Math.max(...fullWindows) : undefined;
   const hint = resetHint(errorMessage, now);
-  if (!patterns.quota.test(errorMessage)) {
-    return patterns.rateLimit.test(errorMessage) ? { reason: 'rate-limit', until: hint ?? now + RATE_LIMIT_BLOCK_MS } : undefined;
-  }
+  if (!isQuota && fullUntil === undefined) return { reason: 'rate-limit', until: hint ?? now + RATE_LIMIT_BLOCK_MS };
 
-  // Without a reset in the message, a nearly full window tells when the quota returns.
-  const fullWindow = Object.values(state?.windows ?? {})
-    .filter((window) => window.used >= 0.95 && window.resetsAt !== undefined && window.resetsAt > now)
-    .map((window) => window.resetsAt as number);
-  const until = hint ?? (fullWindow.length > 0 ? Math.max(...fullWindow) : now + QUOTA_BLOCK_MS);
-
-  return { reason: 'quota', until };
+  return { reason: 'quota', until: hint ?? fullUntil ?? now + QUOTA_BLOCK_MS };
 }
 
 function record(value: unknown): Record<string, unknown> | undefined {
@@ -531,23 +577,31 @@ export function wrapProvider(base: Provider, options: PoolOptions): Provider {
   const now = options.now ?? Date.now;
   const defaultAccount = accounts[0].id;
 
-  function observe(account: Account, observation: Observation | undefined): void {
+  // A response proves the login, and the room of its model unless the provider says it is used up.
+  function observe(account: Account, modelId: string, observation: Observation | undefined): void {
     if (!observation) return;
 
-    store.update(stateKey(pool, account), (state) => ({
-      ...state,
-      windows: { ...state.windows, ...observation.windows },
-      blockedUntil: observation.blockedUntil,
-      blockReason: observation.blockedUntil ? 'quota' : undefined,
-    }));
+    store.update(stateKey(pool, account), (state) => {
+      const { [modelId]: _previous, ...modelBlocks } = state.modelBlocks ?? {};
+      if (observation.blockedUntil) modelBlocks[modelId] = { until: observation.blockedUntil, reason: 'quota' };
+
+      return {
+        ...state,
+        windows: { ...state.windows, ...observation.windows },
+        blockedUntil: undefined,
+        blockReason: undefined,
+        modelBlocks,
+      };
+    });
   }
 
-  function block(account: Account, failure: Failure): void {
-    store.update(stateKey(pool, account), (state) => ({
-      ...state,
-      blockedUntil: failure.until,
-      blockReason: failure.reason,
-    }));
+  // A failed login blocks the account; a quota or a rate limit, only the model it was reached on.
+  function block(account: Account, modelId: string, failure: Failure): void {
+    store.update(stateKey(pool, account), (state) =>
+      failure.reason === 'auth'
+        ? { ...state, blockedUntil: failure.until, blockReason: failure.reason }
+        : { ...state, modelBlocks: { ...state.modelBlocks, [modelId]: { until: failure.until, reason: failure.reason } } },
+    );
   }
 
   async function run(
@@ -565,6 +619,7 @@ export function wrapProvider(base: Provider, options: PoolOptions): Provider {
     const candidates = meritOrder(accounts, model.id);
     const pick = () =>
       chooseAccount(candidates, store.read(), pool, {
+        model: model.id,
         current,
         pinned: options.pinned?.(),
         userTurn,
@@ -576,7 +631,7 @@ export function wrapProvider(base: Provider, options: PoolOptions): Provider {
     // error is more useful than a pool error, and a block can be stale.
     const soonestUnblocked = () => {
       const states = store.read();
-      const until = (account: Account) => states[stateKey(pool, account)]?.blockedUntil ?? 0;
+      const until = (account: Account) => blockEnd(states[stateKey(pool, account)], model.id);
 
       return candidates
         .filter((account) => !exclude.has(account.id))
@@ -593,7 +648,7 @@ export function wrapProvider(base: Provider, options: PoolOptions): Provider {
         overrides = await options.credentials(account);
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        block(account, { reason: 'auth', until: now() + AUTH_BLOCK_MS });
+        block(account, model.id, { reason: 'auth', until: now() + AUTH_BLOCK_MS });
         const next = pick() ?? soonestUnblocked();
         if (next) {
           account = next;
@@ -610,11 +665,11 @@ export function wrapProvider(base: Provider, options: PoolOptions): Provider {
         ...overrides,
         env: { ...requestOptions?.env, ...overrides.env },
         onResponse: async (response: ProviderResponse, responseModel: Model<Api>) => {
-          if (pool === 'openai-codex') observe(attempt, codexHeaderObservation(response.headers, now()));
+          if (pool === 'openai-codex') observe(attempt, model.id, codexHeaderObservation(response.headers, now()));
           await requestOptions?.onResponse?.(response, responseModel);
         },
         onProviderStreamEvent: async (data: unknown, eventModel: Model<Api>) => {
-          if (pool === 'openai-codex') observe(attempt, codexEventObservation(data));
+          if (pool === 'openai-codex') observe(attempt, model.id, codexEventObservation(data));
           await requestOptions?.onProviderStreamEvent?.(data, eventModel);
         },
       };
@@ -641,10 +696,11 @@ export function wrapProvider(base: Provider, options: PoolOptions): Provider {
           ];
         }
 
-        if (event.type === 'done' && pool === 'claude-code') observe(attempt, claudeObservation(event.message));
+        if (event.type === 'done' && pool === 'claude-code') observe(attempt, model.id, claudeObservation(event.message));
         if (event.type === 'error' && event.reason !== 'aborted') {
-          const failure = classifyFailure(pool, event.error.errorMessage ?? '', store.read()[stateKey(pool, attempt)], now());
-          if (failure) block(attempt, failure);
+          const state = store.read()[stateKey(pool, attempt)];
+          const failure = classifyFailure(pool, event.error.errorMessage ?? '', state, now(), model.id);
+          if (failure) block(attempt, model.id, failure);
           // Output already shown cannot be taken back, so only a silent failure is replayed.
           retryWith = failure && !streamed ? pick() : undefined;
           if (retryWith) break;

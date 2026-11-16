@@ -201,9 +201,11 @@ The first account of a pool is the existing login: Claude Code's default configu
 first account below `threshold` and without a provider warning (`allowed_warning`), so a session
 goes back to a preferred account as soon as its window resets. Between a tool call and its result
 the session stays on the account of its latest response, which keeps the prompt cache and the
-signed thinking valid. The highest window counts: Claude's five-hour and weekly `unifiedWindows`
-from the `claude-code.rate-limit` diagnostic, and Codex's primary and secondary windows from the
-`x-codex-*` headers or the WebSocket `codex.rate_limits` event. When every account is over the
+signed thinking valid. The highest window of the request's model counts: Claude's five-hour and
+weekly `unifiedWindows` from the `claude-code.rate-limit` diagnostic, and Codex's primary and
+secondary windows from the `x-codex-*` headers or the WebSocket `codex.rate_limits` event. Claude's
+per-model weekly windows (`seven_day_overage_included` for Fable, `seven_day_opus`,
+`seven_day_sonnet`) count for their models only, so an account out of Fable still serves Opus. When every account is over the
 threshold, the session stays where it is. A move costs one prompt-cache rewrite, and the next
 account does not receive the previous account's thinking (as after a model change).
 
@@ -225,8 +227,12 @@ Two optional keys adjust it per account, as in
 session's provider. A pin lasts for the Pi process, subagents included, and shows in the footer.
 
 **Failures.** A quota, rate-limit (429), or login error that arrives before any output blocks the
-account and replays the request on the next account. A quota block lasts until the reset (from the
-error, else the full window, else 5 minutes), a rate limit 1 minute, and a login error 10 minutes.
+account and replays the request on the next account. A login error blocks the whole account for 10
+minutes; a quota or rate limit blocks only the request's model on it. A quota block lasts until the
+reset (from the error, else the model's full window, else 5 minutes), a rate limit 1 minute. Claude
+Code reports a request over a weekly per-model limit as a plain 429 rate limit; with that model's
+window at 95% or more it counts as a quota block until the window resets. A response clears the
+blocks of its model and of the account.
 An error after streamed output is reported as is: output already shown cannot be replayed. Other
 errors (overload, network) stay on the account and go through Pi's retry.
 

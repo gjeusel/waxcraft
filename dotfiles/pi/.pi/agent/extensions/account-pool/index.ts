@@ -137,9 +137,13 @@ export function accountLines(
   now: number,
 ): string[] {
   const windows = shownWindows(state, now, { merge: false });
-  const blocked = isBlocked(state, now) && state?.blockedUntil
-    ? ` · blocked (${state.blockReason}) for ${duration(state.blockedUntil - now)}`
-    : '';
+  const accountBlock = isBlocked(state, now) && state?.blockedUntil
+    ? [` · blocked (${state.blockReason}) for ${duration(state.blockedUntil - now)}`]
+    : [];
+  const modelBlocks = Object.entries(state?.modelBlocks ?? {})
+    .filter(([, block]) => block.until > now)
+    .map(([model, block]) => ` · ${model} blocked (${block.reason}) for ${duration(block.until - now)}`);
+  const blocked = [...accountBlock, ...modelBlocks].join('');
   // Usage is only what the account's own responses reported, so an idle account's figures age.
   const age = state?.updatedAt === undefined ? undefined : now - state.updatedAt;
   const stale = age !== undefined && age > STALE_MS && windows.length > 0 ? ` · reported ${duration(age)} ago` : '';

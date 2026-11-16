@@ -129,7 +129,7 @@ test('chooseAccount follows the order of the accounts at a user turn, and the se
   const states: PoolState = {
     [stateKey('claude-code', 'main')]: { windows: { five_hour: { used: 0.95, resetsAt: NOW + 3_600_000 } } },
   };
-  const options = { threshold: 0.9, now: NOW };
+  const options = { model: 'm', threshold: 0.9, now: NOW };
 
   assert.equal(chooseAccount(accounts, states, 'claude-code', { ...options, current: 'main', userTurn: false })?.id, 'main');
   assert.equal(chooseAccount(accounts, states, 'claude-code', { ...options, current: 'main', userTurn: true })?.id, 'work');
@@ -148,7 +148,7 @@ test('chooseAccount uses the pinned account whatever its usage, unless it is blo
     [stateKey('claude-code', 'work')]: { windows: { five_hour: { used: 0.99, resetsAt: NOW + 3_600_000 } } },
     [stateKey('claude-code', 'spare')]: { windows: {}, blockedUntil: NOW + 1000 },
   };
-  const options = { current: 'main', threshold: 0.9, now: NOW };
+  const options = { model: 'm', current: 'main', threshold: 0.9, now: NOW };
 
   assert.equal(chooseAccount(accounts, states, 'claude-code', { ...options, pinned: 'work', userTurn: true })?.id, 'work');
   assert.equal(chooseAccount(accounts, states, 'claude-code', { ...options, pinned: 'work', userTurn: false })?.id, 'work');
@@ -163,7 +163,7 @@ test('chooseAccount ignores reset windows, honors warnings and blocks', () => {
     [stateKey('claude-code', 'spare')]: { windows: {}, blockedUntil: NOW + 1000 },
   };
 
-  assert.equal(chooseAccount(accounts, states, 'claude-code', { current: 'work', userTurn: true, threshold: 0.9, now: NOW })?.id, 'main');
+  assert.equal(chooseAccount(accounts, states, 'claude-code', { model: 'm', current: 'work', userTurn: true, threshold: 0.9, now: NOW })?.id, 'main');
 
   const full: PoolState = {
     [stateKey('claude-code', 'main')]: { windows: { a: { used: 0.97 } } },
@@ -172,28 +172,28 @@ test('chooseAccount ignores reset windows, honors warnings and blocks', () => {
   };
 
   // Everything over the threshold: stay, or take the least used account.
-  assert.equal(chooseAccount(accounts, full, 'claude-code', { current: 'main', userTurn: true, threshold: 0.9, now: NOW })?.id, 'main');
-  assert.equal(chooseAccount(accounts, full, 'claude-code', { userTurn: true, threshold: 0.9, now: NOW })?.id, 'work');
+  assert.equal(chooseAccount(accounts, full, 'claude-code', { model: 'm', current: 'main', userTurn: true, threshold: 0.9, now: NOW })?.id, 'main');
+  assert.equal(chooseAccount(accounts, full, 'claude-code', { model: 'm', userTurn: true, threshold: 0.9, now: NOW })?.id, 'work');
   assert.equal(
-    chooseAccount(accounts, full, 'claude-code', { userTurn: true, threshold: 0.9, now: NOW, exclude: new Set(['main', 'work']) }),
+    chooseAccount(accounts, full, 'claude-code', { model: 'm', userTurn: true, threshold: 0.9, now: NOW, exclude: new Set(['main', 'work']) }),
     undefined,
   );
 });
 
 test('classifyFailure recognizes quota and auth errors with their reset', () => {
-  assert.deepEqual(classifyFailure('claude-code', 'Claude AI usage limit reached|1800003600', undefined, NOW), {
+  assert.deepEqual(classifyFailure('claude-code', 'Claude AI usage limit reached|1800003600', undefined, NOW, 'm'), {
     reason: 'quota',
     until: 1_800_003_600_000,
   });
-  assert.deepEqual(classifyFailure('openai-codex', 'You have hit your ChatGPT usage limit (plus plan). Try again in ~42 min.', undefined, NOW), {
+  assert.deepEqual(classifyFailure('openai-codex', 'You have hit your ChatGPT usage limit (plus plan). Try again in ~42 min.', undefined, NOW, 'm'), {
     reason: 'quota',
     until: NOW + 42 * 60_000,
   });
-  assert.equal(classifyFailure('claude-code', 'Claude Code is not logged in. Run claude auth login', undefined, NOW)?.reason, 'auth');
-  assert.equal(classifyFailure('claude-code', 'Claude Code upstream server error (status 529)', undefined, NOW), undefined);
+  assert.equal(classifyFailure('claude-code', 'Claude Code is not logged in. Run claude auth login', undefined, NOW, 'm')?.reason, 'auth');
+  assert.equal(classifyFailure('claude-code', 'Claude Code upstream server error (status 529)', undefined, NOW, 'm'), undefined);
 
   const state = { windows: { five_hour: { used: 1, resetsAt: NOW + 7_200_000 } } };
-  assert.equal(classifyFailure('claude-code', "You've hit your limit", state, NOW)?.until, NOW + 7_200_000);
+  assert.equal(classifyFailure('claude-code', "You've hit your limit", state, NOW, 'm')?.until, NOW + 7_200_000);
 });
 
 test('claudeObservation reads the unified windows of the rate-limit diagnostic', () => {
@@ -327,7 +327,7 @@ test('a quota failure before any output moves the request to the next account', 
   assert.equal(calls.length, 2);
   assert.equal(calls[0].options?.env?.PI_CLAUDE_CODE_CONFIG_DIR, undefined);
   assert.equal(calls[1].options?.env?.PI_CLAUDE_CODE_CONFIG_DIR, '~/.claude-work');
-  assert.equal(states.read()[stateKey('claude-code', 'main')]?.blockedUntil, 1_800_003_600_000);
+  assert.deepEqual(states.read()[stateKey('claude-code', 'main')]?.modelBlocks, { m: { until: 1_800_003_600_000, reason: 'quota' } });
 });
 
 test('a failure after streamed output is reported, not replayed', async () => {
@@ -387,8 +387,70 @@ test('a plain 429 rate limit also moves to the next account, briefly', async () 
 
   assert.equal(accountOf(result), 'work');
   assert.equal(calls.length, 2);
-  assert.equal(states.read()[stateKey('claude-code', 'main')]?.blockReason, 'rate-limit');
-  assert.equal(states.read()[stateKey('claude-code', 'main')]?.blockedUntil, NOW + 60_000);
+  assert.deepEqual(states.read()[stateKey('claude-code', 'main')]?.modelBlocks, { m: { until: NOW + 60_000, reason: 'rate-limit' } });
+});
+
+test('a per-model window and block count for their model only', () => {
+  const states: PoolState = {
+    [stateKey('claude-code', 'main')]: {
+      windows: {
+        five_hour: { used: 0.2 },
+        seven_day_overage_included: { used: 0.99, warning: true, resetsAt: NOW + 86_400_000 },
+      },
+    },
+    [stateKey('claude-code', 'work')]: { windows: {}, modelBlocks: { 'claude-opus-5-5': { until: NOW + 1000, reason: 'rate-limit' } } },
+  };
+  const options = { userTurn: true, threshold: 0.9, now: NOW };
+
+  assert.equal(usage(states[stateKey('claude-code', 'main')], 0.9, NOW, 'claude-fable-5-2'), 0.99);
+  assert.equal(usage(states[stateKey('claude-code', 'main')], 0.9, NOW, 'claude-opus-5-5'), 0.2);
+  assert.equal(chooseAccount(accounts, states, 'claude-code', { ...options, model: 'claude-fable-5-2' })?.id, 'work');
+  assert.equal(chooseAccount(accounts, states, 'claude-code', { ...options, model: 'claude-opus-5-5' })?.id, 'main');
+  assert.equal(
+    chooseAccount(accounts, states, 'claude-code', { ...options, model: 'claude-opus-5-5', exclude: new Set(['main']) })?.id,
+    'spare',
+  );
+
+  // Claude Code words a request over the Fable weekly limit as a plain rate limit.
+  const message = "Incomplete Claude Code upstream response (status 429, capture incomplete, upstream said: This request would exceed your account's rate limit. Please try again later.)";
+  assert.deepEqual(classifyFailure('claude-code', message, states[stateKey('claude-code', 'main')], NOW, 'claude-fable-5-2'), {
+    reason: 'quota',
+    until: NOW + 86_400_000,
+  });
+  assert.deepEqual(classifyFailure('claude-code', message, states[stateKey('claude-code', 'main')], NOW, 'claude-opus-5-5'), {
+    reason: 'rate-limit',
+    until: NOW + 60_000,
+  });
+});
+
+test('a 429 on one model moves it to another account, and leaves the account to the other models', async () => {
+  const fable = { ...model, id: 'claude-fable-5-2' } as Model<Api>;
+  const opus = { ...model, id: 'claude-opus-5-5' } as Model<Api>;
+  const { provider, calls } = fakeProvider((call, index) =>
+    index === 0 ? failed('status 429, upstream said: This request would exceed your account\'s rate limit.') : ok(),
+  );
+  const { pooled, states } = wrap(provider);
+
+  const first = await pooled.streamSimple(fable, normalizeContext({ messages: [user('hi')] })).result();
+  assert.equal(accountOf(first), 'work');
+
+  const again = await pooled.streamSimple(fable, normalizeContext({ messages: [user('hi')] })).result();
+  assert.equal(accountOf(again), 'work');
+
+  const other = await pooled.streamSimple(opus, normalizeContext({ messages: [user('hi')] })).result();
+  assert.equal(accountOf(other), 'main');
+  assert.equal(calls.length, 4);
+  assert.equal(states.read()[stateKey('claude-code', 'main')]?.blockedUntil, undefined);
+});
+
+test('an auth failure blocks the whole account', async () => {
+  const { provider } = fakeProvider((_call, index) => (index === 0 ? failed('Claude Code is installed but not logged in. Run `claude auth login`') : ok()));
+  const { pooled, states } = wrap(provider);
+
+  const result = await pooled.streamSimple(model, normalizeContext({ messages: [user('hi')] })).result();
+
+  assert.equal(accountOf(result), 'work');
+  assert.equal(states.read()[stateKey('claude-code', 'main')]?.blockReason, 'auth');
 });
 
 test('each account has its own state file', () => {
@@ -411,7 +473,7 @@ test('the display shows what the provider reported, a warning as a mark and not 
     updatedAt: NOW,
   };
 
-  assert.equal(usage(state, 0.95, NOW), 0.95);
+  assert.equal(usage(state, 0.95, NOW, 'm'), 0.95);
   // Merged, the two weekly windows show as one: the most used, with the warning of either.
   assert.deepEqual(shownWindows(state, NOW, { merge: true }).map(({ label, used, warning }) => ({ label, used, warning })), [
     { label: '5h', used: 0.17, warning: undefined },
