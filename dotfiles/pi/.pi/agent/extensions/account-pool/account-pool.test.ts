@@ -156,7 +156,7 @@ test('chooseAccount uses the pinned account whatever its usage, unless it is blo
   assert.equal(chooseAccount(accounts, states, 'claude-code', { ...options, pinned: 'gone', userTurn: true })?.id, 'main');
 });
 
-test('chooseAccount ignores reset windows, honors warnings and blocks', () => {
+test('chooseAccount ignores reset windows and provider warnings, honors blocks', () => {
   const states: PoolState = {
     [stateKey('claude-code', 'main')]: { windows: { five_hour: { used: 0.99, resetsAt: NOW - 1 } } },
     [stateKey('claude-code', 'work')]: { windows: { seven_day: { used: 0.2, warning: true } } },
@@ -402,8 +402,8 @@ test('a per-model window and block count for their model only', () => {
   };
   const options = { userTurn: true, threshold: 0.9, now: NOW };
 
-  assert.equal(usage(states[stateKey('claude-code', 'main')], 0.9, NOW, 'claude-fable-5-2'), 0.99);
-  assert.equal(usage(states[stateKey('claude-code', 'main')], 0.9, NOW, 'claude-opus-5-5'), 0.2);
+  assert.equal(usage(states[stateKey('claude-code', 'main')], NOW, 'claude-fable-5-2'), 0.99);
+  assert.equal(usage(states[stateKey('claude-code', 'main')], NOW, 'claude-opus-5-5'), 0.2);
   assert.equal(chooseAccount(accounts, states, 'claude-code', { ...options, model: 'claude-fable-5-2' })?.id, 'work');
   assert.equal(chooseAccount(accounts, states, 'claude-code', { ...options, model: 'claude-opus-5-5' })?.id, 'main');
   assert.equal(
@@ -443,6 +443,36 @@ test('a 429 on one model moves it to another account, and leaves the account to 
   assert.equal(states.read()[stateKey('claude-code', 'main')]?.blockedUntil, undefined);
 });
 
+test('a model out of quota on every account fails at once, without a retryable wording', async () => {
+  const fable = { ...model, id: 'claude-fable-5-2' } as Model<Api>;
+  const full = { windows: { seven_day_overage_included: { used: 0.99, resetsAt: NOW + 86_400_000 } } };
+  const states = store();
+  for (const account of accounts) states.update(stateKey('claude-code', account), () => full);
+  const { provider, calls } = fakeProvider(() => failed("status 429, upstream said: This request would exceed your account's rate limit."));
+  const { pooled } = wrap(provider, states);
+
+  const first = await pooled.streamSimple(fable, normalizeContext({ messages: [user('hi')] })).result();
+  assert.equal(calls.length, 3);
+  assert.match(first.errorMessage ?? '', /quota exceeded on every enabled claude-code account/);
+
+  const again = await pooled.streamSimple(fable, normalizeContext({ messages: [user('hi')] })).result();
+  assert.equal(calls.length, 3);
+  assert.match(again.errorMessage ?? '', /quota exceeded/);
+
+  const opus = await pooled.streamSimple({ ...model, id: 'claude-opus-5-5' } as Model<Api>, normalizeContext({ messages: [user('hi')] })).result();
+  // Opus still tries every account: its 429s are plain rate limits.
+  assert.equal(calls.length, 6);
+  assert.match(opus.errorMessage ?? '', /rate limit/);
+});
+
+test('a provider warning below the threshold keeps the account first', () => {
+  const states: PoolState = {
+    [stateKey('claude-code', 'main')]: { windows: { seven_day: { used: 0.78, warning: true } } },
+  };
+
+  assert.equal(chooseAccount(accounts, states, 'claude-code', { model: 'm', current: 'work', userTurn: true, threshold: 0.95, now: NOW })?.id, 'main');
+});
+
 test('an auth failure blocks the whole account', async () => {
   const { provider } = fakeProvider((_call, index) => (index === 0 ? failed('Claude Code is installed but not logged in. Run `claude auth login`') : ok()));
   const { pooled, states } = wrap(provider);
@@ -473,7 +503,8 @@ test('the display shows what the provider reported, a warning as a mark and not 
     updatedAt: NOW,
   };
 
-  assert.equal(usage(state, 0.95, NOW, 'm'), 0.95);
+  // The Fable window counts for Fable models only, and the warning does not count.
+  assert.equal(usage(state, NOW, 'm'), 0.85);
   // Merged, the two weekly windows show as one: the most used, with the warning of either.
   assert.deepEqual(shownWindows(state, NOW, { merge: true }).map(({ label, used, warning }) => ({ label, used, warning })), [
     { label: '5h', used: 0.17, warning: undefined },

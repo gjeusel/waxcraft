@@ -267,16 +267,11 @@ export function activeWindows(
 
 /**
  * Highest used fraction across the windows of `modelId` that have not reset yet, for the switching
- * decision only: a window the provider warned about counts as at the threshold. Display the windows
- * of `activeWindows` instead.
+ * decision only. A provider warning does not count: Claude Code warns from 75% of a window on,
+ * far below any useful threshold, and reports the exact utilization alongside.
  */
-export function usage(state: AccountState | undefined, threshold: number, now: number, modelId: string): number {
-  let used = 0;
-  for (const [, window] of activeWindows(state, now, modelId)) {
-    used = Math.max(used, window.warning ? Math.max(window.used, threshold) : window.used);
-  }
-
-  return used;
+export function usage(state: AccountState | undefined, now: number, modelId: string): number {
+  return Math.max(0, ...activeWindows(state, now, modelId).map(([, window]) => window.used));
 }
 
 /** End of the block of the account for `modelId`: its own, or that of the whole account. */
@@ -289,6 +284,27 @@ export function blockEnd(state: AccountState | undefined, modelId?: string): num
 /** Whether the account is blocked: as a whole, or for `modelId` when given. */
 export function isBlocked(state: AccountState | undefined, now: number, modelId?: string): boolean {
   return blockEnd(state, modelId) > now;
+}
+
+/**
+ * When `modelId` is out of quota on every account: the soonest reset. Undefined while one account
+ * may still serve it, even blocked by a mere rate limit, which clears within a minute.
+ */
+export function quotaExhaustedUntil(
+  accounts: readonly Account[],
+  states: PoolState,
+  pool: PoolId,
+  modelId: string,
+  now: number,
+): number | undefined {
+  const ends = accounts.map((account) => {
+    const block = states[stateKey(pool, account)]?.modelBlocks?.[modelId];
+
+    return block?.reason === 'quota' && block.until > now ? block.until : undefined;
+  });
+  if (ends.length === 0 || ends.some((end) => end === undefined)) return undefined;
+
+  return Math.min(...(ends as number[]));
 }
 
 /** Whether `account` is listed as a priority for the model `modelId`. */
@@ -333,7 +349,7 @@ export function chooseAccount(
 ): Account | undefined {
   const { model, current: currentId, pinned: pinnedId, userTurn, threshold, now, exclude } = options;
   const stateOf = (account: Account) => states[stateKey(pool, account)];
-  const usageOf = (account: Account) => usage(stateOf(account), threshold, now, model);
+  const usageOf = (account: Account) => usage(stateOf(account), now, model);
   const usable = accounts.filter((account) => !exclude?.has(account.id) && !isBlocked(stateOf(account), now, model));
   const roomy = usable.filter((account) => usageOf(account) < threshold);
   const current = usable.find((account) => account.id === currentId);
@@ -435,7 +451,8 @@ export function claudeObservation(message: AssistantMessage): Observation | unde
 
   const type = typeof details.rateLimitType === 'string' ? details.rateLimitType : undefined;
   if (type && !windows[type] && details.status === 'allowed_warning') {
-    windows[type] = { used: 0, resetsAt: epochMs(details.resetsAt), warning: true };
+    const used = typeof details.utilization === 'number' ? details.utilization : typeof details.surpassedThreshold === 'number' ? details.surpassedThreshold : 0;
+    windows[type] = { used, resetsAt: epochMs(details.resetsAt), warning: true };
   }
 
   // A rejection, or a response charged to usage credits, means the plan limit is used up.
@@ -638,7 +655,25 @@ export function wrapProvider(base: Provider, options: PoolOptions): Provider {
         .reduce<Account | undefined>((soonest, account) => (!soonest || until(account) < until(soonest) ? account : soonest), undefined);
     };
 
-    let account = (pick() ?? soonestUnblocked()) as Account;
+    // A model out of quota on every account fails at once, worded so that Pi does not retry it
+    // ("quota exceeded"): retrying only hits the same limit, until the window resets hours later.
+    const exhaustedError = () => {
+      const until = quotaExhaustedUntil(candidates, store.read(), pool, model.id, now());
+
+      return until === undefined
+        ? undefined
+        : `account-pool: ${model.id} quota exceeded on every enabled ${pool} account until ` +
+            `${new Date(until).toLocaleString()}; switch model, or enable another account in account-pool.jsonc`;
+    };
+
+    const initial = pick();
+    const exhausted = initial ? undefined : exhaustedError();
+    if (exhausted) {
+      out.push(errorEvent(model, exhausted));
+      return;
+    }
+
+    let account = (initial ?? soonestUnblocked()) as Account;
 
     for (;;) {
       exclude.add(account.id);
@@ -704,6 +739,9 @@ export function wrapProvider(base: Provider, options: PoolOptions): Provider {
           // Output already shown cannot be taken back, so only a silent failure is replayed.
           retryWith = failure && !streamed ? pick() : undefined;
           if (retryWith) break;
+
+          const exhausted = failure && !streamed ? exhaustedError() : undefined;
+          if (exhausted) event.error.errorMessage = exhausted;
         }
 
         if (!streamed) {

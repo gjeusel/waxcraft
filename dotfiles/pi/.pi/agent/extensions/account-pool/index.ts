@@ -342,7 +342,7 @@ export default function (pi: ExtensionAPI) {
       }
       lines.push(
         `● this session's account · each user turn takes the first enabled account listed below ${percent(config.threshold)}`,
-        'and without a provider warning (!) · /account pins one',
+        "for the session's model · ! marks a provider warning · /account pins one",
       );
 
       ctx.ui.notify(lines.join('\n'), 'info');
