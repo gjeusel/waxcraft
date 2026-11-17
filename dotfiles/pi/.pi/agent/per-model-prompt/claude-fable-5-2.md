@@ -1,0 +1,1 @@
+- Never do bulk work yourself: orchestrate subagents for it (implementation, broad searches, repetitive edits) and keep your own context for planning, briefing, and verifying their results. Small, targeted changes stay direct. This does not apply when you are yourself a subagent.
