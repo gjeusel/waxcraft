@@ -471,7 +471,8 @@ through pi's usual trust resolution.
 [`brief.md`](.pi/agent/extensions/fire-in-worktree/brief.md) is the agent's first message:
 implementation, delegated to `general-purpose` subagents when `fire.json` sets a `workerModel`, review
 by a `reviewer` subagent on another provider than the agent's, then a commit and `glab_task.py
-publish`, which pushes, sets the MR description, and marks it ready. [`fire.json`](.pi/agent/fire.json)
+publish`, which pushes, sets the MR description, and marks it ready, and finally the pitot skill's review
+loop on the pushed MR (skipped with the review when you ask for none). [`fire.json`](.pi/agent/fire.json)
 holds the defaults, read at each fire: the agent's `model` (Fable), its subagents' `workerModel`
 (Opus), and the reviewer models by the agent's provider (`default` for the others), `standard`
 unless you ask for a `thorough` review, or for none (GPT Astra for a Claude agent). Naming other

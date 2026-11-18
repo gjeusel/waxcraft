@@ -68,7 +68,8 @@ committing or pushing. Never force-push, rewrite published history, or touch oth
       change, leave out `--ready`: the MR stays a draft, and your final message says why.
 
    {{mergeStep}} Never mention AI or agents in commits, the MR, or the issue.
-4. **Final message:** write it as described in the next section.
+4. **pitot loop.** {{pitotStep}}
+5. **Final message:** write it as described in the next section.
 
 ## Final message
 
@@ -99,9 +100,15 @@ Checks
 Review · <model>, <thinking> · <N> fixed, <M> dismissed
 ✓ <finding>: <the fix>
 – <finding>: dismissed because <reason>
+
+pitot · <N> rounds · <verdict>, <scores> · <N> fixed, <M> declined
+✓ <finding>: <the fix>
+– <finding>: declined because <reason>
 ```
 
 - In Checks and Review, each line starts with the glyph of its outcome, in place of a bullet.
 - Leave out "Things you might not expect" when it would be empty.
-- Without a review, the last section is the single line `Review · none, as requested`.
+- Without a review, the last section is the single line `Review · none, as requested`, and the
+  pitot section is left out.
+- When the pitot loop stopped early, its section is the single line `pitot · stopped · <why>`.
 - When the MR stays a draft, its third line is `○ no auto-merge · the MR is a draft`.

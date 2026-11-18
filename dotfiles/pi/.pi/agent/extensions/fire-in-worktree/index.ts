@@ -489,6 +489,10 @@ export default function (pi: ExtensionAPI) {
         const workersStep = !workerModel
           ? 'Implement the change yourself.'
           : `Orchestrate rather than write the code yourself: plan the change, then delegate its implementation, in scoped and self-contained parts, to \`general-purpose\` subagents with the model \`${workerModel}\`, authorized to edit. Keep your own context for planning, integration, and verification, and check their actual changes.`;
+        // pitot reviews the pushed MR: it follows the pre-push review, and is skipped along with it.
+        const pitotStep = !reviewer
+          ? 'The user asked for no review: skip this step.'
+          : 'Once the MR is published, run the pitot skill\'s review loop on it ("pitot loop"): `pitot review` from the worktree, then address its findings, committing and pushing each round on this branch as step 3.1 does. Nobody can answer questions here: when it says to ask the user (`spec` findings, `pitot login`), decide or stop, and report it in your final message instead.';
         const mergeStep = params.autoMerge
           ? 'The user asked for the MR to be merged: do not merge it nor enable auto-merge yourself. Once your turn ends with the MR published ready, `/fire merge` runs by itself: it enables auto-merge, then closes this Rex tab once the MR merged.'
           : 'Do not merge the MR, nor enable auto-merge.';
@@ -509,6 +513,7 @@ export default function (pi: ExtensionAPI) {
           workersStep,
           reviewStep,
           mergeStep,
+          pitotStep,
           // The fixed head of the agent's final message: the same three lines, in this order, on every run.
           mrLine: `⎇ !${opened.mr.iid}  <ready | draft: why>  ${opened.mr.web_url}`,
           issueLine: `◇ #${opened.issue.iid}  ${opened.issue.title}  ${opened.issue.web_url}`,
