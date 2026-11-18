@@ -11,10 +11,12 @@
   "hideThinkingBlock": true,
   "showHardwareCursor": true,
   "enabledModels": [
+    "openai-codex/gpt-6.2-astra",
     "openai-codex/gpt-6-astra",
-    "openai-codex/gpt-6.1-sol",
+    "openai-codex/gpt-6.2-sol",
     "openai-codex/gpt-6-luna",
     "mistral-eu/zai-glm-5-3",
+    "mistral/mistral-large-4",
     "moonshotai/kimi-k3",
     "deepseek/deepseek-flash",
     "claude-code/claude-sonnet-5-5",
@@ -24,10 +26,12 @@
   "modelThinkingLevels": {
     "deepseek/deepseek-flash": "high",
     "mistral-eu/zai-glm-5-3": "high",
+    "mistral/mistral-large-4": "high",
     "claude-code/claude-fable-5-2": "high",
     "claude-code/claude-opus-5-5": "high",
     "openai-codex/gpt-6-luna": "high",
-    "openai-codex/gpt-6.1-sol": "high",
+    "openai-codex/gpt-6.2-sol": "high",
+    "openai-codex/gpt-6.2-astra": "high",
     "openai-codex/gpt-6-astra": "high"
   },
   "skills": [

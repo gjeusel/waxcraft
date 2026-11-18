@@ -158,6 +158,7 @@ extensions/
 ├── peek-document/          read PDF and Office files
 ├── per-model-prompt/       model-specific directives
 ├── pi-builtin-adjustments/ quieter built-ins
+├── pi-extra-subs/          subscription sign-ins for built-in providers (Mistral)
 ├── pi-model-controls/      OpenAI/Anthropic speed controls and Codex/Anthropic server compaction
 ├── pi-safety/              Bash command checks, decisions auto mode, and safe deletion shims
 ├── python-code/            sandboxed Python
