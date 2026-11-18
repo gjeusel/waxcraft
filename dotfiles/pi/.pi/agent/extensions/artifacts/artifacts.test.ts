@@ -98,8 +98,8 @@ test('listArtifacts sorts by last update', async () => {
 });
 
 test('injectLiveReload inserts before the last </body>, or appends', () => {
-  assert.match(injectLiveReload('<body>x</body></html>'), /^<body>x<script>[\s\S]*<\/script>\n<\/body><\/html>$/);
-  assert.match(injectLiveReload('<p>x</p>'), /^<p>x<\/p>\n<script>/);
+  assert.match(injectLiveReload('<body>x</body></html>', 1), /^<body>x<script>[\s\S]*<\/script>\n<\/body><\/html>$/);
+  assert.match(injectLiveReload('<p>x</p>', 1), /^<p>x<\/p>\n<script>/);
 });
 
 test('latestSessionArtifactId prefers the newest publish or attach on the branch', () => {
@@ -116,7 +116,7 @@ test('latestSessionArtifactId prefers the newest publish or attach on the branch
   assert.equal(latestSessionArtifactId([]), undefined);
 });
 
-test('server serves pages with live reload and notifies on republish', async (t) => {
+test('server serves pages with live reload and exposes the republished version', async (t) => {
   const { storeDir, workDir } = await tempDirs();
   const source = join(workDir, 'live.html');
   await writeFile(source, '<p>one</p>');
@@ -128,7 +128,8 @@ test('server serves pages with live reload and notifies on republish', async (t)
 
   const page = await (await fetch(`${server.baseUrl}/${meta.id}/`)).text();
   assert.match(page, /<p>one<\/p>/);
-  assert.match(page, /new EventSource\('events'\)/);
+  assert.match(page, /fetch\('version'/);
+  assert.doesNotMatch(page, /EventSource/, 'no held-open stream per tab');
 
   const gallery = await (await fetch(`${server.baseUrl}/`)).text();
   assert.match(gallery, new RegExp(`href="/${meta.id}/"`));
@@ -136,15 +137,13 @@ test('server serves pages with live reload and notifies on republish', async (t)
   assert.equal((await fetch(`${server.baseUrl}/..%2Fetc/`)).status, 404);
   assert.equal((await fetch(`${server.baseUrl}/${meta.id}`, { redirect: 'manual' })).status, 308);
 
-  const events = await fetch(`${server.baseUrl}/${meta.id}/events`);
-  const reader = events.body!.getReader();
-  await reader.read(); // ': connected' comment
+  const version = async () => (await fetch(`${server.baseUrl}/${meta.id}/version`)).text();
+  assert.equal(await version(), '1');
 
   await writeFile(source, '<p>two</p>');
   await publishArtifact(storeDir, { sourcePath: source, cwd: workDir });
-  const { value } = await reader.read();
-  assert.match(new TextDecoder().decode(value), /data: reload/);
-  await reader.cancel();
+  assert.equal(await version(), '2');
+  assert.match(await (await fetch(`${server.baseUrl}/${meta.id}/`)).text(), /=== '2'\)/);
 
   const shared = await startArtifactServer(storeDir, Number(new URL(server.baseUrl).port));
   assert.equal(shared.owned, false, 'reuses the server already bound to the port');

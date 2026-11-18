@@ -1,34 +1,44 @@
-import { watch, type FSWatcher } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { artifactDir, escapeHtml, isArtifactId, listArtifacts, pagePath } from './store.ts';
+import { escapeHtml, isArtifactId, listArtifacts, pagePath, readArtifact } from './store.ts';
 
 export const DEFAULT_PORT = 7424;
 
 const HOST = '127.0.0.1';
 const IDENTITY_PATH = '/__pi_artifacts';
 
-/** Reloads the page when the artifact is republished, keeping the scroll position. */
-const LIVE_RELOAD_SCRIPT = `<script>(() => {
+/**
+ * Reloads the page when the artifact is republished, keeping the scroll position.
+ *
+ * The version is polled, not pushed: a stream held open by each tab uses up the 6 connections a
+ * browser allows per origin, and the next artifact tab then never loads.
+ */
+function liveReloadScript(version: number): string {
+  return `<script>(() => {
   const key = 'pi-artifact-scroll:' + location.pathname;
   const saved = sessionStorage.getItem(key);
   if (saved !== null) {
     sessionStorage.removeItem(key);
     addEventListener('load', () => scrollTo(0, Number(saved)));
   }
-  new EventSource('events').onmessage = () => {
+  const check = async () => {
+    if (document.hidden) return;
+    const response = await fetch('version', { cache: 'no-store' }).catch(() => undefined);
+    if (!response?.ok || (await response.text()) === '${version}') return;
     sessionStorage.setItem(key, String(scrollY));
     location.reload();
   };
+  setInterval(check, 1000);
+  document.addEventListener('visibilitychange', check);
 })();</script>`;
+}
 
-export function injectLiveReload(html: string): string {
+export function injectLiveReload(html: string, version: number): string {
+  const script = liveReloadScript(version);
   const bodyEnd = html.search(/<\/body>(?![\s\S]*<\/body>)/i);
 
-  return bodyEnd === -1
-    ? `${html}\n${LIVE_RELOAD_SCRIPT}`
-    : `${html.slice(0, bodyEnd)}${LIVE_RELOAD_SCRIPT}\n${html.slice(bodyEnd)}`;
+  return bodyEnd === -1 ? `${html}\n${script}` : `${html.slice(0, bodyEnd)}${script}\n${html.slice(bodyEnd)}`;
 }
 
 async function renderGallery(storeDir: string): Promise<string> {
@@ -48,8 +58,6 @@ async function renderGallery(storeDir: string): Promise<string> {
 }
 
 export function createArtifactServer(storeDir: string): Server {
-  const watchers = new Set<FSWatcher>();
-
   const server = createServer(async (request, response) => {
     const path = new URL(request.url ?? '/', `http://${HOST}`).pathname;
 
@@ -75,32 +83,25 @@ export function createArtifactServer(storeDir: string): Server {
         return;
       }
 
-      if (rest === '/events') {
-        response.writeHead(200, { 'content-type': 'text/event-stream', 'cache-control': 'no-cache' });
-        response.write(': connected\n\n');
+      if (rest === '/version' || rest === '/') {
+        const meta = await readArtifact(storeDir, id);
+        if (!meta) {
+          response.writeHead(404).end('Artifact not found');
+          return;
+        }
 
-        // Watch the directory: meta.json is replaced atomically on each publish, which breaks file watchers.
-        let debounce: NodeJS.Timeout | undefined;
-        const watcher = watch(artifactDir(storeDir, id), (_event, filename) => {
-          if (filename !== 'meta.json') return;
+        if (rest === '/version') {
+          response
+            .writeHead(200, { 'content-type': 'text/plain', 'cache-control': 'no-store' })
+            .end(String(meta.version));
+          return;
+        }
 
-          clearTimeout(debounce);
-          debounce = setTimeout(() => response.write('data: reload\n\n'), 100);
-        });
-        watchers.add(watcher);
-        request.on('close', () => {
-          clearTimeout(debounce);
-          watcher.close();
-          watchers.delete(watcher);
-        });
-        return;
-      }
-
-      if (rest === '/') {
+        // meta.json is written last on publish: a page newer than its version reloads once more.
         const html = await readFile(pagePath(storeDir, id), 'utf8');
         response
           .writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' })
-          .end(injectLiveReload(html));
+          .end(injectLiveReload(html, meta.version));
         return;
       }
 
@@ -110,11 +111,6 @@ export function createArtifactServer(storeDir: string): Server {
       if (!response.headersSent) response.writeHead(missing ? 404 : 500);
       response.end(missing ? 'Artifact not found' : String(error));
     }
-  });
-
-  server.on('close', () => {
-    for (const watcher of watchers) watcher.close();
-    watchers.clear();
   });
 
   return server;
