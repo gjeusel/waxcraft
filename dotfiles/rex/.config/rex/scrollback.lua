@@ -1,7 +1,7 @@
 -- Tools for the focused pane's scrollback, bound after the prefix:
 -- - ctrl+u/ctrl+d jump to the previous or next shell prompt, as cmd+up/cmd+down do when held.
 -- - / searches the scrollback with Rex's find.
--- - y>1 copies the last command and its output.
+-- - y>1 copies the last command and its output; y>y picks which commands to copy, in the palette.
 -- - space opens a snapshot of the scrollback in Neovim, a copy mode with vim motions, search and
 --   visual selection, where y copies and q quits. ctrl+h/j/k/l move to the pane beside and back.
 --
@@ -81,42 +81,47 @@ local function prompt_line(text, symbol)
   return after_blank and line or nil
 end
 
--- The last command's prompt line and its output, or nil before the first command. `waiting` tells
--- whether the shell waits at the last prompt rather than runs its command. Scans bytes rather
--- than splitting lines: long outputs overflow Lua's registry as tables of lines.
-local function last_command(text, waiting)
-  local previous, last
+-- The latest commands of the text, oldest first, each as the range `first` to `stop` of its prompt
+-- line and output. `waiting` tells whether the shell waits at the last prompt, which then isn't a
+-- command, rather than runs its command. Scans bytes rather than splitting lines: long outputs
+-- overflow Lua's registry as tables of lines.
+local function commands(text, waiting)
+  local prompts = {}
   local symbol = text:find("λ", 1, true)
   while symbol ~= nil do
     local line = prompt_line(text, symbol)
     if line ~= nil then
-      previous, last = last, line
+      table.insert(prompts, line)
     end
 
     symbol = text:find("λ", symbol + #"λ", true)
   end
 
-  local first, stop = last, trim_newlines(text, #text)
-  if waiting then
-    first = previous
-    if first == nil then
-      return nil
-    end
+  -- As many as rex.ui.pick shows.
+  local ranges = {}
+  for index = math.max(1, #prompts - 1999), #prompts do
+    local first, next_prompt = prompts[index], prompts[index + 1]
+    if next_prompt ~= nil then
+      -- Stop before the next prompt's preprompt line and the blank line above it.
+      local stop = next_prompt - 2
+      while stop > first and text:byte(stop) ~= 10 do
+        stop = stop - 1
+      end
 
-    -- Stop before the waiting prompt's preprompt line and the blank line above it.
-    stop = last - 2
-    while stop > first and text:byte(stop) ~= 10 do
-      stop = stop - 1
+      table.insert(ranges, { first = first, stop = trim_newlines(text, stop) })
+    elseif not waiting then
+      table.insert(ranges, { first = first, stop = trim_newlines(text, #text) })
     end
-
-    stop = trim_newlines(text, stop)
   end
 
-  if first == nil then
-    return nil
-  end
+  return ranges
+end
 
-  return text:sub(first, stop) .. "\n"
+local function copy(text)
+  local r = check(rex.exec({ "pbcopy" }, { stdin = text, env = { LC_CTYPE = "UTF-8" } }))
+  if not r.ok then
+    error("pbcopy failed: " .. r.stderr, 0)
+  end
 end
 
 -- Whether the block's shell waits for a command: it is the foreground process, not a program.
@@ -252,16 +257,73 @@ function M.define(prefix)
     run = function(ctx)
       local block_id = check(ctx.block_id, "no focused pane")
       local text = scrollback(block_id)
-      local copied = last_command(text, shell_waiting(block_id))
-      check(copied, "no command in the scrollback")
-      local r = check(rex.exec({ "pbcopy" }, { stdin = copied, env = { LC_CTYPE = "UTF-8" } }))
-      if not r.ok then
-        error("pbcopy failed: " .. r.stderr, 0)
-      end
+      local ranges = commands(text, shell_waiting(block_id))
+      local last = check(ranges[#ranges], "no command in the scrollback")
+      copy(text:sub(last.first, last.stop) .. "\n")
     end,
   })
 
   rex.bind(prefix .. "y>1", "copy_last_command")
+
+  -- An action bound by name, not a function: rex.ui.pick only works in an action's `run`.
+  rex.action({
+    name = "copy_commands",
+    title = "Copy Commands and Output…",
+    category = "Workflows",
+    keywords = "yank clipboard output scrollback pick",
+    run = function(ctx)
+      local block_id = check(ctx.block_id, "no focused pane")
+      local text = scrollback(block_id)
+      local ranges = commands(text, shell_waiting(block_id))
+
+      -- Latest first, without the prompts left empty.
+      local items = {}
+      for index = #ranges, 1, -1 do
+        local range = ranges[index]
+        local line_end = math.min((text:find("\n", range.first, true) or #text + 1) - 1, range.stop)
+        local command = text:sub(range.first, line_end):gsub("^.-λ%s*", "")
+        local _, lines = text:sub(line_end + 1, range.stop):gsub("\n", "\n")
+        if command ~= "" then
+          table.insert(items, {
+            id = tostring(index),
+            title = command,
+            icon = "terminal",
+            detail = lines == 1 and "1 line" or lines .. " lines",
+            selected = #items == 0,
+          })
+        end
+      end
+
+      check(items[1], "no command in the scrollback")
+      local picked, why, detail = rex.ui.pick({
+        title = "Copy commands",
+        placeholder = "Filter commands",
+        confirm = "Copy",
+        multiple = true,
+        items = items,
+      })
+      if picked == nil then
+        if why ~= "cancelled" then
+          error(("pick %s %s"):format(why, detail or ""), 0)
+        end
+
+        return
+      end
+
+      -- Picked ids come latest first, as the items: copy the commands oldest first.
+      local parts = {}
+      for index = #picked, 1, -1 do
+        local range = ranges[tonumber(picked[index])]
+        table.insert(parts, text:sub(range.first, range.stop) .. "\n")
+      end
+
+      if #parts > 0 then
+        copy(table.concat(parts, "\n"))
+      end
+    end,
+  })
+
+  rex.bind(prefix .. "y>y", "copy_commands")
 
   rex.action({
     name = "copy_mode",

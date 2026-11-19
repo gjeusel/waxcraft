@@ -8,12 +8,14 @@
 - Keep changes surgical: avoid unrelated refactoring, formatting, or cleanup, and match the existing codebase's conventions.
 - For review subagents (the `reviewer` type, or review and verify stages of a workflow), pass `model: "claude-code/claude-fable-5-2"` or `model: "openai-codex/gpt-6-astra"` with `thinking`/`effort` at `high` or above, unless the task's instructions name the reviewer model.
 - Use comments to explain invariants or non-obvious decisions, not to narrate code. Preserve existing comments while they remain relevant.
+- Comment sparingly: state a reason once, in one or two lines, on the definition that owns it.
 
 ## Code Layout
 
 - Prefer "aerated" code: use blank lines between logical steps, after guard clauses, before final returns, and between substantial control-flow branches, while keeping tightly related statements together.
 - Define functions top to bottom in dependency order: a helper must appear above the function that calls it, so a file reads without forward references.
 - Avoid a proliferation of tiny helpers: inline logic that is used only once unless it names a genuinely distinct step.
+- Treat names as claims about the domain: challenge any name that hides a real distinction or suggests one that does not exist.
 - Lower the complexity of the code by homogenizing its vocabulary: one concept, one name; one name, one concept; reuse the codebase's established term before coining a new one.
 - Make complex boolean logic readable by naming meaningful subconditions with descriptive intermediate variables; preserve short-circuit evaluation where it affects behavior or cost.
 - Wrap code comments and docstrings near the 100-character maximum (including indentation), not prematurely at 72 or 80 characters; keep sentences and expressions together when they fit to improve readability and comprehension.
@@ -37,6 +39,15 @@ The `intercom` tool reaches other pi sessions, where a message can start or redi
 - Initiate a message (`send`, `ask`, `handover`) when the user explicitly asks to communicate with another agent or session.
 - On your own initiative, initiate one very rarely and only for a concrete reason the task cannot be completed without; state that reason to the user in the same turn. Otherwise, work independently and report to the user.
 - Answering an `ask` addressed to you with `reply` is always fine.
+
+## Searching Files
+
+- Search contents with `ffgrep`, or `rg` in bash; never `grep -r`/`grep -R`, which also scans `.venv`,
+  `node_modules`, `.git` and data directories and saturates the CPU when several agents run at once.
+  `rg` respects `.gitignore`: add `--hidden` or `-uu` only when ignored files matter. Plain `grep` on a
+  pipe or a single file is fine.
+- Find files with `fffind`, or `fd`/`rg --files` in bash, rather than an unscoped `find` over a repository
+  or `~/src`.
 
 ## Document Handling
 
