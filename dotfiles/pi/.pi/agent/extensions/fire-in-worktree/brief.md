@@ -86,13 +86,13 @@ A fenced or indented message renders as one raw code block.
 {{mergeLine}}
 
 What it does
-- <one bullet per component touched>
+- <one bullet per behavior changed>
 
 Things you might not expect
 - <behavior the user would not guess from the request>
 
 Checks
-✓ <check that passed>
+✓ <every check that passed, joined by " · ">
 ✗ <check that failed>
 ~ <check that passed, with its caveat>
 – <check not run, and why>
@@ -106,7 +106,15 @@ pitot · <N> rounds · <verdict>, <scores> · <N> fixed, <M> declined
 – <finding>: declined because <reason>
 ```
 
-- In Checks and Review, each line starts with the glyph of its outcome, in place of a bullet.
+- Every bullet and glyph line is one line, of one sentence. Nothing follows the last section.
+- What it does: at most four bullets, on what now behaves differently, not on the files touched.
+  The MR description holds the detail.
+- In Checks, Review, and pitot, each line starts with the glyph of its outcome, in place of a
+  bullet.
+- Checks: one `✓` line names all the checks that passed; the other glyphs get one line per check,
+  and only when there is one.
+- Review and pitot: the counts stand for the fixed findings. List a `✓` fix only when it changed
+  behavior the user asked for, and every `–` finding.
 - Leave out "Things you might not expect" when it would be empty.
 - Without a review, the last section is the single line `Review · none, as requested`, and the
   pitot section is left out.

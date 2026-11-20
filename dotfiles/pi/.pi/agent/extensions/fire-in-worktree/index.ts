@@ -1,7 +1,8 @@
 /**
  * fire-in-worktree — "fire in wt": hands a task to a new pi that continues this conversation in an
  * isolated git worktree, in a tab of the Rex session `ai-agents`, and carries it through
- * implementation, cross-provider review, and MR on its own (see brief.md).
+ * implementation, cross-provider review, and MR on its own (see brief.md). The launching session
+ * then confirms the handoff in a fixed shape (see handoff.md).
  *
  * Worktrees belong to agent-only clones in ~/.pi/src/<repo>, so checkouts under ~/src never gain
  * linked worktrees. The glab skill's `glab_task.py open` first resolves or creates the issue (content
@@ -76,6 +77,7 @@ const MERGE_STATUS_KEY = 'fire-merge';
 const CONFLICT_CHOICES = { fixAndMerge: 'Yes, fix them and merge', fixOnly: 'Yes, fix them only', no: 'No' } as const;
 const PING_TYPE = 'fire-ping';
 const BRIEF_TEMPLATE_PATH = fileURLToPath(new URL('brief.md', import.meta.url));
+const HANDOFF_TEMPLATE_PATH = fileURLToPath(new URL('handoff.md', import.meta.url));
 // The launched pi takes the session lock on start: until then, its launch is not confirmed.
 const START_TIMEOUT_MS = 45_000;
 
@@ -185,10 +187,11 @@ export function parseFireArgs(args: string): FireCommand {
   return { kind: 'run', task: text === 'run' ? '' : text };
 }
 
-export function renderBrief(template: string, values: Record<string, string>): string {
+/** Fill the `{{placeholders}}` of brief.md or handoff.md. */
+export function renderTemplate(template: string, values: Record<string, string>): string {
   // One pass over the template: placeholders inside the values themselves are left as written.
   return template.replace(/\{\{(\w+)\}\}/g, (placeholder, key: string) => {
-    if (!Object.hasOwn(values, key)) throw new Error(`brief.md: unknown placeholder ${placeholder}`);
+    if (!Object.hasOwn(values, key)) throw new Error(`fire template: unknown placeholder ${placeholder}`);
 
     return values[key];
   });
@@ -408,7 +411,7 @@ export default function (pi: ExtensionAPI) {
       'fire: Pass `issue` when the user names one. Otherwise write `newIssue` yourself from this conversation, without a subagent; read the glab skill\'s references/team-and-labels.md first unless you already know its labels. The tool creates the issue, its branch, and a draft MR, assigned to the user, in seconds; an invalid label fails fast with the existing ones.',
       'fire: The agent inherits this conversation up to the user\'s request. Write `task` as a self-contained brief of the goal and what was settled. Set `review` and `autoMerge` only from what the user says.',
       'fire: By default the agent runs on Fable, delegates implementation to Opus subagents, and has its work reviewed by GPT Astra (fire.json). Set `model`, `workerModel` (or "none"), or `reviewer` only when the user asks for other models; their request overrides these defaults.',
-      'fire: Once it returns, confirm in a sentence or two where the task went, and do not work on that task in this session.',
+      'fire: Once it returns, reply with the message its result prescribes, in that exact shape, and do not work on that task in this session.',
     ],
     parameters: fireSchema,
     // Calls share the clone and the Rex session, which the first call may be creating.
@@ -440,6 +443,9 @@ export default function (pi: ExtensionAPI) {
       const review: Review = params.review ?? 'standard';
       const reviewerRef = review === 'none' ? undefined : (params.reviewer ?? reviewersFor(config, model.split('/')[0])[review]);
       const reviewer = reviewerRef && checkModel(reviewerRef, 'reviewer');
+
+      // Read before anything is created: the reply to the user is built from it once the agent runs.
+      const handoffTemplate = readFileSync(HANDOFF_TEMPLATE_PATH, 'utf8');
 
       const skillDir = glabSkillDir(pi);
       const glabTask = join(skillDir, 'scripts', 'glab_task.py');
@@ -496,7 +502,7 @@ export default function (pi: ExtensionAPI) {
         const mergeStep = params.autoMerge
           ? 'The user asked for the MR to be merged: do not merge it nor enable auto-merge yourself. Once your turn ends with the MR published ready, `/fire merge` runs by itself: it enables auto-merge, then closes this Rex tab once the MR merged.'
           : 'Do not merge the MR, nor enable auto-merge.';
-        const brief = renderBrief(readFileSync(BRIEF_TEMPLATE_PATH, 'utf8'), {
+        const brief = renderTemplate(readFileSync(BRIEF_TEMPLATE_PATH, 'utf8'), {
           request: requestText(request),
           task: params.task.trim(),
           worktree,
@@ -543,14 +549,21 @@ export default function (pi: ExtensionAPI) {
       watched.set(branch, { branch, sessionFile, state: 'working' });
       startWatching(ctx);
 
-      const lines = [
-        `Fired issue #${opened.issue.iid}${opened.issue.created ? ' (created)' : ''} into ${worktree}, with ${model}; workers: ${workerModel ?? 'none'}; review: ${reviewer ?? 'none'}; auto-merge: ${params.autoMerge ? 'yes' : 'no'}.`,
-        `Issue: ${opened.issue.web_url}`,
-        `MR: !${opened.mr.iid}${opened.mr.created ? ' (created as a draft)' : ''}, ${opened.mr.web_url}`,
-        `Rex: tab "${branch}" in session ${REX_SESSION} (find it with Go to Anything, or /fire).`,
-        `Session: ${sessionFile}`,
-        ...(setupFailure ? [`The worktree's pre-start hooks failed; the agent was told to fix the environment first:\n${setupFailure}`] : []),
-      ];
+      const modelId = (ref: string) => ref.slice(ref.indexOf('/') + 1);
+      const handoff = renderTemplate(handoffTemplate, {
+        mrIid: String(opened.mr.iid),
+        mrState: opened.mr.draft ? 'draft' : 'ready',
+        mrUrl: opened.mr.web_url,
+        issueIid: String(opened.issue.iid),
+        issueTitle: opened.issue.title,
+        issueUrl: opened.issue.web_url,
+        rexSession: REX_SESSION,
+        branch,
+        models: [modelId(model), `workers ${workerModel ? modelId(workerModel) : 'none'}`, `review ${reviewer ? modelId(reviewer) : 'none'}`].join(', '),
+        mergeLine: params.autoMerge ? '● auto-merge · once the agent publishes the MR' : '○ no auto-merge · the MR will wait for your review',
+        setupLine: setupFailure ? '\n⚠ worktree setup failed · the agent fixes its environment first' : '',
+        sessionFile,
+      });
       const details: FireDetails = {
         issue: opened.issue.iid,
         issueTitle: opened.issue.title,
@@ -567,7 +580,7 @@ export default function (pi: ExtensionAPI) {
         setupFailure,
       };
 
-      return { content: [{ type: 'text', text: lines.join('\n') }], details };
+      return { content: [{ type: 'text', text: handoff.trim() }], details };
     },
 
     renderResult(result, { expanded }, theme) {

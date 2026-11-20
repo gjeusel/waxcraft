@@ -36,7 +36,7 @@ import {
   piCommand,
   pingReport,
   readPaneRecord,
-  renderBrief,
+  renderTemplate,
   requestText,
   reviewersFor,
   SWITCH_TO_PARENT,
@@ -169,10 +169,20 @@ test('brief.md uses only the values the tool provides, and values are not expand
   const keys = ['request', 'task', 'worktree', 'clone', 'userCheckout', 'issue', 'issueIid', 'mr', 'branch', 'glabTask', 'setup', 'workersStep', 'reviewStep', 'mergeStep', 'pitotStep', 'mrLine', 'issueLine', 'mergeLine'];
   const values = Object.fromEntries(keys.map((key) => [key, `<${key} {{task}}>`]));
 
-  const brief = renderBrief(template, values);
+  const brief = renderTemplate(template, values);
   assert.match(brief, /<request \{\{task\}\}>/);
   assert.doesNotMatch(brief.replaceAll('{{task}}', ''), /\{\{/);
-  assert.throws(() => renderBrief('{{missing}}', values), /unknown placeholder \{\{missing\}\}/);
+  assert.throws(() => renderTemplate('{{missing}}', values), /unknown placeholder \{\{missing\}\}/);
+});
+
+test('handoff.md uses only the values the tool provides, and its head is fixed', () => {
+  const template = readFileSync(new URL('handoff.md', import.meta.url), 'utf8');
+  const keys = ['mrIid', 'mrState', 'mrUrl', 'issueIid', 'issueTitle', 'issueUrl', 'rexSession', 'branch', 'models', 'mergeLine', 'setupLine', 'sessionFile'];
+  const values = { ...Object.fromEntries(keys.map((key) => [key, key])), setupLine: '' };
+
+  const handoff = renderTemplate(template, values);
+  assert.doesNotMatch(handoff, /\{\{/);
+  assert.match(handoff, /^⎇ !mrIid  mrState  mrUrl\n◇ #issueIid  issueTitle  issueUrl\n▸ Rex rexSession › branch  ·  models\nmergeLine\n\nBrief$/m);
 });
 
 test('the fork is a session of the worktree and resumes before the request', () => {

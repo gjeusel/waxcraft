@@ -481,6 +481,11 @@ models in your request overrides them, through the tool's `model`, `workerModel`
 delegation), and `reviewer` parameters.
 With `autoMerge` (only when you ask), the agent then runs `glab_task.py merge`.
 
+Both ends report in a fixed shape. [`handoff.md`](.pi/agent/extensions/fire-in-worktree/handoff.md)
+is the tool's result in the launching session: the MR, issue, Rex tab, models, and merge lines,
+filled in by the tool, then the reply the model completes with them (**Brief**, and **Not covered**
+when something stays with you). The last section of `brief.md` shapes the agent's final message.
+
 The `/fire` command:
 
 | Command                  | Effect                                                                    |
