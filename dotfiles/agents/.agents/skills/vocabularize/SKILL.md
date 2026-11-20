@@ -1,119 +1,115 @@
 ---
 name: vocabularize
-description: Review the vocabulary of a code scope and converge on one name per concept, reusing the codebase's own terms. Use for "vocabularize", or when asked to review naming coherence.
+description: Review the vocabulary and converge on one name per concept, by asking the user to choose between candidates. Use for "vocabularize", or when asked to review naming coherence.
 ---
 
-Lower the complexity of the code by homogenizing its vocabulary: one concept, one name; one name,
-one concept. A reader who meets two words assumes two concepts, and one word used for two things
-makes them conflate. Build the scope's ubiquitous language out of the words the codebase already
-speaks, and rename only what earns it.
+A codebase is a small world, and its names are all a reader ever sees of it. This skill questions
+the names that exist, and the user decides which ones the world keeps.
+
+## Aims
+
+- **Converge.** Lower the complexity of the code by homogenizing its vocabulary: one concept, one
+  name; one name, one concept. A reader who meets two words assumes two concepts, and one word
+  used for two things makes them conflate.
+- **Distinguish.** Convergence is owed to a concept, never to the words around it. Where the
+  concepts are distinct, the names must differ as much as the concepts do. A vocabulary is rich
+  when it has a word for every distinction the domain makes: a generic word (`data`, `scope`), a
+  mechanism word (`mask`, `stage`) or a boolean standing where a concept should be all erase a
+  distinction the reader then has to rebuild alone.
+- **Imagine.** A name is a claim about the domain, and the names together form a universe the
+  reader lives in. A word chosen from the right universe is generative: it brings its relatives
+  with it and names what is not written yet. In a tender-file parser, `Finder` became `Probe`;
+  the probe then called for the `rod` it pulls out, the `anchor` it holds on to, the `loot` it
+  hands over, and the `miner` that extracts from it. One word chosen, four concepts named.
+  Prefer the word that opens such a universe to the flat one that only describes.
+
+> Mal nommer les choses, c'est ajouter au malheur du monde.
+>
+> Albert Camus
 
 ## Scope
 
-The scope named in the prompt: a module, a class, a function, a concept. Without one, the
-uncommitted changes (`git diff HEAD` plus untracked files); when there are none, the branch
-against its base (`git diff $(git merge-base HEAD main)`, or `master`).
+The names the prompt points at, each with its **family**: the names that must share its word (a
+start and its end, a thing and the function producing it, a type and its instances). Without a
+name in the prompt, the uncommitted changes (`git diff HEAD` plus untracked files); when there
+are none, the branch against its base.
 
-## Survey
+Read past the scope for the words the codebase and its sibling projects already speak, but rename
+inside the scope only.
 
-List the concepts the scope names and every name each one goes by. Look past the scope for the
-term the codebase already uses: models, fields, enums, the function producing the thing, sibling
-modules, the project's naming conventions. An established term beats a fresh one.
-
-Hunt for:
+## Hunt for
 
 - synonyms: one concept, several names (`eligible` and `active`);
 - homonyms: one name, several concepts;
 - mechanism words standing for a domain concept (`mask`, `temporal`, `control`);
-- unqualified generic words (`curve`, `data`, `values`): always say which one;
+- unqualified generic words (`curve`, `data`, `values`): which curve?
+- a concept flattened into a boolean or a bare string;
 - abbreviations beside full words (`qty_weights` next to `quantity_weights`);
+- a family whose members come from different universes;
 - names breaking the project's conventions, and leftovers of removed code.
 
-Two names sometimes hide two computations of the same concept. That is a behavior divergence, not
-a naming one: give it its own Risky row and keep the fix out of every rename.
+Each finding the three aims condemn is a **decision**: one concept, its family, and the names
+they go by today. Drop the findings that cost a reader nothing, without mentioning them.
 
-### Strictness
+## Ask
 
-The survey runs at a strictness level, starting at 0. Each level adds to the ones below it:
+Open with the first question: no table, no survey, no preamble. Put each decision to the user as
+one `ask_user_question`, the word the others depend on first.
 
-- **0**: names crossing a function boundary: functions, classes, parameters, fields, modules.
-- **1**: locals, test names, fixtures.
-- **2**: prose: docstrings, comments, log and error messages.
-- **3**: form: word order (`site_eligible` vs `eligible_site`), singular and plural, verb
-  families (`get`, `fetch`, `load`), unit suffixes, tense.
+- **Question**: the concept in plain words, with the names it goes by today.
+  `What should the range of dates accepted as user input be called (now DOCGEN_MIN_YEAR / DOCGEN_MAX_YEAR)?`
+- **Options**: 3 or 4 candidates, each built on a different word and coming from a different
+  aim: the word the codebase already speaks (converge), the precise word of the domain
+  (distinguish), the word that opens or extends a universe (imagine). The user's own candidate,
+  when the prompt holds one, is always among them. The current name is a candidate only when it
+  can be defended. Your pick comes first with ` (Recommended)`.
+- **Label**: the candidate's word, or the name itself when the family holds a single name.
+- **Description**: the why, in one line of at most 12 words.
+  `Horizon is already the codebase's (start, end) pair.`
+- **Preview**: the candidate at work, 5 to 12 lines of the scope's real code rewritten with the
+  whole family: the definition, one usage, the user-facing message when there is one. Every
+  candidate rewrites the same lines, so the previews differ by the vocabulary alone.
 
-Count what the levels above the current one would report, without listing it: that count is the
-`Held back` line of the proposal.
+```python
+# preview of the candidate `horizon`
+PLAUSIBLE_HORIZON_START = pd.Timestamp("1990-01-01")
+PLAUSIBLE_HORIZON_END = pd.Timestamp("2101-01-01")
 
-## Propose
-
-Answer with the proposal and nothing around it: one row per concept, numbered across the whole
-proposal, in three tiers. Omit an empty tier.
-
-```markdown
-### Settled
-
-| #   | Concept        | Now                 | Canonical  | Sites        | Evidence              |
-| --- | -------------- | ------------------- | ---------- | ------------ | --------------------- |
-| 1   | site may trade | `active`, `enabled` | `eligible` | 14 / 3 files | `Site.eligible` field |
-
-### Decide
-
-| #   | Concept            | Now                | Canonical | Sites       | Evidence       |
-| --- | ------------------ | ------------------ | --------- | ----------- | -------------- |
-| 2   | eligibility window | `mask`, `temporal` | `window`? | 6 / 2 files | mechanism word |
-
-### Risky
-
-| #   | Concept       | Now     | Canonical       | Sites       | Evidence          |
-| --- | ------------- | ------- | --------------- | ----------- | ----------------- |
-| 3   | forward curve | `curve` | `forward_curve` | 9 / 4 files | API field `curve` |
-
-Held back: 6 nits at levels 1 to 3.
-Reply: `ok` · `ok but 2` · `only 1` · `+3` · `2: span` · `alt 2` · `why 2` · `more` · `more 1`
+if not PLAUSIBLE_HORIZON_START <= value < PLAUSIBLE_HORIZON_END:
+    raise ValueError(f"{value} is outside the plausible horizon")
 ```
 
-- **Settled**: the codebase already has the term. `Evidence` names where. On by default.
-- **Decide**: a new concept needs a word, or two established terms compete. `Canonical` is your
-  pick followed by `?`, `Evidence` the reason in a few words. On by default.
-- **Risky**: the row changes behavior or touches a contract (API field, DB column, enum value,
-  serialized key). `Evidence` names what breaks. Off by default.
+Chain the questions: each answer narrows the next. Before each call, rewrite the remaining
+decisions with the words already chosen and drop the candidates they rule out. Decisions
+independent of each other share a call, up to 4.
 
-`Now` lists every name to retire, `Canonical` the single name that survives. A homonym gives one
-row per concept it splits into. `Sites` counts the occurrences to change and the files holding
-them, so the user sees each row's cost.
+A typed answer is a candidate of its own: derive the whole family from the user's word.
 
-## Converge
+A chosen name that renames a contract (API field, DB column, enum value, serialized key,
+dataclass field) earns one more question: keep the contract's name, rename it behind a
+deprecated alias, or rename it outright.
 
-The row numbers are the user's handles. Read the reply against this grammar; several commands
-combine in one reply (`ok but 2, 4: span`):
-
-| Reply        | Effect                                                                |
-| ------------ | --------------------------------------------------------------------- |
-| `ok`         | Select every row that is on by default                                |
-| `ok but 2 5` | The same, minus those rows                                            |
-| `only 1 4`   | Select exactly those rows                                             |
-| `+3`         | Add a row that is off by default; combines with the three above       |
-| `2: span`    | Set the row's canonical name                                          |
-| `alt 2`      | Put the row's name to `ask_user_question`, as described below         |
-| `why 2`      | List every site of the row as `path:line` with its line of code       |
-| `more`       | Raise the strictness one level and survey again                       |
-| `more 2`     | Dig into one concept: every name it goes by across the whole codebase |
-
-For `alt`, offer 2 to 4 candidate names, your pick first with ` (Recommended)`, each option's
-trade-off in its description.
-
-A reply holding `ok` or `only` is the confirmation: apply. Any other reply amends the proposal:
-print the rows it changed or added, numbered on from the last row so existing numbers stay
-stable, then the `Held back` and `Reply` lines again. When `more` finds nothing, say the level is
-dry, and at level 3 drop `more` from the `Reply` line.
+The asking is done when every decision has an answer. Ask only what is a choice of words: what
+the code can tell you, read.
 
 ## Apply
 
-Apply exactly the selected rows, each one whole: every name in `Now` becomes `Canonical`
-everywhere it appears (callers, tests, docstrings, messages). Behavior stays unchanged except
-where a selected Risky row says otherwise. Run the project's lint and the tests the renames
-reach.
+Apply the answers without asking for confirmation, each family whole: the retired names become
+the chosen ones everywhere they appear (callers, tests, locals, docstrings, comments, messages).
+Behavior stays unchanged. Run the project's lint and the tests the renames reach.
 
-A row is done when a search of its retired names returns no hit for that concept. Report the
-rows applied, the rows left out, and any site kept on purpose with its reason.
+A decision is done when a search of its retired names returns no hit for that concept.
+
+## Report
+
+The renames as one table, and nothing before it:
+
+```markdown
+| Before                                | After                                                | Why                       |
+| ------------------------------------- | ---------------------------------------------------- | ------------------------- |
+| `DOCGEN_MIN_YEAR`, `DOCGEN_MAX_YEAR`  | `PLAUSIBLE_HORIZON_START`, `PLAUSIBLE_HORIZON_END`   | not only docgen           |
+```
+
+`Why` holds at most 6 words. Below the table, one line for the checks run and their result, then
+one line per site kept on purpose, and one sentence for any two names that turned out to hide two
+different computations: a behavior divergence is reported, never renamed away.
