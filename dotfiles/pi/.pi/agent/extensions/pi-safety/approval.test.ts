@@ -301,7 +301,7 @@ for (const Screen of [TuiMainScreen, TuiAltScreen]) {
       columns: 90, rows: 30, kittyProtocolActive: false,
       start: (onInput, onResize) => { input = onInput; resize = onResize; },
       stop() {}, drainInput: async () => {}, write() {}, moveBy() {}, hideCursor() {}, showCursor() {},
-      clearLine() {}, clearFromCursor() {}, clearScreen() {}, setTitle() {}, setProgress() {},
+      clearLine() {}, clearFromCursor() {}, clearScreen() {}, setTitle() {}, setProgress() {}, setProgramStatus() {},
     };
     const tui = new Screen(terminal);
     const editor = { focused: false, render: () => ['editor'], invalidate() {} };

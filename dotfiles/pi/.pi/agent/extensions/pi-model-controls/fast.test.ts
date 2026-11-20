@@ -419,7 +419,7 @@ test('invalid latest snapshot and unknown schemas fail closed rather than revivi
   }
 });
 
-test('failed native persistence appends compensation after the failed in-memory update', async (t) => {
+test('failed native persistence keeps the previous speed in memory and on disk', async (t) => {
   await withSessionDirectory(async (directory) => {
     const manager = SessionManager.create(directory, directory);
     manager.appendMessage({ role: 'user', content: 'persist me', timestamp: Date.now() });
@@ -436,7 +436,7 @@ test('failed native persistence appends compensation after the failed in-memory 
     await runtime.ultrafast('on');
     assert.equal(runtime.notifications.at(-1)!.level, 'error');
     assert.match(runtime.notifications.at(-1)!.text, /Could not save.*speed in session history.*disk full/u);
-    assert.deepEqual(snapshots(manager), [snapshot('fast'), snapshot('ultrafast'), snapshot('fast')]);
+    assert.deepEqual(snapshots(manager), [snapshot('fast')]);
     assert.equal(runtime.statuses.get('pi-model-controls'), 'fast');
     assert.deepEqual(runtime.emit('before_provider_request', { payload: {} }), { service_tier: 'priority' });
     for (const reloadedManager of [manager, SessionManager.open(manager.getSessionFile()!)]) {
@@ -447,7 +447,7 @@ test('failed native persistence appends compensation after the failed in-memory 
   });
 });
 
-test('failed picker save and failed compensation still leave in-memory reload at Normal', async (t) => {
+test('failed picker save leaves in-memory reload at Normal', async (t) => {
   const runtime = harness();
   runtime.emit('session_start');
   t.mock.method(runtime.manager, '_persist', () => { throw new Error('read-only disk'); });
@@ -456,7 +456,7 @@ test('failed picker save and failed compensation still leave in-memory reload at
   runtime.inputPicker('\r');
   await selection;
   assert.equal(runtime.notifications.at(-1)!.level, 'error');
-  assert.deepEqual(snapshots(runtime.manager), [snapshot('fast'), snapshot('normal')]);
+  assert.deepEqual(snapshots(runtime.manager), []);
   assert.equal(runtime.statuses.get('pi-model-controls'), undefined);
   assert.deepEqual(runtime.emit('before_provider_request', { payload: {} }), { service_tier: 'default' });
 
@@ -466,16 +466,14 @@ test('failed picker save and failed compensation still leave in-memory reload at
   assert.deepEqual(reloaded.emit('before_provider_request', { payload: {} }), { service_tier: 'default' });
 });
 
-test('failed automatic Anthropic degradation compensates without disabling OpenAI Ultrafast', async (t) => {
+test('failed automatic Anthropic degradation keeps OpenAI Ultrafast', async (t) => {
   const runtime = harness();
   runtime.emit('session_start');
   await runtime.ultrafast('on');
   t.mock.method(runtime.manager, '_persist', () => { throw new Error('disk full'); }, { times: 1 });
   runtime.switchModel(anthropicModel);
   assert.equal(runtime.notifications.at(-1)!.level, 'error');
-  assert.deepEqual(snapshots(runtime.manager), [
-    snapshot('ultrafast'), snapshot('ultrafast', 'fast'), snapshot('ultrafast'),
-  ]);
+  assert.deepEqual(snapshots(runtime.manager), [snapshot('ultrafast')]);
   assert.equal(runtime.statuses.get('pi-model-controls'), undefined);
   assert.equal(runtime.emit('before_provider_request', { payload: { model: anthropicModel.id } }), undefined);
   runtime.switchModel(codexModel);
@@ -660,7 +658,7 @@ function subagent(cwd: string, type = 'worker', model = codexModel) {
     ...runtime,
     start: (prompt: string, selectedTools: string[] = []) => {
       const systemPromptOptions = { selectedTools, sections: {} as Record<string, string> };
-      runtime.emit('before_agent_start', { prompt, systemPromptOptions });
+      runtime.emit('before_agent_start', { messageType: 'user', prompt, systemPromptOptions });
 
       return systemPromptOptions;
     },

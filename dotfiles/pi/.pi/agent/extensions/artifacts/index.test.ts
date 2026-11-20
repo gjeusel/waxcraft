@@ -29,7 +29,7 @@ async function harness(t: TestContext) {
   const tools: ToolDefinition[] = [];
   const notifications: { message: string; level?: string }[] = [];
   const exec = t.mock.fn<ExtensionAPI['exec']>(async () => ({
-    stdout: '', stderr: '', code: 0, killed: false,
+    stdout: '', stderr: '', code: 0, killed: false, truncated: false,
   }));
   const select = t.mock.fn(async (_title: string, _options: string[]): Promise<string | undefined> => undefined);
   const ctx = {
@@ -86,7 +86,8 @@ async function harness(t: TestContext) {
       tool.renderResult!(result, { expanded: true, isPartial: false }, theme, {
         args: {}, toolCallId: 'publish-call', invalidate() {}, lastComponent: undefined, state: {},
         cwd: workDir, executionStarted: true, argsComplete: true, isPartial: false, expanded: true,
-        showImages: false, isError,
+        showImages: false, isError, durationMs: undefined, outputPad: 0,
+        keyText: () => '', keyHint: (_keybinding, description) => description,
       }).render(240).join('\n').trim(),
   };
 }
@@ -192,7 +193,7 @@ for (const failure of ['nonzero exit', 'rejected exec']) {
     });
     h.exec.mock.mockImplementation(async () => {
       if (failure === 'rejected exec') throw new Error('Browser unavailable');
-      return { stdout: '', stderr: 'Browser unavailable', code: 1, killed: false };
+      return { stdout: '', stderr: 'Browser unavailable', code: 1, killed: false, truncated: false };
     });
     await writeFile(join(h.workDir, 'page.html'), '<title>Saved</title>');
 

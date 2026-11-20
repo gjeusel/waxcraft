@@ -216,12 +216,7 @@ export function registerFastMode(pi: ExtensionAPI): void {
     try {
       pi.appendEntry(SPEED_ENTRY_TYPE, { ...previous, [provider]: speed });
     } catch (error) {
-      // Pi appends in memory before persisting. Restore the prior snapshot even if the disk
-      // failure also affects compensation, so a reload cannot enable a failed paid-speed change.
-      try {
-        pi.appendEntry(SPEED_ENTRY_TYPE, previous);
-      } catch { /* Preserve the original write error. */ }
-
+      // Pi rolls a failed append back from memory, so the previous snapshot stays the latest entry.
       const reason = error instanceof Error ? error.message : String(error);
       ctx.ui.notify(`Could not save ${mode.label} speed in session history: ${reason}`, 'error');
       return;
@@ -396,7 +391,7 @@ export function registerFastMode(pi: ExtensionAPI): void {
   });
 
   pi.on('before_agent_start', (event, ctx) => {
-    const prompt: unknown = event.prompt;
+    const prompt = event.messageType === 'user' ? event.prompt : undefined;
     if (subagent !== undefined && typeof prompt === 'string') {
       const child = subagent;
       // A resume names the agent id. A spawn's first prompt is the call's prompt, after any
