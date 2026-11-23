@@ -8,6 +8,7 @@ import { SessionManager } from '@earendil-works/pi-coding-agent';
 import {
   agentLabels,
   agentState,
+  checkModel,
   createMergeWatch,
   fireRecordOf,
   firedSessionsOf,
@@ -327,6 +328,36 @@ test('the ping report tells the state, the MR and the last message of each agent
     `  > ${'x'.repeat(400)}…`,
     '- ○ stopped · #14 Pruned · [!36](https://gitlab.com/g/p/-/merge_requests/36) merged',
   ]);
+});
+
+test('a model unknown to the session is looked up again after one refresh of its provider', async () => {
+  const registryOf = (known: string[], published: string[]) => {
+    const refreshed: (readonly string[] | undefined)[] = [];
+    const find = (provider: string, id: string) => (known.includes(`${provider}/${id}`) ? ({ provider, id } as never) : undefined);
+    const refresh = async (options?: { providers?: readonly string[] }) => {
+      refreshed.push(options?.providers);
+      known.push(...published);
+
+      return { aborted: false, errors: new Map<string, Error>() };
+    };
+
+    return { registry: { find, refresh }, refreshed };
+  };
+
+  const current = registryOf(['openai-codex/gpt-6-astra'], []);
+  assert.equal(await checkModel(current.registry, 'openai-codex/gpt-6-astra', 'agent'), 'openai-codex/gpt-6-astra');
+  assert.deepEqual(current.refreshed, []);
+
+  const stale = registryOf([], ['openai-codex/gpt-6.2-sol']);
+  assert.equal(await checkModel(stale.registry, 'openai-codex/gpt-6.2-sol', 'agent'), 'openai-codex/gpt-6.2-sol');
+  assert.deepEqual(stale.refreshed, [['openai-codex']]);
+
+  const unknown = registryOf([], []);
+  await assert.rejects(checkModel(unknown.registry, 'openai-codex/nope', 'reviewer'), /unknown reviewer model openai-codex\/nope/);
+  assert.deepEqual(unknown.refreshed, [['openai-codex']]);
+
+  await assert.rejects(checkModel(unknown.registry, 'nope', 'worker'), /unknown worker model nope/);
+  assert.deepEqual(unknown.refreshed, [['openai-codex']]);
 });
 
 test('the brief is the last argument, after the end of options', () => {

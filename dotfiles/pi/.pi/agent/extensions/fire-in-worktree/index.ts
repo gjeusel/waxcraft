@@ -208,6 +208,27 @@ export function piCommand(sessionFile: string, model: string, thinking: string, 
   return [process.env.SHELL || '/bin/zsh', '-ic', script, 'pi', '--session', sessionFile, '--model', model, '--thinking', thinking, '--', brief];
 }
 
+const MODEL_REFRESH_TIMEOUT_MS = 15_000;
+
+/**
+ * A session's registry is a snapshot of the model catalog: a model published since is unknown to it
+ * until a refresh. A miss therefore refreshes the catalog of that provider once before it is final.
+ */
+export async function checkModel(registry: Pick<ExtensionContext['modelRegistry'], 'find' | 'refresh'>, ref: string, role: string, signal?: AbortSignal): Promise<string> {
+  const slash = ref.indexOf('/');
+  if (slash < 1) throw new Error(`unknown ${role} model ${ref}`);
+
+  const provider = ref.slice(0, slash);
+  const modelId = ref.slice(slash + 1);
+  if (registry.find(provider, modelId)) return ref;
+
+  const timeout = AbortSignal.timeout(MODEL_REFRESH_TIMEOUT_MS);
+  await registry.refresh({ providers: [provider], signal: signal ? AbortSignal.any([signal, timeout]) : timeout });
+  if (!registry.find(provider, modelId)) throw new Error(`unknown ${role} model ${ref}`);
+
+  return ref;
+}
+
 function glabSkillDir(pi: ExtensionAPI): string {
   const glabSkill = pi.getCommands().find((command) => command.source === 'skill' && command.name === 'skill:glab');
   if (!glabSkill) throw new Error('fire works with the glab skill, which is not loaded');
@@ -425,24 +446,17 @@ export default function (pi: ExtensionAPI) {
       // Read at each fire, so that an edit applies without /reload. The models the user names override
       // its defaults; all are checked before anything is created.
       const config = loadConfig(join(getAgentDir(), 'fire.json'));
-      const checkModel = (ref: string, role: string) => {
-        const slash = ref.indexOf('/');
-        if (slash < 1 || !ctx.modelRegistry.find(ref.slice(0, slash), ref.slice(slash + 1))) throw new Error(`unknown ${role} model ${ref}`);
-
-        return ref;
-      };
-
       const currentModel = ctx.model && `${ctx.model.provider}/${ctx.model.id}`;
       const modelRef = params.model ?? config.model ?? currentModel;
       if (!modelRef) throw new Error('fire needs a model for the new agent: none in fire.json, nor a current one');
-      const model = checkModel(modelRef, 'agent');
+      const model = await checkModel(ctx.modelRegistry, modelRef, 'agent', signal);
 
       const workerRef = params.workerModel ?? config.workerModel;
-      const workerModel = workerRef && workerRef !== 'none' ? checkModel(workerRef, 'worker') : undefined;
+      const workerModel = workerRef && workerRef !== 'none' ? await checkModel(ctx.modelRegistry, workerRef, 'worker', signal) : undefined;
 
       const review: Review = params.review ?? 'standard';
       const reviewerRef = review === 'none' ? undefined : (params.reviewer ?? reviewersFor(config, model.split('/')[0])[review]);
-      const reviewer = reviewerRef && checkModel(reviewerRef, 'reviewer');
+      const reviewer = reviewerRef && (await checkModel(ctx.modelRegistry, reviewerRef, 'reviewer', signal));
 
       // Read before anything is created: the reply to the user is built from it once the agent runs.
       const handoffTemplate = readFileSync(HANDOFF_TEMPLATE_PATH, 'utf8');
