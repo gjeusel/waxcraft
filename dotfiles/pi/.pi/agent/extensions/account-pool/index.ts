@@ -325,6 +325,7 @@ export default function (pi: ExtensionAPI) {
             : account.id === accounts?.[0].id ? 'openai-codex login' : codexLoginId(account);
           const pinned = pinnedAccounts()[pool] === account.id ? ' · pinned' : '';
           const priority = account.priorityModels?.length ? ` · first for ${account.priorityModels.join(', ')}` : '';
+          const session = account.sessionThreshold === undefined ? '' : ` · session below ${percent(account.sessionThreshold)}`;
           if (account.disabled) {
             lines.push(`  ${account.id}  ${source} · disabled`, '');
             continue;
@@ -332,7 +333,7 @@ export default function (pi: ExtensionAPI) {
 
           lines.push(
             ...accountLines(
-              { id: account.id, source: source + priority + pinned, inSession: account.id === inSession },
+              { id: account.id, source: source + priority + session + pinned, inSession: account.id === inSession },
               states[stateKey(pool, account)],
               now,
             ),

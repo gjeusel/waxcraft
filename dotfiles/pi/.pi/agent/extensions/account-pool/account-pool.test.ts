@@ -143,6 +143,28 @@ test('chooseAccount follows the order of the accounts at a user turn, and the se
   assert.equal(chooseAccount(accounts, states, 'claude-code', { ...options, userTurn: true })?.id, 'work');
 });
 
+test('a session threshold replaces the pool threshold for the session window only', () => {
+  const shared = [{ id: 'shared', sessionThreshold: 0.6 }, { id: 'own' }];
+  const pick = (windows: Record<string, { used: number }>, current?: string) =>
+    chooseAccount(shared, { [stateKey('claude-code', 'shared')]: { windows } }, 'claude-code', {
+      model: 'm',
+      current,
+      userTurn: true,
+      threshold: 0.9,
+      now: NOW,
+    })?.id;
+
+  assert.equal(pick({ five_hour: { used: 0.59 }, seven_day: { used: 0.8 } }, 'shared'), 'shared');
+  assert.equal(pick({ five_hour: { used: 0.6 }, seven_day: { used: 0.1 } }, 'shared'), 'own');
+  assert.equal(pick({ primary: { used: 0.6 } }), 'own');
+  assert.equal(pick({ seven_day: { used: 0.95 } }), 'own');
+
+  assert.throws(() => parseConfig('{"pools":{"claude-code":[{"id":"a","sessionThreshold":60}]}}'), /"sessionThreshold"/);
+  assert.deepEqual(parseConfig('{"pools":{"claude-code":[{"id":"a","sessionThreshold":0.6}]}}').pools['claude-code'], [
+    { id: 'a', sessionThreshold: 0.6 },
+  ]);
+});
+
 test('chooseAccount uses the pinned account whatever its usage, unless it is blocked', () => {
   const states: PoolState = {
     [stateKey('claude-code', 'work')]: { windows: { five_hour: { used: 0.99, resetsAt: NOW + 3_600_000 } } },

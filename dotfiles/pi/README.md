@@ -213,8 +213,8 @@ account does not receive the previous account's thinking (as after a model chang
 Reordering Claude accounts is free when each has its `configDir`. The first Codex account is
 always Pi's `openai-codex` login, so putting another one first means logging in again.
 
-Two optional keys adjust it per account, as in
-`{ "id": "perso", "configDir": "~/.claude-perso", "disabled": true, "priorityModels": ["claude-fable-*"] }`:
+Three optional keys adjust it per account, as in
+`{ "id": "perso", "configDir": "~/.claude-perso", "disabled": true, "priorityModels": ["claude-fable-*"], "sessionThreshold": 0.6 }`:
 
 - `disabled: true` leaves the account out of every choice and of `/account`, and keeps its place
   and its login; `/accounts` lists it as disabled. A disabled first account stays the default
@@ -222,6 +222,10 @@ Two optional keys adjust it per account, as in
 - `priorityModels` lists model ids (`*` is a wildcard) whose requests take this account first,
   before the accounts ahead of it in the pool. Several accounts listing a model keep their order.
   It is a preference, not a reservation: other models still use the account in its usual place.
+- `sessionThreshold` replaces `threshold` for the account's session window (Claude's five-hour
+  window, Codex's primary one), for instance `0.6` to leave room on a shared account. The other
+  windows keep `threshold`. As with `threshold`, the account is left at the next user turn, and
+  still serves when no other account has room.
 
 **Pinning.** `/account <id>` pins the pool to one account whatever its usage, until it is blocked;
 `/account auto` returns to the merit order, and `/account` alone offers the accounts of the

@@ -53,6 +53,8 @@ export interface Account {
   disabled?: boolean;
   /** Model ids, with `*` as a wildcard, whose requests take this account before the others. */
   priorityModels?: string[];
+  /** Usage fraction (0-1) of the session window that replaces the pool threshold for it. */
+  sessionThreshold?: number;
 }
 
 export interface PoolConfig {
@@ -144,7 +146,7 @@ export function parseConfig(text: string): PoolConfig {
 
     const seen = new Set<string>();
     config.pools[pool] = accounts.map((account: unknown) => {
-      const { id, configDir, disabled, priorityModels } = (account ?? {}) as Record<string, unknown>;
+      const { id, configDir, disabled, priorityModels, sessionThreshold } = (account ?? {}) as Record<string, unknown>;
       if (typeof id !== 'string' || !ACCOUNT_ID.test(id)) {
         throw new Error(`"pools.${pool}": each account needs an "id" made of letters, digits, "-" or "_"`);
       }
@@ -164,11 +166,17 @@ export function parseConfig(text: string): PoolConfig {
         throw new Error(`"pools.${pool}.${id}": "priorityModels" must be an array of model ids`);
       }
 
+      const isFraction = typeof sessionThreshold === 'number' && sessionThreshold > 0 && sessionThreshold <= 1;
+      if (sessionThreshold !== undefined && !isFraction) {
+        throw new Error(`"pools.${pool}.${id}": "sessionThreshold" must be a number in (0, 1]`);
+      }
+
       return {
         id,
         ...(configDir === undefined ? {} : { configDir }),
         ...(disabled ? { disabled } : {}),
         ...(priorityModels === undefined ? {} : { priorityModels: priorityModels as string[] }),
+        ...(sessionThreshold === undefined ? {} : { sessionThreshold: sessionThreshold as number }),
       };
     });
 
@@ -274,6 +282,27 @@ export function usage(state: AccountState | undefined, now: number, modelId: str
   return Math.max(0, ...activeWindows(state, now, modelId).map(([, window]) => window.used));
 }
 
+/** The short window of each provider, which Claude names the current session: five hours. */
+const SESSION_WINDOWS = new Set(['five_hour', 'primary']);
+
+/**
+ * Whether `account` may take a user turn of `modelId`: each of its windows that count for the
+ * model is below `threshold`, and its session window below its own `sessionThreshold` if any.
+ */
+export function hasRoom(
+  account: Account,
+  state: AccountState | undefined,
+  now: number,
+  modelId: string,
+  threshold: number,
+): boolean {
+  return activeWindows(state, now, modelId).every(([name, window]) => {
+    const limit = SESSION_WINDOWS.has(name) ? (account.sessionThreshold ?? threshold) : threshold;
+
+    return window.used < limit;
+  });
+}
+
 /** End of the block of the account for `modelId`: its own, or that of the whole account. */
 export function blockEnd(state: AccountState | undefined, modelId?: string): number {
   const modelBlock = modelId === undefined ? undefined : state?.modelBlocks?.[modelId];
@@ -351,7 +380,7 @@ export function chooseAccount(
   const stateOf = (account: Account) => states[stateKey(pool, account)];
   const usageOf = (account: Account) => usage(stateOf(account), now, model);
   const usable = accounts.filter((account) => !exclude?.has(account.id) && !isBlocked(stateOf(account), now, model));
-  const roomy = usable.filter((account) => usageOf(account) < threshold);
+  const roomy = usable.filter((account) => hasRoom(account, stateOf(account), now, model, threshold));
   const current = usable.find((account) => account.id === currentId);
   const pinned = usable.find((account) => account.id === pinnedId);
 
