@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import test from 'node:test';
 import type { SessionEntry } from '@earendil-works/pi-coding-agent';
 import { latestSessionArtifactId } from './index.ts';
-import { injectLiveReload, startArtifactServer } from './server.ts';
+import { injectFavicon, injectLiveReload, startArtifactServer } from './server.ts';
 import { inferTitle, listArtifacts, publishArtifact, renderPage, slugify, storedSourcePath } from './store.ts';
 
 async function tempDirs(): Promise<{ storeDir: string; workDir: string }> {
@@ -102,6 +102,14 @@ test('injectLiveReload inserts before the last </body>, or appends', () => {
   assert.match(injectLiveReload('<p>x</p>', 1), /^<p>x<\/p>\n<script>/);
 });
 
+test('injectFavicon adds the icon after <head> unless the page declares one', () => {
+  assert.match(injectFavicon('<html><head lang="x"><title>t</title>'), /^<html><head lang="x">\n<link rel="icon"[^>]*><title>/);
+  assert.match(injectFavicon('<p>x</p>'), /^<link rel="icon"[^>]*>\n<p>x<\/p>$/);
+
+  const own = '<head><link rel="shortcut icon" href="x.ico"></head>';
+  assert.equal(injectFavicon(own), own);
+});
+
 test('latestSessionArtifactId prefers the newest publish or attach on the branch', () => {
   const publish = (id: string, isError = false) =>
     ({
@@ -133,6 +141,11 @@ test('server serves pages with live reload and exposes the republished version',
 
   const gallery = await (await fetch(`${server.baseUrl}/`)).text();
   assert.match(gallery, new RegExp(`href="/${meta.id}/"`));
+  assert.match(page, /<link rel="icon" type="image\/svg\+xml" href="\/favicon.svg">/);
+
+  const favicon = await fetch(`${server.baseUrl}/favicon.svg`);
+  assert.equal(favicon.headers.get('content-type'), 'image/svg+xml');
+  assert.match(await favicon.text(), /^<svg /);
 
   assert.equal((await fetch(`${server.baseUrl}/..%2Fetc/`)).status, 404);
   assert.equal((await fetch(`${server.baseUrl}/${meta.id}`, { redirect: 'manual' })).status, 308);

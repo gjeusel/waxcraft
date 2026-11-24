@@ -7,6 +7,31 @@ export const DEFAULT_PORT = 7424;
 
 const HOST = '127.0.0.1';
 const IDENTITY_PATH = '/__pi_artifacts';
+const FAVICON_PATH = '/favicon.svg';
+const FAVICON_LINK = `<link rel="icon" type="image/svg+xml" href="${FAVICON_PATH}">`;
+
+/** A page with a π, drawn to stay legible at 16px. */
+const FAVICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#2f6bff"/></linearGradient></defs>
+<rect width="64" height="64" rx="14" fill="url(#g)"/>
+<path d="M18 12h20l10 10v30a2 2 0 0 1-2 2H18a2 2 0 0 1-2-2V14a2 2 0 0 1 2-2z" fill="#fff"/>
+<path d="M38 12v8a2 2 0 0 0 2 2h8z" fill="#c9d4ff"/>
+<path d="M23 30h18M28 30v15M36 30v12q0 3 3 3" fill="none" stroke="#3b5bff" stroke-width="4" stroke-linecap="round"/>
+</svg>
+`;
+
+/** Adds the artifacts favicon to a page that does not declare its own icon. */
+export function injectFavicon(html: string): string {
+  if (/<link\b[^>]*\brel\s*=\s*["']?[^"'>]*\bicon\b/i.test(html)) return html;
+
+  const headStart = /<head\b[^>]*>/i.exec(html);
+  if (!headStart) return `${FAVICON_LINK}\n${html}`;
+
+  const insertAt = headStart.index + headStart[0].length;
+
+  return `${html.slice(0, insertAt)}\n${FAVICON_LINK}${html.slice(insertAt)}`;
+}
 
 /**
  * Reloads the page when the artifact is republished, keeping the scroll position.
@@ -49,7 +74,7 @@ async function renderGallery(storeDir: string): Promise<string> {
       `<span>v${meta.version} · ${escapeHtml(meta.updatedAt.slice(0, 16).replace('T', ' '))}</span></li>`,
   );
 
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>pi artifacts</title><style>
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>pi artifacts</title>${FAVICON_LINK}<style>
   :root { color-scheme: light dark; } body { font: 15px/1.5 ui-sans-serif, -apple-system, sans-serif; max-width: 760px;
   margin: 48px auto; padding: 0 24px; } ul { list-style: none; padding: 0; } li { display: flex; justify-content:
   space-between; gap: 16px; padding: 10px 0; border-bottom: 1px solid color-mix(in srgb, currentColor 15%, transparent); }
@@ -64,6 +89,13 @@ export function createArtifactServer(storeDir: string): Server {
     try {
       if (path === IDENTITY_PATH) {
         response.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({ storeDir }));
+        return;
+      }
+
+      if (path === FAVICON_PATH) {
+        response
+          .writeHead(200, { 'content-type': 'image/svg+xml', 'cache-control': 'max-age=86400' })
+          .end(FAVICON_SVG);
         return;
       }
 
@@ -101,7 +133,7 @@ export function createArtifactServer(storeDir: string): Server {
         const html = await readFile(pagePath(storeDir, id), 'utf8');
         response
           .writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' })
-          .end(injectLiveReload(html, meta.version));
+          .end(injectLiveReload(injectFavicon(html), meta.version));
         return;
       }
 
