@@ -672,7 +672,13 @@ export default function (pi: ExtensionAPI) {
       else pi.sendUserMessage(request, { deliverAs: 'followUp' });
     };
 
-    // All in the background, the session staying usable; a new watch retires the previous one.
+    // A second watch would retire the live one, which may be about to see the merge and close the pane.
+    if (mergeWatch?.isLive()) {
+      ctx.ui.notify('/fire merge already runs in the background: its step is in the footer', 'info');
+      return;
+    }
+
+    // All in the background, the session staying usable.
     stopMergeWatch();
     const glabTask = join(glabSkillDir(pi), 'scripts', 'glab_task.py');
     const watch = createMergeWatch({

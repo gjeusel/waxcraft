@@ -101,15 +101,49 @@ export function createMergeWatch(io: MergeWatchIo): MergeWatch {
     return own[0];
   };
 
+  // The branch's MR once GitLab merged it, possibly before auto-merge was asked for or while it was:
+  // `glab_task.py merge` then finds no open MR.
+  const fetchMerged = async (): Promise<Mr | undefined> => {
+    if (iid !== undefined) {
+      const mr = await io.gitlab<Mr>(`projects/:fullpath/merge_requests/${iid}`);
+
+      return mr.state === 'merged' ? mr : undefined;
+    }
+
+    projectId ??= (await io.gitlab<{ id: number }>('projects/:fullpath')).id;
+    const path = `projects/:fullpath/merge_requests?source_branch=${encodeURIComponent(io.branch)}&state=merged`;
+
+    return (await io.gitlab<Mr[]>(path)).find(
+      (mr) => mr.state === 'merged' && mr.source_branch === io.branch && mr.source_project_id === projectId && mr.target_project_id === projectId,
+    );
+  };
+
+  const closeMerged = async (mr: Mr) => {
+    stop();
+    io.notify(`!${mr.iid} is already merged: this pane closes`, 'info');
+    try {
+      await io.closePane();
+    } catch (error: unknown) {
+      io.notify(`!${mr.iid} merged, but its pane did not close: ${errorText(error)}`, 'error');
+    }
+  };
+
   const enable = async () => {
     let opened: Mr | undefined;
+    let merged: Mr | undefined;
     try {
       opened = await fetchMr();
+      if (!opened) merged = await fetchMerged();
     } catch (error: unknown) {
       if (!stopped) stopWith(`Cannot check the MR of ${io.branch}: ${errorText(error)}`, 'error');
       return;
     }
     if (stopped) return;
+
+    if (merged) {
+      await closeMerged(merged);
+      return;
+    }
 
     if (opened?.state === 'opened' && hasConflicts(opened)) {
       await stopOnConflicts(opened);
@@ -122,11 +156,20 @@ export function createMergeWatch(io: MergeWatchIo): MergeWatch {
     const unsettled = UNSETTLED_MERGE_STATUSES.has(status);
     showStatus(unsettled ? status : 'enabling');
 
-    const merged = await io.enableAutoMerge();
+    const enabling = await io.enableAutoMerge();
     if (stopped) return;
 
-    if (merged.code !== 0) {
-      const reason = (merged.stderr.trim() || merged.stdout.trim()).slice(-2000);
+    if (enabling.code !== 0) {
+      // GitLab may have merged the MR since it was fetched: a refusal then is no failure.
+      const mergedSince = await fetchMerged().catch(() => undefined);
+      if (stopped) return;
+
+      if (mergedSince) {
+        await closeMerged(mergedSince);
+        return;
+      }
+
+      const reason = (enabling.stderr.trim() || enabling.stdout.trim()).slice(-2000);
       if (!unsettled || io.now() - started > UNSETTLED_WAIT_MS) {
         stopWith(`Auto-merge not enabled:\n${reason}`, 'error');
         return;
@@ -138,7 +181,7 @@ export function createMergeWatch(io: MergeWatchIo): MergeWatch {
       return;
     }
 
-    const { mr } = JSON.parse(merged.stdout) as { mr: { iid: number; web_url: string } };
+    const { mr } = JSON.parse(enabling.stdout) as { mr: { iid: number; web_url: string } };
     iid = mr.iid;
     mrUrl = mr.web_url;
     enabled = true;

@@ -569,7 +569,9 @@ function mergeHarness(options: { mrs: Partial<Mr>[]; merges?: { code: number; st
       const mr = nextMr();
       if ((mr as { fail?: boolean }).fail) throw new Error('gitlab down');
 
-      return (path.includes('?') ? [mr, { ...base, iid: 99, source_project_id: 99 }] : mr) as T;
+      const listed = [mr, { ...base, iid: 99, source_project_id: 99 }].filter((each) => path.includes(`state=${each.state}`));
+
+      return (path.includes('?') ? listed : mr) as T;
     },
     enableAutoMerge: async () => ({ stdout: '', stderr: '', ...merges.shift()! }),
     closePane: async () => void events.push('close'),
@@ -665,6 +667,25 @@ test('/fire merge tells GitLab failures once, and gives up at its deadline', asy
   setNow(61 * 60_000);
   await tick();
   assert.match(events.at(-1)!, /^warning: !34 is still not merged after 60 min/);
+});
+
+test('/fire merge closes the pane of an MR already merged, without enabling auto-merge', async () => {
+  const { watch, events, hasNext } = mergeHarness({ mrs: [{ state: 'merged' }], merges: [] });
+
+  await watch.step();
+
+  assert.deepEqual(events.slice(-3), ['status: -', 'info: !34 is already merged: this pane closes', 'close']);
+  assert.equal(hasNext(), false);
+});
+
+test('/fire merge closes the pane when GitLab merged the MR while auto-merge was asked for', async () => {
+  const { watch, events, hasNext } = mergeHarness({ mrs: [{ detailed_merge_status: 'mergeable' }, { state: 'merged' }], merges: [{ code: 1, stderr: 'no open MR' }] });
+
+  await watch.step();
+
+  assert.deepEqual(events.slice(-2), ['info: !34 is already merged: this pane closes', 'close']);
+  assert.equal(events.some((event) => event.startsWith('error:')), false);
+  assert.equal(hasNext(), false);
 });
 
 test('a stopped /fire merge ignores a late GitLab answer', async () => {
